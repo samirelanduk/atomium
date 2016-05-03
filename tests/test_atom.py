@@ -1,4 +1,5 @@
 from unittest import TestCase
+from molecupy import exceptions
 from molecupy.atomic import Atom
 
 class AtomTest(TestCase):
@@ -27,3 +28,12 @@ class AtomCreationTests(AtomTest):
             atom = Atom(1.0, "2", 3.0, "C")
         with self.assertRaises(TypeError):
             atom = Atom(1.0, 2.0, "3", "C")
+
+
+    def test_element_must_be_element(self):
+        with self.assertRaises(TypeError):
+            atom = Atom(1.0, 2.0, 3.0, None)
+        with self.assertRaises(exceptions.InvalidElementError):
+            atom = Atom(1.0, 2.0, 3.0, "")
+        with self.assertRaises(exceptions.InvalidElementError):
+            atom = Atom(1.0, 2.0, 3.0, "XXX")

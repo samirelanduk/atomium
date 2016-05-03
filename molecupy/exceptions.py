@@ -1,0 +1,2 @@
+class InvalidElementError(Exception):
+    pass

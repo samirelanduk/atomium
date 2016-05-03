@@ -4,7 +4,7 @@ from molecupy.atomic import Atom
 
 class AtomTest(TestCase):
 
-    def check_valid_atom(self, atom, check_atom_id=False):
+    def check_valid_atom(self, atom, check_atom_id=False, check_atom_name=False):
         self.assertIsInstance(atom, Atom)
         self.assertIsInstance(atom.x, float)
         self.assertIsInstance(atom.y, float)
@@ -12,6 +12,8 @@ class AtomTest(TestCase):
         self.assertIsInstance(atom.element, str)
         if check_atom_id:
             self.assertIsInstance(atom.atom_id, int)
+        if check_atom_name:
+            self.assertIsInstance(atom.atom_name, str)
         self.assertRegex(str(atom), r"<Atom \([a-zA-Z]{1,2}\)>")
 
 
@@ -51,3 +53,13 @@ class AtomCreationTests(AtomTest):
             atom = Atom(1.0, 2.0, 3.0, "C", atom_id=1.1)
         with self.assertRaises(TypeError):
             atom = Atom(1.0, 2.0, 3.0, "C", atom_id="1001")
+
+
+    def test_can_create_atom_with_name(self):
+        atom = Atom(1.0, 2.0, 3.0, "C", atom_name="CA")
+        self.check_valid_atom(atom, check_atom_name=True)
+
+
+    def test_atom_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            atom = Atom(1.0, 2.0, 3.0, "C", atom_name=1001)

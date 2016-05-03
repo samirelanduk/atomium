@@ -2,7 +2,7 @@ from .exceptions import InvalidElementError
 
 class Atom:
 
-    def __init__(self, x, y, z, element, atom_id=None):
+    def __init__(self, x, y, z, element, atom_id=None, atom_name=None):
         for coordinate in (x, y, z):
             if not isinstance(coordinate, float):
                 error_message = "'%s' is not a valid coordinate" % str(coordinate)
@@ -19,11 +19,15 @@ class Atom:
         if not isinstance(atom_id, int) and atom_id is not None:
             error_message = "'%s' is not a valid atom_id" % str(atom_id)
             raise TypeError(error_message)
+        if not isinstance(atom_name, str) and atom_name is not None:
+            error_message = "'%s' is not a valid atom_name" % str(atom_name)
+            raise TypeError(error_message)
         self.x = x
         self.y = y
         self.z = z
         self.element = element
         self.atom_id = atom_id
+        self.atom_name = atom_name
 
 
     def __repr__(self):

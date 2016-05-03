@@ -18,3 +18,12 @@ class AtomCreationTests(AtomTest):
     def test_can_create_atom(self):
         atom = Atom(1.0, 2.0, 3.0, "C")
         self.check_valid_atom(atom)
+
+
+    def test_coordinates_must_be_floats(self):
+        with self.assertRaises(TypeError):
+            atom = Atom("1", 2.0, 3.0, "C")
+        with self.assertRaises(TypeError):
+            atom = Atom(1.0, "2", 3.0, "C")
+        with self.assertRaises(TypeError):
+            atom = Atom(1.0, 2.0, "3", "C")

@@ -63,3 +63,22 @@ class AtomCreationTests(AtomTest):
     def test_atom_name_must_be_str(self):
         with self.assertRaises(TypeError):
             atom = Atom(1.0, 2.0, 3.0, "C", atom_name=1001)
+
+
+
+class AtomBehaviorTests(AtomTest):
+
+    def test_can_get_atom_mass(self):
+        lithium = Atom(1.0, 1.0, 1.0, "Li")
+        sodium = Atom(1.0, 1.0, 1.0, "Na")
+        iron = Atom(1.0, 1.0, 1.0, "Fe")
+        uranium = Atom(1.0, 1.0, 1.0, "U")
+        self.assertAlmostEqual(lithium.get_mass(), 7, delta=0.5)
+        self.assertAlmostEqual(sodium.get_mass(), 23, delta=0.5)
+        self.assertAlmostEqual(iron.get_mass(), 56, delta=0.5)
+        self.assertAlmostEqual(uranium.get_mass(), 238, delta=0.5)
+
+
+    def test_strange_elements_have_zero_mass(self):
+        mysterium = Atom(1.0, 1.0, 1.0, "My")
+        self.assertEqual(mysterium.get_mass(), 0)

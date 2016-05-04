@@ -68,6 +68,11 @@ class CovalentBond:
         return "<CovalentBond (%s-%s)>" % (atom1_element, atom2_element)
 
 
+    def get_bond_length(self):
+        atom1, atom2 = self.atoms
+        return atom1.distance_to(atom2)
+
+
 
 
 PERIODIC_TABLE = {

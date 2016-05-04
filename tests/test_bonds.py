@@ -44,3 +44,16 @@ class BondCreationTests(BondTest):
              warnings_given[0].category,
              exceptions.LongBondWarning
             )
+
+
+
+class BondBehaviorTests(BondTest):
+
+    def test_can_get_bond_length(self):
+        atom1 = Atom(-0.791, 64.789, 30.59, "O")
+        atom2 = Atom(5.132, 63.307, 56.785, "C")
+        covalent_bond = CovalentBond(atom1, atom2)
+        self.assertEqual(
+         covalent_bond.get_bond_length(),
+         atom1.distance_to(atom2)
+        )

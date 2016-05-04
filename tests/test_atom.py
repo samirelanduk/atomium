@@ -82,3 +82,17 @@ class AtomBehaviorTests(AtomTest):
     def test_strange_elements_have_zero_mass(self):
         mysterium = Atom(1.0, 1.0, 1.0, "My")
         self.assertEqual(mysterium.get_mass(), 0)
+
+
+
+class AtomInteractionTests(AtomTest):
+
+    def test_can_determine_distance_between_atoms(self):
+        atom1 = Atom(-0.791, 64.789, 30.59, "O") # Atom 2621 in 1LOL
+        atom2 = Atom(5.132, 63.307, 56.785, "C") # Atom 1011 in 1LOL
+        pymol_calculated_distance = 26.9
+        self.assertAlmostEqual(
+         atom1.distance_to(atom2),
+         pymol_calculated_distance,
+         delta=0.01
+        )

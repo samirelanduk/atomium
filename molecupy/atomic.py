@@ -1,3 +1,4 @@
+import math
 from .exceptions import InvalidElementError
 
 class Atom:
@@ -33,6 +34,14 @@ class Atom:
 
     def get_mass(self):
         return PERIODIC_TABLE.get(self.element.upper(), 0)
+
+
+    def distance_to(self, other_atom):
+        x_sum = math.pow((other_atom.x - self.x), 2)
+        y_sum = math.pow((other_atom.y - self.y), 2)
+        z_sum = math.pow((other_atom.z - self.z), 2)
+        distance = math.sqrt(x_sum + y_sum + z_sum)
+        return distance
 
 
 

@@ -10,6 +10,7 @@ class AtomTest(TestCase):
         self.assertIsInstance(atom.y, float)
         self.assertIsInstance(atom.z, float)
         self.assertIsInstance(atom.element, str)
+        self.assertIsInstance(atom.covalent_bonds, set)
         if check_atom_id:
             self.assertIsInstance(atom.atom_id, int)
         if check_atom_name:

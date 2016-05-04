@@ -40,6 +40,15 @@ class BondCreationTests(BondTest):
             covalent_bond = CovalentBond(atom1, atom2)
 
 
+    def test_bond_updates_atoms(self):
+        atom1 = Atom(1.0, 1.0, 1.0, "H")
+        atom2 = Atom(1.0, 1.0, 2.0, "H")
+        covalent_bond = CovalentBond(atom1, atom2)
+        self.assertIn(covalent_bond, atom1.covalent_bonds)
+        self.assertIn(covalent_bond, atom2.covalent_bonds)
+
+
+
 
 
 class BondBehaviorTests(BondTest):

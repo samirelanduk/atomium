@@ -28,6 +28,8 @@ class Atom:
             raise TypeError("'%s' is not a valid atom_name" % str(atom_name))
         self.atom_name = atom_name
 
+        self.covalent_bonds = set()
+
 
     def __repr__(self):
         return "<Atom (%s)>" % self.element
@@ -60,7 +62,10 @@ class CovalentBond:
              atom1.distance_to(atom2)
             )
             warnings.warn(warning, LongBondWarning)
+
         self.atoms = set((atom1, atom2))
+        atom1.covalent_bonds.add(self)
+        atom2.covalent_bonds.add(self)
 
 
     def __repr__(self):

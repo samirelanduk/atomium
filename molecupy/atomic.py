@@ -1,6 +1,6 @@
 import math
 import warnings
-from .exceptions import InvalidElementError, LongBondWarning
+from .exceptions import InvalidElementError, LongBondWarning, NoAtomsError
 
 class Atom:
 
@@ -63,6 +63,11 @@ class Atom:
 class AtomicStructure:
 
     def __init__(self, *atoms):
+        if not all(isinstance(atom, Atom) for atom in atoms):
+            non_atoms = [atom for atom in atoms if not isinstance(atom, Atom)]
+            raise TypeError("AtomicStructure needs atoms, not '%s'" % non_atoms[0])
+        if not atoms:
+            raise NoAtomsError("Cannot make AtomicStructure with zero atoms")
         self.atoms = set(atoms)
 
 

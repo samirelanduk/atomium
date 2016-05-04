@@ -24,3 +24,13 @@ class AtomicStructureCreationTests(AtomicStructureTest):
     def test_can_create_atomic_structure(self):
         atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.check_valid_atomic_structure(atomic_structure)
+
+
+    def test_atomic_structure_needs_atoms(self):
+        with self.assertRaises(TypeError):
+            atomic_structure = AtomicStructure(self.atom1, self.atom2, "atom3")
+
+
+    def test_atomic_structure_needs_at_least_one_atom(self):
+        with self.assertRaises(exceptions.NoAtomsError):
+            atomic_structure = AtomicStructure()

@@ -47,6 +47,19 @@ class Atom:
         return distance
 
 
+    def covalent_bond_to(self, other_atom):
+        covalent_bond = CovalentBond(self, other_atom)
+
+
+    def get_covalent_bonded_atoms(self):
+        covalent_bonded_atoms = set()
+        for bond in self.covalent_bonds:
+            for atom in bond.atoms:
+                if atom is not self: covalent_bonded_atoms.add(atom)
+        return covalent_bonded_atoms
+
+
+
 
 class CovalentBond:
 

@@ -97,3 +97,33 @@ class AtomInteractionTests(AtomTest):
          pymol_calculated_distance,
          delta=0.01
         )
+
+
+
+class AtomConnectionTests(AtomTest):
+
+    def test_can_bond_atoms_together(self):
+        atom1 = Atom(1.0, 1.0, 1.0, "H")
+        atom2 = Atom(1.0, 1.0, 2.0, "C")
+        atom3 = Atom(1.0, 1.0, 3.0, "O")
+        atom1.covalent_bond_to(atom2)
+        atom3.covalent_bond_to(atom2)
+
+        self.assertIn(atom2, atom1.get_covalent_bonded_atoms())
+        self.assertNotIn(atom3, atom1.get_covalent_bonded_atoms())
+        self.assertIn(atom1, atom2.get_covalent_bonded_atoms())
+        self.assertIn(atom3, atom2.get_covalent_bonded_atoms())
+        self.assertIn(atom2, atom3.get_covalent_bonded_atoms())
+        self.assertNotIn(atom1, atom3.get_covalent_bonded_atoms())
+        self.assertEqual(len(atom1.covalent_bonds), 1)
+        self.assertEqual(len(atom2.covalent_bonds), 2)
+        self.assertEqual(len(atom3.covalent_bonds), 1)
+        self.assertIn(list(atom1.covalent_bonds)[0], atom2.covalent_bonds)
+        self.assertIn(list(atom3.covalent_bonds)[0], atom2.covalent_bonds)
+
+
+    def test_can_only_covalent_bond_atom_to_another_atom(self):
+        atom1 = Atom(1.0, 1.0, 1.0, "H")
+        atom2 = "Carbon"
+        with self.assertRaises(TypeError):
+            atom1.covalent_bond_to(atom2)

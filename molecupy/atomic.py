@@ -75,6 +75,10 @@ class AtomicStructure:
         return "<AtomicStructure (%i atoms)>" % len(self.atoms)
 
 
+    def __contains__(self, atom):
+        return atom in self.atoms
+
+
 
 class CovalentBond:
 

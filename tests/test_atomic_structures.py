@@ -34,3 +34,11 @@ class AtomicStructureCreationTests(AtomicStructureTest):
     def test_atomic_structure_needs_at_least_one_atom(self):
         with self.assertRaises(exceptions.NoAtomsError):
             atomic_structure = AtomicStructure()
+
+
+    def test_atoms_in_atomic_structure(self):
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(len(atomic_structure.atoms), 3)
+        self.assertIn(self.atom1, atomic_structure)
+        self.assertIn(self.atom2, atomic_structure)
+        self.assertIn(self.atom3, atomic_structure)

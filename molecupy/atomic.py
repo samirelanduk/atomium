@@ -60,6 +60,16 @@ class Atom:
 
 
 
+class AtomicStructure:
+
+    def __init__(self, *atoms):
+        self.atoms = set(atoms)
+
+
+    def __repr__(self):
+        return "<AtomicStructure (%i atoms)>" % len(self.atoms)
+
+
 
 class CovalentBond:
 

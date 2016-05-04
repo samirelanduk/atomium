@@ -42,3 +42,11 @@ class AtomicStructureCreationTests(AtomicStructureTest):
         self.assertIn(self.atom1, atomic_structure)
         self.assertIn(self.atom2, atomic_structure)
         self.assertIn(self.atom3, atomic_structure)
+
+
+
+class AtomicStructureBehaviorTest(AtomicStructureTest):
+
+    def test_can_get_atomic_structure_mass(self):
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertAlmostEqual(atomic_structure.get_mass(), 1 + 12 + 16, delta=0.5)

@@ -79,6 +79,10 @@ class AtomicStructure:
         return atom in self.atoms
 
 
+    def get_mass(self):
+        return sum([atom.get_mass() for atom in self.atoms])
+
+
 
 class CovalentBond:
 

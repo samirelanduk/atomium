@@ -1,5 +1,6 @@
 import math
-from .exceptions import InvalidElementError
+import warnings
+from .exceptions import InvalidElementError, LongBondWarning
 
 class Atom:
 
@@ -48,6 +49,17 @@ class Atom:
 class CovalentBond:
 
     def __init__(self, atom1, atom2):
+        if not isinstance(atom1, Atom) or not isinstance(atom2, Atom):
+            raise TypeError(
+             "Can only bond atoms, not %s to '%s'" % (str(atom1), str(atom2))
+            )
+        if atom1.distance_to(atom2) > 5:
+            warning = "The bond between atom %s and atom %s is %.2f Angstroms" % (
+             str(atom1.atom_id) if atom1.atom_id else atom1.element,
+             str(atom2.atom_id) if atom2.atom_id else atom2.element,
+             atom1.distance_to(atom2)
+            )
+            warnings.warn(warning, LongBondWarning)
         self.atoms = set((atom1, atom2))
 
 

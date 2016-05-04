@@ -45,6 +45,18 @@ class Atom:
 
 
 
+class CovalentBond:
+
+    def __init__(self, atom1, atom2):
+        self.atoms = set((atom1, atom2))
+
+
+    def __repr__(self):
+        atom1_element, atom2_element = [a.element for a in self.atoms]
+        return "<CovalentBond (%s-%s)>" % (atom1_element, atom2_element)
+
+
+
 
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

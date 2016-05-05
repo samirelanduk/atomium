@@ -70,6 +70,18 @@ class Atom:
             self.break_covalent_bond(list(shared_bonds)[0])
 
 
+    def get_covalent_accessible_atoms(self, already_checked=None):
+        already_checked = already_checked if already_checked else set()
+        already_checked.add(self)
+        while len(self.get_covalent_bonded_atoms().difference(already_checked)) > 0:
+            picked = list(self.get_covalent_bonded_atoms().difference(already_checked))[0]
+            picked.get_covalent_accessible_atoms(already_checked)
+        already_checked_copy = already_checked.copy()
+        already_checked_copy.discard(self)
+        return already_checked_copy
+
+
+
 
 class AtomicStructure:
 

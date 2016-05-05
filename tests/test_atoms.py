@@ -157,3 +157,24 @@ class AtomConnectionTests(AtomTest):
         self.assertNotIn(atom1, atom2.get_covalent_bonded_atoms())
         self.assertEqual(len(atom1.covalent_bonds), 0)
         self.assertEqual(len(atom2.covalent_bonds), 0)
+
+
+    def test_atom_can_get_all_atoms_covalently_accessible(self):
+        atoms = [Atom(x / 10, x / 10, x / 10, "C") for x in range(11)]
+        atoms[0].covalent_bond_to(atoms[1])
+        atoms[1].covalent_bond_to(atoms[2])
+        atoms[2].covalent_bond_to(atoms[3])
+        atoms[3].covalent_bond_to(atoms[4])
+        atoms[4].covalent_bond_to(atoms[5])
+        atoms[5].covalent_bond_to(atoms[0])
+        atoms[6].covalent_bond_to(atoms[3])
+        atoms[7].covalent_bond_to(atoms[6])
+        atoms[7].covalent_bond_to(atoms[8])
+        atoms[7].covalent_bond_to(atoms[9])
+        atoms[10].covalent_bond_to(atoms[8])
+        atoms[10].covalent_bond_to(atoms[9])
+        for atom in atoms:
+            self.assertEqual(
+             atom.get_covalent_accessible_atoms(),
+             set([a for a in atoms if a is not atom])
+            )

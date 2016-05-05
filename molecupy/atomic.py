@@ -59,6 +59,17 @@ class Atom:
         return covalent_bonded_atoms
 
 
+    def break_covalent_bond(self, bond):
+        for atom in bond.atoms:
+            atom.covalent_bonds.discard(bond)
+
+
+    def break_covalent_bond_with(self, other_atom):
+        shared_bonds = self.covalent_bonds.intersection(other_atom.covalent_bonds)
+        if shared_bonds:
+            self.break_covalent_bond(list(shared_bonds)[0])
+
+
 
 class AtomicStructure:
 

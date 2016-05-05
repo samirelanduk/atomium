@@ -127,3 +127,33 @@ class AtomConnectionTests(AtomTest):
         atom2 = "Carbon"
         with self.assertRaises(TypeError):
             atom1.covalent_bond_to(atom2)
+
+
+    def test_can_remove_covalent_bonds(self):
+        atom1 = Atom(1.0, 1.0, 1.0, "H")
+        atom2 = Atom(1.0, 1.0, 2.0, "C")
+        atom1.covalent_bond_to(atom2)
+        self.assertIn(atom2, atom1.get_covalent_bonded_atoms())
+        self.assertIn(atom1, atom2.get_covalent_bonded_atoms())
+        self.assertEqual(len(atom1.covalent_bonds), 1)
+        self.assertEqual(len(atom2.covalent_bonds), 1)
+        atom2.break_covalent_bond(list(atom2.covalent_bonds)[0])
+        self.assertNotIn(atom2, atom1.get_covalent_bonded_atoms())
+        self.assertNotIn(atom1, atom2.get_covalent_bonded_atoms())
+        self.assertEqual(len(atom1.covalent_bonds), 0)
+        self.assertEqual(len(atom2.covalent_bonds), 0)
+
+
+    def test_can_break_bond_with_other_atom(self):
+        atom1 = Atom(1.0, 1.0, 1.0, "H")
+        atom2 = Atom(1.0, 1.0, 2.0, "C")
+        atom1.covalent_bond_to(atom2)
+        self.assertIn(atom2, atom1.get_covalent_bonded_atoms())
+        self.assertIn(atom1, atom2.get_covalent_bonded_atoms())
+        self.assertEqual(len(atom1.covalent_bonds), 1)
+        self.assertEqual(len(atom2.covalent_bonds), 1)
+        atom1.break_covalent_bond_with(atom2)
+        self.assertNotIn(atom2, atom1.get_covalent_bonded_atoms())
+        self.assertNotIn(atom1, atom2.get_covalent_bonded_atoms())
+        self.assertEqual(len(atom1.covalent_bonds), 0)
+        self.assertEqual(len(atom2.covalent_bonds), 0)

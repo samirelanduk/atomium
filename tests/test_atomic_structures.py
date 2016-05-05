@@ -45,8 +45,25 @@ class AtomicStructureCreationTests(AtomicStructureTest):
 
 
 
-class AtomicStructureBehaviorTest(AtomicStructureTest):
+class AtomicStructureBehaviorTests(AtomicStructureTest):
 
     def test_can_get_atomic_structure_mass(self):
         atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertAlmostEqual(atomic_structure.get_mass(), 1 + 12 + 16, delta=0.5)
+
+
+
+class AtomicStructureAtomRetrievalTests(AtomicStructureTest):
+
+    def test_can_get_atom_by_id(self):
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertIs(atomic_structure.get_atom_by_id(1), self.atom1)
+        self.assertIs(atomic_structure.get_atom_by_id(2), self.atom2)
+        self.assertIs(atomic_structure.get_atom_by_id(3), self.atom3)
+        self.assertIs(atomic_structure.get_atom_by_id(4), None)
+
+
+    def test_can_only_search_by_numeric_id(self):
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            atomic_structure.get_atom_by_id(None)

@@ -83,6 +83,14 @@ class AtomicStructure:
         return sum([atom.get_mass() for atom in self.atoms])
 
 
+    def get_atom_by_id(self, atom_id):
+        if not isinstance(atom_id, int):
+            raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))
+        for atom in self.atoms:
+            if atom.atom_id == atom_id:
+                return atom
+
+
 
 class CovalentBond:
 

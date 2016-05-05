@@ -1,6 +1,6 @@
 import math
 import warnings
-from .exceptions import InvalidElementError, LongBondWarning, NoAtomsError
+from .exceptions import *
 
 class Atom:
 
@@ -48,7 +48,7 @@ class Atom:
 
 
     def covalent_bond_to(self, other_atom):
-        covalent_bond = CovalentBond(self, other_atom)
+        CovalentBond(self, other_atom)
 
 
     def get_covalent_bonded_atoms(self):
@@ -68,6 +68,9 @@ class AtomicStructure:
             raise TypeError("AtomicStructure needs atoms, not '%s'" % non_atoms[0])
         if not atoms:
             raise NoAtomsError("Cannot make AtomicStructure with zero atoms")
+        atom_ids = [atom.atom_id for atom in atoms if atom.atom_id is not None]
+        if len(set(atom_ids)) < len(atom_ids):
+            raise DuplicateAtomIdError("Cannot make AtomicStructure with duplicate atom_ids")
         self.atoms = set(atoms)
 
 

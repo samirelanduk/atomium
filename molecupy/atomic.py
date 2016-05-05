@@ -134,10 +134,18 @@ class AtomicStructure:
 
 class Molecule(AtomicStructure):
 
-    def __init__(self, *atoms):
+    def __init__(self, *atoms, molecule_id=None, molecule_name=None):
         if len(atoms) > 1 and not set(atoms[1:]).issubset(atoms[0].get_covalent_accessible_atoms()):
             raise BrokenMoleculeError("Cannot make Molecule with unconnected atoms")
         AtomicStructure.__init__(self, *atoms)
+
+        if not isinstance(molecule_id, int) and molecule_id is not None:
+            raise TypeError("'%s' is not a valid molecule_id" % str(molecule_id))
+        self.molecule_id = molecule_id
+
+        if not isinstance(molecule_name, str) and molecule_name is not None:
+            raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))
+        self.molecule_name = molecule_name
 
 
     def __repr__(self):

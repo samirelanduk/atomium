@@ -134,6 +134,12 @@ class AtomicStructure:
 
 class Molecule(AtomicStructure):
 
+    def __init__(self, *atoms):
+        if len(atoms) > 1 and not set(atoms[1:]).issubset(atoms[0].get_covalent_accessible_atoms()):
+            raise BrokenMoleculeError("Cannot make Molecule with unconnected atoms")
+        AtomicStructure.__init__(self, *atoms)
+
+
     def __repr__(self):
         return "<Molecule (%i atoms)>" % len(self.atoms)
 

@@ -24,3 +24,9 @@ class MoleculeCreationTest(MoleculeTest):
     def test_can_create_molecule(self):
         molecule = Molecule(self.atom1, self.atom2, self.atom3)
         self.check_valid_molecule(molecule)
+
+
+    def test_molecule_requires_atoms_to_be_bonded(self):
+        self.atom2.break_covalent_bond_with(self.atom3)
+        with self.assertRaises(exceptions.BrokenMoleculeError):
+            molecule = Molecule(self.atom1, self.atom2, self.atom3)

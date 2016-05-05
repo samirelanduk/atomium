@@ -67,3 +67,28 @@ class AtomicStructureAtomRetrievalTests(AtomicStructureTest):
         atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         with self.assertRaises(TypeError):
             atomic_structure.get_atom_by_id(None)
+
+
+    def test_can_get_atom_by_name(self):
+        atom4 = Atom(1.0, 1.0, 4.0, "H", atom_id=4, atom_name="H1")
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3, atom4)
+        self.assertIn(atomic_structure.get_atom_by_name("H1"), (self.atom1, atom4))
+        self.assertIs(atomic_structure.get_atom_by_name("xxx"), None)
+
+
+    def test_can_get_multiple_atoms_by_name(self):
+        atom4 = Atom(1.0, 1.0, 4.0, "H", atom_id=4, atom_name="H1")
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3, atom4)
+        self.assertEqual(
+         atomic_structure.get_atoms_by_name("H1"),
+         set([self.atom1, atom4])
+        )
+        self.assertEqual(atomic_structure.get_atoms_by_name("XXX"), set())
+
+
+    def test_can_only_search_by_string_name(self):
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            atomic_structure.get_atom_by_name(None)
+        with self.assertRaises(TypeError):
+            atomic_structure.get_atoms_by_name(None)

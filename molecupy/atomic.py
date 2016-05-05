@@ -91,6 +91,20 @@ class AtomicStructure:
                 return atom
 
 
+    def get_atom_by_name(self, atom_name):
+        if not isinstance(atom_name, str):
+            raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
+        for atom in self.atoms:
+            if atom.atom_name == atom_name:
+                return atom
+
+
+    def get_atoms_by_name(self, atom_name):
+        if not isinstance(atom_name, str):
+            raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
+        return set([atom for atom in self.atoms if atom.atom_name == atom_name])
+
+
 
 class CovalentBond:
 

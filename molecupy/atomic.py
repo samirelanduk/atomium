@@ -109,6 +109,13 @@ class AtomicStructure:
 
 
 
+class Molecule(AtomicStructure):
+
+    def __repr__(self):
+        return "<Molecule (%i atoms)>" % len(self.atoms)
+
+
+
 class CovalentBond:
 
     def __init__(self, atom1, atom2):

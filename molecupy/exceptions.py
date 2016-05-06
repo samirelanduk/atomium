@@ -22,5 +22,9 @@ class DuplicateMonomerIdError(Exception):
     pass
 
 
+class InvalidAtomError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

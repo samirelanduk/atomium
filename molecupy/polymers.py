@@ -16,6 +16,10 @@ class Monomer(atomic.Molecule):
 
 
     def connect_to(self, other_monomer, this_atom, their_atom):
+        if this_atom not in self:
+            raise InvalidAtomError("Atom %s not in monomer %s" % (this_atom, self))
+        if their_atom not in other_monomer:
+            raise InvalidAtomError("Atom %s not in monomer %s" % (their_atom, other_monomer))
         this_atom.covalent_bond_to(their_atom)
 
 

@@ -62,3 +62,12 @@ class MonomerConnectionTest(MonomerTest):
         self.assertIn(self.atom3, self.atom4.get_covalent_bonded_atoms())
         self.assertIn(self.atom7, self.atom6.get_covalent_bonded_atoms())
         self.assertIn(self.atom6, self.atom7.get_covalent_bonded_atoms())
+
+
+    def test_monomer_connection_needs_correct_atoms(self):
+        self.monomer1 = Monomer(1, "MON1", self.atom1, self.atom2, self.atom3)
+        self.monomer2 = Monomer(2, "MON2", self.atom4, self.atom5, self.atom6)
+        with self.assertRaises(exceptions.InvalidAtomError):
+            self.monomer1.connect_to(self.monomer2, self.atom3, self.atom7)
+        with self.assertRaises(exceptions.InvalidAtomError):
+            self.monomer1.connect_to(self.monomer2, self.atom4, self.atom5)

@@ -15,6 +15,10 @@ class Monomer(atomic.Molecule):
         return "<Monomer (%s)>" % self.monomer_name
 
 
+    def connect_to(self, other_monomer, this_atom, their_atom):
+        this_atom.covalent_bond_to(their_atom)
+
+
 
 class MonomericStructure(atomic.AtomicStructure):
 

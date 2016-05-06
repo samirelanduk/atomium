@@ -9,6 +9,8 @@ class Monomer(atomic.Molecule):
         self.monomer_name = self.molecule_name
         del self.__dict__["molecule_id"]
         del self.__dict__["molecule_name"]
+        self.downstream_monomer = None
+        self.upstream_monomer = None
 
 
     def __repr__(self):
@@ -23,6 +25,29 @@ class Monomer(atomic.Molecule):
         this_atom.covalent_bond_to(their_atom)
         self.downstream_monomer = other_monomer
         other_monomer.upstream_monomer = self
+
+
+    def get_downstream_monomers(self):
+        downstream_monomers = set()
+        downstream_monomer = self.downstream_monomer
+        while downstream_monomer:
+            downstream_monomers.add(downstream_monomer)
+            downstream_monomer = downstream_monomer.downstream_monomer
+        return downstream_monomers
+
+
+    def get_upstream_monomers(self):
+        upstream_monomers = set()
+        upstream_monomer = self.upstream_monomer
+        while upstream_monomer:
+            upstream_monomers.add(upstream_monomer)
+            upstream_monomer = upstream_monomer.upstream_monomer
+        return upstream_monomers
+
+
+    def get_accessible_monomers(self):
+        return self.get_upstream_monomers().union(self.get_downstream_monomers())
+
 
 
 

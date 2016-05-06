@@ -132,6 +132,12 @@ class AtomicStructure:
         return set([atom for atom in self.atoms if atom.atom_name == atom_name])
 
 
+    def get_atoms_by_element(self, element):
+        if not isinstance(element, str):
+            raise TypeError("Atom element search must be by str, not '%s'" % str(element))
+        return set([atom for atom in self.atoms if atom.element == element])
+
+
 
 class Molecule(AtomicStructure):
 

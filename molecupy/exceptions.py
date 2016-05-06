@@ -26,5 +26,9 @@ class InvalidAtomError(Exception):
     pass
 
 
+class BrokenPolymerError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

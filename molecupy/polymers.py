@@ -82,6 +82,8 @@ class Polymer(MonomericStructure, atomic.Molecule):
 
     def __init__(self, *monomers):
         MonomericStructure.__init__(self, *monomers)
+        if len(monomers) > 1 and set(monomers[1:]) != monomers[0].get_accessible_monomers():
+            raise BrokenPolymerError("Cannot make Polymer with unconnected monomers")
         self.monomers = tuple(monomers)
         all_atoms = set()
         for monomer in self.monomers:

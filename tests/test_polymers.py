@@ -49,3 +49,20 @@ class PolymerCreationTests(PolymerTest):
          self.monomer3
         )
         self.check_valid_polymer(polymer)
+
+
+    def test_polymer_needs_connected_monomers(self):
+        atom10 = Atom(1.0, 1.0, 10.0, "H", atom_id=10, atom_name="H1")
+        atom11 = Atom(1.0, 1.0, 11.0, "C", atom_id=11, atom_name="CA")
+        atom12 = Atom(1.0, 1.0, 12.0, "O", atom_id=12, atom_name="OX1")
+        self.atom9.covalent_bond_to(atom10)
+        atom10.covalent_bond_to(atom11)
+        atom11.covalent_bond_to(atom12)
+        monomer4 = Monomer(4, "MON4", atom10, atom11, atom12)
+        with self.assertRaises(exceptions.BrokenPolymerError):
+            polymer = Polymer(
+             self.monomer1,
+             self.monomer2,
+             self.monomer3,
+             monomer4
+            )

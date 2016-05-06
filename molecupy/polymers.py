@@ -30,7 +30,7 @@ class Monomer(atomic.Molecule):
     def get_downstream_monomers(self):
         downstream_monomers = set()
         downstream_monomer = self.downstream_monomer
-        while downstream_monomer:
+        while downstream_monomer and downstream_monomer is not self:
             downstream_monomers.add(downstream_monomer)
             downstream_monomer = downstream_monomer.downstream_monomer
         return downstream_monomers
@@ -39,7 +39,7 @@ class Monomer(atomic.Molecule):
     def get_upstream_monomers(self):
         upstream_monomers = set()
         upstream_monomer = self.upstream_monomer
-        while upstream_monomer:
+        while upstream_monomer and upstream_monomer is not self:
             upstream_monomers.add(upstream_monomer)
             upstream_monomer = upstream_monomer.upstream_monomer
         return upstream_monomers

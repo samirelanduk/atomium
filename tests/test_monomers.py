@@ -109,3 +109,26 @@ class MonomerConnectionTest(MonomerTest):
          self.monomer3.get_accessible_monomers(),
          set([self.monomer1, self.monomer2])
         )
+
+
+    def test_can_deal_with_cyclic_monomer_chains(self):
+        atom10 = Atom(1.0, 2.0, 7.0, "H", atom_id=10, atom_name="H1")
+        atom11 = Atom(1.0, 2.0, 5.0, "C", atom_id=11, atom_name="CA")
+        atom12 = Atom(1.0, 2.0, 3.0, "O", atom_id=12, atom_name="OX1")
+        atom10.covalent_bond_to(atom11)
+        atom11.covalent_bond_to(atom12)
+        monomer4 = Monomer(4, "MON4", atom10, atom11, atom12)
+        self.monomer3.connect_to(monomer4, self.atom9, atom10)
+        monomer4.connect_to(self.monomer1, atom12, self.atom1)
+        self.assertEqual(
+         self.monomer1.get_downstream_monomers(),
+         set([self.monomer2, self.monomer3, monomer4])
+        )
+        self.assertEqual(
+         self.monomer3.get_upstream_monomers(),
+         set([self.monomer2, self.monomer1, monomer4])
+        )
+        self.assertEqual(
+         self.monomer1.get_accessible_monomers(),
+         set([self.monomer3, self.monomer2, monomer4])
+        )

@@ -83,19 +83,19 @@ class MonomerConnectionTest(MonomerTest):
     def test_can_get_all_connected_monomers(self):
         self.assertEqual(
          self.monomer1.get_downstream_monomers(),
-         set([self.monomer2, self.monomer3])
+         (self.monomer2, self.monomer3)
         )
         self.assertEqual(
          self.monomer2.get_downstream_monomers(),
-         set([self.monomer3])
+         (self.monomer3,)
         )
         self.assertEqual(
          self.monomer3.get_upstream_monomers(),
-         set([self.monomer2, self.monomer1])
+         (self.monomer2, self.monomer1)
         )
         self.assertEqual(
          self.monomer2.get_upstream_monomers(),
-         set([self.monomer1])
+         (self.monomer1,)
         )
         self.assertEqual(
          self.monomer1.get_accessible_monomers(),
@@ -122,11 +122,11 @@ class MonomerConnectionTest(MonomerTest):
         monomer4.connect_to(self.monomer1, atom12, self.atom1)
         self.assertEqual(
          self.monomer1.get_downstream_monomers(),
-         set([self.monomer2, self.monomer3, monomer4])
+         (self.monomer2, self.monomer3, monomer4)
         )
         self.assertEqual(
          self.monomer3.get_upstream_monomers(),
-         set([self.monomer2, self.monomer1, monomer4])
+         (self.monomer2, self.monomer1, monomer4)
         )
         self.assertEqual(
          self.monomer1.get_accessible_monomers(),

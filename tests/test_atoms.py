@@ -1,6 +1,6 @@
 from unittest import TestCase
 from molecupy import exceptions
-from molecupy.atomic import Atom
+from molecupy.atomic import Atom, Molecule
 
 class AtomTest(TestCase):
 
@@ -15,6 +15,8 @@ class AtomTest(TestCase):
             self.assertIsInstance(atom.atom_id, int)
         if check_atom_name:
             self.assertIsInstance(atom.atom_name, str)
+        if atom.molecule:
+            self.assertIsInstance(atom.molecule, Molecule)
         self.assertRegex(str(atom), r"<Atom \([a-zA-Z]{1,2}\)>")
 
 

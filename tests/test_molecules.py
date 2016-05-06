@@ -15,6 +15,8 @@ class MoleculeTest(TestCase):
     def check_valid_molecule(self, molecule, check_molecule_id=False, check_molecule_name=False):
         self.assertIsInstance(molecule, Molecule)
         self.assertIsInstance(molecule, Molecule)
+        for atom in molecule.atoms:
+            self.assertEqual(atom.molecule, molecule)
         if check_molecule_id:
             self.assertIsInstance(molecule.molecule_id, int)
         if check_molecule_name:

@@ -29,6 +29,7 @@ class Atom:
         self.atom_name = atom_name
 
         self.covalent_bonds = set()
+        self.molecule = None
 
 
     def __repr__(self):
@@ -146,6 +147,8 @@ class Molecule(AtomicStructure):
         if not isinstance(molecule_name, str) and molecule_name is not None:
             raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))
         self.molecule_name = molecule_name
+        for atom in self.atoms:
+            atom.molecule = self
 
 
     def __repr__(self):

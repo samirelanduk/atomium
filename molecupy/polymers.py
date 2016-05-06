@@ -75,3 +75,19 @@ class MonomericStructure(atomic.AtomicStructure):
 
     def __contains__(self, monomer):
         return monomer in self.monomers
+
+
+
+class Polymer(MonomericStructure, atomic.Molecule):
+
+    def __init__(self, *monomers):
+        MonomericStructure.__init__(self, *monomers)
+        self.monomers = tuple(monomers)
+        all_atoms = set()
+        for monomer in self.monomers:
+            all_atoms.update(monomer.atoms)
+        atomic.Molecule.__init__(self, *all_atoms)
+
+
+    def __repr__(self):
+        return "<Polymer (%i monomers)>" % len(self.monomers)

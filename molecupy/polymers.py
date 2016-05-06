@@ -1,4 +1,5 @@
 from . import atomic
+from .exceptions import *
 
 class Monomer(atomic.Molecule):
 
@@ -18,6 +19,14 @@ class Monomer(atomic.Molecule):
 class MonomericStructure(atomic.AtomicStructure):
 
     def __init__(self, *monomers):
+        if not all(isinstance(monomer, Monomer) for monomer in monomers):
+            non_monomers = [monomer for monomer in monomers if not isinstance(monomer, Monomer)]
+            raise TypeError("MonomericStructure needs monomers, not '%s'" % non_monomers[0])
+        if not monomers:
+            raise NoMonomersError("Cannot make MonomericStructure with zero monomers")
+        monomer_ids = [monomer.monomer_id for monomer in monomers if monomer.monomer_id is not None]
+        if len(set(monomer_ids)) < len(monomer_ids):
+            raise DuplicateMonomerIdError("Cannot make MonomericStructure with duplicate monomer_ids")
         self.monomers = set(monomers)
         all_atoms = set()
         for monomer in self.monomers:
@@ -27,3 +36,7 @@ class MonomericStructure(atomic.AtomicStructure):
 
     def __repr__(self):
         return "<MonomericStructure (%i monomers)>" % len(self.monomers)
+
+
+    def __contains__(self, monomer):
+        return monomer in self.monomers

@@ -50,3 +50,41 @@ class MonomericStructureCreationTests(MonomericStructureTest):
          self.monomer3
         )
         self.check_valid_monomeric_structure(monomeric_structure)
+
+
+    def test_can_monomeric_structure_needs_monomers(self):
+        with self.assertRaises(TypeError):
+            monomeric_structure = MonomericStructure(
+             self.monomer1,
+             self.monomer2,
+             self.atom9
+            )
+
+
+    def test_monomeric_structure_needs_at_least_one_monomer(self):
+        with self.assertRaises(exceptions.NoMonomersError):
+            monomeric_structure = MonomericStructure()
+
+
+    def test_monomeric_structure_needs_unique_monomeric_ids(self):
+        self.monomer3.monomer_id = 2
+        with self.assertRaises(exceptions.DuplicateMonomerIdError):
+            monomeric_structure = MonomericStructure(
+             self.monomer1, self.monomer2, self.monomer3
+            )
+        self.monomer3.monomer_id = 3
+        monomeric_structure = MonomericStructure(
+         self.monomer1, self.monomer2, self.monomer3
+        )
+
+
+    def test_monomerics_in_monomeric_structure(self):
+        monomeric_structure = MonomericStructure(
+         self.monomer1,
+         self.monomer2,
+         self.monomer3
+        )
+        self.assertEqual(len(monomeric_structure.monomers), 3)
+        self.assertIn(self.monomer1, monomeric_structure)
+        self.assertIn(self.monomer2, monomeric_structure)
+        self.assertIn(self.monomer3, monomeric_structure)

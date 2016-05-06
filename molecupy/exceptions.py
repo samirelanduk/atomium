@@ -13,6 +13,14 @@ class DuplicateAtomIdError(Exception):
 class BrokenMoleculeError(Exception):
     pass
 
-    
+
+class NoMonomersError(Exception):
+    pass
+
+
+class DuplicateMonomerIdError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

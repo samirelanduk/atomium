@@ -12,3 +12,18 @@ class Monomer(atomic.Molecule):
 
     def __repr__(self):
         return "<Monomer (%s)>" % self.monomer_name
+
+
+
+class MonomericStructure(atomic.AtomicStructure):
+
+    def __init__(self, *monomers):
+        self.monomers = set(monomers)
+        all_atoms = set()
+        for monomer in self.monomers:
+            all_atoms.update(monomer.atoms)
+        atomic.AtomicStructure.__init__(self, *all_atoms)
+
+
+    def __repr__(self):
+        return "<MonomericStructure (%i monomers)>" % len(self.monomers)

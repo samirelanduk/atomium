@@ -71,3 +71,10 @@ class MonomerConnectionTest(MonomerTest):
             self.monomer1.connect_to(self.monomer2, self.atom3, self.atom7)
         with self.assertRaises(exceptions.InvalidAtomError):
             self.monomer1.connect_to(self.monomer2, self.atom4, self.atom5)
+
+
+    def test_can_get_connected_monomers(self):
+        self.assertEqual(self.monomer1.downstream_monomer, self.monomer2)
+        self.assertEqual(self.monomer2.downstream_monomer, self.monomer3)
+        self.assertEqual(self.monomer3.upstream_monomer, self.monomer2)
+        self.assertEqual(self.monomer2.upstream_monomer, self.monomer1)

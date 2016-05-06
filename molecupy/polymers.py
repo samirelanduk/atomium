@@ -21,6 +21,8 @@ class Monomer(atomic.Molecule):
         if their_atom not in other_monomer:
             raise InvalidAtomError("Atom %s not in monomer %s" % (their_atom, other_monomer))
         this_atom.covalent_bond_to(their_atom)
+        self.downstream_monomer = other_monomer
+        other_monomer.upstream_monomer = self
 
 
 

@@ -93,3 +93,7 @@ class Polymer(MonomericStructure, molecules.Molecule):
 
     def __repr__(self):
         return "<Polymer (%i monomers)>" % len(self.monomers)
+
+
+    def __getitem__(self, key):
+        return self.monomers[key]

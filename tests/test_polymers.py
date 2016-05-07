@@ -66,3 +66,23 @@ class PolymerCreationTests(PolymerTest):
              self.monomer3,
              monomer4
             )
+
+
+
+class PolymerBehaviorTests(PolymerTest):
+
+    def test_polymer_is_indexable(self):
+        polymer = Polymer(
+         self.monomer1,
+         self.monomer2,
+         self.monomer3
+        )
+        self.assertEqual(polymer[0], self.monomer1)
+        self.assertEqual(polymer[1], self.monomer2)
+        self.assertEqual(polymer[2], self.monomer3)
+        self.assertEqual(polymer[0:2], (self.monomer1, self.monomer2))
+        self.assertEqual(polymer[1:3], (self.monomer2, self.monomer3))
+        self.assertEqual(
+         polymer[::-1],
+         (self.monomer3, self.monomer2, self.monomer1)
+        )

@@ -1,6 +1,6 @@
 from unittest import TestCase
 from molecupy import exceptions
-from molecupy.atomic import Atom, AtomicStructure
+from molecupy.molecules import Atom, AtomicStructure
 from molecupy.polymers import Monomer, MonomericStructure
 
 class MonomericStructureTest(TestCase):

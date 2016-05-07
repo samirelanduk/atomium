@@ -1,6 +1,6 @@
 from unittest import TestCase
 from molecupy import exceptions
-from molecupy.atomic import Molecule, Atom
+from molecupy.molecules import Molecule, Atom
 from molecupy.polymers import Monomer
 
 class MonomerTest(TestCase):

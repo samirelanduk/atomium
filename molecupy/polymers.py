@@ -1,10 +1,10 @@
-from . import atomic
+from . import molecules
 from .exceptions import *
 
-class Monomer(atomic.Molecule):
+class Monomer(molecules.Molecule):
 
     def __init__(self, monomer_id, monomer_name, *atoms):
-        atomic.Molecule.__init__(self, *atoms, molecule_id=monomer_id, molecule_name=monomer_name)
+        molecules.Molecule.__init__(self, *atoms, molecule_id=monomer_id, molecule_name=monomer_name)
         self.monomer_id = self.molecule_id
         self.monomer_name = self.molecule_name
         del self.__dict__["molecule_id"]
@@ -51,7 +51,7 @@ class Monomer(atomic.Molecule):
 
 
 
-class MonomericStructure(atomic.AtomicStructure):
+class MonomericStructure(molecules.AtomicStructure):
 
     def __init__(self, *monomers):
         if not all(isinstance(monomer, Monomer) for monomer in monomers):
@@ -66,7 +66,7 @@ class MonomericStructure(atomic.AtomicStructure):
         all_atoms = set()
         for monomer in self.monomers:
             all_atoms.update(monomer.atoms)
-        atomic.AtomicStructure.__init__(self, *all_atoms)
+        molecules.AtomicStructure.__init__(self, *all_atoms)
 
 
     def __repr__(self):
@@ -78,7 +78,7 @@ class MonomericStructure(atomic.AtomicStructure):
 
 
 
-class Polymer(MonomericStructure, atomic.Molecule):
+class Polymer(MonomericStructure, molecules.Molecule):
 
     def __init__(self, *monomers):
         MonomericStructure.__init__(self, *monomers)
@@ -88,7 +88,7 @@ class Polymer(MonomericStructure, atomic.Molecule):
         all_atoms = set()
         for monomer in self.monomers:
             all_atoms.update(monomer.atoms)
-        atomic.Molecule.__init__(self, *all_atoms)
+        molecules.Molecule.__init__(self, *all_atoms)
 
 
     def __repr__(self):

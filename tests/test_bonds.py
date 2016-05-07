@@ -1,6 +1,6 @@
 from unittest import TestCase
 from molecupy import exceptions
-from molecupy.atomic import CovalentBond, Atom
+from molecupy.molecules import CovalentBond, Atom
 
 class BondTest(TestCase):
 

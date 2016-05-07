@@ -1,6 +1,6 @@
 from unittest import TestCase
 from molecupy import exceptions
-from molecupy.atomic import Molecule, AtomicStructure, Atom
+from molecupy.molecules import Molecule, AtomicStructure, Atom
 
 class MoleculeTest(TestCase):
 

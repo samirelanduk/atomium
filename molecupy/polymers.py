@@ -80,7 +80,7 @@ class MonomericStructure(molecules.AtomicStructure):
 
 class Polymer(MonomericStructure, molecules.Molecule):
 
-    def __init__(self, *monomers):
+    def __init__(self, *monomers, polymer_id=None):
         MonomericStructure.__init__(self, *monomers)
         if len(monomers) > 1 and set(monomers[1:]) != monomers[0].get_accessible_monomers():
             raise BrokenPolymerError("Cannot make Polymer with unconnected monomers")
@@ -89,6 +89,10 @@ class Polymer(MonomericStructure, molecules.Molecule):
         for monomer in self.monomers:
             all_atoms.update(monomer.atoms)
         molecules.Molecule.__init__(self, *all_atoms)
+
+        if not isinstance(polymer_id, str) and polymer_id is not None:
+            raise TypeError("'%s' is not a valid polymer_id" % str(polymer_id))
+        self.polymer_id = polymer_id
 
 
     def __repr__(self):

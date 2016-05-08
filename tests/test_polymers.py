@@ -28,11 +28,13 @@ class PolymerTest(TestCase):
         self.monomer2.connect_to(self.monomer3, self.atom6, self.atom7)
 
 
-    def check_valid_polymer(self, polymer):
+    def check_valid_polymer(self, polymer, check_id=False):
         self.assertIsInstance(polymer, Polymer)
         self.assertIsInstance(polymer, MonomericStructure)
         self.assertIsInstance(polymer, Molecule)
         self.assertIsInstance(polymer.monomers, tuple)
+        if check_id:
+            self.assertIsInstance(polymer.polymer_id, str)
         self.assertRegex(
          str(polymer),
          r"<Polymer \((\d+) monomers\)>"
@@ -49,6 +51,26 @@ class PolymerCreationTests(PolymerTest):
          self.monomer3
         )
         self.check_valid_polymer(polymer)
+
+
+    def test_can_create_polymer_with_id(self):
+        polymer = Polymer(
+         self.monomer1,
+         self.monomer2,
+         self.monomer3,
+         polymer_id="X"
+        )
+        self.check_valid_polymer(polymer, check_id=True)
+
+
+    def test_polymer_id_must_be_str(self):
+        with self.assertRaises(TypeError):
+            polymer = Polymer(
+             self.monomer1,
+             self.monomer2,
+             self.monomer3,
+             polymer_id=1
+            )
 
 
     def test_polymer_needs_connected_monomers(self):

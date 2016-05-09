@@ -11,6 +11,7 @@ class Residue(molecules.Molecule):
         del self.__dict__["molecule_name"]
         self.downstream_residue = None
         self.upstream_residue = None
+        self.chain = None
 
 
     def __repr__(self):
@@ -87,6 +88,7 @@ class Chain(ResiduicStructure, molecules.Molecule):
         self.residues = tuple(residues)
         all_atoms = set()
         for residue in self.residues:
+            residue.chain = self
             all_atoms.update(residue.atoms)
         molecules.Molecule.__init__(self, *all_atoms)
 

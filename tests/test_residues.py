@@ -1,7 +1,7 @@
 from unittest import TestCase
 from molecupy import exceptions
 from molecupy.molecules import Molecule, Atom
-from molecupy.macromolecules import Residue
+from molecupy.macromolecules import Residue, Chain
 
 class ResidueTest(TestCase):
 
@@ -34,6 +34,8 @@ class ResidueTest(TestCase):
             residue.molecule_id
         with self.assertRaises(AttributeError):
             residue.molecule_name
+        if residue.chain:
+            self.assertIsInstance(residue.chain, Chain)
         self.assertRegex(str(residue), r"<Residue \((.+)\)>")
 
 

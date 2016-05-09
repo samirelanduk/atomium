@@ -35,6 +35,8 @@ class ChainTest(TestCase):
         self.assertIsInstance(chain.residues, tuple)
         if check_id:
             self.assertIsInstance(chain.chain_id, str)
+        for residue in chain.residues:
+            self.assertEqual(residue.chain, chain)
         self.assertRegex(
          str(chain),
          r"<Chain \((\d+) residues\)>"

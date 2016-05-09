@@ -14,11 +14,11 @@ class BrokenMoleculeError(Exception):
     pass
 
 
-class NoMonomersError(Exception):
+class NoResiduesError(Exception):
     pass
 
 
-class DuplicateMonomerIdError(Exception):
+class DuplicateResidueIdError(Exception):
     pass
 
 
@@ -26,7 +26,7 @@ class InvalidAtomError(Exception):
     pass
 
 
-class BrokenPolymerError(Exception):
+class BrokenChainError(Exception):
     pass
 
 

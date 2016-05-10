@@ -36,6 +36,8 @@ class MacroModelTest(TestCase):
         self.assertIsInstance(macro_model.atoms, set)
         self.assertIsInstance(macro_model._chains, set)
         self.assertIsInstance(macro_model.get_chains(), set)
+        self.assertIsInstance(macro_model._small_molecules, set)
+        self.assertIsInstance(macro_model.get_small_molecules(), set)
         self.assertRegex(str(macro_model), r"<MacroModel \((\d+) atoms\)>")
 
 
@@ -64,3 +66,22 @@ class ChainAdditionTests(MacroModelTest):
         macro_model = MacroModel()
         with self.assertRaises(TypeError):
             macro_model.add_chain("chain")
+
+
+
+class SmallMoleculeAdditionTests(MacroModelTest):
+
+    def test_can_add_small_molecules(self):
+        small_molecule = Molecule(self.atom4, self.atom5, self.atom6)
+        macro_model = MacroModel()
+        macro_model.add_small_molecule(small_molecule)
+        self.assertEqual(len(macro_model.get_small_molecules()), 1)
+        self.assertEqual(len(macro_model.get_molecules()), 1)
+        self.assertEqual(small_molecule.model, macro_model)
+        self.assertEqual(len(macro_model.atoms), 3)
+
+
+    def test_chains_must_be_chains(self):
+        macro_model = MacroModel()
+        with self.assertRaises(TypeError):
+            macro_model.add_chain("mol")

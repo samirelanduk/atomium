@@ -111,6 +111,7 @@ class MacroModel(molecules.Model):
     def __init__(self):
         molecules.Model.__init__(self)
         self._chains = set()
+        self._small_molecules = set()
 
 
     def __repr__(self):
@@ -127,5 +128,14 @@ class MacroModel(molecules.Model):
         self.add_molecule(chain)
 
 
+    def add_small_molecule(self, small_molecule):
+        self._small_molecules.add(small_molecule)
+        self.add_molecule(small_molecule)
+
+
     def get_chains(self):
         return self._chains
+
+
+    def get_small_molecules(self):
+        return self._small_molecules

@@ -198,7 +198,7 @@ class CovalentBond:
 class Model(AtomicStructure):
 
     def __init__(self):
-        self.molecules = set()
+        self._molecules = set()
 
 
     def __repr__(self):
@@ -208,7 +208,7 @@ class Model(AtomicStructure):
     def __getattr__(self, attribute):
         if attribute == "atoms":
             atoms = set()
-            for molecule in self.molecules:
+            for molecule in self._molecules:
                 atoms.update(molecule.atoms)
             return atoms
         else:
@@ -221,8 +221,12 @@ class Model(AtomicStructure):
              "Only molecules can be added to a model with add_molecule, not '%s'"
               % str(molecule)
             )
-        self.molecules.add(molecule)
+        self._molecules.add(molecule)
         molecule.model = self
+
+
+    def get_molecules(self):
+        return self._molecules
 
 
 

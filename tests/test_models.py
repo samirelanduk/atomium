@@ -7,7 +7,8 @@ class ModelTest(TestCase):
     def check_valid_model(self, model):
         self.assertIsInstance(model, Model)
         self.assertIsInstance(model, AtomicStructure)
-        self.assertIsInstance(model.molecules, set)
+        self.assertIsInstance(model._molecules, set)
+        self.assertIsInstance(model.get_molecules(), set)
         self.assertIsInstance(model.atoms, set)
         self.assertRegex(str(model), r"<Model \((\d+) atoms\)>")
 
@@ -45,15 +46,15 @@ class ModelPopulationTests(ModelTest):
         model = Model()
 
         model.add_molecule(molecule1)
-        self.assertEqual(len(model.molecules), 1)
+        self.assertEqual(len(model.get_molecules()), 1)
         self.assertEqual(len(model.atoms), 3)
         self.assertEqual(molecule1.model, model)
         model.add_molecule(molecule2)
-        self.assertEqual(len(model.molecules), 2)
+        self.assertEqual(len(model.get_molecules()), 2)
         self.assertEqual(len(model.atoms), 6)
         self.assertEqual(molecule2.model, model)
         model.add_molecule(molecule3)
-        self.assertEqual(len(model.molecules), 3)
+        self.assertEqual(len(model.get_molecules()), 3)
         self.assertEqual(len(model.atoms), 9)
         self.assertEqual(molecule3.model, model)
 

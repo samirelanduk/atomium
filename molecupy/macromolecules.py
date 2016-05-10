@@ -112,6 +112,11 @@ class Chain(ResiduicStructure, molecules.Molecule):
 class Complex(molecules.AtomicStructure):
 
     def __init__(self, *chains, complex_id=None, complex_name=None):
+        if not all(isinstance(chain, Chain) for chain in chains):
+            non_chains = [chain for chain in chains if not isinstance(chain, Chain)]
+            raise TypeError("Complex needs chains, not '%s'" % non_chains[0])
+        if not chains:
+            raise NoChainsError("Cannot make Complex with zero chains")
         self.chains = set(chains)
         self.model = None
         all_atoms = set()

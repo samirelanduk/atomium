@@ -60,6 +60,16 @@ class ComplexCreationTests(ComplexTest):
         self.check_valid_complex(complex_)
 
 
+    def test_complex_needs_chains(self):
+        with self.assertRaises(TypeError):
+            complex_ = Complex(self.chain1, "a chain")
+
+
+    def test_atomic_structure_needs_at_least_one_atom(self):
+        with self.assertRaises(exceptions.NoChainsError):
+            complex_ = Complex()
+
+
     def test_can_create_complex_with_id(self):
         complex_ = Complex(self.chain1, self.chain2, complex_id=10)
         self.check_valid_complex(complex_, check_complex_id=True)

@@ -30,5 +30,9 @@ class BrokenChainError(Exception):
     pass
 
 
+class NoChainsError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

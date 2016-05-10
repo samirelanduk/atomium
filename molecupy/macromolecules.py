@@ -103,3 +103,19 @@ class Chain(ResiduicStructure, molecules.Molecule):
 
     def __getitem__(self, key):
         return self.residues[key]
+
+
+
+class MacroModel(molecules.Model):
+
+    def __init__(self):
+        molecules.Model.__init__(self)
+        self._chains = set()
+
+
+    def __repr__(self):
+        return "<MacroModel (%i atoms)>" % len(self.atoms)
+
+
+    def get_chains(self):
+        return self._chains

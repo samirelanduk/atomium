@@ -193,6 +193,26 @@ class CovalentBond:
 
 
 
+class Model(AtomicStructure):
+
+    def __init__(self):
+        self.molecules = set()
+
+
+    def __repr__(self):
+        return "<Model (%i atoms)>" % len(self.atoms)
+
+
+    def __getattr__(self, attribute):
+        if attribute == "atoms":
+            atoms = set()
+            for molecule in self.molecules:
+                atoms.update(molecule.atoms)
+            return atoms
+        else:
+            return AtomicStructure.__getattr__(self, attribute)
+
+
 
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

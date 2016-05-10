@@ -111,7 +111,7 @@ class Chain(ResiduicStructure, molecules.Molecule):
 
 class Complex(molecules.AtomicStructure):
 
-    def __init__(self, *chains):
+    def __init__(self, *chains, complex_id=None, complex_name=None):
         self.chains = set(chains)
         self.model = None
         all_atoms = set()
@@ -119,6 +119,14 @@ class Complex(molecules.AtomicStructure):
             chain.complex = self
             all_atoms.update(chain.atoms)
         molecules.AtomicStructure.__init__(self, *all_atoms)
+
+        if not isinstance(complex_id, int) and complex_id is not None:
+            raise TypeError("'%s' is not a valid complex_id" % str(complex_id))
+        self.complex_id = complex_id
+
+        if not isinstance(complex_name, str) and complex_name is not None:
+            raise TypeError("'%s' is not a valid complex_name" % str(complex_name))
+        self.complex_name = complex_name
 
 
     def __repr__(self):

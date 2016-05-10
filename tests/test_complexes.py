@@ -36,12 +36,16 @@ class ComplexTest(TestCase):
         self.chain2 = Chain(self.residue3, self.residue4)
 
 
-    def check_valid_complex(self, complex_):
+    def check_valid_complex(self, complex_, check_complex_id=False, check_complex_name=False):
         self.assertIsInstance(complex_, Complex)
         self.assertIsInstance(complex_, AtomicStructure)
         self.assertIsInstance(complex_.chains, set)
         if complex_.model is not None:
             self.assertIsInstance(complex_.model, MacroModel)
+        if check_complex_id:
+            self.assertIsInstance(complex_.complex_id, int)
+        if check_complex_name:
+            self.assertIsInstance(complex_.complex_name, str)
         self.assertRegex(
          str(complex_),
          r"<Complex \((\d+) chains\)>"
@@ -54,3 +58,25 @@ class ComplexCreationTests(ComplexTest):
     def test_can_create_complex(self):
         complex_ = Complex(self.chain1, self.chain2)
         self.check_valid_complex(complex_)
+
+
+    def test_can_create_complex_with_id(self):
+        complex_ = Complex(self.chain1, self.chain2, complex_id=10)
+        self.check_valid_complex(complex_, check_complex_id=True)
+
+
+    def test_complex_id_must_be_int(self):
+        with self.assertRaises(TypeError):
+            complex_ = Complex(self.chain1, self.chain2, complex_id=1.1)
+        with self.assertRaises(TypeError):
+            complex_ = Complex(self.chain1, self.chain2, complex_id="10")
+
+
+    def test_can_create_complex_with_name(self):
+        complex_ = Complex(self.chain1, self.chain2, complex_name="MOL")
+        self.check_valid_complex(complex_, check_complex_name=True)
+
+
+    def test_complex_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            complex_ = Complex(self.chain1, self.chain2, complex_name=1)

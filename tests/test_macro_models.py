@@ -45,3 +45,22 @@ class MacroModelCreationTests(MacroModelTest):
     def test_can_make_macro_model(self):
         macro_model = MacroModel()
         self.check_valid_macro_model(macro_model)
+
+
+
+class ChainAdditionTests(MacroModelTest):
+
+    def test_can_add_chains(self):
+        chain = Chain(self.residue1, self.residue2, self.residue3)
+        macro_model = MacroModel()
+        macro_model.add_chain(chain)
+        self.assertEqual(len(macro_model.get_chains()), 1)
+        self.assertEqual(len(macro_model.get_molecules()), 1)
+        self.assertEqual(chain.model, macro_model)
+        self.assertEqual(len(macro_model.atoms), 9)
+
+
+    def test_chains_must_be_chains(self):
+        macro_model = MacroModel()
+        with self.assertRaises(TypeError):
+            macro_model.add_chain("chain")

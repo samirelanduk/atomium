@@ -117,5 +117,15 @@ class MacroModel(molecules.Model):
         return "<MacroModel (%i atoms)>" % len(self.atoms)
 
 
+    def add_chain(self, chain):
+        if not isinstance(chain, Chain):
+            raise TypeError(
+             "Only chains can be added to a model with add_chain, not '%s'"
+              % str(chain)
+            )
+        self._chains.add(chain)
+        self.add_molecule(chain)
+
+
     def get_chains(self):
         return self._chains

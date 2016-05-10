@@ -156,6 +156,8 @@ class Molecule(AtomicStructure):
         for atom in self.atoms:
             atom.molecule = self
 
+        self.model = None
+
 
     def __repr__(self):
         return "<Molecule (%i atoms)>" % len(self.atoms)
@@ -210,7 +212,17 @@ class Model(AtomicStructure):
                 atoms.update(molecule.atoms)
             return atoms
         else:
-            return AtomicStructure.__getattr__(self, attribute)
+            return self.__getattribute__(attribute)
+
+
+    def add_molecule(self, molecule):
+        if not isinstance(molecule, Molecule):
+            raise TypeError(
+             "Only molecules can be added to a model with add_molecule, not '%s'"
+              % str(molecule)
+            )
+        self.molecules.add(molecule)
+        molecule.model = self
 
 
 

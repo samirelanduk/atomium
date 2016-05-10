@@ -96,6 +96,9 @@ class Chain(ResiduicStructure, molecules.Molecule):
             raise TypeError("'%s' is not a valid chain_id" % str(chain_id))
         self.chain_id = chain_id
 
+        self.model = None
+        self.complex = None
+
 
     def __repr__(self):
         return "<Chain (%i residues)>" % len(self.residues)
@@ -103,6 +106,23 @@ class Chain(ResiduicStructure, molecules.Molecule):
 
     def __getitem__(self, key):
         return self.residues[key]
+
+
+
+class Complex(molecules.AtomicStructure):
+
+    def __init__(self, *chains):
+        self.chains = set(chains)
+        self.model = None
+        all_atoms = set()
+        for chain in self.chains:
+            chain.complex = self
+            all_atoms.update(chain.atoms)
+        molecules.AtomicStructure.__init__(self, *all_atoms)
+
+
+    def __repr__(self):
+        return "<Complex (%i chains)>" % len(self.chains)
 
 
 

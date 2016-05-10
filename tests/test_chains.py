@@ -1,7 +1,7 @@
 from unittest import TestCase
 from molecupy import exceptions
 from molecupy.molecules import Atom, Molecule
-from molecupy.macromolecules import Residue, ResiduicStructure, Chain, MacroModel
+from molecupy.macromolecules import Residue, ResiduicStructure, Chain, MacroModel, Complex
 
 class ChainTest(TestCase):
 
@@ -37,6 +37,8 @@ class ChainTest(TestCase):
             self.assertIsInstance(chain.chain_id, str)
         for residue in chain.residues:
             self.assertEqual(residue.chain, chain)
+        if chain.complex is not None:
+            self.assertIsInstance(chain.complex, Complex)
         if chain.model is not None:
             self.assertIsInstance(chain.model, MacroModel)
         self.assertRegex(

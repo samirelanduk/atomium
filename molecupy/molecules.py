@@ -226,6 +226,14 @@ class Model(AtomicStructure):
         return self._molecules
 
 
+    def get_molecule_by_id(self, molecule_id):
+        if not isinstance(molecule_id, int):
+            raise TypeError("Molecule ID search must be by int, not '%s'" % str(molecule_id))
+        for molecule in self._molecules:
+            if molecule.molecule_id == molecule_id:
+                return molecule
+
+
 
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

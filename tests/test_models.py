@@ -82,4 +82,22 @@ class ModelPopulationTests(ModelTest):
 
 
 class MoleculeRetrievalTests(ModelTest):
-     pass
+
+    def test_can_get_molecule_by_id(self):
+        self.molecule1.molecule_id = 1
+        self.molecule2.molecule_id = 2
+        self.molecule3.molecule_id = 3
+        model = Model()
+        model.add_molecule(self.molecule1)
+        model.add_molecule(self.molecule2)
+        model.add_molecule(self.molecule3)
+        self.assertIs(model.get_molecule_by_id(1), self.molecule1)
+        self.assertIs(model.get_molecule_by_id(2), self.molecule2)
+        self.assertIs(model.get_molecule_by_id(3), self.molecule3)
+        self.assertIs(model.get_molecule_by_id(4), None)
+
+
+    def test_can_only_search_by_numeric_id(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_molecule_by_id(None)

@@ -83,7 +83,7 @@ class Chain(ResiduicStructure, molecules.Molecule):
 
     def __init__(self, *residues, chain_id=None):
         ResiduicStructure.__init__(self, *residues)
-        if len(residues) > 1 and set(residues[1:]) != residues[0].get_accessible_residues():
+        if len(residues) > 1 and not set(residues[1:]).issubset(residues[0].get_accessible_residues()):
             raise BrokenChainError("Cannot make Chain with unconnected residues")
         self.residues = tuple(residues)
         all_atoms = set()
@@ -145,6 +145,7 @@ class MacroModel(molecules.Model):
         molecules.Model.__init__(self)
         self._chains = set()
         self._small_molecules = set()
+        self._complexes = set()
 
 
     def __repr__(self):
@@ -166,9 +167,25 @@ class MacroModel(molecules.Model):
         self.add_molecule(small_molecule)
 
 
+    def add_complex(self, complex_):
+        if not isinstance(complex_, Complex):
+            raise TypeError(
+             "Only complexes can be added to a model with add_complex, not '%s'"
+              % str(complex_)
+            )
+        self._complexes.add(complex_)
+        complex_.model = self
+        for chain in complex_.chains:
+            self.add_chain(chain)
+
+
     def get_chains(self):
         return self._chains
 
 
     def get_small_molecules(self):
         return self._small_molecules
+
+
+    def get_complexes(self):
+        return self._complexes

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from molecupy import exceptions
 from molecupy.molecules import Atom, Molecule, Model
-from molecupy.macromolecules import Residue, ResiduicStructure, Chain, MacroModel
+from molecupy.macromolecules import Residue, ResiduicStructure, Chain, MacroModel, Complex
 
 class MacroModelTest(TestCase):
 
@@ -38,6 +38,8 @@ class MacroModelTest(TestCase):
         self.assertIsInstance(macro_model.get_chains(), set)
         self.assertIsInstance(macro_model._small_molecules, set)
         self.assertIsInstance(macro_model.get_small_molecules(), set)
+        self.assertIsInstance(macro_model._complexes, set)
+        self.assertIsInstance(macro_model.get_complexes(), set)
         self.assertRegex(str(macro_model), r"<MacroModel \((\d+) atoms\)>")
 
 
@@ -85,3 +87,27 @@ class SmallMoleculeAdditionTests(MacroModelTest):
         macro_model = MacroModel()
         with self.assertRaises(TypeError):
             macro_model.add_chain("mol")
+
+
+
+class ComplexAdditionTests(MacroModelTest):
+
+    def test_can_add_complexes(self):
+        chain1 = Chain(self.residue1, self.residue2)
+        chain2 = Chain(self.residue3)
+        complex_ = Complex(chain1, chain2)
+        macro_model = MacroModel()
+        macro_model.add_complex(complex_)
+        self.assertEqual(len(macro_model.get_complexes()), 1)
+        self.assertEqual(len(macro_model.get_chains()), 2)
+        self.assertEqual(len(macro_model.get_molecules()), 2)
+        self.assertEqual(complex_.model, macro_model)
+        self.assertEqual(chain1.model, macro_model)
+        self.assertEqual(chain2.model, macro_model)
+        self.assertEqual(len(macro_model.atoms), 9)
+
+
+    def test_complexes_must_be_complexes(self):
+        macro_model = MacroModel()
+        with self.assertRaises(TypeError):
+            macro_model.add_complex("complex")

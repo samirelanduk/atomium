@@ -12,14 +12,14 @@ class MoleculeTest(TestCase):
         self.atom3.covalent_bond_to(self.atom2)
 
 
-    def check_valid_molecule(self, molecule, check_molecule_id=False, check_molecule_name=False):
+    def check_valid_molecule(self, molecule):
         self.assertIsInstance(molecule, Molecule)
-        self.assertIsInstance(molecule, Molecule)
+        self.assertIsInstance(molecule, AtomicStructure)
         for atom in molecule.atoms:
             self.assertEqual(atom.molecule, molecule)
-        if check_molecule_id:
+        if molecule.molecule_id is not None:
             self.assertIsInstance(molecule.molecule_id, int)
-        if check_molecule_name:
+        if molecule.molecule_name is not None:
             self.assertIsInstance(molecule.molecule_name, str)
         if molecule.model is not None:
             self.assertIsInstance(molecule.model, Model)
@@ -36,7 +36,7 @@ class MoleculeCreationTest(MoleculeTest):
 
     def test_can_create_molecule_with_id(self):
         molecule = Molecule(self.atom1, self.atom2, self.atom3, molecule_id=10)
-        self.check_valid_molecule(molecule, check_molecule_id=True)
+        self.check_valid_molecule(molecule)
 
 
     def test_molecule_id_must_be_int(self):
@@ -48,7 +48,7 @@ class MoleculeCreationTest(MoleculeTest):
 
     def test_can_create_molecule_with_name(self):
         molecule = Molecule(self.atom1, self.atom2, self.atom3, molecule_name="MOL")
-        self.check_valid_molecule(molecule, check_molecule_name=True)
+        self.check_valid_molecule(molecule)
 
 
     def test_molecule_name_must_be_str(self):
@@ -62,3 +62,36 @@ class MoleculeCreationTest(MoleculeTest):
         self.atom3.covalent_bonds.remove(bond)
         with self.assertRaises(exceptions.BrokenMoleculeError):
             molecule = Molecule(self.atom1, self.atom2, self.atom3)
+
+
+    def test_molecule_needs_unique_atom_ids(self):
+        atom4 = Atom(1.0, 1.0, 4.0, "H", atom_id=1, atom_name="H1")
+        atom5 = Atom(1.0, 1.0, 5.0, "H", atom_name="H1")
+        atom6 = Atom(1.0, 1.0, 6.0, "H", atom_name="H1")
+        self.atom3.covalent_bond_to(atom4)
+        atom4.covalent_bond_to(atom5)
+        atom5.covalent_bond_to(atom6)
+        with self.assertRaises(exceptions.DuplicateAtomIdError):
+            molecule = Molecule(
+             self.atom1, self.atom2, self.atom3, atom4, atom5, atom6
+            )
+        atom4.atom_id = 4
+        molecule = Molecule(
+         self.atom1, self.atom2, self.atom3, atom4, atom5, atom6
+        )
+
+
+class MoleculeAtomRetrievalTests(MoleculeTest):
+
+    def test_can_get_atom_by_id(self):
+        moleclue = Molecule(self.atom1, self.atom2, self.atom3)
+        self.assertIs(moleclue.get_atom_by_id(1), self.atom1)
+        self.assertIs(moleclue.get_atom_by_id(2), self.atom2)
+        self.assertIs(moleclue.get_atom_by_id(3), self.atom3)
+        self.assertIs(moleclue.get_atom_by_id(4), None)
+
+
+    def test_can_only_search_by_numeric_id(self):
+        moleclue = Molecule(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            moleclue.get_atom_by_id(None)

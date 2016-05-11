@@ -81,9 +81,6 @@ class AtomicStructure:
             raise TypeError("AtomicStructure needs atoms, not '%s'" % non_atoms[0])
         if not atoms:
             raise NoAtomsError("Cannot make AtomicStructure with zero atoms")
-        atom_ids = [atom.atom_id for atom in atoms if atom.atom_id is not None]
-        if len(set(atom_ids)) < len(atom_ids):
-            raise DuplicateAtomIdError("Cannot make AtomicStructure with duplicate atom_ids")
         self.atoms = set(atoms)
 
 
@@ -97,14 +94,6 @@ class AtomicStructure:
 
     def get_mass(self):
         return sum([atom.get_mass() for atom in self.atoms])
-
-
-    def get_atom_by_id(self, atom_id):
-        if not isinstance(atom_id, int):
-            raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))
-        for atom in self.atoms:
-            if atom.atom_id == atom_id:
-                return atom
 
 
     def get_atom_by_name(self, atom_name):
@@ -133,6 +122,9 @@ class Molecule(AtomicStructure):
     def __init__(self, *atoms, molecule_id=None, molecule_name=None):
         if len(atoms) > 1 and not set(atoms[1:]).issubset(atoms[0].get_covalent_accessible_atoms()):
             raise BrokenMoleculeError("Cannot make Molecule with unconnected atoms")
+        atom_ids = [atom.atom_id for atom in atoms if atom.atom_id is not None]
+        if len(set(atom_ids)) < len(atom_ids):
+            raise DuplicateAtomIdError("Cannot make Molecule with duplicate atom_ids")
         AtomicStructure.__init__(self, *atoms)
 
         if not isinstance(molecule_id, int) and molecule_id is not None:
@@ -150,6 +142,14 @@ class Molecule(AtomicStructure):
 
     def __repr__(self):
         return "<Molecule (%i atoms)>" % len(self.atoms)
+
+
+    def get_atom_by_id(self, atom_id):
+        if not isinstance(atom_id, int):
+            raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))
+        for atom in self.atoms:
+            if atom.atom_id == atom_id:
+                return atom
 
 
 

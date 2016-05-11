@@ -34,5 +34,9 @@ class NoChainsError(Exception):
     pass
 
 
+class DuplicateMoleculeError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

@@ -210,6 +210,14 @@ class Model(AtomicStructure):
              "Only molecules can be added to a model with add_molecule, not '%s'"
               % str(molecule)
             )
+        if molecule.molecule_id is not None:
+            existing_molecule_ids = [
+             molecule.molecule_id for molecule in self._molecules
+            ]
+            if molecule.molecule_id in existing_molecule_ids:
+                raise DuplicateMoleculeError(
+                 "Cannot have two molecules in a model with ID %i" % molecule.molecule_id
+                )
         self._molecules.add(molecule)
         molecule.model = self
 

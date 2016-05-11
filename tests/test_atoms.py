@@ -4,18 +4,18 @@ from molecupy.molecules import Atom, Molecule
 
 class AtomTest(TestCase):
 
-    def check_valid_atom(self, atom, check_atom_id=False, check_atom_name=False):
+    def check_valid_atom(self, atom):
         self.assertIsInstance(atom, Atom)
         self.assertIsInstance(atom.x, float)
         self.assertIsInstance(atom.y, float)
         self.assertIsInstance(atom.z, float)
         self.assertIsInstance(atom.element, str)
         self.assertIsInstance(atom.covalent_bonds, set)
-        if check_atom_id:
+        if atom.atom_id is not None:
             self.assertIsInstance(atom.atom_id, int)
-        if check_atom_name:
+        if atom.atom_name is not None:
             self.assertIsInstance(atom.atom_name, str)
-        if atom.molecule:
+        if atom.molecule is not None:
             self.assertIsInstance(atom.molecule, Molecule)
         self.assertRegex(str(atom), r"<Atom \([a-zA-Z]{1,2}\)>")
 
@@ -48,7 +48,7 @@ class AtomCreationTests(AtomTest):
 
     def test_can_create_atom_with_id(self):
         atom = Atom(1.0, 2.0, 3.0, "C", atom_id=1001)
-        self.check_valid_atom(atom, check_atom_id=True)
+        self.check_valid_atom(atom)
 
 
     def test_atom_id_must_be_int(self):
@@ -60,7 +60,7 @@ class AtomCreationTests(AtomTest):
 
     def test_can_create_atom_with_name(self):
         atom = Atom(1.0, 2.0, 3.0, "C", atom_name="CA")
-        self.check_valid_atom(atom, check_atom_name=True)
+        self.check_valid_atom(atom)
 
 
     def test_atom_name_must_be_str(self):
@@ -129,36 +129,6 @@ class AtomConnectionTests(AtomTest):
         atom2 = "Carbon"
         with self.assertRaises(TypeError):
             atom1.covalent_bond_to(atom2)
-
-
-    def test_can_remove_covalent_bonds(self):
-        atom1 = Atom(1.0, 1.0, 1.0, "H")
-        atom2 = Atom(1.0, 1.0, 2.0, "C")
-        atom1.covalent_bond_to(atom2)
-        self.assertIn(atom2, atom1.get_covalent_bonded_atoms())
-        self.assertIn(atom1, atom2.get_covalent_bonded_atoms())
-        self.assertEqual(len(atom1.covalent_bonds), 1)
-        self.assertEqual(len(atom2.covalent_bonds), 1)
-        atom2.break_covalent_bond(list(atom2.covalent_bonds)[0])
-        self.assertNotIn(atom2, atom1.get_covalent_bonded_atoms())
-        self.assertNotIn(atom1, atom2.get_covalent_bonded_atoms())
-        self.assertEqual(len(atom1.covalent_bonds), 0)
-        self.assertEqual(len(atom2.covalent_bonds), 0)
-
-
-    def test_can_break_bond_with_other_atom(self):
-        atom1 = Atom(1.0, 1.0, 1.0, "H")
-        atom2 = Atom(1.0, 1.0, 2.0, "C")
-        atom1.covalent_bond_to(atom2)
-        self.assertIn(atom2, atom1.get_covalent_bonded_atoms())
-        self.assertIn(atom1, atom2.get_covalent_bonded_atoms())
-        self.assertEqual(len(atom1.covalent_bonds), 1)
-        self.assertEqual(len(atom2.covalent_bonds), 1)
-        atom1.break_covalent_bond_with(atom2)
-        self.assertNotIn(atom2, atom1.get_covalent_bonded_atoms())
-        self.assertNotIn(atom1, atom2.get_covalent_bonded_atoms())
-        self.assertEqual(len(atom1.covalent_bonds), 0)
-        self.assertEqual(len(atom2.covalent_bonds), 0)
 
 
     def test_atom_can_get_all_atoms_covalently_accessible(self):

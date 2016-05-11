@@ -57,6 +57,8 @@ class MoleculeCreationTest(MoleculeTest):
 
 
     def test_molecule_requires_atoms_to_be_bonded(self):
-        self.atom2.break_covalent_bond_with(self.atom3)
+        bond = list(self.atom3.covalent_bonds)[0]
+        self.atom2.covalent_bonds.remove(bond)
+        self.atom3.covalent_bonds.remove(bond)
         with self.assertRaises(exceptions.BrokenMoleculeError):
             molecule = Molecule(self.atom1, self.atom2, self.atom3)

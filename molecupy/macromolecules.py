@@ -147,6 +147,10 @@ class Chain(ResiduicStructure, molecules.Molecule):
                 return residue
 
 
+    def get_sequence(self):
+        return "".join([residue.get_residue_symbol() for residue in self.residues])
+
+
 
 class Complex(molecules.AtomicStructure):
 

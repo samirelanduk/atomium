@@ -149,3 +149,20 @@ class ChainResidueRetrievalTests(ChainTest):
         )
         with self.assertRaises(TypeError):
             chain.get_residue_by_id(None)
+
+
+class ChainSequenceTests(ChainTest):
+
+    def test_can_get_sequence(self):
+        self.residue1.residue_name = "CYS"
+        self.residue2.residue_name = "GLU"
+        self.residue3.residue_name = "LEU"
+        chain = Chain(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        self.assertEqual(
+         chain.get_sequence(),
+         "CEL"
+        )

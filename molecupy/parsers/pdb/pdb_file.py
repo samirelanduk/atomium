@@ -26,4 +26,4 @@ class PdbRecord:
 
 
     def __getitem__(self, key):
-        return self.text[key]
+        return self.text[key].strip()

@@ -46,3 +46,10 @@ class RecordAccessTests(PdbRecordTest):
         pdb_record = PdbRecord(self.line, 23)
         self.assertEqual(pdb_record[1:4], "EST")
         self.assertEqual(pdb_record[21:24], "HYT")
+
+
+    def test_record_indexes_will_strip_strings(self):
+        pdb_record = PdbRecord(self.line, 23)
+        self.assertEqual(pdb_record[0:7], "TEST")
+        self.assertEqual(pdb_record[19:24], "HYT")
+        self.assertEqual(pdb_record[19:34], "HYT")

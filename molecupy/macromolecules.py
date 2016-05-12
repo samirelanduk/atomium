@@ -219,12 +219,32 @@ class MacroModel(molecules.Model):
             self.add_chain(chain)
 
 
+    def get_small_molecules(self):
+        return self._small_molecules
+
+
+    def get_small_molecule_by_id(self, molecule_id):
+        if not isinstance(molecule_id, int):
+            raise TypeError(
+             "Small Molecule ID search must be by int, not '%s'" % str(molecule_id)
+            )
+        for molecule in self._small_molecules:
+            if molecule.molecule_id == molecule_id:
+                return molecule
+
+
     def get_chains(self):
         return self._chains
 
 
-    def get_small_molecules(self):
-        return self._small_molecules
+    def get_chain_by_id(self, chain_id):
+        if not isinstance(chain_id, str):
+            raise TypeError(
+             "Chain ID search must be by str, not '%s'" % str(chain_id)
+            )
+        for chain in self._chains:
+            if chain.chain_id == chain_id:
+                return chain
 
 
     def get_complexes(self):

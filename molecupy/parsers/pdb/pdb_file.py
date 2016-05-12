@@ -27,6 +27,7 @@ class PdbRecord:
 
     def __getitem__(self, key):
         chunk = self.text[key].strip()
+        if not chunk: return None
         if chunk.count(".") == 1:
             try:
                 return float(chunk)
@@ -39,4 +40,5 @@ class PdbRecord:
 
 
     def get_as_string(self, start, end):
-        return str(self[start:end])
+        splice = self[start:end]
+        return str(splice) if splice is not None else None

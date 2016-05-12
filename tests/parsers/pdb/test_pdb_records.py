@@ -69,3 +69,9 @@ class RecordAccessTests(PdbRecordTest):
         pdb_record = PdbRecord(self.line, 23)
         self.assertEqual(pdb_record.get_as_string(5, 11), "123")
         self.assertEqual(pdb_record.get_as_string(10, 19), "123.8")
+
+
+    def test_empty_sections_return_none(self):
+        pdb_record = PdbRecord(self.line, 23)
+        self.assertIs(pdb_record[17:21], None)
+        self.assertIs(pdb_record.get_as_string(17, 21), None)

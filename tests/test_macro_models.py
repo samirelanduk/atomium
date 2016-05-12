@@ -118,6 +118,43 @@ class SmallMoleculeAdditionTests(MacroModelTest):
             macro_model.get_small_molecule_by_id(None)
 
 
+    def test_can_get_small_molecules_by_name(self):
+        macro_model = MacroModel()
+        self.molecule1.molecule_name = "STK"
+        self.molecule2.molecule_name = "LAN"
+        macro_model.add_small_molecule(self.molecule1)
+        macro_model.add_small_molecule(self.molecule2)
+        self.assertEqual(
+         macro_model.get_small_molecule_by_name("LAN"),
+         self.molecule2
+        )
+        self.assertEqual(
+         macro_model.get_small_molecule_by_name("GJY"),
+         None
+        )
+
+
+    def test_can_get_multiple_small_molecules_by_name(self):
+        macro_model = MacroModel()
+        self.molecule1.molecule_name = "STK"
+        self.molecule2.molecule_name = "STK"
+        macro_model.add_small_molecule(self.molecule1)
+        macro_model.add_small_molecule(self.molecule2)
+        self.assertEqual(
+         macro_model.get_small_molecules_by_name("STK"),
+         set([self.molecule1, self.molecule2])
+        )
+        self.assertEqual(macro_model.get_small_molecules_by_name("GJY"), set())
+
+
+    def test_can_only_search_by_string_name(self):
+        macro_model = MacroModel()
+        with self.assertRaises(TypeError):
+            macro_model.get_small_molecule_by_name(None)
+        with self.assertRaises(TypeError):
+            macro_model.get_small_molecules_by_name(None)
+
+
 
 class ChainAdditionTests(MacroModelTest):
 

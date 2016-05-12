@@ -233,6 +233,23 @@ class MacroModel(molecules.Model):
                 return molecule
 
 
+    def get_small_molecule_by_name(self, small_molecule_name):
+        if not isinstance(small_molecule_name, str):
+            raise TypeError("Small molecule name search must be by str, not '%s'" % str(small_molecule_name))
+        for small_molecule in self._small_molecules:
+            if small_molecule.molecule_name == small_molecule_name:
+                return small_molecule
+
+
+    def get_small_molecules_by_name(self, small_molecule_name):
+        if not isinstance(small_molecule_name, str):
+            raise TypeError("Small molecule name search must be by str, not '%s'" % str(small_molecule_name))
+        return set([
+         small_molecule for small_molecule in self._small_molecules
+          if small_molecule.molecule_name == small_molecule_name
+        ])
+
+
     def get_chains(self):
         return self._chains
 

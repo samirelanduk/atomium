@@ -46,5 +46,9 @@ class DuplicateComplexError(Exception):
     pass
 
 
+class DuplicateSiteError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

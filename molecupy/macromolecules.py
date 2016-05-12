@@ -192,10 +192,28 @@ class MacroModel(molecules.Model):
         self._chains = set()
         self._small_molecules = set()
         self._complexes = set()
+        self._sites = set()
 
 
     def __repr__(self):
         return "<MacroModel (%i atoms)>" % len(self.atoms)
+
+
+    def __getattr__(self, attribute):
+        if attribute == "atoms":
+            atoms = set()
+            for molecule in self._molecules:
+                atoms.update(molecule.atoms)
+            for site in self._sites:
+                atoms.update(site.atoms)
+            return atoms
+        else:
+            return self.__getattribute__(attribute)
+
+
+    def add_small_molecule(self, small_molecule):
+        self._small_molecules.add(small_molecule)
+        self.add_molecule(small_molecule)
 
 
     def add_chain(self, chain):
@@ -216,11 +234,6 @@ class MacroModel(molecules.Model):
         self.add_molecule(chain)
 
 
-    def add_small_molecule(self, small_molecule):
-        self._small_molecules.add(small_molecule)
-        self.add_molecule(small_molecule)
-
-
     def add_complex(self, complex_):
         if not isinstance(complex_, Complex):
             raise TypeError(
@@ -239,6 +252,24 @@ class MacroModel(molecules.Model):
         complex_.model = self
         for chain in complex_.chains:
             self.add_chain(chain)
+
+
+    def add_site(self, site):
+        if not isinstance(site, Site):
+            raise TypeError(
+             "Only sites can be added to a model with add_site, not '%s'"
+              % str(site)
+            )
+        if site.site_id is not None:
+            existing_site_ids = [
+             site.site_id for site in self._sites
+            ]
+            if site.site_id in existing_site_ids:
+                raise DuplicateSiteError(
+                 "Cannot have two sites in a model with ID %s" % site.site_id
+                )
+        self._sites.add(site)
+        site.model = self
 
 
     def get_small_molecules(self):
@@ -288,3 +319,34 @@ class MacroModel(molecules.Model):
 
     def get_complexes(self):
         return self._complexes
+
+
+    def get_sites(self):
+        return self._sites
+
+
+    def get_site_by_id(self, site_id):
+        if not isinstance(site_id, int):
+            raise TypeError(
+             "Site ID search must be by int, not '%s'" % str(site_id)
+            )
+        for site in self._sites:
+            if site.site_id == site_id:
+                return site
+
+
+    def get_site_by_name(self, site_name):
+        if not isinstance(site_name, str):
+            raise TypeError("Site name search must be by str, not '%s'" % str(site_name))
+        for site in self._sites:
+            if site.site_name == site_name:
+                return site
+
+
+    def get_sites_by_name(self, site_name):
+        if not isinstance(site_name, str):
+            raise TypeError("Site name search must be by str, not '%s'" % str(site_name))
+        return set([
+         site for site in self._sites
+          if site.site_name == site_name
+        ])

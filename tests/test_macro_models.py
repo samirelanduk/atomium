@@ -2,7 +2,7 @@ import copy
 from unittest import TestCase
 from molecupy import exceptions
 from molecupy.molecules import Atom, Molecule, Model
-from molecupy.macromolecules import Residue, ResiduicStructure, Chain, MacroModel, Complex
+from molecupy.macromolecules import Residue, ResiduicStructure, Chain, MacroModel, Complex, Site
 
 class MacroModelTest(TestCase):
 
@@ -43,6 +43,7 @@ class MacroModelTest(TestCase):
         self.assertIsInstance(macro_model._small_molecules, set)
         self.assertIsInstance(macro_model._chains, set)
         self.assertIsInstance(macro_model._complexes, set)
+        self.assertIsInstance(macro_model._sites, set)
         self.assertRegex(str(macro_model), r"<MacroModel \((\d+) atoms\)>")
 
 
@@ -249,18 +250,110 @@ class ComplexAdditionTests(MacroModelTest):
 
 
     def test_complexes_must_be_unique(self):
-        macro_model = MacroModel()
-        self.chain1.chain_id = "A"
-        self.chain2.chain_id = "A"
-        macro_model.add_chain(self.chain1)
-        with self.assertRaises(exceptions.DuplicateChainError):
-            macro_model.add_chain(self.chain2)
-
-
-    def test_complexes_must_be_unique(self):
         self.complex.complex_id = 1
         complex2 = copy.deepcopy(self.complex)
         macro_model = MacroModel()
         macro_model.add_complex(self.complex)
         with self.assertRaises(exceptions.DuplicateComplexError):
             macro_model.add_complex(complex2)
+
+
+
+class SiteAdditionTests(MacroModelTest):
+
+    def setUp(self):
+        MacroModelTest.setUp(self)
+        self.site1 = Site(self.residue1, self.residue2)
+        self.site2 = Site(self.residue3, self.residue4)
+
+
+    def test_can_add_sites(self):
+        macro_model = MacroModel()
+        macro_model.add_site(self.site1)
+        self.assertEqual(len(macro_model.get_sites()), 1)
+        self.assertEqual(len(macro_model.get_molecules()), 0)
+        self.assertEqual(self.site1.model, macro_model)
+        self.assertEqual(len(macro_model.atoms), 6)
+        macro_model.add_site(self.site2)
+        self.assertEqual(len(macro_model.get_sites()), 2)
+        self.assertEqual(len(macro_model.get_molecules()), 0)
+        self.assertEqual(self.site2.model, macro_model)
+        self.assertEqual(len(macro_model.atoms), 12)
+
+
+    def test_sites_must_be_sites(self):
+        macro_model = MacroModel()
+        with self.assertRaises(TypeError):
+            macro_model.add_chain("site")
+
+
+    def test_sites_must_be_unique(self):
+        macro_model = MacroModel()
+        self.site1.site_id = 1
+        self.site2.site_id = 1
+        macro_model.add_site(self.site1)
+        with self.assertRaises(exceptions.DuplicateSiteError):
+            macro_model.add_site(self.site2)
+
+
+    def test_can_get_sites_by_id(self):
+        macro_model = MacroModel()
+        self.site1.site_id = 1
+        self.site2.site_id = 2
+        macro_model.add_site(self.site1)
+        macro_model.add_site(self.site2)
+        self.assertEqual(
+         macro_model.get_site_by_id(1),
+         self.site1
+        )
+        self.assertEqual(
+         macro_model.get_site_by_id(2),
+         self.site2
+        )
+        self.assertEqual(
+         macro_model.get_site_by_id(3),
+         None
+        )
+
+
+    def test_can_only_search_by_int_id(self):
+        macro_model = MacroModel()
+        with self.assertRaises(TypeError):
+            macro_model.get_site_by_id(None)
+
+
+    def test_can_sites_by_name(self):
+        macro_model = MacroModel()
+        self.site1.site_name = "AB1"
+        self.site2.site_name = "AB2"
+        macro_model.add_site(self.site1)
+        macro_model.add_site(self.site2)
+        self.assertEqual(
+         macro_model.get_site_by_name("AB1"),
+         self.site1
+        )
+        self.assertEqual(
+         macro_model.get_site_by_name("AB3"),
+         None
+        )
+
+
+    def test_can_get_multiple_sites_by_name(self):
+        macro_model = MacroModel()
+        self.site1.site_name = "AB1"
+        self.site2.site_name = "AB1"
+        macro_model.add_site(self.site1)
+        macro_model.add_site(self.site2)
+        self.assertEqual(
+         macro_model.get_sites_by_name("AB1"),
+         set([self.site1, self.site2])
+        )
+        self.assertEqual(macro_model.get_sites_by_name("AB3"), set())
+
+
+    def test_can_only_search_by_string_name(self):
+        macro_model = MacroModel()
+        with self.assertRaises(TypeError):
+            macro_model.get_site_by_name(None)
+        with self.assertRaises(TypeError):
+            macro_model.get_sites_by_name(None)

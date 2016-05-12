@@ -28,12 +28,12 @@ class ChainTest(TestCase):
         self.residue2.connect_to(self.residue3, self.atom6, self.atom7)
 
 
-    def check_valid_chain(self, chain, check_id=False):
+    def check_valid_chain(self, chain):
         self.assertIsInstance(chain, Chain)
         self.assertIsInstance(chain, ResiduicStructure)
         self.assertIsInstance(chain, Molecule)
         self.assertIsInstance(chain.residues, tuple)
-        if check_id:
+        if chain.chain_id is not None:
             self.assertIsInstance(chain.chain_id, str)
         for residue in chain.residues:
             self.assertEqual(residue.chain, chain)
@@ -66,7 +66,7 @@ class ChainCreationTests(ChainTest):
          self.residue3,
          chain_id="X"
         )
-        self.check_valid_chain(chain, check_id=True)
+        self.check_valid_chain(chain)
 
 
     def test_chain_id_must_be_str(self):

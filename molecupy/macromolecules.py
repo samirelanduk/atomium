@@ -74,8 +74,8 @@ class ResiduicStructure(molecules.AtomicStructure):
         return "<ResiduicStructure (%i residues)>" % len(self.residues)
 
 
-    def __contains__(self, residue):
-        return residue in self.residues
+    def __contains__(self, obj):
+        return obj in self.residues or obj in self.atoms
 
 
 

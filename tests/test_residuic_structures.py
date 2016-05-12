@@ -88,3 +88,15 @@ class ResiduicStructureCreationTests(ResiduicStructureTest):
         self.assertIn(self.residue1, residuic_structure)
         self.assertIn(self.residue2, residuic_structure)
         self.assertIn(self.residue3, residuic_structure)
+
+
+    def test_atoms_in_residuic_structure(self):
+        residuic_structure = ResiduicStructure(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        self.assertEqual(len(residuic_structure.atoms), 9)
+        self.assertIn(self.atom1, residuic_structure)
+        self.assertIn(self.atom4, residuic_structure)
+        self.assertIn(self.atom7, residuic_structure)

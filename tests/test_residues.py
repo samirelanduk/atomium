@@ -34,7 +34,7 @@ class ResidueTest(TestCase):
             residue.molecule_id
         with self.assertRaises(AttributeError):
             residue.molecule_name
-        if residue.chain:
+        if residue.chain is not None:
             self.assertIsInstance(residue.chain, Chain)
         self.assertRegex(str(residue), r"<Residue \((.+)\)>")
 

@@ -1,6 +1,6 @@
 import random
 from unittest import TestCase
-from molecupy.parsers.pdb.pdb_file import PdbFile
+from molecupy.parsers.pdb.pdb_file import PdbFile, PdbRecord
 
 class PdbFileTest(TestCase):
 
@@ -47,3 +47,18 @@ class FileCreationTests(PdbFileTest):
         new_file = "".join(new_file)
         pdb_file = PdbFile(new_file)
         self.assertEqual(pdb_file.file_contents, self.file_string)
+
+
+
+class FileRecordTests(PdbFileTest):
+
+    def test_files_have_records(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertNotEqual(pdb_file.records, [])
+        for record in pdb_file.records:
+            self.assertIsInstance(record, PdbRecord)
+
+
+    def test_empty_lines_are_ignored(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertEqual(len(pdb_file.records), 9)

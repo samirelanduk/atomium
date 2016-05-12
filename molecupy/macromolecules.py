@@ -124,6 +124,14 @@ class Chain(ResiduicStructure, molecules.Molecule):
         return self.residues[key]
 
 
+    def get_residue_by_id(self, residue_id):
+        if not isinstance(residue_id, int):
+            raise TypeError("Residue ID search must be by int, not '%s'" % str(residue_id))
+        for residue in self.residues:
+            if residue.residue_id == residue_id:
+                return residue
+
+
 
 class Complex(molecules.AtomicStructure):
 

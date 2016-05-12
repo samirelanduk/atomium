@@ -114,3 +114,27 @@ class ChainBehaviorTests(ChainTest):
          chain[::-1],
          (self.residue3, self.residue2, self.residue1)
         )
+
+
+class ChainResidueRetrievalTests(ChainTest):
+
+    def test_can_get_residue_by_id(self):
+        chain = Chain(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        self.assertIs(chain.get_residue_by_id(1), self.residue1)
+        self.assertIs(chain.get_residue_by_id(2), self.residue2)
+        self.assertIs(chain.get_residue_by_id(3), self.residue3)
+        self.assertIs(chain.get_residue_by_id(4), None)
+
+
+    def test_can_only_search_by_numeric_id(self):
+        chain = Chain(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        with self.assertRaises(TypeError):
+            chain.get_residue_by_id(None)

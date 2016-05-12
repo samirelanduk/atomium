@@ -49,3 +49,26 @@ class TitleSectionTest(PdbDataFileTest):
         self.assertEqual(self.empty_data_file.deposition_date, None)
         self.assertEqual(self.data_file.pdb_code, "1SAM")
         self.assertEqual(self.empty_data_file.pdb_code, None)
+
+
+    def test_obslte(self):
+        self.assertTrue(self.data_file.is_obsolete)
+        self.assertFalse(self.empty_data_file.is_obsolete)
+        self.assertEqual(
+         self.data_file.obsolete_date,
+         datetime.datetime(1993, 9, 30).date()
+        )
+        self.assertEqual(self.empty_data_file.obsolete_date, None)
+        self.assertEqual(
+         self.data_file.replacement_code,
+         "2SAM"
+        )
+        self.assertEqual(self.empty_data_file.replacement_code, None)
+
+
+    def test_title(self):
+        self.assertEqual(
+         self.data_file.title,
+         "A TEST PDB CREATED FOR TESTING PURPOSES, FORGED FROM IRON AND BLESSED BY ANGELS"
+        )
+        self.assertEqual(self.empty_data_file.title, None)

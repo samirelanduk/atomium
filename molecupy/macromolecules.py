@@ -199,6 +199,10 @@ class MacroModel(molecules.Model):
         return "<MacroModel (%i atoms)>" % len(self.atoms)
 
 
+    def __contains__(self, obj):
+        return obj in self._molecules or obj in self._complexes or obj in self._sites
+
+
     def __getattr__(self, attribute):
         if attribute == "atoms":
             atoms = set()

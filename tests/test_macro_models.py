@@ -71,11 +71,13 @@ class SmallMoleculeAdditionTests(MacroModelTest):
         self.assertEqual(len(macro_model.get_molecules()), 1)
         self.assertEqual(self.molecule1.model, macro_model)
         self.assertEqual(len(macro_model.atoms), 3)
+        self.assertIn(self.molecule1, macro_model)
         macro_model.add_small_molecule(self.molecule2)
         self.assertEqual(len(macro_model.get_small_molecules()), 2)
         self.assertEqual(len(macro_model.get_molecules()), 2)
         self.assertEqual(self.molecule2.model, macro_model)
         self.assertEqual(len(macro_model.atoms), 6)
+        self.assertIn(self.molecule2, macro_model)
 
 
     def test_molecules_must_be_molecules(self):
@@ -172,11 +174,13 @@ class ChainAdditionTests(MacroModelTest):
         self.assertEqual(len(macro_model.get_molecules()), 1)
         self.assertEqual(self.chain1.model, macro_model)
         self.assertEqual(len(macro_model.atoms), 6)
+        self.assertIn(self.chain1, macro_model)
         macro_model.add_chain(self.chain2)
         self.assertEqual(len(macro_model.get_chains()), 2)
         self.assertEqual(len(macro_model.get_molecules()), 2)
         self.assertEqual(self.chain2.model, macro_model)
         self.assertEqual(len(macro_model.atoms), 12)
+        self.assertIn(self.chain2, macro_model)
 
 
     def test_chains_must_be_chains(self):
@@ -241,6 +245,7 @@ class ComplexAdditionTests(MacroModelTest):
         self.assertEqual(self.chain1.model, macro_model)
         self.assertEqual(self.chain2.model, macro_model)
         self.assertEqual(len(macro_model.atoms), 12)
+        self.assertIn(self.complex, macro_model)
 
 
     def test_complexes_must_be_complexes(self):
@@ -274,11 +279,13 @@ class SiteAdditionTests(MacroModelTest):
         self.assertEqual(len(macro_model.get_molecules()), 0)
         self.assertEqual(self.site1.model, macro_model)
         self.assertEqual(len(macro_model.atoms), 6)
+        self.assertIn(self.site1, macro_model)
         macro_model.add_site(self.site2)
         self.assertEqual(len(macro_model.get_sites()), 2)
         self.assertEqual(len(macro_model.get_molecules()), 0)
         self.assertEqual(self.site2.model, macro_model)
         self.assertEqual(len(macro_model.atoms), 12)
+        self.assertIn(self.site2, macro_model)
 
 
     def test_sites_must_be_sites(self):

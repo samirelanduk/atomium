@@ -9,3 +9,17 @@ class PdbFile:
 
     def __repr__(self):
         return "<PdbFile (%i records)>" % len(self.records)
+
+
+
+class PdbRecord:
+
+    def __init__(self, line, number):
+        self.number = number
+        self.text = line.ljust(80)
+        self.name = self.text[:6].strip()
+        self.contents = self.text[6:]
+
+
+    def __repr__(self):
+        return "<PdbRecord (%s)>" % self.name

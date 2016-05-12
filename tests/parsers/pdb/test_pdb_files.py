@@ -1,3 +1,4 @@
+import random
 from unittest import TestCase
 from molecupy.parsers.pdb.pdb_file import PdbFile
 
@@ -34,4 +35,15 @@ class FileCreationTests(PdbFileTest):
     def test_can_create_pdb_file(self):
         pdb_file = PdbFile(self.file_string)
         self.check_pdb_file(pdb_file)
+        self.assertEqual(pdb_file.file_contents, self.file_string)
+
+
+    def test_special_characters_are_stripped_out(self):
+        new_file = []
+        for char in self.file_string:
+            new_file.append(char)
+            weird_char = chr(random.choice(list(range(31)) + list(range(127, 255))))
+            new_file.append(weird_char if weird_char != "\n" else "")
+        new_file = "".join(new_file)
+        pdb_file = PdbFile(new_file)
         self.assertEqual(pdb_file.file_contents, self.file_string)

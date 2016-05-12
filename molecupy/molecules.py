@@ -194,6 +194,10 @@ class Model(AtomicStructure):
         return "<Model (%i atoms)>" % len(self.atoms)
 
 
+    def __contains__(self, obj):
+        return obj in self._molecules
+
+
     def __getattr__(self, attribute):
         if attribute == "atoms":
             atoms = set()

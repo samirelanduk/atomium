@@ -107,6 +107,9 @@ class Chain(ResiduicStructure, molecules.Molecule):
             residue.chain = self
             all_atoms.update(residue.atoms)
         molecules.Molecule.__init__(self, *all_atoms)
+        for residue in self.residues:
+            for atom in residue.atoms:
+                atom.molecule = residue
 
         if not isinstance(chain_id, str) and chain_id is not None:
             raise TypeError("'%s' is not a valid chain_id" % str(chain_id))
@@ -354,3 +357,14 @@ class MacroModel(molecules.Model):
          site for site in self._sites
           if site.site_name == site_name
         ])
+
+
+    def get_adjacent_residues(self, molecule, cutoff=3):
+        nearby_atoms = set()
+        for molecule_atom in molecule.atoms:
+            for model_atom in self.atoms:
+                if model_atom.distance_to(molecule_atom) <= cutoff \
+                 and model_atom not in molecule.atoms:
+                    nearby_atoms.add(model_atom)
+        return set([atom.molecule for atom in nearby_atoms
+         if atom.molecule is not None and isinstance(atom.molecule, Residue)])

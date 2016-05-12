@@ -364,3 +364,38 @@ class SiteAdditionTests(MacroModelTest):
             macro_model.get_site_by_name(None)
         with self.assertRaises(TypeError):
             macro_model.get_sites_by_name(None)
+
+
+
+class BindSiteDetectionTests(MacroModelTest):
+
+    def test_can_get_bind_site(self):
+        self.residue2.connect_to(self.residue3, self.atom6, self.atom7)
+        chain = Chain(self.residue1, self.residue2, self.residue3, self.residue4)
+        atom1 = Atom(1.0, 3.5, 2.5, "C", atom_id=13, atom_name="C")
+        atom2 = Atom(1.0, 3.5, 4.0, "C", atom_id=14, atom_name="C")
+        atom3 = Atom(1.0, 3.5, 5.3, "C", atom_id=15, atom_name="C")
+        atom4 = Atom(1.0, 4.5, 6.5, "C", atom_id=16, atom_name="C")
+        atom5 = Atom(1.0, 4.5, 8.0, "C", atom_id=17, atom_name="C")
+        atom6 = Atom(1.0, 4.5, 9.0, "C", atom_id=18, atom_name="C")
+        atom7 = Atom(1.0, 4.5, 10.2, "C", atom_id=19, atom_name="C")
+        atom8 = Atom(1.0, 4.5, 11.5, "C", atom_id=20, atom_name="C")
+        atom9 = Atom(1.0, 4.0, 13.0, "C", atom_id=21, atom_name="C")
+        atom10 = Atom(1.0, 2.5, 12.8, "C", atom_id=22, atom_name="C")
+        atom1.covalent_bond_to(atom2)
+        atom2.covalent_bond_to(atom3)
+        atom3.covalent_bond_to(atom4)
+        atom4.covalent_bond_to(atom5)
+        atom5.covalent_bond_to(atom6)
+        atom6.covalent_bond_to(atom7)
+        atom7.covalent_bond_to(atom8)
+        atom8.covalent_bond_to(atom9)
+        atom9.covalent_bond_to(atom10)
+        molecule = Molecule(atom1, atom2, atom3, atom4, atom5, atom6, atom7, atom8, atom9, atom10)
+        macro_model = MacroModel()
+        macro_model.add_chain(chain)
+        macro_model.add_small_molecule(molecule)
+        self.assertEqual(
+         macro_model.get_adjacent_residues(molecule),
+         set([self.residue1, self.residue4, self.residue2])
+        )

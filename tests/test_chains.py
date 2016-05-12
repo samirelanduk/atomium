@@ -96,6 +96,17 @@ class ChainCreationTests(ChainTest):
             )
 
 
+    def test_chain_does_not_become_atoms_molecule(self):
+        chain = Chain(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        for atom in chain.atoms:
+            self.assertIsNot(atom.molecule, chain)
+            self.assertIsInstance(atom.molecule, Residue)
+
+
 
 class ChainBehaviorTests(ChainTest):
 

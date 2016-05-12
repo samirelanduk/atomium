@@ -36,3 +36,7 @@ class PdbRecord:
             return int(chunk)
         except ValueError:
             return chunk
+
+
+    def get_as_string(self, start, end):
+        return str(self[start:end])

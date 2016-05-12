@@ -1,0 +1,2 @@
+class PdbFile:
+    pass

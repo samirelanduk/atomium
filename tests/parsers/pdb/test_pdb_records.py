@@ -53,3 +53,8 @@ class RecordAccessTests(PdbRecordTest):
         self.assertEqual(pdb_record[0:7], "TEST")
         self.assertEqual(pdb_record[19:24], "HYT")
         self.assertEqual(pdb_record[19:34], "HYT")
+
+
+    def test_records_can_covert_to_int(self):
+        pdb_record = PdbRecord(self.line, 23)
+        self.assertEqual(pdb_record[5:11], 123)

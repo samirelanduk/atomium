@@ -26,4 +26,8 @@ class PdbRecord:
 
 
     def __getitem__(self, key):
-        return self.text[key].strip()
+        chunk = self.text[key].strip()
+        try:
+            return int(chunk)
+        except ValueError:
+            return chunk

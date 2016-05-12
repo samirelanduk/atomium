@@ -100,3 +100,48 @@ class ResiduicStructureCreationTests(ResiduicStructureTest):
         self.assertIn(self.atom1, residuic_structure)
         self.assertIn(self.atom4, residuic_structure)
         self.assertIn(self.atom7, residuic_structure)
+
+
+
+class ResidueRetrievalTests(ResiduicStructureTest):
+
+    def test_can_get_residues_by_name(self):
+        residuic_structure = ResiduicStructure(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        self.assertEqual(
+         residuic_structure.get_residue_by_name("MON2"),
+         self.residue2
+        )
+        self.assertEqual(
+         residuic_structure.get_residue_by_name("MON4"),
+         None
+        )
+
+
+    def test_can_get_multiple_residues_by_name(self):
+        self.residue3.residue_name = "MON2"
+        residuic_structure = ResiduicStructure(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        self.assertEqual(
+         residuic_structure.get_residues_by_name("MON2"),
+         set([self.residue3, self.residue2])
+        )
+        self.assertEqual(residuic_structure.get_residues_by_name("XXX"), set())
+
+
+    def test_can_only_search_by_string_name(self):
+        residuic_structure = ResiduicStructure(
+         self.residue1,
+         self.residue2,
+         self.residue3
+        )
+        with self.assertRaises(TypeError):
+            residuic_structure.get_residue_by_name(None)
+        with self.assertRaises(TypeError):
+            residuic_structure.get_residues_by_name(None)

@@ -78,6 +78,22 @@ class ResiduicStructure(molecules.AtomicStructure):
         return obj in self.residues or obj in self.atoms
 
 
+    def get_residue_by_name(self, residue_name):
+        if not isinstance(residue_name, str):
+            raise TypeError("Residue name search must be by str, not '%s'" % str(residue_name))
+        for residue in self.residues:
+            if residue.residue_name == residue_name:
+                return residue
+
+
+    def get_residues_by_name(self, residue_name):
+        if not isinstance(residue_name, str):
+            raise TypeError("Residue name search must be by str, not '%s'" % str(residue_name))
+        return set([
+         residue for residue in self.residues if residue.residue_name == residue_name
+        ])
+
+
 
 class Chain(ResiduicStructure, molecules.Molecule):
 

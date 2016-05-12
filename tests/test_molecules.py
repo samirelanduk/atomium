@@ -1,3 +1,4 @@
+from collections import Counter
 from unittest import TestCase
 from molecupy import exceptions
 from molecupy.molecules import Molecule, AtomicStructure, Atom, Model
@@ -95,3 +96,18 @@ class MoleculeAtomRetrievalTests(MoleculeTest):
         moleclue = Molecule(self.atom1, self.atom2, self.atom3)
         with self.assertRaises(TypeError):
             moleclue.get_atom_by_id(None)
+
+
+
+class MoleculeEmpiricalFormulaTests(MoleculeTest):
+
+    def test_can_get_empirical_formula(self):
+        atom4 = Atom(1.0, 1.0, 4.0, "O", atom_id=4, atom_name="O")
+        atom5 = Atom(1.0, 1.0, 5.0, "N", atom_id=5, atom_name="NA")
+        self.atom3.covalent_bond_to(atom4)
+        atom4.covalent_bond_to(atom5)
+        molecule = Molecule(self.atom1, self.atom2, self.atom3, atom4, atom5)
+        self.assertEqual(
+         molecule.get_empirical_formula(),
+         Counter({"C": 1, "N": 1, "O": 2})
+        )

@@ -1,5 +1,6 @@
 import math
 import warnings
+from collections import Counter
 from .exceptions import *
 
 class Atom:
@@ -150,6 +151,12 @@ class Molecule(AtomicStructure):
         for atom in self.atoms:
             if atom.atom_id == atom_id:
                 return atom
+
+
+    def get_empirical_formula(self):
+        return Counter([
+         atom.element for atom in self.atoms if atom.element != "H"
+        ])
 
 
 

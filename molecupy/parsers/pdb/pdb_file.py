@@ -27,6 +27,11 @@ class PdbRecord:
 
     def __getitem__(self, key):
         chunk = self.text[key].strip()
+        if chunk.count(".") == 1:
+            try:
+                return float(chunk)
+            except ValueError:
+                pass
         try:
             return int(chunk)
         except ValueError:

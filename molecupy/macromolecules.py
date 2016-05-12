@@ -158,6 +158,14 @@ class MacroModel(molecules.Model):
              "Only chains can be added to a model with add_chain, not '%s'"
               % str(chain)
             )
+        if chain.chain_id is not None:
+            existing_chain_ids = [
+             chain.chain_id for chain in self._chains
+            ]
+            if chain.chain_id in existing_chain_ids:
+                raise DuplicateChainError(
+                 "Cannot have two chains in a model with ID %s" % chain.chain_id
+                )
         self._chains.add(chain)
         self.add_molecule(chain)
 
@@ -173,6 +181,14 @@ class MacroModel(molecules.Model):
              "Only complexes can be added to a model with add_complex, not '%s'"
               % str(complex_)
             )
+        if complex_.complex_id is not None:
+            existing_complex_ids = [
+             complex_.complex_id for complex_ in self._complexes
+            ]
+            if complex_.complex_id in existing_complex_ids:
+                raise DuplicateComplexError(
+                 "Cannot have two complexes in a model with ID %s" % complex_.complex_id
+                )
         self._complexes.add(complex_)
         complex_.model = self
         for chain in complex_.chains:

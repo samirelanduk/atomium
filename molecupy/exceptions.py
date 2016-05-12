@@ -38,5 +38,13 @@ class DuplicateMoleculeError(Exception):
     pass
 
 
+class DuplicateChainError(Exception):
+    pass
+
+
+class DuplicateComplexError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

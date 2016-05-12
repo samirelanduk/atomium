@@ -163,6 +163,28 @@ class Complex(molecules.AtomicStructure):
 
 
 
+class Site(ResiduicStructure):
+
+    def __init__(self, *residues, site_id=None, site_name=None):
+        ResiduicStructure.__init__(self, *residues)
+
+        if not isinstance(site_id, int) and site_id is not None:
+            raise TypeError("'%s' is not a valid site_id" % str(site_id))
+        self.site_id = site_id
+
+        if not isinstance(site_name, str) and site_name is not None:
+            raise TypeError("'%s' is not a valid site_name" % str(site_name))
+        self.site_name = site_name
+
+        self.model = None
+        self.ligand = None
+
+
+    def __repr__(self):
+        return "<Site (%i residues)>" % len(self.residues)
+
+
+
 class MacroModel(molecules.Model):
 
     def __init__(self):

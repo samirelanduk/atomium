@@ -134,3 +134,66 @@ class ResidueConnectionTest(ResidueTest):
          self.residue1.get_accessible_residues(),
          set([self.residue3, self.residue2, residue4])
         )
+
+
+
+class ResidueSymbolTests(ResidueTest):
+
+    def test_unknown_residues_return_unknown_names(self):
+        self.residue1 = Residue(1, "MON1", self.atom1, self.atom2, self.atom3)
+        self.residue2 = Residue(2, "MON2", self.atom4, self.atom5, self.atom6)
+        self.residue3 = Residue(3, "MON3", self.atom7, self.atom8, self.atom9)
+        self.assertEqual(
+         self.residue1.get_full_name(),
+         "unknown"
+        )
+        self.assertEqual(
+         self.residue1.get_residue_code(),
+         "XXX"
+        )
+        self.assertEqual(
+         self.residue1.get_residue_symbol(),
+         "X"
+        )
+
+
+    def test_residues_return_names(self):
+        self.residue1 = Residue(1, "VAL", self.atom1, self.atom2, self.atom3)
+        self.residue2 = Residue(2, "TRP", self.atom4, self.atom5, self.atom6)
+        self.residue3 = Residue(3, "HIS", self.atom7, self.atom8, self.atom9)
+        self.assertEqual(
+         self.residue1.get_full_name(),
+         "valine"
+        )
+        self.assertEqual(
+         self.residue2.get_full_name(),
+         "tryptophan"
+        )
+        self.assertEqual(
+         self.residue3.get_full_name(),
+         "histidine"
+        )
+        self.assertEqual(
+         self.residue1.get_residue_code(),
+         "VAL"
+        )
+        self.assertEqual(
+         self.residue2.get_residue_code(),
+         "TRP"
+        )
+        self.assertEqual(
+         self.residue3.get_residue_code(),
+         "HIS"
+        )
+        self.assertEqual(
+         self.residue1.get_residue_symbol(),
+         "V"
+        )
+        self.assertEqual(
+         self.residue2.get_residue_symbol(),
+         "W"
+        )
+        self.assertEqual(
+         self.residue3.get_residue_symbol(),
+         "H"
+        )

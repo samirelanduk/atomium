@@ -50,6 +50,18 @@ class Residue(molecules.Molecule):
         return set(self.get_upstream_residues() + self.get_downstream_residues())
 
 
+    def get_full_name(self):
+        return PROTEIN_RESIDUES.get(self.residue_name, ["unknown"])[0]
+
+
+    def get_residue_code(self):
+        return self.residue_name if self.residue_name in PROTEIN_RESIDUES else "XXX"
+
+
+    def get_residue_symbol(self):
+        return PROTEIN_RESIDUES.get(self.residue_name, ["", "X"])[1]
+
+
 
 
 class ResiduicStructure(molecules.AtomicStructure):
@@ -368,3 +380,42 @@ class MacroModel(molecules.Model):
                     nearby_atoms.add(model_atom)
         return set([atom.molecule for atom in nearby_atoms
          if atom.molecule is not None and isinstance(atom.molecule, Residue)])
+
+
+
+PROTEIN_RESIDUES = {
+ "phenylalanine": ("PHE", "F"), "PHE": ("phenylalanine", "F"), "F": ("phenylalanine", "PHE"),
+ "tryptophan": ("TRP", "W"), "TRP": ("tryptophan", "W"), "W": ("tryptophan", "TRP"),
+ "methionine": ("MET", "M"), "MET": ("methionine", "M"), "M": ("methionine", "MET"),
+ "isoleucine": ("ILE", "I"), "ILE": ("isoleucine", "I"), "I": ("isoleucine", "ILE"),
+ "asparagine": ("ASN", "N"), "ASN": ("asparagine", "N"), "N": ("asparagine", "ASN"),
+ "threonine": ("THR", "T"), "THR": ("threonine", "T"), "T": ("threonine", "THR"),
+ "histidine": ("HIS", "H"), "HIS": ("histidine", "H"), "H": ("histidine", "HIS"),
+ "glutamine": ("GLN", "Q"), "GLN": ("glutamine", "Q"), "Q": ("glutamine", "GLN"),
+ "glutamate": ("GLU", "E"), "GLU": ("glutamate", "E"), "E": ("glutamate", "GLU"),
+ "aspartate": ("ASP", "D"), "ASP": ("aspartate", "D"), "D": ("aspartate", "ASP"),
+ "tyrosine": ("TYR", "Y"), "TYR": ("tyrosine", "Y"), "Y": ("tyrosine", "TYR"),
+ "cysteine": ("CYS", "C"), "CYS": ("cysteine", "C"), "C": ("cysteine", "CYS"),
+ "arginine": ("ARG", "R"), "ARG": ("arginine", "R"), "R": ("arginine", "ARG"),
+ "proline": ("PRO", "P"), "PRO": ("proline", "P"), "P": ("proline", "PRO"),
+ "leucine": ("LEU", "L"), "LEU": ("leucine", "L"), "L": ("leucine", "LEU"),
+ "glycine": ("GLY", "G"), "GLY": ("glycine", "G"), "G": ("glycine", "GLY"),
+ "alanine": ("ALA", "A"), "ALA": ("alanine", "A"), "A": ("alanine", "ALA"),
+ "valine": ("VAL", "V"), "VAL": ("valine", "V"), "V": ("valine", "VAL"),
+ "serine": ("SER", "S"), "SER": ("serine", "S"), "S": ("serine", "SER"),
+ "lysine": ("LYS", "K"), "LYS": ("lysine", "K"), "K": ("lysine", "LYS")
+}
+
+NUCLEOTIDE_RESIDUES = {
+ "adenine": ("DA", "A"), "DA": ("adenine", "A"), "A": ("adenine", "DA"),
+ "cytosine": ("DC", "C"), "DC": ("cytosine", "C"), "C": ("cytosine", "DC"),
+ "guanine": ("DG", "G"), "DG": ("guanine", "G"), "G": ("guanine", "DG"),
+ "thymine": ("DT", "T"), "DT": ("thymine", "T"), "T": ("thymine", "DT"),
+}
+
+RIBONUCLEOTIDE_RESIDUES = {
+ "adenine": ("A", "A"), "A": ("adenine", "A"), "A": ("adenine", "A"),
+ "cytosine": ("C", "C"), "C": ("cytosine", "C"), "C": ("cytosine", "C"),
+ "guanine": ("G", "G"), "G": ("guanine", "G"), "G": ("guanine", "G"),
+ "thymine": ("T", "T"), "T": ("thymine", "T"), "T": ("thymine", "T"),
+}

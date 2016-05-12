@@ -234,6 +234,22 @@ class Model(AtomicStructure):
                 return molecule
 
 
+    def get_molecule_by_name(self, molecule_name):
+        if not isinstance(molecule_name, str):
+            raise TypeError("Molecule name search must be by str, not '%s'" % str(molecule_name))
+        for molecule in self._molecules:
+            if molecule.molecule_name == molecule_name:
+                return molecule
+
+
+    def get_molecules_by_name(self, molecule_name):
+        if not isinstance(molecule_name, str):
+            raise TypeError("Molecule name search must be by str, not '%s'" % str(molecule_name))
+        return set([
+         molecule for molecule in self._molecules if molecule.molecule_name == molecule_name
+        ])
+
+
 
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

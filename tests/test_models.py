@@ -101,3 +101,44 @@ class MoleculeRetrievalTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_molecule_by_id(None)
+
+
+    def test_can_get_molecules_by_name(self):
+        model = Model()
+        self.molecule1.molecule_name = "STK"
+        self.molecule2.molecule_name = "LAN"
+        self.molecule3.molecule_name = "BTH"
+        model.add_molecule(self.molecule1)
+        model.add_molecule(self.molecule2)
+        model.add_molecule(self.molecule3)
+        self.assertEqual(
+         model.get_molecule_by_name("LAN"),
+         self.molecule2
+        )
+        self.assertEqual(
+         model.get_molecule_by_name("GJY"),
+         None
+        )
+
+
+    def test_can_get_multiple_molecules_by_name(self):
+        model = Model()
+        self.molecule1.molecule_name = "STK"
+        self.molecule2.molecule_name = "LAN"
+        self.molecule3.molecule_name = "LAN"
+        model.add_molecule(self.molecule1)
+        model.add_molecule(self.molecule2)
+        model.add_molecule(self.molecule3)
+        self.assertEqual(
+         model.get_molecules_by_name("LAN"),
+         set([self.molecule3, self.molecule2])
+        )
+        self.assertEqual(model.get_molecules_by_name("GJY"), set())
+
+
+    def test_can_only_search_by_string_name(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_molecule_by_name(None)
+        with self.assertRaises(TypeError):
+            model.get_molecules_by_name(None)

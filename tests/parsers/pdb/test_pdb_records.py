@@ -31,3 +31,18 @@ class RecordCreationTests(PdbRecordTest):
         self.assertEqual(pdb_record.name, "TEST")
         self.assertTrue(pdb_record.contents.startswith(" 123  123.8    HYT"))
         self.assertTrue(pdb_record.text.startswith("TEST   123  123.8    HYT"))
+
+
+
+class RecordAccessTests(PdbRecordTest):
+
+    def test_can_get_individual_characters(self):
+        pdb_record = PdbRecord(self.line, 23)
+        self.assertEqual(pdb_record[0], "T")
+        self.assertEqual(pdb_record[21], "H")
+
+
+    def test_can_get_strings_from_record(self):
+        pdb_record = PdbRecord(self.line, 23)
+        self.assertEqual(pdb_record[1:4], "EST")
+        self.assertEqual(pdb_record[21:24], "HYT")

@@ -23,3 +23,7 @@ class PdbRecord:
 
     def __repr__(self):
         return "<PdbRecord (%s)>" % self.name
+
+
+    def __getitem__(self, key):
+        return self.text[key]

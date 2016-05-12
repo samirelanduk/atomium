@@ -14,6 +14,16 @@ class PdbFile:
         return "<PdbFile (%i records)>" % len(self.records)
 
 
+    def get_record_by_name(self, record_name):
+        for record in self.records:
+            if record.name == record_name:
+                return record
+
+
+    def get_records_by_name(self, record_name):
+        return [record for record in self.records if record.name == record_name]
+
+
 
 class PdbRecord:
 

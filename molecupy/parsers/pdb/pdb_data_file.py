@@ -52,6 +52,10 @@ class PdbDataFile:
         self.process_ter()
         self.process_hetatm()
 
+        self.process_conect()
+
+        self.process_master()
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -356,7 +360,7 @@ class PdbDataFile:
               "strand_id": r[7:10],
               "start_residue_name": r[17:20],
               "start_residue_chain_id": r[21],
-              "start_residue_id": int(r[22:26]),
+              "start_residue_id": r[22:26],
               "start_residue_insert": r[26],
               "end_residue_name": r[28:31],
               "end_residue_chain_id": r[32],
@@ -533,7 +537,7 @@ class PdbDataFile:
         endmdls = self.pdb_file.get_records_by_name("ENDMDL")
         pairs = list(zip(models, endmdls))
         self.models = [{
-         "model_id": int(pair[0][10:14]),
+         "model_id": pair[0][10:14],
          "start_record": pair[0].number,
          "end_record": pair[1].number,
         } for pair in pairs]
@@ -542,18 +546,18 @@ class PdbDataFile:
     def process_atom(self):
         atoms = self.pdb_file.get_records_by_name("ATOM")
         self.atoms = [{
-         "atom_id": int(r[6:11]),
+         "atom_id": r[6:11],
          "atom_name": r[12:16],
          "alt_loc": r[16],
          "residue_name": r[17:20],
          "chain": r[21],
-         "residue_id": int(r[22:26]),
+         "residue_id": r[22:26],
          "insert_code": r[26],
-         "x": float(r[30:38]),
-         "y": float(r[38:46]),
-         "z": float(r[46:54]),
-         "occupancy": float(r[54:60]),
-         "temperature_factor": float(r[60:66]),
+         "x": r[30:38],
+         "y": r[38:46],
+         "z": r[46:54],
+         "occupancy": r[54:60],
+         "temperature_factor": r[60:66],
          "element": r[76:78],
          "charge": r[78:80],
          "model_id": [m for m in self.models
@@ -566,19 +570,19 @@ class PdbDataFile:
     def process_anisou(self):
         anisou = self.pdb_file.get_records_by_name("ANISOU")
         self.anisou = [{
-         "atom_id": int(r[6:11]),
+         "atom_id": r[6:11],
          "atom_name": r[12:16],
          "alt_loc": r[16],
          "residue_name": r[17:20],
          "chain": r[21],
-         "residue_id": int(r[22:26]),
+         "residue_id": r[22:26],
          "insert_code": r[26],
-         "u11": int(r[29:35]),
-         "u22": int(r[36:42]),
-         "u33": int(r[43:49]),
-         "u12": int(r[50:56]),
-         "u13": int(r[57:63]),
-         "u23": int(r[64:70]),
+         "u11": r[29:35],
+         "u22": r[36:42],
+         "u33": r[43:49],
+         "u12": r[50:56],
+         "u13": r[57:63],
+         "u23": r[64:70],
          "element": r[76:78],
          "charge": r[78:80],
          "model_id": [m for m in self.models
@@ -591,10 +595,10 @@ class PdbDataFile:
     def process_ter(self):
         ters = self.pdb_file.get_records_by_name("TER")
         self.terminals = [{
-         "atom_id": int(r[6:11]),
+         "atom_id": r[6:11],
          "residue_name": r[17:20],
          "chain": r[21],
-         "residue_id": int(r[22:26]),
+         "residue_id": r[22:26],
          "insert_code": r[26],
          "model_id": [m for m in self.models
           if r.number > m["start_record"]
@@ -606,18 +610,18 @@ class PdbDataFile:
     def process_hetatm(self):
         hetatms = self.pdb_file.get_records_by_name("HETATM")
         self.heteroatoms = [{
-         "atom_id": int(r[6:11]),
+         "atom_id": r[6:11],
          "atom_name": r[12:16],
          "alt_loc": r[16],
          "residue_name": r[17:20],
          "chain": r[21],
-         "residue_id": int(r[22:26]),
+         "residue_id": r[22:26],
          "insert_code": r[26],
-         "x": float(r[30:38]),
-         "y": float(r[38:46]),
-         "z": float(r[46:54]),
-         "occupancy": float(r[54:60]),
-         "temperature_factor": float(r[60:66]),
+         "x": r[30:38],
+         "y": r[38:46],
+         "z": r[46:54],
+         "occupancy": r[54:60],
+         "temperature_factor": r[60:66],
          "element": r[76:78],
          "charge": r[78:80],
          "model_id": [m for m in self.models
@@ -625,6 +629,33 @@ class PdbDataFile:
            and r.number < m["end_record"]][0]["model_id"]
             if self.models else 1
         } for r in hetatms]
+
+
+    def process_conect(self):
+        conects = self.pdb_file.get_records_by_name("CONECT")
+        atom_ids = sorted(list(set([r[6:11] for r in conects])))
+        self.connections = [{
+         "atom_id": num,
+         "bonded_atoms": [int(n) for n in merge_records([
+          r for r in conects if r[6:11] == num
+         ], 11).split()]
+        } for num in atom_ids]
+
+
+    def process_master(self):
+        master = self.pdb_file.get_record_by_name("MASTER")
+        self.master = {
+          "remark_num": master[10:15],
+          "het_num": master[20:25],
+          "helix_num": master[25:30],
+          "sheet_num": master[30:35],
+          "site_num": master[40:45],
+          "crystal_num": master[45:50],
+          "coordinate_num": master[50:55],
+          "ter_num": master[55:60],
+          "conect_num": master[60:65],
+          "seqres_num": master[65:70]
+        } if master else {}
 
 
 

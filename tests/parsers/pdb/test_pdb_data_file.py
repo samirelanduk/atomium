@@ -1074,3 +1074,41 @@ class CoordinateSectionTest(PdbDataFileTest):
          ]
         )
         self.assertEqual(self.empty_data_file.heteroatoms, [])
+
+
+
+class ConnectivitySectionTest(PdbDataFileTest):
+
+    def test_conect(self):
+        self.assertEqual(
+         self.data_file.connections,
+         [
+          {
+           "atom_id": 1179,
+           "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.connections, [])
+
+
+
+class BookkeepingSectionTest(PdbDataFileTest):
+
+    def test_master(self):
+        self.assertEqual(
+         self.data_file.master,
+         {
+          "remark_num": 40,
+          "het_num": 0,
+          "helix_num": 0,
+          "sheet_num": 0,
+          "site_num": 0,
+          "crystal_num": 6,
+          "coordinate_num": 2930,
+          "ter_num": 2,
+          "conect_num": 0,
+          "seqres_num": 29
+         }
+        )
+        self.assertEqual(self.empty_data_file.master, {})

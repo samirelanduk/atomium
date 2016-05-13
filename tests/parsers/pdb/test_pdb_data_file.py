@@ -503,3 +503,101 @@ class HeterogenSectionTest(PdbDataFileTest):
          }
         )
         self.assertEqual(self.empty_data_file.het_formulae, {})
+
+
+
+
+class SecondaryStructureSectionTest(PdbDataFileTest):
+
+    def test_helix(self):
+        self.assertEqual(
+         self.data_file.helices,
+         [
+          {
+           "helix_id": 1,
+           "helix_name": "1",
+           "start_residue_name": "VAL",
+           "start_residue_chain_id": "A",
+           "start_residue_id": 11,
+           "start_residue_insert": None,
+           "end_residue_name": "ASN",
+           "end_residue_chain_id": "A",
+           "end_residue_id": 13,
+           "end_residue_insert": None,
+           "helix_class": 5,
+           "comment": None,
+           "length": 3
+          }, {
+           "helix_id": 2,
+           "helix_name": "2",
+           "start_residue_name": "ASN",
+           "start_residue_chain_id": "A",
+           "start_residue_id": 23,
+           "start_residue_insert": None,
+           "end_residue_name": "ARG",
+           "end_residue_chain_id": "A",
+           "end_residue_id": 35,
+           "end_residue_insert": None,
+           "helix_class": 1,
+           "comment": None,
+           "length": 13
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.helices, [])
+
+
+    def test_sheet(self):
+        self.assertEqual(
+         self.data_file.sheets,
+         [
+          {
+           "sheet_id": "A",
+           "strand_count": 2,
+           "strands": [{
+            "strand_id": 1,
+            "start_residue_name": "LEU",
+            "start_residue_chain_id": "A",
+            "start_residue_id": 15,
+            "start_residue_insert": None,
+            "end_residue_name": "MET",
+            "end_residue_chain_id": "A",
+            "end_residue_id": 19,
+            "end_residue_insert": None,
+            "sense": 0,
+            "current_atom": None,
+            "current_residue_name": None,
+            "current_chain_id": None,
+            "current_residue_id": None,
+            "current_insert": None,
+            "previous_atom": None,
+            "previous_residue_name": None,
+            "previous_chain_id": None,
+            "previous_residue_id": None,
+            "previous_insert": None
+           }, {
+            "strand_id": 2,
+            "start_residue_name": "THR",
+            "start_residue_chain_id": "A",
+            "start_residue_id": 40,
+            "start_residue_insert": None,
+            "end_residue_name": "GLY",
+            "end_residue_chain_id": "A",
+            "end_residue_id": 44,
+            "end_residue_insert": None,
+            "sense": 1,
+            "current_atom": "O",
+            "current_residue_name": "LYS",
+            "current_chain_id": "A",
+            "current_residue_id": 42,
+            "current_insert": None,
+            "previous_atom": "N",
+            "previous_residue_name": "LEU",
+            "previous_chain_id": "A",
+            "previous_residue_id": 17,
+            "previous_insert": None
+           }]
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.sheets, [])

@@ -32,6 +32,9 @@ class PdbDataFile:
         self.process_hetsyn()
         self.process_formul()
 
+        self.process_helix()
+        self.process_sheet()
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -302,6 +305,59 @@ class PdbDataFile:
           )
          } for het_id in ids
         }
+
+
+    def process_helix(self):
+        helix = self.pdb_file.get_records_by_name("HELIX")
+        self.helices = [{
+         "helix_id": r[7:10],
+         "helix_name": r.get_as_string(11, 14),
+         "start_residue_name": r[15:18],
+         "start_residue_chain_id": r[19],
+         "start_residue_id": r[21:25],
+         "start_residue_insert": r[25],
+         "end_residue_name": r[27:30],
+         "end_residue_chain_id": r[31],
+         "end_residue_id": r[33:37],
+         "end_residue_insert": r[37],
+         "helix_class": r[38:40],
+         "comment": r[40:70],
+         "length": r[71:76]
+        } for r in helix]
+
+
+    def process_sheet(self):
+        sheets = self.pdb_file.get_records_by_name("SHEET")
+        sheet_names = sorted(list(set([r[11:14] for r in sheets])))
+        self.sheets = []
+        for sheet_name in sheet_names:
+            strands = [r for r in sheets if r[11:14] == sheet_name]
+            self.sheets.append({
+             "sheet_id": sheet_name,
+             "strand_count": strands[0][14:16],
+             "strands": [{
+              "strand_id": r[7:10],
+              "start_residue_name": r[17:20],
+              "start_residue_chain_id": r[21],
+              "start_residue_id": int(r[22:26]),
+              "start_residue_insert": r[26],
+              "end_residue_name": r[28:31],
+              "end_residue_chain_id": r[32],
+              "end_residue_id": r[33:37],
+              "end_residue_insert": r[37],
+              "sense": r[38:40],
+              "current_atom": r[41:45],
+              "current_residue_name": r[45:48],
+              "current_chain_id": r[49],
+              "current_residue_id": r[50:54],
+              "current_insert": r[54],
+              "previous_atom": r[56:60],
+              "previous_residue_name": r[60:63],
+              "previous_chain_id": r[64],
+              "previous_residue_id": r[65:69],
+              "previous_insert": r[69]
+             } for r in strands]
+            })
 
 
 

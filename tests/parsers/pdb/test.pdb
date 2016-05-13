@@ -437,3 +437,7 @@ HETSYN     XMP 5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE
 FORMUL   3  BU2    2(C4 H10 O2)
 FORMUL   5  XMP    2(C10 H14 N4 O9 P 1+)
 FORMUL   7  HOH   *180(H2 O)
+HELIX    1   1 VAL A   11  ASN A   13  5                                   3
+HELIX    2   2 ASN A   23  ARG A   35  1                                  13
+SHEET    1   A 2 LEU A  15  MET A  19  0
+SHEET    2   A 2 THR A  40  GLY A  44  1  O  LYS A  42   N  LEU A  17

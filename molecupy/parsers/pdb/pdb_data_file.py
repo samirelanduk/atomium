@@ -35,6 +35,10 @@ class PdbDataFile:
         self.process_helix()
         self.process_sheet()
 
+        self.process_ssbond()
+        self.process_link()
+        self.process_cispep()
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -359,6 +363,61 @@ class PdbDataFile:
              } for r in strands]
             })
 
+
+    def process_ssbond(self):
+        ssbonds = self.pdb_file.get_records_by_name("SSBOND")
+        self.ss_bonds = [{
+         "serial_num": r[7:10],
+         "residue_name_1": r[11:14],
+         "chain_id_1": r[15],
+         "residue_id_1": r[17:21],
+         "insert_code_1": r[21],
+         "residue_name_2": r[25:28],
+         "chain_id_2": r[29],
+         "residue_id_2": r[31:35],
+         "insert_code_2": r[35],
+         "symmetry_1": r.get_as_string(59, 65),
+         "symmetry_2": r.get_as_string(66, 72),
+         "length": r[73:78]
+        } for r in ssbonds]
+
+
+    def process_link(self):
+        links = self.pdb_file.get_records_by_name("LINK")
+        self.links = [{
+         "atom_1": r[12:16],
+         "alt_loc_1": r[16],
+         "residue_name_1": r[17:20],
+         "chain_id_1": r[21],
+         "residue_id_1": r[22:26],
+         "insert_code_1": r[26],
+         "atom_2": r[42:46],
+         "alt_loc_2": r[46],
+         "residue_name_2": r[47:50],
+         "chain_id_2": r[51],
+         "residue_id_2": r[52:56],
+         "insert_code_2": r[56],
+         "symmetry_1": r.get_as_string(59, 65),
+         "symmetry_2": r.get_as_string(66, 72),
+         "length": r[73:78]
+        } for r in links]
+
+
+    def process_cispep(self):
+        cispeps = self.pdb_file.get_records_by_name("CISPEP")
+        self.cis_peptides = [{
+         "serial_num": r[7:10],
+         "residue_name_1": r[11:14],
+         "chain_id_1": r[15],
+         "residue_id_1": r[17:21],
+         "insert_1": r[21],
+         "residue_name_2": r[25:28],
+         "chain_id_2": r[29],
+         "residue_id_2": r[31:35],
+         "insert_2": r[35],
+         "model_number": r[43:46],
+         "angle": r[54:59]
+        } for r in cispeps]
 
 
 def date_from_string(s):

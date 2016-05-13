@@ -441,3 +441,7 @@ HELIX    1   1 VAL A   11  ASN A   13  5                                   3
 HELIX    2   2 ASN A   23  ARG A   35  1                                  13
 SHEET    1   A 2 LEU A  15  MET A  19  0
 SHEET    2   A 2 THR A  40  GLY A  44  1  O  LYS A  42   N  LEU A  17
+SSBOND   1 CYS A  123    CYS A  155                          1555   1555  2.04
+LINK         O   TYR A 146                 K     K A 501     1555   1555  2.75
+LINK         OG1 THR A 143                 K     K A 504     1555   1555
+CISPEP     ASP B 1188    PRO B 1189          0         0.35

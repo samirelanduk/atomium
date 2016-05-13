@@ -601,3 +601,86 @@ class SecondaryStructureSectionTest(PdbDataFileTest):
          ]
         )
         self.assertEqual(self.empty_data_file.sheets, [])
+
+
+
+class ConnectivityAnnotationSectionTest(PdbDataFileTest):
+
+    def test_ssbond(self):
+        self.assertEqual(
+         self.data_file.ss_bonds,
+         [{
+          "serial_num": 1,
+          "residue_name_1": "CYS",
+          "chain_id_1": "A",
+          "residue_id_1": 123,
+          "insert_code_1": None,
+          "residue_name_2": "CYS",
+          "chain_id_2": "A",
+          "residue_id_2": 155,
+          "insert_code_2": None,
+          "symmetry_1": "1555",
+          "symmetry_2": "1555",
+          "length": 2.04
+         }]
+        )
+        self.assertEqual(self.empty_data_file.ss_bonds, [])
+
+
+    def test_link(self):
+        self.assertEqual(
+         self.data_file.links,
+         [{
+          "atom_1": "O",
+          "alt_loc_1": None,
+          "residue_name_1": "TYR",
+          "chain_id_1": "A",
+          "residue_id_1": 146,
+          "insert_code_1": None,
+          "atom_2": "K",
+          "alt_loc_2": None,
+          "residue_name_2": "K",
+          "chain_id_2": "A",
+          "residue_id_2": 501,
+          "insert_code_2": None,
+          "symmetry_1": "1555",
+          "symmetry_2": "1555",
+          "length": 2.75
+         }, {
+          "atom_1": "OG1",
+          "alt_loc_1": None,
+          "residue_name_1": "THR",
+          "chain_id_1": "A",
+          "residue_id_1": 143,
+          "insert_code_1": None,
+          "atom_2": "K",
+          "alt_loc_2": None,
+          "residue_name_2": "K",
+          "chain_id_2": "A",
+          "residue_id_2": 504,
+          "insert_code_2": None,
+          "symmetry_1": "1555",
+          "symmetry_2": "1555",
+          "length": None
+         }]
+        )
+        self.assertEqual(self.empty_data_file.links, [])
+
+
+    def test_cispep(self):
+        self.assertEqual(
+         self.data_file.cis_peptides,
+         [{
+          "serial_num": None,
+          "residue_name_1": "ASP",
+          "chain_id_1": "B",
+          "residue_id_1": 1188,
+          "insert_1": None,
+          "residue_name_2": "PRO",
+          "chain_id_2": "B",
+          "residue_id_2": 1189,
+          "insert_2": None,
+          "model_number": 0,
+          "angle": 0.35
+         }]
+        )

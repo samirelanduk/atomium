@@ -428,3 +428,78 @@ class PrimaryStructureSectionTest(PdbDataFileTest):
          ]
         )
         self.assertEqual(self.empty_data_file.modifies_residues, [])
+
+
+
+class HeterogenSectionTest(PdbDataFileTest):
+
+    def test_het(self):
+        self.assertEqual(
+         self.data_file.hets,
+         [
+          {
+           "het_name": "BU2",
+           "chain_id": "A",
+           "het_id": 5001,
+           "insert_code": None,
+           "atom_num": 6,
+           "description": None
+          }, {
+           "het_name": "BU2",
+           "chain_id": "B",
+           "het_id": 5002,
+           "insert_code": None,
+           "atom_num": 6,
+           "description": None
+          }, {
+           "het_name": "XMP",
+           "chain_id": "A",
+           "het_id": 2001,
+           "insert_code": None,
+           "atom_num": 24,
+           "description": None
+          }, {
+           "het_name": "XMP",
+           "chain_id": "B",
+           "het_id": 2002,
+           "insert_code": None,
+           "atom_num": 24,
+           "description": None
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.hets, [])
+
+
+    def test_hetnam(self):
+        self.assertEqual(
+         self.data_file.het_names,
+         {
+          "BU2": "1,3-BUTANEDIOL",
+          "XMP": "XANTHOSINE-5'-MONOPHOSPHATE"
+         }
+        )
+        self.assertEqual(self.empty_data_file.het_names, {})
+
+
+    def test_hetsyn(self):
+        self.assertEqual(
+         self.data_file.het_synonyms,
+         {
+          "BU2": ["BOOM BOOM BOMB", "WYRDSTUFF"],
+          "XMP": ["5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"]
+         }
+        )
+        self.assertEqual(self.empty_data_file.het_synonyms, {})
+
+
+    def test_formul(self):
+        self.assertEqual(
+         self.data_file.het_formulae,
+         {
+          "BU2": {"component_number": 3, "is_water": False, "formula": "2(C4 H10 O2)"},
+          "XMP": {"component_number": 5, "is_water": False, "formula": "2(C10 H14 N4 O9 P 1+)"},
+          "HOH": {"component_number": 7, "is_water": True, "formula": "180(H2 O)"}
+         }
+        )
+        self.assertEqual(self.empty_data_file.het_formulae, {})

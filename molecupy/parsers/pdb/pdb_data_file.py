@@ -46,6 +46,12 @@ class PdbDataFile:
         self.process_scale()
         self.process_mtrix()
 
+        self.process_model()
+        self.process_atom()
+        self.process_anisou()
+        self.process_ter()
+        self.process_hetatm()
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -520,6 +526,105 @@ class PdbDataFile:
         self.crystal_m33 = mtrix3[30:40] if mtrix3 else None
         self.crystal_v3 = mtrix3[45:55] if mtrix3 else None
         self.crystal_i_given_3 = mtrix3[59] == 1 if mtrix3 else False
+
+
+    def process_model(self):
+        models = self.pdb_file.get_records_by_name("MODEL")
+        endmdls = self.pdb_file.get_records_by_name("ENDMDL")
+        pairs = list(zip(models, endmdls))
+        self.models = [{
+         "model_id": int(pair[0][10:14]),
+         "start_record": pair[0].number,
+         "end_record": pair[1].number,
+        } for pair in pairs]
+
+
+    def process_atom(self):
+        atoms = self.pdb_file.get_records_by_name("ATOM")
+        self.atoms = [{
+         "atom_id": int(r[6:11]),
+         "atom_name": r[12:16],
+         "alt_loc": r[16],
+         "residue_name": r[17:20],
+         "chain": r[21],
+         "residue_id": int(r[22:26]),
+         "insert_code": r[26],
+         "x": float(r[30:38]),
+         "y": float(r[38:46]),
+         "z": float(r[46:54]),
+         "occupancy": float(r[54:60]),
+         "temperature_factor": float(r[60:66]),
+         "element": r[76:78],
+         "charge": r[78:80],
+         "model_id": [m for m in self.models
+          if r.number > m["start_record"]
+           and r.number < m["end_record"]][0]["model_id"]
+            if self.models else 1
+        } for r in atoms]
+
+
+    def process_anisou(self):
+        anisou = self.pdb_file.get_records_by_name("ANISOU")
+        self.anisou = [{
+         "atom_id": int(r[6:11]),
+         "atom_name": r[12:16],
+         "alt_loc": r[16],
+         "residue_name": r[17:20],
+         "chain": r[21],
+         "residue_id": int(r[22:26]),
+         "insert_code": r[26],
+         "u11": int(r[29:35]),
+         "u22": int(r[36:42]),
+         "u33": int(r[43:49]),
+         "u12": int(r[50:56]),
+         "u13": int(r[57:63]),
+         "u23": int(r[64:70]),
+         "element": r[76:78],
+         "charge": r[78:80],
+         "model_id": [m for m in self.models
+          if r.number > m["start_record"]
+           and r.number < m["end_record"]][0]["model_id"]
+            if self.models else 1
+        } for r in anisou]
+
+
+    def process_ter(self):
+        ters = self.pdb_file.get_records_by_name("TER")
+        self.terminals = [{
+         "atom_id": int(r[6:11]),
+         "residue_name": r[17:20],
+         "chain": r[21],
+         "residue_id": int(r[22:26]),
+         "insert_code": r[26],
+         "model_id": [m for m in self.models
+          if r.number > m["start_record"]
+           and r.number < m["end_record"]][0]["model_id"]
+            if self.models else 1
+        } for r in ters]
+
+
+    def process_hetatm(self):
+        hetatms = self.pdb_file.get_records_by_name("HETATM")
+        self.heteroatoms = [{
+         "atom_id": int(r[6:11]),
+         "atom_name": r[12:16],
+         "alt_loc": r[16],
+         "residue_name": r[17:20],
+         "chain": r[21],
+         "residue_id": int(r[22:26]),
+         "insert_code": r[26],
+         "x": float(r[30:38]),
+         "y": float(r[38:46]),
+         "z": float(r[46:54]),
+         "occupancy": float(r[54:60]),
+         "temperature_factor": float(r[60:66]),
+         "element": r[76:78],
+         "charge": r[78:80],
+         "model_id": [m for m in self.models
+          if r.number > m["start_record"]
+           and r.number < m["end_record"]][0]["model_id"]
+            if self.models else 1
+        } for r in hetatms]
 
 
 

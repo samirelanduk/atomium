@@ -251,3 +251,180 @@ class TitleSectionTest(PdbDataFileTest):
           }, self.data_file.remarks
         )
         self.assertEqual(self.empty_data_file.remarks, [])
+
+
+
+class PrimaryStructureSectionTest(PdbDataFileTest):
+
+    def test_dbref(self):
+        self.assertEqual(
+         self.data_file.dbreferences,
+         [
+          {
+           "chain_id": "A",
+           "sequence_begin": 1,
+           "insert_begin": None,
+           "sequence_end": 229,
+           "insert_end": None,
+           "database": "UNP",
+           "accession": "O26232",
+           "db_id": "PYRF_METTH",
+           "db_sequence_begin": 1,
+           "db_insert_begin": None,
+           "db_sequence_end": 228,
+           "db_insert_end": None
+          }, {
+           "chain_id": "B",
+           "sequence_begin": 1001,
+           "insert_begin": None,
+           "sequence_end": 1229,
+           "insert_end": None,
+           "database": "UNP",
+           "accession": "O26232",
+           "db_id": "PYRF_METTH",
+           "db_sequence_begin": 1,
+           "db_insert_begin": None,
+           "db_sequence_end": 228,
+           "db_insert_end": None
+          }, {
+           "chain_id": "C",
+           "sequence_begin": 61,
+           "insert_begin": None,
+           "sequence_end": 322,
+           "insert_end": None,
+           "database": "GB",
+           "accession": "46197919",
+           "db_id": "AE017221",
+           "db_sequence_begin": 1534489,
+           "db_insert_begin": None,
+           "db_sequence_end": 1537377,
+           "db_insert_end": None
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.dbreferences, [])
+
+
+    def test_seqadv(self):
+        self.assertEqual(
+         self.data_file.sequence_differences,
+         [
+          {
+           "residue_name": "GLU",
+           "chain_id": "A",
+           "residue_id": 229,
+           "insert_code": None,
+           "database": "UNP",
+           "accession": "O26232",
+           "db_residue_name": None,
+           "db_residue_id": None,
+           "conflict": "INSERTION"
+          }, {
+           "residue_name": "GLU",
+           "chain_id": "B",
+           "residue_id": 1229,
+           "insert_code": None,
+           "database": "UNP",
+           "accession": "O26232",
+           "db_residue_name": None,
+           "db_residue_id": None,
+           "conflict": "INSERTION"
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.sequence_differences, [])
+
+
+    def test_seqres(self):
+        self.assertEqual(
+         self.data_file.residue_sequences,
+         [
+          {
+           "chain_id": "A",
+           "length": 229,
+           "residues": [
+            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
+            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE",
+            "LEU", "ALA", "MET", "ASP", "LEU", "MET", "ASN", "ARG",
+            "ASP", "ASP", "ALA", "LEU", "ARG", "VAL", "THR", "GLY",
+            "GLU", "VAL", "ARG", "GLU", "TYR", "ILE", "ASP", "THR",
+            "VAL", "LYS", "ILE", "GLY", "TYR", "PRO", "LEU", "VAL",
+            "LEU", "SER", "GLU", "GLY", "MET", "ASP", "ILE", "ILE",
+            "ALA", "GLU", "PHE", "ARG", "LYS", "ARG", "PHE", "GLY",
+            "CYS", "ARG", "ILE", "ILE", "ALA", "ASP", "PHE", "LYS",
+            "VAL", "ALA", "ASP", "ILE", "PRO", "GLU", "THR", "ASN",
+            "GLU", "LYS", "ILE", "CYS", "ARG", "ALA", "THR", "PHE",
+            "LYS", "ALA", "GLY", "ALA", "ASP", "ALA", "ILE", "ILE",
+            "VAL", "HIS", "GLY", "PHE", "PRO", "GLY", "ALA", "ASP",
+            "SER", "VAL", "ARG", "ALA", "CYS", "LEU", "ASN", "VAL",
+            "ALA", "GLU", "GLU", "MET", "GLY", "ARG", "GLU", "VAL",
+            "PHE", "LEU", "LEU", "THR", "GLU", "MET", "SER", "HIS",
+            "PRO", "GLY", "ALA", "GLU", "MET", "PHE", "ILE", "GLN",
+            "GLY", "ALA", "ALA", "ASP", "GLU", "ILE", "ALA", "ARG",
+            "MET", "GLY", "VAL", "ASP", "LEU", "GLY", "VAL", "LYS",
+            "ASN", "TYR", "VAL", "GLY", "PRO", "SER", "THR", "ARG",
+            "PRO", "GLU", "ARG", "LEU", "SER", "ARG", "LEU", "ARG",
+            "GLU", "ILE", "ILE", "GLY", "GLN", "ASP", "SER", "PHE",
+            "LEU", "ILE", "SER", "PRO", "GLY", "VAL", "GLY", "ALA",
+            "GLN", "GLY", "GLY", "ASP", "PRO", "GLY", "GLU", "THR",
+            "LEU", "ARG", "PHE", "ALA", "ASP", "ALA", "ILE", "ILE",
+            "VAL", "GLY", "ARG", "SER", "ILE", "TYR", "LEU", "ALA",
+            "ASP", "ASN", "PRO", "ALA", "ALA", "ALA", "ALA", "ALA",
+            "GLY", "ILE", "ILE", "GLU", "SER", "ILE", "LYS", "ASP",
+            "LEU", "LEU", "ILE", "PRO", "GLU"
+           ]
+          }, {
+           "chain_id": "B",
+           "length": 229,
+           "residues": [
+            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
+            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE",
+            "LEU", "ALA", "MET", "ASP", "LEU", "MET", "ASN", "ARG",
+            "ASP", "ASP", "ALA", "LEU", "ARG", "VAL", "THR", "GLY",
+            "GLU", "VAL", "ARG", "GLU", "TYR", "ILE", "ASP", "THR",
+            "VAL", "LYS", "ILE", "GLY", "TYR", "PRO", "LEU", "VAL",
+            "LEU", "SER", "GLU", "GLY", "MET", "ASP", "ILE", "ILE",
+            "ALA", "GLU", "PHE", "ARG", "LYS", "ARG", "PHE", "GLY",
+            "CYS", "ARG", "ILE", "ILE", "ALA", "ASP", "PHE", "LYS",
+            "VAL", "ALA", "ASP", "ILE", "PRO", "GLU", "THR", "ASN",
+            "GLU", "LYS", "ILE", "CYS", "ARG", "ALA", "THR", "PHE",
+            "LYS", "ALA", "GLY", "ALA", "ASP", "ALA", "ILE", "ILE",
+            "VAL", "HIS", "GLY", "PHE", "PRO", "GLY", "ALA", "ASP",
+            "SER", "VAL", "ARG", "ALA", "CYS", "LEU", "ASN", "VAL",
+            "ALA", "GLU", "GLU", "MET", "GLY", "ARG", "GLU", "VAL",
+            "PHE", "LEU", "LEU", "THR", "GLU", "MET", "SER", "HIS",
+            "PRO", "GLY", "ALA", "GLU", "MET", "PHE", "ILE", "GLN",
+            "GLY", "ALA", "ALA", "ASP", "GLU", "ILE", "ALA", "ARG",
+            "MET", "GLY", "VAL", "ASP", "LEU", "GLY", "VAL", "LYS",
+            "ASN", "TYR", "VAL", "GLY", "PRO", "SER", "THR", "ARG",
+            "PRO", "GLU", "ARG", "LEU", "SER", "ARG", "LEU", "ARG",
+            "GLU", "ILE", "ILE", "GLY", "GLN", "ASP", "SER", "PHE",
+            "LEU", "ILE", "SER", "PRO", "GLY", "VAL", "GLY", "ALA",
+            "GLN", "GLY", "GLY", "ASP", "PRO", "GLY", "GLU", "THR",
+            "LEU", "ARG", "PHE", "ALA", "ASP", "ALA", "ILE", "ILE",
+            "VAL", "GLY", "ARG", "SER", "ILE", "TYR", "LEU", "ALA",
+            "ASP", "ASN", "PRO", "ALA", "ALA", "ALA", "ALA", "ALA",
+            "GLY", "ILE", "ILE", "GLU", "SER", "ILE", "LYS", "ASP",
+            "LEU", "LEU", "ILE", "PRO", "GLU"
+           ]
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.residue_sequences, [])
+
+
+    def test_modres(self):
+        self.assertEqual(
+         self.data_file.modifies_residues,
+         [
+          {
+           "residue_name": "ASP",
+           "chain_id": "A",
+           "residue_id": 10,
+           "insert_code": None,
+           "standard_resisdue_name": 'ASP',
+           "comment": "GLYCOSYLATION SITE"
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.modifies_residues, [])

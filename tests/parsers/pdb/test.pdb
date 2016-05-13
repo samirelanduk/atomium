@@ -445,3 +445,7 @@ SSBOND   1 CYS A  123    CYS A  155                          1555   1555  2.04
 LINK         O   TYR A 146                 K     K A 501     1555   1555  2.75
 LINK         OG1 THR A 143                 K     K A 504     1555   1555
 CISPEP     ASP B 1188    PRO B 1189          0         0.35
+SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155
+SITE     2 AC1  6 XMP A2001  HOH A3015
+SITE     1 AC3  8 ALA A  18  ASP A  20  LYS A  42  ASP A  70
+SITE     2 AC3  8 MET A 126  SER A 127  SER A 158  PRO A 180

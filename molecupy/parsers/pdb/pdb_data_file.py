@@ -39,6 +39,8 @@ class PdbDataFile:
         self.process_link()
         self.process_cispep()
 
+        self.process_site()
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -418,6 +420,30 @@ class PdbDataFile:
          "model_number": r[43:46],
          "angle": r[54:59]
         } for r in cispeps]
+
+
+    def process_site(self):
+        sites = self.pdb_file.get_records_by_name("SITE")
+        site_names = sorted(list(set([r[11:14] for r in sites])))
+        self.sites = []
+        for site_name in site_names:
+            records = [r for r in sites if r[11:14] == site_name]
+            residues = []
+            for r in records:
+                for i in range(1, 5):
+                    if r[(i * 11) + 7: (i * 11) + 17]:
+                        residues.append({
+                         "residue_name": r[(i * 11) + 7: (i * 11) + 10],
+                         "chain": r[(i * 11) + 11],
+                         "residue_id": r[(i * 11) + 12: (i * 11) + 16],
+                         "insert_code":  r[(i * 11) + 17]
+                        })
+            self.sites.append({
+             "site_id": site_name,
+             "residue_count": records[0][15:17],
+             "residues": residues
+            })
+
 
 
 def date_from_string(s):

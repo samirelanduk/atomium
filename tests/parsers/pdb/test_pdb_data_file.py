@@ -684,3 +684,40 @@ class ConnectivityAnnotationSectionTest(PdbDataFileTest):
           "angle": 0.35
          }]
         )
+
+
+
+class MiscellaneousSectionTest(PdbDataFileTest):
+
+    def test_site(self):
+        self.assertEqual(
+         self.data_file.sites,
+         [
+          {
+           "site_id": "AC1",
+           "residue_count": 6,
+           "residues": [
+            {"residue_name": "ASP", "chain": "A", "residue_id": 70, "insert_code": None},
+            {"residue_name": "LYS", "chain": "A", "residue_id": 72, "insert_code": None},
+            {"residue_name": "LEU", "chain": "A", "residue_id": 123, "insert_code": None},
+            {"residue_name": "VAL", "chain": "A", "residue_id": 155, "insert_code": None},
+            {"residue_name": "XMP", "chain": "A", "residue_id": 2001, "insert_code": None},
+            {"residue_name": "HOH", "chain": "A", "residue_id": 3015, "insert_code": None}
+           ]
+          }, {
+           "site_id": "AC3",
+           "residue_count": 8,
+           "residues": [
+            {"residue_name": "ALA", "chain": "A", "residue_id": 18, "insert_code": None},
+            {"residue_name": "ASP", "chain": "A", "residue_id": 20, "insert_code": None},
+            {"residue_name": "LYS", "chain": "A", "residue_id": 42, "insert_code": None},
+            {"residue_name": "ASP", "chain": "A", "residue_id": 70, "insert_code": None},
+            {"residue_name": "MET", "chain": "A", "residue_id": 126, "insert_code": None},
+            {"residue_name": "SER", "chain": "A", "residue_id": 127, "insert_code": None},
+            {"residue_name": "SER", "chain": "A", "residue_id": 158, "insert_code": None},
+            {"residue_name": "PRO", "chain": "A", "residue_id": 180, "insert_code": None}
+           ]
+          }
+         ]
+        )
+        self.assertEqual(self.empty_data_file.sites, [])

@@ -41,6 +41,11 @@ class PdbDataFile:
 
         self.process_site()
 
+        self.process_crystal()
+        self.process_origx()
+        self.process_scale()
+        self.process_mtrix()
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -443,6 +448,78 @@ class PdbDataFile:
              "residue_count": records[0][15:17],
              "residues": residues
             })
+
+
+    def process_crystal(self):
+        crystal = self.pdb_file.get_record_by_name("CRYST1")
+        self.crystal_a = crystal[6:15] if crystal else None
+        self.crystal_b = crystal[15:24] if crystal else None
+        self.crystal_c = crystal[24:33] if crystal else None
+        self.crystal_alpha = crystal[33:40] if crystal else None
+        self.crystal_beta = crystal[40:47] if crystal else None
+        self.crystal_gamma = crystal[47:54] if crystal else None
+        self.crystal_s_group = crystal[55:66] if crystal else None
+        self.crystal_z = crystal[66:70] if crystal else None
+
+
+    def process_origx(self):
+        origx1 = self.pdb_file.get_record_by_name("ORIGX1")
+        self.crystal_o11 = origx1[10:20] if origx1 else None
+        self.crystal_o12 = origx1[20:30] if origx1 else None
+        self.crystal_o13 = origx1[30:40] if origx1 else None
+        self.crystal_t1 = origx1[45:55] if origx1 else None
+        origx2 = self.pdb_file.get_record_by_name("ORIGX2")
+        self.crystal_o21 = origx2[10:20] if origx2 else None
+        self.crystal_o22 = origx2[20:30] if origx2 else None
+        self.crystal_o23 = origx2[30:40] if origx2 else None
+        self.crystal_t2 = origx2[45:55] if origx2 else None
+        origx3 = self.pdb_file.get_record_by_name("ORIGX3")
+        self.crystal_o31 = origx3[10:20] if origx3 else None
+        self.crystal_o32 = origx3[20:30] if origx3 else None
+        self.crystal_o33 = origx3[30:40] if origx3 else None
+        self.crystal_t3 = origx3[45:55] if origx3 else None
+
+
+    def process_scale(self):
+        scale1 = self.pdb_file.get_record_by_name("SCALE1")
+        self.crystal_s11 = scale1[10:20] if scale1 else None
+        self.crystal_s12 = scale1[20:30] if scale1 else None
+        self.crystal_s13 = scale1[30:40] if scale1 else None
+        self.crystal_u1 = scale1[45:55] if scale1 else None
+        scale2 = self.pdb_file.get_record_by_name("SCALE2")
+        self.crystal_s21 = scale2[10:20] if scale2 else None
+        self.crystal_s22 = scale2[20:30] if scale2 else None
+        self.crystal_s23 = scale2[30:40] if scale2 else None
+        self.crystal_u2 = scale2[45:55] if scale2 else None
+        scale3 = self.pdb_file.get_record_by_name("SCALE3")
+        self.crystal_s31 = scale3[10:20] if scale3 else None
+        self.crystal_s32 = scale3[20:30] if scale3 else None
+        self.crystal_s33 = scale3[30:40] if scale3 else None
+        self.crystal_u3 = scale3[45:55] if scale3 else None
+
+
+    def process_mtrix(self):
+        mtrix1 = self.pdb_file.get_record_by_name("MTRIX1")
+        self.crystal_serial_1 = mtrix1[7:10] if mtrix1 else None
+        self.crystal_m11 = mtrix1[10:20] if mtrix1 else None
+        self.crystal_m12 = mtrix1[20:30] if mtrix1 else None
+        self.crystal_m13 = mtrix1[30:40] if mtrix1 else None
+        self.crystal_v1 = mtrix1[45:55] if mtrix1 else None
+        self.crystal_i_given_1 = mtrix1[59] == 1 if mtrix1 else False
+        mtrix2 = self.pdb_file.get_record_by_name("MTRIX2")
+        self.crystal_serial_2 = mtrix2[7:10] if mtrix2 else None
+        self.crystal_m21 = mtrix2[10:20] if mtrix2 else None
+        self.crystal_m22 = mtrix2[20:30] if mtrix2 else None
+        self.crystal_m23 = mtrix2[30:40] if mtrix2 else None
+        self.crystal_v2 = mtrix2[45:55] if mtrix2 else None
+        self.crystal_i_given_2 = mtrix2[59] == 1 if mtrix2 else False
+        mtrix3 = self.pdb_file.get_record_by_name("MTRIX3")
+        self.crystal_serial_3 = mtrix3[7:10] if mtrix3 else None
+        self.crystal_m31 = mtrix3[10:20] if mtrix3 else None
+        self.crystal_m32 = mtrix3[20:30] if mtrix3 else None
+        self.crystal_m33 = mtrix3[30:40] if mtrix3 else None
+        self.crystal_v3 = mtrix3[45:55] if mtrix3 else None
+        self.crystal_i_given_3 = mtrix3[59] == 1 if mtrix3 else False
 
 
 

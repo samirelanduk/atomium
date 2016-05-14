@@ -50,5 +50,9 @@ class DuplicateSiteError(Exception):
     pass
 
 
+class InvalidPdbCodeError(Exception):
+    pass
+
+
 class LongBondWarning(Warning):
     pass

@@ -1,3 +1,5 @@
+from ...macromolecules import MacroModel
+
 class Pdb:
 
     def __init__(self, data_file):
@@ -25,6 +27,13 @@ class Pdb:
         ]
         for attr in transfer_attrs:
             self.__dict__[attr] = self.data_file.__dict__[attr]
+
+        self.models = []
+        for model in self.data_file.models:
+            self.models.append(MacroModel())
+        if not self.data_file.models:
+            self.models.append(MacroModel())
+        self.model = self.models[0]
 
 
     def __repr__(self):

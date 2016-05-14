@@ -666,7 +666,7 @@ def date_from_string(s):
 
 
 def merge_records(records, start, join=" ", dont_condense=""):
-    string = join.join(record[start:] if record[start:] else "" for record in records)
+    string = join.join(str(record[start:]) if record[start:] else "" for record in records)
     condense = [char for char in " ;:,-" if char not in dont_condense]
     for char in condense:
         string = string.replace(char + " ", char)

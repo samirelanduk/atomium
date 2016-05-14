@@ -1,3 +1,4 @@
+from ...molecules import Atom, Molecule
 from ...macromolecules import MacroModel
 
 class Pdb:
@@ -29,12 +30,41 @@ class Pdb:
             self.__dict__[attr] = self.data_file.__dict__[attr]
 
         self.models = []
-        for model in self.data_file.models:
-            self.models.append(MacroModel())
-        if not self.data_file.models:
-            self.models.append(MacroModel())
+        data_models = self.data_file.models if self.data_file.models else [{"model_id": 1}]
+        for model in data_models:
+            macro_model = MacroModel()
+            add_small_molecules(macro_model, self.data_file, model["model_id"])
+            self.models.append(macro_model)
         self.model = self.models[0]
 
 
     def __repr__(self):
         return "<Pdb (%s)>" % (self.pdb_code if self.pdb_code else "????")
+
+
+
+def add_small_molecules(model, data_file, model_id):
+    atoms = [atom for atom in data_file.heteroatoms if atom["model_id"] == model_id]
+    small_molecule_ids = set([a["residue_id"] for a in atoms])
+    for small_molecule_id in small_molecule_ids:
+        relevant_atom_dicts = [
+         a for a in atoms if a["residue_id"] == small_molecule_id
+        ]
+        relevant_atoms = set([Atom(
+         atom["x"], atom["y"], atom["z"],
+         atom["element"],
+         atom_id=atom["atom_id"],
+         atom_name=atom["atom_name"]
+        ) for atom in relevant_atom_dicts])
+        for connection in data_file.connections:
+            for atom in relevant_atoms:
+                if connection["atom_id"] == atom.atom_id:
+                    for other_atom_id in connection["bonded_atoms"]:
+                        for other_atom in relevant_atoms:
+                            if other_atom_id == other_atom.atom_id:
+                                atom.covalent_bond_to(other_atom)
+        model.add_small_molecule(Molecule(
+         *relevant_atoms,
+         molecule_id=small_molecule_id,
+         molecule_name=relevant_atom_dicts[0]["residue_name"]
+        ))

@@ -4,11 +4,12 @@ from molecupy.parsers.pdb.pdb_file import PdbFile
 from molecupy.parsers.pdb.pdb_data_file import PdbDataFile
 from molecupy.parsers.pdb.pdb import Pdb
 from molecupy.macromolecules import MacroModel
+from molecupy.molecules import Molecule
 
 class PdbTest(TestCase):
 
     def setUp(self):
-        with open("tests/parsers/pdb/test.pdb") as f:
+        with open("tests/parsers/pdb/1lol.pdb") as f:
            pdb_file = PdbFile(f.read())
            data_file = PdbDataFile(pdb_file)
            self.pdb = Pdb(data_file)
@@ -94,3 +95,18 @@ ENDMDL"""
     def test_pdbs_have_model(self):
         for pdb in (self.multi_model, self.single_model):
             self.assertIs(pdb.model, pdb.models[0])
+
+
+
+class PdbSmallMoleculeTests(PdbTest):
+
+    def test_pdb_has_small_molecules(self):
+        self.assertEqual(len(self.pdb.model.get_small_molecules()), 184)
+        for mol in self.pdb.model.get_small_molecules():
+            self.assertIsInstance(mol, Molecule)
+
+
+    def test_pdb_small_molecules_have_correct_names(self):
+        self.assertEqual(len(self.pdb.model.get_small_molecules_by_name("XMP")), 2)
+        self.assertEqual(len(self.pdb.model.get_small_molecules_by_name("BU2")), 2)
+        self.assertEqual(len(self.pdb.model.get_small_molecules_by_name("HOH")), 180)

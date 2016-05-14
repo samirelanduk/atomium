@@ -7,3 +7,8 @@ def pdb_from_string(string):
     pdb_data_file = PdbDataFile(pdb_file)
     pdb = Pdb(pdb_data_file)
     return pdb
+
+
+def get_pdb_from_file(path):
+    with open(path) as f:
+        return pdb_from_string(f.read())

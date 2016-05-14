@@ -58,7 +58,7 @@ class PdbDataFile:
 
 
     def __repr__(self):
-        return "<PdbDataFile (????)>"
+        return "<PdbDataFile (%s)>" % self.pdb_code if self.pdb_code else "????"
 
 
     def process_header(self):

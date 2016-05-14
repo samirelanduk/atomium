@@ -86,15 +86,6 @@ class SmallMoleculeAdditionTests(MacroModelTest):
             macro_model.add_chain("mol")
 
 
-    def test_molecules_must_be_unique(self):
-        macro_model = MacroModel()
-        self.molecule1.molecule_id = 23
-        self.molecule2.molecule_id = 23
-        macro_model.add_small_molecule(self.molecule1)
-        with self.assertRaises(exceptions.DuplicateMoleculeError):
-            macro_model.add_small_molecule(self.molecule2)
-
-
     def test_can_get_small_molecules_by_id(self):
         macro_model = MacroModel()
         self.molecule1.molecule_id = 1

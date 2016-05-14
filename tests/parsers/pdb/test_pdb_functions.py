@@ -32,3 +32,11 @@ class PdbFromFileTests(TestCase):
     def test_invalid_code_raises_error(self):
         with self.assertRaises(exceptions.InvalidPdbCodeError):
             pdb = get_pdb_remotely("XXXX")
+
+
+
+class GeneralPdbTests(TestCase):
+
+    def test_water_molecules_with_clashing_mol_ids_are_handled(self):
+        # A HOH molecule and a 1YE molecule both have ID 401
+        pdb = get_pdb_remotely("4LOL")

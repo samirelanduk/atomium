@@ -45,26 +45,30 @@ class Pdb:
 
 def add_small_molecules(model, data_file, model_id):
     atoms = [atom for atom in data_file.heteroatoms if atom["model_id"] == model_id]
+    small_molecule_names = set([a["residue_name"] for a in atoms])
     small_molecule_ids = set([a["residue_id"] for a in atoms])
-    for small_molecule_id in small_molecule_ids:
-        relevant_atom_dicts = [
-         a for a in atoms if a["residue_id"] == small_molecule_id
-        ]
-        relevant_atoms = set([Atom(
-         atom["x"], atom["y"], atom["z"],
-         atom["element"],
-         atom_id=atom["atom_id"],
-         atom_name=atom["atom_name"]
-        ) for atom in relevant_atom_dicts])
-        for connection in data_file.connections:
-            for atom in relevant_atoms:
-                if connection["atom_id"] == atom.atom_id:
-                    for other_atom_id in connection["bonded_atoms"]:
-                        for other_atom in relevant_atoms:
-                            if other_atom_id == other_atom.atom_id:
-                                atom.covalent_bond_to(other_atom)
-        model.add_small_molecule(Molecule(
-         *relevant_atoms,
-         molecule_id=small_molecule_id,
-         molecule_name=relevant_atom_dicts[0]["residue_name"]
-        ))
+    for small_molecule_name in small_molecule_names:
+        for small_molecule_id in small_molecule_ids:
+            relevant_atoms = [
+             a for a in atoms if a["residue_id"] == small_molecule_id
+              and a["residue_name"] == small_molecule_name
+            ]
+            if relevant_atoms:
+                relevant_atoms = set([Atom(
+                 atom["x"], atom["y"], atom["z"],
+                 atom["element"],
+                 atom_id=atom["atom_id"],
+                 atom_name=atom["atom_name"]
+                ) for atom in relevant_atoms])
+                for connection in data_file.connections:
+                    for atom in relevant_atoms:
+                        if connection["atom_id"] == atom.atom_id:
+                            for other_atom_id in connection["bonded_atoms"]:
+                                for other_atom in relevant_atoms:
+                                    if other_atom_id == other_atom.atom_id:
+                                        atom.covalent_bond_to(other_atom)
+                model.add_small_molecule(Molecule(
+                 *relevant_atoms,
+                 molecule_id=small_molecule_id,
+                 molecule_name=small_molecule_name
+                ))

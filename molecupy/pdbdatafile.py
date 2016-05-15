@@ -32,6 +32,13 @@ class PdbDataFile:
         process_hetsyn(self)
         process_formul(self)
 
+        process_helix(self)
+        process_sheet(self)
+
+        process_ssbond(self)
+        process_link(self)
+        process_cispep(self)
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -340,3 +347,112 @@ def process_formul(data_file):
       )
      } for het_id in ids
     }
+
+
+def process_helix(data_file):
+    helix = data_file.pdb_file.get_records_by_name("HELIX")
+    data_file.helices = [{
+     "helix_id": r[7:10],
+     "helix_name": r.get_as_string(11, 14),
+     "start_residue_name": r[15:18],
+     "start_residue_chain_id": r[19],
+     "start_residue_id": r[21:25],
+     "start_residue_insert": r[25],
+     "end_residue_name": r[27:30],
+     "end_residue_chain_id": r[31],
+     "end_residue_id": r[33:37],
+     "end_residue_insert": r[37],
+     "helix_class": r[38:40],
+     "comment": r[40:70],
+     "length": r[71:76]
+    } for r in helix]
+
+
+def process_sheet(data_file):
+    sheets = data_file.pdb_file.get_records_by_name("SHEET")
+    sheet_names = sorted(list(set([r[11:14] for r in sheets])))
+    data_file.sheets = []
+    for sheet_name in sheet_names:
+        strands = [r for r in sheets if r[11:14] == sheet_name]
+        data_file.sheets.append({
+         "sheet_id": sheet_name,
+         "strand_count": strands[0][14:16],
+         "strands": [{
+          "strand_id": r[7:10],
+          "start_residue_name": r[17:20],
+          "start_residue_chain_id": r[21],
+          "start_residue_id": r[22:26],
+          "start_residue_insert": r[26],
+          "end_residue_name": r[28:31],
+          "end_residue_chain_id": r[32],
+          "end_residue_id": r[33:37],
+          "end_residue_insert": r[37],
+          "sense": r[38:40],
+          "current_atom": r[41:45],
+          "current_residue_name": r[45:48],
+          "current_chain_id": r[49],
+          "current_residue_id": r[50:54],
+          "current_insert": r[54],
+          "previous_atom": r[56:60],
+          "previous_residue_name": r[60:63],
+          "previous_chain_id": r[64],
+          "previous_residue_id": r[65:69],
+          "previous_insert": r[69]
+         } for r in strands]
+        })
+
+
+def process_ssbond(data_file):
+    ssbonds = data_file.pdb_file.get_records_by_name("SSBOND")
+    data_file.ss_bonds = [{
+     "serial_num": r[7:10],
+     "residue_name_1": r[11:14],
+     "chain_id_1": r[15],
+     "residue_id_1": r[17:21],
+     "insert_code_1": r[21],
+     "residue_name_2": r[25:28],
+     "chain_id_2": r[29],
+     "residue_id_2": r[31:35],
+     "insert_code_2": r[35],
+     "symmetry_1": r.get_as_string(59, 65),
+     "symmetry_2": r.get_as_string(66, 72),
+     "length": r[73:78]
+    } for r in ssbonds]
+
+
+def process_link(data_file):
+    links = data_file.pdb_file.get_records_by_name("LINK")
+    data_file.links = [{
+     "atom_1": r[12:16],
+     "alt_loc_1": r[16],
+     "residue_name_1": r[17:20],
+     "chain_id_1": r[21],
+     "residue_id_1": r[22:26],
+     "insert_code_1": r[26],
+     "atom_2": r[42:46],
+     "alt_loc_2": r[46],
+     "residue_name_2": r[47:50],
+     "chain_id_2": r[51],
+     "residue_id_2": r[52:56],
+     "insert_code_2": r[56],
+     "symmetry_1": r.get_as_string(59, 65),
+     "symmetry_2": r.get_as_string(66, 72),
+     "length": r[73:78]
+    } for r in links]
+
+
+def process_cispep(data_file):
+    cispeps = data_file.pdb_file.get_records_by_name("CISPEP")
+    data_file.cis_peptides = [{
+     "serial_num": r[7:10],
+     "residue_name_1": r[11:14],
+     "chain_id_1": r[15],
+     "residue_id_1": r[17:21],
+     "insert_1": r[21],
+     "residue_name_2": r[25:28],
+     "chain_id_2": r[29],
+     "residue_id_2": r[31:35],
+     "insert_2": r[35],
+     "model_number": r[43:46],
+     "angle": r[54:59]
+    } for r in cispeps]

@@ -1042,3 +1042,212 @@ class FormulRecordTests(PdbDataFileTest):
 
     def test_missing_formul_processing(self):
         self.assertEqual(self.empty.formulae, {})
+
+
+
+class HelixRecordTests(PdbDataFileTest):
+
+    def test_helix_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HELIX    1   1 VAL A   11  ASN A   13  5                                   3\n"
+         "HELIX    2   2 ASN A   23  ARG A   35  1                                  13"
+        ))
+        self.assertEqual(
+         data_file.helices,
+         [
+          {
+           "helix_id": 1,
+           "helix_name": "1",
+           "start_residue_name": "VAL",
+           "start_residue_chain_id": "A",
+           "start_residue_id": 11,
+           "start_residue_insert": None,
+           "end_residue_name": "ASN",
+           "end_residue_chain_id": "A",
+           "end_residue_id": 13,
+           "end_residue_insert": None,
+           "helix_class": 5,
+           "comment": None,
+           "length": 3
+          }, {
+           "helix_id": 2,
+           "helix_name": "2",
+           "start_residue_name": "ASN",
+           "start_residue_chain_id": "A",
+           "start_residue_id": 23,
+           "start_residue_insert": None,
+           "end_residue_name": "ARG",
+           "end_residue_chain_id": "A",
+           "end_residue_id": 35,
+           "end_residue_insert": None,
+           "helix_class": 1,
+           "comment": None,
+           "length": 13
+          }
+         ]
+        )
+
+
+    def test_missing_helix_processing(self):
+        self.assertEqual(self.empty.helices, [])
+
+
+
+class SheetRecordTests(PdbDataFileTest):
+
+    def test_sheet_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SHEET    1   A 2 LEU A  15  MET A  19  0\n"
+         "SHEET    2   A 2 THR A  40  GLY A  44  1  O  LYS A  42   N  LEU A  17"
+        ))
+        self.assertEqual(
+         data_file.sheets,
+         [
+          {
+           "sheet_id": "A",
+           "strand_count": 2,
+           "strands": [{
+            "strand_id": 1,
+            "start_residue_name": "LEU",
+            "start_residue_chain_id": "A",
+            "start_residue_id": 15,
+            "start_residue_insert": None,
+            "end_residue_name": "MET",
+            "end_residue_chain_id": "A",
+            "end_residue_id": 19,
+            "end_residue_insert": None,
+            "sense": 0,
+            "current_atom": None,
+            "current_residue_name": None,
+            "current_chain_id": None,
+            "current_residue_id": None,
+            "current_insert": None,
+            "previous_atom": None,
+            "previous_residue_name": None,
+            "previous_chain_id": None,
+            "previous_residue_id": None,
+            "previous_insert": None
+           }, {
+            "strand_id": 2,
+            "start_residue_name": "THR",
+            "start_residue_chain_id": "A",
+            "start_residue_id": 40,
+            "start_residue_insert": None,
+            "end_residue_name": "GLY",
+            "end_residue_chain_id": "A",
+            "end_residue_id": 44,
+            "end_residue_insert": None,
+            "sense": 1,
+            "current_atom": "O",
+            "current_residue_name": "LYS",
+            "current_chain_id": "A",
+            "current_residue_id": 42,
+            "current_insert": None,
+            "previous_atom": "N",
+            "previous_residue_name": "LEU",
+            "previous_chain_id": "A",
+            "previous_residue_id": 17,
+            "previous_insert": None
+           }]
+          }
+         ]
+        )
+
+
+    def test_missing_sheet_processing(self):
+        self.assertEqual(self.empty.sheets, [])
+
+
+
+class SsbondRecordTests(PdbDataFileTest):
+
+    def test_ssbond_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SSBOND   1 CYS A  123    CYS A  155                          1555   1555  2.04"
+        ))
+        self.assertEqual(
+         data_file.ss_bonds,
+         [{
+          "serial_num": 1,
+          "residue_name_1": "CYS",
+          "chain_id_1": "A",
+          "residue_id_1": 123,
+          "insert_code_1": None,
+          "residue_name_2": "CYS",
+          "chain_id_2": "A",
+          "residue_id_2": 155,
+          "insert_code_2": None,
+          "symmetry_1": "1555",
+          "symmetry_2": "1555",
+          "length": 2.04
+         }]
+        )
+
+
+    def test_missing_ssbond_processing(self):
+        self.assertEqual(self.empty.ss_bonds, [])
+
+
+
+class LinkRecordTests(PdbDataFileTest):
+
+    def test_link_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "LINK         O   TYR A 146                 K     K A 501     1555   1555  2.75"
+        ))
+        self.maxDiff = None
+        self.assertEqual(
+         data_file.links,
+         [
+          {
+           "atom_1": "O",
+           "alt_loc_1": None,
+           "residue_name_1": "TYR",
+           "chain_id_1": "A",
+           "residue_id_1": 146,
+           "insert_code_1": None,
+           "atom_2": "K",
+           "alt_loc_2": None,
+           "residue_name_2": "K",
+           "chain_id_2": "A",
+           "residue_id_2": 501,
+           "insert_code_2": None,
+           "symmetry_1": "1555",
+           "symmetry_2": "1555",
+           "length": 2.75
+          }
+         ]
+        )
+
+
+    def test_missing_link_processing(self):
+        self.assertEqual(self.empty.links, [])
+
+
+
+class CispepRecordTests(PdbDataFileTest):
+
+    def test_cispep_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CISPEP     ASP B 1188    PRO B 1189          0         0.35"
+        ))
+        self.assertEqual(
+         data_file.cis_peptides,
+         [{
+          "serial_num": None,
+          "residue_name_1": "ASP",
+          "chain_id_1": "B",
+          "residue_id_1": 1188,
+          "insert_1": None,
+          "residue_name_2": "PRO",
+          "chain_id_2": "B",
+          "residue_id_2": 1189,
+          "insert_2": None,
+          "model_number": 0,
+          "angle": 0.35
+         }]
+        )
+
+
+    def test_missing_cispep_processing(self):
+        self.assertEqual(self.empty.cis_peptides, [])

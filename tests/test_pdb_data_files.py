@@ -1233,21 +1233,223 @@ class CispepRecordTests(PdbDataFileTest):
         ))
         self.assertEqual(
          data_file.cis_peptides,
-         [{
-          "serial_num": None,
-          "residue_name_1": "ASP",
-          "chain_id_1": "B",
-          "residue_id_1": 1188,
-          "insert_1": None,
-          "residue_name_2": "PRO",
-          "chain_id_2": "B",
-          "residue_id_2": 1189,
-          "insert_2": None,
-          "model_number": 0,
-          "angle": 0.35
-         }]
+         [
+          {
+           "serial_num": None,
+           "residue_name_1": "ASP",
+           "chain_id_1": "B",
+           "residue_id_1": 1188,
+           "insert_1": None,
+           "residue_name_2": "PRO",
+           "chain_id_2": "B",
+           "residue_id_2": 1189,
+           "insert_2": None,
+           "model_number": 0,
+           "angle": 0.35
+          }
+         ]
         )
 
 
     def test_missing_cispep_processing(self):
         self.assertEqual(self.empty.cis_peptides, [])
+
+
+
+class SiteRecordTests(PdbDataFileTest):
+
+    def test_site_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155\n"
+         "SITE     2 AC1  6 XMP A2001  HOH A3015\n"
+         "SITE     1 AC3  8 ALA A  18  ASP A  20  LYS A  42  ASP A  70\n"
+         "SITE     2 AC3  8 MET A 126  SER A 127  SER A 158  PRO A 180"
+        ))
+        self.assertEqual(
+         data_file.sites,
+         [
+          {
+           "site_id": "AC1",
+           "residue_count": 6,
+           "residues": [
+            {"residue_name": "ASP", "chain": "A", "residue_id": 70, "insert_code": None},
+            {"residue_name": "LYS", "chain": "A", "residue_id": 72, "insert_code": None},
+            {"residue_name": "LEU", "chain": "A", "residue_id": 123, "insert_code": None},
+            {"residue_name": "VAL", "chain": "A", "residue_id": 155, "insert_code": None},
+            {"residue_name": "XMP", "chain": "A", "residue_id": 2001, "insert_code": None},
+            {"residue_name": "HOH", "chain": "A", "residue_id": 3015, "insert_code": None}
+           ]
+          }, {
+           "site_id": "AC3",
+           "residue_count": 8,
+           "residues": [
+            {"residue_name": "ALA", "chain": "A", "residue_id": 18, "insert_code": None},
+            {"residue_name": "ASP", "chain": "A", "residue_id": 20, "insert_code": None},
+            {"residue_name": "LYS", "chain": "A", "residue_id": 42, "insert_code": None},
+            {"residue_name": "ASP", "chain": "A", "residue_id": 70, "insert_code": None},
+            {"residue_name": "MET", "chain": "A", "residue_id": 126, "insert_code": None},
+            {"residue_name": "SER", "chain": "A", "residue_id": 127, "insert_code": None},
+            {"residue_name": "SER", "chain": "A", "residue_id": 158, "insert_code": None},
+            {"residue_name": "PRO", "chain": "A", "residue_id": 180, "insert_code": None}
+           ]
+          }
+         ]
+        )
+
+
+    def test_missing_site_processing(self):
+        self.assertEqual(self.empty.sites, [])
+
+
+
+class CrystalRecordTests(PdbDataFileTest):
+
+    def test_crystal_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CRYST1   57.570   55.482   66.129  90.00  94.28  90.00 P 1 21 1      4"
+        ))
+        self.assertEqual(data_file.crystal_a, 57.57)
+        self.assertEqual(data_file.crystal_b, 55.482)
+        self.assertEqual(data_file.crystal_c, 66.129)
+        self.assertEqual(data_file.crystal_alpha, 90.0)
+        self.assertEqual(data_file.crystal_beta, 94.28)
+        self.assertEqual(data_file.crystal_gamma, 90.0)
+        self.assertEqual(data_file.crystal_s_group, "P 1 21 1")
+        self.assertEqual(data_file.crystal_z, 4)
+
+
+    def test_missing_crystal_processing(self):
+        self.assertEqual(self.empty.crystal_a, None)
+        self.assertEqual(self.empty.crystal_b, None)
+        self.assertEqual(self.empty.crystal_c, None)
+        self.assertEqual(self.empty.crystal_alpha, None)
+        self.assertEqual(self.empty.crystal_beta, None)
+        self.assertEqual(self.empty.crystal_gamma, None)
+        self.assertEqual(self.empty.crystal_s_group, None)
+        self.assertEqual(self.empty.crystal_z, None)
+
+
+
+class OrigxRecordTests(PdbDataFileTest):
+
+    def test_origx_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "ORIGX1      0.963457  0.136613  0.230424       16.61000\n"
+         "ORIGX2     -0.158977  0.983924  0.081383       13.72000\n"
+         "ORIGX3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file.crystal_o11, 0.963457)
+        self.assertEqual(data_file.crystal_o12, 0.136613)
+        self.assertEqual(data_file.crystal_o13, 0.230424)
+        self.assertEqual(data_file.crystal_t1, 16.61)
+        self.assertEqual(data_file.crystal_o21, -0.158977)
+        self.assertEqual(data_file.crystal_o22, 0.983924)
+        self.assertEqual(data_file.crystal_o23, 0.081383)
+        self.assertEqual(data_file.crystal_t2, 13.72)
+        self.assertEqual(data_file.crystal_o31, -0.215598)
+        self.assertEqual(data_file.crystal_o32, -0.115048)
+        self.assertEqual(data_file.crystal_o33, 0.969683)
+        self.assertEqual(data_file.crystal_t3, 37.65)
+
+
+    def test_missing_origx_processing(self):
+        self.assertEqual(self.empty.crystal_o11, None)
+        self.assertEqual(self.empty.crystal_o12, None)
+        self.assertEqual(self.empty.crystal_o13, None)
+        self.assertEqual(self.empty.crystal_t1, None)
+        self.assertEqual(self.empty.crystal_o21, None)
+        self.assertEqual(self.empty.crystal_o22, None)
+        self.assertEqual(self.empty.crystal_o23, None)
+        self.assertEqual(self.empty.crystal_t2, None)
+        self.assertEqual(self.empty.crystal_o31, None)
+        self.assertEqual(self.empty.crystal_o32, None)
+        self.assertEqual(self.empty.crystal_o33, None)
+        self.assertEqual(self.empty.crystal_t3, None)
+
+
+
+class ScaleRecordTests(PdbDataFileTest):
+
+    def test_scale_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SCALE1      0.017370  0.000000  0.001301        0.00000\n"
+         "SCALE2      0.000000  0.018024  0.000000        0.00000\n"
+         "SCALE3      0.000000  0.000000  0.015164        0.00000"
+        ))
+        self.assertEqual(data_file.crystal_s11, 0.01737)
+        self.assertEqual(data_file.crystal_s12, 0.0)
+        self.assertEqual(data_file.crystal_s13, 0.001301)
+        self.assertEqual(data_file.crystal_u1, 0.0)
+        self.assertEqual(data_file.crystal_s21, 0.0)
+        self.assertEqual(data_file.crystal_s22, 0.018024)
+        self.assertEqual(data_file.crystal_s23, 0.0)
+        self.assertEqual(data_file.crystal_u2, 0.0)
+        self.assertEqual(data_file.crystal_s31, 0.0)
+        self.assertEqual(data_file.crystal_s32, 0.0)
+        self.assertEqual(data_file.crystal_s33, 0.015164)
+        self.assertEqual(data_file.crystal_u3, 0.0)
+
+
+    def test_missing_scale_processing(self):
+        self.assertEqual(self.empty.crystal_s11, None)
+        self.assertEqual(self.empty.crystal_s12, None)
+        self.assertEqual(self.empty.crystal_s13, None)
+        self.assertEqual(self.empty.crystal_u1, None)
+        self.assertEqual(self.empty.crystal_s21, None)
+        self.assertEqual(self.empty.crystal_s22, None)
+        self.assertEqual(self.empty.crystal_s23, None)
+        self.assertEqual(self.empty.crystal_u2, None)
+        self.assertEqual(self.empty.crystal_s31, None)
+        self.assertEqual(self.empty.crystal_s32, None)
+        self.assertEqual(self.empty.crystal_s33, None)
+        self.assertEqual(self.empty.crystal_u3, None)
+
+
+
+class MtrixRecordTests(PdbDataFileTest):
+
+    def test_mtrix_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1\n"
+         "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1\n"
+         "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1"
+        ))
+        self.assertEqual(data_file.crystal_serial_1, 1)
+        self.assertEqual(data_file.crystal_m11, -1.0)
+        self.assertEqual(data_file.crystal_m12, 0.0)
+        self.assertEqual(data_file.crystal_m13, 0.0)
+        self.assertEqual(data_file.crystal_v1, 0.0)
+        self.assertEqual(data_file.crystal_i_given_1, True)
+        self.assertEqual(data_file.crystal_serial_2, 1)
+        self.assertEqual(data_file.crystal_m21, 0.0)
+        self.assertEqual(data_file.crystal_m22, 1.0)
+        self.assertEqual(data_file.crystal_m23, 0.0)
+        self.assertEqual(data_file.crystal_v2, 0.0)
+        self.assertEqual(data_file.crystal_i_given_3, True)
+        self.assertEqual(data_file.crystal_serial_3, 1)
+        self.assertEqual(data_file.crystal_m31, 0.0)
+        self.assertEqual(data_file.crystal_m32, 0.0)
+        self.assertEqual(data_file.crystal_m33, -1.0)
+        self.assertEqual(data_file.crystal_v3, 0.0)
+        self.assertEqual(data_file.crystal_i_given_3, True)
+
+
+    def test_missing_mtrix_processing(self):
+        self.assertEqual(self.empty.crystal_serial_1, None)
+        self.assertEqual(self.empty.crystal_m11, None)
+        self.assertEqual(self.empty.crystal_m12, None)
+        self.assertEqual(self.empty.crystal_m13, None)
+        self.assertEqual(self.empty.crystal_v1, None)
+        self.assertEqual(self.empty.crystal_i_given_3, False)
+        self.assertEqual(self.empty.crystal_serial_1, None)
+        self.assertEqual(self.empty.crystal_m21, None)
+        self.assertEqual(self.empty.crystal_m22, None)
+        self.assertEqual(self.empty.crystal_m23, None)
+        self.assertEqual(self.empty.crystal_v2, None)
+        self.assertEqual(self.empty.crystal_i_given_3, False)
+        self.assertEqual(self.empty.crystal_serial_1, None)
+        self.assertEqual(self.empty.crystal_m31, None)
+        self.assertEqual(self.empty.crystal_m32, None)
+        self.assertEqual(self.empty.crystal_m33, None)
+        self.assertEqual(self.empty.crystal_v3, None)
+        self.assertEqual(self.empty.crystal_i_given_3, False)

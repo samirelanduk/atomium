@@ -39,6 +39,13 @@ class PdbDataFile:
         process_link(self)
         process_cispep(self)
 
+        process_site(self)
+
+        process_crystal(self)
+        process_origx(self)
+        process_scale(self)
+        process_mtrix(self)
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -456,3 +463,98 @@ def process_cispep(data_file):
      "model_number": r[43:46],
      "angle": r[54:59]
     } for r in cispeps]
+
+
+def process_site(data_file):
+    sites = data_file.pdb_file.get_records_by_name("SITE")
+    site_names = sorted(list(set([r[11:14] for r in sites])))
+    data_file.sites = []
+    for site_name in site_names:
+        records = [r for r in sites if r[11:14] == site_name]
+        residues = []
+        for r in records:
+            for i in range(1, 5):
+                if r[(i * 11) + 7: (i * 11) + 17]:
+                    residues.append({
+                     "residue_name": r[(i * 11) + 7: (i * 11) + 10],
+                     "chain": r[(i * 11) + 11],
+                     "residue_id": r[(i * 11) + 12: (i * 11) + 16],
+                     "insert_code":  r[(i * 11) + 17]
+                    })
+        data_file.sites.append({
+         "site_id": site_name,
+         "residue_count": records[0][15:17],
+         "residues": residues
+        })
+
+
+def process_crystal(data_file):
+    crystal = data_file.pdb_file.get_record_by_name("CRYST1")
+    data_file.crystal_a = crystal[6:15] if crystal else None
+    data_file.crystal_b = crystal[15:24] if crystal else None
+    data_file.crystal_c = crystal[24:33] if crystal else None
+    data_file.crystal_alpha = crystal[33:40] if crystal else None
+    data_file.crystal_beta = crystal[40:47] if crystal else None
+    data_file.crystal_gamma = crystal[47:54] if crystal else None
+    data_file.crystal_s_group = crystal[55:66] if crystal else None
+    data_file.crystal_z = crystal[66:70] if crystal else None
+
+
+def process_origx(data_file):
+    origx1 = data_file.pdb_file.get_record_by_name("ORIGX1")
+    data_file.crystal_o11 = origx1[10:20] if origx1 else None
+    data_file.crystal_o12 = origx1[20:30] if origx1 else None
+    data_file.crystal_o13 = origx1[30:40] if origx1 else None
+    data_file.crystal_t1 = origx1[45:55] if origx1 else None
+    origx2 = data_file.pdb_file.get_record_by_name("ORIGX2")
+    data_file.crystal_o21 = origx2[10:20] if origx2 else None
+    data_file.crystal_o22 = origx2[20:30] if origx2 else None
+    data_file.crystal_o23 = origx2[30:40] if origx2 else None
+    data_file.crystal_t2 = origx2[45:55] if origx2 else None
+    origx3 = data_file.pdb_file.get_record_by_name("ORIGX3")
+    data_file.crystal_o31 = origx3[10:20] if origx3 else None
+    data_file.crystal_o32 = origx3[20:30] if origx3 else None
+    data_file.crystal_o33 = origx3[30:40] if origx3 else None
+    data_file.crystal_t3 = origx3[45:55] if origx3 else None
+
+
+def process_scale(data_file):
+    scale1 = data_file.pdb_file.get_record_by_name("SCALE1")
+    data_file.crystal_s11 = scale1[10:20] if scale1 else None
+    data_file.crystal_s12 = scale1[20:30] if scale1 else None
+    data_file.crystal_s13 = scale1[30:40] if scale1 else None
+    data_file.crystal_u1 = scale1[45:55] if scale1 else None
+    scale2 = data_file.pdb_file.get_record_by_name("SCALE2")
+    data_file.crystal_s21 = scale2[10:20] if scale2 else None
+    data_file.crystal_s22 = scale2[20:30] if scale2 else None
+    data_file.crystal_s23 = scale2[30:40] if scale2 else None
+    data_file.crystal_u2 = scale2[45:55] if scale2 else None
+    scale3 = data_file.pdb_file.get_record_by_name("SCALE3")
+    data_file.crystal_s31 = scale3[10:20] if scale3 else None
+    data_file.crystal_s32 = scale3[20:30] if scale3 else None
+    data_file.crystal_s33 = scale3[30:40] if scale3 else None
+    data_file.crystal_u3 = scale3[45:55] if scale3 else None
+
+
+def process_mtrix(data_file):
+    mtrix1 = data_file.pdb_file.get_record_by_name("MTRIX1")
+    data_file.crystal_serial_1 = mtrix1[7:10] if mtrix1 else None
+    data_file.crystal_m11 = mtrix1[10:20] if mtrix1 else None
+    data_file.crystal_m12 = mtrix1[20:30] if mtrix1 else None
+    data_file.crystal_m13 = mtrix1[30:40] if mtrix1 else None
+    data_file.crystal_v1 = mtrix1[45:55] if mtrix1 else None
+    data_file.crystal_i_given_1 = mtrix1[59] == 1 if mtrix1 else False
+    mtrix2 = data_file.pdb_file.get_record_by_name("MTRIX2")
+    data_file.crystal_serial_2 = mtrix2[7:10] if mtrix2 else None
+    data_file.crystal_m21 = mtrix2[10:20] if mtrix2 else None
+    data_file.crystal_m22 = mtrix2[20:30] if mtrix2 else None
+    data_file.crystal_m23 = mtrix2[30:40] if mtrix2 else None
+    data_file.crystal_v2 = mtrix2[45:55] if mtrix2 else None
+    data_file.crystal_i_given_2 = mtrix2[59] == 1 if mtrix2 else False
+    mtrix3 = data_file.pdb_file.get_record_by_name("MTRIX3")
+    data_file.crystal_serial_3 = mtrix3[7:10] if mtrix3 else None
+    data_file.crystal_m31 = mtrix3[10:20] if mtrix3 else None
+    data_file.crystal_m32 = mtrix3[20:30] if mtrix3 else None
+    data_file.crystal_m33 = mtrix3[30:40] if mtrix3 else None
+    data_file.crystal_v3 = mtrix3[45:55] if mtrix3 else None
+    data_file.crystal_i_given_3 = mtrix3[59] == 1 if mtrix3 else False

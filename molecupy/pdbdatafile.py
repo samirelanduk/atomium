@@ -52,6 +52,10 @@ class PdbDataFile:
         process_ter(self)
         process_hetatm(self)
 
+        process_conect(self)
+
+        process_master(self)
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -665,3 +669,30 @@ def process_hetatm(data_file):
       if r.number >= m["start_record"]
        and r.number <= m["end_record"]][0]["model_id"]
     } for r in hetatms]
+
+
+def process_conect(data_file):
+    conects = data_file.pdb_file.get_records_by_name("CONECT")
+    atom_ids = sorted(list(set([r[6:11] for r in conects])))
+    data_file.connections = [{
+     "atom_id": num,
+     "bonded_atoms": [int(n) for n in merge_records([
+      r for r in conects if r[6:11] == num
+     ], 11).split()]
+    } for num in atom_ids]
+
+
+def process_master(data_file):
+    master = data_file.pdb_file.get_record_by_name("MASTER")
+    data_file.master = {
+      "remark_num": master[10:15],
+      "het_num": master[20:25],
+      "helix_num": master[25:30],
+      "sheet_num": master[30:35],
+      "site_num": master[40:45],
+      "crystal_num": master[45:50],
+      "coordinate_num": master[50:55],
+      "ter_num": master[55:60],
+      "conect_num": master[60:65],
+      "seqres_num": master[65:70]
+    } if master else None

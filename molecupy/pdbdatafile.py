@@ -46,6 +46,12 @@ class PdbDataFile:
         process_scale(self)
         process_mtrix(self)
 
+        process_model(self)
+        process_atom(self)
+        process_anisou(self)
+        process_ter(self)
+        process_hetatm(self)
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -558,3 +564,104 @@ def process_mtrix(data_file):
     data_file.crystal_m33 = mtrix3[30:40] if mtrix3 else None
     data_file.crystal_v3 = mtrix3[45:55] if mtrix3 else None
     data_file.crystal_i_given_3 = mtrix3[59] == 1 if mtrix3 else False
+
+
+def process_model(data_file):
+    models = data_file.pdb_file.get_records_by_name("MODEL")
+    endmdls = data_file.pdb_file.get_records_by_name("ENDMDL")
+    pairs = list(zip(models, endmdls))
+    data_file.models = [{
+     "model_id": pair[0][10:14],
+     "start_record": pair[0].number,
+     "end_record": pair[1].number,
+    } for pair in pairs]
+    if not pairs:
+        data_file.models = [{
+         "model_id": 1,
+         "start_record": 0,
+         "end_record": len(data_file.pdb_file.records),
+        }]
+
+
+def process_atom(data_file):
+    atoms = data_file.pdb_file.get_records_by_name("ATOM")
+    data_file.atoms = [{
+     "atom_id": r[6:11],
+     "atom_name": r[12:16],
+     "alt_loc": r[16],
+     "residue_name": r[17:20],
+     "chain_id": r[21],
+     "residue_id": r[22:26],
+     "insert_code": r[26],
+     "x": r[30:38],
+     "y": r[38:46],
+     "z": r[46:54],
+     "occupancy": r[54:60],
+     "temperature_factor": r[60:66],
+     "element": r[76:78],
+     "charge": r[78:80],
+     "model_id": [m for m in data_file.models
+      if r.number >= m["start_record"]
+       and r.number <= m["end_record"]][0]["model_id"]
+    } for r in atoms]
+
+
+def process_anisou(data_file):
+    anisou = data_file.pdb_file.get_records_by_name("ANISOU")
+    data_file.anisou = [{
+     "atom_id": r[6:11],
+     "atom_name": r[12:16],
+     "alt_loc": r[16],
+     "residue_name": r[17:20],
+     "chain_id": r[21],
+     "residue_id": r[22:26],
+     "insert_code": r[26],
+     "u11": r[29:35],
+     "u22": r[36:42],
+     "u33": r[43:49],
+     "u12": r[50:56],
+     "u13": r[57:63],
+     "u23": r[64:70],
+     "element": r[76:78],
+     "charge": r[78:80],
+     "model_id": [m for m in data_file.models
+      if r.number >= m["start_record"]
+       and r.number <= m["end_record"]][0]["model_id"]
+    } for r in anisou]
+
+
+def process_ter(data_file):
+    ters = data_file.pdb_file.get_records_by_name("TER")
+    data_file.termini = [{
+     "atom_id": r[6:11],
+     "residue_name": r[17:20],
+     "chain_id": r[21],
+     "residue_id": r[22:26],
+     "insert_code": r[26],
+     "model_id": [m for m in data_file.models
+      if r.number >= m["start_record"]
+       and r.number <= m["end_record"]][0]["model_id"]
+    } for r in ters]
+
+
+def process_hetatm(data_file):
+    hetatms = data_file.pdb_file.get_records_by_name("HETATM")
+    data_file.heteroatoms = [{
+     "atom_id": r[6:11],
+     "atom_name": r[12:16],
+     "alt_loc": r[16],
+     "residue_name": r[17:20],
+     "chain_id": r[21],
+     "residue_id": r[22:26],
+     "insert_code": r[26],
+     "x": r[30:38],
+     "y": r[38:46],
+     "z": r[46:54],
+     "occupancy": r[54:60],
+     "temperature_factor": r[60:66],
+     "element": r[76:78],
+     "charge": r[78:80],
+     "model_id": [m for m in data_file.models
+      if r.number >= m["start_record"]
+       and r.number <= m["end_record"]][0]["model_id"]
+    } for r in hetatms]

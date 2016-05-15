@@ -1,4 +1,5 @@
 import math
+from collections import Counter
 import warnings
 from .exceptions import *
 
@@ -99,6 +100,67 @@ class CovalentBond:
     def get_bond_length(self):
         atom1, atom2 = self.atoms
         return atom1.distance_to(atom2)
+
+
+
+class AtomicStructure:
+
+    def __init__(self, *atoms):
+        if not all(isinstance(atom, PdbAtom) for atom in atoms):
+            non_atoms = [atom for atom in atoms if not isinstance(atom, PdbAtom)]
+            raise TypeError("AtomicStructure needs atoms, not '%s'" % non_atoms[0])
+        if not atoms:
+            raise NoAtomsError("Cannot make AtomicStructure with zero atoms")
+        atom_ids = [atom.atom_id for atom in atoms if atom.atom_id is not None]
+        if len(set(atom_ids)) < len(atom_ids):
+            raise DuplicateAtomIdError("Cannot make Molecule with duplicate atom_ids")
+        self.atoms = set(atoms)
+
+
+    def __repr__(self):
+        return "<AtomicStructure (%i atoms)>" % len(self.atoms)
+
+
+    def __contains__(self, atom):
+        return atom in self.atoms
+
+
+    def get_mass(self):
+        return sum([atom.get_mass() for atom in self.atoms])
+
+
+    def get_atom_by_name(self, atom_name):
+        if not isinstance(atom_name, str):
+            raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
+        for atom in self.atoms:
+            if atom.atom_name == atom_name:
+                return atom
+
+
+    def get_atoms_by_name(self, atom_name):
+        if not isinstance(atom_name, str):
+            raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
+        return set([atom for atom in self.atoms if atom.atom_name == atom_name])
+
+
+    def get_atoms_by_element(self, element):
+        if not isinstance(element, str):
+            raise TypeError("Atom element search must be by str, not '%s'" % str(element))
+        return set([atom for atom in self.atoms if atom.element == element])
+
+
+    def get_atom_by_id(self, atom_id):
+        if not isinstance(atom_id, int):
+            raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))
+        for atom in self.atoms:
+            if atom.atom_id == atom_id:
+                return atom
+
+
+    def get_empirical_formula(self):
+        return Counter([
+         atom.element for atom in self.atoms if atom.element != "H"
+        ])
 
 
 

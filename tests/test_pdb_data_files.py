@@ -341,3 +341,150 @@ class SourceRecordTests(PdbDataFileTest):
 
     def test_missing_source_processing(self):
         self.assertEqual(self.empty.sources, [])
+
+
+
+class KeywdsRecordTests(PdbDataFileTest):
+
+    def test_keywds_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "KEYWDS    TIM BARREL, LYASE"
+        ))
+        self.assertEqual(
+         data_file.keywords,
+         ["TIM BARREL", "LYASE"]
+        )
+
+
+    def test_missing_keywds_processing(self):
+        self.assertEqual(self.empty.keywords, [])
+
+
+
+class ExpdtaRecordTests(PdbDataFileTest):
+
+    def test_expdta_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "EXPDTA    NEUTRON DIFFRACTION; X-RAY DIFFRACTION"
+        ))
+        self.assertEqual(
+         data_file.experimental_techniques,
+         ["NEUTRON DIFFRACTION", "X-RAY DIFFRACTION"]
+        )
+
+
+    def test_missing_expdta_processing(self):
+        self.assertEqual(self.empty.experimental_techniques, [])
+
+
+
+class NummdlRecordTests(PdbDataFileTest):
+
+    def test_nummdl_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "NUMMDL    2"
+        ))
+        self.assertEqual(data_file.model_count, 2)
+
+
+    def test_missing_nummdl_processing(self):
+        self.assertEqual(self.empty.model_count, 1)
+
+
+
+class MdltypRecordTests(PdbDataFileTest):
+
+    def test_mdltyp_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
+         "MDLTYP   2 CHAIN X, Y, Z"
+        ))
+        self.assertEqual(
+         data_file.model_annotations,
+         [
+          "CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K",
+          "P ATOMS ONLY, CHAIN X, Y, Z"
+         ]
+        )
+
+
+    def test_missing_mdltyp_processing(self):
+        self.assertEqual(self.empty.model_annotations, [])
+
+
+
+class AuthorRecordTests(PdbDataFileTest):
+
+    def test_mdltyp_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "AUTHOR    M.B.BERRY,B.MEADOR,T.BILDERBACK,P.LIANG,M.GLASER,\n"
+         "AUTHOR   2 G.N.PHILLIPS JR.,T.L.ST. STEVENS"
+        ))
+        self.assertEqual(
+         data_file.authors,
+         [
+          "M.B.BERRY", "B.MEADOR", "T.BILDERBACK", "P.LIANG", "M.GLASER",
+          "G.N.PHILLIPS JR.", "T.L.ST. STEVENS"
+         ]
+        )
+
+
+    def test_missing_mdltyp_processing(self):
+        self.assertEqual(self.empty.authors, [])
+
+
+
+class RevdatRecordTests(PdbDataFileTest):
+
+    def test_revdat_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "REVDAT   4 1 24-FEB-09 1LOL    1       VERSN  COMPND EXPDTA CAVEAT\n"
+         "REVDAT   4 2                   1       SOURCE JRNL\n"
+         "REVDAT   3   01-APR-03 1LOL    1       JRNL\n"
+         "REVDAT   2   14-AUG-02 1LOL    1       DBREF\n"
+         "REVDAT   1   07-AUG-02 1LOL    0"
+        ))
+        self.assertEqual(
+         data_file.revisions,
+         [
+          {
+           "number": 1, "date": datetime.datetime(2002, 8, 7).date(),
+           "type": 0, "records": []
+          }, {
+           "number": 2, "date": datetime.datetime(2002, 8, 14).date(),
+           "type": 1, "records": ["DBREF"]
+          }, {
+           "number": 3, "date": datetime.datetime(2003, 4, 1).date(),
+           "type": 1, "records": ["JRNL"]
+          }, {
+           "number": 4, "date": datetime.datetime(2009, 2, 24).date(),
+           "type": 1, "records": ["VERSN", "COMPND", "EXPDTA", "CAVEAT", "SOURCE", "JRNL"]
+          }
+         ]
+        )
+
+
+    def test_missing_revdat_processing(self):
+        self.assertEqual(self.empty.revisions, [])
+
+
+
+class SprsdeRecordTests(PdbDataFileTest):
+
+    def test_sprsde_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SPRSDE     27-FEB-95 1GDJ      1LH4 2LH4"
+        ))
+        self.assertEqual(
+         data_file.supercedes,
+         ["1LH4", "2LH4"]
+        )
+        self.assertEqual(
+         data_file.supercede_date,
+         datetime.datetime(1995, 2, 27).date()
+        )
+
+
+    def test_missing_sprsde_processing(self):
+        self.assertEqual(self.empty.supercedes, [])
+        self.assertEqual(self.empty.supercede_date, None)

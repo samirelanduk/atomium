@@ -12,6 +12,13 @@ class PdbDataFile:
         process_caveat(self)
         process_compnd(self)
         process_source(self)
+        process_keywds(self)
+        process_expdta(self)
+        process_nummdl(self)
+        process_mdltyp(self)
+        process_author(self)
+        process_revdat(self)
+        process_sprsde(self)
 
 
     def __repr__(self):
@@ -95,3 +102,54 @@ def process_compnd(data_file):
 def process_source(data_file):
     records = data_file.pdb_file.get_records_by_name("SOURCE")
     data_file.sources = records_to_token_value_dicts(records)
+
+
+def process_keywds(data_file):
+    keywords = data_file.pdb_file.get_records_by_name("KEYWDS")
+    keyword_text = merge_records(keywords, 10)
+    data_file.keywords = keyword_text.split(",") if keyword_text else []
+
+
+def process_expdta(data_file):
+    expdta = data_file.pdb_file.get_records_by_name("EXPDTA")
+    expdta_text = merge_records(expdta, 10)
+    data_file.experimental_techniques = expdta_text.split(";") if expdta_text else []
+
+
+def process_nummdl(data_file):
+    nummdl = data_file.pdb_file.get_record_by_name("NUMMDL")
+    data_file.model_count = nummdl[10:14] if nummdl else 1
+
+
+def process_mdltyp(data_file):
+    mdltyps = data_file.pdb_file.get_records_by_name("MDLTYP")
+    mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
+    data_file.model_annotations = [
+     ann.strip() for ann in mdltyp_text.split(";") if ann.strip()
+    ]
+
+
+def process_author(data_file):
+    authors = data_file.pdb_file.get_records_by_name("AUTHOR")
+    data_file.authors = merge_records(authors, 10).split(",") if authors else []
+
+
+def process_revdat(data_file):
+    revdats = data_file.pdb_file.get_records_by_name("REVDAT")
+    numbers = sorted(list(set([r[7:10] for r in revdats])))
+    data_file.revisions = []
+    for number in numbers:
+        records = [r for r in revdats if r[7:10] == number]
+        rec_types = merge_records(records, 39).split()
+        data_file.revisions.append({
+         "number": number,
+         "date": date_from_string(records[0][13:22]),
+         "type": records[0][31],
+         "records": [r for r in rec_types if r]
+        })
+
+
+def process_sprsde(data_file):
+    sprsde = data_file.pdb_file.get_record_by_name("SPRSDE")
+    data_file.supercedes = sprsde[31:75].split() if sprsde else []
+    data_file.supercede_date = date_from_string(sprsde[11:20]) if sprsde else None

@@ -19,6 +19,8 @@ class PdbDataFile:
         process_author(self)
         process_revdat(self)
         process_sprsde(self)
+        process_jrnl(self)
+        process_remark(self)
 
 
     def __repr__(self):
@@ -153,3 +155,56 @@ def process_sprsde(data_file):
     sprsde = data_file.pdb_file.get_record_by_name("SPRSDE")
     data_file.supercedes = sprsde[31:75].split() if sprsde else []
     data_file.supercede_date = date_from_string(sprsde[11:20]) if sprsde else None
+
+
+def process_jrnl(data_file):
+    jrnls = data_file.pdb_file.get_records_by_name("JRNL")
+    if not jrnls:
+        data_file.journal = None
+    else:
+        data_file.journal = {}
+        auths = [r for r in jrnls if r[12:16] == "AUTH"]
+        data_file.journal["authors"] = merge_records(auths, 19).split(",") if auths else []
+        titls = [r for r in jrnls if r[12:16] == "TITL"]
+        data_file.journal["title"] = merge_records(titls, 19) if titls else None
+        edits = [r for r in jrnls if r[12:16] == "EDIT"]
+        data_file.journal["editors"] = merge_records(edits, 19).split(",") if edits else []
+        refs = [r for r in jrnls if r[12:16] == "REF"]
+        data_file.journal["reference"] = {} if refs else None
+        if refs and "TO BE PUBLISHED" in refs[0].text:
+            data_file.journal["reference"] = {
+             "published": False, "publication": None,
+             "volume": None, "page": None, "year": None
+            }
+        elif refs:
+            data_file.journal["reference"] = {
+             "published": True,
+             "publication": refs[0][19:47],
+             "volume": refs[0][51:55],
+             "page": refs[0][56:61],
+             "year": refs[0][62:66]
+            }
+        publs = [r for r in jrnls if r[12:16] == "PUBL"]
+        data_file.journal["publisher"] = merge_records(publs, 19, dont_condense=",:;") if publs else None
+        refns = [r for r in jrnls if r[12:16] == "REFN"]
+        data_file.journal["reference_number"] = {
+         "type": refns[0][35:39],
+         "value": refns[0][40:65]
+        } if refns else None
+        pmids = [r for r in jrnls if r[12:16] == "PMID"]
+        data_file.journal["pubmed"] = pmids[0].get_as_string(19, 79) if pmids else None
+        dois = [r for r in jrnls if r[12:16] == "DOI"]
+        data_file.journal["doi"] = dois[0][19:79] if dois else None
+
+
+def process_remark(data_file):
+    remarks = data_file.pdb_file.get_records_by_name("REMARK")
+    remark_numbers = sorted(list(set([r[7:10] for r in remarks])))
+    data_file.remarks = []
+    for number in remark_numbers:
+        recs = [r for r in remarks if r[7:10] == number]
+        remark = {
+         "number": number,
+         "content": merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
+        }
+        data_file.remarks.append(remark)

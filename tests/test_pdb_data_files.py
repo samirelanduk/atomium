@@ -488,3 +488,216 @@ class SprsdeRecordTests(PdbDataFileTest):
     def test_missing_sprsde_processing(self):
         self.assertEqual(self.empty.supercedes, [])
         self.assertEqual(self.empty.supercede_date, None)
+
+
+
+class JrnlRecordTests(PdbDataFileTest):
+
+    def test_jrnl_authors_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        AUTH   N.WU,E.F.PAI"
+        ))
+        self.assertEqual(
+         data_file.journal["authors"],
+         ["N.WU", "E.F.PAI"]
+        )
+
+
+    def test_empty_jrnl_authors_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["authors"], [])
+
+
+    def test_jrnl_title_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        TITL   CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL\n"
+         "JRNL        TITL 2 AN ALTERNATE BINDING MODE IN\n"
+         "JRNL        TITL 3 OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE."
+        ))
+        self.assertEqual(
+         data_file.journal["title"],
+         "CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL AN ALTERNA"
+         "TE BINDING MODE IN OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE."
+        )
+
+
+    def test_empty_jrnl_title_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["title"], None)
+
+
+    def test_jrnl_editors_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        EDIT   J.REN,C.NICHOLS,L.BIRD,P.CHAMBERLAIN,K.WEAVER,\n"
+         "JRNL        EDIT 2 S.SHORT,D.I.STUART,D.K.STAMMERS"
+        ))
+        self.assertEqual(
+         data_file.journal["editors"],
+         [
+          "J.REN", "C.NICHOLS", "L.BIRD", "P.CHAMBERLAIN", "K.WEAVER",
+          "S.SHORT", "D.I.STUART", "D.K.STAMMERS"
+         ]
+        )
+
+
+    def test_empty_jrnl_editors_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["editors"], [])
+
+
+    def test_jrnl_reference_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        REF    J.BIOL.CHEM.                  V. 277 28080 2002"
+        ))
+        self.assertEqual(
+         data_file.journal["reference"],
+         {"published": True, "publication": "J.BIOL.CHEM.", "volume": 277, "page": 28080, "year": 2002}
+        )
+
+    def test_jrnl_unpublished_reference_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL        REF    TO BE PUBLISHED"))
+        self.assertEqual(
+         data_file.journal["reference"],
+         {"published": False, "publication": None, "volume": None, "page": None, "year": None}
+        )
+
+
+    def test_empty_jrnl_reference_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["reference"], None)
+
+
+    def test_jrnl_publisher_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        PUBL   AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE\n"
+         "JRNL        PUBL 2 WASHINGTON, D.C."
+        ))
+        self.assertEqual(
+         data_file.journal["publisher"],
+         "AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE WASHINGTON, D.C."
+        )
+
+
+    def test_empty_jrnl_publisher_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["publisher"], None)
+
+
+    def test_jrnl_referencenumber__processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        REFN                   ISSN 0021-9258"
+        ))
+        self.assertEqual(
+         data_file.journal["reference_number"],
+         {"type": "ISSN", "value": "0021-9258"}
+        )
+
+
+    def test_empty_jrnl_reference_number_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["reference_number"], None)
+
+
+    def test_jrnl_pubmed_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        PMID   12011084"
+        ))
+        self.assertEqual(
+         data_file.journal["pubmed"],
+         "12011084"
+        )
+
+
+    def test_empty_jrnl_pubmed_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["pubmed"], None)
+
+
+    def test_jrnl_doi_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        DOI    10.1074/JBC.M202362200"
+        ))
+        self.assertEqual(
+         data_file.journal["doi"],
+         "10.1074/JBC.M202362200"
+        )
+
+
+    def test_empty_jrnl_doi_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal["doi"], None)
+
+
+    def test_full_jrnl_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        AUTH   N.WU,E.F.PAI\n"
+         "JRNL        TITL   CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL\n"
+         "JRNL        TITL 2 AN ALTERNATE BINDING MODE IN\n"
+         "JRNL        TITL 3 OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE.\n"
+         "JRNL        EDIT   J.REN,C.NICHOLS,L.BIRD,P.CHAMBERLAIN,K.WEAVER,\n"
+         "JRNL        EDIT 2 S.SHORT,D.I.STUART,D.K.STAMMERS\n"
+         "JRNL        REF    J.BIOL.CHEM.                  V. 277 28080 2002\n"
+         "JRNL        PUBL   AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE\n"
+         "JRNL        PUBL 2 WASHINGTON, D.C.\n"
+         "JRNL        REFN                   ISSN 0021-9258\n"
+         "JRNL        PMID   12011084\n"
+         "JRNL        DOI    10.1074/JBC.M202362200"
+        ))
+        self.assertEqual(
+         data_file.journal,
+         {
+          "authors": ["N.WU", "E.F.PAI"],
+          "title": "CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL AN ALTERNA"
+          "TE BINDING MODE IN OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE.",
+          "editors": [
+           "J.REN", "C.NICHOLS", "L.BIRD", "P.CHAMBERLAIN", "K.WEAVER",
+           "S.SHORT", "D.I.STUART", "D.K.STAMMERS"
+          ],
+          "reference": {"published": True, "publication": "J.BIOL.CHEM.", "volume": 277, "page": 28080, "year": 2002},
+          "publisher": "AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE WASHINGTON, D.C.",
+          "reference_number": {"type": "ISSN", "value": "0021-9258"},
+          "pubmed": "12011084",
+          "doi": "10.1074/JBC.M202362200"
+         }
+        )
+
+
+    def test_empty_jrnl_processing(self):
+        self.assertEqual(self.empty.journal, None)
+
+
+class RemarkRecordTests(PdbDataFileTest):
+
+    def test_remark_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "REMARK   2\n"
+         "REMARK 999\n"
+         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.\n"
+         "REMARK 999  SEQUENCE\n"
+         "REMARK 999 AUTHOR STATES THAT ALTHOUGH RESIDUES 1 AND 1001 ARE MET\n"
+         "REMARK 999 AND RESIDUES 101 AND 1101 ARE ARG ACCORDING TO THE\n"
+         "REMARK 999 SWISSPROT ENTRY, RESIDUES 1 AND 1001 WERE LEU AND RESIDUES\n"
+         "REMARK 999 101 AND 1101 WERE PRO IN THE ORIGINAL CONSTRUCT CLONED\n"
+         "REMARK 999 OF MT GENOMIC DNA."
+        ))
+        self.assertEqual(
+         data_file.remarks,
+         [
+          {
+           "number": 2,
+           "content": "RESOLUTION.    1.90 ANGSTROMS."
+          }, {
+           "number": 999,
+           "content": "SEQUENCE\n"
+           "AUTHOR STATES THAT ALTHOUGH RESIDUES 1 AND 1001 ARE MET\n"
+           "AND RESIDUES 101 AND 1101 ARE ARG ACCORDING TO THE\n"
+           "SWISSPROT ENTRY, RESIDUES 1 AND 1001 WERE LEU AND RESIDUES\n"
+           "101 AND 1101 WERE PRO IN THE ORIGINAL CONSTRUCT CLONED\n"
+           "OF MT GENOMIC DNA."
+          }
+         ]
+        )
+
+
+    def test_missing_remark_processing(self):
+        self.assertEqual(self.empty.remarks, [])

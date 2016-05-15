@@ -149,13 +149,13 @@ class PdbFromStringTests(TestCase):
 class PdbFromFileTests(TestCase):
 
     def test_can_get_pdb_from_file(self):
-        pdb = get_pdb_from_file("tests/parsers/pdb/test.pdb")
+        pdb = get_pdb_from_file("tests/1AOI.pdb")
         self.assertIsInstance(pdb, Pdb)
-        self.assertEqual(pdb.classification, "LYASE")
+        self.assertEqual(pdb.classification, "DNA BINDING PROTEIN/DNA")
 
 
 
-class PdbFromFileTests(TestCase):
+class PdbFromRemotelyTests(TestCase):
 
     def test_can_get_pdb_remotely(self):
         pdb = get_pdb_remotely("1NVQ")

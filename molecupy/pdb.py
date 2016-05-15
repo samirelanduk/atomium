@@ -1,3 +1,5 @@
+from .structures import PdbModel
+
 class Pdb:
 
     def __init__(self, data_file):
@@ -25,6 +27,9 @@ class Pdb:
         ]
         for attr in transfer_attrs:
             self.__dict__[attr] = self.data_file.__dict__[attr]
+
+        self.models = [PdbModel() for _ in self.data_file.models]
+        self.model = self.models[0]
 
 
     def __repr__(self):

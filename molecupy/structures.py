@@ -164,8 +164,22 @@ class AtomicStructure:
 
 
 
-class PdbModel:
-    pass
+class PdbModel(AtomicStructure):
+
+    def __init__(self):
+        pass
+
+
+    def __repr__(self):
+        return "<Model (%i atoms)>" % len(self.atoms)
+
+        
+    def __getattr__(self, attribute):
+        if attribute == "atoms":
+            atoms = set()
+            return atoms
+        else:
+            return self.__getattribute__(attribute)
 
 
 

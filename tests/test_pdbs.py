@@ -3,6 +3,7 @@ from unittest import TestCase
 from molecupy.pdbfile import PdbFile
 from molecupy.pdbdatafile import PdbDataFile
 from molecupy.pdb import Pdb
+from molecupy.structures import PdbModel
 
 class PdbTest(TestCase):
 
@@ -93,3 +94,41 @@ class PdbPropertiesTests(PdbTest):
          self.empty.journal,
          self.empty.data_file.journal
         )
+
+
+
+class ModelTests(PdbTest):
+
+    def setUp(self):
+        PdbTest.setUp(self)
+        self.multi_model = Pdb(PdbDataFile(PdbFile(
+         "MODEL        1\n"
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ENDMDL\n"
+         "MODEL        2\n"
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ENDMDL"
+        )))
+        self.single_model = Pdb(PdbDataFile(PdbFile(
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N"
+        )))
+
+
+    def test_single_model_case(self):
+        self.assertEqual(len(self.single_model.models), 1)
+        self.assertEqual(len(self.empty.models), 1)
+        self.assertIsInstance(self.single_model.models[0], PdbModel)
+        self.assertIsInstance(self.single_model.models[0], PdbModel)
+
+
+    def test_multi_models(self):
+        self.assertEqual(len(self.multi_model.models), 2)
+        self.assertIsInstance(self.multi_model.models[0], PdbModel)
+        self.assertIsInstance(self.multi_model.models[1], PdbModel)
+        self.assertIsNot(self.multi_model.models[0], self.multi_model.models[1])
+
+
+    def test_model(self):
+        self.assertIs(self.empty.model, self.empty.models[0])
+        self.assertIs(self.single_model.model, self.single_model.models[0])
+        self.assertIs(self.multi_model.model, self.multi_model.models[0])

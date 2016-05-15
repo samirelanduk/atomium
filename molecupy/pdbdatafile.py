@@ -22,6 +22,16 @@ class PdbDataFile:
         process_jrnl(self)
         process_remark(self)
 
+        process_dbref(self)
+        process_seqadv(self)
+        process_seqres(self)
+        process_modres(self)
+
+        process_het(self)
+        process_hetnam(self)
+        process_hetsyn(self)
+        process_formul(self)
+
 
     def __repr__(self):
         return "<PdbDataFile (????)>"
@@ -208,3 +218,125 @@ def process_remark(data_file):
          "content": merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
         }
         data_file.remarks.append(remark)
+
+
+def process_dbref(data_file):
+    dbrefs = data_file.pdb_file.get_records_by_name("DBREF")
+    data_file.dbreferences = [{
+     "chain_id": r[12],
+     "sequence_begin": r[14:18],
+     "insert_begin": r[18],
+     "sequence_end": r[20:24],
+     "insert_end": r[24],
+     "database": r[26:32],
+     "accession": r.get_as_string(33, 40),
+     "db_id": r[42:54],
+     "db_sequence_begin": r[55:60],
+     "db_insert_begin": r[60],
+     "db_sequence_end": r[62:67],
+     "db_insert_end": r[67]
+    } for r in dbrefs]
+    dbref1s = data_file.pdb_file.get_records_by_name("DBREF1")
+    dbref2s = data_file.pdb_file.get_records_by_name("DBREF2")
+    ref_pairs = zip(dbref1s, dbref2s)
+    data_file.dbreferences += [{
+     "chain_id": pair[0][12],
+     "sequence_begin": pair[0][14:18],
+     "insert_begin": pair[0][18],
+     "sequence_end": pair[0][20:24],
+     "insert_end": pair[0][24],
+     "database": pair[0][26:32],
+     "accession": pair[1].get_as_string(18, 40),
+     "db_id": pair[0][47:67],
+     "db_sequence_begin": pair[1][45:55],
+     "db_insert_begin": None,
+     "db_sequence_end": pair[1][57:67],
+     "db_insert_end": None
+    } for pair in ref_pairs]
+    data_file.dbreferences = sorted(data_file.dbreferences, key=lambda k: k["chain_id"])
+
+
+def process_seqadv(data_file):
+    seqadvs = data_file.pdb_file.get_records_by_name("SEQADV")
+    data_file.sequence_differences = [{
+     "residue_name": r[12:15],
+     "chain_id": r[16],
+     "residue_id": r[18:22],
+     "insert_code": r[22],
+     "database": r[24:28],
+     "accession": r[29:38],
+     "db_residue_name": r[39:42],
+     "db_residue_id": r[43:48],
+     "conflict": r[49:70]
+    } for r in seqadvs]
+
+
+def process_seqres(data_file):
+    seqres = data_file.pdb_file.get_records_by_name("SEQRES")
+    chains = sorted(list(set([r[11] for r in seqres])))
+    data_file.residue_sequences = []
+    for chain in chains:
+        records = [r for r in seqres if r[11] == chain]
+        data_file.residue_sequences.append({
+         "chain_id": chain,
+         "length": records[0][13:17],
+         "residues": merge_records(records, 19).split()
+        })
+
+
+def process_modres(data_file):
+    modres = data_file.pdb_file.get_records_by_name("MODRES")
+    data_file.modified_residues = [{
+     "residue_name": r[12:15],
+     "chain_id": r[16],
+     "residue_id": r[18:22],
+     "insert_code": r[22],
+     "standard_resisdue_name": r[24:27],
+     "comment": r[29:70]
+    } for r in modres]
+
+
+def process_het(data_file):
+    hets = data_file.pdb_file.get_records_by_name("HET")
+    data_file.hets = [{
+     "het_name": r[7:10],
+     "chain_id": r[12],
+     "het_id": r[13:17],
+     "insert_code": r[17],
+     "atom_num": r[20:25],
+     "description": r[30:70]
+    } for r in hets]
+
+
+def process_hetnam(data_file):
+    hetnams = data_file.pdb_file.get_records_by_name("HETNAM")
+    ids = list(set([r[11:14] for r in hetnams]))
+    data_file.het_names = {
+     het_id: merge_records(
+      [r for r in hetnams if r[11:14] == het_id], 15, dont_condense=":;"
+     ) for het_id in ids
+    }
+
+
+def process_hetsyn(data_file):
+    hetsyns = data_file.pdb_file.get_records_by_name("HETSYN")
+    ids = list(set([r[11:14] for r in hetsyns]))
+    data_file.het_synonyms = {
+     het_id: merge_records(
+      [r for r in hetsyns if r[11:14] == het_id], 15
+     ).split(";") for het_id in ids
+    }
+
+
+def process_formul(data_file):
+    formuls = data_file.pdb_file.get_records_by_name("FORMUL")
+    ids = list(set([r[12:15] for r in formuls]))
+    data_file.formulae = {
+     het_id: {
+      "component_number": [r for r in formuls if r[12:15] == het_id][0][8:10],
+      "is_water": [r for r in formuls if r[12:15] == het_id][0][18] == "*",
+      "formula": merge_records(
+       [r for r in formuls if r[12:15] == het_id], 19
+      )
+     } for het_id in ids
+    }

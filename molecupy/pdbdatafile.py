@@ -8,7 +8,7 @@ class PdbDataFile:
     Each PDB record type has a function which identifies it and extracts the
     information from it.
 
-    :param PdbRecord pdb_file: The PDB file to extract information from.
+    :param PdbFile pdb_file: The PDB file to extract information from.
 
     .. py:attribute:: pdb_file:
 

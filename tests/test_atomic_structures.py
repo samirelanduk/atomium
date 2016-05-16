@@ -131,13 +131,13 @@ class AtomicStructureAtomRetrievalTests(AtomicStructureTest):
 
 
 
-class EmpiricalFormulaTests(AtomicStructureTest):
+class FormulaTests(AtomicStructureTest):
 
-    def test_can_get_empirical_formula(self):
+    def test_can_get_formula(self):
         atom4 = PdbAtom(1.0, 1.0, 4.0, "O", 4, "O")
         atom5 = PdbAtom(1.0, 1.0, 5.0, "N", 5, "NA")
         atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3, atom4, atom5)
         self.assertEqual(
-         atomic_structure.get_empirical_formula(),
+         atomic_structure.get_formula(),
          Counter({"C": 1, "N": 1, "O": 2})
         )

@@ -1,9 +1,53 @@
+"""This module contains the structures used to represent those found in PDB
+files. This is where the bulk of the non-parsing work is done."""
+
 import math
 from collections import Counter
 import warnings
 from .exceptions import *
 
 class PdbAtom:
+    """Represents atoms - the fundamental chemical building blocks.
+
+    :param float x: The atom's x-coordinate.
+    :param float y: The atom's y-coordinate.
+    :param float z: The atom's z-coordinate.
+    :param str element: The atom's element.
+    :param int atom_id: The atom's id.
+    :param str atom_name: The atom's name.
+
+    .. py:attribute:: x:
+
+        The atom's x-coordinate.
+
+    .. py:attribute:: y:
+
+        The atom's y-coordinate.
+
+    .. py:attribute:: z:
+
+        The atom's z-coordinate.
+
+    .. py:attribute:: element:
+
+        The atom's element.
+
+    .. py:attribute:: atom_id:
+
+        The atom's id.
+
+    .. py:attribute:: atom_name:
+
+        The atom's name.
+
+    .. py:attribute:: covalent_bonds:
+
+        A ``set`` of :py:class:`CovalentBond` objects attached to this atom.
+
+    .. py:attribute:: molecule:
+
+        The :py:class:`PdbResidue` or :py:class:`PdbSmallMolecule` the atom \
+        belongs to."""
 
     def __init__(self, x, y, z, element, atom_id, atom_name):
         for coordinate in (x, y, z):
@@ -38,10 +82,19 @@ class PdbAtom:
 
 
     def get_mass(self):
+        """Returns the atom's mass.
+
+        :rtype: float"""
+
         return PERIODIC_TABLE.get(self.element.upper(), 0)
 
 
     def distance_to(self, other_atom):
+        """Returns the distance to some other atom.
+
+        :param PdbAtom other_atom: The other atom.
+        :rtype: float"""
+
         x_sum = math.pow((other_atom.x - self.x), 2)
         y_sum = math.pow((other_atom.y - self.y), 2)
         z_sum = math.pow((other_atom.z - self.z), 2)
@@ -50,10 +103,18 @@ class PdbAtom:
 
 
     def covalent_bond_to(self, other_atom):
+        """Covalently bonds the atom to another atom.
+
+        :param PdbAtom other_atom: The other atom."""
+
         CovalentBond(self, other_atom)
 
 
     def get_covalent_bonded_atoms(self):
+        """Returns the atoms this atom is covalently bonded to.
+
+        :returns: ``set`` of atoms bonded to this one."""
+
         covalent_bonded_atoms = set()
         for bond in self.covalent_bonds:
             for atom in bond.atoms:
@@ -62,6 +123,10 @@ class PdbAtom:
 
 
     def get_covalent_accessible_atoms(self, already_checked=None):
+        """Returns all the atoms reachable from this atom via covalent bonds.
+
+        :returns: ``set`` of atoms."""
+
         already_checked = already_checked if already_checked else set()
         already_checked.add(self)
         while len(self.get_covalent_bonded_atoms().difference(already_checked)) > 0:
@@ -74,6 +139,14 @@ class PdbAtom:
 
 
 class CovalentBond:
+    """Represents a covalent bond between two atoms.
+
+    :param PdbAtom atom1: The first atom.
+    :param PdbAtom atom2: The second atom.
+
+    .. py:attribute:: covalent_bonds:
+
+        The ``set`` of :py:class:`PdbAtom` objects sharing this bond."""
 
     def __init__(self, atom1, atom2):
         if not isinstance(atom1, PdbAtom) or not isinstance(atom2, PdbAtom):
@@ -99,12 +172,23 @@ class CovalentBond:
 
 
     def get_bond_length(self):
+        """Returns the length of the covalent bond.
+
+        :rtype: float"""
+
         atom1, atom2 = self.atoms
         return atom1.distance_to(atom2)
 
 
 
 class AtomicStructure:
+    """The base class for all structures which are composed of atoms.
+
+    :param atoms: A sequence of :py:class:`PdbAtom` objects.
+
+    .. py:attribute:: atoms:
+
+        A ``set`` of :py:class:`PdbAtom` objects in this structure."""
 
     def __init__(self, *atoms):
         if not all(isinstance(atom, PdbAtom) for atom in atoms):
@@ -127,10 +211,21 @@ class AtomicStructure:
 
 
     def get_mass(self):
+        """Returns the mass of the structure by summing the mass of all its
+        atoms.
+
+        :rtype: float"""
+
         return sum([atom.get_mass() for atom in self.atoms])
 
 
     def get_atom_by_name(self, atom_name):
+        """Retrurns the first atom that matches a given atom name.
+
+        :param str atom_name: The atom name to search by.
+        :rtype: :py:class:`PdbAtom` or ``None``
+        :raises TypeError: if the name given isn't a string."""
+
         if not isinstance(atom_name, str):
             raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
         for atom in self.atoms:
@@ -139,18 +234,36 @@ class AtomicStructure:
 
 
     def get_atoms_by_name(self, atom_name):
+        """Retruns all the atoms that matches a given atom name.
+
+        :param str atom_name: The atom name to search by.
+        :rtype: ``set`` of :py:class:`PdbAtom` objects
+        :raises TypeError: if the name given isn't a string."""
+
         if not isinstance(atom_name, str):
             raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
         return set([atom for atom in self.atoms if atom.atom_name == atom_name])
 
 
     def get_atoms_by_element(self, element):
+        """Retruns all the atoms a given element.
+
+        :param str element: The element to search by.
+        :rtype: ``set`` of :py:class:`PdbAtom` objects
+        :raises TypeError: if the element given isn't a string."""
+
         if not isinstance(element, str):
             raise TypeError("Atom element search must be by str, not '%s'" % str(element))
         return set([atom for atom in self.atoms if atom.element == element])
 
 
     def get_atom_by_id(self, atom_id):
+        """Retrurns the first atom that matches a given atom ID.
+
+        :param str atom_id: The atom ID to search by.
+        :rtype: :py:class:`PdbAtom` or ``None``
+        :raises TypeError: if the name given isn't an integer."""
+
         if not isinstance(atom_id, int):
             raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))
         for atom in self.atoms:
@@ -158,7 +271,10 @@ class AtomicStructure:
                 return atom
 
 
-    def get_empirical_formula(self):
+    def get_formula(self):
+        """Retrurns the formula (count of each atom) of the structure.
+
+        :rtype: ``Counter``"""
         return Counter([
          atom.element for atom in self.atoms if atom.element != "H"
         ])
@@ -166,6 +282,30 @@ class AtomicStructure:
 
 
 class PdbSmallMolecule(AtomicStructure):
+    """Base class: :py:class:`AtomicStructure`
+
+    Represents the ligands, solvent molecules, and other non-polymeric
+    molecules in a PDB structure.
+
+    :param str molecule_id: The molecule's ID
+    :param str molecule_name: The molecule's name
+    :param atoms: The molecule's atoms
+
+    .. py:attribute:: molecule_id:
+
+        The molecule's ID.
+
+    .. py:attribute:: molecule_name:
+
+        The molecule's name.
+
+    .. note::
+
+       The numerical ID assigned to small molecules in PDB files (where they are
+       called 'HETs') are supposed to be unique, but unfortunately they often
+       aren't. It is for this reason that the ID for small molecules is a
+       string, as it is combined with the chain ID (not a meaningful property by
+       itself for small molecules) to create IDs such as 'A1001' and 'B6700'."""
 
     def __init__(self, molecule_id, molecule_name, *atoms):
         if not isinstance(molecule_id, str):
@@ -187,6 +327,21 @@ class PdbSmallMolecule(AtomicStructure):
 
 
 class PdbResidue(AtomicStructure):
+    """Base class: :py:class:`AtomicStructure`
+
+    A Residue on a chain.
+
+    :param int residue_id: The residue's ID
+    :param str residue_name: The residue's name
+    :param atoms: The residue's atoms
+
+    .. py:attribute:: residue_id:
+
+        The residue's ID.
+
+    .. py:attribute:: residue_name:
+
+        The redidue's name - usually a standard three letter code."""
 
     def __init__(self, residue_id, residue_name, *atoms):
         if not isinstance(residue_id, int):
@@ -210,6 +365,17 @@ class PdbResidue(AtomicStructure):
 
 
 class ResiduicStructure(AtomicStructure):
+    """Base class: :py:class:`AtomicStructure`
+
+    The base class for all structures which can be described as a set of
+    residues.
+
+    :param residues: A ``set`` of :py:class:`PdbResidue` objects in this\
+    structure.
+
+    .. py:attribute:: residues:
+
+         A ``set`` of :py:class:`PdbResidue` objects in this structure."""
 
     def __init__(self, *residues):
         if not all(isinstance(residue, PdbResidue) for residue in residues):
@@ -244,6 +410,12 @@ class ResiduicStructure(AtomicStructure):
 
 
     def get_residue_by_name(self, residue_name):
+        """Retrurns the first residue that matches a given residue name.
+
+        :param str residue_name: The residue name to search by.
+        :rtype: :py:class:`PdbResidue` or ``None``
+        :raises TypeError: if the name given isn't a string."""
+
         if not isinstance(residue_name, str):
             raise TypeError("Residue name search must be by str, not '%s'" % str(residue_name))
         for residue in self.residues:
@@ -252,12 +424,24 @@ class ResiduicStructure(AtomicStructure):
 
 
     def get_residues_by_name(self, residue_name):
+        """Retruns all the residues that matches a given residue name.
+
+        :param str residue_name: The residue name to search by.
+        :rtype: ``set`` of :py:class:`PdbResidue` objects
+        :raises TypeError: if the name given isn't a string."""
+
         if not isinstance(residue_name, str):
             raise TypeError("Residue name search must be by str, not '%s'" % str(residue_name))
         return set([residue for residue in self.residues if residue.residue_name == residue_name])
 
 
     def get_residue_by_id(self, residue_id):
+        """Retrurns the first residue that matches a given residue ID.
+
+        :param str residue_id: The residue ID to search by.
+        :rtype: :py:class:`PdbResidue` or ``None``
+        :raises TypeError: if the name given isn't an integer."""
+
         if not isinstance(residue_id, int):
             raise TypeError("Residue ID search must be by int, not '%s'" % str(residue_id))
         for residue in self.residues:
@@ -267,6 +451,17 @@ class ResiduicStructure(AtomicStructure):
 
 
 class ResiduicSequence(ResiduicStructure):
+    """Base class: :py:class:`ResiduicStructure`
+
+    The base class for all structures which can be described as a sequence of
+    residues.
+
+    :param residues: A ``list`` of :py:class:`PdbResidue` objects in this\
+    structure.
+
+    .. py:attribute:: residues:
+
+         A ``list`` of :py:class:`PdbResidue` objects in this structure."""
 
     def __init__(self, *residues):
         ResiduicStructure.__init__(self, *residues)
@@ -279,6 +474,17 @@ class ResiduicSequence(ResiduicStructure):
 
 
 class PdbChain(ResiduicSequence):
+    """Base class: :py:class:`ResiduicSequence`
+
+    Represents PDB chains - the polymeric units that make up most of PDB
+    structures.
+
+    :param chain_id: The chain's ID.
+    :param residues: The residues in this chain.
+
+    .. py:attribute:: chain_id:
+
+         A chain's ID."""
 
     def __init__(self, chain_id, *residues):
         if not isinstance(chain_id, str):
@@ -296,6 +502,17 @@ class PdbChain(ResiduicSequence):
 
 
 class PdbModel(AtomicStructure):
+    """Base class: :py:class:`AtomicStructure`
+
+    Represents the structural environment in which the other structures exist.
+
+    .. py:attribute:: small_molecules:
+
+         The ``set`` of :py:class:`PdbSmallMolecule` objects in this model.
+
+    .. py:attribute:: chains:
+
+         The ``set`` of :py:class:`PdbChain` objects in this model."""
 
     def __init__(self):
         self.small_molecules = set()
@@ -319,6 +536,14 @@ class PdbModel(AtomicStructure):
 
 
     def add_small_molecule(self, small_molecule):
+        """Validates and adds a :py:class:`PdbSmallMolecule` to the model.
+
+        :param PdbSmallMolecule small_molecule: the molecule to add.
+        :raises TypeError: if something other than a\
+        :py:class:`PdbSmallMolecule` is added.
+        :raises: :class:`.DuplicateSmallMoleculeError` if there is already a\
+        :py:class:`PdbSmallMolecule` of the same ID."""
+
         if not(isinstance(small_molecule, PdbSmallMolecule)):
             raise TypeError("Can only add SmallMolecules with add_small_molecule()")
         existing_small_molecule_ids = [mol.molecule_id for mol in self.small_molecules]
@@ -330,6 +555,12 @@ class PdbModel(AtomicStructure):
 
 
     def get_small_molecule_by_id(self, molecule_id):
+        """Retrurns the first small molecule that matches a given molecule ID.
+
+        :param str molecule_id: The molecule ID to search by.
+        :rtype: :py:class:`PdbSmallMolecule` or ``None``
+        :raises TypeError: if the name given isn't an string."""
+
         if not isinstance(molecule_id, str):
             raise TypeError("Can only search small molecule IDs by str")
         for small_molecule in self.small_molecules:
@@ -338,6 +569,12 @@ class PdbModel(AtomicStructure):
 
 
     def get_small_molecule_by_name(self, molecule_name):
+        """Retruns all the small molecules that matches a given molecule name.
+
+        :param str molecule_name: The molecule name to search by.
+        :rtype: ``set`` of :py:class:`PdbSmallMolecule` objects
+        :raises TypeError: if the name given isn't a string."""
+
         if not isinstance(molecule_name, str):
             raise TypeError("Can only search small molecule names by string")
         for small_molecule in self.small_molecules:
@@ -347,6 +584,12 @@ class PdbModel(AtomicStructure):
 
 
     def get_small_molecules_by_name(self, molecule_name):
+        """Retruns all the small molecules that matches a given residue name.
+
+        :param str molecule_name: The molecule name to search by.
+        :rtype: ``set`` of :py:class:`PdbSmallMolecule` objects
+        :raises TypeError: if the name given isn't a string."""
+
         if not isinstance(molecule_name, str):
             raise TypeError("Can only search small molecule names by string")
         return set([
@@ -355,6 +598,14 @@ class PdbModel(AtomicStructure):
 
 
     def add_chain(self, chain):
+        """Validates and adds a :py:class:`PdbChain` to the model.
+
+        :param PdbChain chain: the chain to add.
+        :raises TypeError: if something other than a\
+        :py:class:`PdbChain` is added.
+        :raises: :class:`.DuplicateChainError` if there is already a\
+        :py:class:`PdbChain` of the same ID."""
+
         if not(isinstance(chain, PdbChain)):
             raise TypeError("Can only add Chain with add_chain()")
         existing_chain_ids = [c.chain_id for c in self.chains]
@@ -366,6 +617,12 @@ class PdbModel(AtomicStructure):
 
 
     def get_chain_by_id(self, chain_id):
+        """Retrurns the first chain that matches a given chain ID.
+
+        :param str chain_id: The chain ID to search by.
+        :rtype: :py:class:`PdbChain` or ``None``
+        :raises TypeError: if the name given isn't an string."""
+
         if not isinstance(chain_id, str):
             raise TypeError("Can only search chain IDs by str")
         for chain in self.chains:

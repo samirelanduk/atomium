@@ -162,3 +162,29 @@ structures, so you can get their mass, get atoms by name/ID etc.
      3238 (C)>, <Atom 3239 (N)>}
     >>> pdb.model.get_small_molecule_by_name("XMP").get_atom_by_id(3252)
     <Atom 3252 (C)>
+
+
+Pdb Atoms
+~~~~~~~~~
+
+Pdb structures - like everything else in the universe really - are ultimately
+collections of Atom objects. They posess a few key properties from which much of
+everything else is created:
+
+    >>> pdb.model.get_atom_by_id(28)
+    <Atom 28 (C)>
+    >>> pdb.model.get_atom_by_id(28).atom_id
+    28
+    >>> pdb.model.get_atom_by_id(28).atom_name
+    'CB'
+    >>> pdb.model.get_atom_by_id(28).element
+    'C'
+    >>> pdb.model.get_atom_by_id(28).get_mass()
+    12.0107
+
+The distance between any two atoms can be calculated easily:
+
+    >>> atom1 = pdb.model.get_atom_by_id(23)
+    >>> atom2 = pdb.model.get_atom_by_id(28)
+    >>> atom1.distance_to(atom2)
+    7.931296047935668

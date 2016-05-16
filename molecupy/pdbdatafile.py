@@ -84,13 +84,6 @@ def records_to_token_value_dicts(records):
             pairs[pair_offset-1] += "; " + pairs[pair_offset]
     pairs = [pair for pair in pairs if pair.count(":") == 1]
     pairs = [pair.split(":") for pair in pairs if pair]
-    '''for offset in range(1, len(pairs))[::-1]:
-        if len(pairs[offset]) == 1:
-            try:
-                pairs[offset-1][1] += ";" + pairs[offset][0]
-            except IndexError:
-                pairs[offset-1][0] += ";" + pairs[offset][0]
-    pairs = [p for p in pairs if len(pairs) == 2]'''
     entities = []
     entity = {}
     for pair in pairs:

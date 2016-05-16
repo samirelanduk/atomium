@@ -1,6 +1,18 @@
+"""This module performs the actual parsing of the PDB file, though it does not
+process the values that it extracts."""
+
 import datetime
 
 class PdbDataFile:
+    """This object is essentially a list of values extracted from a PDB file.
+    Each PDB record type has a function which identifies it and extracts the
+    information from it.
+
+    :param PdbRecord pdb_file: The PDB file to extract information from.
+
+    .. py:attribute:: pdb_file:
+
+        The :py:class:`PdbFile` from which the object was created."""
 
     def __init__(self, pdb_file):
         self.pdb_file = pdb_file
@@ -63,12 +75,26 @@ class PdbDataFile:
 
 
 def date_from_string(s):
+    """Gets a Date object from a PDB formatted date string.
+
+    :param str s: A date in the format DD-MM-YY.
+    :rtype: ``datetime.Date``"""
+
     return datetime.datetime.strptime(
      s, "%d-%b-%y"
     ).date()
 
 
 def merge_records(records, start, join=" ", dont_condense=""):
+    """Gets a single continuous string from a sequence of records.
+
+    :param list records: The records to merge.
+    :param int start: The start point in each record.
+    :param str join: The string to join on.
+    :param str dont_condense: By default any spaces after spaces, semi-colons, \
+    colons, commas and dashes will be removed, unless listed here.
+    :rtype: ``str``"""
+
     string = join.join(str(record[start:]) if record[start:] else "" for record in records)
     condense = [char for char in " ;:,-" if char not in dont_condense]
     for char in condense:
@@ -77,6 +103,12 @@ def merge_records(records, start, join=" ", dont_condense=""):
 
 
 def records_to_token_value_dicts(records):
+    """Produces a list of ``dict`` objects from the key-value pairs used in \
+    COMPND and SOURCE records.
+
+    :param list records: The records to use.
+    :rtype: ``list``"""
+
     string = merge_records(records, 10)
     pairs = list(filter(None, string.split(";")))
     for pair_offset in range(1, len(pairs))[::-1]:
@@ -104,6 +136,10 @@ def records_to_token_value_dicts(records):
 
 
 def process_header(data_file):
+    """Processes HEADER records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     header = data_file.pdb_file.get_record_by_name("HEADER")
     data_file.classification = header[10:50] if header else None
     data_file.deposition_date = date_from_string(header[50:59]) if header else None
@@ -111,6 +147,10 @@ def process_header(data_file):
 
 
 def process_obslte(data_file):
+    """Processes OBSLTE records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     obslte = data_file.pdb_file.get_record_by_name("OBSLTE")
     data_file.is_obsolete = bool(obslte)
     data_file.obsolete_date = date_from_string(obslte[11:20]) if obslte else None
@@ -118,50 +158,86 @@ def process_obslte(data_file):
 
 
 def process_title(data_file):
+    """Processes TITLE records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     titles = data_file.pdb_file.get_records_by_name("TITLE")
     title = merge_records(titles, 10, dont_condense=",;:-")
     data_file.title = title if title else None
 
 
 def process_split(data_file):
+    """Processes SPLIT records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     splits = data_file.pdb_file.get_records_by_name("SPLIT")
     data_file.split_codes = " ".join([r[10:] for r in splits]).split()
 
 
 def process_caveat(data_file):
+    """Processes CAVEAT records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     caveats = data_file.pdb_file.get_records_by_name("CAVEAT")
     caveat = merge_records(caveats, 19)
     data_file.caveat = caveat if caveat else None
 
 
 def process_compnd(data_file):
+    """Processes COMPND records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     records = data_file.pdb_file.get_records_by_name("COMPND")
     data_file.compounds = records_to_token_value_dicts(records)
 
 
 def process_source(data_file):
+    """Processes SOURCE records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     records = data_file.pdb_file.get_records_by_name("SOURCE")
     data_file.sources = records_to_token_value_dicts(records)
 
 
 def process_keywds(data_file):
+    """Processes KEYWDS records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     keywords = data_file.pdb_file.get_records_by_name("KEYWDS")
     keyword_text = merge_records(keywords, 10)
     data_file.keywords = keyword_text.split(",") if keyword_text else []
 
 
 def process_expdta(data_file):
+    """Processes EXPDTA records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     expdta = data_file.pdb_file.get_records_by_name("EXPDTA")
     expdta_text = merge_records(expdta, 10)
     data_file.experimental_techniques = expdta_text.split(";") if expdta_text else []
 
 
 def process_nummdl(data_file):
+    """Processes NUMMDL records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     nummdl = data_file.pdb_file.get_record_by_name("NUMMDL")
     data_file.model_count = nummdl[10:14] if nummdl else 1
 
 
 def process_mdltyp(data_file):
+    """Processes MDLTYP records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     mdltyps = data_file.pdb_file.get_records_by_name("MDLTYP")
     mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
     data_file.model_annotations = [
@@ -170,11 +246,19 @@ def process_mdltyp(data_file):
 
 
 def process_author(data_file):
+    """Processes AUTHOR records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     authors = data_file.pdb_file.get_records_by_name("AUTHOR")
     data_file.authors = merge_records(authors, 10).split(",") if authors else []
 
 
 def process_revdat(data_file):
+    """Processes REVDAT records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     revdats = data_file.pdb_file.get_records_by_name("REVDAT")
     numbers = sorted(list(set([r[7:10] for r in revdats])))
     data_file.revisions = []
@@ -190,12 +274,20 @@ def process_revdat(data_file):
 
 
 def process_sprsde(data_file):
+    """Processes SPRSDE records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     sprsde = data_file.pdb_file.get_record_by_name("SPRSDE")
     data_file.supercedes = sprsde[31:75].split() if sprsde else []
     data_file.supercede_date = date_from_string(sprsde[11:20]) if sprsde else None
 
 
 def process_jrnl(data_file):
+    """Processes JRNL records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     jrnls = data_file.pdb_file.get_records_by_name("JRNL")
     if not jrnls:
         data_file.journal = None
@@ -236,6 +328,10 @@ def process_jrnl(data_file):
 
 
 def process_remark(data_file):
+    """Processes REMARK records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     remarks = data_file.pdb_file.get_records_by_name("REMARK")
     remark_numbers = sorted(list(set([r[7:10] for r in remarks])))
     data_file.remarks = []
@@ -249,6 +345,10 @@ def process_remark(data_file):
 
 
 def process_dbref(data_file):
+    """Processes DBREF, DBREF1 and DBREF2 records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     dbrefs = data_file.pdb_file.get_records_by_name("DBREF")
     data_file.dbreferences = [{
      "chain_id": r[12],
@@ -285,6 +385,10 @@ def process_dbref(data_file):
 
 
 def process_seqadv(data_file):
+    """Processes SEQADV records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     seqadvs = data_file.pdb_file.get_records_by_name("SEQADV")
     data_file.sequence_differences = [{
      "residue_name": r[12:15],
@@ -300,6 +404,10 @@ def process_seqadv(data_file):
 
 
 def process_seqres(data_file):
+    """Processes SEQRES records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     seqres = data_file.pdb_file.get_records_by_name("SEQRES")
     chains = sorted(list(set([r[11] for r in seqres])))
     data_file.residue_sequences = []
@@ -313,6 +421,10 @@ def process_seqres(data_file):
 
 
 def process_modres(data_file):
+    """Processes MODRES records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     modres = data_file.pdb_file.get_records_by_name("MODRES")
     data_file.modified_residues = [{
      "residue_name": r[12:15],
@@ -325,6 +437,10 @@ def process_modres(data_file):
 
 
 def process_het(data_file):
+    """Processes HET records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     hets = data_file.pdb_file.get_records_by_name("HET")
     data_file.hets = [{
      "het_name": r[7:10],
@@ -337,6 +453,10 @@ def process_het(data_file):
 
 
 def process_hetnam(data_file):
+    """Processes HETNAM records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     hetnams = data_file.pdb_file.get_records_by_name("HETNAM")
     ids = list(set([r[11:14] for r in hetnams]))
     data_file.het_names = {
@@ -347,6 +467,10 @@ def process_hetnam(data_file):
 
 
 def process_hetsyn(data_file):
+    """Processes HETSYN records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     hetsyns = data_file.pdb_file.get_records_by_name("HETSYN")
     ids = list(set([r[11:14] for r in hetsyns]))
     data_file.het_synonyms = {
@@ -357,6 +481,10 @@ def process_hetsyn(data_file):
 
 
 def process_formul(data_file):
+    """Processes FORMUL records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     formuls = data_file.pdb_file.get_records_by_name("FORMUL")
     ids = list(set([r[12:15] for r in formuls]))
     data_file.formulae = {
@@ -371,6 +499,10 @@ def process_formul(data_file):
 
 
 def process_helix(data_file):
+    """Processes HELIX records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     helix = data_file.pdb_file.get_records_by_name("HELIX")
     data_file.helices = [{
      "helix_id": r[7:10],
@@ -390,6 +522,10 @@ def process_helix(data_file):
 
 
 def process_sheet(data_file):
+    """Processes SHEET records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     sheets = data_file.pdb_file.get_records_by_name("SHEET")
     sheet_names = sorted(list(set([r[11:14] for r in sheets])))
     data_file.sheets = []
@@ -424,6 +560,10 @@ def process_sheet(data_file):
 
 
 def process_ssbond(data_file):
+    """Processes SSBOND records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     ssbonds = data_file.pdb_file.get_records_by_name("SSBOND")
     data_file.ss_bonds = [{
      "serial_num": r[7:10],
@@ -442,6 +582,10 @@ def process_ssbond(data_file):
 
 
 def process_link(data_file):
+    """Processes LINK records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     links = data_file.pdb_file.get_records_by_name("LINK")
     data_file.links = [{
      "atom_1": r[12:16],
@@ -463,6 +607,10 @@ def process_link(data_file):
 
 
 def process_cispep(data_file):
+    """Processes CISPEP records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     cispeps = data_file.pdb_file.get_records_by_name("CISPEP")
     data_file.cis_peptides = [{
      "serial_num": r[7:10],
@@ -480,6 +628,10 @@ def process_cispep(data_file):
 
 
 def process_site(data_file):
+    """Processes SITE records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     sites = data_file.pdb_file.get_records_by_name("SITE")
     site_names = sorted(list(set([r[11:14] for r in sites])))
     data_file.sites = []
@@ -503,6 +655,10 @@ def process_site(data_file):
 
 
 def process_crystal(data_file):
+    """Processes CRYST1 records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     crystal = data_file.pdb_file.get_record_by_name("CRYST1")
     data_file.crystal_a = crystal[6:15] if crystal else None
     data_file.crystal_b = crystal[15:24] if crystal else None
@@ -515,6 +671,10 @@ def process_crystal(data_file):
 
 
 def process_origx(data_file):
+    """Processes ORIGX1, ORIGX2 and ORIGX3 records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     origx1 = data_file.pdb_file.get_record_by_name("ORIGX1")
     data_file.crystal_o11 = origx1[10:20] if origx1 else None
     data_file.crystal_o12 = origx1[20:30] if origx1 else None
@@ -533,6 +693,10 @@ def process_origx(data_file):
 
 
 def process_scale(data_file):
+    """Processes SCALE1, SCALE2 and SCALE3 records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     scale1 = data_file.pdb_file.get_record_by_name("SCALE1")
     data_file.crystal_s11 = scale1[10:20] if scale1 else None
     data_file.crystal_s12 = scale1[20:30] if scale1 else None
@@ -551,6 +715,10 @@ def process_scale(data_file):
 
 
 def process_mtrix(data_file):
+    """Processes MTRIX1, MTRIX2 and MTRIX3 records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     mtrix1 = data_file.pdb_file.get_record_by_name("MTRIX1")
     data_file.crystal_serial_1 = mtrix1[7:10] if mtrix1 else None
     data_file.crystal_m11 = mtrix1[10:20] if mtrix1 else None
@@ -575,6 +743,10 @@ def process_mtrix(data_file):
 
 
 def process_model(data_file):
+    """Processes MODEL records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     models = data_file.pdb_file.get_records_by_name("MODEL")
     endmdls = data_file.pdb_file.get_records_by_name("ENDMDL")
     pairs = list(zip(models, endmdls))
@@ -592,6 +764,10 @@ def process_model(data_file):
 
 
 def process_atom(data_file):
+    """Processes ATOM records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     atoms = data_file.pdb_file.get_records_by_name("ATOM")
     data_file.atoms = [{
      "atom_id": r[6:11],
@@ -615,6 +791,10 @@ def process_atom(data_file):
 
 
 def process_anisou(data_file):
+    """Processes ANISOU records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     anisou = data_file.pdb_file.get_records_by_name("ANISOU")
     data_file.anisou = [{
      "atom_id": r[6:11],
@@ -639,6 +819,10 @@ def process_anisou(data_file):
 
 
 def process_ter(data_file):
+    """Processes TER records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     ters = data_file.pdb_file.get_records_by_name("TER")
     data_file.termini = [{
      "atom_id": r[6:11],
@@ -653,6 +837,10 @@ def process_ter(data_file):
 
 
 def process_hetatm(data_file):
+    """Processes HETATM records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     hetatms = data_file.pdb_file.get_records_by_name("HETATM")
     data_file.heteroatoms = [{
      "atom_id": r[6:11],
@@ -676,6 +864,10 @@ def process_hetatm(data_file):
 
 
 def process_conect(data_file):
+    """Processes CONECT records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     conects = data_file.pdb_file.get_records_by_name("CONECT")
     atom_ids = sorted(list(set([r[6:11] for r in conects])))
     data_file.connections = [{
@@ -687,6 +879,10 @@ def process_conect(data_file):
 
 
 def process_master(data_file):
+    """Processes MASTER records.
+
+    :param ``PdbDataFile`` data_file: The data file."""
+
     master = data_file.pdb_file.get_record_by_name("MASTER")
     data_file.master = {
       "remark_num": master[10:15],

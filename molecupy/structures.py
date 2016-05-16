@@ -201,6 +201,8 @@ class PdbResidue(AtomicStructure):
         for atom in self.atoms:
             atom.molecule = self
 
+        self.chain = None
+
 
     def __repr__(self):
         return "<Residue (%s)>" % self.residue_name
@@ -273,6 +275,23 @@ class ResiduicSequence(ResiduicStructure):
 
     def __repr__(self):
         return "<ResiduicSequence (%i residues)>" % len(self.residues)
+
+
+
+class PdbChain(ResiduicSequence):
+
+    def __init__(self, chain_id, *residues):
+        if not isinstance(chain_id, str):
+            raise TypeError("'%s' is not a valid chain_id" % str(chain_id))
+        self.chain_id = chain_id
+
+        ResiduicSequence.__init__(self, *residues)
+        for residue in self.residues:
+            residue.chain = self
+
+
+    def __repr__(self):
+        return "<Chain %s (%i residues)>" % (self.chain_id, len(self.residues))
 
 
 

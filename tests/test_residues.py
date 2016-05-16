@@ -16,6 +16,7 @@ class ResidueTest(TestCase):
             self.assertEqual(atom.molecule, residue)
         self.assertIsInstance(residue.residue_id, int)
         self.assertIsInstance(residue.residue_name, str)
+        residue.chain
         self.assertRegex(str(residue), r"<Residue \((.+)\)>")
 
 

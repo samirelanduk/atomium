@@ -114,7 +114,7 @@ class AtomicStructure:
             raise NoAtomsError("Cannot make AtomicStructure with zero atoms")
         atom_ids = [atom.atom_id for atom in atoms if atom.atom_id is not None]
         if len(set(atom_ids)) < len(atom_ids):
-            raise DuplicateAtomIdError("Cannot make Molecule with duplicate atom_ids")
+            raise DuplicateAtomIdError("Cannot make AtomicStructure with duplicate atom_ids")
         self.atoms = set(atoms)
 
 

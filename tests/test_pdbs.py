@@ -3,7 +3,7 @@ from unittest import TestCase
 from molecupy.pdbfile import PdbFile
 from molecupy.pdbdatafile import PdbDataFile
 from molecupy.pdb import Pdb
-from molecupy.structures import PdbModel
+from molecupy.structures import PdbModel, PdbSmallMolecule
 from molecupy.exceptions import *
 from molecupy import pdb_from_string, get_pdb_remotely, get_pdb_from_file
 
@@ -134,6 +134,97 @@ class ModelTests(PdbTest):
         self.assertIs(self.empty.model, self.empty.models[0])
         self.assertIs(self.single_model.model, self.single_model.models[0])
         self.assertIs(self.multi_model.model, self.multi_model.models[0])
+
+
+
+class SmallMoleculeTests(PdbTest):
+    def setUp(self):
+        PdbTest.setUp(self)
+        self.one_het = Pdb(PdbDataFile(PdbFile(
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "HETATM 3196  C2  BU2 A5001       1.922  45.088  50.288  1.00 44.82           C\n"
+         "HETATM 3197  C3  BU2 A5001       0.706  44.197  50.309  1.00 43.92           C\n"
+         "HETATM 3198  O3  BU2 A5001       1.101  42.889  50.701  1.00 45.94           O\n"
+         "HETATM 3199  C4  BU2 A5001      -0.456  44.629  51.162  1.00 42.35           C"
+        )))
+        self.two_hets = Pdb(PdbDataFile(PdbFile(
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "HETATM 3196  C2  BU2 A5001       1.922  45.088  50.288  1.00 44.82           C\n"
+         "HETATM 3197  C3  BU2 A5001       0.706  44.197  50.309  1.00 43.92           C\n"
+         "HETATM 3198  O3  BU2 A5001       1.101  42.889  50.701  1.00 45.94           O\n"
+         "HETATM 3199  C4  BU2 A5001      -0.456  44.629  51.162  1.00 42.35           C\n"
+         "HETATM 3224  C1  BU2 B5002     -14.563  61.208  49.005  1.00 45.50           C\n"
+         "HETATM 3225  O1  BU2 B5002     -15.048  61.106  50.333  1.00 45.86           O\n"
+         "HETATM 3226  C2  BU2 B5002     -15.717  61.232  48.004  1.00 45.69           C\n"
+         "HETATM 3227  C3  BU2 B5002     -16.272  59.866  47.666  1.00 45.71           C\n"
+         "HETATM 3228  O3  BU2 B5002     -17.648  59.990  47.338  1.00 48.42           O\n"
+         "HETATM 3229  C4  BU2 B5002     -15.600  59.073  46.589  1.00 44.02           C"
+        )))
+        self.two_models = Pdb(PdbDataFile(PdbFile(
+         "MODEL        1\n"
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "HETATM 3196  C2  BU2 A5001       1.922  45.088  50.288  1.00 44.82           C\n"
+         "HETATM 3197  C3  BU2 A5001       0.706  44.197  50.309  1.00 43.92           C\n"
+         "HETATM 3198  O3  BU2 A5001       1.101  42.889  50.701  1.00 45.94           O\n"
+         "HETATM 3199  C4  BU2 A5001      -0.456  44.629  51.162  1.00 42.35           C\n"
+         "ENDMDL\n"
+         "MODEL        2\n"
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "HETATM 3196  C2  BU2 A5001       1.922  45.088  50.288  1.00 44.82           C\n"
+         "HETATM 3197  C3  BU2 A5001       0.706  44.197  50.309  1.00 43.92           C\n"
+         "HETATM 3198  O3  BU2 A5001       1.101  42.889  50.701  1.00 45.94           O\n"
+         "HETATM 3199  C4  BU2 A5001      -0.456  44.629  51.162  1.00 42.35           C\n"
+         "ENDMDL"
+        )))
+
+
+    def test_het_in_model(self):
+        self.assertEqual(len(self.one_het.model.small_molecules), 1)
+        self.assertIsInstance(
+         list(self.one_het.model.small_molecules)[0],
+         PdbSmallMolecule
+        )
+        self.assertEqual(
+         list(self.one_het.model.small_molecules)[0].molecule_id,
+         5001
+        )
+        self.assertEqual(
+         list(self.one_het.model.small_molecules)[0].molecule_name,
+         "BU2"
+        )
+        self.assertEqual(
+         len(list(self.one_het.model.small_molecules)[0].atoms),
+         6
+        )
+
+
+    def test_multiple_hets(self):
+        self.assertEqual(len(self.two_hets.model.small_molecules), 2)
+        for small_molecule in self.two_hets.model.small_molecules:
+            self.assertIsInstance(small_molecule, PdbSmallMolecule)
+
+
+    def test_multi_model_hets(self):
+        self.assertEqual(len(self.two_models.models[0].small_molecules), 1)
+        self.assertEqual(len(self.two_models.models[1].small_molecules), 1)
+        self.assertIsNot(
+         list(self.two_models.models[0].small_molecules)[0],
+         list(self.two_models.models[1].small_molecules)[0]
+        )
+        self.assertEqual(
+         len(list(self.two_models.model.small_molecules)[0].atoms),
+         6
+        )
+        self.assertEqual(
+         len(list(self.two_models.model.small_molecules)[0].atoms),
+         6
+        )
+
+
 
 
 

@@ -12,7 +12,7 @@ class Pdb:
 
     .. py:attribute:: data_file:
 
-        The :py:class:`PdbDataFile` from which the object was created.
+        The :py:class:`.PdbDataFile` from which the object was created.
 
     .. py:attribute:: classification:
 
@@ -88,11 +88,11 @@ class Pdb:
 
     .. py:attribute:: models:
 
-        A list of :py:class:`PdbModel` objects for this PDB.
+        A list of :py:class:`.PdbModel` objects for this PDB.
 
     .. py:attribute:: model:
 
-        The first :py:class:`PdbModel` of this PDB."""
+        The first :py:class:`.PdbModel` of this PDB."""
 
     def __init__(self, data_file):
         self.data_file = data_file

@@ -12,7 +12,7 @@ class PdbDataFile:
 
     .. py:attribute:: pdb_file:
 
-        The :py:class:`PdbFile` from which the object was created."""
+        The :py:class:`.PdbFile` from which the object was created."""
 
     def __init__(self, pdb_file):
         self.pdb_file = pdb_file

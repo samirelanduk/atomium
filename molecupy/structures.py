@@ -7,7 +7,7 @@ import warnings
 from .exceptions import *
 
 class PdbAtom:
-    """Represents atoms - the fundamental chemical building blocks.
+    """This class epresents atoms - the fundamental chemical building blocks.
 
     :param float x: The atom's x-coordinate.
     :param float y: The atom's y-coordinate.
@@ -303,9 +303,10 @@ class PdbSmallMolecule(AtomicStructure):
 
        The numerical ID assigned to small molecules in PDB files (where they are
        called 'HETs') are supposed to be unique, but unfortunately they often
-       aren't. It is for this reason that the ID for small molecules is a
-       string, as it is combined with the chain ID (not a meaningful property by
-       itself for small molecules) to create IDs such as 'A1001' and 'B6700'."""
+       aren't. It is for this reason that in molecuPy the ID for small molecules
+       is a string, as it is combined with the chain ID (not a meaningful
+       property by itself for small molecules) to create IDs such as 'A1001' and
+       'B6700'."""
 
     def __init__(self, molecule_id, molecule_name, *atoms):
         if not isinstance(molecule_id, str):

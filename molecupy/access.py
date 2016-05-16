@@ -9,10 +9,10 @@ from .pdb import Pdb
 from .exceptions import InvalidPdbCodeError
 
 def pdb_from_string(string):
-    """Creates a :py:class:`Pdb` object from the text of a PDB file.
+    """Creates a :py:class:`.Pdb` object from the text of a PDB file.
 
     :param str string: The raw text of a PDB file.
-    :rtype: :py:class:`Pdb`"""
+    :rtype: :py:class:`.Pdb`"""
 
     pdb_file = PdbFile(string)
     pdb_data_file = PdbDataFile(pdb_file)
@@ -21,22 +21,22 @@ def pdb_from_string(string):
 
 
 def get_pdb_from_file(path):
-    """Gets a :py:class:`Pdb` object from a PDB file stored on disk.
+    """Gets a :py:class:`.Pdb` object from a PDB file stored on disk.
 
     :param str path: The path to the PDB file.
-    :rtype: :py:class:`Pdb`"""
+    :rtype: :py:class:`.Pdb`"""
 
     with open(path) as f:
         return pdb_from_string(f.read())
 
 
 def get_pdb_remotely(code):
-    """Gets a :py:class:`Pdb` object from a PDB code.
+    """Gets a :py:class:`.Pdb` object from a PDB code.
 
     The file is requested from the RCSB servers via a HTTP request.
 
     :param str code: The PDB code required - e.g. '1NVQ'.
-    :rtype: :py:class:`Pdb`
+    :rtype: :py:class:`.Pdb`
     :raises: :class:`.InvalidPdbCodeError` if the PDB doesn't exist"""
 
     response = requests.get(

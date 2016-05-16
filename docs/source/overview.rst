@@ -57,9 +57,9 @@ or an empty list, whichever is appropriate.
 Pdb Models
 ~~~~~~~~~~
 
-The heart of a Pdb is its model. A PdbModel represents the structure contained
-in that PDB file, and is the environment in which all other molecules and
-structures are based.
+The heart of a Pdb is its model. A :py:class:`.PdbModel` represents the
+structure contained in that PDB file, and is the environment in which all other
+molecules and structures are based.
 
 All Pdb objects have a list of models, which in most cases will contain a single
 model. Structures created from NMR will often have multiple models - each
@@ -72,9 +72,10 @@ first model in the list.
     >>> pdb.model
     <Model (3431 atoms)>
 
-The ``PdbModel`` class is an atomic structure (i.e. it inherits from
-``AtomicStructure``) which means you can get certain atomic properties directly
-from the model, such as mass, empirical formula, and the atoms themselves:
+The PdbModel class is an atomic structure (i.e. it inherits from
+:py:class:`.AtomicStructure`) which means you can get certain atomic properties
+directly from the model, such as mass, empirical formula, and the atoms
+themselves:
 
     >>> pdb.model.get_mass()
     20630.8656
@@ -113,8 +114,8 @@ by ID or name:
 Pdb Chains
 ~~~~~~~~~~
 
-A Chain object is an ordered sequence of Residue objects, and they are the
-macromolecular structures which constitute the bulk of the model.
+A :py:class:`.PdbChain` object is an ordered sequence of Residue objects, and
+they are the macromolecular structures which constitute the bulk of the model.
 
     >>> pdb.model.get_chain_by_id("A")
     <Chain A (204 residues)>
@@ -123,8 +124,8 @@ macromolecular structures which constitute the bulk of the model.
     >>> pdb.model.get_chain_by_id("A").residues[0]
     <Residue (VAL)>
 
-Chains inherit from ``ResiduicStructure`` and ``ResiduicSequence`` and so have
-methods for retrieving residues:
+Chains inherit from :py:class:`.ResiduicStructure` and
+:py:class:`.ResiduicSequence` and so have methods for retrieving residues:
 
     >>> pdb.model.get_chain_by_id("A").get_residue_by_id(23)
     <Residue (ASN)>
@@ -138,7 +139,7 @@ Like pretty much everything else in molecuPy, chains are ultimately atomic
 structures, and have the usual atomic structure methods for getting mass,
 retrieving atoms etc.
 
-The Residue objects themselves are also atomic structures, and behave very
+The :py:class:`.PdbResidue` objects themselves are also atomic structures, and behave very
 similar to small molecules.
 
 
@@ -146,7 +147,8 @@ Pdb Small Molecules
 ~~~~~~~~~~~~~~~~~~~
 
 Many PDB files also contain non-macromolecular objects, such as ligands, and
-solvent molecules. In molecuPy, these are represented as Small Molecule objects.
+solvent molecules. In molecuPy, these are represented as
+:py:class:`.PdbSmallMolecule` objects.
 
 There's not a great deal to be said about small molecules. They are atomic
 structures, so you can get their mass, get atoms by name/ID etc.
@@ -168,8 +170,8 @@ Pdb Atoms
 ~~~~~~~~~
 
 Pdb structures - like everything else in the universe really - are ultimately
-collections of Atom objects. They posess a few key properties from which much of
-everything else is created:
+collections of Atom - :py:class:`.PdbAtom` - objects. They possess a few key
+properties from which much of everything else is created:
 
     >>> pdb.model.get_atom_by_id(28)
     <Atom 28 (C)>

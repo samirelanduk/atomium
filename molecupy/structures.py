@@ -189,7 +189,7 @@ class PdbSmallMolecule(AtomicStructure):
 class PdbModel(AtomicStructure):
 
     def __init__(self):
-        pass
+        self.small_molecules = set()
 
 
     def __repr__(self):
@@ -199,9 +199,47 @@ class PdbModel(AtomicStructure):
     def __getattr__(self, attribute):
         if attribute == "atoms":
             atoms = set()
+            for small_molecule in self.small_molecules:
+                atoms.update(small_molecule.atoms)
             return atoms
         else:
             return self.__getattribute__(attribute)
+
+
+    def add_small_molecule(self, small_molecule):
+        if not(isinstance(small_molecule, PdbSmallMolecule)):
+            raise TypeError("Can only add SmallMolecules with add_small_molecule()")
+        existing_small_molecule_ids = [mol.molecule_id for mol in self.small_molecules]
+        if small_molecule.molecule_id in existing_small_molecule_ids:
+            raise DuplicateSmallMoleculeError(
+             "Cannot have two small molecules with ID %i" % small_molecule.molecule_id
+            )
+        self.small_molecules.add(small_molecule)
+
+
+    def get_small_molecule_by_id(self, molecule_id):
+        if not isinstance(molecule_id, int):
+            raise TypeError("Can only search small molecule IDs by int")
+        for small_molecule in self.small_molecules:
+            if small_molecule.molecule_id == molecule_id:
+                return small_molecule
+
+
+    def get_small_molecule_by_name(self, molecule_name):
+        if not isinstance(molecule_name, str):
+            raise TypeError("Can only search small molecule names by string")
+        for small_molecule in self.small_molecules:
+            if small_molecule.molecule_name == molecule_name:
+                return small_molecule
+        pass
+
+
+    def get_small_molecules_by_name(self, molecule_name):
+        if not isinstance(molecule_name, str):
+            raise TypeError("Can only search small molecule names by string")
+        return set([
+         mol for mol in self.small_molecules if mol.molecule_name == molecule_name
+        ])
 
 
 

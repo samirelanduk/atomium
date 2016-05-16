@@ -103,10 +103,10 @@ by ID or name:
 
 .. note::
 
-   PDB structures are not always perfect representations of the real molecular
+   PDB files are not always perfect representations of the real molecular
    structures they are created from. Sometimes there are missing atoms, and
    sometimes there are missing residues. Future versions of molecuPy will flag
-   these and maybe even infer them, but for now simply bear in mind that there
+   these and maybe even fill them in, but for now simply bear in mind that there
    may be missing atoms and disconnected chains.
 
 

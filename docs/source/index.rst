@@ -24,3 +24,4 @@ Table of Contents
 
     installing
     overview
+    changelog

@@ -264,6 +264,18 @@ class ResiduicStructure(AtomicStructure):
 
 
 
+class ResiduicSequence(ResiduicStructure):
+
+    def __init__(self, *residues):
+        ResiduicStructure.__init__(self, *residues)
+        self.residues = sorted(list(self.residues), key=lambda k: k.residue_id)
+
+
+    def __repr__(self):
+        return "<ResiduicSequence (%i residues)>" % len(self.residues)
+
+
+
 class PdbModel(AtomicStructure):
 
     def __init__(self):

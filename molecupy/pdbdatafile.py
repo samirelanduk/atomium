@@ -654,7 +654,7 @@ def process_hetatm(data_file):
      "atom_id": r[6:11],
      "atom_name": r[12:16],
      "alt_loc": r[16],
-     "residue_name": r[17:20],
+     "residue_name": r.get_as_string(17, 20),
      "chain_id": r[21],
      "residue_id": r[22:26],
      "insert_code": r[26],

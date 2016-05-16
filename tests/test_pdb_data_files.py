@@ -1659,6 +1659,34 @@ class HetatmRecordTests(PdbDataFileTest):
         )
 
 
+    def test_het_names_always_interpreted_as_string(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETATM 8237 MG   123 A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
+        ))
+        self.assertEqual(
+         data_file.heteroatoms,
+         [
+          {
+           "atom_id": 8237,
+           "atom_name": "MG",
+           "alt_loc": None,
+           "residue_name": "123",
+           "chain_id": "A",
+           "residue_id": 1001,
+           "insert_code": None,
+           "x": 13.872,
+           "y": -2.555,
+           "z": -29.045,
+           "occupancy": 1.0,
+           "temperature_factor": 27.36,
+           "element": "MG",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
     def test_missing_hetatm_processing(self):
         self.assertEqual(self.empty.heteroatoms, [])
 

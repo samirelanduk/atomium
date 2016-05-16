@@ -190,7 +190,7 @@ class SmallMoleculeTests(PdbTest):
         )
         self.assertEqual(
          list(self.one_het.model.small_molecules)[0].molecule_id,
-         5001
+         "A5001"
         )
         self.assertEqual(
          list(self.one_het.model.small_molecules)[0].molecule_name,

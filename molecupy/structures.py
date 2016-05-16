@@ -168,7 +168,7 @@ class AtomicStructure:
 class PdbSmallMolecule(AtomicStructure):
 
     def __init__(self, molecule_id, molecule_name, *atoms):
-        if not isinstance(molecule_id, int):
+        if not isinstance(molecule_id, str):
             raise TypeError("'%s' is not a valid molecule_id" % str(molecule_id))
         self.molecule_id = molecule_id
 
@@ -324,14 +324,14 @@ class PdbModel(AtomicStructure):
         existing_small_molecule_ids = [mol.molecule_id for mol in self.small_molecules]
         if small_molecule.molecule_id in existing_small_molecule_ids:
             raise DuplicateSmallMoleculeError(
-             "Cannot have two small molecules with ID %i" % small_molecule.molecule_id
+             "Cannot have two small molecules with ID %s" % small_molecule.molecule_id
             )
         self.small_molecules.add(small_molecule)
 
 
     def get_small_molecule_by_id(self, molecule_id):
-        if not isinstance(molecule_id, int):
-            raise TypeError("Can only search small molecule IDs by int")
+        if not isinstance(molecule_id, str):
+            raise TypeError("Can only search small molecule IDs by str")
         for small_molecule in self.small_molecules:
             if small_molecule.molecule_id == molecule_id:
                 return small_molecule

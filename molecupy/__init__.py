@@ -18,7 +18,7 @@ def get_pdb_from_file(path):
 
 def get_pdb_remotely(code):
     response = requests.get(
-     "http://www.rcsb.org/pdb/files/%s.pdb" % code
+     "http://www.ebi.ac.uk/pdbe/entry-files/pdb%s.ent" % code.lower()
     )
     if response.status_code == 200 and response.text[:6] == "HEADER":
         contents = response.text

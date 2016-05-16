@@ -53,6 +53,8 @@ def give_model_small_molecules(model, data_file, model_id):
              if a["model_id"] == model_id and a["residue_name"] == molecule_name
               and a["residue_id"] == molecule_id]
             if relevant_atoms:
+                chain_id = relevant_atoms[0]["chain_id"]
+                chain_id = chain_id if chain_id else ""
                 atoms = [PdbAtom(
                  a["x"], a["y"], a["z"],
                  a["element"],
@@ -60,7 +62,7 @@ def give_model_small_molecules(model, data_file, model_id):
                  a["atom_name"]
                 ) for a in relevant_atoms]
                 small_molecule = PdbSmallMolecule(
-                 molecule_id, molecule_name, *atoms
+                 "%s%i" % (chain_id, molecule_id), molecule_name, *atoms
                 )
                 model.add_small_molecule(small_molecule)
 

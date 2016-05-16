@@ -27,10 +27,10 @@ class SmallMoleculeAdditionTests(ModelTest):
     def setUp(self):
         self.atom1 = PdbAtom(1.0, 1.0, 1.0, "H", 1, "H1")
         self.atom2 = PdbAtom(1.0, 1.0, 2.0, "C", 2, "CA")
-        self.molecule1 = PdbSmallMolecule(1, "MOL1", self.atom1, self.atom2)
+        self.molecule1 = PdbSmallMolecule("A1", "MOL1", self.atom1, self.atom2)
         self.atom3 = PdbAtom(1.0, 1.0, 3.0, "H", 3, "H1")
         self.atom4 = PdbAtom(1.0, 1.0, 4.0, "C", 4, "CA")
-        self.molecule2 = PdbSmallMolecule(2, "MOL2", self.atom1, self.atom2)
+        self.molecule2 = PdbSmallMolecule("A2", "MOL2", self.atom1, self.atom2)
         self.model = PdbModel()
 
 
@@ -41,10 +41,10 @@ class SmallMoleculeAdditionTests(ModelTest):
 
     def test_cannot_add_two_small_molecules_with_same_id(self):
         self.model.add_small_molecule(self.molecule1)
-        self.molecule2.molecule_id = 1
+        self.molecule2.molecule_id = "A1"
         with self.assertRaises(exceptions.DuplicateSmallMoleculeError):
             self.model.add_small_molecule(self.molecule2)
-        self.molecule2.molecule_id = 2
+        self.molecule2.molecule_id = "A2"
         self.model.add_small_molecule(self.molecule2)
         self.assertIn(self.molecule1, self.model.small_molecules)
         self.assertIn(self.molecule2, self.model.small_molecules)
@@ -69,20 +69,20 @@ class SmallMoleculeAdditionTests(ModelTest):
         self.model.add_small_molecule(self.molecule1)
         self.model.add_small_molecule(self.molecule2)
         self.assertEqual(
-         self.model.get_small_molecule_by_id(1),
+         self.model.get_small_molecule_by_id("A1"),
          self.molecule1
         )
         self.assertEqual(
-         self.model.get_small_molecule_by_id(2),
+         self.model.get_small_molecule_by_id("A2"),
          self.molecule2
         )
         self.assertEqual(
-         self.model.get_small_molecule_by_id(3),
+         self.model.get_small_molecule_by_id("A3"),
          None
         )
 
 
-    def test_can_only_search_by_numeric_id(self):
+    def test_can_only_search_by_str_id(self):
         with self.assertRaises(TypeError):
             self.model.get_small_molecule_by_id(None)
 

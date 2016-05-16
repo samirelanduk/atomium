@@ -112,7 +112,7 @@ class AtomicStructure:
             raise TypeError("AtomicStructure needs atoms, not '%s'" % non_atoms[0])
         if not atoms:
             raise NoAtomsError("Cannot make AtomicStructure with zero atoms")
-        atom_ids = [atom.atom_id for atom in atoms if atom.atom_id is not None]
+        atom_ids = [atom.atom_id for atom in atoms]
         if len(set(atom_ids)) < len(atom_ids):
             raise DuplicateAtomIdError("Cannot make AtomicStructure with duplicate atom_ids")
         self.atoms = set(atoms)
@@ -204,6 +204,63 @@ class PdbResidue(AtomicStructure):
 
     def __repr__(self):
         return "<Residue (%s)>" % self.residue_name
+
+
+
+class ResiduicStructure(AtomicStructure):
+
+    def __init__(self, *residues):
+        if not all(isinstance(residue, PdbResidue) for residue in residues):
+            non_residues = [
+             residue for residue in residues if not isinstance(residue, PdbResidue)
+            ]
+            raise TypeError("ResiduicStructure needs residues, not '%s'" % non_residues[0])
+        if not residues:
+            raise NoResiduesError("Cannot make ResiduicStructure with zero residues")
+        residue_ids = [residue.residue_id for residue in residues]
+        if len(set(residue_ids)) < len(residue_ids):
+            raise DuplicateResidueIdError("Cannot make ResiduicStructure with duplicate residue_ids")
+        self.residues = set(residues)
+
+
+    def __repr__(self):
+        return "<ResiduicStructure (%i residues)>" % len(self.residues)
+
+
+    def __getattr__(self, attribute):
+        if attribute == "atoms":
+            atoms = set()
+            for residue in self.residues:
+                atoms.update(residue.atoms)
+            return atoms
+        else:
+            return self.__getattribute__(attribute)
+
+
+    def __contains__(self, obj):
+        return obj in self.residues or obj in self.atoms
+
+
+    def get_residue_by_name(self, residue_name):
+        if not isinstance(residue_name, str):
+            raise TypeError("Residue name search must be by str, not '%s'" % str(residue_name))
+        for residue in self.residues:
+            if residue.residue_name == residue_name:
+                return residue
+
+
+    def get_residues_by_name(self, residue_name):
+        if not isinstance(residue_name, str):
+            raise TypeError("Residue name search must be by str, not '%s'" % str(residue_name))
+        return set([residue for residue in self.residues if residue.residue_name == residue_name])
+
+
+    def get_residue_by_id(self, residue_id):
+        if not isinstance(residue_id, int):
+            raise TypeError("Residue ID search must be by int, not '%s'" % str(residue_id))
+        for residue in self.residues:
+            if residue.residue_id == residue_id:
+                return residue
 
 
 

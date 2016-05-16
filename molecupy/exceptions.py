@@ -6,7 +6,15 @@ class NoAtomsError(Exception):
     pass
 
 
+class NoResiduesError(Exception):
+    pass
+
+
 class DuplicateAtomIdError(Exception):
+    pass
+
+
+class DuplicateResidueIdError(Exception):
     pass
 
 

@@ -186,6 +186,27 @@ class PdbSmallMolecule(AtomicStructure):
 
 
 
+class PdbResidue(AtomicStructure):
+
+    def __init__(self, residue_id, residue_name, *atoms):
+        if not isinstance(residue_id, int):
+            raise TypeError("'%s' is not a valid residue_id" % str(residue_id))
+        self.residue_id = residue_id
+
+        if not isinstance(residue_name, str):
+            raise TypeError("'%s' is not a valid molecule_name" % str(residue_name))
+        self.residue_name = residue_name
+
+        AtomicStructure.__init__(self, *atoms)
+        for atom in self.atoms:
+            atom.molecule = self
+
+
+    def __repr__(self):
+        return "<Residue (%s)>" % self.residue_name
+
+
+
 class PdbModel(AtomicStructure):
 
     def __init__(self):

@@ -24,4 +24,5 @@ Table of Contents
 
     installing
     overview
+    api
     changelog

@@ -15,6 +15,9 @@
 
 import sys
 import os
+current_dir = "/".join(os.path.realpath(__file__).split("/")[:-1])
+sys.path.insert(0, current_dir + "/../..")
+import molecupy
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -286,3 +289,6 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+autodoc_member_order = 'bysource'
+autodoc_docstring_signature = True

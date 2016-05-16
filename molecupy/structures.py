@@ -299,6 +299,7 @@ class PdbModel(AtomicStructure):
 
     def __init__(self):
         self.small_molecules = set()
+        self.chains = set()
 
 
     def __repr__(self):
@@ -310,6 +311,8 @@ class PdbModel(AtomicStructure):
             atoms = set()
             for small_molecule in self.small_molecules:
                 atoms.update(small_molecule.atoms)
+            for chain in self.chains:
+                atoms.update(chain.atoms)
             return atoms
         else:
             return self.__getattribute__(attribute)
@@ -349,6 +352,25 @@ class PdbModel(AtomicStructure):
         return set([
          mol for mol in self.small_molecules if mol.molecule_name == molecule_name
         ])
+
+
+    def add_chain(self, chain):
+        if not(isinstance(chain, PdbChain)):
+            raise TypeError("Can only add Chain with add_chain()")
+        existing_chain_ids = [c.chain_id for c in self.chains]
+        if chain.chain_id in existing_chain_ids:
+            raise DuplicateChainError(
+             "Cannot have two chains with ID %s" % chain.chain_id
+            )
+        self.chains.add(chain)
+
+
+    def get_chain_by_id(self, chain_id):
+        if not isinstance(chain_id, str):
+            raise TypeError("Can only search chain IDs by str")
+        for chain in self.chains:
+            if chain.chain_id == chain_id:
+                return chain
 
 
 

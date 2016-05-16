@@ -1,6 +1,6 @@
 from unittest import TestCase
 from molecupy import exceptions
-from molecupy.structures import PdbAtom, AtomicStructure, PdbModel, PdbSmallMolecule
+from molecupy.structures import *
 
 class ModelTest(TestCase):
 
@@ -9,6 +9,7 @@ class ModelTest(TestCase):
         self.assertIsInstance(model, AtomicStructure)
         self.assertIsInstance(model.atoms, set)
         self.assertIsInstance(model.small_molecules, set)
+        self.assertIsInstance(model.chains, set)
         self.assertRegex(str(model), r"<Model \((\d+) atoms\)>")
 
 
@@ -115,3 +116,81 @@ class SmallMoleculeAdditionTests(ModelTest):
             self.model.get_small_molecule_by_name(None)
         with self.assertRaises(TypeError):
             self.model.get_small_molecules_by_name(None)
+
+
+
+class ChainAdditionTests(ModelTest):
+
+    def setUp(self):
+        self.atom1 = PdbAtom(1.0, 1.0, 1.0, "H", 1, "H1")
+        self.atom2 = PdbAtom(1.0, 1.0, 2.0, "C", 2, "CA")
+        self.atom3 = PdbAtom(1.0, 1.0, 3.0, "O", 3, "OX1")
+        self.residue1 = PdbResidue(1, "ARG", self.atom1, self.atom2, self.atom3)
+        self.atom4 = PdbAtom(1.0, 1.0, 4.0, "H", 4, "H1")
+        self.atom5 = PdbAtom(1.0, 1.0, 5.0, "C", 5, "CA")
+        self.atom6 = PdbAtom(1.0, 1.0, 6.0, "O", 6, "OX1")
+        self.residue2 = PdbResidue(2, "HST", self.atom4, self.atom5, self.atom6)
+        self.atom7 = PdbAtom(1.0, 1.0, 7.0, "H", 7, "H1")
+        self.atom8 = PdbAtom(1.0, 1.0, 8.0, "C", 8, "CA")
+        self.atom9 = PdbAtom(1.0, 1.0, 9.0, "O", 9, "OX1")
+        self.residue3 = PdbResidue(3, "TRP", self.atom7, self.atom8, self.atom9)
+        self.atom10 = PdbAtom(1.0, 1.0, 10.0, "H", 10, "H1")
+        self.atom11 = PdbAtom(1.0, 1.0, 11.0, "C", 11, "CA")
+        self.atom12 = PdbAtom(1.0, 1.0, 12.0, "O", 12, "OX1")
+        self.residue4 = PdbResidue(4, "TRP", self.atom10, self.atom11, self.atom12)
+        self.chain1 = PdbChain("A", self.residue1, self.residue2)
+        self.chain2 = PdbChain("B", self.residue3, self.residue4)
+        self.model = PdbModel()
+
+
+    def test_can_add_chains(self):
+        self.model.add_chain(self.chain1)
+        self.assertIn(self.chain1, self.model.chains)
+
+
+    def test_cannot_add_two_chains_with_same_id(self):
+        self.model.add_chain(self.chain1)
+        self.chain2.chain_id = "A"
+        with self.assertRaises(exceptions.DuplicateChainError):
+            self.model.add_chain(self.chain2)
+        self.chain2.chain_id = "B"
+        self.model.add_chain(self.chain2)
+        self.assertIn(self.chain1, self.model.chains)
+        self.assertIn(self.chain2, self.model.chains)
+
+
+    def test_add_chain_atoms_to_model(self):
+        self.model.add_chain(self.chain1)
+        self.assertEqual(self.model.atoms, self.chain1.atoms)
+        self.model.add_chain(self.chain2)
+        self.assertEqual(
+         self.model.atoms,
+         set(list(self.chain1.atoms) + list(self.chain2.atoms))
+        )
+
+
+    def test_chains_must_be_chains(self):
+        with self.assertRaises(TypeError):
+            self.model.add_chain(self.residue1)
+
+
+    def test_can_get_chains_by_id(self):
+        self.model.add_chain(self.chain1)
+        self.model.add_chain(self.chain2)
+        self.assertEqual(
+         self.model.get_chain_by_id("A"),
+         self.chain1
+        )
+        self.assertEqual(
+         self.model.get_chain_by_id("B"),
+         self.chain2
+        )
+        self.assertEqual(
+         self.model.get_chain_by_id("C"),
+         None
+        )
+
+
+    def test_can_only_search_by_str_id(self):
+        with self.assertRaises(TypeError):
+            self.model.get_chain_by_id(None)

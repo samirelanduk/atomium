@@ -22,6 +22,10 @@ class DuplicateSmallMoleculeError(Exception):
     pass
 
 
+class DuplicateChainError(Exception):
+    pass
+
+
 class InvalidPdbCodeError(Exception):
     pass
 

@@ -164,6 +164,22 @@ class RecordsToDictTests(TestCase):
         )
 
 
+    def test_can_account_for_people_not_knowing_how_to_format_source_records_semi_colons(self):
+        records = [PdbRecord(l, 1) for l in [
+         "COMPND    MOL_ID: 1;",
+         "COMPND   2 FIELD: VALUE;",
+         "COMPND   2 FIELD2: VALUE2; EXTRA;",
+         "COMPND   2 FIELD3: VALUE3;"
+        ]]
+        self.assertEqual(
+         records_to_token_value_dicts(records),
+         [
+          {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
+         ]
+        )
+
+
+
 
 class HeaderRecordTests(PdbDataFileTest):
 

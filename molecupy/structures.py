@@ -30,6 +30,7 @@ class PdbAtom:
         self.atom_name = atom_name
 
         self.covalent_bonds = set()
+        self.molecule = None
 
 
     def __repr__(self):
@@ -164,6 +165,27 @@ class AtomicStructure:
 
 
 
+class PdbSmallMolecule(AtomicStructure):
+
+    def __init__(self, molecule_id, molecule_name, *atoms):
+        if not isinstance(molecule_id, int):
+            raise TypeError("'%s' is not a valid molecule_id" % str(molecule_id))
+        self.molecule_id = molecule_id
+
+        if not isinstance(molecule_name, str):
+            raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))
+        self.molecule_name = molecule_name
+
+        AtomicStructure.__init__(self, *atoms)
+        for atom in self.atoms:
+            atom.molecule = self
+
+
+    def __repr__(self):
+        return "<SmallMolecule (%s)>" % self.molecule_name
+
+
+
 class PdbModel(AtomicStructure):
 
     def __init__(self):
@@ -173,7 +195,7 @@ class PdbModel(AtomicStructure):
     def __repr__(self):
         return "<Model (%i atoms)>" % len(self.atoms)
 
-        
+
     def __getattr__(self, attribute):
         if attribute == "atoms":
             atoms = set()

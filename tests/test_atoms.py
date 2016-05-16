@@ -13,6 +13,7 @@ class AtomTest(TestCase):
         self.assertIsInstance(atom.covalent_bonds, set)
         self.assertIsInstance(atom.atom_id, int)
         self.assertIsInstance(atom.atom_name, str)
+        atom.molecule
         self.assertRegex(str(atom), r"<Atom \d+ \([a-zA-Z]{1,2}\)>")
 
 

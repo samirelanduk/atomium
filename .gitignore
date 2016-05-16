@@ -6,3 +6,5 @@ bigtest.py
 _static
 _templates
 build
+dist
+*.egg-info

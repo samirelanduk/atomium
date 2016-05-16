@@ -22,16 +22,16 @@ needing to manually download them first.
 However the text of the PDB file is obtained, the process of parsing it is
 always the same:
 
-    1. First a ``PdbFile`` object is created, which is a
+    1. First a :py:class:`.PdbFile` object is created, which is a
     representation of the file itself. This is essentially a list of records,
     with methods for getting records of a certain name.
 
-    2. This is used to make a ``PdbDataFile`` object. This is the object which
-    extracts the data from the file, and is essentially an unstructured list of
-    values.
+    2. This is used to make a :py:class:`.PdbDataFile` object. This is the
+    object which extracts the data from the file, and is essentially an
+    unstructured list of values.
 
-    3. This is used to make a ``Pdb`` object, by using the values in the data
-    file to create a user-friendly handle to the information
+    3. This is used to make a :py:class:`.Pdb` object, by using the values in
+    the data file to create a user-friendly handle to the information.
 
 
 Accessing Pdb properties

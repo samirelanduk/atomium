@@ -12,7 +12,7 @@ class ResiduicSequenceTest(TestCase):
         self.atom4 = PdbAtom(1.0, 1.0, 4.0, "H", 4, "H1")
         self.atom5 = PdbAtom(1.0, 1.0, 5.0, "C", 5, "CA")
         self.atom6 = PdbAtom(1.0, 1.0, 6.0, "O", 6, "OX1")
-        self.residue2 = PdbResidue(2, "HST", self.atom4, self.atom5, self.atom6)
+        self.residue2 = PdbResidue(2, "HIS", self.atom4, self.atom5, self.atom6)
         self.atom7 = PdbAtom(1.0, 1.0, 7.0, "H", 7, "H1")
         self.atom8 = PdbAtom(1.0, 1.0, 8.0, "C", 8, "CA")
         self.atom9 = PdbAtom(1.0, 1.0, 9.0, "O", 9, "OX1")
@@ -46,4 +46,24 @@ class ResiduicStructureCreationTests(ResiduicSequenceTest):
         self.assertEqual(
          residuic_sequence.residues,
          [self.residue1, self.residue2, self.residue3]
+        )
+
+
+
+class ResduicSequenceGenerationTests(ResiduicSequenceTest):
+
+    def test_can_get_protein_sequence(self):
+        residuic_sequence = ResiduicSequence(self.residue1, self.residue2, self.residue3)
+        self.assertEqual(
+         residuic_sequence.get_sequence_string(),
+         "RHW"
+        )
+
+
+    def test_can_get_protein_sequence_with_unknown_residues(self):
+        self.residue2.residue_name = "ABC"
+        residuic_sequence = ResiduicSequence(self.residue1, self.residue2, self.residue3)
+        self.assertEqual(
+         residuic_sequence.get_sequence_string(),
+         "RXW"
         )

@@ -473,6 +473,12 @@ class ResiduicSequence(ResiduicStructure):
         return "<ResiduicSequence (%i residues)>" % len(self.residues)
 
 
+    def get_sequence_string(self):
+        return "".join(
+         [RESIDUES.get(res.residue_name, "X") for res in self.residues]
+        )
+
+
 
 class PdbChain(ResiduicSequence):
     """Base class: :py:class:`ResiduicSequence`
@@ -658,4 +664,11 @@ PERIODIC_TABLE = {
                        "FM": 257, "MD": 258, "NO": 259, "RF": 261, "LR": 262,
                         "DB": 262, "BH": 264, "SG": 266, "MT": 268, "RG": 272,
                          "HS": 277
+}
+
+RESIDUES = {
+ "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",
+ "TRP": "W", "LYS": "K", "GLN": "Q", "GLU": "E", "SER": "S",
+ "PRO": "P", "VAL": "V", "ILE": "I", "CYS": "C", "TYR": "Y",
+ "HIS": "H", "ARG": "R", "ASN": "N", "ASP": "D", "THR": "T"
 }

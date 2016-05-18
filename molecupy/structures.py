@@ -508,6 +508,26 @@ class PdbChain(ResiduicSequence):
 
 
 
+class PdbSite(ResiduicStructure):
+
+    def __init__(self, site_id, site_name, *residues):
+        if not isinstance(site_id, int):
+            raise TypeError("'%s' is not a valid site_id" % str(site_id))
+        self.site_id = site_id
+
+        if not isinstance(site_name, str):
+            raise TypeError("'%s' is not a valid site_name" % str(site_name))
+        self.site_name = site_name
+
+        ResiduicStructure.__init__(self, *residues)
+        self.ligand = None
+
+
+    def __repr__(self):
+        return "<Site %s (%i residues)>" % (self.site_name, len(self.residues))
+
+
+
 class PdbModel(AtomicStructure):
     """Base class: :py:class:`AtomicStructure`
 

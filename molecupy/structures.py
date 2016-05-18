@@ -544,6 +544,7 @@ class PdbModel(AtomicStructure):
     def __init__(self):
         self.small_molecules = set()
         self.chains = set()
+        self.sites = set()
 
 
     def __repr__(self):
@@ -557,6 +558,8 @@ class PdbModel(AtomicStructure):
                 atoms.update(small_molecule.atoms)
             for chain in self.chains:
                 atoms.update(chain.atoms)
+            for site in self.sites:
+                atoms.update(site.atoms)
             return atoms
         else:
             return self.__getattribute__(attribute)
@@ -607,7 +610,6 @@ class PdbModel(AtomicStructure):
         for small_molecule in self.small_molecules:
             if small_molecule.molecule_name == molecule_name:
                 return small_molecule
-        pass
 
 
     def get_small_molecules_by_name(self, molecule_name):
@@ -655,6 +657,59 @@ class PdbModel(AtomicStructure):
         for chain in self.chains:
             if chain.chain_id == chain_id:
                 return chain
+
+
+    def add_site(self, site):
+        if not(isinstance(site, PdbSite)):
+            raise TypeError("Can only add Site with add_site()")
+        existing_site_ids = [s.site_id for s in self.sites]
+        if site.site_id in existing_site_ids:
+            raise DuplicateSiteError(
+             "Cannot have two sites with ID %s" % site.site_id
+            )
+        self.sites.add(site)
+
+
+    def get_site_by_id(self, site_id):
+        """Retrurns the first site that matches a given site ID.
+
+        :param str site_id: The site ID to search by.
+        :rtype: :py:class:`PdbSite` or ``None``
+        :raises TypeError: if the name given isn't an string."""
+
+        if not isinstance(site_id, int):
+            raise TypeError("Can only search site IDs by int")
+        for site in self.sites:
+            if site.site_id == site_id:
+                return site
+
+
+    def get_site_by_name(self, site_name):
+        """Retruns all the sites that matches a given site name.
+
+        :param str site_name: The site name to search by.
+        :rtype: ``set`` of :py:class:`PdbSite` objects
+        :raises TypeError: if the name given isn't a string."""
+
+        if not isinstance(site_name, str):
+            raise TypeError("Can only search site names by string")
+        for site in self.sites:
+            if site.site_name == site_name:
+                return site
+
+
+    def get_sites_by_name(self, site_name):
+        """Retruns all the sites that matches a given residue name.
+
+        :param str site_name: The site name to search by.
+        :rtype: ``set`` of :py:class:`PdbSite` objects
+        :raises TypeError: if the name given isn't a string."""
+
+        if not isinstance(site_name, str):
+            raise TypeError("Can only search site names by string")
+        return set([
+         site for site in self.sites if site.site_name == site_name
+        ])
 
 
 

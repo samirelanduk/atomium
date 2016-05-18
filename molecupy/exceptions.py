@@ -43,6 +43,12 @@ class DuplicateChainError(Exception):
     pass
 
 
+class DuplicateSiteError(Exception):
+    """The exception raised if a PdbModel is given a site when there is already
+     a site with that site_id."""
+    pass
+
+
 class InvalidPdbCodeError(Exception):
     """The exception raised when a PDB file is requested that does not seem to
     exist."""

@@ -73,6 +73,12 @@ class PdbDataFile:
         return "<PdbDataFile (????)>"
 
 
+    def get_remark_by_number(self, number):
+        for remark in self.remarks:
+            if remark["number"] == number:
+                return remark
+
+
 
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
@@ -643,7 +649,7 @@ def process_site(data_file):
                 if r[(i * 11) + 7: (i * 11) + 17]:
                     residues.append({
                      "residue_name": r[(i * 11) + 7: (i * 11) + 10],
-                     "chain": r[(i * 11) + 11],
+                     "chain_id": r[(i * 11) + 11],
                      "residue_id": r[(i * 11) + 12: (i * 11) + 16],
                      "insert_code":  r[(i * 11) + 17]
                     })

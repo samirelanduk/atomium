@@ -22,8 +22,7 @@ class SiteTest(TestCase):
     def check_valid_site(self, site):
         self.assertIsInstance(site, PdbSite)
         self.assertIsInstance(site, ResiduicStructure)
-        self.assertIsInstance(site.site_id, int)
-        self.assertIsInstance(site.site_name, str)
+        self.assertIsInstance(site.site_id, str)
         site.ligand
         self.assertRegex(str(site), r"<Site (.+) \((\d+) residues\)>")
 
@@ -32,17 +31,10 @@ class SiteTest(TestCase):
 class SiteTests(SiteTest):
 
     def test_can_create_site(self):
-        site = PdbSite(1, "AB1", self.residue1, self.residue2, self.residue3)
+        site = PdbSite("AB1", self.residue1, self.residue2, self.residue3)
         self.check_valid_site(site)
 
 
-    def test_site_id_must_be_int(self):
+    def test_site_id_must_be_str(self):
         with self.assertRaises(TypeError):
-            site = PdbSite(1.1, "AB1", self.residue1, self.residue2, self.residue3)
-        with self.assertRaises(TypeError):
-            site = PdbSite("1", "AB1", self.residue1, self.residue2, self.residue3)
-
-
-    def test_site_name_must_be_str(self):
-        with self.assertRaises(TypeError):
-            site = PdbSite(1, 1, self.residue1, self.residue2, self.residue3)
+            site = PdbSite(1, self.residue1, self.residue2, self.residue3)

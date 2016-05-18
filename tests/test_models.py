@@ -217,8 +217,8 @@ class SiteAdditionTests(ModelTest):
         self.atom11 = PdbAtom(1.0, 1.0, 11.0, "C", 11, "CA")
         self.atom12 = PdbAtom(1.0, 1.0, 12.0, "O", 12, "OX1")
         self.residue4 = PdbResidue(4, "TRP", self.atom10, self.atom11, self.atom12)
-        self.site1 = PdbSite(1, "AB1", self.residue1, self.residue2)
-        self.site2 = PdbSite(2, "AB2", self.residue3, self.residue4)
+        self.site1 = PdbSite("AB1", self.residue1, self.residue2)
+        self.site2 = PdbSite("AB2", self.residue3, self.residue4)
         self.model = PdbModel()
 
 
@@ -229,10 +229,10 @@ class SiteAdditionTests(ModelTest):
 
     def test_cannot_add_two_sites_with_same_id(self):
         self.model.add_site(self.site1)
-        self.site2.site_id = 1
+        self.site2.site_id = "AB1"
         with self.assertRaises(exceptions.DuplicateSiteError):
             self.model.add_site(self.site2)
-        self.site2.site_id = 2
+        self.site2.site_id = "AB2"
         self.model.add_site(self.site2)
         self.assertIn(self.site1, self.model.sites)
         self.assertIn(self.site2, self.model.sites)
@@ -257,15 +257,15 @@ class SiteAdditionTests(ModelTest):
         self.model.add_site(self.site1)
         self.model.add_site(self.site2)
         self.assertEqual(
-         self.model.get_site_by_id(1),
+         self.model.get_site_by_id("AB1"),
          self.site1
         )
         self.assertEqual(
-         self.model.get_site_by_id(2),
+         self.model.get_site_by_id("AB2"),
          self.site2
         )
         self.assertEqual(
-         self.model.get_site_by_id(3),
+         self.model.get_site_by_id("AB3"),
          None
         )
 
@@ -273,34 +273,3 @@ class SiteAdditionTests(ModelTest):
     def test_can_only_search_by_str_id(self):
         with self.assertRaises(TypeError):
             self.model.get_site_by_id(None)
-
-
-    def test_can_get_sites_by_name(self):
-        self.model.add_site(self.site1)
-        self.model.add_site(self.site2)
-        self.assertEqual(
-         self.model.get_site_by_name("AB1"),
-         self.site1
-        )
-        self.assertEqual(
-         self.model.get_site_by_name("AB3"),
-         None
-        )
-
-
-    def test_can_get_multiple_sites_by_name(self):
-        self.model.add_site(self.site1)
-        self.model.add_site(self.site2)
-        self.site2.site_name = "AB1"
-        self.assertEqual(
-         self.model.get_sites_by_name("AB1"),
-         set([self.site1, self.site2])
-        )
-        self.assertEqual(self.model.get_sites_by_name("AB3"), set())
-
-
-    def test_can_only_search_by_string_name(self):
-        with self.assertRaises(TypeError):
-            self.model.get_site_by_name(None)
-        with self.assertRaises(TypeError):
-            self.model.get_sites_by_name(None)

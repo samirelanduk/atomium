@@ -3,7 +3,7 @@ from unittest import TestCase
 from molecupy.pdbfile import PdbFile
 from molecupy.pdbdatafile import PdbDataFile
 from molecupy.pdb import Pdb
-from molecupy.structures import PdbModel, PdbSmallMolecule, PdbChain
+from molecupy.structures import PdbModel, PdbSmallMolecule, PdbChain, PdbSite
 from molecupy.exceptions import *
 
 class PdbTest(TestCase):
@@ -356,4 +356,172 @@ class ChainTests(PdbTest):
         self.assertEqual(
          len(list(self.two_models.model.chains)[0].atoms),
          15
+        )
+
+
+
+class SiteTests(PdbTest):
+
+    def setUp(self):
+        PdbTest.setUp(self)
+        self.one_site = Pdb(PdbDataFile(PdbFile(
+         "SITE     1 AC1  2 VAL A  11  MET A  12\n"
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
+         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
+         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
+         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
+         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
+         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
+         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
+         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O"
+        )))
+        self.two_sites = Pdb(PdbDataFile(PdbFile(
+         "REMARK 800\n"
+         "REMARK 800 SITE\n"
+         "REMARK 800 SITE_IDENTIFIER: AC1\n"
+         "REMARK 800 EVIDENCE_CODE: SOFTWARE\n"
+         "REMARK 800 SITE_DESCRIPTION: BINDING SITE FOR RESIDUE BU2 A 5001\n"
+         "REMARK 800 SITE_IDENTIFIER: AC2\n"
+         "REMARK 800 EVIDENCE_CODE: SOFTWARE\n"
+         "REMARK 800 SITE_DESCRIPTION: BINDING SITE FOR RESIDUE BU2 B 5002\n"
+         "SITE     1 AC1  2 VAL A  11  MET A  12\n"
+         "SITE     2 AC2  2 VAL B1011  MET B1012\n"
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
+         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
+         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
+         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
+         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
+         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
+         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
+         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
+         "ATOM   1559  N   VAL B1011     -26.384  61.433  36.898  1.00 39.30           N\n"
+         "ATOM   1560  CA  VAL B1011     -26.779  61.969  35.563  1.00 40.04           C\n"
+         "ATOM   1561  C   VAL B1011     -28.230  62.451  35.541  1.00 39.30           C\n"
+         "ATOM   1562  O   VAL B1011     -28.472  63.639  35.306  1.00 39.01           O\n"
+         "ATOM   1563  CB  VAL B1011     -26.576  60.922  34.442  1.00 39.96           C\n"
+         "ATOM   1564  CG1 VAL B1011     -27.078  61.464  33.120  1.00 41.05           C\n"
+         "ATOM   1565  CG2 VAL B1011     -25.101  60.574  34.320  1.00 42.51           C\n"
+         "ATOM   1566  N   MET B1012     -29.202  61.566  35.777  1.00 37.52           N\n"
+         "ATOM   1567  CA  MET B1012     -30.582  62.053  35.752  1.00 35.97           C\n"
+         "ATOM   1568  C   MET B1012     -30.760  63.085  36.844  1.00 33.78           C\n"
+         "ATOM   1569  O   MET B1012     -30.490  62.813  38.016  1.00 32.48           O\n"
+         "ATOM   1570  CB  MET B1012     -31.622  60.946  35.948  1.00 37.52           C\n"
+         "ATOM   1571  CG  MET B1012     -33.059  61.521  35.956  1.00 39.27           C\n"
+         "ATOM   1572  SD  MET B1012     -34.423  60.340  35.684  1.00 42.85           S\n"
+         "ATOM   1573  CE  MET B1012     -34.740  59.810  37.386  1.00 39.87           C\n"
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "HETATM 3224  C1  BU2 B5002     -14.563  61.208  49.005  1.00 45.50           C\n"
+         "HETATM 3225  O1  BU2 B5002     -15.048  61.106  50.333  1.00 45.86           O\n"
+        )))
+        self.two_models = Pdb(PdbDataFile(PdbFile(
+         "SITE     1 AC1  2 VAL A  11  MET A  12\n"
+         "MODEL        1\n"
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
+         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
+         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
+         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
+         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
+         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
+         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
+         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "ENDMDL\n"
+         "MODEL        2\n"
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
+         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
+         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
+         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
+         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
+         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
+         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
+         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "ENDMDL"
+        )))
+
+
+    def test_site_in_model(self):
+        self.assertEqual(len(self.one_site.model.sites), 1)
+        self.assertIsInstance(
+         list(self.one_site.model.sites)[0],
+         PdbSite
+        )
+        self.assertEqual(
+         list(self.one_site.model.sites)[0].site_id,
+         "AC1"
+        )
+        self.assertEqual(
+         len(list(self.one_site.model.sites)[0].residues),
+         2
+        )
+        self.assertEqual(
+         len(list(self.one_site.model.sites)[0].atoms),
+         15
+        )
+
+
+    def test_multiple_sites(self):
+        self.assertEqual(len(self.two_sites.model.sites), 2)
+        for site in self.two_sites.model.sites:
+            self.assertIsInstance(site, PdbSite)
+
+
+    def test_multi_model_sites(self):
+        self.assertEqual(len(self.two_models.models[0].sites), 1)
+        self.assertEqual(len(self.two_models.models[1].sites), 1)
+        self.assertIsNot(
+         list(self.two_models.models[0].sites)[0],
+         list(self.two_models.models[1].sites)[0]
+        )
+        self.assertEqual(
+         len(list(self.two_models.model.sites)[0].atoms),
+         15
+        )
+        self.assertEqual(
+         len(list(self.two_models.model.sites)[0].atoms),
+         15
+        )
+
+
+    def test_sites_have_ligands(self):
+        self.assertEqual(
+         self.two_sites.model.get_site_by_id("AC1").ligand,
+         self.two_sites.model.get_small_molecule_by_id("A5001")
+        )
+        self.assertEqual(
+         self.two_sites.model.get_site_by_id("AC2").ligand,
+         self.two_sites.model.get_small_molecule_by_id("B5002")
         )

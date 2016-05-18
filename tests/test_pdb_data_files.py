@@ -687,8 +687,8 @@ class RemarkRecordTests(PdbDataFileTest):
     def test_remark_processing(self):
         data_file = PdbDataFile(PdbFile(
          "REMARK   2\n"
-         "REMARK 999\n"
          "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.\n"
+         "REMARK 999\n"
          "REMARK 999  SEQUENCE\n"
          "REMARK 999 AUTHOR STATES THAT ALTHOUGH RESIDUES 1 AND 1001 ARE MET\n"
          "REMARK 999 AND RESIDUES 101 AND 1101 ARE ARG ACCORDING TO THE\n"
@@ -713,6 +713,22 @@ class RemarkRecordTests(PdbDataFileTest):
           }
          ]
         )
+
+
+    def test_can_get_remark_by_number(self):
+        data_file = PdbDataFile(PdbFile(
+         "REMARK   2\n"
+         "REMARK 999\n"
+         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS."
+        ))
+        self.assertEqual(
+         data_file.get_remark_by_number(2),
+         {
+          "number": 2,
+          "content": "RESOLUTION.    1.90 ANGSTROMS."
+         }
+        )
+        self.assertEqual(data_file.get_remark_by_number(3), None)
 
 
     def test_missing_remark_processing(self):
@@ -1288,25 +1304,25 @@ class SiteRecordTests(PdbDataFileTest):
            "site_id": "AC1",
            "residue_count": 6,
            "residues": [
-            {"residue_name": "ASP", "chain": "A", "residue_id": 70, "insert_code": None},
-            {"residue_name": "LYS", "chain": "A", "residue_id": 72, "insert_code": None},
-            {"residue_name": "LEU", "chain": "A", "residue_id": 123, "insert_code": None},
-            {"residue_name": "VAL", "chain": "A", "residue_id": 155, "insert_code": None},
-            {"residue_name": "XMP", "chain": "A", "residue_id": 2001, "insert_code": None},
-            {"residue_name": "HOH", "chain": "A", "residue_id": 3015, "insert_code": None}
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": None},
+            {"residue_name": "LYS", "chain_id": "A", "residue_id": 72, "insert_code": None},
+            {"residue_name": "LEU", "chain_id": "A", "residue_id": 123, "insert_code": None},
+            {"residue_name": "VAL", "chain_id": "A", "residue_id": 155, "insert_code": None},
+            {"residue_name": "XMP", "chain_id": "A", "residue_id": 2001, "insert_code": None},
+            {"residue_name": "HOH", "chain_id": "A", "residue_id": 3015, "insert_code": None}
            ]
           }, {
            "site_id": "AC3",
            "residue_count": 8,
            "residues": [
-            {"residue_name": "ALA", "chain": "A", "residue_id": 18, "insert_code": None},
-            {"residue_name": "ASP", "chain": "A", "residue_id": 20, "insert_code": None},
-            {"residue_name": "LYS", "chain": "A", "residue_id": 42, "insert_code": None},
-            {"residue_name": "ASP", "chain": "A", "residue_id": 70, "insert_code": None},
-            {"residue_name": "MET", "chain": "A", "residue_id": 126, "insert_code": None},
-            {"residue_name": "SER", "chain": "A", "residue_id": 127, "insert_code": None},
-            {"residue_name": "SER", "chain": "A", "residue_id": 158, "insert_code": None},
-            {"residue_name": "PRO", "chain": "A", "residue_id": 180, "insert_code": None}
+            {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": None},
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 20, "insert_code": None},
+            {"residue_name": "LYS", "chain_id": "A", "residue_id": 42, "insert_code": None},
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": None},
+            {"residue_name": "MET", "chain_id": "A", "residue_id": 126, "insert_code": None},
+            {"residue_name": "SER", "chain_id": "A", "residue_id": 127, "insert_code": None},
+            {"residue_name": "SER", "chain_id": "A", "residue_id": 158, "insert_code": None},
+            {"residue_name": "PRO", "chain_id": "A", "residue_id": 180, "insert_code": None}
            ]
           }
          ]

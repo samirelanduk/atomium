@@ -510,21 +510,17 @@ class PdbChain(ResiduicSequence):
 
 class PdbSite(ResiduicStructure):
 
-    def __init__(self, site_id, site_name, *residues):
-        if not isinstance(site_id, int):
+    def __init__(self, site_id, *residues):
+        if not isinstance(site_id, str):
             raise TypeError("'%s' is not a valid site_id" % str(site_id))
         self.site_id = site_id
-
-        if not isinstance(site_name, str):
-            raise TypeError("'%s' is not a valid site_name" % str(site_name))
-        self.site_name = site_name
 
         ResiduicStructure.__init__(self, *residues)
         self.ligand = None
 
 
     def __repr__(self):
-        return "<Site %s (%i residues)>" % (self.site_name, len(self.residues))
+        return "<Site %s (%i residues)>" % (self.site_id, len(self.residues))
 
 
 
@@ -677,39 +673,11 @@ class PdbModel(AtomicStructure):
         :rtype: :py:class:`PdbSite` or ``None``
         :raises TypeError: if the name given isn't an string."""
 
-        if not isinstance(site_id, int):
-            raise TypeError("Can only search site IDs by int")
+        if not isinstance(site_id, str):
+            raise TypeError("Can only search site IDs by str")
         for site in self.sites:
             if site.site_id == site_id:
                 return site
-
-
-    def get_site_by_name(self, site_name):
-        """Retruns all the sites that matches a given site name.
-
-        :param str site_name: The site name to search by.
-        :rtype: ``set`` of :py:class:`PdbSite` objects
-        :raises TypeError: if the name given isn't a string."""
-
-        if not isinstance(site_name, str):
-            raise TypeError("Can only search site names by string")
-        for site in self.sites:
-            if site.site_name == site_name:
-                return site
-
-
-    def get_sites_by_name(self, site_name):
-        """Retruns all the sites that matches a given residue name.
-
-        :param str site_name: The site name to search by.
-        :rtype: ``set`` of :py:class:`PdbSite` objects
-        :raises TypeError: if the name given isn't a string."""
-
-        if not isinstance(site_name, str):
-            raise TypeError("Can only search site names by string")
-        return set([
-         site for site in self.sites if site.site_name == site_name
-        ])
 
 
 

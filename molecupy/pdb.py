@@ -1,7 +1,7 @@
 """This module contains creates the final Pdb object itself, and processes the
 data contained in the data file."""
 
-from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain
+from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain, PdbSite
 from .exceptions import *
 from pprint import pprint
 
@@ -125,6 +125,8 @@ class Pdb:
             model = PdbModel()
             _give_model_small_molecules(model, self.data_file, model_dict["model_id"])
             _give_model_chains(model, self.data_file, model_dict["model_id"])
+            _give_model_sites(model, self.data_file, model_dict["model_id"])
+            _map_sites_to_ligands(model, self.data_file, model_dict["model_id"])
             self.models.append(model)
         self.model = self.models[0]
 
@@ -181,3 +183,35 @@ def _give_model_chains(model, data_file, model_id):
             residues.append(residue)
         chain = PdbChain(chain_id, *residues)
         model.add_chain(chain)
+
+
+def _give_model_sites(model, data_file, model_id):
+    for site in data_file.sites:
+        residues = [model.get_chain_by_id(residue["chain_id"]
+         ).get_residue_by_id(residue["residue_id"]
+          ) for residue in site["residues"]]
+        site = PdbSite(
+         site["site_id"],
+         *[r for r in residues if r]
+        )
+        model.add_site(site)
+
+
+def _map_sites_to_ligands(model, data_file, model_id):
+    remark_800 = data_file.get_remark_by_number(800)
+    if remark_800:
+        remark_lines = [
+         line for line in remark_800["content"].split("\n") if line != "SITE"
+        ]
+        for index, line in enumerate(remark_lines):
+            if line.startswith("SITE_IDENTIFIER"):
+                site_id = line.split(":")[1].strip() if ":" in line else None
+                if site_id:
+                    for trailing_line in remark_lines[index+1:]:
+                        if trailing_line.startswith("SITE_IDENTIFIER"): break
+                        if trailing_line.startswith("SITE_DESCRIPTION"):
+                            site = model.get_site_by_id(site_id)
+                            if site:
+                                ligand_id = "".join(trailing_line.split()[-2:])
+                                ligand = model.get_small_molecule_by_id(ligand_id)
+                                site.ligand = ligand

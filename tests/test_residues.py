@@ -14,7 +14,7 @@ class ResidueTest(TestCase):
         self.assertIsInstance(residue, AtomicStructure)
         for atom in residue.atoms:
             self.assertEqual(atom.molecule, residue)
-        self.assertIsInstance(residue.residue_id, int)
+        self.assertIsInstance(residue.residue_id, str)
         self.assertIsInstance(residue.residue_name, str)
         residue.chain
         self.assertRegex(str(residue), r"<Residue \((.+)\)>")
@@ -24,15 +24,15 @@ class ResidueTest(TestCase):
 class ResidueCreationTest(ResidueTest):
 
     def test_can_create_residue(self):
-        residue = PdbResidue(1, "HET", self.atom1, self.atom2)
+        residue = PdbResidue("A1", "HET", self.atom1, self.atom2)
         self.check_valid_residue(residue)
 
 
-    def test_residue_id_must_be_int(self):
+    def test_residue_id_must_be_str(self):
         with self.assertRaises(TypeError):
             residue = PdbResidue(1.1, "HET", self.atom1, self.atom2)
         with self.assertRaises(TypeError):
-            residue = PdbResidue("1", "HET", self.atom1, self.atom2)
+            residue = PdbResidue(1, "HET", self.atom1, self.atom2)
 
 
     def test_residue_name_must_be_str(self):

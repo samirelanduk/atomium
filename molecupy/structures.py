@@ -345,7 +345,7 @@ class PdbResidue(AtomicStructure):
         The redidue's name - usually a standard three letter code."""
 
     def __init__(self, residue_id, residue_name, *atoms):
-        if not isinstance(residue_id, int):
+        if not isinstance(residue_id, str):
             raise TypeError("'%s' is not a valid residue_id" % str(residue_id))
         self.residue_id = residue_id
 
@@ -443,8 +443,8 @@ class ResiduicStructure(AtomicStructure):
         :rtype: :py:class:`PdbResidue` or ``None``
         :raises TypeError: if the name given isn't an integer."""
 
-        if not isinstance(residue_id, int):
-            raise TypeError("Residue ID search must be by int, not '%s'" % str(residue_id))
+        if not isinstance(residue_id, str):
+            raise TypeError("Residue ID search must be by str, not '%s'" % str(residue_id))
         for residue in self.residues:
             if residue.residue_id == residue_id:
                 return residue

@@ -177,7 +177,7 @@ def _give_model_chains(model, data_file, model_id):
              a["atom_name"]
             ) for a in residue_atoms]
             residue = PdbResidue(
-             residue_id, residue_atoms[0]["residue_name"],
+             chain_id + str(residue_id), residue_atoms[0]["residue_name"],
              *atoms
             )
             residues.append(residue)
@@ -188,13 +188,15 @@ def _give_model_chains(model, data_file, model_id):
 def _give_model_sites(model, data_file, model_id):
     for site in data_file.sites:
         residues = [model.get_chain_by_id(residue["chain_id"]
-         ).get_residue_by_id(residue["residue_id"]
+         ).get_residue_by_id(str(residue["chain_id"]) + str(residue["residue_id"])
           ) for residue in site["residues"]]
-        site = PdbSite(
-         site["site_id"],
-         *[r for r in residues if r]
-        )
-        model.add_site(site)
+        residues = [r for r in residues if isinstance(r, PdbResidue)]
+        if residues:
+            site = PdbSite(
+             site["site_id"],
+             *[r for r in residues if r]
+            )
+            model.add_site(site)
 
 
 def _map_sites_to_ligands(model, data_file, model_id):

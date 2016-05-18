@@ -8,15 +8,15 @@ class SiteTest(TestCase):
         self.atom1 = PdbAtom(1.0, 1.0, 1.0, "H", 1, "H1")
         self.atom2 = PdbAtom(1.0, 1.0, 2.0, "C", 2, "CA")
         self.atom3 = PdbAtom(1.0, 1.0, 3.0, "O", 3, "OX1")
-        self.residue1 = PdbResidue(1, "ARG", self.atom1, self.atom2, self.atom3)
+        self.residue1 = PdbResidue("A1", "ARG", self.atom1, self.atom2, self.atom3)
         self.atom4 = PdbAtom(1.0, 1.0, 4.0, "H", 4, "H1")
         self.atom5 = PdbAtom(1.0, 1.0, 5.0, "C", 5, "CA")
         self.atom6 = PdbAtom(1.0, 1.0, 6.0, "O", 6, "OX1")
-        self.residue2 = PdbResidue(2, "HIS", self.atom4, self.atom5, self.atom6)
+        self.residue2 = PdbResidue("A2", "HIS", self.atom4, self.atom5, self.atom6)
         self.atom7 = PdbAtom(1.0, 1.0, 7.0, "H", 7, "H1")
         self.atom8 = PdbAtom(1.0, 1.0, 8.0, "C", 8, "CA")
         self.atom9 = PdbAtom(1.0, 1.0, 9.0, "O", 9, "OX1")
-        self.residue3 = PdbResidue(3, "TRP", self.atom7, self.atom8, self.atom9)
+        self.residue3 = PdbResidue("A3", "TRP", self.atom7, self.atom8, self.atom9)
 
 
     def check_valid_site(self, site):

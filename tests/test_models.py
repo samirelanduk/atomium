@@ -9,8 +9,14 @@ class ModelTest(TestCase):
         self.assertIsInstance(model, AtomicStructure)
         self.assertIsInstance(model.atoms, set)
         self.assertIsInstance(model.small_molecules, set)
+        for small_molecule in model.small_molecules:
+            self.assertEqual(small_molecule.model, model)
         self.assertIsInstance(model.chains, set)
+        for chain in model.chains:
+            self.assertEqual(chain.model, model)
         self.assertIsInstance(model.sites, set)
+        for site in model.sites:
+            self.assertEqual(site.model, model)
         self.assertRegex(str(model), r"<Model \((\d+) atoms\)>")
 
 
@@ -38,6 +44,7 @@ class SmallMoleculeAdditionTests(ModelTest):
     def test_can_add_small_molecules(self):
         self.model.add_small_molecule(self.molecule1)
         self.assertIn(self.molecule1, self.model.small_molecules)
+        self.check_valid_model(self.model)
 
 
     def test_cannot_add_two_small_molecules_with_same_id(self):
@@ -147,6 +154,7 @@ class ChainAdditionTests(ModelTest):
     def test_can_add_chains(self):
         self.model.add_chain(self.chain1)
         self.assertIn(self.chain1, self.model.chains)
+        self.check_valid_model(self.model)
 
 
     def test_cannot_add_two_chains_with_same_id(self):
@@ -225,6 +233,7 @@ class SiteAdditionTests(ModelTest):
     def test_can_add_sites(self):
         self.model.add_site(self.site1)
         self.assertIn(self.site1, self.model.sites)
+        self.check_valid_model(self.model)
 
 
     def test_cannot_add_two_sites_with_same_id(self):

@@ -320,6 +320,7 @@ class PdbSmallMolecule(AtomicStructure):
         AtomicStructure.__init__(self, *atoms)
         for atom in self.atoms:
             atom.molecule = self
+        self.model = None
 
 
     def __repr__(self):
@@ -504,6 +505,7 @@ class PdbChain(ResiduicSequence):
         ResiduicSequence.__init__(self, *residues)
         for residue in self.residues:
             residue.chain = self
+        self.model = None
 
 
     def __repr__(self):
@@ -520,6 +522,7 @@ class PdbSite(ResiduicStructure):
 
         ResiduicStructure.__init__(self, *residues)
         self.ligand = None
+        self.model = None
 
 
     def __repr__(self):
@@ -581,6 +584,7 @@ class PdbModel(AtomicStructure):
              "Cannot have two small molecules with ID %s" % small_molecule.molecule_id
             )
         self.small_molecules.add(small_molecule)
+        small_molecule.model = self
 
 
     def get_small_molecule_by_id(self, molecule_id):
@@ -642,6 +646,7 @@ class PdbModel(AtomicStructure):
              "Cannot have two chains with ID %s" % chain.chain_id
             )
         self.chains.add(chain)
+        chain.model = self
 
 
     def get_chain_by_id(self, chain_id):
@@ -667,6 +672,7 @@ class PdbModel(AtomicStructure):
              "Cannot have two sites with ID %s" % site.site_id
             )
         self.sites.add(site)
+        site.model = self
 
 
     def get_site_by_id(self, site_id):

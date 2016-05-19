@@ -26,6 +26,7 @@ class ChainTest(TestCase):
         self.assertIsInstance(chain.residues, list)
         for residue in chain.residues:
             self.assertIs(residue.chain, chain)
+        chain.model
         self.assertRegex(str(chain), r"<Chain [A-Z] \((\d+) residues\)>")
 
 

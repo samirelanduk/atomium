@@ -16,6 +16,7 @@ class SmallMoleculeTest(TestCase):
             self.assertEqual(atom.molecule, small_molecule)
         self.assertIsInstance(small_molecule.molecule_id, str)
         self.assertIsInstance(small_molecule.molecule_name, str)
+        small_molecule.model
         self.assertRegex(str(small_molecule), r"<SmallMolecule \((.+)\)>")
 
 

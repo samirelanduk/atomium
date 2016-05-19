@@ -24,6 +24,7 @@ class SiteTest(TestCase):
         self.assertIsInstance(site, ResiduicStructure)
         self.assertIsInstance(site.site_id, str)
         site.ligand
+        site.model
         self.assertRegex(str(site), r"<Site (.+) \((\d+) residues\)>")
 
 

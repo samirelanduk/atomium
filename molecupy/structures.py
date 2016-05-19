@@ -299,14 +299,9 @@ class PdbSmallMolecule(AtomicStructure):
 
         The molecule's name.
 
-    .. note::
+   .. py:attribute:: model:
 
-       The numerical ID assigned to small molecules in PDB files (where they are
-       called 'HETs') are supposed to be unique, but unfortunately they often
-       aren't. It is for this reason that in molecuPy the ID for small molecules
-       is a string, as it is combined with the chain ID (not a meaningful
-       property by itself for small molecules) to create IDs such as 'A1001' and
-       'B6700'."""
+        The :py:class:`PdbModel` that the molecule belongs to."""
 
     def __init__(self, molecule_id, molecule_name, *atoms):
         if not isinstance(molecule_id, str):
@@ -328,6 +323,11 @@ class PdbSmallMolecule(AtomicStructure):
 
 
     def get_binding_site(self):
+        """Returns the py:class:`PdbSite` that is listed as binding the
+        molecule.
+
+        :rtype: :py:class:`PdbSmallMolecule` or ``None``"""
+
         if self.model:
             for site in self.model.sites:
                 if site.ligand is self:
@@ -335,6 +335,11 @@ class PdbSmallMolecule(AtomicStructure):
 
 
     def calculate_binding_site(self):
+        """Attempts to predict the residues that the molecule binds to by using
+        an atomic distance cutoff of 3.0 Angstroms.
+
+        :rtype: :py:class:`PdbSmallMolecule` or ``None``"""
+        
         if self.model:
             residues = set()
             for chain in self.model.chains:
@@ -501,6 +506,10 @@ class ResiduicSequence(ResiduicStructure):
 
 
     def get_sequence_string(self):
+        """Return the protein sequence of this chain as one letter codes.
+
+        :rtype str: The protein sequence."""
+
         return "".join(
          [RESIDUES.get(res.residue_name, "X") for res in self.residues]
         )
@@ -518,7 +527,11 @@ class PdbChain(ResiduicSequence):
 
     .. py:attribute:: chain_id:
 
-         A chain's ID."""
+         A chain's ID.
+
+    .. py:attribute:: model:
+
+         The :py:class:`PdbModel` that the chain belongs to."""
 
     def __init__(self, chain_id, *residues):
         if not isinstance(chain_id, str):
@@ -537,6 +550,25 @@ class PdbChain(ResiduicSequence):
 
 
 class PdbSite(ResiduicStructure):
+    """Base class: :py:class:`ResiduicStructure`
+
+    Represents PDB binding sites - the residue clusters that mediate ligand
+    binding.
+
+    :param site_id: The site's ID.
+    :param residues: The residues in this chain.
+
+    .. py:attribute:: site_id:
+
+         A site's ID.
+
+    .. py:attribute:: ligand:
+
+         The :py:class:`PdbSmallMolecule` that binds to this site.
+
+    .. py:attribute:: model:
+
+         The :py:class:`PdbModel` that the site belongs to."""
 
     def __init__(self, site_id, *residues):
         if not isinstance(site_id, str):
@@ -687,6 +719,14 @@ class PdbModel(AtomicStructure):
 
 
     def add_site(self, site):
+        """Validates and adds a :py:class:`PdbSite` to the model.
+
+        :param PdbSite site: the site to add.
+        :raises TypeError: if something other than a\
+        :py:class:`PdbSite` is added.
+        :raises: :class:`.DuplicateSiteError` if there is already a\
+        :py:class:`PdbSite` of the same ID."""
+
         if not(isinstance(site, PdbSite)):
             raise TypeError("Can only add Site with add_site()")
         existing_site_ids = [s.site_id for s in self.sites]

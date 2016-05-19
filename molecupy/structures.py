@@ -327,6 +327,13 @@ class PdbSmallMolecule(AtomicStructure):
         return "<SmallMolecule (%s)>" % self.molecule_name
 
 
+    def get_binding_site(self):
+        if self.model:
+            for site in self.model.sites:
+                if site.ligand is self:
+                    return site
+
+
 
 class PdbResidue(AtomicStructure):
     """Base class: :py:class:`AtomicStructure`

@@ -651,7 +651,7 @@ def process_site(data_file):
                      "residue_name": r[(i * 11) + 7: (i * 11) + 10],
                      "chain_id": r[(i * 11) + 11],
                      "residue_id": r[(i * 11) + 12: (i * 11) + 16],
-                     "insert_code":  r[(i * 11) + 17] if r[(i * 11) + 17] else ""
+                     "insert_code":  r[(i * 11) + 16] if r[(i * 11) + 16] else ""
                     })
         data_file.sites.append({
          "site_id": site_name,

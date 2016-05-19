@@ -1294,7 +1294,7 @@ class SiteRecordTests(PdbDataFileTest):
         data_file = PdbDataFile(PdbFile(
          "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155\n"
          "SITE     2 AC1  6 XMP A2001  HOH A3015\n"
-         "SITE     1 AC3  8 ALA A  18  ASP A  20  LYS A  42  ASP A  70\n"
+         "SITE     1 AC3  8 ALA A  18A ASP A  20  LYS A  42  ASP A  70\n"
          "SITE     2 AC3  8 MET A 126  SER A 127  SER A 158  PRO A 180"
         ))
         self.assertEqual(
@@ -1315,7 +1315,7 @@ class SiteRecordTests(PdbDataFileTest):
            "site_id": "AC3",
            "residue_count": 8,
            "residues": [
-            {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": ""},
+            {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": "A"},
             {"residue_name": "ASP", "chain_id": "A", "residue_id": 20, "insert_code": ""},
             {"residue_name": "LYS", "chain_id": "A", "residue_id": 42, "insert_code": ""},
             {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},

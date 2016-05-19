@@ -125,6 +125,7 @@ class Pdb:
             model = PdbModel()
             _give_model_small_molecules(model, self.data_file, model_dict["model_id"])
             _give_model_chains(model, self.data_file, model_dict["model_id"])
+            _connect_atoms(model, self.data_file, model_dict["model_id"])
             _give_model_sites(model, self.data_file, model_dict["model_id"])
             _map_sites_to_ligands(model, self.data_file, model_dict["model_id"])
             self.models.append(model)
@@ -217,3 +218,13 @@ def _map_sites_to_ligands(model, data_file, model_id):
                                 ligand_id = "".join(trailing_line.split()[-2:])
                                 ligand = model.get_small_molecule_by_id(ligand_id)
                                 site.ligand = ligand
+
+
+def _connect_atoms(model, data_file, model_id):
+    for connection in data_file.connections:
+        atom = model.get_atom_by_id(connection["atom_id"])
+        if atom:
+            for bonded_atom_id in connection["bonded_atoms"]:
+                bonded_atom = model.get_atom_by_id(bonded_atom_id)
+                if bonded_atom:
+                    atom.covalent_bond_to(bonded_atom)

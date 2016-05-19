@@ -371,6 +371,68 @@ class ChainTests(PdbTest):
 
 
 
+class ConnectionTests(PdbTest):
+
+    def setUp(self):
+        self.pdb = Pdb(PdbDataFile(PdbFile(
+         "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
+         "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
+         "HETATM 3196  C2  BU2 A5001       1.922  45.088  50.288  1.00 44.82           C\n"
+         "HETATM 3197  C3  BU2 A5001       0.706  44.197  50.309  1.00 43.92           C\n"
+         "HETATM 3198  O3  BU2 A5001       1.101  42.889  50.701  1.00 45.94           O\n"
+         "HETATM 3199  C4  BU2 A5001      -0.456  44.629  51.162  1.00 42.35           C\n"
+         "CONECT 3194 3195 3196\n"
+         "CONECT 3195 3194\n"
+         "CONECT 3196 3194 3197\n"
+         "CONECT 3197 3196 3198 3199\n"
+         "CONECT 3198 3197\n"
+         "CONECT 3199 3197\n"
+        )))
+
+
+    def test_can_bond_atoms_together_from_conect(self):
+        self.assertEqual(
+         self.pdb.model.get_atom_by_id(3194).get_covalent_bonded_atoms(),
+         set((
+          self.pdb.model.get_atom_by_id(3195),
+          self.pdb.model.get_atom_by_id(3196)
+         ))
+        )
+        self.assertEqual(
+         self.pdb.model.get_atom_by_id(3195).get_covalent_bonded_atoms(),
+         set((
+          self.pdb.model.get_atom_by_id(3194),
+         ))
+        )
+        self.assertEqual(
+         self.pdb.model.get_atom_by_id(3196).get_covalent_bonded_atoms(),
+         set((
+          self.pdb.model.get_atom_by_id(3194),
+          self.pdb.model.get_atom_by_id(3197)
+         ))
+        )
+        self.assertEqual(
+         self.pdb.model.get_atom_by_id(3197).get_covalent_bonded_atoms(),
+         set((
+          self.pdb.model.get_atom_by_id(3196),
+          self.pdb.model.get_atom_by_id(3198),
+          self.pdb.model.get_atom_by_id(3199)
+         ))
+        )
+        self.assertEqual(
+         self.pdb.model.get_atom_by_id(3198).get_covalent_bonded_atoms(),
+         set((
+          self.pdb.model.get_atom_by_id(3197),
+         ))
+        )
+        self.assertEqual(
+         self.pdb.model.get_atom_by_id(3199).get_covalent_bonded_atoms(),
+         set((
+          self.pdb.model.get_atom_by_id(3197),
+         ))
+        )
+
+
 class SiteTests(PdbTest):
 
     def setUp(self):

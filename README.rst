@@ -1,5 +1,5 @@
-molecuPy Documentation
-======================
+molecuPy
+========
 
 molecuPy is a Python parser for Protein Data Bank (PDB) files. It provides
 utilities for reading and analysing the structural data contained therein.
@@ -89,9 +89,9 @@ or an empty list, whichever is appropriate.
 Pdb Models
 ~~~~~~~~~~
 
-The heart of a Pdb is its model. A PdbModel represents the structure contained
-in that PDB file, and is the environment in which all other molecules and
-structures are based.
+The heart of a Pdb is its model. A :py:class:`.PdbModel` represents the
+structure contained in that PDB file, and is the environment in which all other
+molecules and structures are based.
 
 All Pdb objects have a list of models, which in most cases will contain a single
 model. Structures created from NMR will often have multiple models - each
@@ -104,9 +104,10 @@ first model in the list.
     >>> pdb.model
     <Model (3431 atoms)>
 
-The ``PdbModel`` class is an atomic structure (i.e. it inherits from
-``AtomicStructure``) which means you can get certain atomic properties directly
-from the model, such as mass, empirical formula, and the atoms themselves:
+The PdbModel class is an atomic structure (i.e. it inherits from
+:py:class:`.AtomicStructure`) which means you can get certain atomic properties
+directly from the model, such as mass, empirical formula, and the atoms
+themselves:
 
     >>> pdb.model.get_mass()
     20630.8656
@@ -145,8 +146,8 @@ by ID or name:
 Pdb Chains
 ~~~~~~~~~~
 
-A Chain object is an ordered sequence of Residue objects, and they are the
-macromolecular structures which constitute the bulk of the model.
+A :py:class:`.PdbChain` object is an ordered sequence of Residue objects, and
+they are the macromolecular structures which constitute the bulk of the model.
 
     >>> pdb.model.get_chain_by_id("A")
     <Chain A (204 residues)>
@@ -155,30 +156,35 @@ macromolecular structures which constitute the bulk of the model.
     >>> pdb.model.get_chain_by_id("A").residues[0]
     <Residue (VAL)>
 
-Chains inherit from ``ResiduicStructure`` and ``ResiduicSequence`` and so have
-methods for retrieving residues:
+Chains inherit from :py:class:`.ResiduicStructure` and
+:py:class:`.ResiduicSequence` and so have methods for retrieving residues:
 
-    >>> pdb.model.get_chain_by_id("A").get_residue_by_id(23)
+    >>> pdb.model.get_chain_by_id("A").get_residue_by_id("A23")
     <Residue (ASN)>
     >>> pdb.model.get_chain_by_id("A").get_residue_by_name("ASP")
     <Residue (ASP)>
     >>> pdb.model.get_chain_by_id("A").get_residues_by_name("ASN")
     {<Residue (ASN)>, <Residue (ASN)>, <Residue (ASN)>, <Residue (ASN)>, <Residu
     e (ASN)>, <Residue (ASN)>}
+    >>> pdb.model.get_chain_by_id("A").get_sequence_string()
+    'VMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICR
+    ATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRP
+    ERLSRLREIIGQDSFLISPGGETLRFADAIIVGRSIYLADNPAAAAAGIIESI'
 
 Like pretty much everything else in molecuPy, chains are ultimately atomic
 structures, and have the usual atomic structure methods for getting mass,
 retrieving atoms etc.
 
-The Residue objects themselves are also atomic structures, and behave very
-similar to small molecules.
+The :py:class:`.PdbResidue` objects themselves are also atomic structures, and
+behave very similar to small molecules.
 
 
 Pdb Small Molecules
 ~~~~~~~~~~~~~~~~~~~
 
 Many PDB files also contain non-macromolecular objects, such as ligands, and
-solvent molecules. In molecuPy, these are represented as Small Molecule objects.
+solvent molecules. In molecuPy, these are represented as
+:py:class:`.PdbSmallMolecule` objects.
 
 There's not a great deal to be said about small molecules. They are atomic
 structures, so you can get their mass, get atoms by name/ID etc.
@@ -195,13 +201,25 @@ structures, so you can get their mass, get atoms by name/ID etc.
     >>> pdb.model.get_small_molecule_by_name("XMP").get_atom_by_id(3252)
     <Atom 3252 (C)>
 
+The :py:class:`.PdbSite` binding site of the molecule, if there is one, can be
+determined in one of two ways. If the PDB file already defines the site, it can
+be found with:
+
+    >>> pdb.model.get_small_molecule_by_name("XMP").get_binding_site()
+    <Site AC3 (11 residues)>
+
+If there isn't one defined, you can try to predict it using atomic distances:
+
+    >>> pdb.model.get_small_molecule_by_name("XMP").calculate_binding_site()
+    <Site calc (5 residues)>
+
 
 Pdb Atoms
 ~~~~~~~~~
 
 Pdb structures - like everything else in the universe really - are ultimately
-collections of Atom objects. They posess a few key properties from which much of
-everything else is created:
+collections of Atom - :py:class:`.PdbAtom` - objects. They possess a few key
+properties from which much of everything else is created:
 
     >>> pdb.model.get_atom_by_id(28)
     <Atom 28 (C)>
@@ -222,8 +240,44 @@ The distance between any two atoms can be calculated easily:
     7.931296047935668
 
 
+Pdb Binding Sites
+~~~~~~~~~~~~~~~~~
+
+:py:class:`.PdbSite` objects represent binding sites. They are residuic
+structures, with the usual residuic structure methods, as well as a ``ligand``
+property.
+
+    >>> pdb.model.sites
+    {<Site AC2 (5 residues)>, <Site AC1 (4 residues)>, <Site AC4 (11 residues)>,
+     <Site AC3 (11 residues)>}
+    >>> pdb.model.get_site_by_id("AC1").residues
+    {<Residue (ASP)>, <Residue (LEU)>, <Residue (LYS)>, <Residue (VAL)>}
+    >>> pdb.model.get_site_by_id("AC1").ligand
+    <SmallMolecule (BU2)>
+
+
 Changelog
 ---------
+
+Release 0.2.0
+~~~~~~~~~~~~~
+
+`19 May 2016`
+
+* Protein Sequences
+
+    * Residuic Sequences can now return their amino acid sequence as a string
+
+* Binding Sites
+
+    * Added a class for binding sites
+    * Mapped sites to ligands
+    * Added methods for getting sites for ligands
+
+* Insert codes
+
+    * Incorporated insert codes into residue IDs
+
 
 Release 0.1.0
 ~~~~~~~~~~~~~

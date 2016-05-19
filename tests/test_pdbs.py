@@ -237,14 +237,14 @@ class ChainTests(PdbTest):
          "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
          "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
          "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
-         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
-         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
-         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
-         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
-         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
-         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
-         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
-         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C"
+         "ATOM      8  N   MET A  12A      3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12A      3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12A      4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12A      4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12A      2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12A      3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12A      1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12A      2.419  24.308  60.655  1.00 21.05           C"
         )))
         self.two_chains = Pdb(PdbDataFile(PdbFile(
          "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
@@ -356,6 +356,17 @@ class ChainTests(PdbTest):
         self.assertEqual(
          len(list(self.two_models.model.chains)[0].atoms),
          15
+        )
+
+
+    def test_residue_ids(self):
+        self.assertEqual(
+         self.one_chain.model.get_chain_by_id("A").residues[0].residue_id,
+         "A11"
+        )
+        self.assertEqual(
+         self.one_chain.model.get_chain_by_id("A").residues[1].residue_id,
+         "A12A"
         )
 
 

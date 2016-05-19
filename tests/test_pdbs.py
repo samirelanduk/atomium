@@ -375,6 +375,27 @@ class ConnectionTests(PdbTest):
 
     def setUp(self):
         self.pdb = Pdb(PdbDataFile(PdbFile(
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
+         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
+         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
+         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
+         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
+         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
+         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
+         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
+         "ATOM     16  N   ASN A  13       5.980  29.039  60.600  1.00 16.04           N\n"
+         "ATOM     17  CA  ASN A  13       7.092  28.983  59.649  1.00 16.16           C\n"
+         "ATOM     18  C   ASN A  13       7.504  30.310  58.987  1.00 16.90           C\n"
+         "ATOM     19  O   ASN A  13       8.250  30.315  57.989  1.00 13.64           O\n"
+         "ATOM     20  CB  ASN A  13       6.809  27.938  58.561  1.00 16.22           C\n"
+         "ATOM     21  CG  ASN A  13       6.952  26.527  59.080  1.00 19.20           C\n"
          "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C\n"
          "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O\n"
          "HETATM 3196  C2  BU2 A5001       1.922  45.088  50.288  1.00 44.82           C\n"
@@ -391,46 +412,90 @@ class ConnectionTests(PdbTest):
 
 
     def test_can_bond_atoms_together_from_conect(self):
-        self.assertEqual(
-         self.pdb.model.get_atom_by_id(3194).get_covalent_bonded_atoms(),
-         set((
+        self.assertTrue(set((
           self.pdb.model.get_atom_by_id(3195),
           self.pdb.model.get_atom_by_id(3196)
-         ))
-        )
-        self.assertEqual(
-         self.pdb.model.get_atom_by_id(3195).get_covalent_bonded_atoms(),
-         set((
+        )).issubset(
+         self.pdb.model.get_atom_by_id(3194).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
           self.pdb.model.get_atom_by_id(3194),
-         ))
-        )
-        self.assertEqual(
-         self.pdb.model.get_atom_by_id(3196).get_covalent_bonded_atoms(),
-         set((
+        )).issubset(
+         self.pdb.model.get_atom_by_id(3195).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
           self.pdb.model.get_atom_by_id(3194),
           self.pdb.model.get_atom_by_id(3197)
-         ))
-        )
-        self.assertEqual(
-         self.pdb.model.get_atom_by_id(3197).get_covalent_bonded_atoms(),
-         set((
+        )).issubset(
+         self.pdb.model.get_atom_by_id(3196).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
           self.pdb.model.get_atom_by_id(3196),
           self.pdb.model.get_atom_by_id(3198),
           self.pdb.model.get_atom_by_id(3199)
-         ))
-        )
-        self.assertEqual(
-         self.pdb.model.get_atom_by_id(3198).get_covalent_bonded_atoms(),
-         set((
+        )).issubset(
+         self.pdb.model.get_atom_by_id(3197).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
           self.pdb.model.get_atom_by_id(3197),
-         ))
-        )
-        self.assertEqual(
-         self.pdb.model.get_atom_by_id(3199).get_covalent_bonded_atoms(),
-         set((
+        )).issubset(
+         self.pdb.model.get_atom_by_id(3198).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
           self.pdb.model.get_atom_by_id(3197),
-         ))
-        )
+        )).issubset(
+         self.pdb.model.get_atom_by_id(3199).get_covalent_bonded_atoms()
+        ))
+
+
+    def test_can_connect_residue_atoms(self):
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(9),
+        )).issubset(
+         self.pdb.model.get_atom_by_id(8).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(8),
+          self.pdb.model.get_atom_by_id(10),
+          self.pdb.model.get_atom_by_id(12)
+        )).issubset(
+         self.pdb.model.get_atom_by_id(9).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(9),
+          self.pdb.model.get_atom_by_id(11)
+        )).issubset(
+         self.pdb.model.get_atom_by_id(10).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(10),
+        )).issubset(
+         self.pdb.model.get_atom_by_id(11).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(9),
+          self.pdb.model.get_atom_by_id(13)
+        )).issubset(
+         self.pdb.model.get_atom_by_id(12).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(12),
+          self.pdb.model.get_atom_by_id(14)
+        )).issubset(
+         self.pdb.model.get_atom_by_id(13).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(13),
+          self.pdb.model.get_atom_by_id(15)
+        )).issubset(
+         self.pdb.model.get_atom_by_id(14).get_covalent_bonded_atoms()
+        ))
+        self.assertTrue(set((
+          self.pdb.model.get_atom_by_id(14),
+        )).issubset(
+         self.pdb.model.get_atom_by_id(15).get_covalent_bonded_atoms()
+        ))
+
 
 
 class SiteTests(PdbTest):

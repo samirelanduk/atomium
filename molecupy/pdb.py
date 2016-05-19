@@ -3,6 +3,7 @@ data contained in the data file."""
 
 from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain, PdbSite
 from .exceptions import *
+from . import residues
 from pprint import pprint
 
 class Pdb:
@@ -228,3 +229,14 @@ def _connect_atoms(model, data_file, model_id):
                 bonded_atom = model.get_atom_by_id(bonded_atom_id)
                 if bonded_atom:
                     atom.covalent_bond_to(bonded_atom)
+    for chain in model.chains:
+        for residue in chain.residues:
+            lookup = residues.connection_data.get(residue.residue_name)
+            if lookup:
+                for atom in residue.atoms:
+                    atom_lookup = lookup.get(atom.atom_name)
+                    if atom_lookup:
+                        for other_atom_name in atom_lookup:
+                            other_atom = residue.get_atom_by_name(other_atom_name)
+                            if other_atom:
+                                atom.covalent_bond_to(other_atom)

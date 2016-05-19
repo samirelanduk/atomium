@@ -134,13 +134,17 @@ Chains inherit from :py:class:`.ResiduicStructure` and
     >>> pdb.model.get_chain_by_id("A").get_residues_by_name("ASN")
     {<Residue (ASN)>, <Residue (ASN)>, <Residue (ASN)>, <Residue (ASN)>, <Residu
     e (ASN)>, <Residue (ASN)>}
+    >>> pdb.model.get_chain_by_id("A").get_sequence_string()
+    'VMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICR
+    ATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRP
+    ERLSRLREIIGQDSFLISPGGETLRFADAIIVGRSIYLADNPAAAAAGIIESI'
 
 Like pretty much everything else in molecuPy, chains are ultimately atomic
 structures, and have the usual atomic structure methods for getting mass,
 retrieving atoms etc.
 
-The :py:class:`.PdbResidue` objects themselves are also atomic structures, and behave very
-similar to small molecules.
+The :py:class:`.PdbResidue` objects themselves are also atomic structures, and
+behave very similar to small molecules.
 
 
 Pdb Small Molecules
@@ -164,6 +168,18 @@ structures, so you can get their mass, get atoms by name/ID etc.
      3238 (C)>, <Atom 3239 (N)>}
     >>> pdb.model.get_small_molecule_by_name("XMP").get_atom_by_id(3252)
     <Atom 3252 (C)>
+
+The :py:class:`.PdbSite` binding site of the molecule, if there is one, can be
+determined in one of two ways. If the PDB file already defines the site, it can
+be found with:
+
+    >>> pdb.model.get_small_molecule_by_name("XMP").get_binding_site()
+    <Site AC3 (11 residues)>
+
+If there isn't one defined, you can try to predict it using atomic distances:
+
+    >>> pdb.model.get_small_molecule_by_name("XMP").calculate_binding_site()
+    <Site calc (5 residues)>
 
 
 Pdb Atoms
@@ -190,3 +206,19 @@ The distance between any two atoms can be calculated easily:
     >>> atom2 = pdb.model.get_atom_by_id(28)
     >>> atom1.distance_to(atom2)
     7.931296047935668
+
+
+Pdb Binding Sites
+~~~~~~~~~~~~~~~~~
+
+:py:class:`.PdbSite` objects represent binding sites. They are residuic
+structures, with the usual residuic structure methods, as well as a ``ligand``
+property.
+
+    >>> pdb.model.sites
+    {<Site AC2 (5 residues)>, <Site AC1 (4 residues)>, <Site AC4 (11 residues)>,
+     <Site AC3 (11 residues)>}
+    >>> pdb.model.get_site_by_id("AC1").residues
+    {<Residue (ASP)>, <Residue (LEU)>, <Residue (LYS)>, <Residue (VAL)>}
+    >>> pdb.model.get_site_by_id("AC1").ligand
+    <SmallMolecule (BU2)>

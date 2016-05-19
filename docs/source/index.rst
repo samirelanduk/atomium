@@ -1,5 +1,5 @@
-molecuPy Documentation
-======================
+molecuPy
+========
 
 molecuPy is a Python parser for Protein Data Bank (PDB) files. It provides
 utilities for reading and analysing the structural data contained therein.

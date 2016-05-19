@@ -466,7 +466,10 @@ class ResiduicSequence(ResiduicStructure):
 
     def __init__(self, *residues):
         ResiduicStructure.__init__(self, *residues)
-        self.residues = sorted(list(self.residues), key=lambda k: residue_id_to_int(k.residue_id))
+        self.residues = sorted(
+         list(self.residues),
+         key=lambda k: _residue_id_to_int(k.residue_id)
+        )
 
 
     def __repr__(self):
@@ -681,7 +684,7 @@ class PdbModel(AtomicStructure):
 
 
 
-def residue_id_to_int(residue_id):
+def _residue_id_to_int(residue_id):
     int_component = int(
      "".join([char for char in residue_id if char in "0123456789"])
     )

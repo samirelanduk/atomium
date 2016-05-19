@@ -1,6 +1,7 @@
 from unittest import TestCase
 from molecupy import exceptions
 from molecupy.structures import ResiduicStructure, ResiduicSequence, PdbAtom, PdbResidue
+from molecupy.structures import _residue_id_to_int
 
 class ResiduicSequenceTest(TestCase):
 
@@ -66,4 +67,41 @@ class ResduicSequenceGenerationTests(ResiduicSequenceTest):
         self.assertEqual(
          residuic_sequence.get_sequence_string(),
          "RXW"
+        )
+
+
+
+class ResiduicSequenceOrderingTests(ResiduicSequenceTest):
+
+    def test_residue_id_int_conversion(self):
+        self.assertEqual(_residue_id_to_int("A1"), 100)
+        self.assertEqual(_residue_id_to_int("B1"), 100)
+        self.assertEqual(_residue_id_to_int("A2"), 200)
+        self.assertEqual(_residue_id_to_int("A100"), 10000)
+        self.assertEqual(_residue_id_to_int("A1A"), 101)
+        self.assertEqual(_residue_id_to_int("A1B"), 102)
+        self.assertEqual(_residue_id_to_int("B1A"), 101)
+        self.assertEqual(_residue_id_to_int("B1B"), 102)
+        self.assertEqual(_residue_id_to_int("G1009Q"), 100917)
+
+
+    def test_can_handle_insert_codes(self):
+        self.residue1.residue_id = "D1001C"
+        self.residue2.residue_id = "D1001"
+        self.residue3.residue_id = "D1001B"
+        residuic_sequence = ResiduicSequence(self.residue1, self.residue2, self.residue3)
+        self.assertEqual(
+         residuic_sequence.residues,
+         [self.residue2, self.residue3, self.residue1]
+        )
+
+
+    def test_ordering_is_numeric(self):
+        self.residue1.residue_id = "A30"
+        self.residue2.residue_id = "A200"
+        self.residue3.residue_id = "A1000"
+        residuic_sequence = ResiduicSequence(self.residue1, self.residue2, self.residue3)
+        self.assertEqual(
+         residuic_sequence.residues,
+         [self.residue1, self.residue2, self.residue3]
         )

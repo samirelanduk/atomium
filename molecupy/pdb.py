@@ -164,11 +164,11 @@ def _give_model_chains(model, data_file, model_id):
     for chain_id in chain_ids:
         relevant_atoms = [a for a in data_file.atoms
          if a["model_id"] == model_id and a["chain_id"] == chain_id]
-        residue_ids = set([a["residue_id"] for a in relevant_atoms])
+        residue_ids = set([str(a["residue_id"]) + a["insert_code"] for a in relevant_atoms])
         residues = []
         for residue_id in residue_ids:
             residue_atoms = [
-             a for a in relevant_atoms if a["residue_id"] == residue_id
+             a for a in relevant_atoms if str(a["residue_id"]) + a["insert_code"] == residue_id
             ]
             atoms = [PdbAtom(
              a["x"], a["y"], a["z"],
@@ -177,7 +177,7 @@ def _give_model_chains(model, data_file, model_id):
              a["atom_name"]
             ) for a in residue_atoms]
             residue = PdbResidue(
-             chain_id + str(residue_id), residue_atoms[0]["residue_name"],
+             chain_id + residue_id, residue_atoms[0]["residue_name"],
              *atoms
             )
             residues.append(residue)

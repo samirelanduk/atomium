@@ -466,7 +466,7 @@ class ResiduicSequence(ResiduicStructure):
 
     def __init__(self, *residues):
         ResiduicStructure.__init__(self, *residues)
-        self.residues = sorted(list(self.residues), key=lambda k: k.residue_id)
+        self.residues = sorted(list(self.residues), key=lambda k: residue_id_to_int(k.residue_id))
 
 
     def __repr__(self):
@@ -679,6 +679,15 @@ class PdbModel(AtomicStructure):
             if site.site_id == site_id:
                 return site
 
+
+
+def residue_id_to_int(residue_id):
+    int_component = int(
+     "".join([char for char in residue_id if char in "0123456789"])
+    )
+    char_component = residue_id[-1] if residue_id[-1] not in "0123456789" else ""
+    int_component *= 100
+    return int_component + (ord(char_component) - 64 if char_component else 0)
 
 
 PERIODIC_TABLE = {

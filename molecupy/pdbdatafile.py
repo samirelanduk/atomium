@@ -359,9 +359,9 @@ def process_dbref(data_file):
     data_file.dbreferences = [{
      "chain_id": r[12],
      "sequence_begin": r[14:18],
-     "insert_begin": r[18],
+     "insert_begin": r[18] if r[18] else "",
      "sequence_end": r[20:24],
-     "insert_end": r[24],
+     "insert_end": r[24] if r[24] else "",
      "database": r[26:32],
      "accession": r.get_as_string(33, 40),
      "db_id": r[42:54],
@@ -376,9 +376,9 @@ def process_dbref(data_file):
     data_file.dbreferences += [{
      "chain_id": pair[0][12],
      "sequence_begin": pair[0][14:18],
-     "insert_begin": pair[0][18],
+     "insert_begin": pair[0][18] if pair[0][18] else "",
      "sequence_end": pair[0][20:24],
-     "insert_end": pair[0][24],
+     "insert_end": pair[0][24] if pair[0][24] else "",
      "database": pair[0][26:32],
      "accession": pair[1].get_as_string(18, 40),
      "db_id": pair[0][47:67],
@@ -400,7 +400,7 @@ def process_seqadv(data_file):
      "residue_name": r[12:15],
      "chain_id": r[16],
      "residue_id": r[18:22],
-     "insert_code": r[22],
+     "insert_code": r[22] if r[22] else "",
      "database": r[24:28],
      "accession": r[29:38],
      "db_residue_name": r[39:42],
@@ -436,7 +436,7 @@ def process_modres(data_file):
      "residue_name": r[12:15],
      "chain_id": r[16],
      "residue_id": r[18:22],
-     "insert_code": r[22],
+     "insert_code": r[22] if r[22] else "",
      "standard_resisdue_name": r[24:27],
      "comment": r[29:70]
     } for r in modres]
@@ -452,7 +452,7 @@ def process_het(data_file):
      "het_name": r[7:10],
      "chain_id": r[12],
      "het_id": r[13:17],
-     "insert_code": r[17],
+     "insert_code": r[17] if r[17] else "",
      "atom_num": r[20:25],
      "description": r[30:70]
     } for r in hets]
@@ -516,11 +516,11 @@ def process_helix(data_file):
      "start_residue_name": r[15:18],
      "start_residue_chain_id": r[19],
      "start_residue_id": r[21:25],
-     "start_residue_insert": r[25],
+     "start_residue_insert": r[25] if r[25] else "",
      "end_residue_name": r[27:30],
      "end_residue_chain_id": r[31],
      "end_residue_id": r[33:37],
-     "end_residue_insert": r[37],
+     "end_residue_insert": r[37] if r[37] else "",
      "helix_class": r[38:40],
      "comment": r[40:70],
      "length": r[71:76]
@@ -545,22 +545,22 @@ def process_sheet(data_file):
           "start_residue_name": r[17:20],
           "start_residue_chain_id": r[21],
           "start_residue_id": r[22:26],
-          "start_residue_insert": r[26],
+          "start_residue_insert": r[26] if r[26] else "",
           "end_residue_name": r[28:31],
           "end_residue_chain_id": r[32],
           "end_residue_id": r[33:37],
-          "end_residue_insert": r[37],
+          "end_residue_insert": r[37] if r[37] else "",
           "sense": r[38:40],
           "current_atom": r[41:45],
           "current_residue_name": r[45:48],
           "current_chain_id": r[49],
           "current_residue_id": r[50:54],
-          "current_insert": r[54],
+          "current_insert": r[54] if r[54] else "",
           "previous_atom": r[56:60],
           "previous_residue_name": r[60:63],
           "previous_chain_id": r[64],
           "previous_residue_id": r[65:69],
-          "previous_insert": r[69]
+          "previous_insert": r[69] if r[69] else ""
          } for r in strands]
         })
 
@@ -576,11 +576,11 @@ def process_ssbond(data_file):
      "residue_name_1": r[11:14],
      "chain_id_1": r[15],
      "residue_id_1": r[17:21],
-     "insert_code_1": r[21],
+     "insert_code_1": r[21] if r[21] else "",
      "residue_name_2": r[25:28],
      "chain_id_2": r[29],
      "residue_id_2": r[31:35],
-     "insert_code_2": r[35],
+     "insert_code_2": r[35] if r[35] else "",
      "symmetry_1": r.get_as_string(59, 65),
      "symmetry_2": r.get_as_string(66, 72),
      "length": r[73:78]
@@ -599,13 +599,13 @@ def process_link(data_file):
      "residue_name_1": r[17:20],
      "chain_id_1": r[21],
      "residue_id_1": r[22:26],
-     "insert_code_1": r[26],
+     "insert_code_1": r[26] if r[26] else "",
      "atom_2": r[42:46],
      "alt_loc_2": r[46],
      "residue_name_2": r[47:50],
      "chain_id_2": r[51],
      "residue_id_2": r[52:56],
-     "insert_code_2": r[56],
+     "insert_code_2": r[56] if r[56] else "",
      "symmetry_1": r.get_as_string(59, 65),
      "symmetry_2": r.get_as_string(66, 72),
      "length": r[73:78]
@@ -623,11 +623,11 @@ def process_cispep(data_file):
      "residue_name_1": r[11:14],
      "chain_id_1": r[15],
      "residue_id_1": r[17:21],
-     "insert_1": r[21],
+     "insert_1": r[21] if r[21] else "",
      "residue_name_2": r[25:28],
      "chain_id_2": r[29],
      "residue_id_2": r[31:35],
-     "insert_2": r[35],
+     "insert_2": r[35] if r[35] else "",
      "model_number": r[43:46],
      "angle": r[54:59]
     } for r in cispeps]
@@ -651,7 +651,7 @@ def process_site(data_file):
                      "residue_name": r[(i * 11) + 7: (i * 11) + 10],
                      "chain_id": r[(i * 11) + 11],
                      "residue_id": r[(i * 11) + 12: (i * 11) + 16],
-                     "insert_code":  r[(i * 11) + 17]
+                     "insert_code":  r[(i * 11) + 17] if r[(i * 11) + 17] else ""
                     })
         data_file.sites.append({
          "site_id": site_name,
@@ -782,7 +782,7 @@ def process_atom(data_file):
      "residue_name": r[17:20],
      "chain_id": r[21],
      "residue_id": r[22:26],
-     "insert_code": r[26],
+     "insert_code": r[26] if r[26] else "",
      "x": r[30:38],
      "y": r[38:46],
      "z": r[46:54],
@@ -809,7 +809,7 @@ def process_anisou(data_file):
      "residue_name": r[17:20],
      "chain_id": r[21],
      "residue_id": r[22:26],
-     "insert_code": r[26],
+     "insert_code": r[26] if r[26] else "",
      "u11": r[29:35],
      "u22": r[36:42],
      "u33": r[43:49],
@@ -835,7 +835,7 @@ def process_ter(data_file):
      "residue_name": r[17:20],
      "chain_id": r[21],
      "residue_id": r[22:26],
-     "insert_code": r[26],
+     "insert_code": r[26] if r[26] else "",
      "model_id": [m for m in data_file.models
       if r.number >= m["start_record"]
        and r.number <= m["end_record"]][0]["model_id"]
@@ -855,7 +855,7 @@ def process_hetatm(data_file):
      "residue_name": r.get_as_string(17, 20),
      "chain_id": r[21],
      "residue_id": r[22:26],
-     "insert_code": r[26],
+     "insert_code": r[26] if r[26] else "",
      "x": r[30:38],
      "y": r[38:46],
      "z": r[46:54],

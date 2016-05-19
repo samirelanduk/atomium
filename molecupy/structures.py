@@ -334,6 +334,22 @@ class PdbSmallMolecule(AtomicStructure):
                     return site
 
 
+    def calculate_binding_site(self):
+        if self.model:
+            residues = set()
+            for chain in self.model.chains:
+                residues.update(chain.residues)
+            close_residues = set()
+            for atom in self.atoms:
+                for residue in residues:
+                    if any(r_atom.distance_to(atom) <= 3 for r_atom in residue.atoms):
+                        close_residues.add(residue)
+            if close_residues:
+                site = PdbSite("calc", *close_residues)
+                site.ligand = self
+                return site
+
+
 
 class PdbResidue(AtomicStructure):
     """Base class: :py:class:`AtomicStructure`

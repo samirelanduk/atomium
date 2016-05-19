@@ -54,15 +54,15 @@ needing to manually download them first.
 However the text of the PDB file is obtained, the process of parsing it is
 always the same:
 
-    1. First a :py:class:`.PdbFile` object is created, which is a
+    1. First a ``PdbFile`` object is created, which is a
     representation of the file itself. This is essentially a list of records,
     with methods for getting records of a certain name.
 
-    2. This is used to make a :py:class:`.PdbDataFile` object. This is the
+    2. This is used to make a ``PdbDataFile`` object. This is the
     object which extracts the data from the file, and is essentially an
     unstructured list of values.
 
-    3. This is used to make a :py:class:`.Pdb` object, by using the values in
+    3. This is used to make a ``Pdb`` object, by using the values in
     the data file to create a user-friendly handle to the information.
 
 
@@ -89,7 +89,7 @@ or an empty list, whichever is appropriate.
 Pdb Models
 ~~~~~~~~~~
 
-The heart of a Pdb is its model. A :py:class:`.PdbModel` represents the
+The heart of a Pdb is its model. A ``PdbModel`` represents the
 structure contained in that PDB file, and is the environment in which all other
 molecules and structures are based.
 
@@ -105,7 +105,7 @@ first model in the list.
     <Model (3431 atoms)>
 
 The PdbModel class is an atomic structure (i.e. it inherits from
-:py:class:`.AtomicStructure`) which means you can get certain atomic properties
+``AtomicStructure``) which means you can get certain atomic properties
 directly from the model, such as mass, empirical formula, and the atoms
 themselves:
 
@@ -146,7 +146,7 @@ by ID or name:
 Pdb Chains
 ~~~~~~~~~~
 
-A :py:class:`.PdbChain` object is an ordered sequence of Residue objects, and
+A ``PdbChain`` object is an ordered sequence of Residue objects, and
 they are the macromolecular structures which constitute the bulk of the model.
 
     >>> pdb.model.get_chain_by_id("A")
@@ -156,8 +156,8 @@ they are the macromolecular structures which constitute the bulk of the model.
     >>> pdb.model.get_chain_by_id("A").residues[0]
     <Residue (VAL)>
 
-Chains inherit from :py:class:`.ResiduicStructure` and
-:py:class:`.ResiduicSequence` and so have methods for retrieving residues:
+Chains inherit from ``ResiduicStructure`` and
+``ResiduicSequence`` and so have methods for retrieving residues:
 
     >>> pdb.model.get_chain_by_id("A").get_residue_by_id("A23")
     <Residue (ASN)>
@@ -175,7 +175,7 @@ Like pretty much everything else in molecuPy, chains are ultimately atomic
 structures, and have the usual atomic structure methods for getting mass,
 retrieving atoms etc.
 
-The :py:class:`.PdbResidue` objects themselves are also atomic structures, and
+The ``PdbResidue`` objects themselves are also atomic structures, and
 behave very similar to small molecules.
 
 
@@ -184,7 +184,7 @@ Pdb Small Molecules
 
 Many PDB files also contain non-macromolecular objects, such as ligands, and
 solvent molecules. In molecuPy, these are represented as
-:py:class:`.PdbSmallMolecule` objects.
+``PdbSmallMolecule`` objects.
 
 There's not a great deal to be said about small molecules. They are atomic
 structures, so you can get their mass, get atoms by name/ID etc.
@@ -201,7 +201,7 @@ structures, so you can get their mass, get atoms by name/ID etc.
     >>> pdb.model.get_small_molecule_by_name("XMP").get_atom_by_id(3252)
     <Atom 3252 (C)>
 
-The :py:class:`.PdbSite` binding site of the molecule, if there is one, can be
+The ``PdbSite`` binding site of the molecule, if there is one, can be
 determined in one of two ways. If the PDB file already defines the site, it can
 be found with:
 
@@ -218,7 +218,7 @@ Pdb Atoms
 ~~~~~~~~~
 
 Pdb structures - like everything else in the universe really - are ultimately
-collections of Atom - :py:class:`.PdbAtom` - objects. They possess a few key
+collections of Atom objects. They possess a few key
 properties from which much of everything else is created:
 
     >>> pdb.model.get_atom_by_id(28)
@@ -243,7 +243,7 @@ The distance between any two atoms can be calculated easily:
 Pdb Binding Sites
 ~~~~~~~~~~~~~~~~~
 
-:py:class:`.PdbSite` objects represent binding sites. They are residuic
+``PdbSite`` objects represent binding sites. They are residuic
 structures, with the usual residuic structure methods, as well as a ``ligand``
 property.
 

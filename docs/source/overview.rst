@@ -127,7 +127,7 @@ they are the macromolecular structures which constitute the bulk of the model.
 Chains inherit from :py:class:`.ResiduicStructure` and
 :py:class:`.ResiduicSequence` and so have methods for retrieving residues:
 
-    >>> pdb.model.get_chain_by_id("A").get_residue_by_id(23)
+    >>> pdb.model.get_chain_by_id("A").get_residue_by_id("A23")
     <Residue (ASN)>
     >>> pdb.model.get_chain_by_id("A").get_residue_by_name("ASP")
     <Residue (ASP)>

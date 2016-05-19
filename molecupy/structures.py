@@ -339,7 +339,7 @@ class PdbSmallMolecule(AtomicStructure):
         an atomic distance cutoff of 3.0 Angstroms.
 
         :rtype: :py:class:`PdbSmallMolecule` or ``None``"""
-        
+
         if self.model:
             residues = set()
             for chain in self.model.chains:
@@ -361,7 +361,7 @@ class PdbResidue(AtomicStructure):
 
     A Residue on a chain.
 
-    :param int residue_id: The residue's ID
+    :param str residue_id: The residue's ID
     :param str residue_name: The residue's name
     :param atoms: The residue's atoms
 

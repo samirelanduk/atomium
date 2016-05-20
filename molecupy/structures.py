@@ -303,6 +303,23 @@ class AtomicStructure:
         return contacts
 
 
+    def get_internal_contacts(self):
+        contacts = set()
+        for atom in self.atoms:
+            too_close_atoms = set((atom,))
+            for bonded_atom in atom.get_covalent_bonded_atoms():
+                too_close_atoms.add(bonded_atom)
+            second_tier_atoms = set()
+            for close_atom in too_close_atoms:
+                for bonded_atom in close_atom.get_covalent_bonded_atoms():
+                    second_tier_atoms.add(bonded_atom)
+            too_close_atoms.update(second_tier_atoms)
+            for other_atom in self.atoms:
+                if other_atom not in too_close_atoms and atom.distance_to(other_atom) <= 4:
+                    contacts.add(frozenset((atom, other_atom)))
+        return contacts
+
+
 
 class PdbSmallMolecule(AtomicStructure):
     """Base class: :py:class:`AtomicStructure`

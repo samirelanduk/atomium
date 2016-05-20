@@ -184,6 +184,10 @@ class AtomicStructureContactsTest(AtomicStructureTest):
          self.atom13, self.atom14, self.atom15, self.atom16, self.atom17, self.atom18,
          self.atom19, self.atom20, self.atom21
         )
+        for i in range(1, 21):
+            self.structure2.get_atom_by_id(i).covalent_bond_to(
+             self.structure2.get_atom_by_id(i + 1)
+            )
 
 
     def test_can_get_contacts_between_atomic_structures(self):
@@ -202,6 +206,24 @@ class AtomicStructureContactsTest(AtomicStructureTest):
           frozenset((self.atom2, self.atom4)),
           frozenset((self.atom3, self.atom4)),
           frozenset((self.atom3, self.atom5)),
+          frozenset((self.atom3, self.atom17)),
+         ))
+        )
+
+
+    def test_can_internal_contacts(self):
+        self.assertEqual(
+         len(self.structure2.get_internal_contacts()),
+         6
+        )
+        self.assertEqual(
+         self.structure2.get_internal_contacts(),
+         set((
+          frozenset((self.atom1, self.atom7)),
+          frozenset((self.atom1, self.atom11)),
+          frozenset((self.atom1, self.atom15)),
+          frozenset((self.atom2, self.atom6)),
+          frozenset((self.atom2, self.atom16)),
           frozenset((self.atom3, self.atom17)),
          ))
         )

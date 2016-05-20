@@ -387,10 +387,16 @@ class PdbResidue(AtomicStructure):
             atom.molecule = self
 
         self.chain = None
+        self.downstream_residue = None
+        self.upstream_residue = None
 
 
     def __repr__(self):
         return "<Residue (%s)>" % self.residue_name
+
+
+    def connect_to(self, downstream_residue, this_atom, their_atom):
+        this_atom.covalent_bond_to(their_atom)
 
 
 

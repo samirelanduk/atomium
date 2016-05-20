@@ -396,6 +396,14 @@ class PdbResidue(AtomicStructure):
 
 
     def connect_to(self, downstream_residue, this_atom, their_atom):
+        if this_atom not in self:
+            raise ValueError(
+             "%s is not in %s - cannot connect." % (str(this_atom), str(self))
+            )
+        if their_atom not in downstream_residue:
+            raise ValueError(
+             "%s is not in %s - cannot connect." % (str(their_atom), str(downstream_residue))
+            )
         this_atom.covalent_bond_to(their_atom)
 
 

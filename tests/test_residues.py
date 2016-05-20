@@ -63,3 +63,10 @@ class ResidueConnectionTest(ResidueTest):
         self.residue2.connect_to(self.residue3, self.atom4, self.atom5)
         self.assertIn(self.atom5, self.atom4.get_covalent_bonded_atoms())
         self.assertIn(self.atom4, self.atom5.get_covalent_bonded_atoms())
+
+
+    def test_can_only_connect_residues_with_valid_atoms(self):
+        with self.assertRaises(ValueError):
+            self.residue1.connect_to(self.residue2, self.atom2, self.atom5)
+        with self.assertRaises(ValueError):
+            self.residue1.connect_to(self.residue2, self.atom3, self.atom4)

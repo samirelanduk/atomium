@@ -129,6 +129,7 @@ class Pdb:
             _connect_atoms(model, self.data_file, model_dict["model_id"])
             _bond_residue_atoms(model, self.data_file, model_dict["model_id"])
             _bond_residues_together(model, self.data_file, model_dict["model_id"])
+            _make_disulphide_bonds(model, self.data_file, model_dict["model_id"])
             _give_model_sites(model, self.data_file, model_dict["model_id"])
             _map_sites_to_ligands(model, self.data_file, model_dict["model_id"])
             self.models.append(model)
@@ -272,6 +273,28 @@ def _bond_residues_together(model, data_file, model_id):
                 amino_nitrogen = next_residue.get_atom_by_name("N")
                 if carboxy_atom and amino_nitrogen:
                     residue.connect_to(next_residue, carboxy_atom, amino_nitrogen)
+
+
+def _make_disulphide_bonds(model, data_file, model_id):
+    for disulphide_bond in data_file.ss_bonds:
+        chain1 = model.get_chain_by_id(disulphide_bond["chain_id_1"])
+        chain2 = model.get_chain_by_id(disulphide_bond["chain_id_2"])
+        if chain1 and chain2:
+            residue1 = chain1.get_residue_by_id(
+             disulphide_bond["chain_id_1"] +
+             str(disulphide_bond["residue_id_1"]) +
+             disulphide_bond["insert_code_1"]
+            )
+            residue2 = chain2.get_residue_by_id(
+             disulphide_bond["chain_id_2"] +
+             str(disulphide_bond["residue_id_2"]) +
+             disulphide_bond["insert_code_2"]
+            )
+            if residue1 and residue2:
+                atom1 = residue1.get_atom_by_element("S")
+                atom2 = residue2.get_atom_by_element("S")
+                if atom1 and atom2:
+                    atom1.covalent_bond_to(atom2)
 
 
 def _get_preceding_residue(missing_residue, residuic_sequence):

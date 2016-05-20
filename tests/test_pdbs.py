@@ -617,6 +617,8 @@ class ConnectionTests(PdbTest):
          self.missing_residues_pdb.model.get_chain_by_id("A").missing_residues,
          ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A14", "A16", "A17A"]
         )
+
+
     def test_can_detect_missing_residues(self):
         self.assertIs(
          self.missing_residues_pdb.model.get_chain_by_id("A").residues[2].downstream_residue,
@@ -625,6 +627,22 @@ class ConnectionTests(PdbTest):
         self.assertNotIn(
          self.missing_residues_pdb.model.get_atom_by_id(35),
          self.missing_residues_pdb.model.get_atom_by_id(18).get_covalent_bonded_atoms()
+        )
+
+
+    def test_can_form_disulphide_bonds(self):
+        ssbond_pdb = Pdb(PdbDataFile(PdbFile(
+         "SSBOND   1 CYS A  171    CYS B  876                          1555   1555  2.05\n"
+         "ATOM   1286  SG  CYS A 171      24.158   4.518 -40.070  1.00 28.25           S\n"
+         "ATOM   3510  SG  CYS B 876      25.429   4.012 -41.598  1.00 19.93           S"
+        )))
+        self.assertIn(
+         ssbond_pdb.model.get_atom_by_id(1286),
+         ssbond_pdb.model.get_atom_by_id(3510).get_covalent_bonded_atoms()
+        )
+        self.assertIn(
+         ssbond_pdb.model.get_atom_by_id(3510),
+         ssbond_pdb.model.get_atom_by_id(1286).get_covalent_bonded_atoms()
         )
 
 

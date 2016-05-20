@@ -95,6 +95,13 @@ class AtomicStructureAtomRetrievalTests(AtomicStructureTest):
             atomic_structure.get_atoms_by_name(None)
 
 
+    def test_can_get_atom_by_element(self):
+        atom4 = PdbAtom(1.0, 1.0, 4.0, "H", atom_id=4, atom_name="H1")
+        atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3, atom4)
+        self.assertIn(atomic_structure.get_atom_by_element("H"), (self.atom1, atom4))
+        self.assertIs(atomic_structure.get_atom_by_element("xxx"), None)
+
+
     def test_can_get_multiple_atoms_by_element(self):
         atom4 = PdbAtom(1.0, 1.0, 4.0, "H", atom_id=4, atom_name="H2")
         atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3, atom4)
@@ -111,6 +118,8 @@ class AtomicStructureAtomRetrievalTests(AtomicStructureTest):
 
     def test_can_only_search_by_string_element(self):
         atomic_structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            atomic_structure.get_atom_by_element(None)
         with self.assertRaises(TypeError):
             atomic_structure.get_atoms_by_element(None)
 

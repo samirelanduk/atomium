@@ -245,6 +245,20 @@ class AtomicStructure:
         return set([atom for atom in self.atoms if atom.atom_name == atom_name])
 
 
+    def get_atom_by_element(self, element):
+        """Retrurns the first atom that matches a given element.
+
+        :param str element: The element to search by.
+        :rtype: :py:class:`PdbAtom` or ``None``
+        :raises TypeError: if the element given isn't a string."""
+
+        if not isinstance(element, str):
+            raise TypeError("Atom element search must be by str, not '%s'" % str(element))
+        for atom in self.atoms:
+            if atom.element == element:
+                return atom
+
+
     def get_atoms_by_element(self, element):
         """Retruns all the atoms a given element.
 

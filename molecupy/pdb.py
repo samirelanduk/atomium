@@ -248,10 +248,47 @@ def _bond_residue_atoms(model, data_file, model_id):
 
 
 def _bond_residues_together(model, data_file, model_id):
+    missing_residues = data_file.get_remark_by_number(465)
+    if missing_residues:
+        missing_residues = missing_residues["content"].split("\n")[6:]
+        missing_residues = [line.split() for line in missing_residues]
+        missing_residues = [
+         res for res in missing_residues if len(res) == 3 or int(res[0]) == model_id
+        ]
     for chain in model.chains:
+        residues_before_gap = set()
+        if missing_residues:
+            for missing_residue in missing_residues:
+                residues_before_gap.add(_get_preceding_residue(missing_residue, chain))
+            residues_before_gap = list(filter(None, residues_before_gap))
         for index, residue in enumerate(chain.residues[:-1]):
-            carboxy_atom = residue.get_atom_by_name("C")
-            next_residue = chain.residues[index + 1]
-            amino_nitrogen = next_residue.get_atom_by_name("N")
-            if carboxy_atom and amino_nitrogen:
-                residue.connect_to(next_residue, carboxy_atom, amino_nitrogen)
+            if residue not in residues_before_gap:
+                carboxy_atom = residue.get_atom_by_name("C")
+                next_residue = chain.residues[index + 1]
+                amino_nitrogen = next_residue.get_atom_by_name("N")
+                if carboxy_atom and amino_nitrogen:
+                    residue.connect_to(next_residue, carboxy_atom, amino_nitrogen)
+
+
+def _get_preceding_residue(missing_residue, residuic_sequence):
+    for residue in residuic_sequence.residues[::-1]:
+        if _residue_id_is_greater_than_residue_id(
+         "".join(missing_residue[-3:]),
+         residue.residue_id
+        ):
+            return residue
+
+
+def _residue_id_is_greater_than_residue_id(residue_id1, residue_id2):
+    residues = []
+    for residue_id in (residue_id1, residue_id2):
+        chain_id = residue_id[0] if residue_id[0].isalpha() else ""
+        number = int("".join([char for char in residue_id if char.isnumeric()]))
+        insert = ord(residue_id[-1]) if residue_id[-1].isalpha() else 0
+        residues.append((chain_id, number, insert))
+    if residues[0][1] > residues[1][1]:
+        return True
+    elif residues[0][1] == residues[1][1] and residues[0][2] > residues[1][2]:
+        return True
+    else:
+        return False

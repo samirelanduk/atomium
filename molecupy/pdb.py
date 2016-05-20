@@ -186,6 +186,18 @@ def _give_model_chains(model, data_file, model_id):
             )
             residues.append(residue)
         chain = PdbChain(chain_id, *residues)
+        missing_residues = data_file.get_remark_by_number(465)
+        if missing_residues:
+            missing_residues = missing_residues["content"].split("\n")[6:]
+            missing_residues = [line.split() for line in missing_residues]
+            missing_residues = [
+             res for res in missing_residues if len(res) == 3 or int(res[0]) == model_id
+            ]
+            missing_residues = [
+             res for res in missing_residues if res[-2] == chain_id
+            ]
+            missing_residues = [res[-2] + res[-1] for res in missing_residues]
+            chain.missing_residues = missing_residues
         model.add_chain(chain)
 
 
@@ -248,19 +260,11 @@ def _bond_residue_atoms(model, data_file, model_id):
 
 
 def _bond_residues_together(model, data_file, model_id):
-    missing_residues = data_file.get_remark_by_number(465)
-    if missing_residues:
-        missing_residues = missing_residues["content"].split("\n")[6:]
-        missing_residues = [line.split() for line in missing_residues]
-        missing_residues = [
-         res for res in missing_residues if len(res) == 3 or int(res[0]) == model_id
-        ]
     for chain in model.chains:
         residues_before_gap = set()
-        if missing_residues:
-            for missing_residue in missing_residues:
-                residues_before_gap.add(_get_preceding_residue(missing_residue, chain))
-            residues_before_gap = list(filter(None, residues_before_gap))
+        for missing_residue in chain.missing_residues:
+            residues_before_gap.add(_get_preceding_residue(missing_residue, chain))
+        residues_before_gap = list(filter(None, residues_before_gap))
         for index, residue in enumerate(chain.residues[:-1]):
             if residue not in residues_before_gap:
                 carboxy_atom = residue.get_atom_by_name("C")
@@ -273,7 +277,7 @@ def _bond_residues_together(model, data_file, model_id):
 def _get_preceding_residue(missing_residue, residuic_sequence):
     for residue in residuic_sequence.residues[::-1]:
         if _residue_id_is_greater_than_residue_id(
-         "".join(missing_residue[-3:]),
+         missing_residue,
          residue.residue_id
         ):
             return residue

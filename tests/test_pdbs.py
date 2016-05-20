@@ -409,6 +409,68 @@ class ConnectionTests(PdbTest):
          "CONECT 3198 3197\n"
          "CONECT 3199 3197\n"
         )))
+        self.missing_residues_pdb = Pdb(PdbDataFile(PdbFile(
+         "REMARK 465\n"
+         "REMARK 465 MISSING RESIDUES\n"
+         "REMARK 465 THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE\n"
+         "REMARK 465 EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN\n"
+         "REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)\n"
+         "REMARK 465\n"
+         "REMARK 465   M RES C SSSEQI\n"
+         "REMARK 465     LEU A     1\n"
+         "REMARK 465     ARG A     2\n"
+         "REMARK 465     SER A     3\n"
+         "REMARK 465     ARG A     4\n"
+         "REMARK 465     ARG A     5\n"
+         "REMARK 465     VAL A     6\n"
+         "REMARK 465     ASP A     7\n"
+         "REMARK 465     VAL A     8\n"
+         "REMARK 465     MET A     9\n"
+         "REMARK 465     ASP A    10\n"
+         "REMARK 465     VAL A   14\n"
+         "REMARK 465     GLY A   16\n"
+         "REMARK 465     GLY A   17A\n"
+         "REMARK 465     GLY B   1\n"
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
+         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
+         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
+         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
+         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
+         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
+         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
+         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
+         "ATOM     16  N   ASN A  13       5.980  29.039  60.600  1.00 16.04           N\n"
+         "ATOM     17  CA  ASN A  13       7.092  28.983  59.649  1.00 16.16           C\n"
+         "ATOM     18  C   ASN A  13       7.504  30.310  58.987  1.00 16.90           C\n"
+         "ATOM     19  O   ASN A  13       8.250  30.315  57.989  1.00 13.64           O\n"
+         "ATOM     20  CB  ASN A  13       6.809  27.938  58.561  1.00 16.22           C\n"
+         "ATOM     21  CG  ASN A  13       6.952  26.527  59.080  1.00 19.20           C\n"
+         "ATOM     22  OD1 ASN A  13       7.957  26.203  59.717  1.00 19.60           O\n"
+         "ATOM     23  ND2 ASN A  13       5.960  25.681  58.818  1.00 13.22           N\n"
+         "ATOM     35  N   LEU A  15       5.991  32.147  57.112  1.00 12.76           N\n"
+         "ATOM     36  CA  LEU A  15       5.548  32.181  55.716  1.00 13.64           C\n"
+         "ATOM     37  C   LEU A  15       4.045  32.424  55.621  1.00 13.49           C\n"
+         "ATOM     38  O   LEU A  15       3.270  31.589  56.067  1.00 14.06           O\n"
+         "ATOM     39  CB  LEU A  15       5.858  30.841  55.045  1.00 12.60           C\n"
+         "ATOM     40  CG  LEU A  15       5.461  30.647  53.577  1.00 12.53           C\n"
+         "ATOM     41  CD1 LEU A  15       6.056  31.744  52.709  1.00 12.38           C\n"
+         "ATOM     42  CD2 LEU A  15       5.953  29.270  53.111  1.00 14.79           C\n"
+         "ATOM     51  N   LEU A  17       0.690  32.856  53.234  1.00 14.97           N\n"
+         "ATOM     52  CA  LEU A  17       0.201  32.561  51.891  1.00 12.72           C\n"
+         "ATOM     53  C   LEU A  17      -0.680  33.711  51.411  1.00 14.43           C\n"
+         "ATOM     54  O   LEU A  17      -1.652  34.080  52.071  1.00 10.95           O\n"
+         "ATOM     55  CB  LEU A  17      -0.634  31.277  51.879  1.00 12.78           C\n"
+         "ATOM     56  CG  LEU A  17      -1.426  31.024  50.587  1.00 14.29           C\n"
+         "ATOM     57  CD1 LEU A  17      -0.459  30.721  49.426  1.00 12.74           C\n"
+         "ATOM     58  CD2 LEU A  17      -2.376  29.850  50.805  1.00 14.20           C\n"
+        )))
 
 
     def test_can_bond_atoms_together_from_conect(self):
@@ -550,75 +612,19 @@ class ConnectionTests(PdbTest):
         self.assertFalse(_residue_id_is_greater_than_residue_id("A19A", "A20"))
 
 
+    def test_chains_list_missing_residues(self):
+        self.assertEqual(
+         self.missing_residues_pdb.model.get_chain_by_id("A").missing_residues,
+         ["A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A14", "A16", "A17A"]
+        )
     def test_can_detect_missing_residues(self):
-        self.pdb = Pdb(PdbDataFile(PdbFile(
-         "REMARK 465\n"
-         "REMARK 465 MISSING RESIDUES\n"
-         "REMARK 465 THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE\n"
-         "REMARK 465 EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN\n"
-         "REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)\n"
-         "REMARK 465\n"
-         "REMARK 465   M RES C SSSEQI\n"
-         "REMARK 465     LEU A     1\n"
-         "REMARK 465     ARG A     2\n"
-         "REMARK 465     SER A     3\n"
-         "REMARK 465     ARG A     4\n"
-         "REMARK 465     ARG A     5\n"
-         "REMARK 465     VAL A     6\n"
-         "REMARK 465     ASP A     7\n"
-         "REMARK 465     VAL A     8\n"
-         "REMARK 465     MET A     9\n"
-         "REMARK 465     ASP A    10\n"
-         "REMARK 465     VAL A   14\n"
-         "REMARK 465     GLY A   16\n"
-         "REMARK 465     GLY A   18\n"
-         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
-         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
-         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
-         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
-         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
-         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
-         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
-         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
-         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
-         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
-         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
-         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
-         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
-         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
-         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
-         "ATOM     16  N   ASN A  13       5.980  29.039  60.600  1.00 16.04           N\n"
-         "ATOM     17  CA  ASN A  13       7.092  28.983  59.649  1.00 16.16           C\n"
-         "ATOM     18  C   ASN A  13       7.504  30.310  58.987  1.00 16.90           C\n"
-         "ATOM     19  O   ASN A  13       8.250  30.315  57.989  1.00 13.64           O\n"
-         "ATOM     20  CB  ASN A  13       6.809  27.938  58.561  1.00 16.22           C\n"
-         "ATOM     21  CG  ASN A  13       6.952  26.527  59.080  1.00 19.20           C\n"
-         "ATOM     22  OD1 ASN A  13       7.957  26.203  59.717  1.00 19.60           O\n"
-         "ATOM     23  ND2 ASN A  13       5.960  25.681  58.818  1.00 13.22           N\n"
-         "ATOM     35  N   LEU A  15       5.991  32.147  57.112  1.00 12.76           N\n"
-         "ATOM     36  CA  LEU A  15       5.548  32.181  55.716  1.00 13.64           C\n"
-         "ATOM     37  C   LEU A  15       4.045  32.424  55.621  1.00 13.49           C\n"
-         "ATOM     38  O   LEU A  15       3.270  31.589  56.067  1.00 14.06           O\n"
-         "ATOM     39  CB  LEU A  15       5.858  30.841  55.045  1.00 12.60           C\n"
-         "ATOM     40  CG  LEU A  15       5.461  30.647  53.577  1.00 12.53           C\n"
-         "ATOM     41  CD1 LEU A  15       6.056  31.744  52.709  1.00 12.38           C\n"
-         "ATOM     42  CD2 LEU A  15       5.953  29.270  53.111  1.00 14.79           C\n"
-         "ATOM     51  N   LEU A  17       0.690  32.856  53.234  1.00 14.97           N\n"
-         "ATOM     52  CA  LEU A  17       0.201  32.561  51.891  1.00 12.72           C\n"
-         "ATOM     53  C   LEU A  17      -0.680  33.711  51.411  1.00 14.43           C\n"
-         "ATOM     54  O   LEU A  17      -1.652  34.080  52.071  1.00 10.95           O\n"
-         "ATOM     55  CB  LEU A  17      -0.634  31.277  51.879  1.00 12.78           C\n"
-         "ATOM     56  CG  LEU A  17      -1.426  31.024  50.587  1.00 14.29           C\n"
-         "ATOM     57  CD1 LEU A  17      -0.459  30.721  49.426  1.00 12.74           C\n"
-         "ATOM     58  CD2 LEU A  17      -2.376  29.850  50.805  1.00 14.20           C\n"
-        )))
         self.assertIs(
-         self.pdb.model.get_chain_by_id("A").residues[2].downstream_residue,
+         self.missing_residues_pdb.model.get_chain_by_id("A").residues[2].downstream_residue,
          None
         )
         self.assertNotIn(
-         self.pdb.model.get_atom_by_id(35),
-         self.pdb.model.get_atom_by_id(18).get_covalent_bonded_atoms()
+         self.missing_residues_pdb.model.get_atom_by_id(35),
+         self.missing_residues_pdb.model.get_atom_by_id(18).get_covalent_bonded_atoms()
         )
 
 

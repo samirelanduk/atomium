@@ -558,6 +558,7 @@ class PdbChain(ResiduicSequence):
         for residue in self.residues:
             residue.chain = self
         self.model = None
+        self.missing_residues = []
 
 
     def __repr__(self):

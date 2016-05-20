@@ -497,6 +497,49 @@ class ConnectionTests(PdbTest):
         ))
 
 
+    def test_can_connect_residues(self):
+        self.assertIn(
+         self.pdb.model.get_atom_by_id(8),
+         self.pdb.model.get_atom_by_id(3).get_covalent_bonded_atoms()
+        )
+        self.assertIn(
+         self.pdb.model.get_atom_by_id(3),
+         self.pdb.model.get_atom_by_id(8).get_covalent_bonded_atoms()
+        )
+        self.assertIn(
+         self.pdb.model.get_atom_by_id(16),
+         self.pdb.model.get_atom_by_id(10).get_covalent_bonded_atoms()
+        )
+        self.assertIn(
+         self.pdb.model.get_atom_by_id(10),
+         self.pdb.model.get_atom_by_id(16).get_covalent_bonded_atoms()
+        )
+        self.assertIs(
+         self.pdb.model.get_chain_by_id("A").residues[0].upstream_residue,
+         None
+        )
+        self.assertIs(
+         self.pdb.model.get_chain_by_id("A").residues[0].downstream_residue,
+         self.pdb.model.get_chain_by_id("A").residues[1]
+        )
+        self.assertIs(
+         self.pdb.model.get_chain_by_id("A").residues[1].upstream_residue,
+         self.pdb.model.get_chain_by_id("A").residues[0]
+        )
+        self.assertIs(
+         self.pdb.model.get_chain_by_id("A").residues[1].downstream_residue,
+         self.pdb.model.get_chain_by_id("A").residues[2]
+        )
+        self.assertIs(
+         self.pdb.model.get_chain_by_id("A").residues[2].upstream_residue,
+         self.pdb.model.get_chain_by_id("A").residues[1]
+        )
+        self.assertIs(
+         self.pdb.model.get_chain_by_id("A").residues[2].downstream_residue,
+         None
+        )
+
+
 
 class SiteTests(PdbTest):
 

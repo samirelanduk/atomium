@@ -294,6 +294,15 @@ class AtomicStructure:
         ])
 
 
+    def get_external_contacts_with(self, other_structure):
+        contacts = set()
+        for atom in self.atoms:
+            for other_atom in other_structure.atoms:
+                if other_atom not in self and atom.distance_to(other_atom) <= 4:
+                    contacts.add(frozenset((atom, other_atom)))
+        return contacts
+
+
 
 class PdbSmallMolecule(AtomicStructure):
     """Base class: :py:class:`AtomicStructure`

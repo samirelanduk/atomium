@@ -150,3 +150,58 @@ class FormulaTests(AtomicStructureTest):
          atomic_structure.get_formula(),
          Counter({"C": 1, "N": 1, "O": 2})
         )
+
+
+
+class AtomicStructureContactsTest(AtomicStructureTest):
+
+    def setUp(self):
+        self.atom1 = PdbAtom(1.0, 10.0, 10.0, "C", 1, "C")
+        self.atom2 = PdbAtom(1.0, 10.0, 12.0, "C", 2, "C")
+        self.atom3 = PdbAtom(1.0, 10.0, 14.0, "C", 3, "C")
+        self.atom4 = PdbAtom(1.0, 12.0, 14.0, "C", 4, "C")
+        self.atom5 = PdbAtom(1.0, 14.0, 14.0, "C", 5, "C")
+        self.atom6 = PdbAtom(1.0, 14.0, 12.0, "C", 6, "C")
+        self.atom7 = PdbAtom(1.0, 14.0, 10.0, "C", 7, "C")
+        self.atom8 = PdbAtom(1.0, 14.0, 8.0, "C", 8, "C")
+        self.atom9 = PdbAtom(1.0, 14.0, 6.0, "C", 9, "C")
+        self.atom10 = PdbAtom(1.0, 12.0, 6.0, "C", 10, "C")
+        self.atom11 = PdbAtom(1.0, 10.0, 6.0, "C", 11, "C")
+        self.atom12 = PdbAtom(1.0, 8.0, 6.0, "C", 12, "C")
+        self.atom13 = PdbAtom(1.0, 6.0, 6.0, "C", 13, "C")
+        self.atom14 = PdbAtom(1.0, 6.0, 8.0, "C", 14, "C")
+        self.atom15 = PdbAtom(1.0, 6.0, 10.0, "C", 15, "C")
+        self.atom16 = PdbAtom(1.0, 6.0, 12.0, "C", 16, "C")
+        self.atom17 = PdbAtom(1.0, 6.0, 14.0, "C", 17, "C")
+        self.atom18 = PdbAtom(1.0, 6.0, 16.0, "C", 18, "C")
+        self.atom19 = PdbAtom(1.0, 6.0, 18.0, "C", 19, "C")
+        self.atom20 = PdbAtom(1.0, 6.0, 20.0, "C", 20, "C")
+        self.atom21 = PdbAtom(1.0, 6.0, 22.0, "C", 21, "C")
+        self.structure1 = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.structure2 = AtomicStructure(
+         self.atom1, self.atom2, self.atom3, self.atom4, self.atom5, self.atom6,
+         self.atom7, self.atom8, self.atom9, self.atom10, self.atom11, self.atom12,
+         self.atom13, self.atom14, self.atom15, self.atom16, self.atom17, self.atom18,
+         self.atom19, self.atom20, self.atom21
+        )
+
+
+    def test_can_get_contacts_between_atomic_structures(self):
+        self.assertEqual(
+         len(self.structure1.get_external_contacts_with(self.structure2)),
+         9
+        )
+        self.assertEqual(
+         self.structure1.get_external_contacts_with(self.structure2),
+         set((
+          frozenset((self.atom1, self.atom7)),
+          frozenset((self.atom1, self.atom11)),
+          frozenset((self.atom1, self.atom15)),
+          frozenset((self.atom2, self.atom6)),
+          frozenset((self.atom2, self.atom16)),
+          frozenset((self.atom2, self.atom4)),
+          frozenset((self.atom3, self.atom4)),
+          frozenset((self.atom3, self.atom5)),
+          frozenset((self.atom3, self.atom17)),
+         ))
+        )

@@ -646,6 +646,24 @@ class ConnectionTests(PdbTest):
         )
 
 
+    def test_can_make_bonds_from_link_records(self):
+        link_pdb = Pdb(PdbDataFile(PdbFile(
+         "LINK         OD2 ASP A  10                NA    NA A 489     1555   1555  2.69\n"
+         "LINK         O   TYR A  15                NA    NA A 489     1555   1555  2.78\n"
+         "ATOM     43  OD2 ASP A  10      13.704   1.167 -28.173  1.00 27.76           O\n"
+         "ATOM     73  O   TYR A  15      12.612  -3.402 -26.932  1.00 26.47           O\n"
+         "HETATM 3780 NA    NA A 489      12.993  -0.702 -26.370  1.00 22.88          NA"
+        )))
+        self.assertIn(
+         link_pdb.model.get_atom_by_id(3780),
+         link_pdb.model.get_atom_by_id(43).get_covalent_bonded_atoms()
+        )
+        self.assertIn(
+         link_pdb.model.get_atom_by_id(3780),
+         link_pdb.model.get_atom_by_id(73).get_covalent_bonded_atoms()
+        )
+
+
 
 class SiteTests(PdbTest):
 

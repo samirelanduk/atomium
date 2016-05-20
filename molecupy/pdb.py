@@ -130,6 +130,7 @@ class Pdb:
             _bond_residue_atoms(model, self.data_file, model_dict["model_id"])
             _bond_residues_together(model, self.data_file, model_dict["model_id"])
             _make_disulphide_bonds(model, self.data_file, model_dict["model_id"])
+            _make_link_bonds(model, self.data_file, model_dict["model_id"])
             _give_model_sites(model, self.data_file, model_dict["model_id"])
             _map_sites_to_ligands(model, self.data_file, model_dict["model_id"])
             self.models.append(model)
@@ -293,6 +294,40 @@ def _make_disulphide_bonds(model, data_file, model_id):
             if residue1 and residue2:
                 atom1 = residue1.get_atom_by_element("S")
                 atom2 = residue2.get_atom_by_element("S")
+                if atom1 and atom2:
+                    atom1.covalent_bond_to(atom2)
+
+
+def _make_link_bonds(model, data_file, model_id):
+    for link in data_file.links:
+        chain1 = model.get_chain_by_id(link["chain_id_1"])
+        chain2 = model.get_chain_by_id(link["chain_id_2"])
+        if chain1 and chain2:
+            molecule1 = chain1.get_residue_by_id(
+             link["chain_id_1"] +
+             str(link["residue_id_1"]) +
+             link["insert_code_1"]
+            )
+            molecule2 = chain2.get_residue_by_id(
+             link["chain_id_2"] +
+             str(link["residue_id_2"]) +
+             link["insert_code_2"]
+            )
+            if not molecule1:
+                molecule1 = model.get_small_molecule_by_id(
+                 link["chain_id_1"] +
+                 str(link["residue_id_1"]) +
+                 link["insert_code_1"]
+                )
+            if not molecule2:
+                molecule2 = model.get_small_molecule_by_id(
+                 link["chain_id_2"] +
+                 str(link["residue_id_2"]) +
+                 link["insert_code_2"]
+                )
+            if molecule1 and molecule2:
+                atom1 = molecule1.get_atom_by_name(link["atom_1"])
+                atom2 = molecule2.get_atom_by_name(link["atom_2"])
                 if atom1 and atom2:
                     atom1.covalent_bond_to(atom2)
 

@@ -405,6 +405,8 @@ class PdbResidue(AtomicStructure):
              "%s is not in %s - cannot connect." % (str(their_atom), str(downstream_residue))
             )
         this_atom.covalent_bond_to(their_atom)
+        self.downstream_residue = downstream_residue
+        downstream_residue.upstream_residue = self
 
 
 

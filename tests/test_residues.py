@@ -70,3 +70,14 @@ class ResidueConnectionTest(ResidueTest):
             self.residue1.connect_to(self.residue2, self.atom2, self.atom5)
         with self.assertRaises(ValueError):
             self.residue1.connect_to(self.residue2, self.atom3, self.atom4)
+
+
+    def test_connected_residues_know_about_each_other(self):
+        self.residue1.connect_to(self.residue2, self.atom2, self.atom3)
+        self.residue2.connect_to(self.residue3, self.atom4, self.atom5)
+        self.assertIs(self.residue1.upstream_residue, None)
+        self.assertIs(self.residue1.downstream_residue, self.residue2)
+        self.assertIs(self.residue2.upstream_residue, self.residue1)
+        self.assertIs(self.residue2.downstream_residue, self.residue3)
+        self.assertIs(self.residue3.upstream_residue, self.residue2)
+        self.assertIs(self.residue3.downstream_residue, None)

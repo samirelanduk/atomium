@@ -298,8 +298,8 @@ class AtomicStructure:
         contacts = set()
         our_atoms = list(self.atoms)
         their_atoms = [a for a in list(other_structure.atoms) if a not in our_atoms]
-        for index, atom in enumerate(our_atoms):
-            for other_atom in their_atoms[index + 1:]:
+        for atom in our_atoms:
+            for other_atom in their_atoms:
                 if atom.distance_to(other_atom) <= 4:
                     contacts.add(frozenset((atom, other_atom)))
         return contacts

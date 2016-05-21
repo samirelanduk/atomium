@@ -296,16 +296,19 @@ class AtomicStructure:
 
     def get_external_contacts_with(self, other_structure):
         contacts = set()
-        for atom in self.atoms:
-            for other_atom in other_structure.atoms:
-                if other_atom not in self and atom.distance_to(other_atom) <= 4:
+        our_atoms = list(self.atoms)
+        their_atoms = [a for a in list(other_structure.atoms) if a not in our_atoms]
+        for index, atom in enumerate(our_atoms):
+            for other_atom in their_atoms[index + 1:]:
+                if atom.distance_to(other_atom) <= 4:
                     contacts.add(frozenset((atom, other_atom)))
         return contacts
 
 
     def get_internal_contacts(self):
         contacts = set()
-        for atom in self.atoms:
+        atoms = list(self.atoms)
+        for index, atom in enumerate(atoms[:-1]):
             too_close_atoms = set((atom,))
             for bonded_atom in atom.get_covalent_bonded_atoms():
                 too_close_atoms.add(bonded_atom)
@@ -314,7 +317,7 @@ class AtomicStructure:
                 for bonded_atom in close_atom.get_covalent_bonded_atoms():
                     second_tier_atoms.add(bonded_atom)
             too_close_atoms.update(second_tier_atoms)
-            for other_atom in self.atoms:
+            for other_atom in atoms[index + 1:]:
                 if other_atom not in too_close_atoms and atom.distance_to(other_atom) <= 4:
                     contacts.add(frozenset((atom, other_atom)))
         return contacts

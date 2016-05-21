@@ -3,6 +3,7 @@ __pycache__
 .DS_Store
 old
 bigtest.py
+timetest.py
 _static
 _templates
 build

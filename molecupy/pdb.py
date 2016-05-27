@@ -232,7 +232,9 @@ def _map_sites_to_ligands(model, data_file, model_id):
                         if trailing_line.startswith("SITE_DESCRIPTION"):
                             site = model.get_site_by_id(site_id)
                             if site:
-                                ligand_id = "".join(trailing_line.split()[-2:])
+                                ligand_id = trailing_line.split()[-1]
+                                if not ligand_id[0].isalpha():
+                                    ligand_id = trailing_line.split()[-2] + ligand_id
                                 ligand = model.get_small_molecule_by_id(ligand_id)
                                 site.ligand = ligand
 

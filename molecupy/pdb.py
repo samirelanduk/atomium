@@ -4,7 +4,6 @@ data contained in the data file."""
 from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain, PdbSite
 from .exceptions import *
 from . import residues
-from pprint import pprint
 
 class Pdb:
     """A representation of a PDB file and its contents, including the structure.

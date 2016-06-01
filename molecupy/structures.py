@@ -295,6 +295,18 @@ class AtomicStructure:
 
 
     def get_external_contacts_with(self, other_structure):
+        """Returns the set of all 'contacts' with another atomic structure,
+        where a contact is defined as any atom-atom pair with an inter-atomic
+        distance less than or equal to four Angstroms.
+
+        If the other atomic structure has atoms which are also in this atomic
+        structure, those atoms will not be counted as part of the other
+        structure.
+
+        :param AtomicStructure other_structure: The other atomic\
+        structure to compare to.
+        :rtype: ``set`` of ``frozenset`` contacts."""
+
         contacts = set()
         our_atoms = list(self.atoms)
         their_atoms = [a for a in list(other_structure.atoms) if a not in our_atoms]
@@ -306,6 +318,15 @@ class AtomicStructure:
 
 
     def get_internal_contacts(self):
+        """Returns the set of all atomic contacts within the atoms of an atomic
+        structure, where a contact is defined as any atom-atom pair with an
+        inter-atomic distance less than or equal to four Angstroms.
+
+        Contacts between atoms covalently bonded to each other will be ignored,
+        as will contacts between atoms separated by just two covalent bonds.
+
+        :rtype: ``set`` of ``frozenset`` contacts."""
+        
         contacts = set()
         atoms = list(self.atoms)
         for index, atom in enumerate(atoms[:-1]):

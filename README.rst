@@ -176,7 +176,9 @@ structures, and have the usual atomic structure methods for getting mass,
 retrieving atoms etc.
 
 The ``PdbResidue`` objects themselves are also atomic structures, and
-behave very similar to small molecules.
+behave very similar to small molecules. They have ``downstream_residue`` and
+``upstream_residue`` attributes for getting the next and previous residue in
+their chain respectively.
 
 
 Pdb Small Molecules
@@ -218,7 +220,7 @@ Pdb Atoms
 ~~~~~~~~~
 
 Pdb structures - like everything else in the universe really - are ultimately
-collections of Atom objects. They possess a few key
+collections of Atom - ``PdbAtom`` - objects. They possess a few key
 properties from which much of everything else is created:
 
     >>> pdb.model.get_atom_by_id(28)
@@ -239,6 +241,33 @@ The distance between any two atoms can be calculated easily:
     >>> atom1.distance_to(atom2)
     7.931296047935668
 
+CovalentBonds will be assigned where possible - the bonds between atoms in
+standard residues are inferred from atom names, and PDB files contain
+annotations for other covalent bonds. These are assigned to the atoms as
+``CovalentBond`` objects.
+
+    >>> pdb.model.get_atom_by_id(27).covalent_bonds
+    {<CovalentBond (O-C)>, <CovalentBond (O-C)>}
+
+The atoms directly bonded to any atom can be obtained with
+``get_covalent_bonded_atoms``, and the set of all atoms that are covalently
+`accessible` is accessed with get_covalent_accessible_atoms``.
+
+    >>> pdb.model.get_atom_by_id(3201)
+    <Atom 3200 (P)>
+    >>> pdb.model.get_atom_by_id(3201).get_covalent_bonded_atoms()
+    {<Atom 3200 (P)>}
+    >>> pdb.model.get_atom_by_id(3200).get_covalent_bonded_atoms()
+    {<Atom 3203 (O)>, <Atom 3201 (O)>, <Atom 3204 (O)>, <Atom 3202 (O)>}
+    >>> pdb.model.get_atom_by_id(3200).get_covalent_accessible_atoms()
+    {<Atom 3214 (O)>, <Atom 3215 (C)>, <Atom 3216 (O)>, <Atom 3217 (C)>, <Atom 3
+    218 (N)>, <Atom 3219 (C)>, <Atom 3201 (O)>, <Atom 3220 (C)>, <Atom 3202 (O)>
+    , <Atom 3221 (O)>, <Atom 3203 (O)>, <Atom 3222 (C)>, <Atom 3204 (O)>, <Atom
+    3223 (O)>, <Atom 3205 (C)>, <Atom 3206 (C)>, <Atom 3207 (O)>, <Atom 3208 (C)
+    >, <Atom 3209 (N)>, <Atom 3210 (C)>, <Atom 3211 (N)>, <Atom 3212 (N)>, <Atom
+     3213 (C)>}
+
+
 
 Pdb Binding Sites
 ~~~~~~~~~~~~~~~~~
@@ -256,8 +285,31 @@ property.
     <SmallMolecule (BU2)>
 
 
+
 Changelog
 ---------
+
+Release 0.3.0
+~~~~~~~~~~~~~
+
+`1 June 2016`
+
+* Atom connectivity
+
+    * Covalent bonds are now added, and atoms now know about their neighbours.
+
+* Residue connectivity
+
+    * Residues are now aware of which residue they are covalently bound to in their chain.
+
+* Atomic contacts
+
+    * Added methods for calculating the internal and external atomic contacts of any atomic structure.
+
+* Bug fixes
+
+    * Fixed bug where PDB files could not have site mapping parsed where there was no space between the chain ID and residue ID.
+
 
 Release 0.2.0
 ~~~~~~~~~~~~~

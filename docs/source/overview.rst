@@ -207,6 +207,33 @@ The distance between any two atoms can be calculated easily:
     >>> atom1.distance_to(atom2)
     7.931296047935668
 
+CovalentBonds will be assigned where possible - the bonds between atoms in
+standard residues are inferred from atom names, and PDB files contain
+annotations for other covalent bonds. These are assigned to the atoms as
+:py:class:`.CovalentBond` objects.
+
+    >>> pdb.model.get_atom_by_id(27).covalent_bonds
+    {<CovalentBond (O-C)>, <CovalentBond (O-C)>}
+
+The atoms directly bonded to any atom can be obtained with
+``get_covalent_bonded_atoms``, and the set of all atoms that are covalently
+`accessible` is accessed with get_covalent_accessible_atoms``.
+
+    >>> pdb.model.get_atom_by_id(3201)
+    <Atom 3200 (P)>
+    >>> pdb.model.get_atom_by_id(3201).get_covalent_bonded_atoms()
+    {<Atom 3200 (P)>}
+    >>> pdb.model.get_atom_by_id(3200).get_covalent_bonded_atoms()
+    {<Atom 3203 (O)>, <Atom 3201 (O)>, <Atom 3204 (O)>, <Atom 3202 (O)>}
+    >>> pdb.model.get_atom_by_id(3200).get_covalent_accessible_atoms()
+    {<Atom 3214 (O)>, <Atom 3215 (C)>, <Atom 3216 (O)>, <Atom 3217 (C)>, <Atom 3
+    218 (N)>, <Atom 3219 (C)>, <Atom 3201 (O)>, <Atom 3220 (C)>, <Atom 3202 (O)>
+    , <Atom 3221 (O)>, <Atom 3203 (O)>, <Atom 3222 (C)>, <Atom 3204 (O)>, <Atom
+    3223 (O)>, <Atom 3205 (C)>, <Atom 3206 (C)>, <Atom 3207 (O)>, <Atom 3208 (C)
+    >, <Atom 3209 (N)>, <Atom 3210 (C)>, <Atom 3211 (N)>, <Atom 3212 (N)>, <Atom
+     3213 (C)>}
+
+
 
 Pdb Binding Sites
 ~~~~~~~~~~~~~~~~~

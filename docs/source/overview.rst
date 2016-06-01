@@ -144,7 +144,9 @@ structures, and have the usual atomic structure methods for getting mass,
 retrieving atoms etc.
 
 The :py:class:`.PdbResidue` objects themselves are also atomic structures, and
-behave very similar to small molecules.
+behave very similar to small molecules. They have ``downstream_residue`` and
+``upstream_residue`` attributes for getting the next and previous residue in
+their chain respectively.
 
 
 Pdb Small Molecules

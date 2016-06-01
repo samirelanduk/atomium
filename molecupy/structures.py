@@ -326,7 +326,7 @@ class AtomicStructure:
         as will contacts between atoms separated by just two covalent bonds.
 
         :rtype: ``set`` of ``frozenset`` contacts."""
-        
+
         contacts = set()
         atoms = list(self.atoms)
         for index, atom in enumerate(atoms[:-1]):
@@ -435,7 +435,15 @@ class PdbResidue(AtomicStructure):
 
     .. py:attribute:: residue_name:
 
-        The redidue's name - usually a standard three letter code."""
+        The redidue's name - usually a standard three letter code.
+
+    .. py:attribute:: downstream_residue:
+
+        The next residue in the chain to which this residue is connected.
+
+    .. py:attribute:: upstream_residue:
+
+        The previous residue in the chain to which this residue is connected."""
 
     def __init__(self, residue_id, residue_name, *atoms):
         if not isinstance(residue_id, str):
@@ -460,6 +468,18 @@ class PdbResidue(AtomicStructure):
 
 
     def connect_to(self, downstream_residue, this_atom, their_atom):
+        """Connects the residue to its downstream residue (in the case of
+        proteins, proteins start at the N terminus and end at the C terminus).
+        This creates the necessary :py:class`CovalentBond` and also lets the
+        residue know what its neighbours are.
+
+        :param PdbResidue downstream_residue: The next residue to connect to.
+        :param PdbAtom this_atom: The atom in this residue facilitating the\
+        connection.
+        :param PdbAtom their_atom: The atom in the other residue facilitating\
+        the connection.
+        :raises ValueError: If the atoms are not in the correct residue."""
+
         if this_atom not in self:
             raise ValueError(
              "%s is not in %s - cannot connect." % (str(this_atom), str(self))

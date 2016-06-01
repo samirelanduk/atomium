@@ -1,6 +1,28 @@
 Changelog
 ---------
 
+Release 0.3.0
+~~~~~~~~~~~~~
+
+`1 June 2016`
+
+* Atom connectivity
+
+    * Covalent bonds are now added, and atoms now know about their neighbours.
+
+* Residue connectivity
+
+    * Residues are now aware of which residue they are covalently bound to in their chain.
+
+* Atomic contacts
+
+    * Added methods for calculating the internal and external atomic contacts of any atomic structure.
+
+* Bug fixes
+
+    * Fixed bug where PDB files could not have site mapping parsed where there was no space between the chain ID and residue ID.
+
+
 Release 0.2.0
 ~~~~~~~~~~~~~
 

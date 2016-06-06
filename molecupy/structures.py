@@ -692,6 +692,19 @@ class PdbChain(ResiduicSequence):
         matrix = omnicanvas.Canvas(700, 700)
         residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
         alpha_carbons = [residue.get_alpha_carbon() if residue else None for residue in residues]
+
+        tick = 0
+        if len(alpha_carbons) >= 10000:
+            tick = 5000
+        elif len(alpha_carbons) >= 1000:
+            tick = 500
+        elif len(alpha_carbons) >= 100:
+            tick = 50
+        elif len(alpha_carbons) >= 10:
+            tick = 5
+        else:
+            tick = 1
+
         distances = []
         for index, atom1 in enumerate(alpha_carbons[:-1]):
             row = []
@@ -703,7 +716,7 @@ class PdbChain(ResiduicSequence):
             distances.append(row)
 
         for row_index, row in enumerate(distances):
-            for col_index, column in enumerate(row):
+            for col_index, column in enumerate(row, start=1):
                 color = "#FFFFFF"
                 if column is not None:
                     fraction = column / cutoff if column <= cutoff else 1
@@ -722,6 +735,41 @@ class PdbChain(ResiduicSequence):
                  fill_color=color,
                  line_width=0
                 )
+
+        residue_number = 0
+        while residue_number <= len(alpha_carbons):
+            xy = padding + (residue_number * cell_dimension)
+            matrix.add_line(
+             xy, padding, xy, dimension - padding
+            )
+            matrix.add_line(
+             padding, xy, dimension - padding, xy
+            )
+            if residue_number + 2 <= len(alpha_carbons):
+                matrix.add_text(
+                 xy + (1.5 * cell_dimension), padding * 0.75, str(residue_number + 1),
+                 vertical_align="top"
+                )
+                matrix.add_text(
+                 dimension - (padding * 0.75), xy + (0.5 * cell_dimension), str(residue_number + 1),
+                 horizontal_align="right"
+                )
+            residue_number += tick
+        matrix.add_polygon(
+         padding, padding,
+         padding, dimension - padding,
+         dimension - padding, dimension - padding,
+         line_width=2,
+         line_color="#FFFFFF"
+        )
+        matrix.add_polygon(
+         padding, padding,
+         dimension - padding, padding,
+         dimension - padding, dimension - padding,
+         line_width=2,
+         opacity=0
+        )
+
         matrix.save("temp.svg")
         return matrix
 

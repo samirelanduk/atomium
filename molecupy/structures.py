@@ -685,6 +685,9 @@ class PdbChain(ResiduicSequence):
         plot_dimension = dimension - (2 * padding)
         chain_length = len(self.get_residue_ids_including_missing())
         cell_dimension = plot_dimension / chain_length
+        cutoff = 40
+        far_color = 0
+        close_color = 120
 
         matrix = omnicanvas.Canvas(700, 700)
         residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
@@ -701,12 +704,25 @@ class PdbChain(ResiduicSequence):
 
         for row_index, row in enumerate(distances):
             for col_index, column in enumerate(row):
+                color = "#FFFFFF"
+                if column is not None:
+                    fraction = column / cutoff if column <= cutoff else 1
+                    if far_color >= close_color:
+                        distance_from_start = fraction * (far_color - close_color)
+                        color = close_color + distance_from_start
+                    else:
+                        distance_from_start = fraction * (close_color - far_color)
+                        color = close_color - distance_from_start
+                    color = omnicanvas.hsl_to_rgb(color, 100, 50)
                 matrix.add_rectangle(
                  padding + (row_index * cell_dimension) + (col_index * cell_dimension),
                  padding + (row_index * cell_dimension),
-                 cell_dimension,
-                 cell_dimension
+                 cell_dimension + 0.5,
+                 cell_dimension + 0.5,
+                 fill_color=color,
+                 line_width=0
                 )
+        matrix.save("temp.svg")
         return matrix
 
 

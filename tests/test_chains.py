@@ -95,6 +95,8 @@ class ChainMatrixTests(ChainTest):
          len([cell.x for cell in cells if cell.x == furthest_right]),
          len(top_row)
         )
+        for cell in cells:
+            self.assertEqual(cell.line_width, 0)
 
 
     def test_can_generate_basic_matrix(self):
@@ -104,7 +106,30 @@ class ChainMatrixTests(ChainTest):
 
     def test_matrix_cells_are_correct(self):
         matrix = self.chain.generate_residue_distance_matrix()
+        self.check_valid_matrix(matrix)
         cells = [
          g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
         ]
         self.assertEqual(len(cells), 10)
+
+
+    def test_missing_residues_produce_white_cells(self):
+        matrix = self.chain.generate_residue_distance_matrix()
+        self.check_valid_matrix(matrix)
+        cells = [
+         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
+        ]
+        for cell in [cells[1], cells[3], cells[4], cells[6], cells[7], cells[8], cells[9]]:
+            self.assertEqual(cell.fill_color, "#FFFFFF")
+        for cell in [cells[0], cells[2], cells[5]]:
+            self.assertNotEqual(cell.fill_color, "#FFFFFF")
+
+
+    def test_present_residues_produce_sort_of_greenish_cells(self):
+        matrix = self.chain.generate_residue_distance_matrix()
+        self.check_valid_matrix(matrix)
+        cells = [
+         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
+        ]
+        for cell in [cells[0], cells[2], cells[5]]:
+            self.assertEqual(cell.fill_color[3], "F")

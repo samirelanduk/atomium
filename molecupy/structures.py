@@ -6,6 +6,7 @@ import omnicanvas
 from collections import Counter
 import warnings
 from .exceptions import *
+from pprint import pprint
 
 class PdbAtom:
     """This class epresents atoms - the fundamental chemical building blocks.
@@ -678,10 +679,35 @@ class PdbChain(ResiduicSequence):
 
 
     def generate_residue_distance_matrix(self):
+        dimension = 700
+        padding_proportion = 0.05
+        padding = padding_proportion * dimension
+        plot_dimension = dimension - (2 * padding)
+        chain_length = len(self.get_residue_ids_including_missing())
+        cell_dimension = plot_dimension / chain_length
+
         matrix = omnicanvas.Canvas(700, 700)
         residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
         alpha_carbons = [residue.get_alpha_carbon() if residue else None for residue in residues]
-        return alpha_carbons
+        distances = []
+        for index, atom1 in enumerate(alpha_carbons[:-1]):
+            row = []
+            for atom2 in alpha_carbons[index + 1:]:
+                if atom1 and atom2:
+                    row.append(atom1.distance_to(atom2))
+                else:
+                    row.append(None)
+            distances.append(row)
+
+        for row_index, row in enumerate(distances):
+            for col_index, column in enumerate(row):
+                matrix.add_rectangle(
+                 padding + (row_index * cell_dimension) + (col_index * cell_dimension),
+                 padding + (row_index * cell_dimension),
+                 cell_dimension,
+                 cell_dimension
+                )
+        return matrix
 
 
 

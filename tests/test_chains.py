@@ -1,5 +1,6 @@
 from unittest import TestCase
 from omnicanvas.canvas import Canvas
+import omnicanvas.graphics
 from molecupy import exceptions
 from molecupy.structures import PdbChain, ResiduicSequence, PdbAtom, PdbResidue
 
@@ -86,3 +87,23 @@ class ChainMatrixTests(ChainTest):
     def test_can_generate_basic_matrix(self):
         matrix = self.chain.generate_residue_distance_matrix()
         self.check_valid_matrix(matrix)
+
+
+    def test_matrix_cells_are_correct(self):
+        matrix = self.chain.generate_residue_distance_matrix()
+        cells = [
+         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
+        ]
+        self.assertEqual(len(cells), 10)
+        self.assertEqual(
+         len(set([
+          cells[3].x, cells[6].x, cells[8].x, cells[9].x
+         ])),
+         1
+        )
+        self.assertEqual(
+         len(set([
+          cells[0].y, cells[1].y, cells[2].y, cells[3].y
+         ])),
+         1
+        )

@@ -9,3 +9,4 @@ _templates
 build
 dist
 *.egg-info
+*.svg

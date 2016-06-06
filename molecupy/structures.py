@@ -679,6 +679,10 @@ class PdbChain(ResiduicSequence):
 
 
     def generate_residue_distance_matrix(self):
+        matrix = omnicanvas.Canvas(700, 700)
+        residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
+        alpha_carbons = [residue.get_alpha_carbon() if residue else None for residue in residues]
+
         dimension = 700
         padding_proportion = 0.05
         padding = padding_proportion * dimension
@@ -688,11 +692,15 @@ class PdbChain(ResiduicSequence):
         cutoff = 40
         far_color = 0
         close_color = 120
-
-        matrix = omnicanvas.Canvas(700, 700)
-        residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
-        alpha_carbons = [residue.get_alpha_carbon() if residue else None for residue in residues]
-
+        plot_width = dimension - (2 * padding)
+        bar_width = 4
+        bar_left = (dimension / 2) - (bar_width / 2) - 5
+        hypoteneuse = math.sqrt((plot_width ** 2) + (plot_width ** 2))
+        bar_top = (dimension / 2) - (hypoteneuse / 2) - 5
+        diagonal_chunk = hypoteneuse / len(alpha_carbons)
+        chain_color = 80
+        helix_color = 325
+        strand_color = 182
         tick = 0
         if len(alpha_carbons) >= 10000:
             tick = 5000
@@ -768,6 +776,13 @@ class PdbChain(ResiduicSequence):
          dimension - padding, dimension - padding,
          line_width=2,
          opacity=0
+        )
+
+        matrix.add_rectangle(
+         bar_left, bar_top, bar_width, hypoteneuse,
+         rotation=((dimension / 2) + 5, (dimension / 2) + 5, 315),
+         line_width=0,
+         fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50)
         )
 
         matrix.save("temp.svg")

@@ -85,7 +85,7 @@ class ChainMatrixTests(ChainTest):
         self.assertIsInstance(matrix, Canvas)
         cells = [
          g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ]
+        ][:-1]
         dimension = ((math.sqrt((8 * len(cells)) + 1)) - 1) / 2
         self.assertEqual(dimension, int(dimension))
         top_row = cells[:int(dimension)]
@@ -109,7 +109,7 @@ class ChainMatrixTests(ChainTest):
         self.check_valid_matrix(matrix)
         cells = [
          g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ]
+        ][:-1]
         self.assertEqual(len(cells), 10)
 
 
@@ -118,7 +118,7 @@ class ChainMatrixTests(ChainTest):
         self.check_valid_matrix(matrix)
         cells = [
          g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ]
+        ][:-1]
         for cell in [cells[1], cells[3], cells[4], cells[6], cells[7], cells[8], cells[9]]:
             self.assertEqual(cell.fill_color, "#FFFFFF")
         for cell in [cells[0], cells[2], cells[5]]:
@@ -130,6 +130,6 @@ class ChainMatrixTests(ChainTest):
         self.check_valid_matrix(matrix)
         cells = [
          g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ]
+        ][:-1]
         for cell in [cells[0], cells[2], cells[5]]:
             self.assertEqual(cell.fill_color[3], "F")

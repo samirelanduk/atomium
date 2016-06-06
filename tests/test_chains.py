@@ -1,3 +1,4 @@
+import math
 from unittest import TestCase
 from omnicanvas.canvas import Canvas
 import omnicanvas.graphics
@@ -82,6 +83,18 @@ class ChainMatrixTests(ChainTest):
 
     def check_valid_matrix(self, matrix):
         self.assertIsInstance(matrix, Canvas)
+        cells = [
+         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
+        ]
+        dimension = ((math.sqrt((8 * len(cells)) + 1)) - 1) / 2
+        self.assertEqual(dimension, int(dimension))
+        top_row = cells[:int(dimension)]
+        self.assertEqual(len(set([cell.y for cell in top_row])), 1)
+        furthest_right = max([cell.x for cell in cells])
+        self.assertEqual(
+         len([cell.x for cell in cells if cell.x == furthest_right]),
+         len(top_row)
+        )
 
 
     def test_can_generate_basic_matrix(self):
@@ -95,15 +108,3 @@ class ChainMatrixTests(ChainTest):
          g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
         ]
         self.assertEqual(len(cells), 10)
-        self.assertEqual(
-         len(set([
-          cells[3].x, cells[6].x, cells[8].x, cells[9].x
-         ])),
-         1
-        )
-        self.assertEqual(
-         len(set([
-          cells[0].y, cells[1].y, cells[2].y, cells[3].y
-         ])),
-         1
-        )

@@ -785,6 +785,50 @@ class PdbChain(ResiduicSequence):
          fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50)
         )
 
+        legend_dimension = plot_width * 0.4
+        legend_left = padding
+        legend_top = dimension - (padding + legend_dimension)
+        legend_right = legend_left + padding
+        legend_bottom = legend_top + padding
+        scale_width = legend_dimension * 0.8
+        scale_height = legend_dimension * 0.1
+        scale_left = legend_left + (0.1 * legend_dimension)
+        scale_right = legend_left + (0.9 * legend_dimension)
+        scale_top = legend_top + (0.2 * legend_dimension)
+        scale_bottom = legend_top + (0.3 * legend_dimension)
+        scale_label_y = legend_top + (0.15 * legend_dimension)
+        number_label_y = legend_top + (0.38 * legend_dimension)
+        x_pixels = range(math.floor(scale_left), math.ceil(scale_right))
+
+        matrix.add_text(
+         scale_left + (scale_width / 2),
+         scale_label_y,
+         "Distance (&#8491;ngstroms)",
+         font_size=int(scale_width / 9)
+        )
+        for x_pixel in x_pixels:
+            color = 0
+            fraction = x_pixel / scale_right
+            if far_color >= close_color:
+                distance_from_start = fraction * (far_color - close_color)
+                color = close_color + distance_from_start
+            else:
+                distance_from_start = fraction * (close_color - far_color)
+                color = close_color - distance_from_start
+            matrix.add_rectangle(
+             x_pixel - 1, scale_top, 2, scale_bottom - scale_top,
+             fill_color=omnicanvas.hsl_to_rgb(color, 100, 50),
+             line_width=0
+            )
+        matrix.add_text(
+         scale_left, number_label_y, "0",
+         font_size=int(scale_width / 10)
+        )
+        matrix.add_text(
+         scale_right, number_label_y, "%i+" % cutoff,
+         font_size=int(scale_width / 10)
+        )
+
         matrix.save("temp.svg")
         return matrix
 

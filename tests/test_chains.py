@@ -81,11 +81,14 @@ class ChainMatrixTests(ChainTest):
         self.chain.missing_residues = ["A12A", "A14"]
 
 
+    def get_cells(self, matrix):
+        return [g for g in matrix.graphics if
+         isinstance(g, omnicanvas.graphics.Rectangle) and g.width == g.height]
+
+
     def check_valid_matrix(self, matrix):
         self.assertIsInstance(matrix, Canvas)
-        cells = [
-         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ][:-1]
+        cells = self.get_cells(matrix)
         dimension = ((math.sqrt((8 * len(cells)) + 1)) - 1) / 2
         self.assertEqual(dimension, int(dimension))
         top_row = cells[:int(dimension)]
@@ -107,18 +110,14 @@ class ChainMatrixTests(ChainTest):
     def test_matrix_cells_are_correct(self):
         matrix = self.chain.generate_residue_distance_matrix()
         self.check_valid_matrix(matrix)
-        cells = [
-         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ][:-1]
+        cells = self.get_cells(matrix)
         self.assertEqual(len(cells), 10)
 
 
     def test_missing_residues_produce_white_cells(self):
         matrix = self.chain.generate_residue_distance_matrix()
         self.check_valid_matrix(matrix)
-        cells = [
-         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ][:-1]
+        cells = self.get_cells(matrix)
         for cell in [cells[1], cells[3], cells[4], cells[6], cells[7], cells[8], cells[9]]:
             self.assertEqual(cell.fill_color, "#FFFFFF")
         for cell in [cells[0], cells[2], cells[5]]:
@@ -128,8 +127,6 @@ class ChainMatrixTests(ChainTest):
     def test_present_residues_produce_sort_of_greenish_cells(self):
         matrix = self.chain.generate_residue_distance_matrix()
         self.check_valid_matrix(matrix)
-        cells = [
-         g for g in matrix.graphics if isinstance(g, omnicanvas.graphics.Rectangle)
-        ][:-1]
+        cells = self.get_cells(matrix)
         for cell in [cells[0], cells[2], cells[5]]:
             self.assertEqual(cell.fill_color[3], "F")

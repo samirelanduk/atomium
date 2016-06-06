@@ -494,6 +494,19 @@ class PdbResidue(AtomicStructure):
         downstream_residue.upstream_residue = self
 
 
+    def get_alpha_carbon(self):
+        """Returns the alpha carbon of this residue.
+
+        :rtype: :py:class:`PdbAtom`"""
+        
+        atom = self.get_atom_by_name("CA")
+        if not atom:
+            atom = self.get_atom_by_element("C")
+        if not atom:
+            atom = list(self.atoms)[0]
+        return atom
+
+
 
 class ResiduicStructure(AtomicStructure):
     """Base class: :py:class:`AtomicStructure`

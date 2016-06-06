@@ -81,3 +81,24 @@ class ResidueConnectionTest(ResidueTest):
         self.assertIs(self.residue2.downstream_residue, self.residue3)
         self.assertIs(self.residue3.upstream_residue, self.residue2)
         self.assertIs(self.residue3.downstream_residue, None)
+
+
+
+class ResidueAtomRetrievalTest(ResidueTest):
+
+    def test_can_get_named_alpha_carbon(self):
+        residue = PdbResidue("A1", "HET", self.atom1, self.atom2)
+        self.assertIs(residue.get_alpha_carbon(), self.atom2)
+
+
+    def test_can_get_unnamed_alpha_carbon(self):
+        self.atom2.atom_name = "C"
+        residue = PdbResidue("A1", "HET", self.atom1, self.atom2)
+        self.assertIs(residue.get_alpha_carbon(), self.atom2)
+
+
+    def test_can_get_any_alpha_carbon(self):
+        self.atom2.atom_name = "N"
+        self.atom2.element = "N"
+        residue = PdbResidue("A1", "HET", self.atom1, self.atom2)
+        self.assertIn(residue.get_alpha_carbon(), (self.atom1, self.atom2))

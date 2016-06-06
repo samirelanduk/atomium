@@ -1,7 +1,7 @@
 """This module contains creates the final Pdb object itself, and processes the
 data contained in the data file."""
 
-from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain, PdbSite
+from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain, PdbSite, _residue_id_is_greater_than_residue_id
 from .exceptions import *
 from . import residues
 
@@ -340,18 +340,3 @@ def _get_preceding_residue(missing_residue, residuic_sequence):
          residue.residue_id
         ):
             return residue
-
-
-def _residue_id_is_greater_than_residue_id(residue_id1, residue_id2):
-    residues = []
-    for residue_id in (residue_id1, residue_id2):
-        chain_id = residue_id[0] if residue_id[0].isalpha() else ""
-        number = int("".join([char for char in residue_id if char.isnumeric()]))
-        insert = ord(residue_id[-1]) if residue_id[-1].isalpha() else 0
-        residues.append((chain_id, number, insert))
-    if residues[0][1] > residues[1][1]:
-        return True
-    elif residues[0][1] == residues[1][1] and residues[0][2] > residues[1][2]:
-        return True
-    else:
-        return False

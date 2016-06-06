@@ -48,6 +48,18 @@ class ChainCreationTests(ChainTest):
 
 
 
+class ChainSequenceTests(ChainTest):
+
+    def test_can_get_sequence_with_missing_residues(self):
+        chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
+        chain.missing_residues = ["A2A", "A2B", "A3A", "A4", "A5", "A5A"]
+        self.assertEqual(
+         chain.get_residue_ids_including_missing(),
+         ["A1", "A2", "A2A", "A2B", "A3", "A3A", "A4", "A5", "A5A"]
+        )
+
+
+
 class ChainMatrixTests(ChainTest):
 
     def setUp(self):

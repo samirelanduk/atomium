@@ -498,7 +498,7 @@ class PdbResidue(AtomicStructure):
         """Returns the alpha carbon of this residue.
 
         :rtype: :py:class:`PdbAtom`"""
-        
+
         atom = self.get_atom_by_name("CA")
         if not atom:
             atom = self.get_atom_by_element("C")
@@ -661,6 +661,18 @@ class PdbChain(ResiduicSequence):
 
     def __repr__(self):
         return "<Chain %s (%i residues)>" % (self.chain_id, len(self.residues))
+
+
+    def get_residue_ids_including_missing(self):
+        ids = []
+        present_ids = [residue.residue_id for residue in self.residues][::-1]
+        missing_ids = self.missing_residues[::-1]
+        while present_ids or missing_ids:
+            if not present_ids or _residue_id_is_greater_than_residue_id(present_ids[-1], missing_ids[-1]):
+                ids.append(missing_ids.pop())
+            else:
+                ids.append(present_ids.pop())
+        return ids
 
 
     def generate_residue_distance_matrix(self):
@@ -880,6 +892,21 @@ def _residue_id_to_int(residue_id):
     char_component = residue_id[-1] if residue_id[-1] not in "0123456789" else ""
     int_component *= 100
     return int_component + (ord(char_component) - 64 if char_component else 0)
+
+
+def _residue_id_is_greater_than_residue_id(residue_id1, residue_id2):
+    residues = []
+    for residue_id in (residue_id1, residue_id2):
+        chain_id = residue_id[0] if residue_id[0].isalpha() else ""
+        number = int("".join([char for char in residue_id if char.isnumeric()]))
+        insert = ord(residue_id[-1]) if residue_id[-1].isalpha() else 0
+        residues.append((chain_id, number, insert))
+    if residues[0][1] > residues[1][1]:
+        return True
+    elif residues[0][1] == residues[1][1] and residues[0][2] > residues[1][2]:
+        return True
+    else:
+        return False
 
 
 PERIODIC_TABLE = {

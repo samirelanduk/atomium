@@ -2,6 +2,7 @@
 files. This is where the bulk of the non-parsing work is done."""
 
 import math
+import omnicanvas
 from collections import Counter
 import warnings
 from .exceptions import *
@@ -647,6 +648,11 @@ class PdbChain(ResiduicSequence):
 
     def __repr__(self):
         return "<Chain %s (%i residues)>" % (self.chain_id, len(self.residues))
+
+
+    def generate_residue_distance_matrix(self):
+        matrix = omnicanvas.Canvas(700, 700)
+        return matrix
 
 
 

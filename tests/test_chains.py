@@ -1,4 +1,5 @@
 from unittest import TestCase
+from omnicanvas.canvas import Canvas
 from molecupy import exceptions
 from molecupy.structures import PdbChain, ResiduicSequence, PdbAtom, PdbResidue
 
@@ -44,3 +45,31 @@ class ChainCreationTests(ChainTest):
             chain = PdbChain(1, self.residue1, self.residue2, self.residue3)
         with self.assertRaises(TypeError):
             chain = PdbChain(None, self.residue1, self.residue2, self.residue3)
+
+
+
+class ChainMatrixTests(ChainTest):
+
+    def setUp(self):
+        self.atom1 = PdbAtom(3.696, 33.898, 63.219, "N", 1, "N")
+        self.atom2 = PdbAtom(3.198, 33.218, 61.983, "C", 2, "CA")
+        self.atom3 = PdbAtom(3.914, 31.863, 61.818, "O", 3, "C")
+        self.residue1 = PdbResidue("A11", "VAL", self.atom1, self.atom2, self.atom3)
+        self.atom4 = PdbAtom(3.155, 30.797, 61.557, "N", 4, "N")
+        self.atom5 = PdbAtom(3.728, 29.464, 61.400, "C", 5, "CA")
+        self.atom6 = PdbAtom(4.757, 29.459, 60.275, "O", 6, "C")
+        self.residue2 = PdbResidue("A12", "MET", self.atom4, self.atom5, self.atom6)
+        self.atom7 = PdbAtom(5.980, 29.039, 60.600, "N", 7, "N")
+        self.atom8 = PdbAtom(7.092, 28.983, 59.649, "C", 8, "CA")
+        self.atom9 = PdbAtom(7.092, 30.310, 58.987, "O", 9, "C")
+        self.residue3 = PdbResidue("A13", "ASN", self.atom7, self.atom8, self.atom9)
+        self.chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
+
+
+    def check_valid_matrix(self, matrix):
+        self.assertIsInstance(matrix, Canvas)
+
+
+    def test_can_generate_basic_matrix(self):
+        matrix = self.chain.generate_residue_distance_matrix()
+        self.check_valid_matrix(matrix)

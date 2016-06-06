@@ -668,7 +668,9 @@ class PdbChain(ResiduicSequence):
         present_ids = [residue.residue_id for residue in self.residues][::-1]
         missing_ids = self.missing_residues[::-1]
         while present_ids or missing_ids:
-            if not present_ids or _residue_id_is_greater_than_residue_id(present_ids[-1], missing_ids[-1]):
+            if not missing_ids:
+                ids.append(present_ids.pop())
+            elif not present_ids or _residue_id_is_greater_than_residue_id(present_ids[-1], missing_ids[-1]):
                 ids.append(missing_ids.pop())
             else:
                 ids.append(present_ids.pop())
@@ -677,7 +679,9 @@ class PdbChain(ResiduicSequence):
 
     def generate_residue_distance_matrix(self):
         matrix = omnicanvas.Canvas(700, 700)
-        return matrix
+        residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
+        alpha_carbons = [residue.get_alpha_carbon() if residue else None for residue in residues]
+        return alpha_carbons
 
 
 

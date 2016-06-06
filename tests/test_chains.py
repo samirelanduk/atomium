@@ -76,6 +76,7 @@ class ChainMatrixTests(ChainTest):
         self.atom9 = PdbAtom(7.092, 30.310, 58.987, "O", 9, "C")
         self.residue3 = PdbResidue("A13", "ASN", self.atom7, self.atom8, self.atom9)
         self.chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
+        self.chain.missing_residues = ["A12A", "A14"]
 
 
     def check_valid_matrix(self, matrix):

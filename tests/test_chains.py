@@ -130,3 +130,25 @@ class ChainMatrixTests(ChainTest):
         cells = self.get_cells(matrix)
         for cell in [cells[0], cells[2], cells[5]]:
             self.assertEqual(cell.fill_color[3], "F")
+
+
+    def test_can_vary_color_range(self):
+        matrix = self.chain.generate_residue_distance_matrix(close_color=0, far_color=120)
+        self.check_valid_matrix(matrix)
+        cells = self.get_cells(matrix)
+        for cell in [cells[0], cells[2], cells[5]]:
+            self.assertEqual(cell.fill_color[1], "F")
+
+
+    def test_can_vary_cutoff(self):
+        matrix = self.chain.generate_residue_distance_matrix(cutoff=0.1)
+        self.check_valid_matrix(matrix)
+        cells = self.get_cells(matrix)
+        for cell in [cells[0], cells[2], cells[5]]:
+            self.assertEqual(cell.fill_color[1], "F")
+
+
+    def test_can_vary_dimension(self):
+        matrix = self.chain.generate_residue_distance_matrix(dimension=70)
+        self.check_valid_matrix(matrix)
+        self.assertEqual(matrix.width, 70)

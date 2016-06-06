@@ -678,20 +678,17 @@ class PdbChain(ResiduicSequence):
         return ids
 
 
-    def generate_residue_distance_matrix(self):
-        matrix = omnicanvas.Canvas(700, 700)
+    def generate_residue_distance_matrix(self, dimension=700, close_color=120,
+     far_color=0, cutoff=40):
+        matrix = omnicanvas.Canvas(dimension, dimension)
         residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
         alpha_carbons = [residue.get_alpha_carbon() if residue else None for residue in residues]
 
-        dimension = 700
         padding_proportion = 0.05
         padding = padding_proportion * dimension
         plot_dimension = dimension - (2 * padding)
         chain_length = len(self.get_residue_ids_including_missing())
         cell_dimension = plot_dimension / chain_length
-        cutoff = 40
-        far_color = 0
-        close_color = 120
         plot_width = dimension - (2 * padding)
         bar_width = 4
         bar_left = (dimension / 2) - (bar_width / 2) - 5
@@ -829,7 +826,6 @@ class PdbChain(ResiduicSequence):
          font_size=int(scale_width / 10)
         )
 
-        matrix.save("temp.svg")
         return matrix
 
 

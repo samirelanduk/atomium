@@ -27,6 +27,7 @@ class ChainTest(TestCase):
         self.assertIsInstance(chain, ResiduicSequence)
         self.assertIsInstance(chain.chain_id, str)
         self.assertIsInstance(chain.residues, list)
+        self.assertIsInstance(chain.alpha_helices, set)
         for residue in chain.residues:
             self.assertIs(residue.chain, chain)
         chain.model

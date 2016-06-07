@@ -658,6 +658,7 @@ class PdbChain(ResiduicSequence):
             residue.chain = self
         self.model = None
         self.missing_residues = []
+        self.alpha_helices = set()
 
 
     def __repr__(self):
@@ -863,6 +864,41 @@ class PdbSite(ResiduicStructure):
 
     def __repr__(self):
         return "<Site %s (%i residues)>" % (self.site_id, len(self.residues))
+
+
+
+class PdbAlphaHelix(ResiduicSequence):
+
+    def __init__(self, helix_id, *residues, helix_class=None, comment=None):
+        if not isinstance(helix_id, str):
+            raise TypeError("'%s' is not a valid helix_id" % str(helix_id))
+        self.helix_id = helix_id
+
+        if helix_class is not None and not isinstance(helix_class, str):
+            raise TypeError("'%s' is not a valid helix_class" % str(helix_class))
+        self.helix_class = helix_class
+
+        if comment is not None and not isinstance(comment, str):
+            raise TypeError("'%s' is not a valid comment" % str(comment))
+        self.comment = comment
+
+        self.model = None
+
+        ResiduicSequence.__init__(self, *residues)
+        if len(set([res.chain for res in self.residues])) > 1:
+            raise BrokenHelixError(
+             "Cannot make an alpha helix with residues from different chains"
+            )
+        if self.get_chain():
+            self.get_chain().alpha_helices.add(self)
+
+
+    def __repr__(self):
+        return "<AlphaHelix %s (%i residues)>" % (self.helix_id, len(self.residues))
+
+
+    def get_chain(self):
+        return list(self.residues)[0].chain
 
 
 

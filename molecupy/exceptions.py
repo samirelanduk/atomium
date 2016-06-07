@@ -61,6 +61,12 @@ class BrokenHelixError(Exception):
     pass
 
 
+class BrokenStrandError(Exception):
+    """The exception raised when a beta strand is created with residues on
+    different chains."""
+    pass
+
+
 class LongBondWarning(Warning):
     """The warning issued if a covalent bond is made between two atoms that
     is unrealistically long."""

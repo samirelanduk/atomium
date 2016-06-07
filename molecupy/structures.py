@@ -659,6 +659,7 @@ class PdbChain(ResiduicSequence):
         self.model = None
         self.missing_residues = []
         self.alpha_helices = set()
+        self.beta_strands = set()
 
 
     def __repr__(self):
@@ -671,6 +672,14 @@ class PdbChain(ResiduicSequence):
         for alpha_helix in self.alpha_helices:
             if alpha_helix.helix_id == helix_id:
                 return alpha_helix
+
+
+    def get_beta_strand_by_id(self, strand_id):
+        if not isinstance(strand_id, int):
+            raise TypeError("Can only search beta strand IDs by int")
+        for beta_strand in self.beta_strands:
+            if beta_strand.strand_id == strand_id:
+                return beta_strand
 
 
     def get_residue_ids_including_missing(self):
@@ -901,6 +910,37 @@ class PdbAlphaHelix(ResiduicSequence):
 
     def __repr__(self):
         return "<AlphaHelix %s (%i residues)>" % (self.helix_id, len(self.residues))
+
+
+    def get_chain(self):
+        return list(self.residues)[0].chain
+
+
+
+class PdbBetaStrand(ResiduicSequence):
+
+    def __init__(self, strand_id, sense, *residues):
+        if not isinstance(strand_id, int):
+            raise TypeError("'%s' is not a valid strand_id" % str(strand_id))
+        self.strand_id = strand_id
+
+        if not isinstance(sense, int):
+            raise TypeError("'%s' is not a valid sense value" % str(sense))
+        if not (-1 <= sense <= 1):
+            raise ValueError("sense can only be -1, 0 or 1 - not %i" % sense)
+        self.sense = sense
+
+        ResiduicSequence.__init__(self, *residues)
+        if len(set([res.chain for res in self.residues])) > 1:
+            raise BrokenStrandError(
+             "Cannot make a beta strand with residues from different chains"
+            )
+        if self.get_chain():
+            self.get_chain().beta_strands.add(self)
+
+
+    def __repr__(self):
+        return "<BetaStrand %i (%i residues)>" % (self.strand_id, len(self.residues))
 
 
     def get_chain(self):

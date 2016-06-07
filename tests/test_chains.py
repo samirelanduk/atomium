@@ -3,7 +3,8 @@ from unittest import TestCase
 from omnicanvas.canvas import Canvas
 import omnicanvas.graphics
 from molecupy import exceptions
-from molecupy.structures import PdbChain, ResiduicSequence, PdbAtom, PdbResidue, PdbAlphaHelix
+from molecupy.structures import PdbChain, ResiduicSequence, PdbAtom, PdbResidue
+from molecupy.structures import PdbAlphaHelix, PdbBetaStrand
 
 class ChainTest(TestCase):
 
@@ -28,6 +29,7 @@ class ChainTest(TestCase):
         self.assertIsInstance(chain.chain_id, str)
         self.assertIsInstance(chain.residues, list)
         self.assertIsInstance(chain.alpha_helices, set)
+        self.assertIsInstance(chain.beta_strands, set)
         for residue in chain.residues:
             self.assertIs(residue.chain, chain)
         chain.model
@@ -70,6 +72,8 @@ class ChainSecondaryStructureTests(ChainTest):
         self.chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
         self.helix1 = PdbAlphaHelix("AH", self.residue1, self.residue2)
         self.helix2 = PdbAlphaHelix("AG", self.residue3)
+        self.strand1 = PdbBetaStrand(1, 0, self.residue1, self.residue2)
+        self.strand2 = PdbBetaStrand(2, 1, self.residue3)
 
 
     def test_can_get_helices_by_id(self):
@@ -87,9 +91,29 @@ class ChainSecondaryStructureTests(ChainTest):
         )
 
 
-    def test_can_only_search_by_str_id(self):
+    def test_can_only_search_helices_by_str_id(self):
         with self.assertRaises(TypeError):
             self.chain.get_alpha_helix_by_id(None)
+
+
+    def test_can_get_strands_by_id(self):
+        self.assertEqual(
+         self.chain.get_beta_strand_by_id(1),
+         self.strand1
+        )
+        self.assertEqual(
+         self.chain.get_beta_strand_by_id(2),
+         self.strand2
+        )
+        self.assertEqual(
+         self.chain.get_beta_strand_by_id(3),
+         None
+        )
+
+
+    def test_can_only_search_strands_by_int_id(self):
+        with self.assertRaises(TypeError):
+            self.chain.get_beta_strand_by_id(None)
 
 
 

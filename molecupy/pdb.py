@@ -1,7 +1,8 @@
 """This module contains creates the final Pdb object itself, and processes the
 data contained in the data file."""
 
-from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain, PdbSite, _residue_id_is_greater_than_residue_id
+from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain
+from .structures import PdbSite, PdbAlphaHelix, _residue_id_is_greater_than_residue_id
 from .exceptions import *
 from . import residues
 
@@ -132,6 +133,7 @@ class Pdb:
             _make_link_bonds(model, self.data_file, model_dict["model_id"])
             _give_model_sites(model, self.data_file, model_dict["model_id"])
             _map_sites_to_ligands(model, self.data_file, model_dict["model_id"])
+            _give_model_alpha_helices(model, self.data_file, model_dict["model_id"])
             self.models.append(model)
         self.model = self.models[0]
 
@@ -333,6 +335,31 @@ def _make_link_bonds(model, data_file, model_id):
                     atom1.covalent_bond_to(atom2)
 
 
+def _give_model_alpha_helices(model, data_file, model_id):
+    for helix in data_file.helices:
+        chain = model.get_chain_by_id(helix["start_residue_chain_id"])
+        if chain:
+            start_residue = chain.get_residue_by_id(
+             helix["start_residue_chain_id"] +
+             str(helix["start_residue_id"]) +
+             helix["start_residue_insert"]
+            )
+            end_residue = chain.get_residue_by_id(
+             helix["end_residue_chain_id"] +
+             str(helix["end_residue_id"]) +
+             helix["end_residue_insert"]
+            )
+            if start_residue and end_residue:
+                start_index = chain.residues.index(start_residue)
+                end_index = chain.residues.index(end_residue)
+                alpha_helix = PdbAlphaHelix(
+                 helix["helix_name"],
+                 *chain.residues[start_index:end_index + 1],
+                 comment=helix["comment"],
+                 helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
+                )
+
+
 def _get_preceding_residue(missing_residue, residuic_sequence):
     for residue in residuic_sequence.residues[::-1]:
         if _residue_id_is_greater_than_residue_id(
@@ -340,3 +367,17 @@ def _get_preceding_residue(missing_residue, residuic_sequence):
          residue.residue_id
         ):
             return residue
+
+
+HELIX_CLASSES = {
+ 1: "Right-handed alpha",
+ 2: "Right-handed omega",
+ 3: "Right-handed pi",
+ 4: "Right-handed gamma",
+ 5: "Right-handed 3 - 10",
+ 6: "Left-handed alpha",
+ 7: "Left-handed omega",
+ 8: "Left-handed gamma",
+ 9: "2 - 7 ribbon/helix",
+ 10: "Polyproline",
+}

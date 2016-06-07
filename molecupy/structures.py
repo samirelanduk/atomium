@@ -665,7 +665,7 @@ class PdbChain(ResiduicSequence):
         return "<Chain %s (%i residues)>" % (self.chain_id, len(self.residues))
 
 
-    def get_alpha_helices_by_id(self, helix_id):
+    def get_alpha_helix_by_id(self, helix_id):
         if not isinstance(helix_id, str):
             raise TypeError("Can only search alpha helix IDs by str")
         for alpha_helix in self.alpha_helices:

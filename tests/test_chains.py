@@ -74,22 +74,22 @@ class ChainSecondaryStructureTests(ChainTest):
 
     def test_can_get_helices_by_id(self):
         self.assertEqual(
-         self.chain.get_alpha_helices_by_id("AH"),
+         self.chain.get_alpha_helix_by_id("AH"),
          self.helix1
         )
         self.assertEqual(
-         self.chain.get_alpha_helices_by_id("AG"),
+         self.chain.get_alpha_helix_by_id("AG"),
          self.helix2
         )
         self.assertEqual(
-         self.chain.get_alpha_helices_by_id("AF"),
+         self.chain.get_alpha_helix_by_id("AF"),
          None
         )
 
 
     def test_can_only_search_by_str_id(self):
         with self.assertRaises(TypeError):
-            self.chain.get_alpha_helices_by_id(None)
+            self.chain.get_alpha_helix_by_id(None)
 
 
 

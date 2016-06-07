@@ -2,7 +2,7 @@
 data contained in the data file."""
 
 from .structures import PdbModel, PdbAtom, PdbSmallMolecule, PdbResidue, PdbChain
-from .structures import PdbSite, PdbAlphaHelix, _residue_id_is_greater_than_residue_id
+from .structures import PdbSite, PdbAlphaHelix, PdbBetaStrand, _residue_id_is_greater_than_residue_id
 from .exceptions import *
 from . import residues
 
@@ -134,6 +134,7 @@ class Pdb:
             _give_model_sites(model, self.data_file, model_dict["model_id"])
             _map_sites_to_ligands(model, self.data_file, model_dict["model_id"])
             _give_model_alpha_helices(model, self.data_file, model_dict["model_id"])
+            _give_model_beta_strands(model, self.data_file, model_dict["model_id"])
             self.models.append(model)
         self.model = self.models[0]
 
@@ -352,12 +353,37 @@ def _give_model_alpha_helices(model, data_file, model_id):
             if start_residue and end_residue:
                 start_index = chain.residues.index(start_residue)
                 end_index = chain.residues.index(end_residue)
-                alpha_helix = PdbAlphaHelix(
+                PdbAlphaHelix(
                  helix["helix_name"],
                  *chain.residues[start_index:end_index + 1],
                  comment=helix["comment"],
                  helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
                 )
+
+
+def _give_model_beta_strands(model, data_file, model_id):
+    for sheet in data_file.sheets:
+        for strand in sheet["strands"]:
+            chain = model.get_chain_by_id(strand["start_residue_chain_id"])
+            if chain:
+                start_residue = chain.get_residue_by_id(
+                 strand["start_residue_chain_id"] +
+                 str(strand["start_residue_id"]) +
+                 strand["start_residue_insert"]
+                )
+                end_residue = chain.get_residue_by_id(
+                 strand["end_residue_chain_id"] +
+                 str(strand["end_residue_id"]) +
+                 strand["end_residue_insert"]
+                )
+                if start_residue and end_residue:
+                    start_index = chain.residues.index(start_residue)
+                    end_index = chain.residues.index(end_residue)
+                    PdbBetaStrand(
+                     strand["strand_id"],
+                     strand["sense"],
+                     *chain.residues[start_index:end_index + 1]
+                    )
 
 
 def _get_preceding_residue(missing_residue, residuic_sequence):

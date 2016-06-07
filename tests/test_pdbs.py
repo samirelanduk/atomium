@@ -3,7 +3,8 @@ from unittest import TestCase
 from molecupy.pdbfile import PdbFile
 from molecupy.pdbdatafile import PdbDataFile
 from molecupy.pdb import Pdb, _residue_id_is_greater_than_residue_id
-from molecupy.structures import PdbModel, PdbSmallMolecule, PdbChain, PdbSite, PdbAlphaHelix
+from molecupy.structures import PdbModel, PdbSmallMolecule, PdbChain, PdbSite
+from molecupy.structures import PdbAlphaHelix, PdbBetaStrand
 from molecupy.exceptions import *
 
 class PdbTest(TestCase):
@@ -923,3 +924,64 @@ class AlphaHelixTests(PdbTest):
         self.assertEqual(helix_b.helix_id, "HB")
         self.assertEqual(len(helix_b.residues), 2)
         self.assertEqual(helix_b.helix_class, "Right-handed 3 - 10")
+
+
+
+class BetaStrandTests(PdbTest):
+
+    def setUp(self):
+        self.strand = Pdb(PdbDataFile(PdbFile(
+         "SHEET    1   A 2 VAL A  11  PHE A  12  0\n"
+         "SHEET    2   B 2 VAL B1011  ARG B1012  0\n"
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N\n"
+         "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C\n"
+         "ATOM      3  C   VAL A  11       3.914  31.863  61.818  1.00 19.29           C\n"
+         "ATOM      4  O   VAL A  11       5.132  31.792  61.932  1.00 19.78           O\n"
+         "ATOM      5  CB  VAL A  11       3.431  34.149  60.743  1.00 22.70           C\n"
+         "ATOM      6  CG1 VAL A  11       3.512  33.359  59.474  1.00 20.55           C\n"
+         "ATOM      7  CG2 VAL A  11       2.283  35.168  60.648  1.00 21.37           C\n"
+         "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N\n"
+         "ATOM      9  CA  MET A  12       3.728  29.464  61.400  1.00 17.91           C\n"
+         "ATOM     10  C   MET A  12       4.757  29.459  60.275  1.00 17.01           C\n"
+         "ATOM     11  O   MET A  12       4.454  29.842  59.143  1.00 16.20           O\n"
+         "ATOM     12  CB  MET A  12       2.609  28.448  61.115  1.00 17.66           C\n"
+         "ATOM     13  CG  MET A  12       3.046  26.992  61.089  1.00 19.46           C\n"
+         "ATOM     14  SD  MET A  12       1.652  25.909  60.639  1.00 21.70           S\n"
+         "ATOM     15  CE  MET A  12       2.419  24.308  60.655  1.00 21.05           C\n"
+         "ATOM   1559  N   VAL B1011     -26.384  61.433  36.898  1.00 39.30           N\n"
+         "ATOM   1560  CA  VAL B1011     -26.779  61.969  35.563  1.00 40.04           C\n"
+         "ATOM   1561  C   VAL B1011     -28.230  62.451  35.541  1.00 39.30           C\n"
+         "ATOM   1562  O   VAL B1011     -28.472  63.639  35.306  1.00 39.01           O\n"
+         "ATOM   1563  CB  VAL B1011     -26.576  60.922  34.442  1.00 39.96           C\n"
+         "ATOM   1564  CG1 VAL B1011     -27.078  61.464  33.120  1.00 41.05           C\n"
+         "ATOM   1565  CG2 VAL B1011     -25.101  60.574  34.320  1.00 42.51           C\n"
+         "ATOM   1566  N   MET B1012     -29.202  61.566  35.777  1.00 37.52           N\n"
+         "ATOM   1567  CA  MET B1012     -30.582  62.053  35.752  1.00 35.97           C\n"
+         "ATOM   1568  C   MET B1012     -30.760  63.085  36.844  1.00 33.78           C\n"
+         "ATOM   1569  O   MET B1012     -30.490  62.813  38.016  1.00 32.48           O\n"
+         "ATOM   1570  CB  MET B1012     -31.622  60.946  35.948  1.00 37.52           C\n"
+         "ATOM   1571  CG  MET B1012     -33.059  61.521  35.956  1.00 39.27           C\n"
+         "ATOM   1572  SD  MET B1012     -34.423  60.340  35.684  1.00 42.85           S\n"
+         "ATOM   1573  CE  MET B1012     -34.740  59.810  37.386  1.00 39.87           C\n"
+        )))
+
+
+    def test_can_parse_beta_strands(self):
+        a = self.strand.model.get_chain_by_id("A")
+        b = self.strand.model.get_chain_by_id("B")
+        self.assertEqual(len(a.beta_strands), 1)
+        self.assertEqual(len(b.beta_strands), 1)
+        self.assertIsInstance(list(a.beta_strands)[0], PdbBetaStrand)
+        self.assertIsInstance(list(b.beta_strands)[0], PdbBetaStrand)
+        self.assertIsNot(list(a.beta_strands)[0], list(b.beta_strands)[0])
+
+
+    def test_beta_strands_are_correct(self):
+        strand_a = list(self.strand.model.get_chain_by_id("A").beta_strands)[0]
+        strand_b = list(self.strand.model.get_chain_by_id("B").beta_strands)[0]
+        self.assertEqual(strand_a.strand_id, 1)
+        self.assertEqual(len(strand_a.residues), 2)
+        self.assertEqual(strand_a.sense, 0)
+        self.assertEqual(strand_b.strand_id, 2)
+        self.assertEqual(len(strand_b.residues), 2)
+        self.assertEqual(strand_b.sense, 0)

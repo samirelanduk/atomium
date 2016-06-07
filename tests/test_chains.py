@@ -3,7 +3,7 @@ from unittest import TestCase
 from omnicanvas.canvas import Canvas
 import omnicanvas.graphics
 from molecupy import exceptions
-from molecupy.structures import PdbChain, ResiduicSequence, PdbAtom, PdbResidue
+from molecupy.structures import PdbChain, ResiduicSequence, PdbAtom, PdbResidue, PdbAlphaHelix
 
 class ChainTest(TestCase):
 
@@ -60,6 +60,36 @@ class ChainSequenceTests(ChainTest):
          chain.get_residue_ids_including_missing(),
          ["A1", "A2", "A2A", "A2B", "A3", "A3A", "A4", "A5", "A5A"]
         )
+
+
+
+class ChainSecondaryStructureTests(ChainTest):
+
+    def setUp(self):
+        ChainTest.setUp(self)
+        self.chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
+        self.helix1 = PdbAlphaHelix("AH", self.residue1, self.residue2)
+        self.helix2 = PdbAlphaHelix("AG", self.residue3)
+
+
+    def test_can_get_helices_by_id(self):
+        self.assertEqual(
+         self.chain.get_alpha_helices_by_id("AH"),
+         self.helix1
+        )
+        self.assertEqual(
+         self.chain.get_alpha_helices_by_id("AG"),
+         self.helix2
+        )
+        self.assertEqual(
+         self.chain.get_alpha_helices_by_id("AF"),
+         None
+        )
+
+
+    def test_can_only_search_by_str_id(self):
+        with self.assertRaises(TypeError):
+            self.chain.get_alpha_helices_by_id(None)
 
 
 

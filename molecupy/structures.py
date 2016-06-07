@@ -665,6 +665,14 @@ class PdbChain(ResiduicSequence):
         return "<Chain %s (%i residues)>" % (self.chain_id, len(self.residues))
 
 
+    def get_alpha_helices_by_id(self, helix_id):
+        if not isinstance(helix_id, str):
+            raise TypeError("Can only search alpha helix IDs by str")
+        for alpha_helix in self.alpha_helices:
+            if alpha_helix.helix_id == helix_id:
+                return alpha_helix
+
+
     def get_residue_ids_including_missing(self):
         ids = []
         present_ids = [residue.residue_id for residue in self.residues][::-1]
@@ -881,8 +889,6 @@ class PdbAlphaHelix(ResiduicSequence):
         if comment is not None and not isinstance(comment, str):
             raise TypeError("'%s' is not a valid comment" % str(comment))
         self.comment = comment
-
-        self.model = None
 
         ResiduicSequence.__init__(self, *residues)
         if len(set([res.chain for res in self.residues])) > 1:

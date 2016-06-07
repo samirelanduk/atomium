@@ -31,7 +31,6 @@ class HelixTest(TestCase):
             self.assertIsInstance(helix.comment, str)
         self.assertIsInstance(helix.get_chain(), PdbChain)
         self.assertIn(helix, helix.get_chain().alpha_helices)
-        helix.model
         self.assertRegex(str(helix), r"<AlphaHelix (.+) \((\d+) residues\)>")
 
 

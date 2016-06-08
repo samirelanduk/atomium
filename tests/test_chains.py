@@ -146,8 +146,8 @@ class ChainMatrixTests(ChainTest):
         cells = self.get_cells(matrix)
         dimension = ((math.sqrt((8 * len(cells)) + 1)) - 1) / 2
         self.assertEqual(dimension, int(dimension))
-        top_row = cells[:int(dimension)]
-        self.assertEqual(len(set([cell.y for cell in top_row])), 1)
+        bottom_row = cells[0 - int(dimension):]
+        self.assertEqual(len(set([cell.y for cell in bottom_row])), 1)
         furthest_right = max([cell.x for cell in cells])
         self.assertEqual(
          len([cell.x for cell in cells if cell.x == furthest_right]),
@@ -159,6 +159,7 @@ class ChainMatrixTests(ChainTest):
 
     def test_can_generate_basic_matrix(self):
         matrix = self.chain.generate_residue_distance_matrix()
+        matrix.save("matrix.svg")
         self.check_valid_matrix(matrix)
 
 
@@ -207,3 +208,13 @@ class ChainMatrixTests(ChainTest):
         matrix = self.chain.generate_residue_distance_matrix(dimension=70)
         self.check_valid_matrix(matrix)
         self.assertEqual(matrix.width, 70)
+
+
+    def test_javascript_correct(self):
+        matrix = self.chain.generate_residue_distance_matrix()
+        for cell in self.get_cells(matrix):
+            self.assertIn("onmouseover", cell.data.keys())
+            self.assertIn("onmouseleave", cell.data.keys())
+            self.assertIn("data", cell.data.keys())
+            self.assertEqual(cell.data["onmouseover"], "cellHovered(this)")
+            self.assertEqual(cell.data["onmouseleave"], "cellLeft(this)")

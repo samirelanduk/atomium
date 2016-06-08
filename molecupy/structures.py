@@ -698,51 +698,55 @@ class PdbChain(ResiduicSequence):
 
     def generate_residue_distance_matrix(self, dimension=700, close_color=120,
      far_color=0, cutoff=40):
+        # Set up canvas
         matrix = omnicanvas.Canvas(dimension, dimension)
         residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
-        alpha_carbons = [residue.get_alpha_carbon() if residue else None for residue in residues]
 
-        padding_proportion = 0.05
+        # Set up parameters
+        padding_proportion = 0.09
         padding = padding_proportion * dimension
         plot_dimension = dimension - (2 * padding)
         chain_length = len(self.get_residue_ids_including_missing())
         cell_dimension = plot_dimension / chain_length
         plot_width = dimension - (2 * padding)
         bar_width = 4
-        bar_left = (dimension / 2) - (bar_width / 2) - 5
+        bar_left = (dimension / 2) - (bar_width / 2) + 5
         hypoteneuse = math.sqrt((plot_width ** 2) + (plot_width ** 2))
-        bar_top = (dimension / 2) - (hypoteneuse / 2) - 5
-        diagonal_chunk = hypoteneuse / len(alpha_carbons)
+        bar_top = (dimension / 2) - (hypoteneuse / 2) + 5
+        diagonal_chunk = hypoteneuse / len(residues)
         chain_color = 80
         helix_color = 325
         strand_color = 182
         tick = 0
-        if len(alpha_carbons) >= 10000:
+        if len(residues) >= 10000:
             tick = 5000
-        elif len(alpha_carbons) >= 1000:
+        elif len(residues) >= 1000:
             tick = 500
-        elif len(alpha_carbons) >= 100:
+        elif len(residues) >= 100:
             tick = 50
-        elif len(alpha_carbons) >= 10:
+        elif len(residues) >= 10:
             tick = 5
         else:
             tick = 1
 
+        # Calculate distances
         distances = []
-        for index, atom1 in enumerate(alpha_carbons[:-1]):
+        for index, residue2 in enumerate(residues[1:][::-1]):
             row = []
-            for atom2 in alpha_carbons[index + 1:]:
-                if atom1 and atom2:
-                    row.append(atom1.distance_to(atom2))
-                else:
-                    row.append(None)
+            for residue1 in residues[:0 - (index + 1)]:
+                row.append({
+                 "residue1": residue1,
+                 "residue2": residue2,
+                 "distance": residue1.get_alpha_carbon().distance_to(residue2.get_alpha_carbon()) if residue1 and residue2 else None
+                })
             distances.append(row)
 
+        # Add cells
         for row_index, row in enumerate(distances):
-            for col_index, column in enumerate(row, start=1):
+            for cell_index, cell in enumerate(row):
                 color = "#FFFFFF"
-                if column is not None:
-                    fraction = column / cutoff if column <= cutoff else 1
+                if cell["distance"] is not None:
+                    fraction = cell["distance"] / cutoff if cell["distance"] <= cutoff else 1
                     if far_color >= close_color:
                         distance_from_start = fraction * (far_color - close_color)
                         color = close_color + distance_from_start
@@ -750,52 +754,75 @@ class PdbChain(ResiduicSequence):
                         distance_from_start = fraction * (close_color - far_color)
                         color = close_color - distance_from_start
                     color = omnicanvas.hsl_to_rgb(color, 100, 50)
+
                 matrix.add_rectangle(
-                 padding + (row_index * cell_dimension) + (col_index * cell_dimension),
+                 padding + (cell_index * cell_dimension),
                  padding + (row_index * cell_dimension),
                  cell_dimension + 0.5,
                  cell_dimension + 0.5,
                  fill_color=color,
-                 line_width=0
+                 line_width=0,
+                 data={
+                  "onmouseover": "cellHovered(this)",
+                  "onmouseleave": "cellLeft(this)",
+                  "data": "%s,%i,%s,%i,%.2f" % (
+                   cell["residue1"].residue_name if cell["residue1"] else "???",
+                   cell_index + 1,
+                   cell["residue2"].residue_name if cell["residue2"] else "???",
+                   len(residues) - row_index,
+                   cell["distance"] if cell["distance"] is not None else 0.0
+                  )
+                 }
                 )
 
+        # Add gridlines, border and labels
         residue_number = 0
-        while residue_number <= len(alpha_carbons):
-            xy = padding + (residue_number * cell_dimension)
+        while residue_number <= len(residues) - 1:
+            x = padding + (residue_number * cell_dimension)
+            y = dimension - x
             matrix.add_line(
-             xy, padding, xy, dimension - padding
+             x, padding, x, dimension - padding
             )
             matrix.add_line(
-             padding, xy, dimension - padding, xy
+             padding, y, dimension - padding, y
             )
-            if residue_number + 2 <= len(alpha_carbons):
+            matrix.add_text(dimension / 2, padding * 0.35, "Residue 1")
+            if residue_number != len(residues) - 1:
                 matrix.add_text(
-                 xy + (1.5 * cell_dimension), padding * 0.75, str(residue_number + 1),
-                 vertical_align="top"
+                 x + (0.5 * cell_dimension), padding * 0.75, str(residue_number + 1)
                 )
+            matrix.add_text(
+             padding * 0.35, dimension / 2, "Residue 2", rotation=(
+              padding * 0.35, dimension / 2, 270
+             )
+            )
+            if residue_number != 0:
                 matrix.add_text(
-                 dimension - (padding * 0.75), xy + (0.5 * cell_dimension), str(residue_number + 1),
-                 horizontal_align="right"
+                 padding - 2, y + (0.5 * cell_dimension), str(residue_number + 1),
+                 horizontal_align="left"
                 )
             residue_number += tick
         matrix.add_polygon(
-         padding, padding,
-         padding, dimension - padding,
+         dimension - padding, padding,
          dimension - padding, dimension - padding,
+         padding, dimension - padding,
          line_width=2,
          line_color="#FFFFFF"
         )
-        matrix.add_polygon(
-         padding, padding,
-         dimension - padding, padding,
-         dimension - padding, dimension - padding,
-         line_width=2,
-         opacity=0
+        matrix.add_line(
+         padding, padding, dimension - padding, padding, line_width=2
+        )
+        matrix.add_line(
+         padding, padding, padding, dimension - padding, line_width=2
+        )
+        matrix.add_line(
+         dimension - padding, padding,  padding, dimension - padding, line_width=2
         )
 
+        # Add secondary structure
         matrix.add_rectangle(
          bar_left, bar_top, bar_width, hypoteneuse,
-         rotation=((dimension / 2) + 5, (dimension / 2) + 5, 315),
+         rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45),
          line_width=0,
          fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50)
         )
@@ -807,7 +834,7 @@ class PdbChain(ResiduicSequence):
              bar_width + 2, diagonal_chunk * ((end - start) + 1),
              fill_color=omnicanvas.hsl_to_rgb(helix_color, 100, 50),
              line_width=0,
-             rotation=((dimension / 2) + 5, (dimension / 2) + 5, 315)
+             rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45)
             )
         for strand in self.beta_strands:
             start = self.get_residue_ids_including_missing().index(strand.residues[0].residue_id)
@@ -817,14 +844,13 @@ class PdbChain(ResiduicSequence):
              bar_width + 2, diagonal_chunk * (end - start),
              fill_color=omnicanvas.hsl_to_rgb(strand_color, 100, 50),
              line_width=0,
-             rotation=((dimension / 2) + 5, (dimension / 2) + 5, 315)
+             rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45)
             )
 
+        # Add legend
         legend_dimension = plot_width * 0.4
-        legend_left = padding
+        legend_left = padding + (dimension / 2)
         legend_top = dimension - (padding + legend_dimension)
-        legend_right = legend_left + padding
-        legend_bottom = legend_top + padding
         scale_width = legend_dimension * 0.8
         scale_height = legend_dimension * 0.1
         scale_left = legend_left + (0.1 * legend_dimension)
@@ -843,7 +869,7 @@ class PdbChain(ResiduicSequence):
         )
         for x_pixel in x_pixels:
             color = 0
-            fraction = x_pixel / scale_right
+            fraction = (x_pixel - scale_left) / (scale_right - scale_left)
             if far_color >= close_color:
                 distance_from_start = fraction * (far_color - close_color)
                 color = close_color + distance_from_start

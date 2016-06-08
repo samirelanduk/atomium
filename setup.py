@@ -23,5 +23,5 @@ setup(
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules",
  packages=["molecupy"],
- install_requires=["requests"]
+ install_requires=["requests", "omnicanvas"]
 )

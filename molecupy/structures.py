@@ -799,6 +799,26 @@ class PdbChain(ResiduicSequence):
          line_width=0,
          fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50)
         )
+        for helix in self.alpha_helices:
+            start = self.get_residue_ids_including_missing().index(helix.residues[0].residue_id)
+            end = self.get_residue_ids_including_missing().index(helix.residues[-1].residue_id)
+            matrix.add_rectangle(
+             bar_left - 1, bar_top + (diagonal_chunk * start),
+             bar_width + 2, diagonal_chunk * ((end - start) + 1),
+             fill_color=omnicanvas.hsl_to_rgb(helix_color, 100, 50),
+             line_width=0,
+             rotation=((dimension / 2) + 5, (dimension / 2) + 5, 315)
+            )
+        for strand in self.beta_strands:
+            start = self.get_residue_ids_including_missing().index(strand.residues[0].residue_id)
+            end = self.get_residue_ids_including_missing().index(strand.residues[-1].residue_id)
+            matrix.add_rectangle(
+             bar_left - 1, bar_top + (diagonal_chunk * start),
+             bar_width + 2, diagonal_chunk * (end - start),
+             fill_color=omnicanvas.hsl_to_rgb(strand_color, 100, 50),
+             line_width=0,
+             rotation=((dimension / 2) + 5, (dimension / 2) + 5, 315)
+            )
 
         legend_dimension = plot_width * 0.4
         legend_left = padding

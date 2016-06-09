@@ -159,7 +159,6 @@ class ChainMatrixTests(ChainTest):
 
     def test_can_generate_basic_matrix(self):
         matrix = self.chain.generate_residue_distance_matrix()
-        matrix.save("matrix.svg")
         self.check_valid_matrix(matrix)
 
 
@@ -218,3 +217,8 @@ class ChainMatrixTests(ChainTest):
             self.assertIn("data", cell.data.keys())
             self.assertEqual(cell.data["onmouseover"], "cellHovered(this)")
             self.assertEqual(cell.data["onmouseleave"], "cellLeft(this)")
+
+
+    def test_can_supply_subsequence(self):
+        PdbAlphaHelix("1", self.residue1)
+        matrix = self.chain.generate_residue_distance_matrix(subsequence=(self.residue1, self.residue2))

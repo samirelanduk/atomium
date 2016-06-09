@@ -697,7 +697,7 @@ class PdbChain(ResiduicSequence):
 
 
     def generate_residue_distance_matrix(self, dimension=700, close_color=120,
-     far_color=0, cutoff=40):
+     far_color=0, cutoff=40, subsequence=None):
         # Set up canvas
         matrix = omnicanvas.Canvas(dimension, dimension)
         residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
@@ -775,6 +775,21 @@ class PdbChain(ResiduicSequence):
                  }
                 )
 
+        # Subsequence
+        if subsequence:
+            x = (residues.index(subsequence[0]) * cell_dimension) + padding
+            y = dimension - (((residues.index(subsequence[1]) + 1) * cell_dimension) + padding)
+            matrix.add_line(
+             x, dimension - padding, x, y,
+             line_width=1.5,
+             line_style=".."
+            )
+            matrix.add_line(
+             dimension - padding, y, x, y,
+             line_width=1.5,
+             line_style=".."
+            )
+
         # Add gridlines, border and labels
         residue_number = 0
         while residue_number <= len(residues) - 1:
@@ -827,8 +842,12 @@ class PdbChain(ResiduicSequence):
          fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50)
         )
         for helix in self.alpha_helices:
-            start = self.get_residue_ids_including_missing().index(helix.residues[0].residue_id)
-            end = self.get_residue_ids_including_missing().index(helix.residues[-1].residue_id)
+            start = (len(residues) - self.get_residue_ids_including_missing().index(
+             helix.residues[-1].residue_id
+            )) - 1
+            end = (len(residues) - self.get_residue_ids_including_missing().index(
+             helix.residues[0].residue_id
+            )) - 1
             matrix.add_rectangle(
              bar_left - 1, bar_top + (diagonal_chunk * start),
              bar_width + 2, diagonal_chunk * ((end - start) + 1),
@@ -837,8 +856,12 @@ class PdbChain(ResiduicSequence):
              rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45)
             )
         for strand in self.beta_strands:
-            start = self.get_residue_ids_including_missing().index(strand.residues[0].residue_id)
-            end = self.get_residue_ids_including_missing().index(strand.residues[-1].residue_id)
+            start = (len(residues) - self.get_residue_ids_including_missing().index(
+             strand.residues[-1].residue_id
+            )) - 1
+            end = (len(residues) - self.get_residue_ids_including_missing().index(
+             strand.residues[0].residue_id
+            )) - 1
             matrix.add_rectangle(
              bar_left - 1, bar_top + (diagonal_chunk * start),
              bar_width + 2, diagonal_chunk * (end - start),

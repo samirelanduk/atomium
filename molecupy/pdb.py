@@ -353,12 +353,13 @@ def _give_model_alpha_helices(model, data_file, model_id):
             if start_residue and end_residue:
                 start_index = chain.residues.index(start_residue)
                 end_index = chain.residues.index(end_residue)
-                PdbAlphaHelix(
-                 helix["helix_name"],
-                 *chain.residues[start_index:end_index + 1],
-                 comment=helix["comment"],
-                 helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
-                )
+                if end_index > start_index:
+                    PdbAlphaHelix(
+                     helix["helix_name"],
+                     *chain.residues[start_index:end_index + 1],
+                     comment=helix["comment"],
+                     helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
+                    )
 
 
 def _give_model_beta_strands(model, data_file, model_id):

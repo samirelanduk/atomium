@@ -798,7 +798,7 @@ class PdbChain(ResiduicSequence):
             )
             if residue_number != 0:
                 matrix.add_text(
-                 padding - 2, y + (0.5 * cell_dimension), str(residue_number + 1),
+                 padding - 2, y - (0.5 * cell_dimension), str(residue_number + 1),
                  horizontal_align="left"
                 )
             residue_number += tick
@@ -872,10 +872,10 @@ class PdbChain(ResiduicSequence):
             fraction = (x_pixel - scale_left) / (scale_right - scale_left)
             if far_color >= close_color:
                 distance_from_start = fraction * (far_color - close_color)
-                color = close_color + distance_from_start
+                color = int(close_color + distance_from_start)
             else:
                 distance_from_start = fraction * (close_color - far_color)
-                color = close_color - distance_from_start
+                color = int(close_color - distance_from_start)
             matrix.add_rectangle(
              x_pixel - 1, scale_top, 2, scale_bottom - scale_top,
              fill_color=omnicanvas.hsl_to_rgb(color, 100, 50),

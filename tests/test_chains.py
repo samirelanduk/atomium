@@ -146,11 +146,11 @@ class ChainMatrixTests(ChainTest):
         cells = self.get_cells(matrix)
         dimension = ((math.sqrt((8 * len(cells)) + 1)) - 1) / 2
         self.assertEqual(dimension, int(dimension))
-        bottom_row = cells[0 - int(dimension):]
-        self.assertEqual(len(set([cell.y for cell in bottom_row])), 1)
-        furthest_right = max([cell.x for cell in cells])
+        top_row = cells[:int(dimension)]
+        self.assertEqual(len(set([cell.y for cell in top_row])), 1)
+        furthest_left = min([cell.x for cell in cells])
         self.assertEqual(
-         len([cell.x for cell in cells if cell.x == furthest_right]),
+         len([cell.x for cell in cells if cell.x == furthest_left]),
          len(top_row)
         )
         for cell in cells:
@@ -174,9 +174,9 @@ class ChainMatrixTests(ChainTest):
         matrix = self.chain.generate_residue_distance_matrix()
         self.check_valid_matrix(matrix)
         cells = self.get_cells(matrix)
-        for cell in [cells[1], cells[3], cells[4], cells[6], cells[7], cells[8], cells[9]]:
+        for cell in [cells[0], cells[1], cells[2], cells[3], cells[6], cells[7], cells[8]]:
             self.assertEqual(cell.fill_color, "#FFFFFF")
-        for cell in [cells[0], cells[2], cells[5]]:
+        for cell in [cells[4], cells[5], cells[9]]:
             self.assertNotEqual(cell.fill_color, "#FFFFFF")
 
 

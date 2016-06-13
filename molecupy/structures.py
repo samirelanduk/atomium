@@ -1189,9 +1189,9 @@ class PdbModel(AtomicStructure):
 
 def _residue_id_to_int(residue_id):
     int_component = int(
-     "".join([char for char in residue_id if char in "0123456789"])
+     "".join([char for char in residue_id if char in "-0123456789"])
     )
-    char_component = residue_id[-1] if residue_id[-1] not in "0123456789" else ""
+    char_component = residue_id[-1] if residue_id[-1] not in "-0123456789" else ""
     int_component *= 100
     return int_component + (ord(char_component) - 64 if char_component else 0)
 
@@ -1200,7 +1200,7 @@ def _residue_id_is_greater_than_residue_id(residue_id1, residue_id2):
     residues = []
     for residue_id in (residue_id1, residue_id2):
         chain_id = residue_id[0] if residue_id[0].isalpha() else ""
-        number = int("".join([char for char in residue_id if char.isnumeric()]))
+        number = int("".join([char for char in residue_id if char.isnumeric() or char == "-"]))
         insert = ord(residue_id[-1]) if residue_id[-1].isalpha() else 0
         residues.append((chain_id, number, insert))
     if residues[0][1] > residues[1][1]:

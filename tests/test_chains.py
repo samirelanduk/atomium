@@ -76,6 +76,15 @@ class ChainSequenceTests(ChainTest):
         )
 
 
+    def test_can_order_negative_residue_ids(self):
+        chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
+        chain.missing_residues = ["A-2", "A-1", "A0", "A4"]
+        self.assertEqual(
+         chain.get_residue_ids_including_missing(),
+         ["A-2", "A-1", "A0", "A1", "A2", "A3", "A4"]
+        )
+
+
 class ChainSecondaryStructureTests(ChainTest):
 
     def setUp(self):

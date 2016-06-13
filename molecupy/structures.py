@@ -610,10 +610,7 @@ class ResiduicSequence(ResiduicStructure):
 
     def __init__(self, *residues):
         ResiduicStructure.__init__(self, *residues)
-        self.residues = sorted(
-         list(self.residues),
-         key=lambda k: _residue_id_to_int(k.residue_id)
-        )
+        self.residues = list(residues)
 
 
     def __repr__(self):

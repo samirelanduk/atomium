@@ -172,7 +172,11 @@ def _give_model_chains(model, data_file, model_id):
     for chain_id in chain_ids:
         relevant_atoms = [a for a in data_file.atoms
          if a["model_id"] == model_id and a["chain_id"] == chain_id]
-        residue_ids = set([str(a["residue_id"]) + a["insert_code"] for a in relevant_atoms])
+        residue_ids = []
+        for a in relevant_atoms:
+            id_ = str(a["residue_id"]) + a["insert_code"]
+            if id_ not in residue_ids:
+                residue_ids.append(id_)
         residues = []
         for residue_id in residue_ids:
             residue_atoms = [

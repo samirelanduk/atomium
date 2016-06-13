@@ -37,7 +37,7 @@ class ResiduicStructureCreationTests(ResiduicSequenceTest):
         self.check_valid_residuic_sequence(residuic_sequence)
 
 
-    def test_residues_are_ordered(self):
+    def test_residues_are_ordered_in_order_given(self):
         residuic_sequence = ResiduicSequence(self.residue1, self.residue2, self.residue3)
         self.assertEqual(
          residuic_sequence.residues,
@@ -46,7 +46,7 @@ class ResiduicStructureCreationTests(ResiduicSequenceTest):
         residuic_sequence = ResiduicSequence(self.residue3, self.residue1, self.residue2)
         self.assertEqual(
          residuic_sequence.residues,
-         [self.residue1, self.residue2, self.residue3]
+         [self.residue3, self.residue1, self.residue2]
         )
 
 
@@ -86,13 +86,13 @@ class ResiduicSequenceOrderingTests(ResiduicSequenceTest):
 
 
     def test_can_handle_insert_codes(self):
-        self.residue1.residue_id = "D1001C"
-        self.residue2.residue_id = "D1001"
-        self.residue3.residue_id = "D1001B"
+        self.residue1.residue_id = "D1001"
+        self.residue2.residue_id = "D1001B"
+        self.residue3.residue_id = "D1001C"
         residuic_sequence = ResiduicSequence(self.residue1, self.residue2, self.residue3)
         self.assertEqual(
          residuic_sequence.residues,
-         [self.residue2, self.residue3, self.residue1]
+         [self.residue1, self.residue2, self.residue3]
         )
 
 

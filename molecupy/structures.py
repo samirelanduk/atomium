@@ -803,22 +803,22 @@ class PdbChain(ResiduicSequence):
             matrix.add_line(
              padding, y, dimension - padding, y
             )
-            matrix.add_text(dimension / 2, padding * 0.35, "Residue 1")
             if residue_number != len(residues) - 1:
                 matrix.add_text(
                  x + (0.5 * cell_dimension), padding * 0.75, str(residue_number + 1)
                 )
-            matrix.add_text(
-             padding * 0.35, dimension / 2, "Residue 2", rotation=(
-              padding * 0.35, dimension / 2, 270
-             )
-            )
             if residue_number != 0:
                 matrix.add_text(
                  padding - 2, y - (0.5 * cell_dimension), str(residue_number + 1),
                  horizontal_align="left"
                 )
             residue_number += tick
+        matrix.add_text(dimension / 2, padding * 0.35, "Residue 1")
+        matrix.add_text(
+         padding * 0.35, dimension / 2, "Residue 2", rotation=(
+          padding * 0.35, dimension / 2, 270
+         )
+        )
         matrix.add_polygon(
          dimension - padding, padding,
          dimension - padding, dimension - padding,
@@ -884,6 +884,13 @@ class PdbChain(ResiduicSequence):
         scale_bottom = legend_top + (0.3 * legend_dimension)
         scale_label_y = legend_top + (0.15 * legend_dimension)
         number_label_y = legend_top + (0.38 * legend_dimension)
+        helix_top = legend_top + (0.5 * legend_dimension)
+        helix_bottom = legend_top + (0.6 * legend_dimension)
+        helix_width = legend_dimension * 0.4
+        helix_left = scale_left
+        helix_right = helix_left + helix_width
+        strand_top = legend_top + (0.7 * legend_dimension)
+        strand_bottom = legend_top + (0.8 * legend_dimension)
         x_pixels = range(math.floor(scale_left), math.ceil(scale_right))
 
         matrix.add_text(
@@ -913,6 +920,48 @@ class PdbChain(ResiduicSequence):
         matrix.add_text(
          scale_right, number_label_y, "%i+" % cutoff,
          font_size=int(scale_width / 10)
+        )
+        matrix.add_rectangle(
+         helix_left, ((helix_bottom + helix_top) / 2) - ((bar_width / 2) + 0),
+         helix_width, bar_width,
+         fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50),
+         line_width=0
+        )
+        matrix.add_rectangle(
+         helix_left + (0.1 * helix_width),
+         ((helix_bottom + helix_top) / 2) - ((bar_width / 2) + 1),
+         helix_width * 0.8,
+         bar_width + 2,
+         fill_color=omnicanvas.hsl_to_rgb(helix_color, 100, 50),
+         line_width=0
+        )
+        matrix.add_rectangle(
+         helix_left, ((strand_bottom + strand_top) / 2) - ((bar_width / 2) + 0),
+         helix_width, bar_width,
+         fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50),
+         line_width=0
+        )
+        matrix.add_rectangle(
+         helix_left + (0.1 * helix_width),
+         ((strand_bottom + strand_top) / 2) - ((bar_width / 2) + 1),
+         helix_width * 0.8,
+         bar_width + 2,
+         fill_color=omnicanvas.hsl_to_rgb(strand_color, 100, 50),
+         line_width=0
+        )
+        matrix.add_text(
+         helix_right + (legend_dimension * 0.1),
+         ((helix_bottom + helix_top) / 2),
+         "&#945;-helix",
+         font_size=int(scale_width / 10),
+         horizontal_align="right"
+        )
+        matrix.add_text(
+         helix_right + (legend_dimension * 0.1),
+         ((strand_bottom + strand_top) / 2),
+         "&#946;-helix",
+         font_size=int(scale_width / 10),
+         horizontal_align="right"
         )
 
         return matrix

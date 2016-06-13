@@ -680,17 +680,22 @@ class PdbChain(ResiduicSequence):
 
 
     def get_residue_ids_including_missing(self):
-        ids = []
-        present_ids = [residue.residue_id for residue in self.residues][::-1]
-        missing_ids = self.missing_residues[::-1]
-        while present_ids or missing_ids:
-            if not missing_ids:
-                ids.append(present_ids.pop())
-            elif not present_ids or _residue_id_is_greater_than_residue_id(present_ids[-1], missing_ids[-1]):
-                ids.append(missing_ids.pop())
-            else:
-                ids.append(present_ids.pop())
-        return ids
+        residue_ids = [residue.residue_id for residue in self.residues]
+        for missing_id in self.missing_residues:
+            closest_smaller_id = None
+            if not _residue_id_is_greater_than_residue_id(residue_ids[0], missing_id):
+                closest_smaller_id = sorted(
+                 residue_ids,
+                 key=lambda k: _residue_id_to_int(missing_id) - _residue_id_to_int(
+                  k
+                 ) if _residue_id_to_int(missing_id) > _residue_id_to_int(
+                  k
+                 ) else float("inf"))[0]
+            residue_ids.insert(
+             residue_ids.index(closest_smaller_id) + 1 if closest_smaller_id else 0,
+             missing_id
+            )
+        return residue_ids
 
 
     def generate_residue_distance_matrix(self, dimension=700, close_color=120,

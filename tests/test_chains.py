@@ -64,6 +64,17 @@ class ChainSequenceTests(ChainTest):
         )
 
 
+    def test_can_get_missing_residues_when_residue_ids_are_messed_up(self):
+        self.residue1.residue_id = "A2"
+        self.residue2.residue_id = "A100"
+        self.residue3.residue_id = "A4"
+        chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
+        chain.missing_residues = ["A1", "A5"]
+        self.assertEqual(
+         chain.get_residue_ids_including_missing(),
+         ["A1", "A2", "A100", "A4", "A5"]
+        )
+
 
 class ChainSecondaryStructureTests(ChainTest):
 

@@ -35,7 +35,7 @@ class BondCreationTests(BondTest):
 
     def test_warning_on_ludicrous_bond_length(self):
         atom1 = PdbAtom(1.0, 1.0, 1.0, "H", 1, "H")
-        atom2 = PdbAtom(1.0, 1.0, 10.0, "H", 1, "H")
+        atom2 = PdbAtom(1.0, 1.0, 12.0, "H", 1, "H")
         with self.assertWarns(exceptions.LongBondWarning):
             covalent_bond = CovalentBond(atom1, atom2)
 

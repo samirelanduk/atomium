@@ -155,7 +155,7 @@ class CovalentBond:
             raise TypeError(
              "Can only bond atoms, not %s to '%s'" % (str(atom1), str(atom2))
             )
-        if atom1.distance_to(atom2) > 5:
+        if atom1.distance_to(atom2) > 10:
             warning = "The bond between atom %s and atom %s is %.2f Angstroms" % (
              str(atom1.atom_id) if atom1.atom_id else atom1.element,
              str(atom2.atom_id) if atom2.atom_id else atom2.element,

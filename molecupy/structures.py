@@ -679,7 +679,7 @@ class PdbChain(ResiduicSequence):
                 return beta_strand
 
 
-    def get_residue_ids_including_missing(self):
+    def get_all_residue_ids(self):
         residue_ids = [residue.residue_id for residue in self.residues]
         for missing_id in self.missing_residues:
             closest_smaller_id = None
@@ -702,13 +702,13 @@ class PdbChain(ResiduicSequence):
      far_color=0, cutoff=40, subsequence=None):
         # Set up canvas
         matrix = omnicanvas.Canvas(dimension, dimension)
-        residues = [self.get_residue_by_id(id_) for id_ in self.get_residue_ids_including_missing()]
+        residues = [self.get_residue_by_id(id_) for id_ in self.get_all_residue_ids()]
 
         # Set up parameters
         padding_proportion = 0.09
         padding = padding_proportion * dimension
         plot_dimension = dimension - (2 * padding)
-        chain_length = len(self.get_residue_ids_including_missing())
+        chain_length = len(self.get_all_residue_ids())
         cell_dimension = plot_dimension / chain_length
         plot_width = dimension - (2 * padding)
         bar_width = 4
@@ -844,10 +844,10 @@ class PdbChain(ResiduicSequence):
          fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50)
         )
         for helix in self.alpha_helices:
-            start = (len(residues) - self.get_residue_ids_including_missing().index(
+            start = (len(residues) - self.get_all_residue_ids().index(
              helix.residues[-1].residue_id
             )) - 1
-            end = (len(residues) - self.get_residue_ids_including_missing().index(
+            end = (len(residues) - self.get_all_residue_ids().index(
              helix.residues[0].residue_id
             )) - 1
             matrix.add_rectangle(
@@ -858,10 +858,10 @@ class PdbChain(ResiduicSequence):
              rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45)
             )
         for strand in self.beta_strands:
-            start = (len(residues) - self.get_residue_ids_including_missing().index(
+            start = (len(residues) - self.get_all_residue_ids().index(
              strand.residues[-1].residue_id
             )) - 1
-            end = (len(residues) - self.get_residue_ids_including_missing().index(
+            end = (len(residues) - self.get_all_residue_ids().index(
              strand.residues[0].residue_id
             )) - 1
             matrix.add_rectangle(

@@ -59,7 +59,7 @@ class ChainSequenceTests(ChainTest):
         chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
         chain.missing_residues = ["A2A", "A2B", "A3A", "A4", "A5", "A5A"]
         self.assertEqual(
-         chain.get_residue_ids_including_missing(),
+         chain.get_all_residue_ids(),
          ["A1", "A2", "A2A", "A2B", "A3", "A3A", "A4", "A5", "A5A"]
         )
 
@@ -71,7 +71,7 @@ class ChainSequenceTests(ChainTest):
         chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
         chain.missing_residues = ["A1", "A5"]
         self.assertEqual(
-         chain.get_residue_ids_including_missing(),
+         chain.get_all_residue_ids(),
          ["A1", "A2", "A100", "A4", "A5"]
         )
 
@@ -80,7 +80,7 @@ class ChainSequenceTests(ChainTest):
         chain = PdbChain("A", self.residue1, self.residue2, self.residue3)
         chain.missing_residues = ["A-2", "A-1", "A0", "A4"]
         self.assertEqual(
-         chain.get_residue_ids_including_missing(),
+         chain.get_all_residue_ids(),
          ["A-2", "A-1", "A0", "A1", "A2", "A3", "A4"]
         )
 

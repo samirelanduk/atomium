@@ -550,7 +550,7 @@ def process_sheet(data_file):
           "end_residue_chain_id": r[32],
           "end_residue_id": r[33:37],
           "end_residue_insert": r[37] if r[37] else "",
-          "sense": r[38:40],
+          "sense": r[38:40] if r[38:40] else 0,
           "current_atom": r[41:45],
           "current_residue_name": r[45:48],
           "current_chain_id": r[49],

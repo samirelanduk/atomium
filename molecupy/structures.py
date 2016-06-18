@@ -700,6 +700,33 @@ class PdbChain(ResiduicSequence):
 
     def generate_residue_distance_matrix(self, dimension=700, close_color=120,
      far_color=0, cutoff=40, subsequence=None):
+        # Validation
+        if not isinstance(close_color, int):
+            raise TypeError("close_color must be int, not '%s'" % str(close_color))
+        if not isinstance(far_color, int):
+            raise TypeError("far_color must be int, not '%s'" % str(far_color))
+        if not 0 <= close_color < 360:
+            raise ValueError("close_color must be between 0 and 360, not %i" % close_color)
+        if not 0 <= far_color < 360:
+            raise ValueError("far_color must be between 0 and 360, not %i" % far_color)
+        if not isinstance(cutoff, int) and not isinstance(cutoff, float):
+            raise TypeError("cutoff must be numeric, not '%s'" % str(dimension))
+        if not isinstance(dimension, int):
+            raise TypeError("dimension must be int, not '%s'" % str(dimension))
+        if subsequence:
+            if not isinstance(subsequence, list) and not isinstance(subsequence, tuple):
+                raise TypeError("subsequence must be a list or tuple")
+            for residue in subsequence:
+                if not isinstance(residue, PdbResidue):
+                    raise TypeError("Only PdbResidues can be given for subsequence")
+                if residue not in self.residues:
+                    raise ValueError(
+                     "%s does not have subsequence residue %s" % (str(self), str(residue))
+                    )
+            if len(subsequence) != 2:
+                raise ValueError(
+                 "Only two residues can be used to define a subsequence, not %s" % str(subsequence)
+                )
         # Set up canvas
         matrix = omnicanvas.Canvas(dimension, dimension)
         residues = [self.get_residue_by_id(id_) for id_ in self.get_all_residue_ids()]

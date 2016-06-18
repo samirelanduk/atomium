@@ -85,6 +85,7 @@ class ChainSequenceTests(ChainTest):
         )
 
 
+
 class ChainSecondaryStructureTests(ChainTest):
 
     def setUp(self):
@@ -215,6 +216,24 @@ class ChainMatrixTests(ChainTest):
             self.assertEqual(cell.fill_color[1], "F")
 
 
+    def test_colors_must_be_numeric(self):
+        with self.assertRaises(TypeError):
+            self.chain.generate_residue_distance_matrix(close_color="red")
+        with self.assertRaises(TypeError):
+            self.chain.generate_residue_distance_matrix(far_color="red")
+
+
+    def test_colors_must_be_between_0_and_360(self):
+        with self.assertRaises(ValueError):
+            self.chain.generate_residue_distance_matrix(close_color=-1)
+        with self.assertRaises(ValueError):
+            self.chain.generate_residue_distance_matrix(close_color=360)
+        with self.assertRaises(ValueError):
+            self.chain.generate_residue_distance_matrix(far_color=-1)
+        with self.assertRaises(ValueError):
+            self.chain.generate_residue_distance_matrix(far_color=360)
+
+
     def test_can_vary_cutoff(self):
         matrix = self.chain.generate_residue_distance_matrix(cutoff=0.1)
         self.check_valid_matrix(matrix)
@@ -223,10 +242,20 @@ class ChainMatrixTests(ChainTest):
             self.assertEqual(cell.fill_color[1], "F")
 
 
+    def test_cutoff_must_be_numeric(self):
+        with self.assertRaises(TypeError):
+            self.chain.generate_residue_distance_matrix(cutoff=None)
+
+
     def test_can_vary_dimension(self):
         matrix = self.chain.generate_residue_distance_matrix(dimension=70)
         self.check_valid_matrix(matrix)
         self.assertEqual(matrix.width, 70)
+
+
+    def test_dimension_must_be_int(self):
+        with self.assertRaises(TypeError):
+            self.chain.generate_residue_distance_matrix(dimension=0.5)
 
 
     def test_javascript_correct(self):
@@ -241,4 +270,29 @@ class ChainMatrixTests(ChainTest):
 
     def test_can_supply_subsequence(self):
         PdbAlphaHelix("1", self.residue1)
-        matrix = self.chain.generate_residue_distance_matrix(subsequence=(self.residue1, self.residue2))
+        matrix = self.chain.generate_residue_distance_matrix(
+         subsequence=(self.residue1, self.residue2)
+        )
+
+
+    def test_subsequence_must_be_sequence_of_residues(self):
+        with self.assertRaises(TypeError):
+            matrix = self.chain.generate_residue_distance_matrix(
+             subsequence=(self.residue1, "residue")
+            )
+
+
+    def test_subsequence_must_be_sequence_of_two_residues(self):
+        with self.assertRaises(ValueError):
+            matrix = self.chain.generate_residue_distance_matrix(
+             subsequence=(self.residue1,)
+            )
+
+
+    def test_subsequence_residues_must_be_in_chain(self):
+        with self.assertRaises(ValueError):
+            matrix = self.chain.generate_residue_distance_matrix(
+             subsequence=(self.residue1, PdbResidue(
+              "A4", "RES", PdbAtom(1.0, 1.0, 1.0, "H", 1, "H")
+             ))
+            )

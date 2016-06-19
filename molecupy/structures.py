@@ -700,6 +700,23 @@ class PdbChain(ResiduicSequence):
 
     def generate_residue_distance_matrix(self, dimension=700, close_color=120,
      far_color=0, cutoff=40, subsequence=None):
+        """Creates a 'distance matrix' as an
+        .. _omnicanvas: http://omnicanvas.readthedocs.io/. canvas. The distance
+        between any two residues are represented as gradients of colour.
+
+        To output the resulting canvas to svg, the ``.save("filename.svg")``
+        method can be used.
+
+        :param int dimension: The width and height of the matrix in pixels
+        :param int close_color: The colour of near residues (defaults to green)
+        :param int far_color: The colour of far residues (defaults to red)
+        :param int cutoff: The distance in Angstroms that the colour scale\
+        should end at (defaults to 40 Angstroms)
+        :param subsequence: A sequence of two :py:class:`PdbResidue` objects\
+        that constitute the beginning and end of some subsequence, which will\
+        be marked on the matrix.
+        :rtype: .. _omnicanvas: http://omnicanvas.readthedocs.io/. ``canvas``"""
+
         # Validation
         if not isinstance(close_color, int):
             raise TypeError("close_color must be int, not '%s'" % str(close_color))

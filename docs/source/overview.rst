@@ -251,3 +251,12 @@ property.
     {<Residue (ASP)>, <Residue (LEU)>, <Residue (LYS)>, <Residue (VAL)>}
     >>> pdb.model.get_site_by_id("AC1").ligand
     <SmallMolecule (BU2)>
+
+
+
+Secondary Structure
+~~~~~~~~~~~~~~~~~~~
+
+:py:class:`.PdbChain` objects have a ``alpha_helices`` property and a
+``beta_strands`` property, which are sets of :py:class:`.PdbAlphaHelix` objects
+and :py:class:`.PdbBetaStrand` objects respectively.

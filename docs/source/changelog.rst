@@ -1,6 +1,26 @@
 Changelog
 ---------
 
+Release 0.4.0
+~~~~~~~~~~~~~
+
+`20 June 2016`
+
+* Secondary Structure
+
+    * Added Alpha Helix class.
+
+    * Added Beta Strand class.
+
+* Residue distance matrices
+
+    * Chains can now generate SVG distance matrices showing the distances between residues.
+
+* Missing residues
+
+    * Chains can now produce a combined list of all residue IDs, missing and present.
+
+
 Release 0.3.0
 ~~~~~~~~~~~~~
 

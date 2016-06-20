@@ -664,6 +664,12 @@ class PdbChain(ResiduicSequence):
 
 
     def get_alpha_helix_by_id(self, helix_id):
+        """Retrurns the first alpha helix that matches a given molecule ID.
+
+        :param str helix_id: The helix ID to search by.
+        :rtype: :py:class:`PdbAlphaHelix` or ``None``
+        :raises TypeError: if the name given isn't an string."""
+
         if not isinstance(helix_id, str):
             raise TypeError("Can only search alpha helix IDs by str")
         for alpha_helix in self.alpha_helices:
@@ -672,6 +678,12 @@ class PdbChain(ResiduicSequence):
 
 
     def get_beta_strand_by_id(self, strand_id):
+        """Retrurns the first beta strand that matches a given molecule ID.
+
+        :param str strand_id: The strand ID to search by.
+        :rtype: :py:class:`PdbBetaStrand` or ``None``
+        :raises TypeError: if the name given isn't an string."""
+        
         if not isinstance(strand_id, int):
             raise TypeError("Can only search beta strand IDs by int")
         for beta_strand in self.beta_strands:
@@ -680,6 +692,11 @@ class PdbChain(ResiduicSequence):
 
 
     def get_all_residue_ids(self):
+        """Returns a ``list`` of residue IDs for this chain, in order,
+        `including` the residues of missing residues.
+
+        :rtype: ``list`` of ``str`` objects."""
+
         residue_ids = [residue.residue_id for residue in self.residues]
         for missing_id in self.missing_residues:
             closest_smaller_id = None
@@ -701,7 +718,7 @@ class PdbChain(ResiduicSequence):
     def generate_residue_distance_matrix(self, dimension=700, close_color=120,
      far_color=0, cutoff=40, subsequence=None):
         """Creates a 'distance matrix' as an
-        .. _omnicanvas: http://omnicanvas.readthedocs.io/. canvas. The distance
+        `OmniCanvas <http://omnicanvas.readthedocs.io/>`_ canvas. The distance
         between any two residues are represented as gradients of colour.
 
         To output the resulting canvas to svg, the ``.save("filename.svg")``
@@ -715,7 +732,7 @@ class PdbChain(ResiduicSequence):
         :param subsequence: A sequence of two :py:class:`PdbResidue` objects\
         that constitute the beginning and end of some subsequence, which will\
         be marked on the matrix.
-        :rtype: .. _omnicanvas: http://omnicanvas.readthedocs.io/. ``canvas``"""
+        :rtype: `OmniCanvas <http://omnicanvas.readthedocs.io/>`_ canvas"""
 
         # Validation
         if not isinstance(close_color, int):
@@ -1049,6 +1066,29 @@ class PdbSite(ResiduicStructure):
 
 
 class PdbAlphaHelix(ResiduicSequence):
+    """Base class: :py:class:`ResiduicSequence`
+
+    Represents alpha helices.
+
+    :param str helix_id: The helix's ID.
+    :param residues: The residues in this helix.
+    :param str helix_class: The classification of the helix.
+    :param str comment: Any comment associated with this helix.
+    :raises: :class:`.BrokenHelixError` if the residues given are from different\
+    chains.
+
+    .. py:attribute:: helix_id:
+
+         The helix's unique ID.
+
+    .. py:attribute:: helix_class:
+
+         The helix's classification, such as 'Right-handed pi' or\
+         'polyproline'.
+
+    .. py:attribute:: comment:
+
+        Any comment associated with the helix."""
 
     def __init__(self, helix_id, *residues, helix_class=None, comment=None):
         if not isinstance(helix_id, str):
@@ -1077,11 +1117,34 @@ class PdbAlphaHelix(ResiduicSequence):
 
 
     def get_chain(self):
+        """Returns the chain that the helix exists on.
+
+        :rtype: :py:class:`PdbChain` or ``None``"""
+
         return list(self.residues)[0].chain
 
 
 
 class PdbBetaStrand(ResiduicSequence):
+    """Base class: :py:class:`ResiduicSequence`
+
+    Represents beta strands.
+
+    :param str strand_id: The strand's ID.
+    :param residues: The residues in this strand.
+    :param int sense: The sense of the strand with respect to the prior\
+    strand.
+    :raises: :class:`.BrokenStrandError` if the residues given are from different\
+    chains.
+
+    .. py:attribute:: strand_id:
+
+         The strand's unique ID.
+
+    .. py:attribute:: sense:
+
+         The sense of the strand with respect to the prior strand. -1 for\
+         anti-parallel, 1 for parallel, and 0 if it is the first strand.."""
 
     def __init__(self, strand_id, sense, *residues):
         if not isinstance(strand_id, int):
@@ -1108,6 +1171,9 @@ class PdbBetaStrand(ResiduicSequence):
 
 
     def get_chain(self):
+        """Returns the chain that the strand exists on.
+
+        :rtype: :py:class:`PdbChain` or ``None``"""
         return list(self.residues)[0].chain
 
 

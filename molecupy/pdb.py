@@ -271,12 +271,10 @@ def _bond_residue_atoms(model, data_file, model_id):
 
 def _bond_residues_together(model, data_file, model_id):
     for chain in model.chains:
-        residues_before_gap = set()
-        for missing_residue in chain.missing_residues:
-            residues_before_gap.add(_get_preceding_residue(missing_residue, chain))
-        residues_before_gap = list(filter(None, residues_before_gap))
+        all_ids = chain.get_all_residue_ids()
         for index, residue in enumerate(chain.residues[:-1]):
-            if residue not in residues_before_gap:
+            next_residue_id = all_ids[all_ids.index(residue.residue_id) + 1]
+            if next_residue_id not in chain.missing_residues:
                 carboxy_atom = residue.get_atom_by_name("C")
                 next_residue = chain.residues[index + 1]
                 amino_nitrogen = next_residue.get_atom_by_name("N")

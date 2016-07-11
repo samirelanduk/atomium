@@ -389,15 +389,6 @@ def _give_model_beta_strands(model, data_file, model_id):
                     )
 
 
-def _get_preceding_residue(missing_residue, residuic_sequence):
-    for residue in residuic_sequence.residues[::-1]:
-        if _residue_id_is_greater_than_residue_id(
-         missing_residue,
-         residue.residue_id
-        ):
-            return residue
-
-
 HELIX_CLASSES = {
  1: "Right-handed alpha",
  2: "Right-handed omega",

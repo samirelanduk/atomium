@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
  name="molecupy",
- version="0.4.0",
+ version="0.4.1",
  description="A Python PDB parser.",
  url="https://molecupy.readthedocs.org",
  author="Sam Ireland",

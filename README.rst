@@ -299,6 +299,16 @@ and ``PdbBetaStrand`` objects respectively.
 Changelog
 ---------
 
+Release 0.4.1
+~~~~~~~~~~~~~
+
+`11 July 2016`
+
+* Bug fix
+
+    * Fixed bug where occasionally covalent bonds would be made over missing residues.
+
+    
 Release 0.4.0
 ~~~~~~~~~~~~~
 

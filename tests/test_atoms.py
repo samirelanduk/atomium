@@ -13,3 +13,18 @@ class AtomCreationTests(TestCase):
     def test_repr(self):
         atom = Atom("C", 100, "CA")
         self.assertEqual(str(atom), "<Atom 100 (CA)>")
+
+
+    def test_element_must_be_str(self):
+        with self.assertRaises(TypeError):
+            atom = Atom(9, 100, "CA")
+
+
+    def test_atom_id_must_be_int(self):
+        with self.assertRaises(TypeError):
+            atom = Atom("C", "100", "CA")
+
+
+    def test_atom_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            atom = Atom("C", 100, 1.5)

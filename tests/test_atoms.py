@@ -47,3 +47,13 @@ class AtomPropertyTests(TestCase):
         self.assertEqual(atom.element(), "C")
         self.assertEqual(atom.atom_id(), 100)
         self.assertEqual(atom.atom_name(), "CA")
+
+
+    def test_basic_property_update(self):
+        atom = Atom("C", 100, "CA")
+        atom.element("H")
+        self.assertEqual(atom.element(), "H")
+        atom.atom_id(101)
+        self.assertEqual(atom.atom_id(), 101)
+        atom.atom_name("C")
+        self.assertEqual(atom.atom_name(), "C")

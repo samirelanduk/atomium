@@ -18,13 +18,22 @@ class Atom:
         return "<Atom %i (%s)>" % (self._atom_id, self._atom_name)
 
 
-    def element(self):
-        return self._element
+    def element(self, element=None):
+        if element is None:
+            return self._element
+        else:
+            self._element = element
 
 
-    def atom_id(self):
-        return self._atom_id
+    def atom_id(self, atom_id=None):
+        if atom_id is None:
+            return self._atom_id
+        else:
+            self._atom_id = atom_id
 
 
-    def atom_name(self):
-        return self._atom_name
+    def atom_name(self, atom_name=None):
+        if atom_name is None:
+            return self._atom_name
+        else:
+            self._atom_name = atom_name

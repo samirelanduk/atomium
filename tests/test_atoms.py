@@ -37,3 +37,13 @@ class AtomCreationTests(TestCase):
     def test_atom_name_must_be_str(self):
         with self.assertRaises(TypeError):
             atom = Atom("C", 100, 1.5)
+
+
+
+class AtomPropertyTests(TestCase):
+
+    def test_basic_properties(self):
+        atom = Atom("C", 100, "CA")
+        self.assertEqual(atom.element(), "C")
+        self.assertEqual(atom.atom_id(), 100)
+        self.assertEqual(atom.atom_name(), "CA")

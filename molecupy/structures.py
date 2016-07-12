@@ -75,6 +75,8 @@ class PdbAtom(Atom):
         if x is None:
             return self._x
         else:
+            if not isinstance(x, float):
+                raise TypeError("x coordinate must be float, not '%s'" % str(x))
             self._x = x
 
 
@@ -82,6 +84,8 @@ class PdbAtom(Atom):
         if y is None:
             return self._y
         else:
+            if not isinstance(y, float):
+                raise TypeError("y coordinate must be float, not '%s'" % str(y))
             self._y = y
 
 
@@ -89,6 +93,8 @@ class PdbAtom(Atom):
         if z is None:
             return self._z
         else:
+            if not isinstance(z, float):
+                raise TypeError("z coordinate must be float, not '%s'" % str(z))
             self._z = z
 
 

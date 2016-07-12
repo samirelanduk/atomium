@@ -48,3 +48,12 @@ class PdbAtomPropertyTests(TestCase):
         self.assertEqual(self.atom.y(), 1000.0)
         self.atom.z(1000.0)
         self.assertEqual(self.atom.z(), 1000.0)
+
+
+    def test_coordinates_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.atom.x("10.0")
+        with self.assertRaises(TypeError):
+            self.atom.y("10.0")
+        with self.assertRaises(TypeError):
+            self.atom.z("10.0")

@@ -8,3 +8,8 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._element, "C")
         self.assertEqual(atom._atom_id, 100)
         self.assertEqual(atom._atom_name, "CA")
+
+
+    def test_repr(self):
+        atom = Atom("C", 100, "CA")
+        self.assertEqual(str(atom), "<Atom 100 (CA)>")

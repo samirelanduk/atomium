@@ -308,7 +308,7 @@ Release 0.4.1
 
     * Fixed bug where occasionally covalent bonds would be made over missing residues.
 
-    
+
 Release 0.4.0
 ~~~~~~~~~~~~~
 

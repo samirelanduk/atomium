@@ -59,8 +59,14 @@ class Atom:
 class PdbAtom(Atom):
 
     def __init__(self, x, y, z, *args):
+        if not isinstance(x, float):
+            raise TypeError("x coordinate must be float, not '%s'" % str(x))
         self._x = x
+        if not isinstance(y, float):
+            raise TypeError("y coordinate must be float, not '%s'" % str(y))
         self._y = y
+        if not isinstance(z, float):
+            raise TypeError("z coordinate must be float, not '%s'" % str(z))
         self._z = z
         Atom.__init__(self, *args)
 

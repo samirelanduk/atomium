@@ -39,3 +39,12 @@ class PdbAtomPropertyTests(TestCase):
         self.assertEqual(self.atom.x(), 10.0)
         self.assertEqual(self.atom.y(), 20.0)
         self.assertEqual(self.atom.z(), 15.0)
+
+
+    def test_can_set_coordinates(self):
+        self.atom.x(1000.0)
+        self.assertEqual(self.atom.x(), 1000.0)
+        self.atom.y(1000.0)
+        self.assertEqual(self.atom.y(), 1000.0)
+        self.atom.z(1000.0)
+        self.assertEqual(self.atom.z(), 1000.0)

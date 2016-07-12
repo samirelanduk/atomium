@@ -71,16 +71,25 @@ class PdbAtom(Atom):
         Atom.__init__(self, *args)
 
 
-    def x(self):
-        return self._x
+    def x(self, x=None):
+        if x is None:
+            return self._x
+        else:
+            self._x = x
 
 
-    def y(self):
-        return self._y
+    def y(self, y=None):
+        if y is None:
+            return self._y
+        else:
+            self._y = y
 
 
-    def z(self):
-        return self._z
+    def z(self, z=None):
+        if z is None:
+            return self._z
+        else:
+            self._z = z
 
 
 

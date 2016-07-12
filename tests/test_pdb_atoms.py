@@ -12,3 +12,8 @@ class PdbAtomCreationTests(TestCase):
         self.assertEqual(atom._element, "C")
         self.assertEqual(atom._atom_id, 100)
         self.assertEqual(atom._atom_name, "CA")
+
+
+    def test_repr(self):
+        atom = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.assertEqual(str(atom), "<PdbAtom 100 (CA)>")

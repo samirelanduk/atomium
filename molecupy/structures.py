@@ -15,7 +15,9 @@ class Atom:
 
 
     def __repr__(self):
-        return "<Atom %i (%s)>" % (self._atom_id, self._atom_name)
+        return "<%s %i (%s)>" % (
+         self.__class__.__name__, self._atom_id, self._atom_name
+        )
 
 
     def element(self, element=None):

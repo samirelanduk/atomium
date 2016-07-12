@@ -54,6 +54,16 @@ class Atom:
 
 
 
+class PdbAtom(Atom):
+
+    def __init__(self, x, y, z, *args):
+        self._x = x
+        self._y = y
+        self._z = z
+        Atom.__init__(self, *args)
+
+
+
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,
  "C": 12.0107, "N": 14.0067, "O": 15.9994, "F": 18.9984, "NE": 20.1797,

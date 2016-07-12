@@ -26,3 +26,16 @@ class PdbAtomCreationTests(TestCase):
             atom = PdbAtom(10.0, "20.0", 15.0, "C", 100, "CA")
         with self.assertRaises(TypeError):
             atom = PdbAtom(10.0, 20.0, "15.0", "C", 100, "CA")
+
+
+
+class PdbAtomPropertyTests(TestCase):
+
+    def setUp(self):
+        self.atom = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
+
+
+    def test_basic_properties(self):
+        self.assertEqual(self.atom.x(), 10.0)
+        self.assertEqual(self.atom.y(), 20.0)
+        self.assertEqual(self.atom.z(), 15.0)

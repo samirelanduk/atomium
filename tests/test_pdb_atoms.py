@@ -57,3 +57,17 @@ class PdbAtomPropertyTests(TestCase):
             self.atom.y("10.0")
         with self.assertRaises(TypeError):
             self.atom.z("10.0")
+
+
+
+class PdbAtomDistanceTests(TestCase):
+
+    def test_can_get_inter_atomic_distance(self):
+        atom1 = PdbAtom(-0.791, 64.789, 30.59, "O", 2621, "OD1") # Atom 2621 in 1LOL
+        atom2 = PdbAtom(5.132, 63.307, 56.785, "C", 1011, "CD") # Atom 1011 in 1LOL
+        pymol_calculated_distance = 26.9
+        self.assertAlmostEqual(
+         atom1.distance_to(atom2),
+         pymol_calculated_distance,
+         delta=0.01
+        )

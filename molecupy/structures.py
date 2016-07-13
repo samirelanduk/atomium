@@ -1,3 +1,5 @@
+import math
+
 class Atom:
 
     def __init__(self, element, atom_id, atom_name):
@@ -96,6 +98,14 @@ class PdbAtom(Atom):
             if not isinstance(z, float):
                 raise TypeError("z coordinate must be float, not '%s'" % str(z))
             self._z = z
+
+
+    def distance_to(self, other_atom):
+        x_sum = math.pow((other_atom.x() - self.x()), 2)
+        y_sum = math.pow((other_atom.y() - self.y()), 2)
+        z_sum = math.pow((other_atom.z() - self.z()), 2)
+        distance = math.sqrt(x_sum + y_sum + z_sum)
+        return distance
 
 
 

@@ -101,6 +101,10 @@ class PdbAtom(Atom):
 
 
     def distance_to(self, other_atom):
+        if not isinstance(other_atom, PdbAtom):
+            raise TypeError(
+             "Can only get distance between PdbAtoms, not '%s'" % str(other_atom)
+            )
         x_sum = math.pow((other_atom.x() - self.x()), 2)
         y_sum = math.pow((other_atom.y() - self.y()), 2)
         z_sum = math.pow((other_atom.z() - self.z()), 2)

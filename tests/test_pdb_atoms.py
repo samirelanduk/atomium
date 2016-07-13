@@ -71,3 +71,10 @@ class PdbAtomDistanceTests(TestCase):
          pymol_calculated_distance,
          delta=0.01
         )
+
+
+    def test_can_only_measure_distance_between_pdb_atoms(self):
+        atom1 = PdbAtom(-0.791, 64.789, 30.59, "O", 2621, "OD1")
+        atom2 = Atom("C", 1011, "CD")
+        with self.assertRaises(TypeError):
+            atom1.distance_to(atom2)

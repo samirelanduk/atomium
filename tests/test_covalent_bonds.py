@@ -17,3 +17,10 @@ class CovalentBondCreationTests(TestCase):
     def test_covalent_bond_requires_pdb_atoms(self):
         with self.assertRaises(TypeError):
             bond = CovalentBond(self.atom1, "atom2")
+
+
+    def test_atoms_must_be_different(self):
+        with self.assertRaises(ValueError):
+            bond = CovalentBond(self.atom1, self.atom1)
+        with self.assertRaises(ValueError):
+            bond = CovalentBond(self.atom2, self.atom2)

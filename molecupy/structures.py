@@ -122,6 +122,8 @@ class CovalentBond:
               str(atom1), str(atom2)
              )
             )
+        if atom1 is atom2:
+            raise ValueError("Cannot covalent bond %s to itself." % str(atom1))
         self._atoms = set((atom1, atom2))
 
 

@@ -1,11 +1,19 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import CovalentBond
+from molecupy.structures import CovalentBond, PdbAtom
 
 class CovalentBondCreationTests(TestCase):
 
+    def setUp(self):
+        self.atom1 = unittest.mock.Mock(spec=PdbAtom)
+        self.atom2 = unittest.mock.Mock(spec=PdbAtom)
+
+
     def test_can_create_covalent_bonds(self):
-        atom1 = unittest.mock.Mock()
-        atom2 = unittest.mock.Mock()
-        bond = CovalentBond(atom1, atom2)
-        self.assertEqual(bond._atoms, set((atom1, atom2)))
+        bond = CovalentBond(self.atom1, self.atom2)
+        self.assertEqual(bond._atoms, set((self.atom1, self.atom2)))
+
+
+    def test_covalent_bond_requires_pdb_atoms(self):
+        with self.assertRaises(TypeError):
+            bond = CovalentBond(self.atom1, "atom2")

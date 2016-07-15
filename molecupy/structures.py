@@ -127,6 +127,11 @@ class Bond:
         self._atoms = set((atom1, atom2))
 
 
+    def __repr__(self):
+        id1, id2 = sorted([atom.atom_id() for atom in self._atoms])
+        return "<Bond between Atom %i and Atom %i>" % (id1, id2)
+
+
     def atoms(self):
         return set(self._atoms)
 

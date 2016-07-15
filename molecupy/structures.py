@@ -1,4 +1,5 @@
 import math
+from .exceptions import LongBondWarning
 
 class Atom:
 
@@ -124,6 +125,12 @@ class Bond:
             )
         if atom1 is atom2:
             raise ValueError("Cannot bond %s to itself." % str(atom1))
+        if atom1.distance_to(atom2) >= 10:
+            raise LongBondWarning(
+             "Bond between Atom %i and Atom %i is %.1f Angstroms long" % (
+              atom1.atom_id(), atom2.atom_id(), atom1.distance_to(atom2)
+             )
+            )
         self._atoms = set((atom1, atom2))
 
 

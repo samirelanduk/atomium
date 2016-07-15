@@ -1,6 +1,7 @@
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Bond, PdbAtom
+from molecupy.exceptions import LongBondWarning
 
 class BondTest(TestCase):
 
@@ -36,6 +37,13 @@ class BondCreationTests(BondTest):
     def test_bond_repr(self):
         bond = Bond(self.atom1, self.atom2)
         self.assertEqual(str(bond), "<Bond between Atom 100 and Atom 101>")
+
+
+    def test_warning_issued_on_ludicrous_bond_length(self):
+        self.atom1.distance_to.return_value = 12
+        self.atom2.distance_to.return_value = 12
+        with self.assertRaises(LongBondWarning):
+            bond = Bond(self.atom1, self.atom2)
 
 
 

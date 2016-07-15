@@ -1,0 +1,2 @@
+class LongBondWarning(Warning):
+    pass

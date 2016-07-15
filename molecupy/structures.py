@@ -136,6 +136,11 @@ class Bond:
         return set(self._atoms)
 
 
+    def bond_length(self):
+        atom1, atom2 = self._atoms
+        return atom1.distance_to(atom2)
+
+
 
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

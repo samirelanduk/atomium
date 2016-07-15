@@ -127,6 +127,10 @@ class CovalentBond:
         self._atoms = set((atom1, atom2))
 
 
+    def atoms(self):
+        return self._atoms
+
+
 
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

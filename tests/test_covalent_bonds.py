@@ -1,8 +1,8 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import CovalentBond, PdbAtom
+from molecupy.structures import Bond, PdbAtom
 
-class CovalentBondCreationTests(TestCase):
+class BondCreationTests(TestCase):
 
     def setUp(self):
         self.atom1 = unittest.mock.Mock(spec=PdbAtom)
@@ -10,24 +10,24 @@ class CovalentBondCreationTests(TestCase):
 
 
     def test_can_create_covalent_bonds(self):
-        bond = CovalentBond(self.atom1, self.atom2)
+        bond = Bond(self.atom1, self.atom2)
         self.assertEqual(bond._atoms, set((self.atom1, self.atom2)))
 
 
-    def test_covalent_bond_requires_pdb_atoms(self):
+    def test_bond_requires_pdb_atoms(self):
         with self.assertRaises(TypeError):
-            bond = CovalentBond(self.atom1, "atom2")
+            bond = Bond(self.atom1, "atom2")
 
 
     def test_atoms_must_be_different(self):
         with self.assertRaises(ValueError):
-            bond = CovalentBond(self.atom1, self.atom1)
+            bond = Bond(self.atom1, self.atom1)
         with self.assertRaises(ValueError):
-            bond = CovalentBond(self.atom2, self.atom2)
+            bond = Bond(self.atom2, self.atom2)
 
 
 
-class CovalentBondPropertyTests(TestCase):
+class BondPropertyTests(TestCase):
 
     def setUp(self):
         self.atom1 = unittest.mock.Mock(spec=PdbAtom)
@@ -35,12 +35,12 @@ class CovalentBondPropertyTests(TestCase):
 
 
     def test_can_get_atoms(self):
-        bond = CovalentBond(self.atom1, self.atom2)
+        bond = Bond(self.atom1, self.atom2)
         self.assertEqual(bond.atoms(), set((self.atom1, self.atom2)))
 
 
     def test_atoms_not_modifiable(self):
-        bond = CovalentBond(self.atom1, self.atom2)
+        bond = Bond(self.atom1, self.atom2)
         self.assertEqual(bond.atoms(), set((self.atom1, self.atom2)))
         bond.atoms().remove(self.atom2)
         self.assertEqual(bond.atoms(), set((self.atom1, self.atom2)))

@@ -113,17 +113,17 @@ class PdbAtom(Atom):
 
 
 
-class CovalentBond:
+class Bond:
 
     def __init__(self, atom1, atom2):
         if not isinstance(atom1, PdbAtom) or not isinstance(atom2, PdbAtom):
             raise TypeError(
-             "Can only create covalent bond between PdbAtoms, not %s and %s" % (
+             "Can only create bond between PdbAtoms, not %s and %s" % (
               str(atom1), str(atom2)
              )
             )
         if atom1 is atom2:
-            raise ValueError("Cannot covalent bond %s to itself." % str(atom1))
+            raise ValueError("Cannot bond %s to itself." % str(atom1))
         self._atoms = set((atom1, atom2))
 
 

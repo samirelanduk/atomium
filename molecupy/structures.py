@@ -128,7 +128,7 @@ class CovalentBond:
 
 
     def atoms(self):
-        return self._atoms
+        return set(self._atoms)
 
 
 

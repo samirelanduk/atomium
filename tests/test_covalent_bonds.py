@@ -37,3 +37,10 @@ class CovalentBondPropertyTests(TestCase):
     def test_can_get_atoms(self):
         bond = CovalentBond(self.atom1, self.atom2)
         self.assertEqual(bond.atoms(), set((self.atom1, self.atom2)))
+
+
+    def test_atoms_not_modifiable(self):
+        bond = CovalentBond(self.atom1, self.atom2)
+        self.assertEqual(bond.atoms(), set((self.atom1, self.atom2)))
+        bond.atoms().remove(self.atom2)
+        self.assertEqual(bond.atoms(), set((self.atom1, self.atom2)))

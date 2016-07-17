@@ -137,6 +137,12 @@ class PdbAtom(Atom):
                 return bond
 
 
+    def break_bond_with(self, other_atom):
+        bond = self.get_bond_with(other_atom)
+        if bond:
+            bond.delete()
+
+
 
 class Bond:
 

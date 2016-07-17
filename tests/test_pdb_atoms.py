@@ -140,3 +140,14 @@ class PdbAtomBondtests(TestCase):
          self.atom2.get_bond_with(self.atom1)
         )
         self.assertNotEqual(self.atom1.get_bond_with(self.atom2), None)
+
+
+    def test_can_delete_bonds(self):
+        self.atom1.bond_to(self.atom2)
+        self.atom2.bond_to(self.atom6)
+        self.assertIn(self.atom1, self.atom2.bonded_atoms())
+        self.assertIn(self.atom6, self.atom2.bonded_atoms())
+        self.atom2.break_bond_with(self.atom1)
+        self.assertIn(self.atom6, self.atom2.bonded_atoms())
+        self.assertNotIn(self.atom1, self.atom2.bonded_atoms())
+        self.assertNotIn(self.atom2, self.atom1.bonded_atoms())

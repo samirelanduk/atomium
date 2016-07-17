@@ -123,3 +123,8 @@ class PdbAtomBondtests(TestCase):
         self.assertIn(self.atom1, self.atom5.bonded_atoms())
         self.assertEqual(len(self.atom6.bonds()), 1)
         self.assertIn(self.atom2, self.atom6.bonded_atoms())
+
+
+    def test_can_only_bond_pdb_atoms(self):
+        with self.assertRaises(TypeError):
+            self.atom1.bond_to("atom")

@@ -113,6 +113,10 @@ class PdbAtom(Atom):
         return distance
 
 
+    def bonds(self):
+        pass
+
+
 
 class Bond:
 
@@ -132,6 +136,8 @@ class Bond:
              )
             )
         self._atoms = set((atom1, atom2))
+        atom1.bonds().add(self)
+        atom2.bonds().add(self)
 
 
     def __repr__(self):

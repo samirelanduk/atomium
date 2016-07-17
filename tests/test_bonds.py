@@ -8,8 +8,10 @@ class BondTest(TestCase):
     def setUp(self):
         self.atom1 = unittest.mock.Mock(spec=PdbAtom)
         self.atom1.atom_id.return_value = 100
+        self.atom1.bonds.return_value = set()
         self.atom2 = unittest.mock.Mock(spec=PdbAtom)
         self.atom2.atom_id.return_value = 101
+        self.atom2.bonds.return_value = set()
         self.atom1.distance_to.return_value = 2.1
         self.atom2.distance_to.return_value = 2.1
 
@@ -67,3 +69,12 @@ class BondLengthTests(BondTest):
     def test_can_get_bond_length(self):
         bond = Bond(self.atom1, self.atom2)
         self.assertEqual(bond.bond_length(), 2.1)
+
+
+
+class BondAtomTests(BondTest):
+
+    def test_atoms_know_about_bond(self):
+        bond = Bond(self.atom1, self.atom2)
+        self.assertEqual(self.atom1.bonds(), set((bond,)))
+        self.assertEqual(self.atom2.bonds(), set((bond,)))

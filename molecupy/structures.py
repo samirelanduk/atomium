@@ -127,8 +127,14 @@ class PdbAtom(Atom):
         for bond in self.bonds():
             for atom in bond.atoms():
                 bonded_atoms.add(atom)
-        bonded_atoms.remove(self)
+        if self in bonded_atoms: bonded_atoms.remove(self)
         return bonded_atoms
+
+
+    def get_bond_with(self, other_atom):
+        for bond in self.bonds():
+            if other_atom in bond.atoms():
+                return bond
 
 
 

@@ -128,3 +128,15 @@ class PdbAtomBondtests(TestCase):
     def test_can_only_bond_pdb_atoms(self):
         with self.assertRaises(TypeError):
             self.atom1.bond_to("atom")
+
+
+    def test_can_get_bond_between_atoms(self):
+        self.assertEqual(self.atom1.get_bond_with(self.atom2), None)
+        self.assertEqual(self.atom2.get_bond_with(self.atom1), None)
+        self.atom1.bond_to(self.atom2)
+        self.assertIn(self.atom1, self.atom2.bonded_atoms())
+        self.assertIs(
+         self.atom1.get_bond_with(self.atom2),
+         self.atom2.get_bond_with(self.atom1)
+        )
+        self.assertNotEqual(self.atom1.get_bond_with(self.atom2), None)

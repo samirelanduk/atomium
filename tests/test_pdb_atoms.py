@@ -84,11 +84,42 @@ class PdbAtomDistanceTests(TestCase):
 
 class PdbAtomBondtests(TestCase):
 
+    def setUp(self):
+        self.atom1 = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.atom2 = PdbAtom(10.0, 20.0, 17.0, "C", 100, "CA")
+        self.atom3 = PdbAtom(10.0, 20.0, 13.0, "C", 100, "CA")
+        self.atom4 = PdbAtom(10.0, 22.0, 17.0, "C", 100, "CA")
+        self.atom5 = PdbAtom(10.0, 18.0, 17.0, "C", 100, "CA")
+        self.atom6 = PdbAtom(10.0, 20.0, 19.0, "C", 100, "CA")
+
+
     def test_can_bond_atoms(self):
-        atom1 = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
-        atom2 = PdbAtom(10.0, 20.0, 17.0, "C", 100, "CA")
-        atom1.bond_to(atom2)
-        self.assertEqual(atom1.bonds(), atom2.bonds())
-        self.assertEqual(len(atom1.bonds()), 1)
-        self.assertEqual(atom1.bonded_atoms(), set((atom2,)))
-        self.assertEqual(atom2.bonded_atoms(), set((atom1,)))
+        self.atom1.bond_to(self.atom2)
+        self.assertEqual(self.atom1.bonds(), self.atom2.bonds())
+        self.assertEqual(len(self.atom1.bonds()), 1)
+        self.assertEqual(self.atom1.bonded_atoms(), set((self.atom2,)))
+        self.assertEqual(self.atom2.bonded_atoms(), set((self.atom1,)))
+
+
+    def test_can_bond_many_atoms(self):
+        self.atom1.bond_to(self.atom2)
+        self.atom1.bond_to(self.atom3)
+        self.atom1.bond_to(self.atom4)
+        self.atom1.bond_to(self.atom5)
+        self.atom2.bond_to(self.atom6)
+        self.assertEqual(len(self.atom1.bonds()), 4)
+        self.assertIn(self.atom2, self.atom1.bonded_atoms())
+        self.assertIn(self.atom3, self.atom1.bonded_atoms())
+        self.assertIn(self.atom4, self.atom1.bonded_atoms())
+        self.assertIn(self.atom5, self.atom1.bonded_atoms())
+        self.assertEqual(len(self.atom2.bonds()), 2)
+        self.assertIn(self.atom1, self.atom2.bonded_atoms())
+        self.assertIn(self.atom6, self.atom2.bonded_atoms())
+        self.assertEqual(len(self.atom3.bonds()), 1)
+        self.assertIn(self.atom1, self.atom3.bonded_atoms())
+        self.assertEqual(len(self.atom4.bonds()), 1)
+        self.assertIn(self.atom1, self.atom4.bonded_atoms())
+        self.assertEqual(len(self.atom5.bonds()), 1)
+        self.assertIn(self.atom1, self.atom5.bonded_atoms())
+        self.assertEqual(len(self.atom6.bonds()), 1)
+        self.assertIn(self.atom2, self.atom6.bonded_atoms())

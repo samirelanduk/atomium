@@ -71,6 +71,7 @@ class PdbAtom(Atom):
         if not isinstance(z, float):
             raise TypeError("z coordinate must be float, not '%s'" % str(z))
         self._z = z
+        self._bonds = set()
         Atom.__init__(self, *args)
 
 
@@ -114,7 +115,20 @@ class PdbAtom(Atom):
 
 
     def bonds(self):
-        pass
+        return self._bonds
+
+
+    def bond_to(self, other_atom):
+        Bond(self, other_atom)
+
+
+    def bonded_atoms(self):
+        bonded_atoms = set()
+        for bond in self.bonds():
+            for atom in bond.atoms():
+                bonded_atoms.add(atom)
+        bonded_atoms.remove(self)
+        return bonded_atoms
 
 
 

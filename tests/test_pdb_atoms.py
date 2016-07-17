@@ -12,6 +12,7 @@ class PdbAtomCreationTests(TestCase):
         self.assertEqual(atom._element, "C")
         self.assertEqual(atom._atom_id, 100)
         self.assertEqual(atom._atom_name, "CA")
+        self.assertEqual(atom._bonds, set())
 
 
     def test_repr(self):
@@ -78,3 +79,16 @@ class PdbAtomDistanceTests(TestCase):
         atom2 = Atom("C", 1011, "CD")
         with self.assertRaises(TypeError):
             atom1.distance_to(atom2)
+
+
+
+class PdbAtomBondtests(TestCase):
+
+    def test_can_bond_atoms(self):
+        atom1 = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
+        atom2 = PdbAtom(10.0, 20.0, 17.0, "C", 100, "CA")
+        atom1.bond_to(atom2)
+        self.assertEqual(atom1.bonds(), atom2.bonds())
+        self.assertEqual(len(atom1.bonds()), 1)
+        self.assertEqual(atom1.bonded_atoms(), set((atom2,)))
+        self.assertEqual(atom2.bonded_atoms(), set((atom1,)))

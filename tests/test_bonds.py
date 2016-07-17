@@ -78,3 +78,15 @@ class BondAtomTests(BondTest):
         bond = Bond(self.atom1, self.atom2)
         self.assertEqual(self.atom1.bonds(), set((bond,)))
         self.assertEqual(self.atom2.bonds(), set((bond,)))
+
+
+
+class BondDeletionTests(BondTest):
+
+    def test_can_delete_bond(self):
+        bond = Bond(self.atom1, self.atom2)
+        self.assertEqual(self.atom1.bonds(), set((bond,)))
+        self.assertEqual(self.atom2.bonds(), set((bond,)))
+        bond.delete()
+        self.assertEqual(self.atom1.bonds(), set())
+        self.assertEqual(self.atom2.bonds(), set())

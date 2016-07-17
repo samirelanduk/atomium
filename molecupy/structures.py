@@ -154,6 +154,12 @@ class Bond:
         return atom1.distance_to(atom2)
 
 
+    def delete(self):
+        atom1, atom2 = tuple(self._atoms)
+        atom1.bonds().remove(self)
+        atom2.bonds().remove(self)
+
+
 
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

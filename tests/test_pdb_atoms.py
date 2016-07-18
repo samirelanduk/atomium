@@ -151,3 +151,24 @@ class PdbAtomBondtests(TestCase):
         self.assertIn(self.atom6, self.atom2.bonded_atoms())
         self.assertNotIn(self.atom1, self.atom2.bonded_atoms())
         self.assertNotIn(self.atom2, self.atom1.bonded_atoms())
+
+
+    def test_atom_can_get_all_atoms_covalently_accessible(self):
+        atoms = [PdbAtom(x / 10, x / 10, x / 10, "C", 1, "C") for x in range(11)]
+        atoms[0].bond_to(atoms[1])
+        atoms[1].bond_to(atoms[2])
+        atoms[2].bond_to(atoms[3])
+        atoms[3].bond_to(atoms[4])
+        atoms[4].bond_to(atoms[5])
+        atoms[5].bond_to(atoms[0])
+        atoms[6].bond_to(atoms[3])
+        atoms[7].bond_to(atoms[6])
+        atoms[7].bond_to(atoms[8])
+        atoms[7].bond_to(atoms[9])
+        atoms[10].bond_to(atoms[8])
+        atoms[10].bond_to(atoms[9])
+        for atom in atoms:
+            self.assertEqual(
+             atom.accessible_atoms(),
+             set([a for a in atoms if a is not atom])
+            )

@@ -1,4 +1,4 @@
-from .atoms import Atom
+from .atoms import Atom, PdbAtom
 from ..exceptions import NoAtomsError
 
 class AtomicStructure:
@@ -16,3 +16,20 @@ class AtomicStructure:
 
     def __repr__(self):
         return "<AtomicStructure (%i atoms)>" % len(self._atoms)
+
+
+    def atoms(self, atom_type):
+        if not isinstance(atom_type, str):
+            raise TypeError("atom_type must be str, not '%s'" % str(atom_type))
+        if atom_type == "pdb":
+            return set(
+             [atom for atom in self._atoms if isinstance(atom, PdbAtom)]
+            )
+        elif atom_type == "generic":
+            return set(
+             [atom for atom in self._atoms if not isinstance(atom, PdbAtom)]
+            )
+        elif atom_type == "all":
+            return self._atoms
+        else:
+            raise ValueError("'%s' is not a valid atom_type" % atom_type)

@@ -52,3 +52,14 @@ class PdbRecord:
 
     def content(self):
         return self._content
+
+
+
+class PdbFile:
+
+    def __init__(self, file_string):
+        self._file_string = file_string
+        self._records = [
+         PdbRecord(line, i) for i, line in
+          enumerate(self._file_string.split("\n"), start=1) if line
+        ]

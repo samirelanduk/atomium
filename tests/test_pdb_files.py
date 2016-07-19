@@ -56,3 +56,30 @@ class PdbFilePropertiesTests(PdbFileTest):
         pdb_file = PdbFile(self.file_string)
         self.assertEqual(pdb_file.file_string(), pdb_file._file_string)
         self.assertEqual(pdb_file.records(), pdb_file._records)
+
+
+
+class PdbFileRecordTests(PdbFileTest):
+
+    def test_can_get_record_by_name(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertEqual(
+         pdb_file.get_record_by_name("COMPND"),
+         pdb_file.records()[3]
+        )
+        self.assertEqual(
+         pdb_file.get_record_by_name("XXX"),
+         None
+        )
+
+
+    def test_can_get_multiple_records_by_name(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertEqual(
+         pdb_file.get_records_by_name("TITLE"),
+         pdb_file.records()[1:3]
+        )
+        self.assertEqual(
+         pdb_file.get_records_by_name("XXX"),
+         []
+        )

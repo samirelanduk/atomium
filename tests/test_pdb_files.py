@@ -73,6 +73,12 @@ class PdbFileRecordTests(PdbFileTest):
         )
 
 
+    def test_can_only_get_record_by_string(self):
+        pdb_file = PdbFile(self.file_string)
+        with self.assertRaises(TypeError):
+            pdb_file.get_record_by_name(100)
+
+
     def test_can_get_multiple_records_by_name(self):
         pdb_file = PdbFile(self.file_string)
         self.assertEqual(
@@ -83,3 +89,9 @@ class PdbFileRecordTests(PdbFileTest):
          pdb_file.get_records_by_name("XXX"),
          []
         )
+
+
+    def test_can_only_get_records_by_string(self):
+        pdb_file = PdbFile(self.file_string)
+        with self.assertRaises(TypeError):
+            pdb_file.get_records_by_name(100)

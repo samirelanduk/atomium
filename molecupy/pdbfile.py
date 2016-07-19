@@ -80,10 +80,18 @@ class PdbFile:
 
 
     def get_record_by_name(self, record_name):
+        if not isinstance(record_name, str):
+            raise TypeError(
+             "Can only search for record by str, not '%s'" % str(record_name)
+            )
         for record in self.records():
             if record.name() == record_name:
                 return record
 
 
     def get_records_by_name(self, record_name):
+        if not isinstance(record_name, str):
+            raise TypeError(
+             "Can only search for records by str, not '%s'" % str(record_name)
+            )
         return [record for record in self.records() if record.name() == record_name]

@@ -88,3 +88,11 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
          atomic_structure.atoms(),
          set(self.pdb_atoms)
         )
+
+
+    def test_atomic_structure_atoms_is_read_only(self):
+        atom21 = unittest.mock.Mock(spec=PdbAtom)
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        self.assertEqual(len(atomic_structure.atoms()), 10)
+        atomic_structure.atoms(atom_type="all").add(atom21)
+        self.assertEqual(len(atomic_structure.atoms()), 10)

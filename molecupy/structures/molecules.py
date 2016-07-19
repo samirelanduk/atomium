@@ -30,6 +30,6 @@ class AtomicStructure:
              [atom for atom in self._atoms if not isinstance(atom, PdbAtom)]
             )
         elif atom_type == "all":
-            return self._atoms
+            return set(self._atoms)
         else:
             raise ValueError("'%s' is not a valid atom_type" % atom_type)

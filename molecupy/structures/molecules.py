@@ -12,3 +12,7 @@ class AtomicStructure:
                  "Can only make AtomicStructures with Atoms, not '%s'" % str(atom)
                 )
         self._atoms = set(atoms)
+
+
+    def __repr__(self):
+        return "<AtomicStructure (%i atoms)>" % len(self._atoms)

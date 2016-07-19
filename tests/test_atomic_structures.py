@@ -41,3 +41,8 @@ class AtomicStructureCreationTests(AtomicStructureTest):
     def test_cannot_make_empty_atomic_structure(self):
         with self.assertRaises(NoAtomsError):
             AtomicStructure()
+
+
+    def test_repr(self):
+        atomic_structure = AtomicStructure(*self.pdb_atoms)
+        self.assertEqual(str(atomic_structure), "<AtomicStructure (10 atoms)>")

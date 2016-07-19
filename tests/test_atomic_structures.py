@@ -96,3 +96,11 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
         self.assertEqual(len(atomic_structure.atoms()), 10)
         atomic_structure.atoms(atom_type="all").add(atom21)
         self.assertEqual(len(atomic_structure.atoms()), 10)
+
+
+    def test_can_add_atom(self):
+        atom21 = unittest.mock.Mock(spec=PdbAtom)
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        atomic_structure.add_atom(atom21)
+        self.assertEqual(len(atomic_structure.atoms()), 11)
+        self.assertIn(atom21, atomic_structure.atoms())

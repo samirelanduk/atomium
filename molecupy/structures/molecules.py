@@ -33,3 +33,7 @@ class AtomicStructure:
             return set(self._atoms)
         else:
             raise ValueError("'%s' is not a valid atom_type" % atom_type)
+
+
+    def add_atom(self, atom):
+        self._atoms.add(atom)

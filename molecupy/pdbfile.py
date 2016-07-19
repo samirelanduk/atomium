@@ -69,3 +69,11 @@ class PdbFile:
 
     def __repr__(self):
         return "<PdbFile (%i Records)>" % len(self._records)
+
+
+    def file_string(self):
+        return self._file_string
+
+
+    def records(self):
+        return self._records

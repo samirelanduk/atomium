@@ -47,3 +47,12 @@ class PdbFileCreationTests(PdbFileTest):
         new_file = "".join(new_file)
         pdb_file = PdbFile(new_file)
         self.assertEqual(pdb_file._file_string, self.file_string)
+
+
+
+class PdbFilePropertiesTests(PdbFileTest):
+
+    def test_pdb_file_properties(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertEqual(pdb_file.file_string(), pdb_file._file_string)
+        self.assertEqual(pdb_file.records(), pdb_file._records)

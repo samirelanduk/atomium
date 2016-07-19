@@ -13,3 +13,7 @@ class PdbRecord:
         self._text = expanded_text
         self._name = expanded_text[:6].strip()
         self._content = expanded_text[6:]
+
+
+    def __repr__(self):
+        return "<PdbRecord %i (%s)>" % (self._number, self._name)

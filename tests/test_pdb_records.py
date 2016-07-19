@@ -28,3 +28,8 @@ class RecordCreationTests(TestCase):
     def test_cannot_provide_empty_string(self):
         with self.assertRaises(ValueError):
             PdbRecord("", 23)
+
+
+    def test_repr(self):
+        record = PdbRecord("TEST   123  123.8    HYT", 23)
+        self.assertEqual(str(record), "<PdbRecord 23 (TEST)>")

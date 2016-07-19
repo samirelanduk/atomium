@@ -80,3 +80,11 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
             atomic_structure.atoms(atom_type=1)
         with self.assertRaises(ValueError):
             atomic_structure.atoms(atom_type="xyz")
+
+
+    def test_default_atom_retrieval_is_pdb(self):
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        self.assertEqual(
+         atomic_structure.atoms(),
+         set(self.pdb_atoms)
+        )

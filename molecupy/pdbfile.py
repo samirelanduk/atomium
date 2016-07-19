@@ -58,7 +58,9 @@ class PdbRecord:
 class PdbFile:
 
     def __init__(self, file_string):
-        self._file_string = file_string
+        self._file_string = "".join([
+         char for char in file_string if 32 <= ord(char) <= 126 or char=="\n"
+        ])
         self._records = [
          PdbRecord(line, i) for i, line in
           enumerate(self._file_string.split("\n"), start=1) if line

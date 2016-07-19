@@ -1,5 +1,5 @@
 import math
-from .exceptions import LongBondWarning
+from ..exceptions import LongBondWarning
 
 class Atom:
 

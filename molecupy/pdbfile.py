@@ -63,3 +63,7 @@ class PdbFile:
          PdbRecord(line, i) for i, line in
           enumerate(self._file_string.split("\n"), start=1) if line
         ]
+
+
+    def __repr__(self):
+        return "<PdbFile (%i Records)>" % len(self._records)

@@ -30,3 +30,8 @@ class PdbFileCreationTests(PdbFileTest):
         self.assertEqual(pdb_file._records[-1].name(), "COMPND")
         self.assertTrue(pdb_file._records[0].content().startswith("    LYASE"))
         self.assertTrue(pdb_file._records[-1].content().startswith("   6 ENGINEERED"))
+
+
+    def test_repr(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertEqual(str(pdb_file), "<PdbFile (9 Records)>")

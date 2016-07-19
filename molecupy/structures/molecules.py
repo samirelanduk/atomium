@@ -36,4 +36,8 @@ class AtomicStructure:
 
 
     def add_atom(self, atom):
+        if not isinstance(atom, Atom):
+            raise TypeError(
+             "Can only make add Atoms to AtomicStructures, not '%s'" % str(atom)
+            )
         self._atoms.add(atom)

@@ -104,3 +104,9 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
         atomic_structure.add_atom(atom21)
         self.assertEqual(len(atomic_structure.atoms()), 11)
         self.assertIn(atom21, atomic_structure.atoms())
+
+
+    def test_can_only_add_atoms(self):
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        with self.assertRaises(TypeError):
+            atomic_structure.add_atom("atom21")

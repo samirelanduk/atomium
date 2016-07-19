@@ -33,3 +33,14 @@ class RecordCreationTests(TestCase):
     def test_repr(self):
         record = PdbRecord("TEST   123  123.8    HYT", 23)
         self.assertEqual(str(record), "<PdbRecord 23 (TEST)>")
+
+
+
+class RecordPropertyTests(TestCase):
+
+    def test_record_properties(self):
+        record = PdbRecord("TEST   123  123.8    HYT", 23)
+        self.assertEqual(record._number, record.number())
+        self.assertEqual(record._name, record.name())
+        self.assertEqual(record._text, record.text())
+        self.assertTrue(record._content, record.content())

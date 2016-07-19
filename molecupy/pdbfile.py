@@ -17,3 +17,19 @@ class PdbRecord:
 
     def __repr__(self):
         return "<PdbRecord %i (%s)>" % (self._number, self._name)
+
+
+    def number(self):
+        return self._number
+
+
+    def name(self):
+        return self._name
+
+
+    def text(self):
+        return self._text
+
+
+    def content(self):
+        return self._content

@@ -11,3 +11,20 @@ class RecordCreationTests(TestCase):
         self.assertTrue(record._content.startswith(" 123  123.8    HYT"))
         self.assertEqual(len(record._text), 80)
         self.assertEqual(len(record._content), 74)
+
+
+    def test_number_must_be_int(self):
+        with self.assertRaises(TypeError):
+            PdbRecord("TEST   123  123.8    HYT", "23")
+        with self.assertRaises(TypeError):
+            PdbRecord("TEST   123  123.8    HYT", 23.5)
+
+
+    def test_text_must_be_string(self):
+        with self.assertRaises(TypeError):
+            PdbRecord(100, 23)
+
+
+    def test_cannot_provide_empty_string(self):
+        with self.assertRaises(ValueError):
+            PdbRecord("", 23)

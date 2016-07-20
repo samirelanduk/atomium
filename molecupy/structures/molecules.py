@@ -41,3 +41,8 @@ class AtomicStructure:
              "Can only make add Atoms to AtomicStructures, not '%s'" % str(atom)
             )
         self._atoms.add(atom)
+
+
+    def remove_atom(self, atom):
+        if atom in self._atoms:
+            self._atoms.remove(atom)

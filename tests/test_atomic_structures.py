@@ -110,3 +110,13 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
         atomic_structure = AtomicStructure(*self.all_atoms)
         with self.assertRaises(TypeError):
             atomic_structure.add_atom("atom21")
+
+
+    def test_can_remove_atoms(self):
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        atomic_structure.remove_atom(self.pdb_atoms[5])
+        self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 19)
+        self.assertNotIn(self.pdb_atoms[5], atomic_structure.atoms(atom_type="all"))
+        atomic_structure.remove_atom(self.generic_atoms[5])
+        self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 18)
+        self.assertNotIn(self.generic_atoms[5], atomic_structure.atoms(atom_type="all"))

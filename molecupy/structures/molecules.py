@@ -46,3 +46,7 @@ class AtomicStructure:
     def remove_atom(self, atom):
         if atom in self._atoms:
             self._atoms.remove(atom)
+
+
+    def mass(self, atom_type="all"):
+        return sum([atom.mass() for atom in self.atoms(atom_type)])

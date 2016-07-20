@@ -9,6 +9,8 @@ class AtomicStructureTest(TestCase):
         self.pdb_atoms = [unittest.mock.Mock(spec=PdbAtom) for _ in range(10)]
         self.generic_atoms = [unittest.mock.Mock(spec=Atom) for _ in range(10)]
         self.all_atoms = self.pdb_atoms + self.generic_atoms
+        for index, atom in enumerate(self.all_atoms):
+            atom.mass.return_value = index + 1
 
 
 
@@ -120,3 +122,26 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
         atomic_structure.remove_atom(self.generic_atoms[5])
         self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 18)
         self.assertNotIn(self.generic_atoms[5], atomic_structure.atoms(atom_type="all"))
+
+
+
+class AtomicStructureMassTests(AtomicStructureTest):
+
+    def test_can_get_atomic_structure_mass_all(self):
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        self.assertEqual(atomic_structure.mass(atom_type="all"), 210)
+
+
+    def test_can_get_atomic_structure_mass_pdb(self):
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        self.assertEqual(atomic_structure.mass(atom_type="pdb"), 55)
+
+
+    def test_can_get_atomic_structure_mass_generic(self):
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        self.assertEqual(atomic_structure.mass(atom_type="generic"), 155)
+
+
+    def test_default_atomic_mass_is_all(self):
+        atomic_structure = AtomicStructure(*self.all_atoms)
+        self.assertEqual(atomic_structure.mass(), 210)

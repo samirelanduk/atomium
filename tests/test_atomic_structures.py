@@ -265,3 +265,45 @@ class AtomRetrievalTests(AtomicStructureTest):
          self.atomic_structure.get_atoms_by_element("F"),
          set()
         )
+
+
+    def test_can_get_single_all_atom_by_element(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_element("B", atom_type="all"),
+         (self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16])
+        )
+
+
+    def test_can_get_single_pdb_atom_by_element(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_element("B", atom_type="pdb"),
+         (self.all_atoms[1], self.all_atoms[6])
+        )
+
+
+    def test_can_get_single_generic_atom_by_element(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_element("B", atom_type="generic"),
+         (self.all_atoms[11], self.all_atoms[16])
+        )
+
+
+    def test_default_element_single_atom_retrieval_is_all(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_element("B"),
+         (self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16])
+        )
+
+
+    def test_failed_single_element_search_returns_none(self):
+        self.assertEqual(
+         self.atomic_structure.get_atom_by_element("F"),
+         None
+        )
+
+
+    def test_can_only_search_by_string_element(self):
+        with self.assertRaises(TypeError):
+            self.atomic_structure.get_atom_by_element(None)
+        with self.assertRaises(TypeError):
+            self.atomic_structure.get_atoms_by_element(None)

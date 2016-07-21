@@ -423,3 +423,23 @@ class AtomicStructureContactsTests(AtomicStructureTest):
           frozenset([self.pdb_atoms[4], self.pdb_atoms[9]]),
          ])
         )
+
+
+    def test_external_contacts_can_ignore_hydrogens(self):
+        self.pdb_atoms[4].element("H")
+        self.pdb_atoms[5].element("H")
+        self.pdb_atoms[9].element("H")
+        structure1 = AtomicStructure(*self.pdb_atoms[:5])
+        structure2 = AtomicStructure(*self.pdb_atoms[5:])
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=30, include_hydrogens=False),
+         set()
+        )
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=35, include_hydrogens=False),
+         set()
+        )
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=40, include_hydrogens=False),
+         set([frozenset([self.pdb_atoms[3], self.pdb_atoms[7]])])
+        )

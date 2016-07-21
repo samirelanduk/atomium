@@ -385,3 +385,41 @@ class AtomRetrievalTests(AtomicStructureTest):
             self.atomic_structure.get_atom_by_name(None)
         with self.assertRaises(TypeError):
             self.atomic_structure.get_atoms_by_name(None)
+
+
+
+class AtomicStructureContactsTests(AtomicStructureTest):
+
+    def setUp(self):
+        x_values = [10.0, 20.0, 30.0, 40.0, 50.0, 80.0, 80.0, 80.0, 80.0, 80.0]
+        y_values = [30.0, 30.0, 30.0, 30.0, 30.0, 10.0, 20.0, 30.0, 40.0, 50.0]
+        self.pdb_atoms = [
+         PdbAtom(x_values[i], y_values[i], 10.0, "C", i + 1, "CX") for i in range(10)
+        ]
+
+    def test_can_get_contacts_between_atomic_structures(self):
+        structure1 = AtomicStructure(*self.pdb_atoms[:5])
+        structure2 = AtomicStructure(*self.pdb_atoms[5:])
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=30),
+         set([frozenset([self.pdb_atoms[4], self.pdb_atoms[7]])])
+        )
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=35),
+         set([
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]])
+         ])
+        )
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=40),
+         set([
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]]),
+          frozenset([self.pdb_atoms[3], self.pdb_atoms[7]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[5]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[9]]),
+         ])
+        )

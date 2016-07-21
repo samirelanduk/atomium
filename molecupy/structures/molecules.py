@@ -60,6 +60,17 @@ class AtomicStructure:
         ])
 
 
+    def contacts_with(self, other_atomic_structure, distance=4):
+        contacts = set()
+        our_atoms = list(self.atoms(atom_type="pdb"))
+        their_atoms = list(other_atomic_structure.atoms(atom_type="pdb"))
+        for atom in our_atoms:
+            for other_atom in their_atoms:
+                if atom.distance_to(other_atom) <= distance:
+                    contacts.add(frozenset((atom, other_atom)))
+        return contacts
+
+
     def get_atom_by_id(self, atom_id):
         if not isinstance(atom_id, int):
             raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))

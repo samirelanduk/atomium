@@ -207,3 +207,25 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
          self.atomic_structure.formula(),
          self.atomic_structure.formula(atom_type="all", include_hydrogens=False)
         )
+
+
+
+class AtomRetrievalTests(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        for index, atom in enumerate(self.all_atoms):
+            atom.atom_id.return_value = index + 1
+        self.atomic_structure = AtomicStructure(*self.all_atoms)
+
+
+    def test_can_get_atom_by_id(self):
+        self.assertIs(self.atomic_structure.get_atom_by_id(1), self.all_atoms[0])
+        self.assertIs(self.atomic_structure.get_atom_by_id(5), self.all_atoms[4])
+        self.assertIs(self.atomic_structure.get_atom_by_id(13), self.all_atoms[12])
+        self.assertIs(self.atomic_structure.get_atom_by_id(24), None)
+
+
+    def test_can_only_search_by_numeric_id(self):
+        with self.assertRaises(TypeError):
+            self.atomic_structure.get_atom_by_id("98")

@@ -55,5 +55,14 @@ class AtomicStructure:
 
     def formula(self, atom_type="all", include_hydrogens=False):
         return Counter([
-         atom.element() for atom in self.atoms(atom_type=atom_type) if include_hydrogens or atom.element().upper() != "H"
+         atom.element() for atom in self.atoms(atom_type=atom_type)
+          if include_hydrogens or atom.element().upper() != "H"
         ])
+
+
+    def get_atom_by_id(self, atom_id):
+        if not isinstance(atom_id, int):
+            raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))
+        for atom in self.atoms():
+            if atom.atom_id() == atom_id:
+                return atom

@@ -216,6 +216,7 @@ class AtomRetrievalTests(AtomicStructureTest):
         AtomicStructureTest.setUp(self)
         for index, atom in enumerate(self.all_atoms):
             atom.atom_id.return_value = index + 1
+            atom.element.return_value = chr((index % 5) + 65)
         self.atomic_structure = AtomicStructure(*self.all_atoms)
 
 
@@ -229,3 +230,38 @@ class AtomRetrievalTests(AtomicStructureTest):
     def test_can_only_search_by_numeric_id(self):
         with self.assertRaises(TypeError):
             self.atomic_structure.get_atom_by_id("98")
+
+
+    def test_can_get_all_atoms_by_element(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_element("B", atom_type="all"),
+         set((self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16]))
+        )
+
+
+    def test_can_get_pdb_atoms_by_element(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_element("B", atom_type="pdb"),
+         set((self.all_atoms[1], self.all_atoms[6]))
+        )
+
+
+    def test_can_get_generic_atoms_by_element(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_element("B", atom_type="generic"),
+         set((self.all_atoms[11], self.all_atoms[16]))
+        )
+
+
+    def test_default_element_atom_retrieval_is_all(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_element("B"),
+         set((self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16]))
+        )
+
+
+    def test_failed_element_search_returns_empty_set(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_element("F"),
+         set()
+        )

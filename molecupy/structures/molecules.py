@@ -66,3 +66,11 @@ class AtomicStructure:
         for atom in self.atoms():
             if atom.atom_id() == atom_id:
                 return atom
+
+
+    def get_atoms_by_element(self, element, atom_type="all"):
+        if not isinstance(element, str):
+            raise TypeError("Atom element search must be by str, not '%s'" % str(element))
+        return set([
+         atom for atom in self.atoms(atom_type=atom_type) if atom.element() == element
+        ])

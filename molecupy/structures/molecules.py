@@ -63,10 +63,17 @@ class AtomicStructure:
     def contacts_with(self, other_atomic_structure, distance=4, include_hydrogens=True):
         contacts = set()
         our_atoms = list(self.atoms(atom_type="pdb"))
-        their_atoms = list(other_atomic_structure.atoms(atom_type="pdb"))
+        their_atoms = [
+         a for a in list(other_atomic_structure.atoms(atom_type="pdb"))
+          if a not in our_atoms
+        ]
         if not include_hydrogens:
-            our_atoms = [atom for atom in our_atoms if atom.element().upper() != "H"]
-            their_atoms = [atom for atom in their_atoms if atom.element().upper() != "H"]
+            our_atoms = [
+             atom for atom in our_atoms if atom.element().upper() != "H"
+            ]
+            their_atoms = [
+             atom for atom in their_atoms if atom.element().upper() != "H"
+            ]
         for atom in our_atoms:
             for other_atom in their_atoms:
                 if atom.distance_to(other_atom) <= distance:

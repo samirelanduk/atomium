@@ -443,3 +443,31 @@ class AtomicStructureContactsTests(AtomicStructureTest):
          structure1.contacts_with(structure2, distance=40, include_hydrogens=False),
          set([frozenset([self.pdb_atoms[3], self.pdb_atoms[7]])])
         )
+
+
+    def test_can_get_external_contacts_when_one_structure_is_part_of_the_other(self):
+        structure1 = AtomicStructure(*self.pdb_atoms[:5])
+        structure2 = AtomicStructure(*self.pdb_atoms)
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=30),
+         set([frozenset([self.pdb_atoms[4], self.pdb_atoms[7]])])
+        )
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=35),
+         set([
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]])
+         ])
+        )
+        self.assertEqual(
+         structure1.contacts_with(structure2, distance=40),
+         set([
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]]),
+          frozenset([self.pdb_atoms[3], self.pdb_atoms[7]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[5]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[9]]),
+         ])
+        )

@@ -1,3 +1,4 @@
+from collections import Counter
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import AtomicStructure, PdbAtom, Atom
@@ -145,3 +146,64 @@ class AtomicStructureMassTests(AtomicStructureTest):
     def test_default_atomic_mass_is_all(self):
         atomic_structure = AtomicStructure(*self.all_atoms)
         self.assertEqual(atomic_structure.mass(), 210)
+
+
+
+class AtomicStructureFormulaTests(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        for index, element in enumerate(["H", "H", "C", "C", "N", "C", "N", "F", "H", "H"]):
+            self.pdb_atoms[index].element.return_value = element
+        for index, element in enumerate(["H", "P", "C", "N", "N", "C", "N", "F", "H", "H"]):
+            self.generic_atoms[index].element.return_value = element
+        self.atomic_structure = AtomicStructure(*self.all_atoms)
+
+
+    def test_can_get_all_atom_formula_with_hydrogens(self):
+        self.assertEqual(
+         self.atomic_structure.formula(atom_type="all", include_hydrogens=True),
+         Counter({"H": 7, "C": 5, "N": 5, "F": 2, "P": 1})
+        )
+
+
+    def test_can_get_all_atom_formula_without_hydrogens(self):
+        self.assertEqual(
+         self.atomic_structure.formula(atom_type="all", include_hydrogens=False),
+         Counter({"C": 5, "N": 5, "F": 2, "P": 1})
+        )
+
+
+    def test_can_get_pdb_atom_formula_with_hydrogens(self):
+        self.assertEqual(
+         self.atomic_structure.formula(atom_type="pdb", include_hydrogens=True),
+         Counter({"H": 4, "C": 3, "N": 2, "F": 1})
+        )
+
+
+    def test_can_get_pdb_atom_formula_without_hydrogens(self):
+        self.assertEqual(
+         self.atomic_structure.formula(atom_type="pdb", include_hydrogens=False),
+         Counter({"C": 3, "N": 2, "F": 1})
+        )
+
+
+    def test_can_get_generic_atom_formula_with_hydrogens(self):
+        self.assertEqual(
+         self.atomic_structure.formula(atom_type="generic", include_hydrogens=True),
+         Counter({"H": 3, "C": 2, "N": 3, "F": 1, "P": 1})
+        )
+
+
+    def test_can_get_generic_atom_formula_without_hydrogens(self):
+        self.assertEqual(
+         self.atomic_structure.formula(atom_type="generic", include_hydrogens=False),
+         Counter({"C": 2, "N": 3, "F": 1, "P": 1})
+        )
+
+
+    def test_default_formula_is_all_atoms_no_hydrogens(self):
+        self.assertEqual(
+         self.atomic_structure.formula(),
+         self.atomic_structure.formula(atom_type="all", include_hydrogens=False)
+        )

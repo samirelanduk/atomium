@@ -1,3 +1,4 @@
+from collections import Counter
 from .atoms import Atom, PdbAtom
 from ..exceptions import NoAtomsError
 
@@ -50,3 +51,9 @@ class AtomicStructure:
 
     def mass(self, atom_type="all"):
         return sum([atom.mass() for atom in self.atoms(atom_type)])
+
+
+    def formula(self, atom_type="all", include_hydrogens=False):
+        return Counter([
+         atom.element() for atom in self.atoms(atom_type=atom_type) if include_hydrogens or atom.element().upper() != "H"
+        ])

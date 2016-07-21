@@ -82,3 +82,19 @@ class AtomicStructure:
         for atom in self.atoms(atom_type=atom_type):
             if atom.element() == element:
                 return atom
+
+
+    def get_atoms_by_name(self, atom_name, atom_type="all"):
+        if not isinstance(atom_name, str):
+            raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
+        return set([
+         atom for atom in self.atoms(atom_type=atom_type) if atom.atom_name() == atom_name
+        ])
+
+
+    def get_atom_by_name(self, atom_name, atom_type="all"):
+        if not isinstance(atom_name, str):
+            raise TypeError("Atom name search must be by str, not '%s'" % str(atom_name))
+        for atom in self.atoms(atom_type=atom_type):
+            if atom.atom_name() == atom_name:
+                return atom

@@ -217,6 +217,7 @@ class AtomRetrievalTests(AtomicStructureTest):
         for index, atom in enumerate(self.all_atoms):
             atom.atom_id.return_value = index + 1
             atom.element.return_value = chr((index % 5) + 65)
+            atom.atom_name.return_value = atom.element() + "X"
         self.atomic_structure = AtomicStructure(*self.all_atoms)
 
 
@@ -307,3 +308,80 @@ class AtomRetrievalTests(AtomicStructureTest):
             self.atomic_structure.get_atom_by_element(None)
         with self.assertRaises(TypeError):
             self.atomic_structure.get_atoms_by_element(None)
+
+
+    def test_can_get_all_atoms_by_name(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_name("BX", atom_type="all"),
+         set((self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16]))
+        )
+
+
+    def test_can_get_pdb_atoms_by_name(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_name("BX", atom_type="pdb"),
+         set((self.all_atoms[1], self.all_atoms[6]))
+        )
+
+
+    def test_can_get_generic_atoms_by_name(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_name("BX", atom_type="generic"),
+         set((self.all_atoms[11], self.all_atoms[16]))
+        )
+
+
+    def test_default_name_atom_retrieval_is_all(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_name("BX"),
+         set((self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16]))
+        )
+
+
+    def test_failed_name_search_returns_empty_set(self):
+        self.assertEqual(
+         self.atomic_structure.get_atoms_by_name("FX"),
+         set()
+        )
+
+
+    def test_can_get_single_all_atom_by_name(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_name("BX", atom_type="all"),
+         (self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16])
+        )
+
+
+    def test_can_get_single_pdb_atom_by_name(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_name("BX", atom_type="pdb"),
+         (self.all_atoms[1], self.all_atoms[6])
+        )
+
+
+    def test_can_get_single_generic_atom_by_name(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_name("BX", atom_type="generic"),
+         (self.all_atoms[11], self.all_atoms[16])
+        )
+
+
+    def test_default_name_single_atom_retrieval_is_all(self):
+        self.assertIn(
+         self.atomic_structure.get_atom_by_name("BX"),
+         (self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16])
+        )
+
+
+    def test_failed_single_name_search_returns_none(self):
+        self.assertEqual(
+         self.atomic_structure.get_atom_by_name("FX"),
+         None
+        )
+
+
+    def test_can_only_search_by_string_name(self):
+        with self.assertRaises(TypeError):
+            self.atomic_structure.get_atom_by_name(None)
+        with self.assertRaises(TypeError):
+            self.atomic_structure.get_atoms_by_name(None)

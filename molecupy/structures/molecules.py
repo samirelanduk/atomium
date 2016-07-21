@@ -18,7 +18,7 @@ class AtomicStructure:
         return "<AtomicStructure (%i atoms)>" % len(self._atoms)
 
 
-    def atoms(self, atom_type="pdb"):
+    def atoms(self, atom_type="all"):
         if not isinstance(atom_type, str):
             raise TypeError("atom_type must be str, not '%s'" % str(atom_type))
         if atom_type == "pdb":

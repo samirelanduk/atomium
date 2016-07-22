@@ -1,4 +1,3 @@
-
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import SmallMolecule, AtomicStructure, PdbAtom

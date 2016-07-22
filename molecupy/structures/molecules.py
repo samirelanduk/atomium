@@ -171,3 +171,35 @@ class SmallMolecule(AtomicStructure):
                  "'%s' is not a valid molecule_name" % str(molecule_name)
                 )
             self._molecule_name = molecule_name
+
+
+
+class Residue(AtomicStructure):
+
+    def __init__(self, residue_id, residue_name, *atoms):
+        if not isinstance(residue_id, str):
+            raise TypeError("'%s' is not a valid residue_id" % str(residue_id))
+        self._residue_id = residue_id
+        if not isinstance(residue_name, str):
+            raise TypeError("'%s' is not a valid residue_name" % str(residue_name))
+        self._residue_name = residue_name
+        AtomicStructure.__init__(self, *atoms)
+
+
+    def __repr__(self):
+        return "<Residue %s (%s)>" % (self._residue_id, self._residue_name)
+
+
+    def residue_id(self):
+        return self._residue_id
+
+
+    def residue_name(self, residue_name=None):
+        if residue_name is None:
+            return self._residue_name
+        else:
+            if not isinstance(residue_name, str):
+                raise TypeError(
+                 "'%s' is not a valid residue_name" % str(residue_name)
+                )
+            self._residue_name = residue_name

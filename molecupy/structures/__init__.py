@@ -1,2 +1,2 @@
 from .atoms import Atom, PdbAtom, Bond
-from .molecules import AtomicStructure, SmallMolecule
+from .molecules import AtomicStructure, SmallMolecule, Residue

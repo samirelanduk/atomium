@@ -133,3 +133,38 @@ class ResidueConnectionTests(ResidueTest):
         self.residue4.disconnect_from(self.residue3)
         self.assertIs(self.residue3.downstream_residue(), None)
         self.assertIs(self.residue4.upstream_residue(), None)
+
+
+
+class ResidueAtomRetrievalTest(ResidueTest):
+
+    def setUp(self):
+        ResidueTest.setUp(self)
+        self.atom1 = self.atoms[0]
+        self.atom1.atom_name.return_value = "CA"
+        self.atom1.element.return_value = "C"
+        self.atom2 = self.atoms[1]
+        self.atom1.atom_name.return_value = "HX"
+        self.atom2.element.return_value = "H"
+        self.atom3 = self.atoms[2]
+        self.atom1.atom_name.return_value = "N"
+        self.atom3.element.return_value = "N"
+        self.residue = Residue("A1", "RES", self.atom1, self.atom2, self.atom3)
+
+
+    def test_can_get_named_alpha_carbon(self):
+        self.assertIs(self.residue.alpha_carbon(), self.atom1)
+
+
+    def test_can_get_unnamed_alpha_carbon(self):
+        self.atom1.atom_name.return_value = "C"
+        self.assertIs(self.residue.alpha_carbon(), self.atom1)
+
+
+    def test_can_get_any_alpha_carbon(self):
+        self.atom1.atom_name.return_value = "C"
+        self.atom1.element.return_value = "P"
+        self.assertIn(
+         self.residue.alpha_carbon(),
+         (self.atom1, self.atom2, self.atom3)
+        )

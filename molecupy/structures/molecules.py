@@ -245,3 +245,12 @@ class Residue(AtomicStructure):
         if self._upstream_residue is other_residue:
             self._upstream_residue = None
             other_residue._downstream_residue = None
+
+
+    def alpha_carbon(self):
+        atom = self.get_atom_by_name("CA")
+        if not atom:
+            atom = self.get_atom_by_element("C")
+        if not atom:
+            atom = list(self.atoms())[0]
+        return atom

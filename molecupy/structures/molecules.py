@@ -203,3 +203,7 @@ class Residue(AtomicStructure):
                  "'%s' is not a valid residue_name" % str(residue_name)
                 )
             self._residue_name = residue_name
+
+
+    def is_missing(self):
+        return not bool(self.atoms(atom_type="pdb"))

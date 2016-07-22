@@ -16,3 +16,10 @@ class ResiduicStructure(AtomicStructure):
 
     def __repr__(self):
         return "<ResiduicStructure (%i residues)>" % len(self._residues)
+
+
+    def residues(self, include_missing=True):
+        if include_missing:
+            return set(self._residues)
+        else:
+            return set([res for res in self._residues if not res.is_missing()])

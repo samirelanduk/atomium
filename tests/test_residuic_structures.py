@@ -31,3 +31,34 @@ class ResiduicStructureCreationTests(ResiduicStructureTest):
     def test_residuic_structure_repr(self):
         residuic_structure = ResiduicStructure(*self.residues)
         self.assertEqual(str(residuic_structure), "<ResiduicStructure (10 residues)>")
+
+
+
+class ResiduicStructurePropertyTests(ResiduicStructureTest):
+
+    def test_can_get_residues(self):
+        residuic_structure = ResiduicStructure(*self.residues)
+        self.assertEqual(residuic_structure.residues(), set(self.residues))
+
+
+    def test_residuic_structure_residues_is_read_only(self):
+        residue11 = unittest.mock.Mock(spec=Residue)
+        residuic_structure = ResiduicStructure(*self.residues)
+        self.assertEqual(len(residuic_structure.residues()), 10)
+        residuic_structure.residues().add(residue11)
+        self.assertEqual(len(residuic_structure.residues()), 10)
+
+
+    def test_can_exclude_missing_residues(self):
+        for residue in self.residues:
+            residue.is_missing.return_value = False
+        self.residues[6].is_missing.return_value = True
+        residuic_structure = ResiduicStructure(*self.residues)
+        self.assertEqual(
+         len(residuic_structure.residues(include_missing=False)),
+         9
+        )
+        self.assertNotIn(
+         self.residues[6],
+         residuic_structure.residues(include_missing=False)
+        )

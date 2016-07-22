@@ -139,3 +139,12 @@ class AtomicStructure:
         for atom in self.atoms(atom_type=atom_type):
             if atom.atom_name() == atom_name:
                 return atom
+
+
+
+class SmallMolecule(AtomicStructure):
+
+    def __init__(self, molecule_id, molecule_name, *atoms):
+        self._molecule_id = molecule_id
+        self._molecule_name = molecule_name
+        AtomicStructure.__init__(self, *atoms)

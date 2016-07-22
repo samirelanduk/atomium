@@ -67,3 +67,42 @@ class MissingResidueTests(ResidueTest):
         self.assertFalse(whole_residue.is_missing())
         self.assertFalse(part_residue.is_missing())
         self.assertTrue(missing_residue.is_missing())
+
+
+
+class ResidueConnectionTests(ResidueTest):
+
+    def setUp(self):
+        ResidueTest.setUp(self)
+        self.residue1 = Residue("A1", "MET", *self.atoms[:2])
+        self.residue2 = Residue("A2", "MET", *self.atoms[2:4])
+        self.residue3 = Residue("A3", "MET", *self.atoms[4:6])
+        self.residue4 = Residue("A4", "MET", *self.atoms[6:8])
+        self.residue5 = Residue("A5", "MET", *self.atoms[8:])
+
+
+    def test_can_connect_residues(self):
+        self.assertIs(self.residue1.downstream_residue(), None)
+        self.assertIs(self.residue1.upstream_residue(), None)
+        self.assertIs(self.residue2.downstream_residue(), None)
+        self.assertIs(self.residue2.upstream_residue(), None)
+        self.assertIs(self.residue3.downstream_residue(), None)
+        self.assertIs(self.residue3.upstream_residue(), None)
+        self.assertIs(self.residue4.downstream_residue(), None)
+        self.assertIs(self.residue4.upstream_residue(), None)
+        self.assertIs(self.residue5.downstream_residue(), None)
+        self.assertIs(self.residue5.upstream_residue(), None)
+        self.residue1.connect_to(self.residue2)
+        self.residue2.connect_to(self.residue3)
+        self.residue3.connect_to(self.residue4)
+        self.residue4.connect_to(self.residue5)
+        self.assertIs(self.residue1.downstream_residue(), self.residue2)
+        self.assertIs(self.residue1.upstream_residue(), None)
+        self.assertIs(self.residue2.downstream_residue(), self.residue3)
+        self.assertIs(self.residue2.upstream_residue(), self.residue1)
+        self.assertIs(self.residue3.downstream_residue(), self.residue4)
+        self.assertIs(self.residue3.upstream_residue(), self.residue2)
+        self.assertIs(self.residue4.downstream_residue(), self.residue5)
+        self.assertIs(self.residue4.upstream_residue(), self.residue3)
+        self.assertIs(self.residue5.downstream_residue(), None)
+        self.assertIs(self.residue5.upstream_residue(), self.residue4)

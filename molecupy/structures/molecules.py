@@ -184,6 +184,8 @@ class Residue(AtomicStructure):
             raise TypeError("'%s' is not a valid residue_name" % str(residue_name))
         self._residue_name = residue_name
         AtomicStructure.__init__(self, *atoms)
+        self._downstream_residue = None
+        self._upstream_residue = None
 
 
     def __repr__(self):
@@ -207,3 +209,16 @@ class Residue(AtomicStructure):
 
     def is_missing(self):
         return not bool(self.atoms(atom_type="pdb"))
+
+
+    def downstream_residue(self):
+        return self._downstream_residue
+
+
+    def upstream_residue(self):
+        return self._upstream_residue
+
+
+    def connect_to(self, downstream_residue):
+        self._downstream_residue = downstream_residue
+        downstream_residue._upstream_residue = self

@@ -1,6 +1,6 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import ResiduicStructure, Residue, AtomicStructure
+from molecupy.structures import ResiduicStructure, Residue, AtomicStructure, Atom
 from molecupy import NoResiduesError
 
 class ResiduicStructureTest(TestCase):
@@ -83,3 +83,12 @@ class ResiduicStructurePropertyTests(ResiduicStructureTest):
         residuic_structure.remove_residue(self.residues[5])
         self.assertEqual(len(residuic_structure.residues()), 9)
         self.assertNotIn(self.residues[5], residuic_structure.residues())
+
+
+    def test_can_get_atoms(self):
+        atoms = [unittest.mock.Mock(spec=Atom) for _ in range(10)]
+        for index, residue in enumerate(self.residues):
+            residue.atoms.return_value = set([atoms[index]])
+        residuic_structure = ResiduicStructure(*self.residues)
+        self.assertEqual(residuic_structure._atoms, set(atoms))
+        self.assertEqual(residuic_structure.atoms(), set(atoms))

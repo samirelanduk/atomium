@@ -18,6 +18,16 @@ class ResiduicStructure(AtomicStructure):
         return "<ResiduicStructure (%i residues)>" % len(self._residues)
 
 
+    def __getattr__(self, attribute):
+        if attribute == "_atoms":
+            atoms = set()
+            for residue in self.residues():
+                atoms.update(residue.atoms())
+            return atoms
+        else:
+            return self.__getattribute__(attribute)
+
+
     def residues(self, include_missing=True):
         if include_missing:
             return set(self._residues)

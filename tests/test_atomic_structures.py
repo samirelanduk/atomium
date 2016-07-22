@@ -489,3 +489,19 @@ class AtomicStructureContactsTests(AtomicStructureTest):
           frozenset([self.pdb_atoms[4], self.pdb_atoms[7]])
          ])
         )
+
+
+    def test_internal_contacts_can_ignore_hydrogens(self):
+        warnings.simplefilter("ignore")
+        for index, atom in enumerate(self.pdb_atoms[:-1]):
+            atom.bond_to(self.pdb_atoms[index + 1])
+        self.pdb_atoms[4].element("H")
+        self.pdb_atoms[5].element("H")
+        self.pdb_atoms[9].element("H")
+        structure = AtomicStructure(*self.pdb_atoms)
+        self.assertEqual(
+         structure.internal_contacts(distance=31, include_hydrogens=False),
+         set([
+          frozenset([self.pdb_atoms[0], self.pdb_atoms[3]])
+         ])
+        )

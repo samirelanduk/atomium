@@ -81,9 +81,11 @@ class AtomicStructure:
         return contacts
 
 
-    def internal_contacts(self, distance=4):
+    def internal_contacts(self, distance=4, include_hydrogens=True):
         contacts = set()
         atoms = list(self.atoms(atom_type="pdb"))
+        if not include_hydrogens:
+            atoms = [atom for atom in atoms if atom.element().upper() != "H"]
         for index, atom in enumerate(atoms[:-1]):
             too_close_atoms = set((atom,))
             for bonded_atom in atom.bonded_atoms():

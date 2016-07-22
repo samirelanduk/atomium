@@ -55,8 +55,6 @@ class AtomPropertyTests(TestCase):
     def test_basic_property_update(self):
         self.atom.element("H")
         self.assertEqual(self.atom.element(), "H")
-        self.atom.atom_id(101)
-        self.assertEqual(self.atom.atom_id(), 101)
         self.atom.atom_name("C")
         self.assertEqual(self.atom.atom_name(), "C")
 
@@ -73,11 +71,6 @@ class AtomPropertyTests(TestCase):
             self.atom.element("CAC")
         self.atom.element("MG")
         self.atom.element("M")
-
-
-    def test_atom_id_must_be_int(self):
-        with self.assertRaises(TypeError):
-            self.atom.atom_id("100")
 
 
     def test_atom_name_must_be_str(self):

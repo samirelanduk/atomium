@@ -37,13 +37,8 @@ class Atom:
             self._element = element
 
 
-    def atom_id(self, atom_id=None):
-        if atom_id is None:
-            return self._atom_id
-        else:
-            if not isinstance(atom_id, int):
-                raise TypeError("atom_id must be int, not '%s'" % str(atom_id))
-            self._atom_id = atom_id
+    def atom_id(self):
+        return self._atom_id
 
 
     def atom_name(self, atom_name=None):

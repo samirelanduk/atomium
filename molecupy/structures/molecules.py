@@ -81,6 +81,24 @@ class AtomicStructure:
         return contacts
 
 
+    def internal_contacts(self, distance=4):
+        contacts = set()
+        atoms = list(self.atoms(atom_type="pdb"))
+        for index, atom in enumerate(atoms[:-1]):
+            too_close_atoms = set((atom,))
+            for bonded_atom in atom.bonded_atoms():
+                too_close_atoms.add(bonded_atom)
+            second_tier_atoms = set()
+            for close_atom in too_close_atoms:
+                for bonded_atom in close_atom.bonded_atoms():
+                    second_tier_atoms.add(bonded_atom)
+            too_close_atoms.update(second_tier_atoms)
+            for other_atom in atoms[index + 1:]:
+                if other_atom not in too_close_atoms and atom.distance_to(other_atom) <= distance:
+                    contacts.add(frozenset((atom, other_atom)))
+        return contacts
+
+
     def get_atom_by_id(self, atom_id):
         if not isinstance(atom_id, int):
             raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))

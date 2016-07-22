@@ -1,4 +1,5 @@
 from collections import Counter
+import warnings
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import AtomicStructure, PdbAtom, Atom
@@ -469,5 +470,22 @@ class AtomicStructureContactsTests(AtomicStructureTest):
           frozenset([self.pdb_atoms[3], self.pdb_atoms[7]]),
           frozenset([self.pdb_atoms[4], self.pdb_atoms[5]]),
           frozenset([self.pdb_atoms[4], self.pdb_atoms[9]]),
+         ])
+        )
+
+
+    def test_can_get_internal_contacts(self):
+        warnings.simplefilter("ignore")
+        for index, atom in enumerate(self.pdb_atoms[:-1]):
+            atom.bond_to(self.pdb_atoms[index + 1])
+        structure = AtomicStructure(*self.pdb_atoms)
+        self.assertEqual(
+         structure.internal_contacts(distance=31),
+         set([
+          frozenset([self.pdb_atoms[0], self.pdb_atoms[3]]),
+          frozenset([self.pdb_atoms[1], self.pdb_atoms[4]]),
+          frozenset([self.pdb_atoms[5], self.pdb_atoms[8]]),
+          frozenset([self.pdb_atoms[6], self.pdb_atoms[9]]),
+          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]])
          ])
         )

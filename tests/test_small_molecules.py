@@ -49,3 +49,9 @@ class SmallMoleculePropertyTests(SmallMoleculeTest):
         self.assertEqual(small_molecule.molecule_name(), "MOL")
         small_molecule.molecule_name("LOM")
         self.assertEqual(small_molecule.molecule_name(), "LOM")
+
+
+    def test_molecule_name_can_only_be_changed_to_str(self):
+        small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
+        with self.assertRaises(TypeError):
+            small_molecule.molecule_name(100)

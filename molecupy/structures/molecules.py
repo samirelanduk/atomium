@@ -166,4 +166,8 @@ class SmallMolecule(AtomicStructure):
         if molecule_name is None:
             return self._molecule_name
         else:
+            if not isinstance(molecule_name, str):
+                raise TypeError(
+                 "'%s' is not a valid molecule_name" % str(molecule_name)
+                )
             self._molecule_name = molecule_name

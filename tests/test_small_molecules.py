@@ -18,3 +18,13 @@ class SmallMoleculeCreationTests(SmallMoleculeTest):
         self.assertEqual(small_molecule._molecule_id, "A500")
         self.assertEqual(small_molecule._molecule_name, "MOL")
         self.assertEqual(small_molecule._atoms, set(self.atoms))
+
+
+    def test_molecule_id_must_be_str(self):
+        with self.assertRaises(TypeError):
+            SmallMolecule(1.1, "HET", *self.atoms)
+
+
+    def test_molecule_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            SmallMolecule("A1", 1, *self.atoms)

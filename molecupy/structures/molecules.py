@@ -145,6 +145,10 @@ class AtomicStructure:
 class SmallMolecule(AtomicStructure):
 
     def __init__(self, molecule_id, molecule_name, *atoms):
+        if not isinstance(molecule_id, str):
+            raise TypeError("'%s' is not a valid molecule_id" % str(molecule_id))
         self._molecule_id = molecule_id
+        if not isinstance(molecule_name, str):
+            raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))
         self._molecule_name = molecule_name
         AtomicStructure.__init__(self, *atoms)

@@ -156,3 +156,11 @@ class SmallMolecule(AtomicStructure):
 
     def __repr__(self):
         return "<SmallMolecule %s (%s)>" % (self._molecule_id, self._molecule_name)
+
+
+    def molecule_id(self):
+        return self._molecule_id
+
+
+    def molecule_name(self):
+        return self._molecule_name

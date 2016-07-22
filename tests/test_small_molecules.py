@@ -33,3 +33,12 @@ class SmallMoleculeCreationTests(SmallMoleculeTest):
     def test_small_molecule_repr(self):
         small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
         self.assertEqual(str(small_molecule), "<SmallMolecule A500 (MOL)>")
+
+
+
+class SmallMoleculePropertyTests(SmallMoleculeTest):
+
+    def test_small_molecule_properties(self):
+        small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
+        self.assertEqual(small_molecule.molecule_id(), "A500")
+        self.assertEqual(small_molecule.molecule_name(), "MOL")

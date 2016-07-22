@@ -28,3 +28,8 @@ class SmallMoleculeCreationTests(SmallMoleculeTest):
     def test_molecule_name_must_be_str(self):
         with self.assertRaises(TypeError):
             SmallMolecule("A1", 1, *self.atoms)
+
+
+    def test_small_molecule_repr(self):
+        small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
+        self.assertEqual(str(small_molecule), "<SmallMolecule A500 (MOL)>")

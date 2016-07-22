@@ -152,3 +152,7 @@ class SmallMolecule(AtomicStructure):
             raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))
         self._molecule_name = molecule_name
         AtomicStructure.__init__(self, *atoms)
+
+
+    def __repr__(self):
+        return "<SmallMolecule %s (%s)>" % (self._molecule_id, self._molecule_name)

@@ -5,3 +5,8 @@ class LongBondWarning(Warning):
 
 class NoAtomsError(Exception):
     pass
+
+
+
+class MultipleResidueConnectionError(Exception):
+    pass

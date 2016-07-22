@@ -1,6 +1,7 @@
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Residue, AtomicStructure, PdbAtom, Atom
+from molecupy.exceptions import MultipleResidueConnectionError
 
 class ResidueTest(TestCase):
 
@@ -111,3 +112,11 @@ class ResidueConnectionTests(ResidueTest):
     def test_can_only_connect_residues(self):
         with self.assertRaises(TypeError):
             self.residue1.connect_to(self.atoms[0])
+
+
+    def test_cannot_connect_residue_to_connected_residue(self):
+        self.residue2.connect_to(self.residue3)
+        with self.assertRaises(MultipleResidueConnectionError):
+            self.residue2.connect_to(self.residue4)
+        with self.assertRaises(MultipleResidueConnectionError):
+            self.residue1.connect_to(self.residue3)

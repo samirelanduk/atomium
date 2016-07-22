@@ -1,6 +1,6 @@
 from collections import Counter
 from .atoms import Atom, PdbAtom
-from ..exceptions import NoAtomsError
+from ..exceptions import NoAtomsError, MultipleResidueConnectionError
 
 class AtomicStructure:
 
@@ -224,5 +224,15 @@ class Residue(AtomicStructure):
             raise TypeError(
              "Can only connect Residues to other Residues, not '%s'" % str(downstream_residue)
             )
+        if self._downstream_residue is not None:
+            raise MultipleResidueConnectionError(
+             "%s already has a downstream residue (%s) and cannot connect to %s"
+              % (self, self._downstream_residue, downstream_residue)
+             )
+        if downstream_residue._upstream_residue is not None:
+            raise MultipleResidueConnectionError(
+             "%s already has an upstream residue (%s) and so %s cannot connect to it"
+              % (downstream_residue, downstream_residue._upstream_residue, self)
+             )
         self._downstream_residue = downstream_residue
         downstream_residue._upstream_residue = self

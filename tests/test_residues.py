@@ -106,3 +106,8 @@ class ResidueConnectionTests(ResidueTest):
         self.assertIs(self.residue4.upstream_residue(), self.residue3)
         self.assertIs(self.residue5.downstream_residue(), None)
         self.assertIs(self.residue5.upstream_residue(), self.residue4)
+
+
+    def test_can_only_connect_residues(self):
+        with self.assertRaises(TypeError):
+            self.residue1.connect_to(self.atoms[0])

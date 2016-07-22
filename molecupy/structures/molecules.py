@@ -220,5 +220,9 @@ class Residue(AtomicStructure):
 
 
     def connect_to(self, downstream_residue):
+        if not isinstance(downstream_residue, Residue):
+            raise TypeError(
+             "Can only connect Residues to other Residues, not '%s'" % str(downstream_residue)
+            )
         self._downstream_residue = downstream_residue
         downstream_residue._upstream_residue = self

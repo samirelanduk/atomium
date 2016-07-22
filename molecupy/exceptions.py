@@ -8,5 +8,10 @@ class NoAtomsError(Exception):
 
 
 
+class NoResiduesError(Exception):
+    pass
+
+
+
 class MultipleResidueConnectionError(Exception):
     pass

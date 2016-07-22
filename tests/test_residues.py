@@ -120,3 +120,16 @@ class ResidueConnectionTests(ResidueTest):
             self.residue2.connect_to(self.residue4)
         with self.assertRaises(MultipleResidueConnectionError):
             self.residue1.connect_to(self.residue3)
+
+
+    def test_can_disconnect_residues(self):
+        self.residue1.connect_to(self.residue2)
+        self.residue2.connect_to(self.residue3)
+        self.residue3.connect_to(self.residue4)
+        self.residue4.connect_to(self.residue5)
+        self.residue2.disconnect_from(self.residue3)
+        self.assertIs(self.residue2.downstream_residue(), None)
+        self.assertIs(self.residue3.upstream_residue(), None)
+        self.residue4.disconnect_from(self.residue3)
+        self.assertIs(self.residue3.downstream_residue(), None)
+        self.assertIs(self.residue4.upstream_residue(), None)

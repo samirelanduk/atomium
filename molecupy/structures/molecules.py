@@ -236,3 +236,12 @@ class Residue(AtomicStructure):
              )
         self._downstream_residue = downstream_residue
         downstream_residue._upstream_residue = self
+
+
+    def disconnect_from(self, other_residue):
+        if self._downstream_residue is other_residue:
+            self._downstream_residue = None
+            other_residue._upstream_residue = None
+        if self._upstream_residue is other_residue:
+            self._upstream_residue = None
+            other_residue._downstream_residue = None

@@ -15,3 +15,8 @@ class ResiduicStructureCreationTests(ResiduicStructureTest):
         residuic_structure = ResiduicStructure(*self.residues)
         self.assertIsInstance(residuic_structure, AtomicStructure)
         self.assertEqual(residuic_structure._residues, set(self.residues))
+
+
+    def test_residuic_structure_repr(self):
+        residuic_structure = ResiduicStructure(*self.residues)
+        self.assertEqual(str(residuic_structure), "<ResiduicStructure (10 residues)>")

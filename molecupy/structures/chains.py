@@ -23,3 +23,15 @@ class ResiduicStructure(AtomicStructure):
             return set(self._residues)
         else:
             return set([res for res in self._residues if not res.is_missing()])
+
+
+    def add_residue(self, residue):
+        if not isinstance(residue, Residue):
+            raise TypeError(
+             "Can only add Residues to ResiduicStructures, not '%s'" % str(residue)
+            )
+        self._residues.add(residue)
+
+
+    def remove_residue(self, residue):
+        self._residues.remove(residue)

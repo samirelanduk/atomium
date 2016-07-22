@@ -62,3 +62,24 @@ class ResiduicStructurePropertyTests(ResiduicStructureTest):
          self.residues[6],
          residuic_structure.residues(include_missing=False)
         )
+
+
+    def test_can_add_residue(self):
+        residue11 = unittest.mock.Mock(spec=Residue)
+        residuic_structure = ResiduicStructure(*self.residues)
+        residuic_structure.add_residue(residue11)
+        self.assertEqual(len(residuic_structure.residues()), 11)
+        self.assertIn(residue11, residuic_structure.residues())
+
+
+    def test_can_only_add_residues(self):
+        residuic_structure = ResiduicStructure(*self.residues)
+        with self.assertRaises(TypeError):
+            residuic_structure.add_residue("atom21")
+
+
+    def test_can_remove_atoms(self):
+        residuic_structure = ResiduicStructure(*self.residues)
+        residuic_structure.remove_residue(self.residues[5])
+        self.assertEqual(len(residuic_structure.residues()), 9)
+        self.assertNotIn(self.residues[5], residuic_structure.residues())

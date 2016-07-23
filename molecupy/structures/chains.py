@@ -108,6 +108,14 @@ class ResiduicSequence(ResiduicStructure):
 
 
 
+class Chain(ResiduicSequence):
+
+    def __init__(self, chain_id, *residues):
+        self._chain_id = chain_id
+        ResiduicSequence.__init__(self, *residues)
+
+
+
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",
  "TRP": "W", "LYS": "K", "GLN": "Q", "GLU": "E", "SER": "S",

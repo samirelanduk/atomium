@@ -26,3 +26,11 @@ class ChainCreationTests(ChainTest):
     def test_chain_repr(self):
         chain = Chain("A", *self.residues)
         self.assertEqual(str(chain), "<Chain A (10 residues)>")
+
+
+
+class ChainPropertyTests(ChainTest):
+
+    def test_chain_properties(self):
+        chain = Chain("A", *self.residues)
+        self.assertEqual(chain.chain_id(), "A")

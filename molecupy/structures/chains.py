@@ -121,6 +121,10 @@ class Chain(ResiduicSequence):
         return "<Chain %s (%i residues)>" % (self._chain_id, len(self._residues))
 
 
+    def chain_id(self):
+        return self._chain_id
+
+
 
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",

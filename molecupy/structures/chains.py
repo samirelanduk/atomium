@@ -1,4 +1,4 @@
-from .molecules import AtomicStructure, Residue
+from .molecules import AtomicStructure, Residue, SmallMolecule
 from . import matrix
 from ..exceptions import NoResiduesError
 
@@ -148,8 +148,15 @@ class BindSite(ResiduicStructure):
         return self._site_id
 
 
-    def ligand(self):
-        return self._ligand
+    def ligand(self, ligand=None):
+        if ligand is None:
+            return self._ligand
+        else:
+            if not isinstance(ligand, SmallMolecule):
+                raise TypeError(
+                 "'%s' is not a valid ligand" % str(ligand)
+                )
+            self._ligand = ligand
 
 
 

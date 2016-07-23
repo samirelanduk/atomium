@@ -1,6 +1,6 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import BindSite, ResiduicStructure, Residue
+from molecupy.structures import BindSite, ResiduicStructure, Residue, SmallMolecule
 
 class BindSiteTest(TestCase):
 
@@ -36,3 +36,17 @@ class SitePropertyTests(BindSiteTest):
         site = BindSite("A1", *self.residues)
         self.assertEqual(site.site_id(), "A1")
         self.assertEqual(site.ligand(), None)
+
+
+    def test_can_assign_ligand(self):
+        site = BindSite("A1", *self.residues)
+        ligand = unittest.mock.Mock(spec=SmallMolecule)
+        self.assertEqual(site.ligand(), None)
+        site.ligand(ligand)
+        self.assertEqual(site.ligand(), ligand)
+
+
+    def test_ligand_assigning_must_small_molecule(self):
+        site = BindSite("A1", *self.residues)
+        with self.assertRaises(TypeError):
+            site.ligand("ligand")

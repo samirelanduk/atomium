@@ -61,6 +61,13 @@ class HelixPropertyTests(HelixTest):
         self.assertEqual(helix.comment(), "..")
 
 
+    def test_cannot_add_residue_from_other_chain(self):
+        helix = AlphaHelix("AA", *self.residues[1:4])
+        helix.add_residue(self.residues[4])
+        with self.assertRaises(BrokenHelixError):
+            helix.add_residue(self.residues[5])
+
+
     def test_can_update_helix_class(self):
         helix = AlphaHelix("AA", *self.residues[1:4], helix_class=".", comment="..")
         self.assertEqual(helix.helix_class(), ".")

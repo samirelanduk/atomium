@@ -232,6 +232,15 @@ class AlphaHelix(ResiduicSequence):
         return self.residues()[0].chain()
 
 
+    def add_residue(self, residue):
+        if residue.chain() is not self.chain():
+            raise BrokenHelixError(
+             "Cannot add %s to %s as their chains don't match" % (str(residue), str(self))
+            )
+        ResiduicSequence.add_residue(self, residue)
+
+
+
 
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",

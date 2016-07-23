@@ -10,7 +10,7 @@ class ResiduicStructure(AtomicStructure):
         for residue in residues:
             if not isinstance(residue, Residue):
                 raise TypeError(
-                 "Can only make ResiduicStructure with Residuess, not '%s'" % str(residue)
+                 "Can only make ResiduicStructure with Residues, not '%s'" % str(residue)
                 )
         self._residues = set(residues)
 
@@ -170,6 +170,16 @@ class BindSite(ResiduicStructure):
                 )
             self._ligand = ligand
             ligand._bind_site = self
+
+
+    def continuous_sequence(self):
+        if len(set([res.chain() for res in self.residues() if res.chain()])) == 1:
+            chain = list(self.residues())[0].chain()
+            min_index = min([chain.residues().index(res) for res in self.residues()])
+            max_index = max([chain.residues().index(res) for res in self.residues()])
+            return ResiduicSequence(*chain.residues()[min_index:max_index])
+        else:
+            return None
 
 
 

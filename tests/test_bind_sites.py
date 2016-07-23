@@ -1,6 +1,7 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import BindSite, ResiduicStructure, Residue, SmallMolecule
+from molecupy.structures import BindSite, ResiduicStructure, ResiduicSequence
+from molecupy.structures import Residue, SmallMolecule, Chain
 
 class BindSiteTest(TestCase):
 
@@ -52,3 +53,19 @@ class SitePropertyTests(BindSiteTest):
         site = BindSite("A1", *self.residues)
         with self.assertRaises(TypeError):
             site.ligand("ligand")
+
+
+
+class ContinuousSequenceTests(BindSiteTest):
+
+    def test_can_make_continuous_sequence(self):
+        chain = Chain("A", *self.residues)
+        for residue in self.residues:
+            residue.chain.return_value = residue._chain
+        site = BindSite("A1", self.residues[2], self.residues[8], self.residues[4])
+        bind_sequence = site.continuous_sequence()
+        self.assertIsInstance(bind_sequence, ResiduicSequence)
+        self.assertEqual(
+         bind_sequence.residues(),
+         self.residues[2:8]
+        )

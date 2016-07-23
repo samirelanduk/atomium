@@ -183,6 +183,16 @@ class BindSite(ResiduicStructure):
 
 
 
+class AlphaHelix(ResiduicSequence):
+
+    def __init__(self, helix_id, *residues, helix_class=None, comment=None):
+        self._helix_id = helix_id
+        ResiduicSequence.__init__(self, *residues)
+        self._helix_class = helix_class
+        self._comment = comment
+
+
+
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",
  "TRP": "W", "LYS": "K", "GLN": "Q", "GLU": "E", "SER": "S",

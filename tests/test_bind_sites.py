@@ -26,3 +26,11 @@ class SiteCreationTests(BindSiteTest):
     def test_site_repr(self):
         site = BindSite("A1", *self.residues)
         self.assertEqual(str(site), "<BindSite A1 (10 residues)>")
+
+
+
+class SitePropertyTests(BindSiteTest):
+
+    def test_site_properties(self):
+        site = BindSite("A1", *self.residues)
+        self.assertEqual(site.site_id(), "A1")

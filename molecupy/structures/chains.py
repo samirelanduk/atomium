@@ -143,6 +143,10 @@ class BindSite(ResiduicStructure):
         return "<BindSite %s (%i residues)>" % (self._site_id, len(self._residues))
 
 
+    def site_id(self):
+        return self._site_id
+
+
 
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",

@@ -24,6 +24,14 @@ class StrandCreationTests(StrandTest):
         self.assertEqual(strand._residues, self.residues[1:4])
 
 
+    def test_chain_knows_about_strand(self):
+        self.assertEqual(self.chainA.beta_strands(), set())
+        strand1 = BetaStrand("AA", 1, *self.residues[0:2])
+        self.assertEqual(self.chainA.beta_strands(), set([strand1]))
+        strand2 = BetaStrand("AB", 1, *self.residues[3:5])
+        self.assertEqual(self.chainA.beta_strands(), set([strand1, strand2]))
+
+
     def test_strand_id_must_be_str(self):
         with self.assertRaises(TypeError):
             BetaStrand(100, -1, *self.residues[1:4])

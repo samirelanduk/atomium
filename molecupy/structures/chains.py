@@ -273,6 +273,8 @@ class BetaStrand(ResiduicSequence):
              "Cannot make strand %s with residues from multiple chains" % strand_id
             )
         ResiduicSequence.__init__(self, *residues)
+        if self.chain():
+            self.chain()._beta_strands.add(self)
 
 
     def __repr__(self):

@@ -15,3 +15,8 @@ class NoResiduesError(Exception):
 
 class MultipleResidueConnectionError(Exception):
     pass
+
+
+
+class BrokenHelixError(Exception):
+    pass

@@ -1,6 +1,6 @@
 from .molecules import AtomicStructure, Residue, SmallMolecule
 from . import matrix
-from ..exceptions import NoResiduesError
+from ..exceptions import NoResiduesError, BrokenHelixError
 
 class ResiduicStructure(AtomicStructure):
 
@@ -186,9 +186,19 @@ class BindSite(ResiduicStructure):
 class AlphaHelix(ResiduicSequence):
 
     def __init__(self, helix_id, *residues, helix_class=None, comment=None):
+        if not isinstance(helix_id, str):
+            raise TypeError("'%s' is not a valid helix_id" % str(helix_id))
         self._helix_id = helix_id
+        if len(set([res.chain() for res in residues])) != 1:
+            raise BrokenHelixError(
+             "Cannot make helix %s with residues from multiple chains" % helix_id
+            )
         ResiduicSequence.__init__(self, *residues)
+        if helix_class is not None and not isinstance(helix_class, str):
+            raise TypeError("'%s' is not a valid helix_class" % str(helix_class))
         self._helix_class = helix_class
+        if comment is not None and not isinstance(comment, str):
+            raise TypeError("'%s' is not a valid comment" % str(comment))
         self._comment = comment
 
 

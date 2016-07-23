@@ -61,10 +61,12 @@ class SmallMoleculePropertyTests(SmallMoleculeTest):
 
     def test_can_add_bind_site(self):
         bind_site = unittest.mock.Mock(spec=BindSite)
+        bind_site._ligand = None
         small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
         self.assertEqual(small_molecule.bind_site(), None)
         small_molecule.bind_site(bind_site)
         self.assertEqual(small_molecule.bind_site(), bind_site)
+        self.assertEqual(bind_site._ligand, small_molecule)
 
 
     def test_small_molecule_can_only_add_bind_site(self):

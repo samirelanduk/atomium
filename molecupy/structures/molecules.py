@@ -183,6 +183,7 @@ class SmallMolecule(AtomicStructure):
                  "'%s' is not a valid bind_site" % str(bind_site)
                 )
             self._bind_site = bind_site
+            bind_site._ligand = self
 
 
 

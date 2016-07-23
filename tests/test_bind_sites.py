@@ -41,9 +41,11 @@ class SitePropertyTests(BindSiteTest):
     def test_can_assign_ligand(self):
         site = BindSite("A1", *self.residues)
         ligand = unittest.mock.Mock(spec=SmallMolecule)
+        ligand._bind_site = None
         self.assertEqual(site.ligand(), None)
         site.ligand(ligand)
         self.assertEqual(site.ligand(), ligand)
+        self.assertEqual(ligand._bind_site, site)
 
 
     def test_ligand_assigning_must_small_molecule(self):

@@ -157,6 +157,7 @@ class BindSite(ResiduicStructure):
                  "'%s' is not a valid ligand" % str(ligand)
                 )
             self._ligand = ligand
+            ligand._bind_site = self
 
 
 

@@ -69,3 +69,9 @@ class ContinuousSequenceTests(BindSiteTest):
          bind_sequence.residues(),
          self.residues[2:8]
         )
+
+
+    def test_site_accross_many_chains_returns_None(self):
+        site = BindSite("A1", self.residues[2], self.residues[8], self.residues[4])
+        bind_sequence = site.continuous_sequence()
+        self.assertIs(bind_sequence, None)

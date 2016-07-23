@@ -217,8 +217,15 @@ class AlphaHelix(ResiduicSequence):
             self._helix_class = helix_class
 
 
-    def comment(self):
-        return self._comment
+    def comment(self, comment=None):
+        if comment is None:
+            return self._comment
+        else:
+            if not isinstance(comment, str):
+                raise TypeError(
+                 "'%s' is not a valid comment" % str(comment)
+                )
+            self._comment = comment
 
 
 

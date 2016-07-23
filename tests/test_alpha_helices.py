@@ -72,3 +72,16 @@ class HelixPropertyTests(HelixTest):
         helix = AlphaHelix("AA", *self.residues[1:4], helix_class=".", comment="..")
         with self.assertRaises(TypeError):
             helix.helix_class(100)
+
+
+    def test_can_update_comment(self):
+        helix = AlphaHelix("AA", *self.residues[1:4], helix_class=".", comment="..")
+        self.assertEqual(helix.comment(), "..")
+        helix.comment("...")
+        self.assertEqual(helix.comment(), "...")
+
+
+    def test_comment_can_only_be_set_to_str(self):
+        helix = AlphaHelix("AA", *self.residues[1:4], helix_class=".", comment="..")
+        with self.assertRaises(TypeError):
+            helix.comment(100)

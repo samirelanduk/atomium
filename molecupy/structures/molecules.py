@@ -173,8 +173,16 @@ class SmallMolecule(AtomicStructure):
             self._molecule_name = molecule_name
 
 
-    def bind_site(self):
-        return self._bind_site
+    def bind_site(self, bind_site=None):
+        from .chains import BindSite
+        if bind_site is None:
+            return self._bind_site
+        else:
+            if not isinstance(bind_site, BindSite):
+                raise TypeError(
+                 "'%s' is not a valid bind_site" % str(bind_site)
+                )
+            self._bind_site = bind_site
 
 
 

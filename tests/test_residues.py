@@ -17,6 +17,7 @@ class ResidueCreationTests(ResidueTest):
         self.assertIsInstance(residue, AtomicStructure)
         self.assertEqual(residue._residue_id, "A5")
         self.assertEqual(residue._residue_name, "TYR")
+        self.assertEqual(residue._chain, None)
         self.assertEqual(residue._atoms, set(self.atoms))
 
 
@@ -42,6 +43,7 @@ class ResiduePropertyTests(ResidueTest):
         residue = Residue("A5", "TYR", *self.atoms)
         self.assertEqual(residue.residue_id(), "A5")
         self.assertEqual(residue.residue_name(), "TYR")
+        self.assertEqual(residue.chain(), None)
 
 
     def test_can_change_residue_name(self):

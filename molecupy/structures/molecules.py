@@ -199,6 +199,7 @@ class Residue(AtomicStructure):
         AtomicStructure.__init__(self, *atoms)
         self._downstream_residue = None
         self._upstream_residue = None
+        self._chain = None
 
 
     def __repr__(self):
@@ -218,6 +219,10 @@ class Residue(AtomicStructure):
                  "'%s' is not a valid residue_name" % str(residue_name)
                 )
             self._residue_name = residue_name
+
+
+    def chain(self):
+        return self._chain
 
 
     def is_missing(self):

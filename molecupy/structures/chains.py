@@ -116,6 +116,8 @@ class Chain(ResiduicSequence):
             raise TypeError("'%s' is not a valid chain_id" % str(chain_id))
         self._chain_id = chain_id
         ResiduicSequence.__init__(self, *residues)
+        for residue in self._residues:
+            residue._chain = self
 
 
     def __repr__(self):
@@ -124,6 +126,16 @@ class Chain(ResiduicSequence):
 
     def chain_id(self):
         return self._chain_id
+
+
+    def add_residue(self, residue):
+        ResiduicSequence.add_residue(self, residue)
+        residue._chain = self
+
+
+    def remove_residue(self, residue):
+        ResiduicSequence.remove_residue(self, residue)
+        residue._chain = None
 
 
     generate_residue_distance_matrix = matrix.generate_residue_distance_matrix

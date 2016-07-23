@@ -21,6 +21,14 @@ class ChainCreationTests(ChainTest):
         self.assertEqual(chain._residues, self.residues)
 
 
+    def test_chain_updates_residues(self):
+        for residue in self.residues:
+            residue._chain = None
+        chain = Chain("A", *self.residues)
+        for residue in self.residues:
+            self.assertIs(residue._chain, chain)
+
+
     def test_chain_id_must_be_str(self):
         with self.assertRaises(TypeError):
             Chain(200, *self.residues)
@@ -37,6 +45,22 @@ class ChainPropertyTests(ChainTest):
     def test_chain_properties(self):
         chain = Chain("A", *self.residues)
         self.assertEqual(chain.chain_id(), "A")
+
+
+    def test_can_add_residues_and_update_them(self):
+        chain = Chain("A", *self.residues)
+        residue = unittest.mock.Mock(spec=Residue)
+        residue._chain = None
+        chain.add_residue(residue)
+        self.assertIs(chain.residues()[-1], residue)
+        self.assertIs(residue._chain, chain)
+
+
+    def test_can_remove_residues_and_update_them(self):
+        chain = Chain("A", *self.residues)
+        chain.remove_residue(self.residues[5])
+        self.assertNotIn(self.residues[5], chain.residues())
+        self.assertIs(self.residues[5]._chain, None)
 
 
 

@@ -202,6 +202,10 @@ class AlphaHelix(ResiduicSequence):
         self._comment = comment
 
 
+    def __repr__(self):
+        return "<AlphaHelix %s (%i residues)>" % (self._helix_id, len(self._residues))
+
+
     def helix_id(self):
         return self._helix_id
 

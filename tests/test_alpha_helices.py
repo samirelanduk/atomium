@@ -51,6 +51,11 @@ class HelixCreationTests(HelixTest):
             AlphaHelix("100", *self.residues[1:4], comment=1)
 
 
+    def test_helix_repr(self):
+        helix = AlphaHelix("AA", *self.residues[1:4])
+        self.assertEqual(str(helix), "<AlphaHelix AA (3 residues)>")
+
+
 
 class HelixPropertyTests(HelixTest):
 

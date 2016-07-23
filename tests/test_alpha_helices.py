@@ -7,8 +7,8 @@ class HelixTest(TestCase):
 
     def setUp(self):
         self.residues = [unittest.mock.Mock(spec=Residue) for _ in range(10)]
-        self.chain = Chain("A", *self.residues[:5])
-        self.chain = Chain("B", *self.residues[5:])
+        self.chainA = Chain("A", *self.residues[:5])
+        self.chainB = Chain("B", *self.residues[5:])
         for residue in self.residues:
             residue.chain.return_value = residue._chain
 
@@ -85,3 +85,10 @@ class HelixPropertyTests(HelixTest):
         helix = AlphaHelix("AA", *self.residues[1:4], helix_class=".", comment="..")
         with self.assertRaises(TypeError):
             helix.comment(100)
+
+
+    def test_can_get_chain(self):
+        helix = AlphaHelix("AA", *self.residues[1:4])
+        self.assertIs(helix.chain(), self.chainA)
+        helix = AlphaHelix("AA", *self.residues[6:9])
+        self.assertIs(helix.chain(), self.chainB)

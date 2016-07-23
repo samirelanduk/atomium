@@ -228,6 +228,10 @@ class AlphaHelix(ResiduicSequence):
             self._comment = comment
 
 
+    def chain(self):
+        return self.residues()[0].chain()
+
+
 
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",

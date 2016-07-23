@@ -136,6 +136,7 @@ class BindSite(ResiduicStructure):
         if not isinstance(site_id, str):
             raise TypeError("'%s' is not a valid site_id" % str(site_id))
         self._site_id = site_id
+        self._ligand = None
         ResiduicStructure.__init__(self, *residues)
 
 
@@ -145,6 +146,10 @@ class BindSite(ResiduicStructure):
 
     def site_id(self):
         return self._site_id
+
+
+    def ligand(self):
+        return self._ligand
 
 
 

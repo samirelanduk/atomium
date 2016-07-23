@@ -92,3 +92,25 @@ class ResiduicStructurePropertyTests(ResiduicStructureTest):
         residuic_structure = ResiduicStructure(*self.residues)
         self.assertEqual(residuic_structure._atoms, set(atoms))
         self.assertEqual(residuic_structure.atoms(), set(atoms))
+
+
+
+class ResidueRetrievalTests(ResiduicStructureTest):
+
+    def setUp(self):
+        ResiduicStructureTest.setUp(self)
+        for index, residue in enumerate(self.residues):
+            residue.residue_id.return_value = "A%i" % (index + 1)
+        self.residuic_structure = ResiduicStructure(*self.residues)
+
+
+    def test_can_get_residue_by_id(self):
+        self.assertIs(self.residuic_structure.get_residue_by_id("A1"), self.residues[0])
+        self.assertIs(self.residuic_structure.get_residue_by_id("A3"), self.residues[2])
+        self.assertIs(self.residuic_structure.get_residue_by_id("A9"), self.residues[8])
+        self.assertIs(self.residuic_structure.get_residue_by_id("B76G"), None)
+
+
+    def test_can_only_search_by_string_id(self):
+        with self.assertRaises(TypeError):
+            self.residuic_structure.get_residue_by_id(98)

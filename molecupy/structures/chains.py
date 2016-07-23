@@ -45,3 +45,13 @@ class ResiduicStructure(AtomicStructure):
 
     def remove_residue(self, residue):
         self._residues.remove(residue)
+
+
+    def get_residue_by_id(self, residue_id):
+        if not isinstance(residue_id, str):
+            raise TypeError(
+             "Residue ID search must be by str, not '%s'" % str(residue_id)
+            )
+        for residue in self.residues():
+            if residue.residue_id() == residue_id:
+                return residue

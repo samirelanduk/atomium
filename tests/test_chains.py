@@ -4,6 +4,7 @@ import omnicanvas.graphics
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Chain, ResiduicSequence, Residue, PdbAtom, Atom
+from molecupy.structures import AlphaHelix, BetaStrand
 
 class ChainTest(TestCase):
 
@@ -65,6 +66,36 @@ class ChainPropertyTests(ChainTest):
         chain.remove_residue(self.residues[5])
         self.assertNotIn(self.residues[5], chain.residues())
         self.assertIs(self.residues[5]._chain, None)
+
+
+
+class SecondaryStructureRetrievalTests(ChainTest):
+
+    def setUp(self):
+        ChainTest.setUp(self)
+        self.chain = Chain("A", *self.residues)
+        self.alpha_helices = [unittest.mock.Mock(spec=AlphaHelix) for _ in range(5)]
+        for index, helix in enumerate(self.alpha_helices):
+            helix.helix_id.return_value = str(index + 1)
+        self.chain._alpha_helices = set(self.alpha_helices)
+        self.beta_strands = [unittest.mock.Mock(spec=BetaStrand) for _ in range(5)]
+        for index, strand in enumerate(self.beta_strands):
+            strand.strand_id.return_value = str(index + 1)
+        self.chain._beta_strands = set(self.beta_strands)
+
+
+    def test_can_get_helix_by_id(self):
+        self.assertIs(self.chain.get_helix_by_id("1"), self.alpha_helices[0])
+        self.assertIs(self.chain.get_helix_by_id("2"), self.alpha_helices[1])
+        self.assertIs(self.chain.get_helix_by_id("3"), self.alpha_helices[2])
+        self.assertIs(self.chain.get_helix_by_id("4"), self.alpha_helices[3])
+        self.assertIs(self.chain.get_helix_by_id("5"), self.alpha_helices[4])
+        self.assertIs(self.chain.get_helix_by_id("6"), None)
+
+
+    def test_can_only_search_for_string_helix_id(self):
+        with self.assertRaises(TypeError):
+            self.chain.get_helix_by_id(1)
 
 
 

@@ -148,6 +148,14 @@ class Chain(ResiduicSequence):
         return set(self._beta_strands)
 
 
+    def get_helix_by_id(self, helix_id):
+        if not isinstance(helix_id, str):
+            raise TypeError("Helix ID search must be by str, not '%s'" % str(helix_id))
+        for helix in self.alpha_helices():
+            if helix.helix_id() == helix_id:
+                return helix
+
+
     generate_residue_distance_matrix = matrix.generate_residue_distance_matrix
 
 
@@ -308,7 +316,6 @@ class BetaStrand(ResiduicSequence):
              "Cannot add %s to %s as their chains don't match" % (str(residue), str(self))
             )
         ResiduicSequence.add_residue(self, residue)
-
 
 
 

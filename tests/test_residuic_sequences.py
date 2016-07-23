@@ -86,3 +86,37 @@ class ResiduicSequencePropertyTests(ResiduicSequenceTest):
         residuic_sequence = ResiduicSequence(*self.residues)
         self.assertEqual(residuic_sequence._atoms, set(atoms))
         self.assertEqual(residuic_sequence.atoms(), set(atoms))
+
+
+
+class SequenceGenerationTests(ResiduicSequenceTest):
+
+    def setUp(self):
+        ResiduicSequenceTest.setUp(self)
+        names = ["VAL", "TYR", "TRP", "LEU", "ILE"]
+        for index, residue in enumerate(self.residues[:5]):
+            residue.residue_name.return_value = names[index]
+            residue.is_missing.return_value = False if index else True
+        self.residuic_sequence = ResiduicSequence(*self.residues[:5])
+
+
+    def test_can_get_string_sequence(self):
+        self.assertEqual(
+         self.residuic_sequence.sequence_string(),
+         "VYWLI"
+        )
+
+
+    def test_can_get_protein_sequence_with_unknown_residues(self):
+        self.residues[2].residue_name.return_value = "ABC"
+        self.assertEqual(
+         self.residuic_sequence.sequence_string(),
+         "VYXLI"
+        )
+
+
+    def test_can_ignore_missing_residues(self):
+        self.assertEqual(
+         self.residuic_sequence.sequence_string(include_missing=False),
+         "YWLI"
+        )

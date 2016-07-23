@@ -99,3 +99,18 @@ class ResiduicSequence(ResiduicStructure):
              "Can only add Residues to ResiduicSequences, not '%s'" % str(residue)
             )
         self._residues.append(residue)
+
+
+    def sequence_string(self, include_missing=True):
+        return "".join([RESIDUES.get(
+         res.residue_name().upper(), "X"
+        ) for res in self.residues(include_missing=include_missing)])
+
+
+
+RESIDUES = {
+ "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",
+ "TRP": "W", "LYS": "K", "GLN": "Q", "GLU": "E", "SER": "S",
+ "PRO": "P", "VAL": "V", "ILE": "I", "CYS": "C", "TYR": "Y",
+ "HIS": "H", "ARG": "R", "ASN": "N", "ASP": "D", "THR": "T"
+}

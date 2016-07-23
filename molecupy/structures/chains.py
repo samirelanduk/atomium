@@ -76,3 +76,11 @@ class ResiduicStructure(AtomicStructure):
         for residue in self.residues(include_missing=include_missing):
             if residue.residue_name() == residue_name:
                 return residue
+
+
+
+class ResiduicSequence(ResiduicStructure):
+
+    def __init__(self, *residues):
+        ResiduicStructure.__init__(self, *residues)
+        self._residues = list(residues)

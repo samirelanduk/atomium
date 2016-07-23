@@ -1,4 +1,5 @@
 from .molecules import AtomicStructure, Residue
+from . import matrix
 from ..exceptions import NoResiduesError
 
 class ResiduicStructure(AtomicStructure):
@@ -123,6 +124,9 @@ class Chain(ResiduicSequence):
 
     def chain_id(self):
         return self._chain_id
+
+
+    generate_residue_distance_matrix = matrix.generate_residue_distance_matrix
 
 
 

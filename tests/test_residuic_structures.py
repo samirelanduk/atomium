@@ -78,7 +78,7 @@ class ResiduicStructurePropertyTests(ResiduicStructureTest):
             residuic_structure.add_residue("atom21")
 
 
-    def test_can_remove_atoms(self):
+    def test_can_remove_residues(self):
         residuic_structure = ResiduicStructure(*self.residues)
         residuic_structure.remove_residue(self.residues[5])
         self.assertEqual(len(residuic_structure.residues()), 9)

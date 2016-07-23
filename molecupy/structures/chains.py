@@ -84,3 +84,18 @@ class ResiduicSequence(ResiduicStructure):
     def __init__(self, *residues):
         ResiduicStructure.__init__(self, *residues)
         self._residues = list(residues)
+
+
+    def residues(self, include_missing=True):
+        if include_missing:
+            return list(self._residues)
+        else:
+            return [res for res in self._residues if not res.is_missing()]
+
+
+    def add_residue(self, residue):
+        if not isinstance(residue, Residue):
+            raise TypeError(
+             "Can only add Residues to ResiduicSequences, not '%s'" % str(residue)
+            )
+        self._residues.append(residue)

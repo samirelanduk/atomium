@@ -16,6 +16,7 @@ class SmallMoleculeCreationTests(SmallMoleculeTest):
         self.assertIsInstance(small_molecule, AtomicStructure)
         self.assertEqual(small_molecule._molecule_id, "A500")
         self.assertEqual(small_molecule._molecule_name, "MOL")
+        self.assertEqual(small_molecule._bind_site, None)
         self.assertEqual(small_molecule._atoms, set(self.atoms))
 
 
@@ -41,6 +42,8 @@ class SmallMoleculePropertyTests(SmallMoleculeTest):
         small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
         self.assertEqual(small_molecule.molecule_id(), "A500")
         self.assertEqual(small_molecule.molecule_name(), "MOL")
+        self.assertEqual(small_molecule.bind_site(), None)
+
 
 
     def test_can_change_molecule_name(self):

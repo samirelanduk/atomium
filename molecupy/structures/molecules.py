@@ -150,6 +150,7 @@ class SmallMolecule(AtomicStructure):
         if not isinstance(molecule_name, str):
             raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))
         self._molecule_name = molecule_name
+        self._bind_site = None
         AtomicStructure.__init__(self, *atoms)
 
 
@@ -170,6 +171,10 @@ class SmallMolecule(AtomicStructure):
                  "'%s' is not a valid molecule_name" % str(molecule_name)
                 )
             self._molecule_name = molecule_name
+
+
+    def bind_site(self):
+        return self._bind_site
 
 
 

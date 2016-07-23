@@ -210,6 +210,8 @@ class AlphaHelix(ResiduicSequence):
         if comment is not None and not isinstance(comment, str):
             raise TypeError("'%s' is not a valid comment" % str(comment))
         self._comment = comment
+        if self.chain():
+            self.chain()._alpha_helices.add(self)
 
 
     def __repr__(self):

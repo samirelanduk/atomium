@@ -25,6 +25,14 @@ class HelixCreationTests(HelixTest):
         self.assertEqual(helix._comment, None)
 
 
+    def test_chain_knows_about_helix(self):
+        self.assertEqual(self.chainA.alpha_helices(), set())
+        helix1 = AlphaHelix("AA", *self.residues[0:2])
+        self.assertEqual(self.chainA.alpha_helices(), set([helix1]))
+        helix2 = AlphaHelix("AB", *self.residues[3:5])
+        self.assertEqual(self.chainA.alpha_helices(), set([helix1, helix2]))
+
+
     def test_can_create_with_class_and_comment(self):
         helix = AlphaHelix("AA", *self.residues[1:4], helix_class=".", comment="..")
         self.assertEqual(helix._helix_class, ".")

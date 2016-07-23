@@ -20,3 +20,8 @@ class MultipleResidueConnectionError(Exception):
 
 class BrokenHelixError(Exception):
     pass
+
+
+
+class BrokenStrandError(Exception):
+    pass

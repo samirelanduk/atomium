@@ -1,6 +1,6 @@
 from .molecules import AtomicStructure, Residue, SmallMolecule
 from . import matrix
-from ..exceptions import NoResiduesError, BrokenHelixError
+from ..exceptions import NoResiduesError, BrokenHelixError, BrokenStrandError
 
 class ResiduicStructure(AtomicStructure):
 
@@ -239,6 +239,58 @@ class AlphaHelix(ResiduicSequence):
     def add_residue(self, residue):
         if residue.chain() is not self.chain():
             raise BrokenHelixError(
+             "Cannot add %s to %s as their chains don't match" % (str(residue), str(self))
+            )
+        ResiduicSequence.add_residue(self, residue)
+
+
+
+class BetaStrand(ResiduicSequence):
+
+    def __init__(self, strand_id, sense, *residues):
+        if not isinstance(strand_id, str):
+            raise TypeError("'%s' is not a valid strand_id" % str(strand_id))
+        self._strand_id = strand_id
+        if not isinstance(sense, int):
+            raise TypeError("'%s' is not a valid sense value" % str(sense))
+        if not (-1 <= sense <= 1):
+            raise ValueError("sense can only be -1, 0 or 1 - not %i" % sense)
+        self._sense = sense
+        if len(set([res.chain() for res in residues])) != 1:
+            raise BrokenStrandError(
+             "Cannot make strand %s with residues from multiple chains" % strand_id
+            )
+        ResiduicSequence.__init__(self, *residues)
+
+
+    def __repr__(self):
+        return "<BetaStrand %s (%i residues)>" % (self._strand_id, len(self._residues))
+
+
+    def strand_id(self):
+        return self._strand_id
+
+
+    def sense(self, sense=None):
+        if sense is None:
+            return self._sense
+        else:
+            if not isinstance(sense, int):
+                raise TypeError(
+                 "'%s' is not a valid sense value" % str(sense)
+                )
+            if not (-1 <= sense <= 1):
+                raise ValueError("sense can only be -1, 0 or 1 - not %i" % sense)
+            self._sense = sense
+
+
+    def chain(self):
+        return self.residues()[0].chain()
+
+
+    def add_residue(self, residue):
+        if residue.chain() is not self.chain():
+            raise BrokenStrandError(
              "Cannot add %s to %s as their chains don't match" % (str(residue), str(self))
             )
         ResiduicSequence.add_residue(self, residue)

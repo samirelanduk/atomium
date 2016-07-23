@@ -98,6 +98,20 @@ class SecondaryStructureRetrievalTests(ChainTest):
             self.chain.get_helix_by_id(1)
 
 
+    def test_can_get_strand_by_id(self):
+        self.assertIs(self.chain.get_strand_by_id("1"), self.beta_strands[0])
+        self.assertIs(self.chain.get_strand_by_id("2"), self.beta_strands[1])
+        self.assertIs(self.chain.get_strand_by_id("3"), self.beta_strands[2])
+        self.assertIs(self.chain.get_strand_by_id("4"), self.beta_strands[3])
+        self.assertIs(self.chain.get_strand_by_id("5"), self.beta_strands[4])
+        self.assertIs(self.chain.get_strand_by_id("6"), None)
+
+
+    def test_can_only_search_for_string_strand_id(self):
+        with self.assertRaises(TypeError):
+            self.chain.get_strand_by_id(1)
+
+
 
 class ChainMatrixTests(ChainTest):
 

@@ -156,6 +156,14 @@ class Chain(ResiduicSequence):
                 return helix
 
 
+    def get_strand_by_id(self, strand_id):
+        if not isinstance(strand_id, str):
+            raise TypeError("Strand ID search must be by str, not '%s'" % str(strand_id))
+        for strand in self.beta_strands():
+            if strand.strand_id() == strand_id:
+                return strand
+
+
     generate_residue_distance_matrix = matrix.generate_residue_distance_matrix
 
 

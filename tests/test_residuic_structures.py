@@ -101,6 +101,8 @@ class ResidueRetrievalTests(ResiduicStructureTest):
         ResiduicStructureTest.setUp(self)
         for index, residue in enumerate(self.residues):
             residue.residue_id.return_value = "A%i" % (index + 1)
+            residue.residue_name.return_value = "MET" if index % 2 else "TYR"
+            residue.is_missing.return_value = False if index <= 5 else True
         self.residuic_structure = ResiduicStructure(*self.residues)
 
 
@@ -114,3 +116,52 @@ class ResidueRetrievalTests(ResiduicStructureTest):
     def test_can_only_search_by_string_id(self):
         with self.assertRaises(TypeError):
             self.residuic_structure.get_residue_by_id(98)
+
+
+    def test_can_get_residues_by_name(self):
+        self.assertEqual(
+         self.residuic_structure.get_residues_by_name("TYR"),
+         set(self.residues[::2])
+        )
+
+
+    def test_can_get_present_residues_by_name(self):
+        self.assertEqual(
+         self.residuic_structure.get_residues_by_name("TYR", include_missing=False),
+         set(self.residues[::2][:-2])
+        )
+
+
+    def test_failed_name_search_returns_empty_set(self):
+        self.assertEqual(
+         self.residuic_structure.get_residues_by_name("FX"),
+         set()
+        )
+
+
+    def test_can_get_single_residue_by_name(self):
+        self.assertIn(
+         self.residuic_structure.get_residue_by_name("TYR"),
+         set(self.residues[::2])
+        )
+
+
+    def test_can_get_single_residue_by_name_present_only(self):
+        self.assertIn(
+         self.residuic_structure.get_residue_by_name("TYR", include_missing=False),
+         set(self.residues[::2][:-2])
+        )
+
+
+    def test_failed_single_name_search_returns_none(self):
+        self.assertEqual(
+         self.residuic_structure.get_residue_by_name("FX"),
+         None
+        )
+
+
+    def test_can_only_search_by_string_name(self):
+        with self.assertRaises(TypeError):
+            self.residuic_structure.get_residues_by_name(None)
+        with self.assertRaises(TypeError):
+            self.residuic_structure.get_residue_by_name(None)

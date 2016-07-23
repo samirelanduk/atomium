@@ -55,3 +55,24 @@ class ResiduicStructure(AtomicStructure):
         for residue in self.residues():
             if residue.residue_id() == residue_id:
                 return residue
+
+
+    def get_residues_by_name(self, residue_name, include_missing=True):
+        if not isinstance(residue_name, str):
+            raise TypeError(
+             "Residue name search must be by str, not '%s'" % str(residue_name)
+            )
+        return set([
+         residue for residue in self.residues(include_missing=include_missing)
+          if residue.residue_name() == residue_name
+        ])
+
+
+    def get_residue_by_name(self, residue_name, include_missing=True):
+        if not isinstance(residue_name, str):
+            raise TypeError(
+             "Residue name search must be by str, not '%s'" % str(residue_name)
+            )
+        for residue in self.residues(include_missing=include_missing):
+            if residue.residue_name() == residue_name:
+                return residue

@@ -15,3 +15,13 @@ class ResiduicSequenceCreationTests(ResiduicSequenceTest):
         residuic_sequence = ResiduicSequence(*self.residues)
         self.assertIsInstance(residuic_sequence, ResiduicStructure)
         self.assertEqual(residuic_sequence._residues, self.residues)
+
+
+    def test_can_only_create_residuic_sequence_with_residues(self):
+        with self.assertRaises(TypeError):
+            ResiduicSequence("Atom1", "Atom2")
+
+
+    def test_residuic_structure_repr(self):
+        residuic_sequence = ResiduicSequence(*self.residues)
+        self.assertEqual(str(residuic_sequence), "<ResiduicSequence (10 residues)>")

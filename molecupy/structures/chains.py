@@ -15,7 +15,7 @@ class ResiduicStructure(AtomicStructure):
 
 
     def __repr__(self):
-        return "<ResiduicStructure (%i residues)>" % len(self._residues)
+        return "<%s (%i residues)>" % (self.__class__.__name__, len(self._residues))
 
 
     def __getattr__(self, attribute):

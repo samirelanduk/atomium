@@ -23,7 +23,7 @@ class ResiduicStructureCreationTests(ResiduicStructureTest):
             ResiduicStructure("Atom1", "Atom2")
 
 
-    def test_cannot_make_empty_atomic_structure(self):
+    def test_cannot_make_empty_residuic_structure(self):
         with self.assertRaises(NoResiduesError):
             ResiduicStructure()
 

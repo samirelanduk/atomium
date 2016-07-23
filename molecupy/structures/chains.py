@@ -118,6 +118,8 @@ class Chain(ResiduicSequence):
         ResiduicSequence.__init__(self, *residues)
         for residue in self._residues:
             residue._chain = self
+        self._alpha_helices = set()
+        self._beta_strands = set()
 
 
     def __repr__(self):
@@ -136,6 +138,14 @@ class Chain(ResiduicSequence):
     def remove_residue(self, residue):
         ResiduicSequence.remove_residue(self, residue)
         residue._chain = None
+
+
+    def alpha_helices(self):
+        return set(self._alpha_helices)
+
+
+    def beta_strands(self):
+        return set(self._beta_strands)
 
 
     generate_residue_distance_matrix = matrix.generate_residue_distance_matrix

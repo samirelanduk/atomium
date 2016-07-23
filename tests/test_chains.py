@@ -19,6 +19,8 @@ class ChainCreationTests(ChainTest):
         self.assertIsInstance(chain, ResiduicSequence)
         self.assertEqual(chain._chain_id, "A")
         self.assertEqual(chain._residues, self.residues)
+        self.assertEqual(chain._alpha_helices, set())
+        self.assertEqual(chain._beta_strands, set())
 
 
     def test_chain_updates_residues(self):
@@ -45,6 +47,8 @@ class ChainPropertyTests(ChainTest):
     def test_chain_properties(self):
         chain = Chain("A", *self.residues)
         self.assertEqual(chain.chain_id(), "A")
+        self.assertEqual(chain.alpha_helices(), set())
+        self.assertEqual(chain.beta_strands(), set())
 
 
     def test_can_add_residues_and_update_them(self):

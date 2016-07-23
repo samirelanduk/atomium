@@ -130,6 +130,20 @@ class Chain(ResiduicSequence):
 
 
 
+class BindSite(ResiduicStructure):
+
+    def __init__(self, site_id, *residues):
+        if not isinstance(site_id, str):
+            raise TypeError("'%s' is not a valid site_id" % str(site_id))
+        self._site_id = site_id
+        ResiduicStructure.__init__(self, *residues)
+
+
+    def __repr__(self):
+        return "<BindSite %s (%i residues)>" % (self._site_id, len(self._residues))
+
+
+
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",
  "TRP": "W", "LYS": "K", "GLN": "Q", "GLU": "E", "SER": "S",

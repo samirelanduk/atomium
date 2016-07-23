@@ -202,6 +202,18 @@ class AlphaHelix(ResiduicSequence):
         self._comment = comment
 
 
+    def helix_id(self):
+        return self._helix_id
+
+
+    def helix_class(self):
+        return self._helix_class
+
+
+    def comment(self):
+        return self._comment
+
+
 
 RESIDUES = {
  "GLY": "G", "ALA": "A", "LEU": "L", "MET": "M", "PHE": "F",

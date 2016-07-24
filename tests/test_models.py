@@ -36,3 +36,10 @@ class ModelSmallMoleculeTests(ModelTest):
          model.small_molecules(),
          set([self.small_molecule1, self.small_molecule2])
         )
+
+
+    def test_must_use_method_to_add_small_molecule(self):
+        model = Model()
+        self.assertEqual(model.small_molecules(), set())
+        model.small_molecules().add(self.small_molecule1)
+        self.assertEqual(model.small_molecules(), set())

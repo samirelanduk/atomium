@@ -1,4 +1,5 @@
 from unittest import TestCase
+import unittest.mock
 from molecupy.structures import Atom
 
 class AtomCreationTests(TestCase):
@@ -98,3 +99,25 @@ class AtomMassTests(TestCase):
     def test_strange_elements_have_zero_mass(self):
         mysterium = Atom("My", 1, "My")
         self.assertEqual(mysterium.mass(), 0)
+
+
+
+class AtomModelTests(TestCase):
+
+    def test_can_get_model_through_small_molecule(self):
+        atom = Atom("C", 100, "CA")
+        small_molecule = unittest.mock.Mock()
+        atom._molecule = small_molecule
+        small_molecule.model.return_value = "model"
+        self.assertEqual(atom.model(), "model")
+
+
+    def test_can_get_model_through_chain(self):
+        atom = Atom("C", 100, "CA")
+        residue = unittest.mock.Mock()
+        residue.model.side_effect = AttributeError()
+        atom._molecule = residue
+        chain = unittest.mock.Mock()
+        residue.chain.return_value = chain
+        chain.model.return_value = "model"
+        self.assertEqual(atom.model(), "model")

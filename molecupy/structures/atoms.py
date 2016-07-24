@@ -59,6 +59,15 @@ class Atom:
         return self._molecule
 
 
+    def model(self):
+        try:
+            return self.molecule().model()
+        except AttributeError:
+            return self.molecule().chain().model()
+        except AttributeError:
+            return None
+
+
 
 class PdbAtom(Atom):
 

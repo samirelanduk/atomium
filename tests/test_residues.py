@@ -7,6 +7,8 @@ class ResidueTest(TestCase):
 
     def setUp(self):
         self.atoms = [unittest.mock.Mock(spec=PdbAtom) for _ in range(10)]
+        for atom in self.atoms:
+            atom._molecule = None
 
 
 
@@ -36,6 +38,14 @@ class ResidueCreationTests(ResidueTest):
         self.assertEqual(str(residue), "<Residue A5 (TYR)>")
 
 
+    def test_residues_update_atoms(self):
+        for atom in self.atoms:
+            self.assertIs(atom._molecule, None)
+        residue = Residue("A5", "TRP", *self.atoms)
+        for atom in self.atoms:
+            self.assertIs(atom._molecule, residue)
+
+
 
 class ResiduePropertyTests(ResidueTest):
 
@@ -57,6 +67,22 @@ class ResiduePropertyTests(ResidueTest):
         residue = Residue("A5", "TYR", *self.atoms)
         with self.assertRaises(TypeError):
             residue.residue_name(100)
+
+
+    def test_residue_integrates_added_atoms(self):
+        residue = Residue("A5", "MET", *self.atoms[:-1])
+        self.assertIs(self.atoms[-1]._molecule, None)
+        residue.add_atom(self.atoms[-1])
+        self.assertIs(self.atoms[-1]._molecule, residue)
+        self.assertEqual(len(residue.atoms()), 10)
+
+
+    def test_residue_deintegrates_removed_atoms(self):
+        residue = Residue("A5", "MET", *self.atoms)
+        self.assertIs(self.atoms[-1]._molecule, residue)
+        residue.remove_atom(self.atoms[-1])
+        self.assertIs(self.atoms[-1]._molecule, None)
+        self.assertEqual(len(residue.atoms()), 9)
 
 
 

@@ -214,6 +214,8 @@ class Residue(AtomicStructure):
             raise TypeError("'%s' is not a valid residue_name" % str(residue_name))
         self._residue_name = residue_name
         AtomicStructure.__init__(self, *atoms)
+        for atom in self._atoms:
+            atom._molecule = self
         self._downstream_residue = None
         self._upstream_residue = None
         self._chain = None
@@ -236,6 +238,16 @@ class Residue(AtomicStructure):
                  "'%s' is not a valid residue_name" % str(residue_name)
                 )
             self._residue_name = residue_name
+
+
+    def add_atom(self, atom):
+        AtomicStructure.add_atom(self, atom)
+        atom._molecule = self
+
+
+    def remove_atom(self, atom):
+        AtomicStructure.remove_atom(self, atom)
+        atom._molecule = None
 
 
     def chain(self):

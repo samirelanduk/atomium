@@ -2,7 +2,7 @@ from collections import Counter
 import warnings
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import AtomicStructure, PdbAtom, Atom
+from molecupy.structures import AtomicStructure, PdbAtom, Atom, BindSite, Residue
 from molecupy import NoAtomsError
 
 class AtomicStructureTest(TestCase):
@@ -505,3 +505,25 @@ class AtomicStructureContactsTests(AtomicStructureTest):
           frozenset([self.pdb_atoms[0], self.pdb_atoms[3]])
          ])
         )
+
+
+
+class BindSiteGenerationTests(AtomicStructureTest):
+
+    def test_can_find_bind_site(self):
+        atomic_structure = AtomicStructure(*self.all_atoms[-13:])
+        residue1 = unittest.mock.Mock(spec=Residue)
+        residue2 = unittest.mock.Mock(spec=Residue)
+        molecule1 = unittest.mock.Mock()
+        self.pdb_atoms[-1].local_atoms.return_value = set(self.pdb_atoms[:2])
+        self.pdb_atoms[-2].local_atoms.return_value = set(self.pdb_atoms[2:4])
+        self.pdb_atoms[-3].local_atoms.return_value = set(self.pdb_atoms[4:6])
+        self.pdb_atoms[0].molecule.return_value = residue1
+        self.pdb_atoms[1].molecule.return_value = None
+        self.pdb_atoms[2].molecule.return_value = None
+        self.pdb_atoms[3].molecule.return_value = residue2
+        self.pdb_atoms[4].molecule.return_value = None
+        self.pdb_atoms[5].molecule.return_value = molecule1
+        site = atomic_structure.predict_bind_site()
+        self.assertIsInstance(site, BindSite)
+        self.assertEqual(site.residues(), set([residue1, residue2]))

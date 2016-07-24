@@ -100,6 +100,19 @@ class AtomicStructure:
         return contacts
 
 
+    def predict_bind_site(self, distance=3):
+        from .chains import BindSite
+        nearby_atoms = set()
+        for atom in self.atoms(atom_type="pdb"):
+            nearby_atoms.update(atom.local_atoms(distance=distance))
+        residues = set()
+        for atom in nearby_atoms:
+            if isinstance(atom.molecule(), Residue):
+                residues.add(atom.molecule())
+        return BindSite("CALC", *list(residues))
+
+
+
     def get_atom_by_id(self, atom_id):
         if not isinstance(atom_id, int):
             raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))

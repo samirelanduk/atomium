@@ -1,11 +1,12 @@
 from .molecules import AtomicStructure, SmallMolecule
-from .chains import Chain
+from .chains import Chain, BindSite
 
 class Model(AtomicStructure):
 
     def __init__(self):
         self._small_molecules = set()
         self._chains = set()
+        self._bind_sites = set()
 
 
     def __getattr__(self, attribute):
@@ -88,3 +89,31 @@ class Model(AtomicStructure):
         for chain in self.chains():
             if chain.chain_id() == chain_id:
                 return chain
+
+
+    def bind_sites(self):
+        return set(self._bind_sites)
+
+
+    def add_bind_site(self, site):
+        if not isinstance(site, BindSite):
+            raise TypeError(
+             "Can only add BindSite to Model, not '%s'" % str(site)
+            )
+        self._bind_sites.add(site)
+        site._model = self
+
+
+    def remove_bind_site(self, site):
+        self._bind_sites.remove(site)
+        site._model = None
+
+
+    def get_bind_site_by_id(self, site_id):
+        if not isinstance(site_id, str):
+            raise TypeError(
+             "BindSite ID search must be by str, not '%s'" % str(site_id)
+            )
+        for site in self.bind_sites():
+            if site.site_id() == site_id:
+                return site

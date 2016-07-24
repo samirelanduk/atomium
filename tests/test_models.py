@@ -1,6 +1,6 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
+from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite
 
 class ModelTest(TestCase):
 
@@ -19,6 +19,12 @@ class ModelTest(TestCase):
         self.chain2 = unittest.mock.Mock(spec=Chain)
         self.chain2._model = None
         self.chain2.chain_id.return_value = "B"
+        self.site1 = unittest.mock.Mock(spec=BindSite)
+        self.site1._model = None
+        self.site1.site_id.return_value = "AA"
+        self.site2 = unittest.mock.Mock(spec=BindSite)
+        self.site2._model = None
+        self.site2.site_id.return_value = "BB"
 
 
 
@@ -190,3 +196,63 @@ class ModelChainTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_chain_by_id(100)
+
+
+
+class ModelBindSiteTests(ModelTest):
+
+    def test_can_add_bind_sites(self):
+        model = Model()
+        self.assertEqual(model.bind_sites(), set())
+        model.add_bind_site(self.site1)
+        self.assertEqual(model.bind_sites(), set([self.site1]))
+        model.add_bind_site(self.site2)
+        self.assertEqual(
+         model.bind_sites(),
+         set([self.site1, self.site2])
+        )
+
+
+    def test_must_use_method_to_add_bind_site(self):
+        model = Model()
+        self.assertEqual(model.bind_sites(), set())
+        model.bind_sites().add(self.site1)
+        self.assertEqual(model.bind_sites(), set())
+
+
+    def test_can_remove_sites(self):
+        model = Model()
+        model.add_bind_site(self.site1)
+        self.assertEqual(model.bind_sites(), set([self.site1]))
+        model.remove_bind_site(self.site1)
+        self.assertEqual(model.bind_sites(), set())
+
+
+    def test_site_knows_about_model(self):
+        model = Model()
+        self.assertIs(self.site1._model, None)
+        model.add_bind_site(self.site1)
+        self.assertIs(self.site1._model, model)
+        model.remove_bind_site(self.site1)
+        self.assertIs(self.site1._model, None)
+
+
+    def test_can_only_add_bind_sites(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.add_bind_site("site")
+
+
+    def test_can_get_site_by_id(self):
+        model = Model()
+        model.add_bind_site(self.site1)
+        model.add_bind_site(self.site2)
+        self.assertIs(model.get_bind_site_by_id("AA"), self.site1)
+        self.assertIs(model.get_bind_site_by_id("BB"), self.site2)
+        self.assertIs(model.get_bind_site_by_id("CC"), None)
+
+
+    def test_can_only_get_site_with_str_id(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_bind_site_by_id(100)

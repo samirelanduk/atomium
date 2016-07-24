@@ -180,6 +180,7 @@ class BindSite(ResiduicStructure):
             raise TypeError("'%s' is not a valid site_id" % str(site_id))
         self._site_id = site_id
         self._ligand = None
+        self._model = None
         ResiduicStructure.__init__(self, *residues)
 
 
@@ -201,6 +202,10 @@ class BindSite(ResiduicStructure):
                 )
             self._ligand = ligand
             ligand._bind_site = self
+
+
+    def model(self):
+        return self._model
 
 
     def continuous_sequence(self):

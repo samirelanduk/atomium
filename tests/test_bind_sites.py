@@ -17,6 +17,7 @@ class SiteCreationTests(BindSiteTest):
         self.assertIsInstance(site, ResiduicStructure)
         self.assertEqual(site._site_id, "A1")
         self.assertEqual(site._ligand, None)
+        self.assertEqual(site._model, None)
         self.assertEqual(site._residues, set(self.residues))
 
 
@@ -37,6 +38,7 @@ class SitePropertyTests(BindSiteTest):
         site = BindSite("A1", *self.residues)
         self.assertEqual(site.site_id(), "A1")
         self.assertEqual(site.ligand(), None)
+        self.assertEqual(site.model(), None)
 
 
     def test_can_assign_ligand(self):

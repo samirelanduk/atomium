@@ -266,6 +266,51 @@ class PdbDataFile:
         } for r in modres]
 
 
+    def hets(self):
+        hets = self.pdb_file().get_records_by_name("HET")
+        return [{
+         "het_name": r[7:10],
+         "chain_id": r[12],
+         "het_id": r[13:17],
+         "insert_code": r[17] if r[17] else "",
+         "atom_num": r[20:25],
+         "description": r[30:70]
+        } for r in hets]
+
+
+    def het_names(self):
+        hetnams = self.pdb_file().get_records_by_name("HETNAM")
+        ids = list(set([r[11:14] for r in hetnams]))
+        return {
+         het_id: merge_records(
+          [r for r in hetnams if r[11:14] == het_id], 15, dont_condense=":;"
+         ) for het_id in ids
+        }
+
+
+    def het_synonyms(self):
+        hetsyns = self.pdb_file().get_records_by_name("HETSYN")
+        ids = list(set([r[11:14] for r in hetsyns]))
+        return {
+         het_id: merge_records(
+          [r for r in hetsyns if r[11:14] == het_id], 15
+         ).split(";") for het_id in ids
+        }
+
+
+    def formulae(self):
+        formuls = self.pdb_file().get_records_by_name("FORMUL")
+        ids = list(set([r[12:15] for r in formuls]))
+        return {
+         het_id: {
+          "component_number": [r for r in formuls if r[12:15] == het_id][0][8:10],
+          "is_water": [r for r in formuls if r[12:15] == het_id][0][18] == "*",
+          "formula": merge_records(
+           [r for r in formuls if r[12:15] == het_id], 19
+          )
+         } for het_id in ids
+        }
+
 
 
 def date_from_string(s):

@@ -1,9 +1,11 @@
 from .molecules import AtomicStructure, SmallMolecule
+from .chains import Chain
 
 class Model(AtomicStructure):
 
     def __init__(self):
         self._small_molecules = set()
+        self._chains = set()
 
 
     def __getattr__(self, attribute):
@@ -58,3 +60,31 @@ class Model(AtomicStructure):
             )
         return set([molecule for molecule in self.small_molecules()
          if molecule.molecule_name() == molecule_name])
+
+
+    def chains(self):
+        return set(self._chains)
+
+
+    def add_chain(self, chain):
+        if not isinstance(chain, Chain):
+            raise TypeError(
+             "Can only add Chain to Model, not '%s'" % str(chain)
+            )
+        self._chains.add(chain)
+        chain._model = self
+
+
+    def remove_chain(self, chain):
+        self._chains.remove(chain)
+        chain._model = None
+
+
+    def get_chain_by_id(self, chain_id):
+        if not isinstance(chain_id, str):
+            raise TypeError(
+             "Chain ID search must be by str, not '%s'" % str(chain_id)
+            )
+        for chain in self.chains():
+            if chain.chain_id() == chain_id:
+                return chain

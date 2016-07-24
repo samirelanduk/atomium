@@ -1,6 +1,6 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Model, AtomicStructure, SmallMolecule
+from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
 
 class ModelTest(TestCase):
 
@@ -13,6 +13,12 @@ class ModelTest(TestCase):
         self.small_molecule2._model = None
         self.small_molecule2.molecule_id.return_value = "A101"
         self.small_molecule2.molecule_name.return_value = "HET"
+        self.chain1 = unittest.mock.Mock(spec=Chain)
+        self.chain1._model = None
+        self.chain1.chain_id.return_value = "A"
+        self.chain2 = unittest.mock.Mock(spec=Chain)
+        self.chain2._model = None
+        self.chain2.chain_id.return_value = "B"
 
 
 
@@ -124,3 +130,63 @@ class ModelSmallMoleculeTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_small_molecules_by_name(100)
+
+
+
+class ModelChainTests(ModelTest):
+
+    def test_can_add_chains(self):
+        model = Model()
+        self.assertEqual(model.chains(), set())
+        model.add_chain(self.chain1)
+        self.assertEqual(model.chains(), set([self.chain1]))
+        model.add_chain(self.chain2)
+        self.assertEqual(
+         model.chains(),
+         set([self.chain1, self.chain2])
+        )
+
+
+    def test_must_use_method_to_add_chain(self):
+        model = Model()
+        self.assertEqual(model.chains(), set())
+        model.chains().add(self.chain1)
+        self.assertEqual(model.chains(), set())
+
+
+    def test_can_remove_chains(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        self.assertEqual(model.chains(), set([self.chain1]))
+        model.remove_chain(self.chain1)
+        self.assertEqual(model.chains(), set())
+
+
+    def test_chain_knows_about_model(self):
+        model = Model()
+        self.assertIs(self.chain1._model, None)
+        model.add_chain(self.chain1)
+        self.assertIs(self.chain1._model, model)
+        model.remove_chain(self.chain1)
+        self.assertIs(self.chain1._model, None)
+
+
+    def test_can_only_add_chains(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.add_chain("chain")
+
+
+    def test_can_get_chain_by_id(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
+        self.assertIs(model.get_chain_by_id("A"), self.chain1)
+        self.assertIs(model.get_chain_by_id("B"), self.chain2)
+        self.assertIs(model.get_chain_by_id("C"), None)
+
+
+    def test_can_only_get_chain_with_str_id(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_chain_by_id(100)

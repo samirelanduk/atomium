@@ -120,6 +120,7 @@ class Chain(ResiduicSequence):
             residue._chain = self
         self._alpha_helices = set()
         self._beta_strands = set()
+        self._model = None
 
 
     def __repr__(self):
@@ -146,6 +147,10 @@ class Chain(ResiduicSequence):
 
     def beta_strands(self):
         return set(self._beta_strands)
+
+
+    def model(self):
+        return self._model
 
 
     def get_helix_by_id(self, helix_id):

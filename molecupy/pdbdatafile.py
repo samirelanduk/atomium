@@ -188,6 +188,83 @@ class PdbDataFile:
                 return remark
 
 
+    def dbreferences(self):
+        dbrefs = self.pdb_file().get_records_by_name("DBREF")
+        dbreferences = [{
+         "chain_id": r[12],
+         "sequence_begin": r[14:18],
+         "insert_begin": r[18] if r[18] else "",
+         "sequence_end": r[20:24],
+         "insert_end": r[24] if r[24] else "",
+         "database": r[26:32],
+         "accession": r.get_as_string(33, 40),
+         "db_id": r[42:54],
+         "db_sequence_begin": r[55:60],
+         "db_insert_begin": r[60],
+         "db_sequence_end": r[62:67],
+         "db_insert_end": r[67]
+        } for r in dbrefs]
+        dbref1s = self.pdb_file().get_records_by_name("DBREF1")
+        dbref2s = self.pdb_file().get_records_by_name("DBREF2")
+        ref_pairs = zip(dbref1s, dbref2s)
+        dbreferences += [{
+         "chain_id": pair[0][12],
+         "sequence_begin": pair[0][14:18],
+         "insert_begin": pair[0][18] if pair[0][18] else "",
+         "sequence_end": pair[0][20:24],
+         "insert_end": pair[0][24] if pair[0][24] else "",
+         "database": pair[0][26:32],
+         "accession": pair[1].get_as_string(18, 40),
+         "db_id": pair[0][47:67],
+         "db_sequence_begin": pair[1][45:55],
+         "db_insert_begin": None,
+         "db_sequence_end": pair[1][57:67],
+         "db_insert_end": None
+        } for pair in ref_pairs]
+        dbreferences = sorted(dbreferences, key=lambda k: k["chain_id"])
+        return dbreferences
+
+
+    def sequence_differences(self):
+        seqadvs = self.pdb_file().get_records_by_name("SEQADV")
+        return [{
+         "residue_name": r[12:15],
+         "chain_id": r[16],
+         "residue_id": r[18:22],
+         "insert_code": r[22] if r[22] else "",
+         "database": r[24:28],
+         "accession": r[29:38],
+         "db_residue_name": r[39:42],
+         "db_residue_id": r[43:48],
+         "conflict": r[49:70]
+        } for r in seqadvs]
+
+
+    def residue_sequences(self):
+        seqres = self.pdb_file().get_records_by_name("SEQRES")
+        chains = sorted(list(set([r[11] for r in seqres])))
+        residue_sequences = []
+        for chain in chains:
+            records = [r for r in seqres if r[11] == chain]
+            residue_sequences.append({
+             "chain_id": chain,
+             "length": records[0][13:17],
+             "residues": merge_records(records, 19).split()
+            })
+        return residue_sequences
+
+
+    def modified_residues(self):
+        modres = self.pdb_file().get_records_by_name("MODRES")
+        return [{
+         "residue_name": r[12:15],
+         "chain_id": r[16],
+         "residue_id": r[18:22],
+         "insert_code": r[22] if r[22] else "",
+         "standard_resisdue_name": r[24:27],
+         "comment": r[29:70]
+        } for r in modres]
+
 
 
 

@@ -1,9 +1,12 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Model, AtomicStructure
+from molecupy.structures import Model, AtomicStructure, SmallMolecule
 
 class ModelTest(TestCase):
-    pass
+
+    def setUp(self):
+        self.small_molecule1 = unittest.mock.Mock(spec=SmallMolecule)
+        self.small_molecule2 = unittest.mock.Mock(spec=SmallMolecule)
 
 
 
@@ -18,3 +21,18 @@ class ModelCreationTest(ModelTest):
     def test_model_repr(self):
         model = Model()
         self.assertEqual(str(model), "<Model (0 atoms)>")
+
+
+
+class ModelSmallMoleculeTests(ModelTest):
+
+    def test_can_add_small_molecules(self):
+        model = Model()
+        self.assertEqual(model.small_molecules(), set())
+        model.add_small_molecule(self.small_molecule1)
+        self.assertEqual(model.small_molecules(), set([self.small_molecule1]))
+        model.add_small_molecule(self.small_molecule2)
+        self.assertEqual(
+         model.small_molecules(),
+         set([self.small_molecule1, self.small_molecule2])
+        )

@@ -2,6 +2,7 @@ import datetime
 from unittest import TestCase
 from molecupy.pdbfile import PdbFile, PdbRecord
 from molecupy.pdbdatafile import PdbDataFile, date_from_string, merge_records
+from molecupy.pdbdatafile import records_to_token_value_dicts
 
 class PdbDataFileTest(TestCase):
 
@@ -96,4 +97,82 @@ class RecordMergingTests(TestCase):
         self.assertEqual(
          merge_records(self.punc_records, 2, dont_condense=";, "),
          "23, 456789 cd  efghij 23; 456789"
+        )
+
+
+
+class RecordsToDictTests(TestCase):
+
+    def test_can_make_dicts(self):
+        records = [PdbRecord(l, 1) for l in [
+         "COMPND    MOL_ID: A;",
+         "COMPND   2 MOLECULE: MOLNAME;",
+         "COMPND   3 CHAIN_: CHAINS;",
+         "COMPND   4 MOL_ID: B;",
+         "COMPND   5 MOLECULE: MOLNAME2;",
+         "COMPND   6 CHAIN_: CHAINS2;"
+        ]]
+        self.assertEqual(
+         records_to_token_value_dicts(records),
+         [
+          {"MOL_ID": "A", "MOLECULE": "MOLNAME", "CHAIN_": "CHAINS"},
+          {"MOL_ID": "B", "MOLECULE": "MOLNAME2", "CHAIN_": "CHAINS2"}
+         ]
+        )
+
+
+    def test_can_detect_numeric_fields(self):
+        records = [PdbRecord(l, 1) for l in [
+         "COMPND    MOL_ID: 1;",
+         "COMPND   2 MOLECULE: MOLNAME;",
+         "COMPND   3 CHAIN_: CHAINS;"
+        ]]
+        self.assertEqual(
+         records_to_token_value_dicts(records),
+         [
+          {"MOL_ID": 1, "MOLECULE": "MOLNAME", "CHAIN_": "CHAINS"}
+         ]
+        )
+
+
+    def test_can_detect_boolean_fields(self):
+        records = [PdbRecord(l, 1) for l in [
+         "COMPND    MOL_ID: 1;",
+         "COMPND   2 MOLECULE: YES;",
+         "COMPND   3 CHAIN_: NO;"
+        ]]
+        self.assertEqual(
+         records_to_token_value_dicts(records),
+         [
+          {"MOL_ID": 1, "MOLECULE": True, "CHAIN_": False}
+         ]
+        )
+
+
+    def test_can_split_chains_and_synonyms(self):
+        records = [PdbRecord(l, 1) for l in [
+         "COMPND    MOL_ID: 1;",
+         "COMPND   2 CHAIN: A,B;",
+         "COMPND   2 SYNONYM: BEEP, BOOP;"
+        ]]
+        self.assertEqual(
+         records_to_token_value_dicts(records),
+         [
+          {"MOL_ID": 1, "CHAIN": ["A", "B"], "SYNONYM": ["BEEP", "BOOP"]}
+         ]
+        )
+
+
+    def test_can_account_for_people_not_knowing_how_to_format_source_records_semi_colons(self):
+        records = [PdbRecord(l, 1) for l in [
+         "COMPND    MOL_ID: 1;",
+         "COMPND   2 FIELD: VALUE;",
+         "COMPND   2 FIELD2: VALUE2; EXTRA;",
+         "COMPND   2 FIELD3: VALUE3;"
+        ]]
+        self.assertEqual(
+         records_to_token_value_dicts(records),
+         [
+          {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
+         ]
         )

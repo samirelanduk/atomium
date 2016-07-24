@@ -221,3 +221,460 @@ class ObslteRecordTests(PdbDataFileTest):
         self.assertFalse(self.empty.is_obsolete())
         self.assertEqual(self.empty.obsolete_date(), None)
         self.assertEqual(self.empty.replacement_code(), None)
+
+
+
+class TitleRecordTests(PdbDataFileTest):
+
+    def test_title_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "TITLE     CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE\n"
+         "TITLE    2 COMPLEX WITH XMP"
+        ))
+        self.assertEqual(
+         data_file.title(),
+         "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
+        )
+
+
+    def test_missing_title_processing(self):
+        self.assertEqual(self.empty.title(), None)
+
+
+
+class SplitRecordTests(PdbDataFileTest):
+
+    def test_split_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ 1VOY 1VP0 1VOZ 1VOZ\n"
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ"
+        ))
+        self.assertEqual(
+         data_file.split_codes(),
+         [
+          "1VOQ", "1VOR", "1VOS", "1VOU", "1VOV", "1VOW",
+          "1VOX", "1VOY", "1VP0", "1VOZ", "1VOY", "1VP0",
+          "1VOZ", "1VOZ", "1VOQ", "1VOR", "1VOS", "1VOU",
+          "1VOV", "1VOW", "1VOX", "1VOY", "1VP0", "1VOZ"
+         ]
+        )
+
+
+    def test_missing_split_processing(self):
+        self.assertEqual(self.empty.split_codes(), [])
+
+
+
+class CaveatRecordTests(PdbDataFileTest):
+
+    def test_caveat_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CAVEAT     1SAM    THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS\n"
+         "CAVEAT   2 1SAM    UNCORRECTABLE AT THIS TIME"
+        ))
+        self.assertEqual(
+         data_file.caveat(),
+         "THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS UNCORRECTABLE AT THIS TIME"
+        )
+
+
+    def test_missing_caveat_processing(self):
+        self.assertEqual(self.empty.caveat(), None)
+
+
+
+class CompoundRecordTests(PdbDataFileTest):
+
+    def test_compnd_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "COMPND    MOL_ID: 1;\n"
+         "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
+         "COMPND   3 CHAIN: A, B;\n"
+         "COMPND   4 SYNONYM: OMP DECARBOXYLASE, OMPDCASE, OMPDECASE;\n"
+         "COMPND   5 EC: 4.1.1.23;\n"
+         "COMPND   6 ENGINEERED: YES;\n"
+         "COMPND   7 MOL_ID: 2;\n"
+         "COMPND   8 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE\n"
+         "COMPND   9 PLUS;"
+        ))
+        self.assertEqual(
+         data_file.compounds(),
+         [
+          {
+           "MOL_ID": 1,
+           "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+           "CHAIN": ["A", "B"],
+           "SYNONYM": [
+            "OMP DECARBOXYLASE",
+            "OMPDCASE",
+            "OMPDECASE"
+           ],
+           "EC": "4.1.1.23",
+           "ENGINEERED": True
+          }, {
+           "MOL_ID": 2,
+           "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE PLUS"
+          }
+         ]
+        )
+
+
+    def test_missing_compnd_processing(self):
+        self.assertEqual(self.empty.compounds(), [])
+
+
+
+class SourceRecordTests(PdbDataFileTest):
+
+    def test_source_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SOURCE    MOL_ID: 1;\n"
+         "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
+         "SOURCE   3 THERMAUTOTROPHICUS STR. DELTA H;\n"
+         "SOURCE   4 ORGANISM_TAXID: 187420;\n"
+         "SOURCE   5 STRAIN: DELTA H;\n"
+         "SOURCE   6 EXPRESSION_SYSTEM: ESCHERICHIA COLI;\n"
+         "SOURCE   7 EXPRESSION_SYSTEM_TAXID: 562;\n"
+         "SOURCE   8 EXPRESSION_SYSTEM_PLASMID: PET15B\n"
+        ))
+        self.assertEqual(
+         data_file.sources(),
+         [
+          {
+           "MOL_ID": 1,
+           "ORGANISM_SCIENTIFIC": "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H",
+           "ORGANISM_TAXID": 187420,
+           "STRAIN": "DELTA H",
+           "EXPRESSION_SYSTEM": "ESCHERICHIA COLI",
+           "EXPRESSION_SYSTEM_TAXID": 562,
+           "EXPRESSION_SYSTEM_PLASMID": "PET15B"
+          }
+         ]
+        )
+
+
+    def test_missing_source_processing(self):
+        self.assertEqual(self.empty.sources(), [])
+
+
+
+class KeywdsRecordTests(PdbDataFileTest):
+
+    def test_keywds_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "KEYWDS    TIM BARREL, LYASE"
+        ))
+        self.assertEqual(
+         data_file.keywords(),
+         ["TIM BARREL", "LYASE"]
+        )
+
+
+    def test_missing_keywds_processing(self):
+        self.assertEqual(self.empty.keywords(), [])
+
+
+
+class ExpdtaRecordTests(PdbDataFileTest):
+
+    def test_expdta_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "EXPDTA    NEUTRON DIFFRACTION; X-RAY DIFFRACTION"
+        ))
+        self.assertEqual(
+         data_file.experimental_techniques(),
+         ["NEUTRON DIFFRACTION", "X-RAY DIFFRACTION"]
+        )
+
+
+    def test_missing_expdta_processing(self):
+        self.assertEqual(self.empty.experimental_techniques(), [])
+
+
+
+class NummdlRecordTests(PdbDataFileTest):
+
+    def test_nummdl_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "NUMMDL    2"
+        ))
+        self.assertEqual(data_file.model_count(), 2)
+
+
+    def test_missing_nummdl_processing(self):
+        self.assertEqual(self.empty.model_count(), 1)
+
+
+
+class MdltypRecordTests(PdbDataFileTest):
+
+    def test_mdltyp_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
+         "MDLTYP   2 CHAIN X, Y, Z"
+        ))
+        self.assertEqual(
+         data_file.model_annotations(),
+         [
+          "CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K",
+          "P ATOMS ONLY, CHAIN X, Y, Z"
+         ]
+        )
+
+
+    def test_missing_mdltyp_processing(self):
+        self.assertEqual(self.empty.model_annotations(), [])
+
+
+
+class AuthorRecordTests(PdbDataFileTest):
+
+    def test_mdltyp_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "AUTHOR    M.B.BERRY,B.MEADOR,T.BILDERBACK,P.LIANG,M.GLASER,\n"
+         "AUTHOR   2 G.N.PHILLIPS JR.,T.L.ST. STEVENS"
+        ))
+        self.assertEqual(
+         data_file.authors(),
+         [
+          "M.B.BERRY", "B.MEADOR", "T.BILDERBACK", "P.LIANG", "M.GLASER",
+          "G.N.PHILLIPS JR.", "T.L.ST. STEVENS"
+         ]
+        )
+
+
+    def test_missing_mdltyp_processing(self):
+        self.assertEqual(self.empty.authors(), [])
+
+
+
+class RevdatRecordTests(PdbDataFileTest):
+
+    def test_revdat_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "REVDAT   4 1 24-FEB-09 1LOL    1       VERSN  COMPND EXPDTA CAVEAT\n"
+         "REVDAT   4 2                   1       SOURCE JRNL\n"
+         "REVDAT   3   01-APR-03 1LOL    1       JRNL\n"
+         "REVDAT   2   14-AUG-02 1LOL    1       DBREF\n"
+         "REVDAT   1   07-AUG-02 1LOL    0"
+        ))
+        self.assertEqual(
+         data_file.revisions(),
+         [
+          {
+           "number": 1, "date": datetime.datetime(2002, 8, 7).date(),
+           "type": 0, "records": []
+          }, {
+           "number": 2, "date": datetime.datetime(2002, 8, 14).date(),
+           "type": 1, "records": ["DBREF"]
+          }, {
+           "number": 3, "date": datetime.datetime(2003, 4, 1).date(),
+           "type": 1, "records": ["JRNL"]
+          }, {
+           "number": 4, "date": datetime.datetime(2009, 2, 24).date(),
+           "type": 1, "records": ["VERSN", "COMPND", "EXPDTA", "CAVEAT", "SOURCE", "JRNL"]
+          }
+         ]
+        )
+
+
+    def test_missing_revdat_processing(self):
+        self.assertEqual(self.empty.revisions(), [])
+
+
+
+class SprsdeRecordTests(PdbDataFileTest):
+
+    def test_sprsde_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SPRSDE     27-FEB-95 1GDJ      1LH4 2LH4"
+        ))
+        self.assertEqual(
+         data_file.supercedes(),
+         ["1LH4", "2LH4"]
+        )
+        self.assertEqual(
+         data_file.supercede_date(),
+         datetime.datetime(1995, 2, 27).date()
+        )
+
+
+    def test_missing_sprsde_processing(self):
+        self.assertEqual(self.empty.supercedes(), [])
+        self.assertEqual(self.empty.supercede_date(), None)
+
+
+
+class JrnlRecordTests(PdbDataFileTest):
+
+    def test_jrnl_authors_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        AUTH   N.WU,E.F.PAI"
+        ))
+        self.assertEqual(
+         data_file.journal()["authors"],
+         ["N.WU", "E.F.PAI"]
+        )
+
+
+    def test_empty_jrnl_authors_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["authors"], [])
+
+
+    def test_jrnl_title_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        TITL   CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL\n"
+         "JRNL        TITL 2 AN ALTERNATE BINDING MODE IN\n"
+         "JRNL        TITL 3 OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE."
+        ))
+        self.assertEqual(
+         data_file.journal()["title"],
+         "CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL AN ALTERNA"
+         "TE BINDING MODE IN OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE."
+        )
+
+
+    def test_empty_jrnl_title_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["title"], None)
+
+
+    def test_jrnl_editors_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        EDIT   J.REN,C.NICHOLS,L.BIRD,P.CHAMBERLAIN,K.WEAVER,\n"
+         "JRNL        EDIT 2 S.SHORT,D.I.STUART,D.K.STAMMERS"
+        ))
+        self.assertEqual(
+         data_file.journal()["editors"],
+         [
+          "J.REN", "C.NICHOLS", "L.BIRD", "P.CHAMBERLAIN", "K.WEAVER",
+          "S.SHORT", "D.I.STUART", "D.K.STAMMERS"
+         ]
+        )
+
+
+    def test_empty_jrnl_editors_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["editors"], [])
+
+
+    def test_jrnl_reference_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        REF    J.BIOL.CHEM.                  V. 277 28080 2002"
+        ))
+        self.assertEqual(
+         data_file.journal()["reference"],
+         {"published": True, "publication": "J.BIOL.CHEM.", "volume": 277, "page": 28080, "year": 2002}
+        )
+
+    def test_jrnl_unpublished_reference_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL        REF    TO BE PUBLISHED"))
+        self.assertEqual(
+         data_file.journal()["reference"],
+         {"published": False, "publication": None, "volume": None, "page": None, "year": None}
+        )
+
+
+    def test_empty_jrnl_reference_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["reference"], None)
+
+
+    def test_jrnl_publisher_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        PUBL   AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE\n"
+         "JRNL        PUBL 2 WASHINGTON, D.C."
+        ))
+        self.assertEqual(
+         data_file.journal()["publisher"],
+         "AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE WASHINGTON, D.C."
+        )
+
+
+    def test_empty_jrnl_publisher_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["publisher"], None)
+
+
+    def test_jrnl_referencenumber__processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        REFN                   ISSN 0021-9258"
+        ))
+        self.assertEqual(
+         data_file.journal()["reference_number"],
+         {"type": "ISSN", "value": "0021-9258"}
+        )
+
+
+    def test_empty_jrnl_reference_number_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["reference_number"], None)
+
+
+    def test_jrnl_pubmed_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        PMID   12011084"
+        ))
+        self.assertEqual(
+         data_file.journal()["pubmed"],
+         "12011084"
+        )
+
+
+    def test_empty_jrnl_pubmed_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["pubmed"], None)
+
+
+    def test_jrnl_doi_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        DOI    10.1074/JBC.M202362200"
+        ))
+        self.assertEqual(
+         data_file.journal()["doi"],
+         "10.1074/JBC.M202362200"
+        )
+
+
+    def test_empty_jrnl_doi_processing(self):
+        data_file = PdbDataFile(PdbFile("JRNL"))
+        self.assertEqual(data_file.journal()["doi"], None)
+
+
+    def test_full_jrnl_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "JRNL        AUTH   N.WU,E.F.PAI\n"
+         "JRNL        TITL   CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL\n"
+         "JRNL        TITL 2 AN ALTERNATE BINDING MODE IN\n"
+         "JRNL        TITL 3 OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE.\n"
+         "JRNL        EDIT   J.REN,C.NICHOLS,L.BIRD,P.CHAMBERLAIN,K.WEAVER,\n"
+         "JRNL        EDIT 2 S.SHORT,D.I.STUART,D.K.STAMMERS\n"
+         "JRNL        REF    J.BIOL.CHEM.                  V. 277 28080 2002\n"
+         "JRNL        PUBL   AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE\n"
+         "JRNL        PUBL 2 WASHINGTON, D.C.\n"
+         "JRNL        REFN                   ISSN 0021-9258\n"
+         "JRNL        PMID   12011084\n"
+         "JRNL        DOI    10.1074/JBC.M202362200"
+        ))
+        self.assertEqual(
+         data_file.journal(),
+         {
+          "authors": ["N.WU", "E.F.PAI"],
+          "title": "CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL AN ALTERNA"
+          "TE BINDING MODE IN OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE.",
+          "editors": [
+           "J.REN", "C.NICHOLS", "L.BIRD", "P.CHAMBERLAIN", "K.WEAVER",
+           "S.SHORT", "D.I.STUART", "D.K.STAMMERS"
+          ],
+          "reference": {"published": True, "publication": "J.BIOL.CHEM.", "volume": 277, "page": 28080, "year": 2002},
+          "publisher": "AMERICAN ASSOCIATION FOR THE ADVANCEMENT OF SCIENCE WASHINGTON, D.C.",
+          "reference_number": {"type": "ISSN", "value": "0021-9258"},
+          "pubmed": "12011084",
+          "doi": "10.1074/JBC.M202362200"
+         }
+        )
+
+
+    def test_empty_jrnl_processing(self):
+        self.assertEqual(self.empty.journal(), None)

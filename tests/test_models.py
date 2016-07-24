@@ -256,3 +256,24 @@ class ModelBindSiteTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_bind_site_by_id(100)
+
+
+
+class ModelAtomsTests(ModelTest):
+
+    def test_model_has_atoms(self):
+        model = Model()
+        self.small_molecule1.atoms.return_value = set(["1", "2"])
+        self.small_molecule2.atoms.return_value = set(["3", "4"])
+        self.chain1.atoms.return_value = set(["5", "6"])
+        self.chain2.atoms.return_value = set(["7", "8"])
+        self.site1.atoms.return_value = set(["9", "10"])
+        self.site2.atoms.return_value = set(["11", "12"])
+        model.add_small_molecule(self.small_molecule1)
+        model.add_small_molecule(self.small_molecule2)
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
+        model.add_bind_site(self.site1)
+        model.add_bind_site(self.site2)
+        self.assertEqual(model._atoms, set([str(i) for i in range(1, 13)]))
+        self.assertEqual(model.atoms(), set([str(i) for i in range(1, 13)]))

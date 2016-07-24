@@ -197,3 +197,27 @@ class HeaderRecordTests(PdbDataFileTest):
         self.assertEqual(self.empty.classification(), None)
         self.assertEqual(self.empty.deposition_date(), None)
         self.assertEqual(self.empty.pdb_code(), None)
+
+
+
+class ObslteRecordTests(PdbDataFileTest):
+
+    def test_obslte_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "OBSLTE     30-SEP-93 1LOL      1SAM"
+        ))
+        self.assertTrue(data_file.is_obsolete())
+        self.assertEqual(
+         data_file.obsolete_date(),
+         datetime.datetime(1993, 9, 30).date()
+        )
+        self.assertEqual(
+         data_file.replacement_code(),
+         "1SAM"
+        )
+
+
+    def test_missing_obslte_processing(self):
+        self.assertFalse(self.empty.is_obsolete())
+        self.assertEqual(self.empty.obsolete_date(), None)
+        self.assertEqual(self.empty.replacement_code(), None)

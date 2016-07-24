@@ -29,6 +29,21 @@ class PdbDataFile:
         return header[62:66] if header else None
 
 
+    def is_obsolete(self):
+        obslte = self.pdb_file().get_record_by_name("OBSLTE")
+        return bool(obslte)
+
+
+    def obsolete_date(self):
+        obslte = self.pdb_file().get_record_by_name("OBSLTE")
+        return date_from_string(obslte[11:20]) if obslte else None
+
+
+    def replacement_code(self):
+        obslte = self.pdb_file().get_record_by_name("OBSLTE")
+        return obslte[31:35] if obslte else None
+
+
 
 def date_from_string(s):
     return datetime.datetime.strptime(

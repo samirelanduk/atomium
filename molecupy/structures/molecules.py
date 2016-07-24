@@ -151,6 +151,7 @@ class SmallMolecule(AtomicStructure):
             raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))
         self._molecule_name = molecule_name
         self._bind_site = None
+        self._model = None
         AtomicStructure.__init__(self, *atoms)
 
 
@@ -184,6 +185,10 @@ class SmallMolecule(AtomicStructure):
                 )
             self._bind_site = bind_site
             bind_site._ligand = self
+
+
+    def model(self):
+        return self._model
 
 
 

@@ -6,7 +6,9 @@ class ModelTest(TestCase):
 
     def setUp(self):
         self.small_molecule1 = unittest.mock.Mock(spec=SmallMolecule)
+        self.small_molecule1._model = None
         self.small_molecule2 = unittest.mock.Mock(spec=SmallMolecule)
+        self.small_molecule2._model = None
 
 
 
@@ -51,3 +53,12 @@ class ModelSmallMoleculeTests(ModelTest):
         self.assertEqual(model.small_molecules(), set([self.small_molecule1]))
         model.remove_small_molecule(self.small_molecule1)
         self.assertEqual(model.small_molecules(), set())
+
+
+    def test_small_molecule_knows_about_model(self):
+        model = Model()
+        self.assertIs(self.small_molecule1._model, None)
+        model.add_small_molecule(self.small_molecule1)
+        self.assertIs(self.small_molecule1._model, model)
+        model.remove_small_molecule(self.small_molecule1)
+        self.assertIs(self.small_molecule1._model, None)

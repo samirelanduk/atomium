@@ -164,6 +164,15 @@ class PdbAtom(Atom):
         return already_checked_copy
 
 
+    def local_atoms(self, distance, include_hydrogens=True):
+        if self.model():
+            return set([atom for atom in self.model().atoms(
+             atom_type="pdb", include_hydrogens=include_hydrogens
+            ) if atom.distance_to(self) <= distance and atom is not self])
+        else:
+            return set()
+
+
 
 class Bond:
 

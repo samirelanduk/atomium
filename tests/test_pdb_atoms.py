@@ -1,4 +1,5 @@
 from unittest import TestCase
+import unittest.mock
 from molecupy.structures import Atom, PdbAtom
 
 class PdbAtomCreationTests(TestCase):
@@ -172,3 +173,44 @@ class PdbAtomBondtests(TestCase):
              atom.accessible_atoms(),
              set([a for a in atoms if a is not atom])
             )
+
+
+
+class NearbyPdbAtomTests(TestCase):
+
+    def setUp(self):
+        self.pdb_atoms = [
+         PdbAtom(10.0, 20.0, float(i), "C", int(i), "CA") for i in range(10)
+        ]
+        molecule = unittest.mock.Mock()
+        self.model = unittest.mock.Mock()
+        molecule.model.return_value = self.model
+        self.model.atoms.return_value = set(self.pdb_atoms)
+        for atom in self.pdb_atoms:
+            atom._molecule = molecule
+            atom._element = "H" if atom.atom_id() == 3 else "C"
+
+
+    def test_can_get_nearby_atoms(self):
+        self.assertEqual(
+         self.pdb_atoms[4].local_atoms(1),
+         set([self.pdb_atoms[3], self.pdb_atoms[5]])
+        )
+        self.assertEqual(
+         self.pdb_atoms[4].local_atoms(1.5),
+         set([self.pdb_atoms[3], self.pdb_atoms[5]])
+        )
+        self.assertEqual(
+         self.pdb_atoms[4].local_atoms(2),
+         set([self.pdb_atoms[3], self.pdb_atoms[5], self.pdb_atoms[2], self.pdb_atoms[6]])
+        )
+
+
+    def test_can_exclude_hydrogens_from_nearby_atoms(self):
+        self.model.atoms.return_value = set([
+         a for a in self.pdb_atoms if a.element() != "H"
+        ])
+        self.assertEqual(
+         self.pdb_atoms[4].local_atoms(1, include_hydrogens=False),
+         set([self.pdb_atoms[5]])
+        )

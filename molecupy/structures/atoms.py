@@ -16,6 +16,7 @@ class Atom:
         if not isinstance(atom_name, str):
             raise TypeError("atom_name must be str, not '%s'" % str(atom_name))
         self._atom_name = atom_name
+        self._molecule = None
 
 
     def __repr__(self):
@@ -52,6 +53,10 @@ class Atom:
 
     def mass(self):
         return PERIODIC_TABLE.get(self.element().upper(), 0)
+
+
+    def molecule(self):
+        return self._molecule
 
 
 

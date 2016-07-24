@@ -8,6 +8,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._element, "C")
         self.assertEqual(atom._atom_id, 100)
         self.assertEqual(atom._atom_name, "CA")
+        self.assertEqual(atom._molecule, None)
 
 
     def test_repr(self):
@@ -50,6 +51,7 @@ class AtomPropertyTests(TestCase):
         self.assertEqual(self.atom.element(), "C")
         self.assertEqual(self.atom.atom_id(), 100)
         self.assertEqual(self.atom.atom_name(), "CA")
+        self.assertEqual(self.atom.molecule(), None)
 
 
     def test_basic_property_update(self):

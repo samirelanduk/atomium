@@ -29,3 +29,13 @@ class Model(AtomicStructure):
     def remove_small_molecule(self, small_molecule):
         self._small_molecules.remove(small_molecule)
         small_molecule._model = None
+
+
+    def get_small_molecule_by_id(self, molecule_id):
+        if not isinstance(molecule_id, str):
+            raise TypeError(
+             "Small molecule ID search must be by str, not '%s'" % str(molecule_id)
+            )
+        for molecule in self.small_molecules():
+            if molecule.molecule_id() == molecule_id:
+                return molecule

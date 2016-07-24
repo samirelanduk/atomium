@@ -1,4 +1,4 @@
-from .molecules import AtomicStructure
+from .molecules import AtomicStructure, SmallMolecule
 
 class Model(AtomicStructure):
 
@@ -18,6 +18,10 @@ class Model(AtomicStructure):
 
 
     def add_small_molecule(self, small_molecule):
+        if not isinstance(small_molecule, SmallMolecule):
+            raise TypeError(
+             "Can only add SmallMolecule to Model, not '%s'" % str(small_molecule)
+            )
         self._small_molecules.add(small_molecule)
         small_molecule._model = self
 

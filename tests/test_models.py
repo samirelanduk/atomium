@@ -62,3 +62,9 @@ class ModelSmallMoleculeTests(ModelTest):
         self.assertIs(self.small_molecule1._model, model)
         model.remove_small_molecule(self.small_molecule1)
         self.assertIs(self.small_molecule1._model, None)
+
+
+    def test_can_only_add_small_molecules(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.add_small_molecule("molecule")

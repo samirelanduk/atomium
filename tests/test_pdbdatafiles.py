@@ -1187,3 +1187,145 @@ class SheetRecordTests(PdbDataFileTest):
 
     def test_missing_sheet_processing(self):
         self.assertEqual(self.empty.sheets(), [])
+
+
+
+class SsbondRecordTests(PdbDataFileTest):
+
+    def test_ssbond_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SSBOND   1 CYS A  123    CYS A  155                          1555   1555  2.04"
+        ))
+        self.assertEqual(
+         data_file.ss_bonds(),
+         [{
+          "serial_num": 1,
+          "residue_name_1": "CYS",
+          "chain_id_1": "A",
+          "residue_id_1": 123,
+          "insert_code_1": "",
+          "residue_name_2": "CYS",
+          "chain_id_2": "A",
+          "residue_id_2": 155,
+          "insert_code_2": "",
+          "symmetry_1": "1555",
+          "symmetry_2": "1555",
+          "length": 2.04
+         }]
+        )
+
+
+    def test_missing_ssbond_processing(self):
+        self.assertEqual(self.empty.ss_bonds(), [])
+
+
+
+class LinkRecordTests(PdbDataFileTest):
+
+    def test_link_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "LINK         O   TYR A 146                 K     K A 501     1555   1555  2.75"
+        ))
+        self.assertEqual(
+         data_file.links(),
+         [
+          {
+           "atom_1": "O",
+           "alt_loc_1": None,
+           "residue_name_1": "TYR",
+           "chain_id_1": "A",
+           "residue_id_1": 146,
+           "insert_code_1": "",
+           "atom_2": "K",
+           "alt_loc_2": None,
+           "residue_name_2": "K",
+           "chain_id_2": "A",
+           "residue_id_2": 501,
+           "insert_code_2": "",
+           "symmetry_1": "1555",
+           "symmetry_2": "1555",
+           "length": 2.75
+          }
+         ]
+        )
+
+
+    def test_missing_link_processing(self):
+        self.assertEqual(self.empty.links(), [])
+
+
+
+class CispepRecordTests(PdbDataFileTest):
+
+    def test_cispep_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CISPEP     ASP B 1188    PRO B 1189          0         0.35"
+        ))
+        self.assertEqual(
+         data_file.cis_peptides(),
+         [
+          {
+           "serial_num": None,
+           "residue_name_1": "ASP",
+           "chain_id_1": "B",
+           "residue_id_1": 1188,
+           "insert_1": "",
+           "residue_name_2": "PRO",
+           "chain_id_2": "B",
+           "residue_id_2": 1189,
+           "insert_2": "",
+           "model_number": 0,
+           "angle": 0.35
+          }
+         ]
+        )
+
+
+    def test_missing_cispep_processing(self):
+        self.assertEqual(self.empty.cis_peptides(), [])
+
+
+
+class SiteRecordTests(PdbDataFileTest):
+
+    def test_site_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155\n"
+         "SITE     2 AC1  6 XMP A2001  HOH A3015\n"
+         "SITE     1 AC3  8 ALA A  18A ASP A  20  LYS A  42  ASP A  70\n"
+         "SITE     2 AC3  8 MET A 126  SER A 127  SER A 158  PRO A 180"
+        ))
+        self.assertEqual(
+         data_file.sites(),
+         [
+          {
+           "site_id": "AC1",
+           "residue_count": 6,
+           "residues": [
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
+            {"residue_name": "LYS", "chain_id": "A", "residue_id": 72, "insert_code": ""},
+            {"residue_name": "LEU", "chain_id": "A", "residue_id": 123, "insert_code": ""},
+            {"residue_name": "VAL", "chain_id": "A", "residue_id": 155, "insert_code": ""},
+            {"residue_name": "XMP", "chain_id": "A", "residue_id": 2001, "insert_code": ""},
+            {"residue_name": "HOH", "chain_id": "A", "residue_id": 3015, "insert_code": ""}
+           ]
+          }, {
+           "site_id": "AC3",
+           "residue_count": 8,
+           "residues": [
+            {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": "A"},
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 20, "insert_code": ""},
+            {"residue_name": "LYS", "chain_id": "A", "residue_id": 42, "insert_code": ""},
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
+            {"residue_name": "MET", "chain_id": "A", "residue_id": 126, "insert_code": ""},
+            {"residue_name": "SER", "chain_id": "A", "residue_id": 127, "insert_code": ""},
+            {"residue_name": "SER", "chain_id": "A", "residue_id": 158, "insert_code": ""},
+            {"residue_name": "PRO", "chain_id": "A", "residue_id": 180, "insert_code": ""}
+           ]
+          }
+         ]
+        )
+
+
+    def test_missing_site_processing(self):
+        self.assertEqual(self.empty.sites(), [])

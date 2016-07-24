@@ -366,6 +366,86 @@ class PdbDataFile:
         return sheets
 
 
+    def ss_bonds(self):
+        ssbonds = self.pdb_file().get_records_by_name("SSBOND")
+        return [{
+         "serial_num": r[7:10],
+         "residue_name_1": r[11:14],
+         "chain_id_1": r[15],
+         "residue_id_1": r[17:21],
+         "insert_code_1": r[21] if r[21] else "",
+         "residue_name_2": r[25:28],
+         "chain_id_2": r[29],
+         "residue_id_2": r[31:35],
+         "insert_code_2": r[35] if r[35] else "",
+         "symmetry_1": r.get_as_string(59, 65),
+         "symmetry_2": r.get_as_string(66, 72),
+         "length": r[73:78]
+        } for r in ssbonds]
+
+
+    def links(self):
+        links = self.pdb_file().get_records_by_name("LINK")
+        return [{
+         "atom_1": r[12:16],
+         "alt_loc_1": r[16],
+         "residue_name_1": r[17:20],
+         "chain_id_1": r[21],
+         "residue_id_1": r[22:26],
+         "insert_code_1": r[26] if r[26] else "",
+         "atom_2": r[42:46],
+         "alt_loc_2": r[46],
+         "residue_name_2": r[47:50],
+         "chain_id_2": r[51],
+         "residue_id_2": r[52:56],
+         "insert_code_2": r[56] if r[56] else "",
+         "symmetry_1": r.get_as_string(59, 65),
+         "symmetry_2": r.get_as_string(66, 72),
+         "length": r[73:78]
+        } for r in links]
+
+
+    def cis_peptides(self):
+        cispeps = self.pdb_file().get_records_by_name("CISPEP")
+        return [{
+         "serial_num": r[7:10],
+         "residue_name_1": r[11:14],
+         "chain_id_1": r[15],
+         "residue_id_1": r[17:21],
+         "insert_1": r[21] if r[21] else "",
+         "residue_name_2": r[25:28],
+         "chain_id_2": r[29],
+         "residue_id_2": r[31:35],
+         "insert_2": r[35] if r[35] else "",
+         "model_number": r[43:46],
+         "angle": r[54:59]
+        } for r in cispeps]
+
+
+    def sites(self):
+        site_records = self.pdb_file().get_records_by_name("SITE")
+        site_names = sorted(list(set([r[11:14] for r in site_records])))
+        sites = []
+        for site_name in site_names:
+            records = [r for r in site_records if r[11:14] == site_name]
+            residues = []
+            for r in records:
+                for i in range(1, 5):
+                    if r[(i * 11) + 7: (i * 11) + 17]:
+                        residues.append({
+                         "residue_name": r[(i * 11) + 7: (i * 11) + 10],
+                         "chain_id": r[(i * 11) + 11],
+                         "residue_id": r[(i * 11) + 12: (i * 11) + 16],
+                         "insert_code":  r[(i * 11) + 16] if r[(i * 11) + 16] else ""
+                        })
+            sites.append({
+             "site_id": site_name,
+             "residue_count": records[0][15:17],
+             "residues": residues
+            })
+        return sites
+
+
 
 def date_from_string(s):
     return datetime.datetime.strptime(

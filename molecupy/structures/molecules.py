@@ -16,7 +16,7 @@ class AtomicStructure:
 
 
     def __repr__(self):
-        return "<AtomicStructure (%i atoms)>" % len(self._atoms)
+        return "<%s (%i atoms)>" % (self.__class__.__name__, len(self._atoms))
 
 
     def atoms(self, atom_type="all"):

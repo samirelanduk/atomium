@@ -102,3 +102,25 @@ class ModelSmallMoleculeTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_small_molecule_by_name(100)
+
+
+    def test_can_get_small_molecules_by_name(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        model.add_small_molecule(self.small_molecule2)
+        self.assertEqual(
+         model.get_small_molecules_by_name("MOL"),
+         set([self.small_molecule1])
+        )
+        self.small_molecule2.molecule_name.return_value = "MOL"
+        self.assertEqual(
+         model.get_small_molecules_by_name("MOL"),
+         set([self.small_molecule1, self.small_molecule2])
+        )
+        self.assertEqual(model.get_small_molecules_by_name("ABC"), set())
+
+
+    def test_can_only_get_small_molecules_with_str_name(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_small_molecules_by_name(100)

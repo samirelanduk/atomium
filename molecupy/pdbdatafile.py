@@ -168,6 +168,26 @@ class PdbDataFile:
             return journal
 
 
+    def remarks(self):
+        remark_records = self.pdb_file().get_records_by_name("REMARK")
+        remark_numbers = sorted(list(set([r[7:10] for r in remark_records])))
+        remarks = []
+        for number in remark_numbers:
+            recs = [r for r in remark_records if r[7:10] == number]
+            remark = {
+             "number": number,
+             "content": merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
+            }
+            remarks.append(remark)
+        return remarks
+
+
+    def get_remark_by_number(self, number):
+        for remark in self.remarks():
+            if remark["number"] == number:
+                return remark
+
+
 
 
 

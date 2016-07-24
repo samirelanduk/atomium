@@ -678,3 +678,57 @@ class JrnlRecordTests(PdbDataFileTest):
 
     def test_empty_jrnl_processing(self):
         self.assertEqual(self.empty.journal(), None)
+
+
+
+class RemarkRecordTests(PdbDataFileTest):
+
+    def test_remark_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "REMARK   2\n"
+         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.\n"
+         "REMARK 999\n"
+         "REMARK 999  SEQUENCE\n"
+         "REMARK 999 AUTHOR STATES THAT ALTHOUGH RESIDUES 1 AND 1001 ARE MET\n"
+         "REMARK 999 AND RESIDUES 101 AND 1101 ARE ARG ACCORDING TO THE\n"
+         "REMARK 999 SWISSPROT ENTRY, RESIDUES 1 AND 1001 WERE LEU AND RESIDUES\n"
+         "REMARK 999 101 AND 1101 WERE PRO IN THE ORIGINAL CONSTRUCT CLONED\n"
+         "REMARK 999 OF MT GENOMIC DNA."
+        ))
+        self.assertEqual(
+         data_file.remarks(),
+         [
+          {
+           "number": 2,
+           "content": "RESOLUTION.    1.90 ANGSTROMS."
+          }, {
+           "number": 999,
+           "content": "SEQUENCE\n"
+           "AUTHOR STATES THAT ALTHOUGH RESIDUES 1 AND 1001 ARE MET\n"
+           "AND RESIDUES 101 AND 1101 ARE ARG ACCORDING TO THE\n"
+           "SWISSPROT ENTRY, RESIDUES 1 AND 1001 WERE LEU AND RESIDUES\n"
+           "101 AND 1101 WERE PRO IN THE ORIGINAL CONSTRUCT CLONED\n"
+           "OF MT GENOMIC DNA."
+          }
+         ]
+        )
+
+
+    def test_can_get_remark_by_number(self):
+        data_file = PdbDataFile(PdbFile(
+         "REMARK   2\n"
+         "REMARK 999\n"
+         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS."
+        ))
+        self.assertEqual(
+         data_file.get_remark_by_number(2),
+         {
+          "number": 2,
+          "content": "RESOLUTION.    1.90 ANGSTROMS."
+         }
+        )
+        self.assertEqual(data_file.get_remark_by_number(3), None)
+
+
+    def test_missing_remark_processing(self):
+        self.assertEqual(self.empty.remarks(), [])

@@ -6,6 +6,8 @@ class SmallMoleculeTest(TestCase):
 
     def setUp(self):
         self.atoms = [unittest.mock.Mock(spec=PdbAtom) for _ in range(10)]
+        for atom in self.atoms:
+            atom._molecule = None
 
 
 
@@ -34,6 +36,15 @@ class SmallMoleculeCreationTests(SmallMoleculeTest):
     def test_small_molecule_repr(self):
         small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
         self.assertEqual(str(small_molecule), "<SmallMolecule A500 (MOL)>")
+
+
+    def test_small_molecules_update_atoms(self):
+        for atom in self.atoms:
+            self.assertIs(atom._molecule, None)
+        small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
+        for atom in self.atoms:
+            self.assertIs(atom._molecule, small_molecule)
+
 
 
 
@@ -75,3 +86,19 @@ class SmallMoleculePropertyTests(SmallMoleculeTest):
         small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
         with self.assertRaises(TypeError):
             small_molecule.bind_site("site")
+
+
+    def test_small_molecule_integrates_added_atoms(self):
+        small_molecule = SmallMolecule("A500", "MOL", *self.atoms[:-1])
+        self.assertIs(self.atoms[-1]._molecule, None)
+        small_molecule.add_atom(self.atoms[-1])
+        self.assertIs(self.atoms[-1]._molecule, small_molecule)
+        self.assertEqual(len(small_molecule.atoms()), 10)
+
+
+    def test_small_molecule_deintegrates_removed_atoms(self):
+        small_molecule = SmallMolecule("A500", "MOL", *self.atoms)
+        self.assertIs(self.atoms[-1]._molecule, small_molecule)
+        small_molecule.remove_atom(self.atoms[-1])
+        self.assertIs(self.atoms[-1]._molecule, None)
+        self.assertEqual(len(small_molecule.atoms()), 9)

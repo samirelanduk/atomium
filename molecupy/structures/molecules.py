@@ -153,6 +153,8 @@ class SmallMolecule(AtomicStructure):
         self._bind_site = None
         self._model = None
         AtomicStructure.__init__(self, *atoms)
+        for atom in self._atoms:
+            atom._molecule = self
 
 
     def __repr__(self):
@@ -189,6 +191,16 @@ class SmallMolecule(AtomicStructure):
 
     def model(self):
         return self._model
+
+
+    def add_atom(self, atom):
+        AtomicStructure.add_atom(self, atom)
+        atom._molecule = self
+
+
+    def remove_atom(self, atom):
+        AtomicStructure.remove_atom(self, atom)
+        atom._molecule = None
 
 
 

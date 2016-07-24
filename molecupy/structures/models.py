@@ -19,3 +19,7 @@ class Model(AtomicStructure):
 
     def add_small_molecule(self, small_molecule):
         self._small_molecules.add(small_molecule)
+
+
+    def remove_small_molecule(self, small_molecule):
+        self._small_molecules.remove(small_molecule)

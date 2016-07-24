@@ -43,3 +43,11 @@ class ModelSmallMoleculeTests(ModelTest):
         self.assertEqual(model.small_molecules(), set())
         model.small_molecules().add(self.small_molecule1)
         self.assertEqual(model.small_molecules(), set())
+
+
+    def test_can_remove_small_molecules(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        self.assertEqual(model.small_molecules(), set([self.small_molecule1]))
+        model.remove_small_molecule(self.small_molecule1)
+        self.assertEqual(model.small_molecules(), set())

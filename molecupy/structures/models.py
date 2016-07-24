@@ -39,3 +39,13 @@ class Model(AtomicStructure):
         for molecule in self.small_molecules():
             if molecule.molecule_id() == molecule_id:
                 return molecule
+
+
+    def get_small_molecule_by_name(self, molecule_name):
+        if not isinstance(molecule_name, str):
+            raise TypeError(
+             "Small molecule name search must be by str, not '%s'" % str(molecule_name)
+            )
+        for molecule in self.small_molecules():
+            if molecule.molecule_name() == molecule_name:
+                return molecule

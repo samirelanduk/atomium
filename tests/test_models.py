@@ -8,9 +8,11 @@ class ModelTest(TestCase):
         self.small_molecule1 = unittest.mock.Mock(spec=SmallMolecule)
         self.small_molecule1._model = None
         self.small_molecule1.molecule_id.return_value = "A100"
+        self.small_molecule1.molecule_name.return_value = "MOL"
         self.small_molecule2 = unittest.mock.Mock(spec=SmallMolecule)
         self.small_molecule2._model = None
         self.small_molecule2.molecule_id.return_value = "A101"
+        self.small_molecule2.molecule_name.return_value = "HET"
 
 
 
@@ -72,7 +74,7 @@ class ModelSmallMoleculeTests(ModelTest):
             model.add_small_molecule("molecule")
 
 
-    def test_can_get_small_molecules_by_id(self):
+    def test_can_get_small_molecule_by_id(self):
         model = Model()
         model.add_small_molecule(self.small_molecule1)
         model.add_small_molecule(self.small_molecule2)
@@ -81,7 +83,22 @@ class ModelSmallMoleculeTests(ModelTest):
         self.assertIs(model.get_small_molecule_by_id("A102"), None)
 
 
-    def test_can_only_get_small_molecules_with_str_id(self):
+    def test_can_only_get_small_molecule_with_str_id(self):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_small_molecule_by_id(100)
+
+
+    def test_can_get_small_molecule_by_name(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        model.add_small_molecule(self.small_molecule2)
+        self.assertIs(model.get_small_molecule_by_name("MOL"), self.small_molecule1)
+        self.assertIs(model.get_small_molecule_by_name("HET"), self.small_molecule2)
+        self.assertIs(model.get_small_molecule_by_name("ABC"), None)
+
+
+    def test_can_only_get_small_molecule_with_str_name(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_small_molecule_by_name(100)

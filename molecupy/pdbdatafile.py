@@ -1,3 +1,5 @@
+import datetime
+
 class PdbDataFile:
 
     def __init__(self, pdb_file):
@@ -10,3 +12,10 @@ class PdbDataFile:
 
     def pdb_file(self):
         return self._pdb_file
+
+
+
+def date_from_string(s):
+    return datetime.datetime.strptime(
+     s, "%d-%b-%y"
+    ).date()

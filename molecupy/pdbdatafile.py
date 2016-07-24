@@ -312,6 +312,60 @@ class PdbDataFile:
         }
 
 
+    def helices(self):
+        helix = self.pdb_file().get_records_by_name("HELIX")
+        return [{
+         "helix_id": r[7:10],
+         "helix_name": r.get_as_string(11, 14),
+         "start_residue_name": r[15:18],
+         "start_residue_chain_id": r[19],
+         "start_residue_id": r[21:25],
+         "start_residue_insert": r[25] if r[25] else "",
+         "end_residue_name": r[27:30],
+         "end_residue_chain_id": r[31],
+         "end_residue_id": r[33:37],
+         "end_residue_insert": r[37] if r[37] else "",
+         "helix_class": r[38:40],
+         "comment": r[40:70],
+         "length": r[71:76]
+        } for r in helix]
+
+
+    def sheets(self):
+        sheet_records = self.pdb_file().get_records_by_name("SHEET")
+        sheet_names = sorted(list(set([r[11:14] for r in sheet_records])))
+        sheets = []
+        for sheet_name in sheet_names:
+            strands = [r for r in sheet_records if r[11:14] == sheet_name]
+            sheets.append({
+             "sheet_id": sheet_name,
+             "strand_count": sheet_records[0][14:16],
+             "strands": [{
+              "strand_id": r[7:10],
+              "start_residue_name": r[17:20],
+              "start_residue_chain_id": r[21],
+              "start_residue_id": r[22:26],
+              "start_residue_insert": r[26] if r[26] else "",
+              "end_residue_name": r[28:31],
+              "end_residue_chain_id": r[32],
+              "end_residue_id": r[33:37],
+              "end_residue_insert": r[37] if r[37] else "",
+              "sense": r[38:40] if r[38:40] else 0,
+              "current_atom": r[41:45],
+              "current_residue_name": r[45:48],
+              "current_chain_id": r[49],
+              "current_residue_id": r[50:54],
+              "current_insert": r[54] if r[54] else "",
+              "previous_atom": r[56:60],
+              "previous_residue_name": r[60:63],
+              "previous_chain_id": r[64],
+              "previous_residue_id": r[65:69],
+              "previous_insert": r[69] if r[69] else ""
+             } for r in strands]
+            })
+        return sheets
+
+
 
 def date_from_string(s):
     return datetime.datetime.strptime(

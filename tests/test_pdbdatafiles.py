@@ -176,3 +176,24 @@ class RecordsToDictTests(TestCase):
           {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
          ]
         )
+
+
+
+class HeaderRecordTests(PdbDataFileTest):
+
+    def test_header_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        ))
+        self.assertEqual(data_file.classification(), "LYASE")
+        self.assertEqual(
+         data_file.deposition_date(),
+         datetime.datetime(2002, 5, 6).date()
+        )
+        self.assertEqual(data_file.pdb_code(), "1LOL")
+
+
+    def test_missing_header_processing(self):
+        self.assertEqual(self.empty.classification(), None)
+        self.assertEqual(self.empty.deposition_date(), None)
+        self.assertEqual(self.empty.pdb_code(), None)

@@ -14,6 +14,21 @@ class PdbDataFile:
         return self._pdb_file
 
 
+    def classification(self):
+        header = self.pdb_file().get_record_by_name("HEADER")
+        return header[10:50] if header else None
+
+
+    def deposition_date(self):
+        header = self.pdb_file().get_record_by_name("HEADER")
+        return date_from_string(header[50:59]) if header else None
+
+
+    def pdb_code(self):
+        header = self.pdb_file().get_record_by_name("HEADER")
+        return header[62:66] if header else None
+
+
 
 def date_from_string(s):
     return datetime.datetime.strptime(

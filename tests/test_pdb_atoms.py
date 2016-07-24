@@ -207,9 +207,6 @@ class NearbyPdbAtomTests(TestCase):
 
 
     def test_can_exclude_hydrogens_from_nearby_atoms(self):
-        self.model.atoms.return_value = set([
-         a for a in self.pdb_atoms if a.element() != "H"
-        ])
         self.assertEqual(
          self.pdb_atoms[4].local_atoms(1, include_hydrogens=False),
          set([self.pdb_atoms[5]])

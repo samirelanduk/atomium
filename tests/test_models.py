@@ -1,7 +1,7 @@
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite
-from molecupy.exceptions import DuplicateSmallMoleculesError
+from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 
 class ModelTest(TestCase):
 
@@ -173,6 +173,14 @@ class ModelChainTests(ModelTest):
         self.assertEqual(model.chains(), set())
         model.chains().add(self.chain1)
         self.assertEqual(model.chains(), set())
+
+
+    def test_cannot_have_duplicate_chains(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        self.chain2.chain_id.return_value = "A"
+        with self.assertRaises(DuplicateChainsError):
+            model.add_chain(self.chain2)
 
 
     def test_can_remove_chains(self):

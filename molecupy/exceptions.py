@@ -40,3 +40,8 @@ class DuplicateSmallMoleculesError(Exception):
 
 class DuplicateResiduesError(Exception):
     pass
+
+
+
+class DuplicateChainsError(Exception):
+    pass

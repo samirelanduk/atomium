@@ -1719,3 +1719,54 @@ class HetatmRecordTests(PdbDataFileTest):
 
     def test_missing_hetatm_processing(self):
         self.assertEqual(self.empty.heteroatoms(), [])
+
+
+
+class ConectRecordTests(PdbDataFileTest):
+
+    def test_conect_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CONECT 1179  746 1184 1195 1203\n"
+         "CONECT 1179 1211 1222"
+        ))
+        self.assertEqual(
+         data_file.connections(),
+         [
+          {
+           "atom_id": 1179,
+           "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
+          }
+         ]
+        )
+
+
+    def test_missing_conect_processing(self):
+        self.assertEqual(self.empty.connections(), [])
+
+
+
+class MiscRecordTests(PdbDataFileTest):
+
+    def test_misc_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MASTER       40    0    0    0    0    0    0    6 2930    2    0   29"
+        ))
+        self.assertEqual(
+         data_file.master(),
+         {
+          "remark_num": 40,
+          "het_num": 0,
+          "helix_num": 0,
+          "sheet_num": 0,
+          "site_num": 0,
+          "crystal_num": 6,
+          "coordinate_num": 2930,
+          "ter_num": 2,
+          "conect_num": 0,
+          "seqres_num": 29
+         }
+        )
+
+
+    def test_missing_misc_processing(self):
+        self.assertEqual(self.empty.master(), None)

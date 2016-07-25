@@ -446,6 +446,161 @@ class PdbDataFile:
         return sites
 
 
+    def crystal_a(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[6:15] if crystal else None
+
+
+    def crystal_b(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[15:24] if crystal else None
+
+
+    def crystal_c(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[24:33] if crystal else None
+
+
+    def crystal_alpha(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[33:40] if crystal else None
+
+
+    def crystal_beta(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[40:47] if crystal else None
+
+
+    def crystal_gamma(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[47:54] if crystal else None
+
+
+    def crystal_s_group(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[55:66] if crystal else None
+
+
+    def crystal_z(self):
+        crystal = self.pdb_file().get_record_by_name("CRYST1")
+        return crystal[66:70] if crystal else None
+
+
+    def origx(self, o):
+        if o[1] == "1":
+            origx1 = self.pdb_file().get_record_by_name("ORIGX1")
+            if origx1:
+                return {
+                 "o11": origx1[10:20],
+                 "o12": origx1[20:30],
+                 "o13": origx1[30:40],
+                 "t1": origx1[45:55]
+                }.get(o)
+            else:
+                return None
+        elif o[1] == "2":
+            origx2 = self.pdb_file().get_record_by_name("ORIGX2")
+            if origx2:
+                return {
+                 "o21": origx2[10:20],
+                 "o22": origx2[20:30],
+                 "o23": origx2[30:40],
+                 "t2": origx2[45:55]
+                }.get(o)
+            else:
+                return None
+        elif o[1] == "3":
+            origx3 = self.pdb_file().get_record_by_name("ORIGX3")
+            if origx3:
+                return {
+                 "o31": origx3[10:20],
+                 "o32": origx3[20:30],
+                 "o33": origx3[30:40],
+                 "t3": origx3[45:55]
+                }.get(o)
+            else:
+                return None
+
+
+    def scale(self, s):
+        if s[1] == "1":
+            scale1 = self.pdb_file().get_record_by_name("SCALE1")
+            if scale1:
+                return {
+                 "s11": scale1[10:20],
+                 "s12": scale1[20:30],
+                 "s13": scale1[30:40],
+                 "u1": scale1[45:55]
+                }.get(s)
+            else:
+                return None
+        elif s[1] == "2":
+            scale2 = self.pdb_file().get_record_by_name("SCALE2")
+            if scale2:
+                return {
+                 "s21": scale2[10:20],
+                 "s22": scale2[20:30],
+                 "s23": scale2[30:40],
+                 "u2": scale2[45:55]
+                }.get(s)
+            else:
+                return None
+        elif s[1] == "3":
+            scale3 = self.pdb_file().get_record_by_name("SCALE3")
+            if scale3:
+                return {
+                 "s31": scale3[10:20],
+                 "s32": scale3[20:30],
+                 "s33": scale3[30:40],
+                 "u3": scale3[45:55]
+                }.get(s)
+            else:
+                return None
+
+
+    def matrix(self, m):
+        if m[1] == "1" or m[-2:] == "_1":
+            matrix1 = self.pdb_file().get_record_by_name("MTRIX1")
+            if matrix1:
+                return {
+                 "serial_1": matrix1[7:10],
+                 "m11": matrix1[10:20],
+                 "m12": matrix1[20:30],
+                 "m13": matrix1[30:40],
+                 "v1": matrix1[45:55],
+                 "i_given_1": matrix1[59] == 1
+                }.get(m)
+            else:
+                return None if "given" not in m else False
+        elif m[1] == "2" or m[-2:] == "_2":
+            matrix2 = self.pdb_file().get_record_by_name("MTRIX2")
+            if matrix2:
+                return {
+                 "serial_2": matrix2[7:10],
+                 "m21": matrix2[10:20],
+                 "m22": matrix2[20:30],
+                 "m23": matrix2[30:40],
+                 "v2": matrix2[45:55],
+                 "i_given_1": matrix2[59] == 1
+                }.get(m)
+            else:
+                return None if "given" not in m else False
+        elif m[1] == "3" or m[-2:] == "_3":
+            matrix3 = self.pdb_file().get_record_by_name("MTRIX3")
+            if matrix3:
+                return {
+                 "serial_3": matrix3[7:10],
+                 "m31": matrix3[10:20],
+                 "m32": matrix3[20:30],
+                 "m33": matrix3[30:40],
+                 "v3": matrix3[45:55],
+                 "i_given_3": matrix3[59] == 1
+                }.get(m)
+            else:
+                return None if "given" not in m else False
+
+
+
 
 def date_from_string(s):
     return datetime.datetime.strptime(

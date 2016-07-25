@@ -1329,3 +1329,157 @@ class SiteRecordTests(PdbDataFileTest):
 
     def test_missing_site_processing(self):
         self.assertEqual(self.empty.sites(), [])
+
+
+
+class CrystalRecordTests(PdbDataFileTest):
+
+    def test_crystal_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CRYST1   57.570   55.482   66.129  90.00  94.28  90.00 P 1 21 1      4"
+        ))
+        self.assertEqual(data_file.crystal_a(), 57.57)
+        self.assertEqual(data_file.crystal_b(), 55.482)
+        self.assertEqual(data_file.crystal_c(), 66.129)
+        self.assertEqual(data_file.crystal_alpha(), 90.0)
+        self.assertEqual(data_file.crystal_beta(), 94.28)
+        self.assertEqual(data_file.crystal_gamma(), 90.0)
+        self.assertEqual(data_file.crystal_s_group(), "P 1 21 1")
+        self.assertEqual(data_file.crystal_z(), 4)
+
+
+    def test_missing_crystal_processing(self):
+        self.assertEqual(self.empty.crystal_a(), None)
+        self.assertEqual(self.empty.crystal_b(), None)
+        self.assertEqual(self.empty.crystal_c(), None)
+        self.assertEqual(self.empty.crystal_alpha(), None)
+        self.assertEqual(self.empty.crystal_beta(), None)
+        self.assertEqual(self.empty.crystal_gamma(), None)
+        self.assertEqual(self.empty.crystal_s_group(), None)
+        self.assertEqual(self.empty.crystal_z(), None)
+
+
+
+class OrigxRecordTests(PdbDataFileTest):
+
+    def test_origx_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "ORIGX1      0.963457  0.136613  0.230424       16.61000\n"
+         "ORIGX2     -0.158977  0.983924  0.081383       13.72000\n"
+         "ORIGX3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file.origx("o11"), 0.963457)
+        self.assertEqual(data_file.origx("o12"), 0.136613)
+        self.assertEqual(data_file.origx("o13"), 0.230424)
+        self.assertEqual(data_file.origx("t1"), 16.61)
+        self.assertEqual(data_file.origx("o21"), -0.158977)
+        self.assertEqual(data_file.origx("o22"), 0.983924)
+        self.assertEqual(data_file.origx("o23"), 0.081383)
+        self.assertEqual(data_file.origx("t2"), 13.72)
+        self.assertEqual(data_file.origx("o31"), -0.215598)
+        self.assertEqual(data_file.origx("o32"), -0.115048)
+        self.assertEqual(data_file.origx("o33"), 0.969683)
+        self.assertEqual(data_file.origx("t3"), 37.65)
+
+
+    def test_missing_origx_processing(self):
+        self.assertEqual(self.empty.origx("o11"), None)
+        self.assertEqual(self.empty.origx("o12"), None)
+        self.assertEqual(self.empty.origx("o13"), None)
+        self.assertEqual(self.empty.origx("t1"), None)
+        self.assertEqual(self.empty.origx("o21"), None)
+        self.assertEqual(self.empty.origx("o22"), None)
+        self.assertEqual(self.empty.origx("o23"), None)
+        self.assertEqual(self.empty.origx("t2"), None)
+        self.assertEqual(self.empty.origx("o31"), None)
+        self.assertEqual(self.empty.origx("o32"), None)
+        self.assertEqual(self.empty.origx("o33"), None)
+        self.assertEqual(self.empty.origx("t3"), None)
+
+
+
+class ScaleRecordTests(PdbDataFileTest):
+
+    def test_scale_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SCALE1      0.017370  0.000000  0.001301        0.00000\n"
+         "SCALE2      0.000000  0.018024  0.000000        0.00000\n"
+         "SCALE3      0.000000  0.000000  0.015164        0.00000"
+        ))
+        self.assertEqual(data_file.scale("s11"), 0.01737)
+        self.assertEqual(data_file.scale("s12"), 0.0)
+        self.assertEqual(data_file.scale("s13"), 0.001301)
+        self.assertEqual(data_file.scale("u1"), 0.0)
+        self.assertEqual(data_file.scale("s21"), 0.0)
+        self.assertEqual(data_file.scale("s22"), 0.018024)
+        self.assertEqual(data_file.scale("s23"), 0.0)
+        self.assertEqual(data_file.scale("u2"), 0.0)
+        self.assertEqual(data_file.scale("s31"), 0.0)
+        self.assertEqual(data_file.scale("s32"), 0.0)
+        self.assertEqual(data_file.scale("s33"), 0.015164)
+        self.assertEqual(data_file.scale("u3"), 0.0)
+
+
+    def test_missing_scale_processing(self):
+        self.assertEqual(self.empty.scale("s11"), None)
+        self.assertEqual(self.empty.scale("s12"), None)
+        self.assertEqual(self.empty.scale("s13"), None)
+        self.assertEqual(self.empty.scale("u1"), None)
+        self.assertEqual(self.empty.scale("s21"), None)
+        self.assertEqual(self.empty.scale("s22"), None)
+        self.assertEqual(self.empty.scale("s23"), None)
+        self.assertEqual(self.empty.scale("u2"), None)
+        self.assertEqual(self.empty.scale("s31"), None)
+        self.assertEqual(self.empty.scale("s32"), None)
+        self.assertEqual(self.empty.scale("s33"), None)
+        self.assertEqual(self.empty.scale("u3"), None)
+
+
+
+class MtrixRecordTests(PdbDataFileTest):
+
+    def test_mtrix_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1\n"
+         "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1\n"
+         "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1"
+        ))
+        self.assertEqual(data_file.matrix("serial_1"), 1)
+        self.assertEqual(data_file.matrix("m11"), -1.0)
+        self.assertEqual(data_file.matrix("m12"), 0.0)
+        self.assertEqual(data_file.matrix("m13"), 0.0)
+        self.assertEqual(data_file.matrix("v1"), 0.0)
+        self.assertEqual(data_file.matrix("i_given_1"), True)
+        self.assertEqual(data_file.matrix("serial_2"), 1)
+        self.assertEqual(data_file.matrix("m21"), 0.0)
+        self.assertEqual(data_file.matrix("m22"), 1.0)
+        self.assertEqual(data_file.matrix("m23"), 0.0)
+        self.assertEqual(data_file.matrix("v2"), 0.0)
+        self.assertEqual(data_file.matrix("i_given_3"), True)
+        self.assertEqual(data_file.matrix("serial_3"), 1)
+        self.assertEqual(data_file.matrix("m31"), 0.0)
+        self.assertEqual(data_file.matrix("m32"), 0.0)
+        self.assertEqual(data_file.matrix("m33"), -1.0)
+        self.assertEqual(data_file.matrix("v3"), 0.0)
+        self.assertEqual(data_file.matrix("i_given_3"), True)
+
+
+    def test_missing_mtrix_processing(self):
+        self.assertEqual(self.empty.matrix("serial_1"), None)
+        self.assertEqual(self.empty.matrix("m11"), None)
+        self.assertEqual(self.empty.matrix("m12"), None)
+        self.assertEqual(self.empty.matrix("m13"), None)
+        self.assertEqual(self.empty.matrix("v1"), None)
+        self.assertEqual(self.empty.matrix("i_given_3"), False)
+        self.assertEqual(self.empty.matrix("serial_1"), None)
+        self.assertEqual(self.empty.matrix("m21"), None)
+        self.assertEqual(self.empty.matrix("m22"), None)
+        self.assertEqual(self.empty.matrix("m23"), None)
+        self.assertEqual(self.empty.matrix("v2"), None)
+        self.assertEqual(self.empty.matrix("i_given_3"), False)
+        self.assertEqual(self.empty.matrix("serial_1"), None)
+        self.assertEqual(self.empty.matrix("m31"), None)
+        self.assertEqual(self.empty.matrix("m32"), None)
+        self.assertEqual(self.empty.matrix("m33"), None)
+        self.assertEqual(self.empty.matrix("v3"), None)
+        self.assertEqual(self.empty.matrix("i_given_3"), False)

@@ -1,5 +1,6 @@
 from .molecules import AtomicStructure, SmallMolecule
 from .chains import Chain, BindSite
+from ..exceptions import DuplicateSmallMoleculesError
 
 class Model(AtomicStructure):
 
@@ -32,6 +33,12 @@ class Model(AtomicStructure):
             raise TypeError(
              "Can only add SmallMolecule to Model, not '%s'" % str(small_molecule)
             )
+        if small_molecule.molecule_id() in [mol.molecule_id() for mol in self.small_molecules()]:
+             raise DuplicateSmallMoleculesError(
+              "Cannot add small_molecule with ID %s to %s as there is already a small_molecule with that ID" % (
+               small_molecule.molecule_id(), str(self)
+              )
+             )
         self._small_molecules.add(small_molecule)
         small_molecule._model = self
 

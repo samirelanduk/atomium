@@ -1,6 +1,7 @@
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite
+from molecupy.exceptions import DuplicateSmallMoleculesError
 
 class ModelTest(TestCase):
 
@@ -9,22 +10,28 @@ class ModelTest(TestCase):
         self.small_molecule1._model = None
         self.small_molecule1.molecule_id.return_value = "A100"
         self.small_molecule1.molecule_name.return_value = "MOL"
+        self.small_molecule1.atoms.return_value = set()
         self.small_molecule2 = unittest.mock.Mock(spec=SmallMolecule)
         self.small_molecule2._model = None
         self.small_molecule2.molecule_id.return_value = "A101"
         self.small_molecule2.molecule_name.return_value = "HET"
+        self.small_molecule2.atoms.return_value = set()
         self.chain1 = unittest.mock.Mock(spec=Chain)
         self.chain1._model = None
         self.chain1.chain_id.return_value = "A"
+        self.chain1.atoms.return_value = set()
         self.chain2 = unittest.mock.Mock(spec=Chain)
         self.chain2._model = None
         self.chain2.chain_id.return_value = "B"
+        self.chain2.atoms.return_value = set()
         self.site1 = unittest.mock.Mock(spec=BindSite)
         self.site1._model = None
         self.site1.site_id.return_value = "AA"
+        self.site1.atoms.return_value = set()
         self.site2 = unittest.mock.Mock(spec=BindSite)
         self.site2._model = None
         self.site2.site_id.return_value = "BB"
+        self.site2.atoms.return_value = set()
 
 
 
@@ -61,6 +68,14 @@ class ModelSmallMoleculeTests(ModelTest):
         self.assertEqual(model.small_molecules(), set())
         model.small_molecules().add(self.small_molecule1)
         self.assertEqual(model.small_molecules(), set())
+
+
+    def test_cannot_have_duplicate_small_molecules(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        self.small_molecule2.molecule_id.return_value = "A100"
+        with self.assertRaises(DuplicateSmallMoleculesError):
+            model.add_small_molecule(self.small_molecule2)
 
 
     def test_can_remove_small_molecules(self):

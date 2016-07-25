@@ -30,3 +30,8 @@ class BrokenStrandError(Exception):
 
 class DuplicateAtomsError(Exception):
     pass
+
+
+
+class DuplicateSmallMoleculesError(Exception):
+    pass

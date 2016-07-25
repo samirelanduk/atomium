@@ -1483,3 +1483,239 @@ class MtrixRecordTests(PdbDataFileTest):
         self.assertEqual(self.empty.matrix("m33"), None)
         self.assertEqual(self.empty.matrix("v3"), None)
         self.assertEqual(self.empty.matrix("i_given_3"), False)
+
+
+
+class ModelRecordTests(PdbDataFileTest):
+
+    def test_model_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MODEL        1\n"
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ENDMDL\n"
+         "MODEL        2\n"
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ENDMDL"
+        ))
+        self.assertEqual(
+         data_file.models(),
+         [
+          {
+           "model_id": 1,
+           "start_record": 1,
+           "end_record": 3
+          }, {
+           "model_id": 2,
+           "start_record": 4,
+           "end_record": 6
+          }
+         ]
+        )
+
+
+    def test_missing_model_processing(self):
+        self.assertEqual(
+         self.empty.models(),
+         [
+          {
+           "model_id": 1,
+           "start_record": 0,
+           "end_record": 0
+          }
+         ]
+        )
+
+
+
+class AtomRecordTests(PdbDataFileTest):
+
+    def test_atom_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ATOM    108  CA  GLY A  13      11.982  37.996 -26.241 1.000 16.92           C"
+        ))
+        self.assertEqual(
+         data_file.atoms(),
+         [
+          {
+           "atom_id": 107,
+           "atom_name": "N",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "x": 12.681,
+           "y": 37.302,
+           "z": -25.211,
+           "occupancy": 1.0,
+           "temperature_factor": 15.56,
+           "element": "N",
+           "charge": None,
+           "model_id": 1
+          }, {
+           "atom_id": 108,
+           "atom_name": "CA",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "x": 11.982,
+           "y": 37.996,
+           "z": -26.241,
+           "occupancy": 1.0,
+           "temperature_factor": 16.92,
+           "element": "C",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_missing_atom_processing(self):
+        self.assertEqual(self.empty.atoms(), [])
+
+
+
+class AnisouRecordTests(PdbDataFileTest):
+
+    def test_anisou_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "ANISOU  107  N   GLY A  13     2406   1892   1614    198    519   -328       N\n"
+         "ANISOU  108  CA  GLY A  13     2748   2004   1679    -21    155   -419       C"
+        ))
+        self.assertEqual(
+         data_file.anisou(),
+         [
+          {
+           "atom_id": 107,
+           "atom_name": "N",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "u11": 2406,
+           "u22": 1892,
+           "u33": 1614,
+           "u12": 198,
+           "u13": 519,
+           "u23": -328,
+           "element": "N",
+           "charge": None,
+           "model_id": 1
+          }, {
+           "atom_id": 108,
+           "atom_name": "CA",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "u11": 2748,
+           "u22": 2004,
+           "u33": 1679,
+           "u12": -21,
+           "u13": 155,
+           "u23": -419,
+           "element": "C",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_missing_anisou_processing(self):
+        self.assertEqual(self.empty.anisou(), [])
+
+
+
+class TerRecordTests(PdbDataFileTest):
+
+    def test_ter_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "TER     109      GLY A  13"
+        ))
+        self.assertEqual(
+         data_file.termini(),
+         [
+          {
+           "atom_id": 109,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_missing_ter_processing(self):
+        self.assertEqual(self.empty.termini(), [])
+
+
+
+class HetatmRecordTests(PdbDataFileTest):
+
+    def test_hetatm_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETATM 8237 MG    MG A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
+        ))
+        self.assertEqual(
+         data_file.heteroatoms(),
+         [
+          {
+           "atom_id": 8237,
+           "atom_name": "MG",
+           "alt_loc": None,
+           "residue_name": "MG",
+           "chain_id": "A",
+           "residue_id": 1001,
+           "insert_code": "",
+           "x": 13.872,
+           "y": -2.555,
+           "z": -29.045,
+           "occupancy": 1.0,
+           "temperature_factor": 27.36,
+           "element": "MG",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_het_names_always_interpreted_as_string(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETATM 8237 MG   123 A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
+        ))
+        self.assertEqual(
+         data_file.heteroatoms(),
+         [
+          {
+           "atom_id": 8237,
+           "atom_name": "MG",
+           "alt_loc": None,
+           "residue_name": "123",
+           "chain_id": "A",
+           "residue_id": 1001,
+           "insert_code": "",
+           "x": 13.872,
+           "y": -2.555,
+           "z": -29.045,
+           "occupancy": 1.0,
+           "temperature_factor": 27.36,
+           "element": "MG",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_missing_hetatm_processing(self):
+        self.assertEqual(self.empty.heteroatoms(), [])

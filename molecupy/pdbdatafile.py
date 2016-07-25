@@ -600,6 +600,109 @@ class PdbDataFile:
                 return None if "given" not in m else False
 
 
+    def models(self):
+        model_records = self.pdb_file().get_records_by_name("MODEL")
+        endmdls = self.pdb_file().get_records_by_name("ENDMDL")
+        pairs = list(zip(model_records, endmdls))
+        models = [{
+         "model_id": pair[0][10:14],
+         "start_record": pair[0].number(),
+         "end_record": pair[1].number(),
+        } for pair in pairs]
+        if not pairs:
+            models = [{
+             "model_id": 1,
+             "start_record": 0,
+             "end_record": len(self.pdb_file().records()),
+            }]
+        return models
+
+
+    def atoms(self):
+        atoms = self.pdb_file().get_records_by_name("ATOM")
+        return [{
+         "atom_id": r[6:11],
+         "atom_name": r[12:16],
+         "alt_loc": r[16],
+         "residue_name": r[17:20],
+         "chain_id": r[21],
+         "residue_id": r[22:26],
+         "insert_code": r[26] if r[26] else "",
+         "x": r[30:38],
+         "y": r[38:46],
+         "z": r[46:54],
+         "occupancy": r[54:60],
+         "temperature_factor": r[60:66],
+         "element": r[76:78],
+         "charge": r[78:80],
+         "model_id": [m for m in self.models()
+          if r.number() >= m["start_record"]
+           and r.number() <= m["end_record"]][0]["model_id"]
+        } for r in atoms]
+
+
+    def anisou(self):
+        anisou = self.pdb_file().get_records_by_name("ANISOU")
+        return [{
+         "atom_id": r[6:11],
+         "atom_name": r[12:16],
+         "alt_loc": r[16],
+         "residue_name": r[17:20],
+         "chain_id": r[21],
+         "residue_id": r[22:26],
+         "insert_code": r[26] if r[26] else "",
+         "u11": r[29:35],
+         "u22": r[36:42],
+         "u33": r[43:49],
+         "u12": r[50:56],
+         "u13": r[57:63],
+         "u23": r[64:70],
+         "element": r[76:78],
+         "charge": r[78:80],
+         "model_id": [m for m in self.models()
+          if r.number() >= m["start_record"]
+           and r.number() <= m["end_record"]][0]["model_id"]
+        } for r in anisou]
+
+
+    def termini(self):
+        ters = self.pdb_file().get_records_by_name("TER")
+        return [{
+         "atom_id": r[6:11],
+         "residue_name": r[17:20],
+         "chain_id": r[21],
+         "residue_id": r[22:26],
+         "insert_code": r[26] if r[26] else "",
+         "model_id": [m for m in self.models()
+          if r.number() >= m["start_record"]
+           and r.number() <= m["end_record"]][0]["model_id"]
+        } for r in ters]
+
+
+    def heteroatoms(self):
+        hetatms = self.pdb_file().get_records_by_name("HETATM")
+        return [{
+         "atom_id": r[6:11],
+         "atom_name": r[12:16],
+         "alt_loc": r[16],
+         "residue_name": r.get_as_string(17, 20),
+         "chain_id": r[21],
+         "residue_id": r[22:26],
+         "insert_code": r[26] if r[26] else "",
+         "x": r[30:38],
+         "y": r[38:46],
+         "z": r[46:54],
+         "occupancy": r[54:60],
+         "temperature_factor": r[60:66],
+         "element": r[76:78],
+         "charge": r[78:80],
+         "model_id": [m for m in self.models()
+          if r.number() >= m["start_record"]
+           and r.number() <= m["end_record"]][0]["model_id"]
+        } for r in hetatms]
+
+
+
 
 
 def date_from_string(s):

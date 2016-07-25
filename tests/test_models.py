@@ -2,6 +2,7 @@ from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
+from molecupy.exceptions import DuplicateBindSitesError
 
 class ModelTest(TestCase):
 
@@ -241,6 +242,14 @@ class ModelBindSiteTests(ModelTest):
         self.assertEqual(model.bind_sites(), set())
         model.bind_sites().add(self.site1)
         self.assertEqual(model.bind_sites(), set())
+
+
+    def test_cannot_have_duplicate_sites(self):
+        model = Model()
+        model.add_bind_site(self.site1)
+        self.site2.site_id.return_value = "AA"
+        with self.assertRaises(DuplicateBindSitesError):
+            model.add_bind_site(self.site2)
 
 
     def test_can_remove_sites(self):

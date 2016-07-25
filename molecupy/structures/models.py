@@ -1,6 +1,7 @@
 from .molecules import AtomicStructure, SmallMolecule
 from .chains import Chain, BindSite
 from ..exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
+from ..exceptions import DuplicateBindSitesError
 
 class Model(AtomicStructure):
 
@@ -86,7 +87,7 @@ class Model(AtomicStructure):
             raise TypeError(
              "Can only add Chain to Model, not '%s'" % str(chain)
             )
-        if chain.chain_id() in [mol.chain_id() for mol in self.chains()]:
+        if chain.chain_id() in [chain.chain_id() for chain in self.chains()]:
              raise DuplicateChainsError(
               "Cannot add chain with ID %s to %s as there is already a chain with that ID" % (
                chain.chain_id(), str(self)
@@ -120,6 +121,12 @@ class Model(AtomicStructure):
             raise TypeError(
              "Can only add BindSite to Model, not '%s'" % str(site)
             )
+        if site.site_id() in [mol.site_id() for mol in self.bind_sites()]:
+             raise DuplicateBindSitesError(
+              "Cannot add site with ID %s to %s as there is already a site with that ID" % (
+               site.site_id(), str(self)
+              )
+             )
         self._bind_sites.add(site)
         site._model = self
 

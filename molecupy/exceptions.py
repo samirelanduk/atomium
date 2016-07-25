@@ -45,3 +45,8 @@ class DuplicateResiduesError(Exception):
 
 class DuplicateChainsError(Exception):
     pass
+
+
+
+class DuplicateBindSitesError(Exception):
+    pass

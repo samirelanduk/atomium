@@ -1,12 +1,14 @@
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import ResiduicStructure, Residue, AtomicStructure, Atom
-from molecupy import NoResiduesError
+from molecupy import NoResiduesError, DuplicateResiduesError
 
 class ResiduicStructureTest(TestCase):
 
     def setUp(self):
         self.residues = [unittest.mock.Mock(spec=Residue) for _ in range(10)]
+        for index, residue in enumerate(self.residues):
+            residue.residue_id.return_value = index + 1
 
 
 
@@ -26,6 +28,12 @@ class ResiduicStructureCreationTests(ResiduicStructureTest):
     def test_cannot_make_empty_residuic_structure(self):
         with self.assertRaises(NoResiduesError):
             ResiduicStructure()
+
+
+    def test_cannot_have_duplicate_residue_ids_in_residuic_structure(self):
+        self.residues[-1].residue_id.return_value = 9
+        with self.assertRaises(DuplicateResiduesError):
+            ResiduicStructure(*self.residues)
 
 
     def test_residuic_structure_repr(self):
@@ -76,6 +84,13 @@ class ResiduicStructurePropertyTests(ResiduicStructureTest):
         residuic_structure = ResiduicStructure(*self.residues)
         with self.assertRaises(TypeError):
             residuic_structure.add_residue("atom21")
+
+
+    def test_can_only_add_residues_if_id_is_unique(self):
+        residuic_structure = ResiduicStructure(*self.residues[:-1])
+        self.residues[-1].residue_id.return_value = 9
+        with self.assertRaises(DuplicateResiduesError):
+            residuic_structure.add_residue(self.residues[-1])
 
 
     def test_can_remove_residues(self):

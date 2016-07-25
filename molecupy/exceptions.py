@@ -35,3 +35,8 @@ class DuplicateAtomsError(Exception):
 
 class DuplicateSmallMoleculesError(Exception):
     pass
+
+
+
+class DuplicateResiduesError(Exception):
+    pass

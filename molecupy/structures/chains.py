@@ -1,6 +1,6 @@
 from .molecules import AtomicStructure, Residue, SmallMolecule
 from . import matrix
-from ..exceptions import NoResiduesError, BrokenHelixError, BrokenStrandError
+from ..exceptions import NoResiduesError, BrokenHelixError, BrokenStrandError, DuplicateResiduesError
 
 class ResiduicStructure(AtomicStructure):
 
@@ -12,6 +12,11 @@ class ResiduicStructure(AtomicStructure):
                 raise TypeError(
                  "Can only make ResiduicStructure with Residues, not '%s'" % str(residue)
                 )
+        residue_ids = [residue.residue_id() for residue in residues]
+        if len(residue_ids) != len(set(residue_ids)):
+            raise DuplicateResiduesError(
+             "Cannot make residuic structure with duplicate residue IDs"
+            )
         self._residues = set(residues)
 
 
@@ -40,6 +45,12 @@ class ResiduicStructure(AtomicStructure):
         if not isinstance(residue, Residue):
             raise TypeError(
              "Can only add Residues to ResiduicStructures, not '%s'" % str(residue)
+            )
+        if residue.residue_id() in [residue.residue_id() for residue in self.residues()]:
+            raise DuplicateResiduesError(
+             "Cannot add residue with ID %i to %s as there is already an residue with that ID" % (
+              residue.residue_id(), self
+             )
             )
         self._residues.add(residue)
 

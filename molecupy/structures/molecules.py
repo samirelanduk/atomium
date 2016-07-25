@@ -1,6 +1,6 @@
 from collections import Counter
 from .atoms import Atom, PdbAtom
-from ..exceptions import NoAtomsError, MultipleResidueConnectionError
+from ..exceptions import NoAtomsError, MultipleResidueConnectionError, DuplicateAtomsError
 
 class AtomicStructure:
 
@@ -12,6 +12,11 @@ class AtomicStructure:
                 raise TypeError(
                  "Can only make AtomicStructures with Atoms, not '%s'" % str(atom)
                 )
+        atom_ids = [atom.atom_id() for atom in atoms]
+        if len(atom_ids) != len(set(atom_ids)):
+            raise DuplicateAtomsError(
+             "Cannot make atomic structure with duplicate atom IDs"
+            )
         self._atoms = set(atoms)
 
 
@@ -40,6 +45,12 @@ class AtomicStructure:
         if not isinstance(atom, Atom):
             raise TypeError(
              "Can only add Atoms to AtomicStructures, not '%s'" % str(atom)
+            )
+        if atom.atom_id() in [atom.atom_id() for atom in self.atoms()]:
+            raise DuplicateAtomsError(
+             "Cannot add atom with ID %i to %s as there is already an atom with that ID" % (
+              atom.atom_id(), self
+             )
             )
         self._atoms.add(atom)
 

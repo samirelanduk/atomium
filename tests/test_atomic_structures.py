@@ -3,7 +3,7 @@ import warnings
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import AtomicStructure, PdbAtom, Atom, BindSite, Residue
-from molecupy import NoAtomsError
+from molecupy import NoAtomsError, DuplicateAtomsError
 
 class AtomicStructureTest(TestCase):
 
@@ -13,6 +13,7 @@ class AtomicStructureTest(TestCase):
         self.all_atoms = self.pdb_atoms + self.generic_atoms
         for index, atom in enumerate(self.all_atoms):
             atom.mass.return_value = index + 1
+            atom.atom_id.return_value = index + 1
 
 
 
@@ -44,6 +45,12 @@ class AtomicStructureCreationTests(AtomicStructureTest):
     def test_cannot_make_empty_atomic_structure(self):
         with self.assertRaises(NoAtomsError):
             AtomicStructure()
+
+
+    def test_cannot_have_duplicate_atom_ids_in_atomic_structure(self):
+        self.all_atoms[-1].atom_id.return_value = 19
+        with self.assertRaises(DuplicateAtomsError):
+            AtomicStructure(*self.all_atoms)
 
 
     def test_repr(self):
@@ -114,6 +121,13 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
         atomic_structure = AtomicStructure(*self.all_atoms)
         with self.assertRaises(TypeError):
             atomic_structure.add_atom("atom21")
+
+
+    def test_can_only_add_atoms_if_id_is_unique(self):
+        atomic_structure = AtomicStructure(*self.all_atoms[:-1])
+        self.all_atoms[-1].atom_id.return_value = 19
+        with self.assertRaises(DuplicateAtomsError):
+            atomic_structure.add_atom(self.all_atoms[-1])
 
 
     def test_can_remove_atoms(self):

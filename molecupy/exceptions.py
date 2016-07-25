@@ -25,3 +25,8 @@ class BrokenHelixError(Exception):
 
 class BrokenStrandError(Exception):
     pass
+
+
+
+class DuplicateAtomsError(Exception):
+    pass

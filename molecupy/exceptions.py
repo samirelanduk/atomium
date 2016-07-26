@@ -50,3 +50,8 @@ class DuplicateChainsError(Exception):
 
 class DuplicateBindSitesError(Exception):
     pass
+
+
+
+class InvalidPdbCodeError(Exception):
+    pass

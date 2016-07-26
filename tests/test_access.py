@@ -2,7 +2,7 @@ import os
 from unittest import TestCase
 from unittest.mock import patch
 import unittest
-from molecupy.access import pdb_from_string, get_pdb_from_file, get_pdb_remotely
+from molecupy import pdb_from_string, get_pdb_from_file, get_pdb_remotely
 from molecupy.pdb import Pdb
 from molecupy.exceptions import InvalidPdbCodeError
 

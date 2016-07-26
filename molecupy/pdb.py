@@ -4,6 +4,10 @@ class Pdb:
         self._data_file = data_file
 
 
+    def __repr__(self):
+        return "<Pdb (%s)>" % (self.pdb_code() if self.pdb_code() else "????")
+
+
     def data_file(self):
         return self._data_file
 

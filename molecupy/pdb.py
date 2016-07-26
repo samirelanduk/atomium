@@ -1,7 +1,10 @@
+from .structures import Model
+
 class Pdb:
 
     def __init__(self, data_file):
         self._data_file = data_file
+        self._models = [Model() for _ in data_file.models()]
 
 
     def __repr__(self):
@@ -82,3 +85,11 @@ class Pdb:
 
     def journal(self):
     	return self._data_file.journal()
+
+
+    def models(self):
+        return self._models
+
+
+    def model(self):
+        return self._models[0]

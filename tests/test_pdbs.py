@@ -2,11 +2,15 @@ from unittest import TestCase
 import unittest.mock
 from molecupy.pdb import Pdb
 from molecupy.pdbdatafile import PdbDataFile
+from molecupy.structures import Model
 
 class PdbTest(TestCase):
 
     def setUp(self):
         self.data_file = unittest.mock.Mock(spec=PdbDataFile)
+        self.data_file.models.return_value = [
+         {"model_id": 1, "start_record": 0, "end_record": 0}
+        ]
 
 
 class PdbCreationTests(PdbTest):
@@ -112,3 +116,32 @@ class PdbCreationTests(PdbTest):
         self.assertEqual(str(pdb), "<Pdb (????)>")
         self.data_file.pdb_code.return_value = "1SAM"
         self.assertEqual(str(pdb), "<Pdb (1SAM)>")
+
+
+
+class PdbModelsTests(PdbTest):
+
+    def test_single_model(self):
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.models()), 1)
+        self.assertIsInstance(pdb.models()[0], Model)
+
+
+    def test_multiple_models(self):
+        self.data_file.models.return_value = [
+         {"model_id": 1, "start_record": 1, "end_record": 3},
+         {"model_id": 2, "start_record": 4, "end_record": 6}
+        ]
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.models()), 2)
+        self.assertIsInstance(pdb.models()[0], Model)
+        self.assertIsInstance(pdb.models()[1], Model)
+
+
+    def test_one_model_access(self):
+        self.data_file.models.return_value = [
+         {"model_id": 1, "start_record": 1, "end_record": 3},
+         {"model_id": 2, "start_record": 4, "end_record": 6}
+        ]
+        pdb = Pdb(self.data_file)
+        self.assertIs(pdb.models()[0], pdb.model())

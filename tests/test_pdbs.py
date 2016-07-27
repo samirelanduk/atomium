@@ -191,3 +191,164 @@ class PdbSmallMoleculeTests(PdbTest):
         self.assertEqual(len(pdb.model().small_molecules()), 1)
         self.assertIsInstance(list(pdb.model().small_molecules())[0], SmallMolecule)
         self.assertEqual(len(list(pdb.model().small_molecules())[0].atoms()), 2)
+
+
+    def test_multiple_small_molecules(self):
+        self.data_file.heteroatoms.return_value = [
+         {
+          "atom_id": 8237,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "A",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8238,
+          "atom_name": "MG",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "A",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "MG",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8239,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "MOL",
+          "chain_id": "A",
+          "residue_id": 1002,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8240,
+          "atom_name": "MG",
+          "alt_loc": None,
+          "residue_name": "MOL",
+          "chain_id": "A",
+          "residue_id": 1002,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "MG",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().small_molecules()), 2)
+        self.assertEqual(
+         set([mol.molecule_name() for mol in pdb.model().small_molecules()]),
+         set(["123", "MOL"])
+        )
+        self.assertEqual(
+         set([mol.molecule_id() for mol in pdb.model().small_molecules()]),
+         set(["A1002", "A1001A"])
+        )
+
+
+    def test_single_small_molecules_in_multiple_models(self):
+        self.data_file.models.return_value = [
+         {"model_id": 1, "start_record": 0, "end_record": 1},
+         {"model_id": 2, "start_record": 2, "end_record": 3}
+        ]
+        self.data_file.heteroatoms.return_value = [
+         {
+          "atom_id": 8237,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8238,
+          "atom_name": "MG",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "MG",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8237,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "C",
+          "charge": None,
+          "model_id": 2
+         }, {
+          "atom_id": 8238,
+          "atom_name": "MG",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "MG",
+          "charge": None,
+          "model_id": 2
+         }
+        ]
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.models()[0].small_molecules()), 1)
+        self.assertEqual(len(pdb.models()[1].small_molecules()), 1)
+        self.assertIsNot(
+         [pdb.models()[0].small_molecules()][0],
+         [pdb.models()[1].small_molecules()][0]
+        )

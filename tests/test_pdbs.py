@@ -3,7 +3,7 @@ import unittest.mock
 from molecupy.pdb import Pdb
 from molecupy.pdbdatafile import PdbDataFile
 from molecupy.structures import Model, SmallMolecule, Chain, Residue, BindSite
-from molecupy.structures import AlphaHelix
+from molecupy.structures import AlphaHelix, BetaStrand
 
 class PdbTest(TestCase):
 
@@ -20,6 +20,7 @@ class PdbTest(TestCase):
         self.data_file.links.return_value = []
         self.data_file.sites.return_value = []
         self.data_file.helices.return_value = []
+        self.data_file.sheets.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -937,3 +938,42 @@ class PdbSecondaryStructureTests(PdbBondTests):
          list(pdb.model().chains())[0].residues()
         )
         self.assertEqual(helix.helix_class(), "Right-handed 3 - 10")
+
+
+    def test_pdb_has_beta_strands(self):
+        self.data_file.sheets.return_value = [{
+         "sheet_id": "A",
+         "strand_count": 1,
+         "strands": [{
+          "strand_id": 1,
+          "start_residue_name": "ALA",
+          "start_residue_chain_id": "A",
+          "start_residue_id": 27,
+          "start_residue_insert": "",
+          "end_residue_name": "ALA",
+          "end_residue_chain_id": "A",
+          "end_residue_id": 28,
+          "end_residue_insert": "",
+          "sense": 0,
+          "current_atom": None,
+          "current_residue_name": None,
+          "current_chain_id": None,
+          "current_residue_id": None,
+          "current_insert": "",
+          "previous_atom": None,
+          "previous_residue_name": None,
+          "previous_chain_id": None,
+          "previous_residue_id": None,
+          "previous_insert": ""
+         }]
+        }]
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().get_chain_by_id("A").beta_strands()), 1)
+        strand = list(pdb.model().get_chain_by_id("A").beta_strands())[0]
+        self.assertIsInstance(strand, BetaStrand)
+        self.assertEqual(strand.strand_id(), "1")
+        self.assertEqual(
+         strand.residues(),
+         list(pdb.model().chains())[0].residues()
+        )
+        self.assertEqual(strand.sense(), 0)

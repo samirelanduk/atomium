@@ -1,5 +1,5 @@
 from .structures import Model, PdbAtom, Atom, SmallMolecule, Residue, Chain
-from .structures import BindSite, AlphaHelix
+from .structures import BindSite, AlphaHelix, BetaStrand
 from . import residues as residues_dict
 
 class Pdb:
@@ -19,6 +19,7 @@ class Pdb:
             _give_model_sites(model, data_file, model_dict["model_id"])
             _map_sites_to_ligands(model, data_file, model_dict["model_id"])
             _give_model_alpha_helices(model, data_file, model_dict["model_id"])
+            _give_model_beta_strands(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -382,6 +383,31 @@ def _give_model_alpha_helices(model, data_file, model_id):
                      *chain.residues()[start_index:end_index + 1],
                      comment=helix["comment"],
                      helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
+                    )
+
+
+def _give_model_beta_strands(model, data_file, model_id):
+    for sheet in data_file.sheets():
+        for strand in sheet["strands"]:
+            chain = model.get_chain_by_id(strand["start_residue_chain_id"])
+            if chain:
+                start_residue = chain.get_residue_by_id(
+                 strand["start_residue_chain_id"] +
+                 str(strand["start_residue_id"]) +
+                 strand["start_residue_insert"]
+                )
+                end_residue = chain.get_residue_by_id(
+                 strand["end_residue_chain_id"] +
+                 str(strand["end_residue_id"]) +
+                 strand["end_residue_insert"]
+                )
+                if start_residue and end_residue:
+                    start_index = chain.residues().index(start_residue)
+                    end_index = chain.residues().index(end_residue)
+                    BetaStrand(
+                     str(strand["strand_id"]),
+                     strand["sense"],
+                     *chain.residues()[start_index:end_index + 1]
                     )
 
 

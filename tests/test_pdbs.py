@@ -15,6 +15,7 @@ class PdbTest(TestCase):
         self.data_file.atoms.return_value = []
         self.data_file.get_remark_by_number.return_value = {}
         self.data_file.connections.return_value = []
+        self.data_file.ss_bonds.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -803,5 +804,30 @@ class PdbBondTests(PdbTest):
         self.assertIs(chain.residues()[1].downstream_residue(), None)
         atom1 = pdb.model().get_atom_by_id(133)
         atom2 = pdb.model().get_atom_by_id(136)
+        self.assertIn(atom1, atom2.bonded_atoms())
+        self.assertIn(atom2, atom1.bonded_atoms())
+
+
+    def test_disulphide_bonds_are_present(self):
+        self.data_file.ss_bonds.return_value = [{
+         "serial_num": 1,
+         "residue_name_1": "ALA",
+         "chain_id_1": "A",
+         "residue_id_1": 27,
+         "insert_code_1": "",
+         "residue_name_2": "ALA",
+         "chain_id_2": "A",
+         "residue_id_2": 28,
+         "insert_code_2": "",
+         "symmetry_1": "1555",
+         "symmetry_2": "1555",
+         "length": 2.04
+        }]
+        atoms = self.data_file.atoms()
+        atoms[4]["element"] = atoms[9]["element"] = "S"
+        self.data_file.atoms.return_value = atoms
+        pdb = Pdb(self.data_file)
+        atom1 = pdb.model().get_atom_by_id(135)
+        atom2 = pdb.model().get_atom_by_id(140)
         self.assertIn(atom1, atom2.bonded_atoms())
         self.assertIn(atom2, atom1.bonded_atoms())

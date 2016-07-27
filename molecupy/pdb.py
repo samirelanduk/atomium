@@ -13,6 +13,7 @@ class Pdb:
             _connect_atoms(model, data_file, model_dict["model_id"])
             _bond_residue_atoms(model, data_file, model_dict["model_id"])
             _bond_residues_together(model, data_file, model_dict["model_id"])
+            _make_disulphide_bonds(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -260,3 +261,25 @@ def _bond_residues_together(model, data_file, model_id):
             amino_nitrogen = next_residue.get_atom_by_name("N", atom_type="pdb")
             if carboxy_atom and amino_nitrogen:
                 carboxy_atom.bond_to(amino_nitrogen)
+
+
+def _make_disulphide_bonds(model, data_file, model_id):
+    for disulphide_bond in data_file.ss_bonds():
+        chain1 = model.get_chain_by_id(disulphide_bond["chain_id_1"])
+        chain2 = model.get_chain_by_id(disulphide_bond["chain_id_2"])
+        if chain1 and chain2:
+            residue1 = chain1.get_residue_by_id(
+             disulphide_bond["chain_id_1"] +
+             str(disulphide_bond["residue_id_1"]) +
+             disulphide_bond["insert_code_1"]
+            )
+            residue2 = chain2.get_residue_by_id(
+             disulphide_bond["chain_id_2"] +
+             str(disulphide_bond["residue_id_2"]) +
+             disulphide_bond["insert_code_2"]
+            )
+            if residue1 and residue2:
+                atom1 = residue1.get_atom_by_element("S")
+                atom2 = residue2.get_atom_by_element("S")
+                if atom1 and atom2:
+                    atom1.bond_to(atom2)

@@ -885,3 +885,18 @@ class PdbBindSiteTests(PdbBondTests):
          site.residues(),
          set(list(pdb.model().chains())[0].residues())
         )
+
+
+    def test_bind_site_and_ligand_know_about_each_other(self):
+        self.data_file.get_remark_by_number.return_value = {
+         'content': 'SITE\n'
+         'SITE_IDENTIFIER: AC1\n'
+         'EVIDENCE_CODE: SOFTWARE\n'
+         'SITE_DESCRIPTION: BINDING SITE FOR RESIDUE MOL A1002\n\n',
+         'number': 465
+        }
+        pdb = Pdb(self.data_file)
+        site = list(pdb.model().bind_sites())[0]
+        molecule = pdb.model().get_small_molecule_by_id("A1002")
+        self.assertIs(molecule.bind_site(), site)
+        self.assertIs(site.ligand(), molecule)

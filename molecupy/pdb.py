@@ -17,6 +17,7 @@ class Pdb:
             _make_disulphide_bonds(model, data_file, model_dict["model_id"])
             _make_link_bonds(model, data_file, model_dict["model_id"])
             _give_model_sites(model, data_file, model_dict["model_id"])
+            _map_sites_to_ligands(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -333,3 +334,26 @@ def _give_model_sites(model, data_file, model_id):
              *[r for r in residues if r]
             )
             model.add_bind_site(site)
+
+
+
+def _map_sites_to_ligands(model, data_file, model_id):
+    remark_800 = data_file.get_remark_by_number(800)
+    if remark_800:
+        remark_lines = [
+         line for line in remark_800["content"].split("\n") if line != "SITE"
+        ]
+        for index, line in enumerate(remark_lines):
+            if line.startswith("SITE_IDENTIFIER"):
+                site_id = line.split(":")[1].strip() if ":" in line else None
+                if site_id:
+                    for trailing_line in remark_lines[index+1:]:
+                        if trailing_line.startswith("SITE_IDENTIFIER"): break
+                        if trailing_line.startswith("SITE_DESCRIPTION"):
+                            site = model.get_bind_site_by_id(site_id)
+                            if site:
+                                ligand_id = trailing_line.split()[-1]
+                                if not ligand_id[0].isalpha():
+                                    ligand_id = trailing_line.split()[-2] + ligand_id
+                                ligand = model.get_small_molecule_by_id(ligand_id)
+                                site.ligand(ligand)

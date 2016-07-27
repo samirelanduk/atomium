@@ -12,6 +12,7 @@ class Pdb:
             _give_model_chains(model, data_file, model_dict["model_id"])
             _connect_atoms(model, data_file, model_dict["model_id"])
             _bond_residue_atoms(model, data_file, model_dict["model_id"])
+            _bond_residues_together(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -248,3 +249,14 @@ def _residue_id_is_greater_than_residue_id(residue_id1, residue_id2):
         return True
     else:
         return False
+
+
+def _bond_residues_together(model, data_file, model_id):
+    for chain in model.chains():
+        for index, residue in enumerate(chain.residues()[:-1]):
+            next_residue = chain.residues()[index + 1]
+            residue.connect_to(next_residue)
+            carboxy_atom = residue.get_atom_by_name("C", atom_type="pdb")
+            amino_nitrogen = next_residue.get_atom_by_name("N", atom_type="pdb")
+            if carboxy_atom and amino_nitrogen:
+                carboxy_atom.bond_to(amino_nitrogen)

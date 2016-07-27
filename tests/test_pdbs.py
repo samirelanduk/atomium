@@ -592,6 +592,86 @@ class PdbBondTests(PdbTest):
           "element": "C",
           "charge": None,
           "model_id": 1
+         }, {
+          "atom_id": 136,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "ALA",
+          "chain_id": "A",
+          "residue_id": 28,
+          "insert_code": "",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 137,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "ALA",
+          "chain_id": "A",
+          "residue_id": 28,
+          "insert_code": "",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 138,
+          "atom_name": "C",
+          "alt_loc": None,
+          "residue_name": "ALA",
+          "chain_id": "A",
+          "residue_id": 28,
+          "insert_code": "",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 139,
+          "atom_name": "O",
+          "alt_loc": None,
+          "residue_name": "ALA",
+          "chain_id": "A",
+          "residue_id": 28,
+          "insert_code": "",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "O",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 140,
+          "atom_name": "CB",
+          "alt_loc": None,
+          "residue_name": "ALA",
+          "chain_id": "A",
+          "residue_id": 28,
+          "insert_code": "",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
          }
         ]
         self.data_file.heteroatoms.return_value = [
@@ -697,8 +777,31 @@ class PdbBondTests(PdbTest):
         atom3 = pdb.model().get_atom_by_id(133)
         atom4 = pdb.model().get_atom_by_id(134)
         atom5 = pdb.model().get_atom_by_id(135)
+        atom6 = pdb.model().get_atom_by_id(136)
+        atom7 = pdb.model().get_atom_by_id(137)
+        atom8 = pdb.model().get_atom_by_id(138)
+        atom9 = pdb.model().get_atom_by_id(139)
+        atom10 = pdb.model().get_atom_by_id(140)
         self.assertEqual(atom1.bonded_atoms(), set([atom2]))
         self.assertEqual(atom2.bonded_atoms(), set([atom1, atom3, atom5]))
-        self.assertEqual(atom3.bonded_atoms(), set([atom2, atom4]))
+        self.assertEqual(atom3.bonded_atoms(), set([atom2, atom4, atom6]))
         self.assertEqual(atom4.bonded_atoms(), set([atom3]))
         self.assertEqual(atom5.bonded_atoms(), set([atom2]))
+        self.assertEqual(atom6.bonded_atoms(), set([atom7, atom3]))
+        self.assertEqual(atom7.bonded_atoms(), set([atom6, atom8, atom10]))
+        self.assertEqual(atom8.bonded_atoms(), set([atom7, atom9]))
+        self.assertEqual(atom9.bonded_atoms(), set([atom8]))
+        self.assertEqual(atom10.bonded_atoms(), set([atom7]))
+
+
+    def test_residues_are_connected_to_each_other(self):
+        pdb = Pdb(self.data_file)
+        chain = list(pdb.model().chains())[0]
+        self.assertIs(chain.residues()[0].upstream_residue(), None)
+        self.assertIs(chain.residues()[0].downstream_residue(), chain.residues()[1])
+        self.assertIs(chain.residues()[1].upstream_residue(), chain.residues()[0])
+        self.assertIs(chain.residues()[1].downstream_residue(), None)
+        atom1 = pdb.model().get_atom_by_id(133)
+        atom2 = pdb.model().get_atom_by_id(136)
+        self.assertIn(atom1, atom2.bonded_atoms())
+        self.assertIn(atom2, atom1.bonded_atoms())

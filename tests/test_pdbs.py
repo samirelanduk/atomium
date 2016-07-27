@@ -13,6 +13,7 @@ class PdbTest(TestCase):
         ]
         self.data_file.heteroatoms.return_value = []
         self.data_file.atoms.return_value = []
+        self.data_file.get_remark_by_number.return_value = {}
         self.data_file.connections.return_value = []
 
 
@@ -475,6 +476,34 @@ class PdbChainTests(PdbTest):
          [pdb.models()[0].chains()][0],
          [pdb.models()[1].chains()][0]
         )
+
+
+    def test_missing_residues(self):
+        self.data_file.get_remark_by_number.return_value = {
+         'content': 'MISSING RESIDUES\n'
+         'THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE\n'
+         'EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN\n'
+         'IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)\n\n'
+         'M RES C SSSEQI\n'
+         'LEU A     12\n'
+         'ARG A     14\n',
+         'number': 465
+        }
+        pdb = Pdb(self.data_file)
+        chain = list(pdb.model().chains())[0]
+        self.assertEqual(len(chain.residues()), 4)
+        self.assertEqual(
+         [res.residue_id() for res in chain.residues()],
+         ["A12", "A13", "A13A", "A14"]
+        )
+        self.assertTrue(chain.residues()[0].is_missing())
+        self.assertFalse(chain.residues()[1].is_missing())
+        self.assertFalse(chain.residues()[2].is_missing())
+        self.assertTrue(chain.residues()[3].is_missing())
+        self.assertEqual(len(chain.residues()[0].atoms()), 22)
+        self.assertEqual(len(chain.residues()[1].atoms()), 2)
+        self.assertEqual(len(chain.residues()[2].atoms()), 2)
+        self.assertEqual(len(chain.residues()[3].atoms()), 27)
 
 
 

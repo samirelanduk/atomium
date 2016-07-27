@@ -1,5 +1,5 @@
-from .structures import Model, PdbAtom, SmallMolecule, Residue, Chain
-from . import residues
+from .structures import Model, PdbAtom, Atom, SmallMolecule, Residue, Chain
+from . import residues as residues_dict
 
 class Pdb:
 
@@ -129,6 +129,7 @@ def _give_model_small_molecules(model, data_file, model_id):
 
 def _give_model_chains(model, data_file, model_id):
     atoms = data_file.atoms()
+    atom_id = max([atom["atom_id"] for atom in atoms]) * 100 if atoms else 1000
     chain_ids = set([a["chain_id"] for a in atoms])
     for chain_id in chain_ids:
         relevant_atoms = [a for a in atoms if a["model_id"] == model_id
@@ -153,6 +154,50 @@ def _give_model_chains(model, data_file, model_id):
              chain_id + residue_id, residue_atoms[0]["residue_name"], *pdb_atoms
             )
             residues.append(residue)
+        missing_residues_remark = data_file.get_remark_by_number(465)
+        if missing_residues_remark:
+            missing_residues = missing_residues_remark["content"].split("\n")[6:]
+            missing_residues = [line.split() for line in missing_residues if line]
+            missing_residues = [
+             res for res in missing_residues if len(res) == 3 or int(res[0]) == model_id
+            ]
+            missing_residues = [
+             res for res in missing_residues if res[-2] == chain_id
+            ]
+            missing_residue_ids = [(res[0], res[-2] + res[-1]) for res in missing_residues]
+            missing_residues = []
+            for missing_id in missing_residue_ids:
+                lookup = residues_dict.connection_data.get(missing_id[0])
+                if lookup:
+                    empty_atoms = []
+                    for atom_name in lookup:
+                        atom = Atom(atom_name[0], atom_id, atom_name)
+                        atom_id += 1
+                        empty_atoms.append(atom)
+                    residue = Residue(missing_id[1], missing_id[0], *empty_atoms)
+                    missing_residues.append(residue)
+                else:
+                    empty_atoms = []
+                    for atom_name in ["C", "CA", "N"]:
+                        atom = Atom(atom_name[0], atom_id, atom_name)
+                        atom_id += 1
+                        empty_atoms.append(atom)
+                    residue = Residue(missing_id[1], missing_id[0], *empty_atoms)
+                    missing_residues.append(residue)
+            for missing_residue in missing_residues:
+                closest_smaller_id = None
+                if not _residue_id_is_greater_than_residue_id(residues[0].residue_id(), missing_residue.residue_id()):
+                    closest_smaller_id = sorted(
+                     residues,
+                     key=lambda k: _residue_id_to_int(missing_residue.residue_id()) - _residue_id_to_int(
+                      k.residue_id()
+                     ) if _residue_id_to_int(missing_residue.residue_id()) > _residue_id_to_int(
+                      k.residue_id()
+                     ) else float("inf"))[0]
+                residues.insert(
+                 residues.index(closest_smaller_id) + 1 if closest_smaller_id else 0,
+                 missing_residue
+                )
         chain = Chain(chain_id, *residues)
         model.add_chain(chain)
 
@@ -169,8 +214,8 @@ def _connect_atoms(model, data_file, model_id):
 
 def _bond_residue_atoms(model, data_file, model_id):
     for chain in model.chains():
-        for residue in chain.residues():
-            lookup = residues.connection_data.get(residue.residue_name())
+        for residue in chain.residues(include_missing=False):
+            lookup = residues_dict.connection_data.get(residue.residue_name())
             if lookup:
                 for atom in residue.atoms():
                     atom_lookup = lookup.get(atom.atom_name())
@@ -179,3 +224,27 @@ def _bond_residue_atoms(model, data_file, model_id):
                             other_atom = residue.get_atom_by_name(other_atom_name)
                             if other_atom:
                                 atom.bond_to(other_atom)
+
+
+def _residue_id_to_int(residue_id):
+    int_component = int(
+     "".join([char for char in residue_id if char in "-0123456789"])
+    )
+    char_component = residue_id[-1] if residue_id[-1] not in "-0123456789" else ""
+    int_component *= 100
+    return int_component + (ord(char_component) - 64 if char_component else 0)
+
+
+def _residue_id_is_greater_than_residue_id(residue_id1, residue_id2):
+    residues = []
+    for residue_id in (residue_id1, residue_id2):
+        chain_id = residue_id[0] if residue_id[0].isalpha() else ""
+        number = int("".join([char for char in residue_id if char.isnumeric() or char == "-"]))
+        insert = ord(residue_id[-1]) if residue_id[-1].isalpha() else 0
+        residues.append((chain_id, number, insert))
+    if residues[0][1] > residues[1][1]:
+        return True
+    elif residues[0][1] == residues[1][1] and residues[0][2] > residues[1][2]:
+        return True
+    else:
+        return False

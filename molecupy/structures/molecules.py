@@ -126,7 +126,6 @@ class AtomicStructure:
         return BindSite("CALC", *list(residues))
 
 
-
     def get_atom_by_id(self, atom_id):
         if not isinstance(atom_id, int):
             raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))

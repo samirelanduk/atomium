@@ -1,4 +1,5 @@
 from .structures import Model, PdbAtom, SmallMolecule, Residue, Chain
+from . import residues
 
 class Pdb:
 
@@ -10,6 +11,7 @@ class Pdb:
             _give_model_small_molecules(model, data_file, model_dict["model_id"])
             _give_model_chains(model, data_file, model_dict["model_id"])
             _connect_atoms(model, data_file, model_dict["model_id"])
+            _bond_residue_atoms(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -163,3 +165,17 @@ def _connect_atoms(model, data_file, model_id):
                 bonded_atom = model.get_atom_by_id(bonded_atom_id)
                 if bonded_atom:
                     atom.bond_to(bonded_atom)
+
+
+def _bond_residue_atoms(model, data_file, model_id):
+    for chain in model.chains():
+        for residue in chain.residues():
+            lookup = residues.connection_data.get(residue.residue_name())
+            if lookup:
+                for atom in residue.atoms():
+                    atom_lookup = lookup.get(atom.atom_name())
+                    if atom_lookup:
+                        for other_atom_name in atom_lookup:
+                            other_atom = residue.get_atom_by_name(other_atom_name)
+                            if other_atom:
+                                atom.bond_to(other_atom)

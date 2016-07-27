@@ -484,12 +484,12 @@ class PdbBondTests(PdbTest):
         PdbTest.setUp(self)
         self.data_file.atoms.return_value = [
          {
-          "atom_id": 107,
+          "atom_id": 131,
           "atom_name": "N",
           "alt_loc": None,
-          "residue_name": "GLY",
+          "residue_name": "ALA",
           "chain_id": "A",
-          "residue_id": 13,
+          "residue_id": 27,
           "insert_code": "",
           "x": 12.681,
           "y": 37.302,
@@ -500,12 +500,12 @@ class PdbBondTests(PdbTest):
           "charge": None,
           "model_id": 1
          }, {
-          "atom_id": 108,
+          "atom_id": 132,
           "atom_name": "CA",
           "alt_loc": None,
-          "residue_name": "GLY",
+          "residue_name": "ALA",
           "chain_id": "A",
-          "residue_id": 13,
+          "residue_id": 27,
           "insert_code": "",
           "x": 11.982,
           "y": 37.996,
@@ -516,29 +516,45 @@ class PdbBondTests(PdbTest):
           "charge": None,
           "model_id": 1
          }, {
-          "atom_id": 109,
-          "atom_name": "N",
+          "atom_id": 133,
+          "atom_name": "C",
           "alt_loc": None,
-          "residue_name": "MET",
+          "residue_name": "ALA",
           "chain_id": "A",
-          "residue_id": 13,
-          "insert_code": "A",
+          "residue_id": 27,
+          "insert_code": "",
           "x": 12.681,
           "y": 37.302,
           "z": -25.211,
           "occupancy": 1.0,
           "temperature_factor": 15.56,
-          "element": "N",
+          "element": "C",
           "charge": None,
           "model_id": 1
          }, {
-          "atom_id": 110,
-          "atom_name": "CA",
+          "atom_id": 134,
+          "atom_name": "O",
           "alt_loc": None,
-          "residue_name": "MET",
+          "residue_name": "ALA",
           "chain_id": "A",
-          "residue_id": 13,
-          "insert_code": "A",
+          "residue_id": 27,
+          "insert_code": "",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "O",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 135,
+          "atom_name": "CB",
+          "alt_loc": None,
+          "residue_name": "ALA",
+          "chain_id": "A",
+          "residue_id": 27,
+          "insert_code": "",
           "x": 11.982,
           "y": 37.996,
           "z": -26.241,
@@ -643,3 +659,17 @@ class PdbBondTests(PdbTest):
         self.assertEqual(atom2.bonded_atoms(), set([atom1]))
         self.assertEqual(atom3.bonded_atoms(), set([atom4]))
         self.assertEqual(atom4.bonded_atoms(), set([atom3]))
+
+
+    def test_residues_are_connected_internally(self):
+        pdb = Pdb(self.data_file)
+        atom1 = pdb.model().get_atom_by_id(131)
+        atom2 = pdb.model().get_atom_by_id(132)
+        atom3 = pdb.model().get_atom_by_id(133)
+        atom4 = pdb.model().get_atom_by_id(134)
+        atom5 = pdb.model().get_atom_by_id(135)
+        self.assertEqual(atom1.bonded_atoms(), set([atom2]))
+        self.assertEqual(atom2.bonded_atoms(), set([atom1, atom3, atom5]))
+        self.assertEqual(atom3.bonded_atoms(), set([atom2, atom4]))
+        self.assertEqual(atom4.bonded_atoms(), set([atom3]))
+        self.assertEqual(atom5.bonded_atoms(), set([atom2]))

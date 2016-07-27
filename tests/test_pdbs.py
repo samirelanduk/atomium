@@ -3,6 +3,7 @@ import unittest.mock
 from molecupy.pdb import Pdb
 from molecupy.pdbdatafile import PdbDataFile
 from molecupy.structures import Model, SmallMolecule, Chain, Residue, BindSite
+from molecupy.structures import AlphaHelix
 
 class PdbTest(TestCase):
 
@@ -18,6 +19,7 @@ class PdbTest(TestCase):
         self.data_file.ss_bonds.return_value = []
         self.data_file.links.return_value = []
         self.data_file.sites.return_value = []
+        self.data_file.helices.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -900,3 +902,38 @@ class PdbBindSiteTests(PdbBondTests):
         molecule = pdb.model().get_small_molecule_by_id("A1002")
         self.assertIs(molecule.bind_site(), site)
         self.assertIs(site.ligand(), molecule)
+
+
+
+class PdbSecondaryStructureTests(PdbBondTests):
+
+    def setUp(self):
+        PdbBondTests.setUp(self)
+
+
+    def test_pdb_has_alpha_helices(self):
+        self.data_file.helices.return_value = [{
+         "helix_id": 1,
+         "helix_name": "1",
+         "start_residue_name": "ALA",
+         "start_residue_chain_id": "A",
+         "start_residue_id": 27,
+         "start_residue_insert": "",
+         "end_residue_name": "ALA",
+         "end_residue_chain_id": "A",
+         "end_residue_id": 28,
+         "end_residue_insert": "",
+         "helix_class": 5,
+         "comment": None,
+         "length": 3
+        }]
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().get_chain_by_id("A").alpha_helices()), 1)
+        helix = list(pdb.model().get_chain_by_id("A").alpha_helices())[0]
+        self.assertIsInstance(helix, AlphaHelix)
+        self.assertEqual(helix.helix_id(), "1")
+        self.assertEqual(
+         helix.residues(),
+         list(pdb.model().chains())[0].residues()
+        )
+        self.assertEqual(helix.helix_class(), "Right-handed 3 - 10")

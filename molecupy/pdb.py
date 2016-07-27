@@ -1,5 +1,5 @@
 from .structures import Model, PdbAtom, Atom, SmallMolecule, Residue, Chain
-from .structures import BindSite
+from .structures import BindSite, AlphaHelix
 from . import residues as residues_dict
 
 class Pdb:
@@ -18,6 +18,7 @@ class Pdb:
             _make_link_bonds(model, data_file, model_dict["model_id"])
             _give_model_sites(model, data_file, model_dict["model_id"])
             _map_sites_to_ligands(model, data_file, model_dict["model_id"])
+            _give_model_alpha_helices(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -336,7 +337,6 @@ def _give_model_sites(model, data_file, model_id):
             model.add_bind_site(site)
 
 
-
 def _map_sites_to_ligands(model, data_file, model_id):
     remark_800 = data_file.get_remark_by_number(800)
     if remark_800:
@@ -357,3 +357,43 @@ def _map_sites_to_ligands(model, data_file, model_id):
                                     ligand_id = trailing_line.split()[-2] + ligand_id
                                 ligand = model.get_small_molecule_by_id(ligand_id)
                                 site.ligand(ligand)
+
+
+def _give_model_alpha_helices(model, data_file, model_id):
+    for helix in data_file.helices():
+        chain = model.get_chain_by_id(helix["start_residue_chain_id"])
+        if chain:
+            start_residue = chain.get_residue_by_id(
+             helix["start_residue_chain_id"] +
+             str(helix["start_residue_id"]) +
+             helix["start_residue_insert"]
+            )
+            end_residue = chain.get_residue_by_id(
+             helix["end_residue_chain_id"] +
+             str(helix["end_residue_id"]) +
+             helix["end_residue_insert"]
+            )
+            if start_residue and end_residue:
+                start_index = chain.residues().index(start_residue)
+                end_index = chain.residues().index(end_residue)
+                if end_index > start_index:
+                    AlphaHelix(
+                     helix["helix_name"],
+                     *chain.residues()[start_index:end_index + 1],
+                     comment=helix["comment"],
+                     helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
+                    )
+
+
+HELIX_CLASSES = {
+ 1: "Right-handed alpha",
+ 2: "Right-handed omega",
+ 3: "Right-handed pi",
+ 4: "Right-handed gamma",
+ 5: "Right-handed 3 - 10",
+ 6: "Left-handed alpha",
+ 7: "Left-handed omega",
+ 8: "Left-handed gamma",
+ 9: "2 - 7 ribbon/helix",
+ 10: "Polyproline",
+}

@@ -1,4 +1,4 @@
-from .structures import Model, PdbAtom, SmallMolecule
+from .structures import Model, PdbAtom, SmallMolecule, Residue, Chain
 
 class Pdb:
 
@@ -8,6 +8,7 @@ class Pdb:
         for model_dict in self._data_file.models():
             model = Model()
             _give_model_small_molecules(model, data_file, model_dict["model_id"])
+            _give_model_chains(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -121,3 +122,33 @@ def _give_model_small_molecules(model, data_file, model_id):
                  molecule_id, molecule_name, *atoms
                 )
                 model.add_small_molecule(small_molecule)
+
+
+def _give_model_chains(model, data_file, model_id):
+    atoms = data_file.atoms()
+    chain_ids = set([a["chain_id"] for a in atoms])
+    for chain_id in chain_ids:
+        relevant_atoms = [a for a in atoms if a["model_id"] == model_id
+         and a["chain_id"] == chain_id]
+        residue_ids = []
+        for a in relevant_atoms:
+            id_ = str(a["residue_id"]) + a["insert_code"]
+            if id_ not in residue_ids:
+                residue_ids.append(id_)
+        residues = []
+        for residue_id in residue_ids:
+            residue_atoms = [
+             a for a in relevant_atoms if str(a["residue_id"]) + a["insert_code"] == residue_id
+            ]
+            pdb_atoms = [PdbAtom(
+             a["x"], a["y"], a["z"],
+             a["element"],
+             a["atom_id"],
+             a["atom_name"]
+            ) for a in residue_atoms]
+            residue = Residue(
+             chain_id + residue_id, residue_atoms[0]["residue_name"], *pdb_atoms
+            )
+            residues.append(residue)
+        chain = Chain(chain_id, *residues)
+        model.add_chain(chain)

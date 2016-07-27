@@ -2,7 +2,7 @@ from unittest import TestCase
 import unittest.mock
 from molecupy.pdb import Pdb
 from molecupy.pdbdatafile import PdbDataFile
-from molecupy.structures import Model, SmallMolecule
+from molecupy.structures import Model, SmallMolecule, Chain, Residue
 
 class PdbTest(TestCase):
 
@@ -12,6 +12,7 @@ class PdbTest(TestCase):
          {"model_id": 1, "start_record": 0, "end_record": 0}
         ]
         self.data_file.heteroatoms.return_value = []
+        self.data_file.atoms.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -351,4 +352,125 @@ class PdbSmallMoleculeTests(PdbTest):
         self.assertIsNot(
          [pdb.models()[0].small_molecules()][0],
          [pdb.models()[1].small_molecules()][0]
+        )
+
+
+
+class PdbChainTests(PdbTest):
+
+    def setUp(self):
+        PdbTest.setUp(self)
+        self.data_file.atoms.return_value = [
+         {
+          "atom_id": 107,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 108,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 109,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "MET",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "A",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 110,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "MET",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "A",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+
+
+    def test_single_chain(self):
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().chains()), 1)
+        chain = list(pdb.model().chains())[0]
+        self.assertIsInstance(chain, Chain)
+        self.assertEqual(chain.chain_id(), "A")
+        self.assertEqual(len(chain.residues()), 2)
+        self.assertIsInstance(chain.residues()[0], Residue)
+        self.assertEqual(chain.residues()[0].residue_id(), "A13")
+        self.assertEqual(chain.residues()[0].residue_name(), "GLY")
+        self.assertEqual(chain.residues()[1].residue_id(), "A13A")
+        self.assertEqual(chain.residues()[1].residue_name(), "MET")
+
+
+    def test_multiple_chains(self):
+        atoms = self.data_file.atoms()
+        atoms[2]["chain_id"] = atoms[3]["chain_id"] = "B"
+        self.data_file.atoms.return_value = atoms
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().chains()), 2)
+        self.assertEqual(
+         set([chain.chain_id() for chain in pdb.model().chains()]),
+         set(["A", "B"])
+        )
+        self.assertEqual(
+         set([len(chain.residues()) for chain in pdb.model().chains()]),
+         set([1, 1])
+        )
+
+
+    def test_multiple_models(self):
+        self.data_file.models.return_value = [
+         {"model_id": 1, "start_record": 0, "end_record": 1},
+         {"model_id": 2, "start_record": 2, "end_record": 3}
+        ]
+        atoms = self.data_file.atoms()
+        atoms[2]["model_id"] = atoms[3]["model_id"] = 2
+        self.data_file.atoms.return_value = atoms
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.models()[0].chains()), 1)
+        self.assertEqual(len(pdb.models()[1].chains()), 1)
+        self.assertIsNot(
+         [pdb.models()[0].chains()][0],
+         [pdb.models()[1].chains()][0]
         )

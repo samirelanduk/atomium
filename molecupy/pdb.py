@@ -9,6 +9,7 @@ class Pdb:
             model = Model()
             _give_model_small_molecules(model, data_file, model_dict["model_id"])
             _give_model_chains(model, data_file, model_dict["model_id"])
+            _connect_atoms(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -152,3 +153,13 @@ def _give_model_chains(model, data_file, model_id):
             residues.append(residue)
         chain = Chain(chain_id, *residues)
         model.add_chain(chain)
+
+
+def _connect_atoms(model, data_file, model_id):
+    for connection in data_file.connections():
+        atom = model.get_atom_by_id(connection["atom_id"])
+        if atom:
+            for bonded_atom_id in connection["bonded_atoms"]:
+                bonded_atom = model.get_atom_by_id(bonded_atom_id)
+                if bonded_atom:
+                    atom.bond_to(bonded_atom)

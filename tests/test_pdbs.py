@@ -13,6 +13,7 @@ class PdbTest(TestCase):
         ]
         self.data_file.heteroatoms.return_value = []
         self.data_file.atoms.return_value = []
+        self.data_file.connections.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -474,3 +475,171 @@ class PdbChainTests(PdbTest):
          [pdb.models()[0].chains()][0],
          [pdb.models()[1].chains()][0]
         )
+
+
+
+class PdbBondTests(PdbTest):
+
+    def setUp(self):
+        PdbTest.setUp(self)
+        self.data_file.atoms.return_value = [
+         {
+          "atom_id": 107,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 108,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 109,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "MET",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "A",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 110,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "MET",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "A",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+        self.data_file.heteroatoms.return_value = [
+         {
+          "atom_id": 8237,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "A",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8238,
+          "atom_name": "MG",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "A",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "MG",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8239,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "MOL",
+          "chain_id": "A",
+          "residue_id": 1002,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8240,
+          "atom_name": "MG",
+          "alt_loc": None,
+          "residue_name": "MOL",
+          "chain_id": "A",
+          "residue_id": 1002,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "MG",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+
+
+    def test_small_molecules_bonded_together(self):
+        self.data_file.connections.return_value = [
+         {
+          "atom_id": 8237,
+          "bonded_atoms": [8238]
+         }, {
+          "atom_id": 8238,
+          "bonded_atoms": [8237]
+         }, {
+          "atom_id": 8239,
+          "bonded_atoms": [8240]
+         }, {
+          "atom_id": 8240,
+          "bonded_atoms": [8239]
+         }
+        ]
+        pdb = Pdb(self.data_file)
+        atom1 = pdb.model().get_atom_by_id(8237)
+        atom2 = pdb.model().get_atom_by_id(8238)
+        atom3 = pdb.model().get_atom_by_id(8239)
+        atom4 = pdb.model().get_atom_by_id(8240)
+        self.assertEqual(atom1.bonded_atoms(), set([atom2]))
+        self.assertEqual(atom2.bonded_atoms(), set([atom1]))
+        self.assertEqual(atom3.bonded_atoms(), set([atom4]))
+        self.assertEqual(atom4.bonded_atoms(), set([atom3]))

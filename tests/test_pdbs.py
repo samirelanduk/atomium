@@ -2,7 +2,7 @@ from unittest import TestCase
 import unittest.mock
 from molecupy.pdb import Pdb
 from molecupy.pdbdatafile import PdbDataFile
-from molecupy.structures import Model
+from molecupy.structures import Model, SmallMolecule
 
 class PdbTest(TestCase):
 
@@ -11,6 +11,7 @@ class PdbTest(TestCase):
         self.data_file.models.return_value = [
          {"model_id": 1, "start_record": 0, "end_record": 0}
         ]
+        self.data_file.heteroatoms.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -145,3 +146,48 @@ class PdbModelsTests(PdbTest):
         ]
         pdb = Pdb(self.data_file)
         self.assertIs(pdb.models()[0], pdb.model())
+
+
+
+class PdbSmallMoleculeTests(PdbTest):
+
+    def test_single_small_molecule(self):
+        self.data_file.heteroatoms.return_value = [
+         {
+          "atom_id": 8237,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 8238,
+          "atom_name": "MG",
+          "alt_loc": None,
+          "residue_name": "123",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "",
+          "x": 13.872,
+          "y": -2.555,
+          "z": -29.045,
+          "occupancy": 1.0,
+          "temperature_factor": 27.36,
+          "element": "MG",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().small_molecules()), 1)
+        self.assertIsInstance(list(pdb.model().small_molecules())[0], SmallMolecule)
+        self.assertEqual(len(list(pdb.model().small_molecules())[0].atoms()), 2)

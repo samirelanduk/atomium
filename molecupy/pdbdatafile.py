@@ -4,6 +4,20 @@ class PdbDataFile:
 
     def __init__(self, pdb_file):
         self._pdb_file = pdb_file
+        model_records = self.pdb_file().get_records_by_name("MODEL")
+        endmdls = self.pdb_file().get_records_by_name("ENDMDL")
+        pairs = list(zip(model_records, endmdls))
+        self._models = [{
+         "model_id": pair[0][10:14],
+         "start_record": pair[0].number(),
+         "end_record": pair[1].number(),
+        } for pair in pairs]
+        if not pairs:
+            self._models = [{
+             "model_id": 1,
+             "start_record": 0,
+             "end_record": len(self.pdb_file().records()),
+            }]
 
 
     def __repr__(self):
@@ -601,21 +615,7 @@ class PdbDataFile:
 
 
     def models(self):
-        model_records = self.pdb_file().get_records_by_name("MODEL")
-        endmdls = self.pdb_file().get_records_by_name("ENDMDL")
-        pairs = list(zip(model_records, endmdls))
-        models = [{
-         "model_id": pair[0][10:14],
-         "start_record": pair[0].number(),
-         "end_record": pair[1].number(),
-        } for pair in pairs]
-        if not pairs:
-            models = [{
-             "model_id": 1,
-             "start_record": 0,
-             "end_record": len(self.pdb_file().records()),
-            }]
-        return models
+        return self._models
 
 
     def atoms(self):

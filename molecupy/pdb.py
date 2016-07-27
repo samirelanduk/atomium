@@ -1,10 +1,14 @@
-from .structures import Model
+from .structures import Model, PdbAtom, SmallMolecule
 
 class Pdb:
 
     def __init__(self, data_file):
         self._data_file = data_file
-        self._models = [Model() for _ in data_file.models()]
+        self._models = []
+        for model_dict in self._data_file.models():
+            model = Model()
+            _give_model_small_molecules(model, data_file, model_dict["model_id"])
+            self._models.append(model)
 
 
     def __repr__(self):
@@ -93,3 +97,27 @@ class Pdb:
 
     def model(self):
         return self._models[0]
+
+
+
+def _give_model_small_molecules(model, data_file, model_id):
+    heteroatoms = data_file.heteroatoms()
+    molecule_names = set([a["residue_name"] for a in heteroatoms])
+    molecule_ids = set([a["chain_id"] + str(a["residue_id"]) + a["insert_code"]
+     for a in heteroatoms])
+    for molecule_name in molecule_names:
+        for molecule_id in molecule_ids:
+            relevant_atoms = [a for a in heteroatoms if a["model_id"] == model_id
+             and a["residue_name"] == molecule_name and a["chain_id"] +
+              str(a["residue_id"]) + a["insert_code"] == molecule_id]
+            if relevant_atoms:
+                atoms = [PdbAtom(
+                 a["x"], a["y"], a["z"],
+                 a["element"],
+                 a["atom_id"],
+                 a["atom_name"]
+                ) for a in relevant_atoms]
+                small_molecule = SmallMolecule(
+                 molecule_id, molecule_name, *atoms
+                )
+                model.add_small_molecule(small_molecule)

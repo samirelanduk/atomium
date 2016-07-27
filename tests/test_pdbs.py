@@ -2,7 +2,7 @@ from unittest import TestCase
 import unittest.mock
 from molecupy.pdb import Pdb
 from molecupy.pdbdatafile import PdbDataFile
-from molecupy.structures import Model, SmallMolecule, Chain, Residue
+from molecupy.structures import Model, SmallMolecule, Chain, Residue, BindSite
 
 class PdbTest(TestCase):
 
@@ -17,6 +17,7 @@ class PdbTest(TestCase):
         self.data_file.connections.return_value = []
         self.data_file.ss_bonds.return_value = []
         self.data_file.links.return_value = []
+        self.data_file.sites.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -857,3 +858,30 @@ class PdbBondTests(PdbTest):
         atom2 = pdb.model().get_atom_by_id(140)
         self.assertIn(atom1, atom2.bonded_atoms())
         self.assertIn(atom2, atom1.bonded_atoms())
+
+
+
+class PdbBindSiteTests(PdbBondTests):
+
+    def setUp(self):
+        PdbBondTests.setUp(self)
+        self.data_file.sites.return_value = [{
+         "site_id": "AC1",
+         "residue_count": 2,
+         "residues": [
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 27, "insert_code": ""},
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 28, "insert_code": ""},
+         ]
+        }]
+
+
+    def test_bind_sites_present(self):
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().bind_sites()), 1)
+        site = list(pdb.model().bind_sites())[0]
+        self.assertIsInstance(site, BindSite)
+        self.assertEqual(site.site_id(), "AC1")
+        self.assertEqual(
+         site.residues(),
+         set(list(pdb.model().chains())[0].residues())
+        )

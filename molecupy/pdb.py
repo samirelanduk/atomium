@@ -1,4 +1,5 @@
 from .structures import Model, PdbAtom, Atom, SmallMolecule, Residue, Chain
+from .structures import BindSite
 from . import residues as residues_dict
 
 class Pdb:
@@ -15,6 +16,7 @@ class Pdb:
             _bond_residues_together(model, data_file, model_dict["model_id"])
             _make_disulphide_bonds(model, data_file, model_dict["model_id"])
             _make_link_bonds(model, data_file, model_dict["model_id"])
+            _give_model_sites(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -318,3 +320,16 @@ def _make_link_bonds(model, data_file, model_id):
                 atom2 = molecule2.get_atom_by_name(link["atom_2"])
                 if atom1 and atom2:
                     atom1.bond_to(atom2)
+
+
+def _give_model_sites(model, data_file, model_id):
+    for site in data_file.sites():
+        residues = [model.get_chain_by_id(residue["chain_id"]).get_residue_by_id(
+         str(residue["chain_id"]) + str(residue["residue_id"]) + residue["insert_code"]
+        ) for residue in site["residues"]]
+        if residues:
+            site = BindSite(
+             site["site_id"],
+             *[r for r in residues if r]
+            )
+            model.add_bind_site(site)

@@ -330,10 +330,11 @@ def _give_model_sites(model, data_file, model_id):
         residues = [model.get_chain_by_id(residue["chain_id"]).get_residue_by_id(
          str(residue["chain_id"]) + str(residue["residue_id"]) + residue["insert_code"]
         ) for residue in site["residues"]]
+        residues = [r for r in residues if r]
         if residues:
             site = BindSite(
              site["site_id"],
-             *[r for r in residues if r]
+             *residues
             )
             model.add_bind_site(site)
 

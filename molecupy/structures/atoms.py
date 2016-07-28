@@ -185,7 +185,7 @@ class Bond:
             )
         if atom1 is atom2:
             raise ValueError("Cannot bond %s to itself." % str(atom1))
-        if atom1.distance_to(atom2) >= 10:
+        if atom1.distance_to(atom2) >= 20:
             warnings.warn(LongBondWarning(
              "Bond between Atom %i and Atom %i is %.1f Angstroms long" % (
               atom1.atom_id(), atom2.atom_id(), atom1.distance_to(atom2)

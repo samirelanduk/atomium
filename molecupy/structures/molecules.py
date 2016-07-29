@@ -111,7 +111,7 @@ class AtomicStructure:
         return contacts
 
 
-    def predict_bind_site(self, distance=3, include_hydrogens=True):
+    def predict_bind_site(self, distance=5, include_hydrogens=True):
         from .chains import BindSite
         nearby_atoms = set()
         for atom in [atom for atom in self.atoms(atom_type="pdb")
@@ -119,6 +119,7 @@ class AtomicStructure:
             nearby_atoms.update(atom.local_atoms(
              distance=distance, include_hydrogens=include_hydrogens
             ))
+        nearby_atoms = [atom for atom in nearby_atoms if atom not in self.atoms()]
         residues = set()
         for atom in nearby_atoms:
             if isinstance(atom.molecule(), Residue):

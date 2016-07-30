@@ -42,8 +42,8 @@ class BondCreationTests(BondTest):
 
 
     def test_warning_issued_on_ludicrous_bond_length(self):
-        self.atom1.distance_to.return_value = 12
-        self.atom2.distance_to.return_value = 12
+        self.atom1.distance_to.return_value = 22
+        self.atom2.distance_to.return_value = 22
         with self.assertWarns(LongBondWarning):
             bond = Bond(self.atom1, self.atom2)
 

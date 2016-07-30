@@ -33,13 +33,14 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
                 )
         # Set up canvas
         matrix = omnicanvas.Canvas(dimension, dimension)
-        residues = [res if not res.is_missing() else None for res in self.residues()]
+        residues = self.residues()
+        residue_ids = [res.residue_id() for res in residues]
 
         # Set up parameters
         padding_proportion = 0.09
         padding = padding_proportion * dimension
         plot_dimension = dimension - (2 * padding)
-        chain_length = len(self.residues())
+        chain_length = len(residues)
         cell_dimension = plot_dimension / chain_length
         plot_width = dimension - (2 * padding)
         bar_width = 4
@@ -70,7 +71,7 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
                 row.append({
                  "residue1": residue1,
                  "residue2": residue2,
-                 "distance": residue1.alpha_carbon().distance_to(residue2.alpha_carbon()) if residue1 and residue2 else None
+                 "distance": residue1.alpha_carbon().distance_to(residue2.alpha_carbon()) if not residue1.is_missing() and not residue2.is_missing() else None
                 })
             distances.append(row)
 
@@ -99,9 +100,9 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
                   "onmouseover": "cellHovered(this)",
                   "onmouseleave": "cellLeft(this)",
                   "data": "%s,%i,%s,%i,%.2f" % (
-                   cell["residue1"].residue_name if cell["residue1"] else "???",
+                   cell["residue1"].residue_name(),
                    cell_index + 1,
-                   cell["residue2"].residue_name if cell["residue2"] else "???",
+                   cell["residue2"].residue_name(),
                    len(residues) - row_index,
                    cell["distance"] if cell["distance"] is not None else 0.0
                   )
@@ -167,19 +168,19 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
          dimension - padding, padding,  padding, dimension - padding, line_width=2
         )
 
-        '''# Add secondary structure
+        # Add secondary structure
         matrix.add_rectangle(
          bar_left, bar_top, bar_width, hypoteneuse,
          rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45),
          line_width=0,
          fill_color=omnicanvas.hsl_to_rgb(chain_color, 100, 50)
         )
-        for helix in self.alpha_helices:
-            start = (len(residues) - self.get_all_residue_ids().index(
-             helix.residues[-1].residue_id
+        for helix in self.alpha_helices():
+            start = (len(residues) - residue_ids.index(
+             helix.residues()[-1].residue_id()
             )) - 1
-            end = (len(residues) - self.get_all_residue_ids().index(
-             helix.residues[0].residue_id
+            end = (len(residues) - residue_ids.index(
+             helix.residues()[0].residue_id()
             )) - 1
             matrix.add_rectangle(
              bar_left - 1, bar_top + (diagonal_chunk * start),
@@ -188,12 +189,12 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
              line_width=0,
              rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45)
             )
-        for strand in self.beta_strands:
-            start = (len(residues) - self.get_all_residue_ids().index(
-             strand.residues[-1].residue_id
+        for strand in self.beta_strands():
+            start = (len(residues) - residue_ids.index(
+             strand.residues()[-1].residue_id()
             )) - 1
-            end = (len(residues) - self.get_all_residue_ids().index(
-             strand.residues[0].residue_id
+            end = (len(residues) - residue_ids.index(
+             strand.residues()[0].residue_id()
             )) - 1
             matrix.add_rectangle(
              bar_left - 1, bar_top + (diagonal_chunk * start),
@@ -201,7 +202,7 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
              fill_color=omnicanvas.hsl_to_rgb(strand_color, 100, 50),
              line_width=0,
              rotation=((dimension / 2) + 5, (dimension / 2) + 5, 45)
-            )'''
+            )
 
         # Add legend
         legend_dimension = plot_width * 0.4

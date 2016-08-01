@@ -1,6 +1,13 @@
+"""This module performs the actual parsing of the PDB file, though it does not
+process the values that it extracts."""
+
 import datetime
 
 class PdbDataFile:
+    """This object is essentially a list of values extracted from a PDB file. It
+    functions as a data sheet.
+
+    :param PdbFile pdb_file: The PDB file to extract information from."""
 
     def __init__(self, pdb_file):
         self._pdb_file = pdb_file
@@ -25,6 +32,9 @@ class PdbDataFile:
 
 
     def pdb_file(self):
+        """The :py:class:`.PdbFile` from which the object was created.
+        :rtype: ``PdbFile``"""
+
         return self._pdb_file
 
 
@@ -733,12 +743,24 @@ class PdbDataFile:
 
 
 def date_from_string(s):
+    """Gets a Date object from a PDB formatted date string.
+    :param str s: A date in the format DD-MM-YY.
+    :rtype: ``datetime.Date``"""
+
     return datetime.datetime.strptime(
      s, "%d-%b-%y"
     ).date()
 
 
 def merge_records(records, start, join=" ", dont_condense=""):
+    """Gets a single continuous string from a sequence of records.
+    :param list records: The records to merge.
+    :param int start: The start point in each record.
+    :param str join: The string to join on.
+    :param str dont_condense: By default any spaces after spaces, semi-colons, \
+    colons, commas and dashes will be removed, unless listed here.
+    :rtype: ``str``"""
+
     string = join.join(
      str(record[start:]
     ) if record[start:] else "" for record in records)
@@ -749,6 +771,11 @@ def merge_records(records, start, join=" ", dont_condense=""):
 
 
 def records_to_token_value_dicts(records):
+    """Produces a list of ``dict`` objects from the key-value pairs used in \
+    COMPND and SOURCE records.
+    :param list records: The records to use.
+    :rtype: ``list``"""
+
     string = merge_records(records, 10)
     pairs = list(filter(None, string.split(";")))
     for pair_offset in range(1, len(pairs))[::-1]:

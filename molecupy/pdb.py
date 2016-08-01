@@ -49,7 +49,7 @@ class Pdb:
 
     def deposition_date(self):
         """The date the PDB was deposited.
-        :rtype: ``datetime.date``"""
+        :rtype: ``datetime.Date``"""
 
     	return self._data_file.deposition_date()
 
@@ -70,7 +70,7 @@ class Pdb:
 
     def obsolete_date(self):
         """The date the PDB was made obsolete.
-        :rtype: ``datetime.date``"""
+        :rtype: ``datetime.Date``"""
 
     	return self._data_file.obsolete_date()
 
@@ -154,7 +154,7 @@ class Pdb:
 
     def supercede_date(self):
         """The date this PDB replaced another.
-        :rtype: ``datetime.date``"""
+        :rtype: ``datetime.Date``"""
 
     	return self._data_file.supercede_date()
 

@@ -2,7 +2,7 @@ Full API
 --------
 
 .. toctree ::
-    api/structures
+    api/atoms
     api/pdbfile
     api/pdbdatafile
     api/pdb

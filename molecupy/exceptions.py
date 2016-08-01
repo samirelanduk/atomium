@@ -50,7 +50,7 @@ class DuplicateAtomsError(Exception):
 
 
 class DuplicateSmallMoleculesError(Exception):
-    """The exception raised if a PdbModel is given a small molecule when there
+    """The exception raised if a Model is given a small molecule when there
     is already a small molecule with that molecule_id."""
     pass
 

@@ -1,8 +1,15 @@
+"""This module contains classes for atoms and their bonds."""
+
 import math
 import warnings
 from ..exceptions import LongBondWarning
 
 class Atom:
+    """This class represents generic atoms with no location.
+
+    :param str element: The atom's element.
+    :param int atom_id: The atom's id.
+    :param str atom_name: The atom's name."""
 
     def __init__(self, element, atom_id, atom_name):
         if not isinstance(element, str):
@@ -26,6 +33,9 @@ class Atom:
 
 
     def element(self, element=None):
+        """Returns or sets the atom's element.
+        :param str element: If given, the atom's elements will be set to this."""
+        
         if element is None:
             return self._element
         else:

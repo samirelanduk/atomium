@@ -33,6 +33,7 @@ class PdbDataFile:
 
     def pdb_file(self):
         """The :py:class:`.PdbFile` from which the object was created.
+
         :rtype: ``PdbFile``"""
 
         return self._pdb_file
@@ -744,6 +745,7 @@ class PdbDataFile:
 
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
+    
     :param str s: A date in the format DD-MM-YY.
     :rtype: ``datetime.Date``"""
 
@@ -754,6 +756,7 @@ def date_from_string(s):
 
 def merge_records(records, start, join=" ", dont_condense=""):
     """Gets a single continuous string from a sequence of records.
+
     :param list records: The records to merge.
     :param int start: The start point in each record.
     :param str join: The string to join on.
@@ -773,6 +776,7 @@ def merge_records(records, start, join=" ", dont_condense=""):
 def records_to_token_value_dicts(records):
     """Produces a list of ``dict`` objects from the key-value pairs used in \
     COMPND and SOURCE records.
+
     :param list records: The records to use.
     :rtype: ``list``"""
 

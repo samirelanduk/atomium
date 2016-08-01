@@ -9,7 +9,6 @@ class PdbRecord:
     strings will return ``None``.
 
     :param str text: The raw text of the record.
-
     :param int number: The line number in the file."""
 
     def __init__(self, text, number):
@@ -51,9 +50,7 @@ class PdbRecord:
         string.
 
         :param int start: The start of the subsection.
-
         :param int end: The end of the subsection.
-
         :rtype: ``str``"""
 
         splice = self[start:end]
@@ -62,35 +59,39 @@ class PdbRecord:
 
     def number(self):
         """The record's line number.
-        :rtype: int"""
+
+        :rtype: ``int``"""
 
         return self._number
 
 
     def name(self):
         """The record's name (the first six characters).
-        :rtype: str"""
+
+        :rtype: ``str``"""
 
         return self._name
 
 
     def text(self):
         """The record's text, extended to 80 characters.
-        :rtype: str"""
+
+        :rtype: ``str``"""
 
         return self._text
 
 
     def content(self):
         """The record's text exlcuding the first six characters.
-        :rtype: str"""
+
+        :rtype: ``str``"""
 
         return self._content
 
 
 
 class PdbFile:
-     """A PDB File - a representation of the file itself, with no processing of
+    """A PDB File - a representation of the file itself, with no processing of
     the data it contains (other than reading record names from the start of each
     line).
 
@@ -104,7 +105,7 @@ class PdbFile:
         self._records = [
          PdbRecord(line, i) for i, line in
           enumerate(self._file_string.split("\n"), start=1) if line
-        ]
+         ]
 
 
     def __repr__(self):
@@ -113,22 +114,24 @@ class PdbFile:
 
     def file_string(self):
         """The file string from which the object was created.
-        :rtype: str"""
+
+        :rtype: ``str``"""
 
         return self._file_string
 
 
     def records(self):
         """A list of :py:class:`PdbRecord` objects.
+
         :returns: list of :py:class:`PdbRecord` objects."""
-        
+
         return self._records
 
 
     def get_record_by_name(self, record_name):
         """Gets the first :py:class:`PdbRecord` of a given name.
-        :param str record_name: record name to search by.
 
+        :param str record_name: record name to search by.
         :rtype: :py:class:`PdbRecord` or ``None`` if there is no match."""
 
         if not isinstance(record_name, str):
@@ -144,8 +147,7 @@ class PdbFile:
         """Gets all :py:class:`PdbRecord` objects of a given name.
 
         :param str record_name: record name to search by.
-
-        :returns: list of :py:class:`PdbRecord` objects."""
+        :returns: ``list`` of :py:class:`PdbRecord` objects."""
 
         if not isinstance(record_name, str):
             raise TypeError(

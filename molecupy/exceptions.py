@@ -78,6 +78,6 @@ class DuplicateBindSitesError(Exception):
 
 
 class InvalidPdbCodeError(Exception):
-     """The exception raised when a PDB file is requested that does not seem to
+    """The exception raised when a PDB file is requested that does not seem to
     exist."""
     pass

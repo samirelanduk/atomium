@@ -1,4 +1,16 @@
+"""This module is used to provide a container to the PDB file itself and its
+records - but not the data contained within them."""
+
 class PdbRecord:
+    """Represents the lines, or 'records' in a PDB file.
+
+    Indexing a ``PdbRecord`` will get the equivalent slice of the record text,
+    only stripped, and converted to ``int`` or ``float`` if possible. Empty
+    strings will return ``None``.
+
+    :param str text: The raw text of the record.
+
+    :param int number: The line number in the file."""
 
     def __init__(self, text, number):
         if not isinstance(number, int):
@@ -34,28 +46,56 @@ class PdbRecord:
 
 
     def get_as_string(self, start, end):
+        """Indexing a record will automatically convert the value to an integer
+        or float if it can - using this method instead will force it to return a
+        string.
+
+        :param int start: The start of the subsection.
+
+        :param int end: The end of the subsection.
+
+        :rtype: ``str``"""
+
         splice = self[start:end]
         return str(splice) if splice is not None else None
 
 
     def number(self):
+        """The record's line number.
+        :rtype: int"""
+
         return self._number
 
 
     def name(self):
+        """The record's name (the first six characters).
+        :rtype: str"""
+
         return self._name
 
 
     def text(self):
+        """The record's text, extended to 80 characters.
+        :rtype: str"""
+
         return self._text
 
 
     def content(self):
+        """The record's text exlcuding the first six characters.
+        :rtype: str"""
+
         return self._content
 
 
 
 class PdbFile:
+     """A PDB File - a representation of the file itself, with no processing of
+    the data it contains (other than reading record names from the start of each
+    line).
+
+    :param str file_string: The raw text of a PDB file."""
+
 
     def __init__(self, file_string):
         self._file_string = "".join([
@@ -72,14 +112,25 @@ class PdbFile:
 
 
     def file_string(self):
+        """The file string from which the object was created.
+        :rtype: str"""
+
         return self._file_string
 
 
     def records(self):
+        """A list of :py:class:`PdbRecord` objects.
+        :returns: list of :py:class:`PdbRecord` objects."""
+        
         return self._records
 
 
     def get_record_by_name(self, record_name):
+        """Gets the first :py:class:`PdbRecord` of a given name.
+        :param str record_name: record name to search by.
+
+        :rtype: :py:class:`PdbRecord` or ``None`` if there is no match."""
+
         if not isinstance(record_name, str):
             raise TypeError(
              "Can only search for record by str, not '%s'" % str(record_name)
@@ -90,6 +141,12 @@ class PdbFile:
 
 
     def get_records_by_name(self, record_name):
+        """Gets all :py:class:`PdbRecord` objects of a given name.
+
+        :param str record_name: record name to search by.
+
+        :returns: list of :py:class:`PdbRecord` objects."""
+
         if not isinstance(record_name, str):
             raise TypeError(
              "Can only search for records by str, not '%s'" % str(record_name)

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
  name="molecupy",
- version="1.0.0",
+ version="1.0.1",
  description="A Python PDB parser.",
  url="https://molecupy.readthedocs.org",
  author="Sam Ireland",
@@ -22,6 +22,6 @@ setup(
   "Programming Language :: Python :: 3.5",
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules",
- packages=["molecupy"],
+ packages=["molecupy", "molecupy.structures"],
  install_requires=["requests", "omnicanvas"]
 )

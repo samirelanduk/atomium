@@ -56,9 +56,9 @@ class Model(AtomicStructure):
 
 
     def remove_small_molecule(self, small_molecule):
-        """Removes a residue from the structure.
+        """Removes a small molecule from the structure.
 
-        :param Residue residue: The residue to remove."""
+        :param SmallMolecule small_molecule: The small molecule to remove."""
 
         self._small_molecules.remove(small_molecule)
         small_molecule._model = None

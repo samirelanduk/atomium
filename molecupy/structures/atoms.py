@@ -81,14 +81,14 @@ class Atom:
 
 
     def molecule(self):
-        """Returns the :py:class:`SmallMolecule` or :py:class:`Residue` the
+        """Returns the :py:class:`.SmallMolecule` or :py:class:`.Residue` the
         atom is a part of."""
 
         return self._molecule
 
 
     def model(self):
-        """Returns the :py:class:`Model` the atom is a part of.
+        """Returns the :py:class:`.Model` the atom is a part of.
 
         :rtype: ``Model``"""
 
@@ -322,7 +322,7 @@ class Bond:
 
     def delete(self):
         """Removes the bond and updates the two atoms."""
-        
+
         atom1, atom2 = tuple(self._atoms)
         atom1.bonds().remove(self)
         atom2.bonds().remove(self)

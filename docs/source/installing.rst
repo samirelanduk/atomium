@@ -16,8 +16,9 @@ your system uses ``pip`` for the Python 2 version - if so, try:
 Requirements
 ~~~~~~~~~~~~
 
-molecuPy requires the Python library
-`requests <http://docs.python-requests.org/>`_. This will be installed
+molecuPy requires the Python libraries
+`requests <http://docs.python-requests.org/>`_ and
+`OmniCanvas <http://omnicanvas.readthedocs.io/>`_. These will be installed
 automatically if molecuPy is installed with pip.
 
 Otherwise molecuPy has no external dependencies, and is pure Python.

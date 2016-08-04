@@ -58,7 +58,7 @@ or an empty list, whichever is appropriate.
 Pdb Models
 ~~~~~~~~~~
 
-The heart of a Pdb is its model. A :py:class:`.PdbModel` represents the
+The heart of a Pdb is its model. A :py:class:`.Model` represents the
 structure contained in that PDB file, and is the environment in which all other
 molecules and structures are based.
 
@@ -73,7 +73,7 @@ first model in the list.
     >>> pdb.model()
     <Model (3431 atoms)>
 
-The PdbModel class is an atomic structure (i.e. it inherits from
+The Model class is an atomic structure (i.e. it inherits from
 :py:class:`.AtomicStructure`) which means you can get certain atomic properties
 directly from the model, such as mass, formula, and the atoms
 themselves:
@@ -82,7 +82,7 @@ themselves:
     20630.8656
     >>> pdb.model().formula()
     Counter({'C': 2039, 'O': 803, 'N': 565, 'S': 22, 'P': 2})
-    >>> len(pdb.model().atoms)
+    >>> len(pdb.model().atoms())
     3431
     >>> pdb.model().get_atoms_by_element("P")
     {<PdbAtom 3200 (P)>, <PdbAtom 3230 (P)>}
@@ -107,10 +107,9 @@ by ID or name:
 
    PDB files are not always perfect representations of the real molecular
    structures they are created from. Sometimes there are missing atoms, and
-   sometimes there are missing residues. Future versions of molecuPy will flag
-   these and maybe even fill them in, but for now simply bear in mind that there
-   may be missing atoms and disconnected chains.
-
+   sometimes there are missing residues. For this reason molecuPy draws a
+   distinction between present and missing atoms, and present and missing
+   residues. See the full API docs for more details.
 
 Chains
 ~~~~~~
@@ -120,9 +119,9 @@ they are the macromolecular structures which constitute the bulk of the model.
 
     >>> pdb.model().get_chain_by_id("A")
     <Chain A (204 residues)>
-    >>> pdb.model().get_chain_by_id("A").chain_id
+    >>> pdb.model().get_chain_by_id("A").chain_id()
     'A'
-    >>> pdb.model().get_chain_by_id("A").residues[0]
+    >>> pdb.model().get_chain_by_id("A").residues()[0]
     <Residue (VAL)>
 
 Chains inherit from :py:class:`.ResiduicStructure` and
@@ -144,7 +143,7 @@ Like pretty much everything else in molecuPy, chains are ultimately atomic
 structures, and have the usual atomic structure methods for getting mass,
 retrieving atoms etc.
 
-The :py:class:`.PdbResidue` objects themselves are also atomic structures, and
+The :py:class:`.Residue` objects themselves are also atomic structures, and
 behave very similar to small molecules. They have ``downstream_residue`` and
 ``upstream_residue`` methods for getting the next and previous residue in
 their chain respectively.
@@ -162,7 +161,7 @@ structures, so you can get their mass, get atoms by name/ID etc.
 
     >>> pdb.model().get_small_molecule_by_name("BU2")
     <SmallMolecule A500 (BU2)>
-    >>> pdb.model().get_small_molecule_by_name("XMP").atoms
+    >>> pdb.model().get_small_molecule_by_name("XMP").atoms()
     {<PdbAtom 3240 (C)>, <PdbAtom 3241 (N)>, <PdbAtom 3242 (N)>, <PdbAtom 3243 (
     C)>, <PdbAtom 3244 (O)>, <PdbAtom 3245 (C)>, <PdbAtom 3246 (O)>, <PdbAtom 32
     47 (C)>, <PdbAtom 3248 (N)>, <PdbAtom 3249 (C)>, <PdbAtom 3250 (C)>, <PdbAto
@@ -192,7 +191,7 @@ molecules.
 Atoms
 ~~~~~
 
-Pdb structures - like everything else in the universe really - are ultimately
+PDB structures - like everything else in the universe really - are ultimately
 collections of Atom - :py:class:`.Atom` - objects. They possess a few key
 properties from which much of everything else is created:
 
@@ -207,17 +206,17 @@ properties from which much of everything else is created:
     >>> pdb.model().get_atom_by_id(28).mass()
     12.0107
 
-  molecuPy draws a distinction between generic atom objects, and
-  :py:class:`.PdbAtom`, which have coordinates. These are the atoms listed in
-  the PDB file as being observed in the experiment that produced it.
+molecuPy draws a distinction between generic atom objects, and
+:py:class:`.PdbAtom` objects, which have coordinates. These are the atoms
+listed in the PDB file as being observed in the experiment that produced it.
 
-  Why the distinction? PDB files also list *missing* atoms - atoms known to be
-  present in the structure depicted but which were not observed in the data. For
-  those the generic :py:class:`.Atom` class is used.
+Why the distinction? PDB files also list *missing* atoms - atoms known to be
+present in the structure depicted but which were not observed in the data. For
+those the generic :py:class:`.Atom` class is used.
 
-  There are also missing residues, which are represented here as ordinary
-  residues composed entirely of missing atoms. All residues have a
-  ``is_missing`` method to make this clear.
+There are also missing residues, which are represented here as ordinary
+residues composed entirely of missing atoms. All residues have a
+``is_missing`` method to make this clear.
 
 The distance between any two PDB atoms can be calculated easily:
 
@@ -229,7 +228,7 @@ The distance between any two PDB atoms can be calculated easily:
 Bonds will be assigned where possible - the bonds between atoms in
 standard residues are inferred from atom names, and PDB files contain
 annotations for other covalent bonds. These are assigned to the atoms as
-:py:class:`.tBond` objects.
+:py:class:`.Bond` objects.
 
     >>> pdb.model().get_atom_by_id(27).bonds()
     {<Bond between Atom 27 and Atom 101>, <Bond between Atom 100 and Atom 27>}

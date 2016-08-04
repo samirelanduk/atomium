@@ -1,6 +1,22 @@
 Changelog
 ---------
 
+Release 1.0.0
+~~~~~~~~~~~~~
+
+`4 August 2016`
+
+* A backwards-incompatible redesign of molecuPy.
+
+* Attributes are now methods.
+
+* Bind site calculation is now done at the atomic structure level.
+
+* Tests are now fully mocked and easier to establish.
+
+* Atoms can now detect nearby atoms as long as they are in the same model.
+
+
 Release 0.4.1
 ~~~~~~~~~~~~~
 
@@ -10,7 +26,7 @@ Release 0.4.1
 
     * Fixed bug where occasionally covalent bonds would be made over missing residues.
 
-    
+
 Release 0.4.0
 ~~~~~~~~~~~~~
 

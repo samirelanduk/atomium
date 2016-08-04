@@ -75,13 +75,13 @@ class ResiduicStructure(AtomicStructure):
     def remove_residue(self, residue):
         """Removes a residue from the structure.
 
-        :param Residue residue: The residue to add."""
+        :param Residue residue: The residue to remove."""
 
         self._residues.remove(residue)
 
 
     def get_residue_by_id(self, residue_id):
-        """Retrurns the first residue that matches a given residue ID.
+        """Returns the first residue that matches a given residue ID.
 
         :param str residue_id: The residue ID to search by.
         :rtype: :py:class:`.Residue` or ``None``"""
@@ -96,7 +96,7 @@ class ResiduicStructure(AtomicStructure):
 
 
     def get_residues_by_name(self, residue_name, include_missing=True):
-        """Retruns all the residues a given name.
+        """Returns all the residues of a given name.
 
         :param str residue_name: The name to search by.
         :param str include_missing: If ``False`` only residues present in the\
@@ -114,7 +114,7 @@ class ResiduicStructure(AtomicStructure):
 
 
     def get_residue_by_name(self, residue_name, include_missing=True):
-        """Retrurns the first residues that matches a given name.
+        """Returns the first residue that matches a given name.
 
         :param str residue_name: The name to search by.
         :param str include_missing: If ``False`` only residues present in the\

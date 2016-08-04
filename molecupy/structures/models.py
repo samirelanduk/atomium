@@ -4,6 +4,9 @@ from ..exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from ..exceptions import DuplicateBindSitesError
 
 class Model(AtomicStructure):
+    """Base class: :py:class:`.AtomicStructure`
+
+    Represents the structural environment in which the other structures exist."""
 
     def __init__(self):
         self._small_molecules = set()
@@ -26,10 +29,18 @@ class Model(AtomicStructure):
 
 
     def small_molecules(self):
+        """Returns all the :py:class:`.SmallMolecule` objects in this model.
+
+        :rtype: ``set``"""
+
         return set(self._small_molecules)
 
 
     def add_small_molecule(self, small_molecule):
+        """Adds a small molecule to the model.
+
+        :param SmallMolecule small_molecule: The small molecule to add."""
+
         if not isinstance(small_molecule, SmallMolecule):
             raise TypeError(
              "Can only add SmallMolecule to Model, not '%s'" % str(small_molecule)
@@ -45,11 +56,20 @@ class Model(AtomicStructure):
 
 
     def remove_small_molecule(self, small_molecule):
+        """Removes a residue from the structure.
+
+        :param Residue residue: The residue to remove."""
+
         self._small_molecules.remove(small_molecule)
         small_molecule._model = None
 
 
     def get_small_molecule_by_id(self, molecule_id):
+        """Returns the first small molecule that matches a given molecule ID.
+
+        :param str molecule_id: The molecule ID to search by.
+        :rtype: :py:class:`.SmallMolecule` or ``None``"""
+
         if not isinstance(molecule_id, str):
             raise TypeError(
              "Small molecule ID search must be by str, not '%s'" % str(molecule_id)
@@ -60,6 +80,11 @@ class Model(AtomicStructure):
 
 
     def get_small_molecule_by_name(self, molecule_name):
+        """Returns the first small molecules that matches a given name.
+
+        :param str molecule_name: The name to search by.
+        :rtype: :py:class:`.SmallMolecule` or ``None``"""
+
         if not isinstance(molecule_name, str):
             raise TypeError(
              "Small molecule name search must be by str, not '%s'" % str(molecule_name)
@@ -70,6 +95,11 @@ class Model(AtomicStructure):
 
 
     def get_small_molecules_by_name(self, molecule_name):
+        """Returns all the small molecules of a given name.
+
+        :param str molecule_name: The name to search by.
+        :rtype: ``set`` of :py:class:`.SmallMolecule` objects."""
+
         if not isinstance(molecule_name, str):
             raise TypeError(
              "Small molecule name search must be by str, not '%s'" % str(molecule_name)
@@ -79,10 +109,18 @@ class Model(AtomicStructure):
 
 
     def chains(self):
+        """Returns all the :py:class:`.Chain` objects in this model.
+
+        :rtype: ``set``"""
+
         return set(self._chains)
 
 
     def add_chain(self, chain):
+        """Adds a chain to the model.
+
+        :param Chain chain: The chain to add."""
+
         if not isinstance(chain, Chain):
             raise TypeError(
              "Can only add Chain to Model, not '%s'" % str(chain)
@@ -98,11 +136,20 @@ class Model(AtomicStructure):
 
 
     def remove_chain(self, chain):
+        """Removes a chain from the structure.
+
+        :param Chain chain: The chain to remove."""
+
         self._chains.remove(chain)
         chain._model = None
 
 
     def get_chain_by_id(self, chain_id):
+        """Returns the first chain that matches a given chain ID.
+
+        :param str chain_id: The chain ID to search by.
+        :rtype: :py:class:`.Chain` or ``None``"""
+
         if not isinstance(chain_id, str):
             raise TypeError(
              "Chain ID search must be by str, not '%s'" % str(chain_id)
@@ -113,10 +160,18 @@ class Model(AtomicStructure):
 
 
     def bind_sites(self):
+        """Returns all the :py:class:`.BindSite` objects in this model.
+
+        :rtype: ``set``"""
+
         return set(self._bind_sites)
 
 
     def add_bind_site(self, site):
+        """Adds a bind site to the model.
+
+        :param BindSite site: The bind site to add."""
+
         if not isinstance(site, BindSite):
             raise TypeError(
              "Can only add BindSite to Model, not '%s'" % str(site)
@@ -132,11 +187,20 @@ class Model(AtomicStructure):
 
 
     def remove_bind_site(self, site):
+        """Removes a bind site from the structure.
+
+        :param BindSite site: The bind site to remove."""
+
         self._bind_sites.remove(site)
         site._model = None
 
 
     def get_bind_site_by_id(self, site_id):
+        """Returns the first bind site that matches a given site ID.
+
+        :param str site_id: The site ID to search by.
+        :rtype: :py:class:`.BindSite` or ``None``"""
+
         if not isinstance(site_id, str):
             raise TypeError(
              "BindSite ID search must be by str, not '%s'" % str(site_id)

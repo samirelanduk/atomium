@@ -5,6 +5,7 @@ Full API
     api/atoms
     api/molecules
     api/chains
+    api/models
     api/pdbfile
     api/pdbdatafile
     api/pdb

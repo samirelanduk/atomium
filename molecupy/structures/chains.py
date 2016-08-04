@@ -3,6 +3,13 @@ from . import matrix
 from ..exceptions import NoResiduesError, BrokenHelixError, BrokenStrandError, DuplicateResiduesError
 
 class ResiduicStructure(AtomicStructure):
+    """Base class: :py:class:`.AtomicStructure`
+
+    The base class for all structures which can be described as a set of
+    residues.
+
+    :param residues: A sequence of :py:class:`.Residue` objects in this\
+    structure."""
 
     def __init__(self, *residues):
         if len(residues) == 0:
@@ -35,6 +42,12 @@ class ResiduicStructure(AtomicStructure):
 
 
     def residues(self, include_missing=True):
+        """Returns the residues in this structure as a ``set``.
+
+        :param str include_missing: If ``False`` only residues present in the\
+        PDB coordinates will be returned, and not missing ones.
+        :rtype: ``set``"""
+
         if include_missing:
             return set(self._residues)
         else:
@@ -42,6 +55,10 @@ class ResiduicStructure(AtomicStructure):
 
 
     def add_residue(self, residue):
+        """Adds a residue to the structure.
+
+        :param Residue residue: The residue to add."""
+
         if not isinstance(residue, Residue):
             raise TypeError(
              "Can only add Residues to ResiduicStructures, not '%s'" % str(residue)
@@ -56,10 +73,19 @@ class ResiduicStructure(AtomicStructure):
 
 
     def remove_residue(self, residue):
+        """Removes a residue from the structure.
+
+        :param Residue residue: The residue to add."""
+
         self._residues.remove(residue)
 
 
     def get_residue_by_id(self, residue_id):
+        """Retrurns the first residue that matches a given residue ID.
+
+        :param str residue_id: The residue ID to search by.
+        :rtype: :py:class:`.Residue` or ``None``"""
+
         if not isinstance(residue_id, str):
             raise TypeError(
              "Residue ID search must be by str, not '%s'" % str(residue_id)
@@ -70,6 +96,13 @@ class ResiduicStructure(AtomicStructure):
 
 
     def get_residues_by_name(self, residue_name, include_missing=True):
+        """Retruns all the residues a given name.
+
+        :param str residue_name: The name to search by.
+        :param str include_missing: If ``False`` only residues present in the\
+        PDB coordinates will be returned, and not missing ones.
+        :rtype: ``set`` of :py:class:`.Residue` objects."""
+
         if not isinstance(residue_name, str):
             raise TypeError(
              "Residue name search must be by str, not '%s'" % str(residue_name)
@@ -81,6 +114,13 @@ class ResiduicStructure(AtomicStructure):
 
 
     def get_residue_by_name(self, residue_name, include_missing=True):
+        """Retrurns the first residues that matches a given name.
+
+        :param str residue_name: The name to search by.
+        :param str include_missing: If ``False`` only residues present in the\
+        PDB coordinates will be returned, and not missing ones.
+        :rtype: :py:class:`.Residue` or ``None``"""
+
         if not isinstance(residue_name, str):
             raise TypeError(
              "Residue name search must be by str, not '%s'" % str(residue_name)
@@ -92,6 +132,13 @@ class ResiduicStructure(AtomicStructure):
 
 
 class ResiduicSequence(ResiduicStructure):
+    """Base class: :py:class:`ResiduicStructure`
+
+    The base class for all structures which can be described as a sequence of
+    residues.
+
+    :param residues: A sequence of :py:class:`.Residue` objects in this\
+    structure."""
 
     def __init__(self, *residues):
         ResiduicStructure.__init__(self, *residues)
@@ -99,6 +146,12 @@ class ResiduicSequence(ResiduicStructure):
 
 
     def residues(self, include_missing=True):
+        """Returns the residues in this structure as a ``list``.
+
+        :param str include_missing: If ``False`` only residues present in the\
+        PDB coordinates will be returned, and not missing ones.
+        :rtype: ``list``"""
+
         if include_missing:
             return list(self._residues)
         else:
@@ -106,6 +159,10 @@ class ResiduicSequence(ResiduicStructure):
 
 
     def add_residue(self, residue):
+        """Adds a residue to the end of this sequence.
+
+        :param Residue residue: The residue to add."""
+
         if not isinstance(residue, Residue):
             raise TypeError(
              "Can only add Residues to ResiduicSequences, not '%s'" % str(residue)
@@ -114,6 +171,12 @@ class ResiduicSequence(ResiduicStructure):
 
 
     def sequence_string(self, include_missing=True):
+        """Return the protein sequence of this chain as one letter codes.
+
+        :param str include_missing: If ``False`` only residues present in the\
+        PDB coordinates will be returned, and not missing ones.
+        :rtype str: The protein sequence."""
+
         return "".join([RESIDUES.get(
          res.residue_name().upper(), "X"
         ) for res in self.residues(include_missing=include_missing)])
@@ -121,6 +184,13 @@ class ResiduicSequence(ResiduicStructure):
 
 
 class Chain(ResiduicSequence):
+    """Base class: :py:class:`ResiduicSequence`
+
+    Represents chains - the polymeric units that make up most of PDB
+    structures.
+
+    :param chain_id: The chain's ID.
+    :param residues: The residues in this chain."""
 
     def __init__(self, chain_id, *residues):
         if not isinstance(chain_id, str):
@@ -139,6 +209,10 @@ class Chain(ResiduicSequence):
 
 
     def chain_id(self):
+        """Returns the chain's ID.
+
+        :rtype: ``str``"""
+
         return self._chain_id
 
 
@@ -153,18 +227,35 @@ class Chain(ResiduicSequence):
 
 
     def alpha_helices(self):
+        """Returns the :py:class:`AlphaHelix` objects on this chain.
+
+        :returns: ``set`` of ``AlphaHelix`` objects"""
+
         return set(self._alpha_helices)
 
 
     def beta_strands(self):
+        """Returns the :py:class:`BetsStrand` objects on this chain.
+
+        :returns: ``set`` of ``BetaStrand`` objects"""
+
         return set(self._beta_strands)
 
 
     def model(self):
+        """Returns the :py:class:`.Model` that the chain inhabits.
+
+        :rtype: ``Model``"""
+
         return self._model
 
 
     def get_helix_by_id(self, helix_id):
+        """Retrurns the first alpha helix that matches a given helix ID.
+
+        :param str helix_id: The helix ID to search by.
+        :rtype: :py:class:`.AlphaHelix` or ``None``"""
+
         if not isinstance(helix_id, str):
             raise TypeError("Helix ID search must be by str, not '%s'" % str(helix_id))
         for helix in self.alpha_helices():
@@ -173,6 +264,11 @@ class Chain(ResiduicSequence):
 
 
     def get_strand_by_id(self, strand_id):
+        """Retrurns the first beta strand that matches a given strand ID.
+
+        :param str strand_id: The strand ID to search by.
+        :rtype: :py:class:`.BetsStrand` or ``None``"""
+
         if not isinstance(strand_id, str):
             raise TypeError("Strand ID search must be by str, not '%s'" % str(strand_id))
         for strand in self.beta_strands():
@@ -181,10 +277,30 @@ class Chain(ResiduicSequence):
 
 
     generate_residue_distance_matrix = matrix.generate_residue_distance_matrix
+    """Creates a 'distance matrix' as an
+    `OmniCanvas <http://omnicanvas.readthedocs.io/>`_ canvas. The distance
+    between any two residues are represented as gradients of colour.
+
+    To output the resulting canvas to svg, the ``.save("filename.svg")``
+    method can be used.
+
+    :param int dimension: The width and height of the matrix in pixels
+    :param int close_color: The colour of near residues (defaults to green)
+    :param int far_color: The colour of far residues (defaults to red)
+    :param int cutoff: The distance in Angstroms that the colour scale should end at (defaults to 40 Angstroms)
+    :param subsequence: A sequence of two :py:class:`PdbResidue` objects that constitute the beginning and end of some subsequence, which will be marked on the matrix.
+    :rtype: `OmniCanvas <http://omnicanvas.readthedocs.io/>`_ canvas"""
 
 
 
 class BindSite(ResiduicStructure):
+    """Base class: :py:class:`ResiduicStructure`
+
+    Represents binding sites - the residue clusters that mediate ligand
+    binding.
+
+    :param site_id: The site's ID.
+    :param residues: The residues in this chain."""
 
     def __init__(self, site_id, *residues):
         if not isinstance(site_id, str):
@@ -200,10 +316,19 @@ class BindSite(ResiduicStructure):
 
 
     def site_id(self):
+        """Returns the site's ID.
+
+        :rtype: ``str``"""
+
         return self._site_id
 
 
     def ligand(self, ligand=None):
+        """Returns or sets the site's :py:class:`.SmallMolecule` ligand.
+
+        :param SmallMolecule ligand: If given, the ligand will be set to this.
+        :rtype: ``SmallMolecule``"""
+
         if ligand is None:
             return self._ligand
         else:
@@ -216,10 +341,19 @@ class BindSite(ResiduicStructure):
 
 
     def model(self):
+        """Returns the :py:class:`.Model` that the site inhabits.
+
+        :rtype: ``Model``"""
+
         return self._model
 
 
     def continuous_sequence(self):
+        """If the residues are on the same chain, this will return a continuous
+        sequence that contains all residues in this site, otherwise ``None``.
+
+        :rtype: ResiduicSequence"""
+
         if len(set([res.chain() for res in self.residues() if res.chain()])) == 1:
             chain = list(self.residues())[0].chain()
             min_index = min([chain.residues().index(res) for res in self.residues()])
@@ -231,6 +365,14 @@ class BindSite(ResiduicStructure):
 
 
 class AlphaHelix(ResiduicSequence):
+    """Base class: :py:class:`ResiduicSequence`
+
+    Represents alpha helices.
+
+    :param str helix_id: The helix's ID.
+    :param residues: The residues in this helix.
+    :param str helix_class: The classification of the helix.
+    :param str comment: Any comment associated with this helix."""
 
     def __init__(self, helix_id, *residues, helix_class=None, comment=None):
         if not isinstance(helix_id, str):
@@ -256,10 +398,19 @@ class AlphaHelix(ResiduicSequence):
 
 
     def helix_id(self):
+        """Returns the helix's ID.
+
+        :rtype: ``str``"""
+
         return self._helix_id
 
 
     def helix_class(self, helix_class=None):
+        """Returns or sets the helix's classification.
+
+        :param str helix_class: If given, the class will be set to this.
+        :rtype: ``str``"""
+
         if helix_class is None:
             return self._helix_class
         else:
@@ -271,6 +422,11 @@ class AlphaHelix(ResiduicSequence):
 
 
     def comment(self, comment=None):
+        """Returns or sets the helix's comment.
+
+        :param str comment: If given, the comment will be set to this.
+        :rtype: ``str``"""
+
         if comment is None:
             return self._comment
         else:
@@ -282,6 +438,10 @@ class AlphaHelix(ResiduicSequence):
 
 
     def chain(self):
+        """Returns the chain that this helix is on.
+
+        :rtype: ``Chain``"""
+
         return self.residues()[0].chain()
 
 
@@ -295,6 +455,14 @@ class AlphaHelix(ResiduicSequence):
 
 
 class BetaStrand(ResiduicSequence):
+    """Base class: :py:class:`ResiduicSequence`
+
+    Represents beta strands.
+
+    :param str strand_id: The strand's ID.
+    :param residues: The residues in this strand.
+    :param int sense: The sense of the strand with respect to the prior\
+    strand."""
 
     def __init__(self, strand_id, sense, *residues):
         if not isinstance(strand_id, str):
@@ -319,10 +487,20 @@ class BetaStrand(ResiduicSequence):
 
 
     def strand_id(self):
+        """Returns the strand's ID.
+
+        :rtype: ``str``"""
+
         return self._strand_id
 
 
     def sense(self, sense=None):
+        """Returns or sets the strand's sense with respect to the previous
+        strand.
+
+        :param int sense: If given, the sense will be set to this.
+        :rtype: ``int``"""
+
         if sense is None:
             return self._sense
         else:
@@ -336,6 +514,10 @@ class BetaStrand(ResiduicSequence):
 
 
     def chain(self):
+        """Returns the chain that this strand is on.
+
+        :rtype: ``Chain``"""
+
         return self.residues()[0].chain()
 
 

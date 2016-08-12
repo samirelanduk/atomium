@@ -6,7 +6,8 @@ Release 1.0.2
 
 `12 August 2016`
 
-* Fixed bug relating to bind site construction from invalid chain
+* Fixed bug relating to bind site construction from invalid chain.
+* Fixed bug relating to disulphide bonds sometimes bound to same atom.
 
 
 Release 1.0.1
@@ -14,7 +15,7 @@ Release 1.0.1
 
 `4 August 2016`
 
-* Version number fix
+* Version number fix.
 
 
 Release 1.0.0

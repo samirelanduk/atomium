@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+Release 1.0.2
+~~~~~~~~~~~~~
+
+`12 August 2016`
+
+* Fixed bug relating to bind site construction from invalid chain
+
+
 Release 1.0.0
 ~~~~~~~~~~~~~
 

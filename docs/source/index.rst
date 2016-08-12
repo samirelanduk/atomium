@@ -13,7 +13,7 @@ Example
   'CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP'
   >>> pdb.model()
   <Model (3431 atoms)>
-  >>> pdb.model().get_chain_by_id("A").get_mass()
+  >>> pdb.model().get_chain_by_id("A").mass()
   20630.8656
 
 

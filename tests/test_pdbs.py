@@ -838,6 +838,27 @@ class PdbBondTests(PdbTest):
         self.assertIn(atom2, atom1.bonded_atoms())
 
 
+    def test_can_account_for_disulphide_bonds_incorrectly_assigned_to_same_atom(self):
+        self.data_file.ss_bonds.return_value = [{
+         "serial_num": 1,
+         "residue_name_1": "ALA",
+         "chain_id_1": "A",
+         "residue_id_1": 27,
+         "insert_code_1": "",
+         "residue_name_2": "ALA",
+         "chain_id_2": "A",
+         "residue_id_2": 27,
+         "insert_code_2": "",
+         "symmetry_1": "1555",
+         "symmetry_2": "1555",
+         "length": 2.04
+        }]
+        atoms = self.data_file.atoms()
+        atoms[4]["element"] = atoms[9]["element"] = "S"
+        self.data_file.atoms.return_value = atoms
+        pdb = Pdb(self.data_file)
+
+
     def test_link_bonds_are_present(self):
         self.data_file.links.return_value = [{
          "atom_1": "CB",

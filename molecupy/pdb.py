@@ -377,7 +377,7 @@ def _make_disulphide_bonds(model, data_file, model_id):
             if residue1 and residue2:
                 atom1 = residue1.get_atom_by_element("S")
                 atom2 = residue2.get_atom_by_element("S")
-                if atom1 and atom2:
+                if atom1 and atom2 and atom1 is not atom2:
                     atom1.bond_to(atom2)
 
 

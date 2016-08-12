@@ -905,6 +905,23 @@ class PdbBindSiteTests(PdbBondTests):
         self.assertIs(site.ligand(), molecule)
 
 
+    def test_site_can_discard_residues_on_absent_chain(self):
+        self.data_file.sites.return_value = [{
+         "site_id": "AC1",
+         "residue_count": 3,
+         "residues": [
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 27, "insert_code": ""},
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 28, "insert_code": ""},
+          {"residue_name": "ALA", "chain_id": "Q", "residue_id": 1, "insert_code": ""},
+         ]
+        }]
+        pdb = Pdb(self.data_file)
+        site = list(pdb.model().bind_sites())[0]
+        self.assertEqual(
+         site.residues(),
+         set(list(pdb.model().chains())[0].residues())
+        )
+
 
 class PdbSecondaryStructureTests(PdbBondTests):
 

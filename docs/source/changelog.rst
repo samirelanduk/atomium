@@ -9,6 +9,14 @@ Release 1.0.2
 * Fixed bug relating to bind site construction from invalid chain
 
 
+Release 1.0.1
+~~~~~~~~~~~~~
+
+`4 August 2016`
+
+* Version number fix
+
+
 Release 1.0.0
 ~~~~~~~~~~~~~
 

@@ -195,7 +195,7 @@ class Pdb:
 
     def model(self):
         """The first Model in the PDB models.
-        
+
         :rtype: ``Model``"""
 
         return self._models[0]
@@ -419,7 +419,9 @@ def _give_model_sites(model, data_file, model_id):
     for site in data_file.sites():
         residues = [model.get_chain_by_id(residue["chain_id"]).get_residue_by_id(
          str(residue["chain_id"]) + str(residue["residue_id"]) + residue["insert_code"]
-        ) for residue in site["residues"]]
+        ) if residue["chain_id"] in [
+         chain.chain_id() for chain in model.chains()
+        ] else None for residue in site["residues"]]
         residues = [r for r in residues if r]
         if residues:
             site = BindSite(

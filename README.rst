@@ -324,6 +324,15 @@ and ``BetaStrand`` objects respectively.
 Changelog
 ---------
 
+Release 1.0.3
+~~~~~~~~~~~~~
+
+`15 August 2016`
+
+* Fixed bug relating to CONECT bonds sometimes bound to same atom.
+* Fixed PDB datafile's string representation.
+
+
 Release 1.0.2
 ~~~~~~~~~~~~~
 

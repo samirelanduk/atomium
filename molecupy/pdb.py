@@ -306,7 +306,7 @@ def _connect_atoms(model, data_file, model_id):
         if atom:
             for bonded_atom_id in connection["bonded_atoms"]:
                 bonded_atom = model.get_atom_by_id(bonded_atom_id)
-                if bonded_atom:
+                if bonded_atom and atom is not bonded_atom:
                     atom.bond_to(bonded_atom)
 
 

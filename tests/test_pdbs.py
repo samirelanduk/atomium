@@ -776,6 +776,22 @@ class PdbBondTests(PdbTest):
         self.assertEqual(atom4.bonded_atoms(), set([atom3]))
 
 
+    def test_can_handle_self_conect_records(self):
+        self.data_file.connections.return_value = [
+         {
+          "atom_id": 8237,
+          "bonded_atoms": [8238]
+         }, {
+          "atom_id": 8238,
+          "bonded_atoms": [8237]
+         }, {
+          "atom_id": 8239,
+          "bonded_atoms": [8239]
+         }
+        ]
+        pdb = Pdb(self.data_file)
+
+
     def test_residues_are_connected_internally(self):
         pdb = Pdb(self.data_file)
         atom1 = pdb.model().get_atom_by_id(131)

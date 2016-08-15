@@ -28,7 +28,7 @@ class PdbDataFile:
 
 
     def __repr__(self):
-        return "<PdbDataFile (????)>"
+        return "<PdbDataFile (%s)>"% (self.pdb_code() if self.pdb_code() else "????")
 
 
     def pdb_file(self):
@@ -745,7 +745,7 @@ class PdbDataFile:
 
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
-    
+
     :param str s: A date in the format DD-MM-YY.
     :rtype: ``datetime.Date``"""
 

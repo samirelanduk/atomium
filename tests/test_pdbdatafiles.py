@@ -19,6 +19,10 @@ class PdbdataFilePropertiesTests(PdbDataFileTest):
 
     def test_repr(self):
         self.assertEqual(str(self.empty), "<PdbDataFile (????)>")
+        data_file = PdbDataFile(PdbFile(
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        ))
+        self.assertEqual(str(data_file), "<PdbDataFile (1LOL)>")
 
 
 

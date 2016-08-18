@@ -1296,25 +1296,14 @@ class SiteRecordTests(PdbDataFileTest):
         data_file = PdbDataFile(PdbFile(
          "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155\n"
          "SITE     2 AC1  6 XMP A2001  HOH A3015\n"
-         "SITE     1 AC3  8 ALA A  18A ASP A  20  LYS A  42  ASP A  70\n"
-         "SITE     2 AC3  8 MET A 126  SER A 127  SER A 158  PRO A 180"
+         "SITE     1 550  8 ALA A  18A ASP A  20  LYS A  42  ASP A  70\n"
+         "SITE     2 550  8 MET A 126  SER A 127  SER A 158  PRO A 180"
         ))
         self.assertEqual(
          data_file.sites(),
          [
           {
-           "site_id": "AC1",
-           "residue_count": 6,
-           "residues": [
-            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
-            {"residue_name": "LYS", "chain_id": "A", "residue_id": 72, "insert_code": ""},
-            {"residue_name": "LEU", "chain_id": "A", "residue_id": 123, "insert_code": ""},
-            {"residue_name": "VAL", "chain_id": "A", "residue_id": 155, "insert_code": ""},
-            {"residue_name": "XMP", "chain_id": "A", "residue_id": 2001, "insert_code": ""},
-            {"residue_name": "HOH", "chain_id": "A", "residue_id": 3015, "insert_code": ""}
-           ]
-          }, {
-           "site_id": "AC3",
+           "site_id": "550",
            "residue_count": 8,
            "residues": [
             {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": "A"},
@@ -1325,6 +1314,17 @@ class SiteRecordTests(PdbDataFileTest):
             {"residue_name": "SER", "chain_id": "A", "residue_id": 127, "insert_code": ""},
             {"residue_name": "SER", "chain_id": "A", "residue_id": 158, "insert_code": ""},
             {"residue_name": "PRO", "chain_id": "A", "residue_id": 180, "insert_code": ""}
+           ]
+          }, {
+           "site_id": "AC1",
+           "residue_count": 6,
+           "residues": [
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
+            {"residue_name": "LYS", "chain_id": "A", "residue_id": 72, "insert_code": ""},
+            {"residue_name": "LEU", "chain_id": "A", "residue_id": 123, "insert_code": ""},
+            {"residue_name": "VAL", "chain_id": "A", "residue_id": 155, "insert_code": ""},
+            {"residue_name": "XMP", "chain_id": "A", "residue_id": 2001, "insert_code": ""},
+            {"residue_name": "HOH", "chain_id": "A", "residue_id": 3015, "insert_code": ""}
            ]
           }
          ]

@@ -449,10 +449,10 @@ class PdbDataFile:
 
     def sites(self):
         site_records = self.pdb_file().get_records_by_name("SITE")
-        site_names = sorted(list(set([r[11:14] for r in site_records])))
+        site_names = sorted(list(set([r.get_as_string(11, 14) for r in site_records])))
         sites = []
         for site_name in site_names:
-            records = [r for r in site_records if r[11:14] == site_name]
+            records = [r for r in site_records if r.get_as_string(11, 14) == site_name]
             residues = []
             for r in records:
                 for i in range(1, 5):

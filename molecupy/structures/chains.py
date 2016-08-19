@@ -21,8 +21,9 @@ class ResiduicStructure(AtomicStructure):
                 )
         residue_ids = [residue.residue_id() for residue in residues]
         if len(residue_ids) != len(set(residue_ids)):
+            duplicates = [id_ for id_ in residue_ids if residue_ids.count(id_) > 1]
             raise DuplicateResiduesError(
-             "Cannot make residuic structure with duplicate residue IDs"
+             "There are multiple residues with ID %s" % (duplicates[0])
             )
         self._residues = set(residues)
 

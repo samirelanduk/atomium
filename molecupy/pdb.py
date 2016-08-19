@@ -263,6 +263,14 @@ def _give_model_chains(model, data_file, model_id):
              res for res in missing_residues if res[-2] == chain_id
             ]
             missing_residue_ids = [(res[0], res[-2] + res[-1]) for res in missing_residues]
+            while len(set([res[1] for res in missing_residue_ids])) < len(missing_residue_ids):
+                ids = [res[1] for res in missing_residue_ids]
+                duplicates = [id_ for id_ in ids if ids.count(id_) > 1]
+                id_to_remove = duplicates[0]
+                for res in missing_residue_ids[::-1]:
+                    if res[1] == id_to_remove:
+                        missing_residue_ids.remove(res)
+                        break
             missing_residues = []
             for missing_id in missing_residue_ids:
                 lookup = residues_dict.connection_data.get(missing_id[0])

@@ -512,6 +512,29 @@ class PdbChainTests(PdbTest):
         self.assertEqual(len(chain.residues()[3].atoms()), 27)
 
 
+    def test_handling_of_duplicate_missing_residues(self):
+        self.data_file.get_remark_by_number.return_value = {
+         'content': 'MISSING RESIDUES\n'
+         'THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE\n'
+         'EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN\n'
+         'IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)\n\n'
+         'M RES C SSSEQI\n'
+         'LEU A     12\n'
+         'ARG A     14\n'
+         'PRO A     14\n'
+         'CYS A     15\n',
+         'number': 465
+        }
+        pdb = Pdb(self.data_file)
+        chain = list(pdb.model().chains())[0]
+        self.assertEqual(len(chain.residues()), 5)
+        self.assertEqual(
+         [res.residue_id() for res in chain.residues()],
+         ["A12", "A13", "A13A", "A14", "A15"]
+        )
+        self.assertNotIn("PRO", [res.residue_name() for res in chain.residues()])
+
+
 
 class PdbBondTests(PdbTest):
 

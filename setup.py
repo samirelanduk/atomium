@@ -2,11 +2,11 @@ from setuptools import setup
 
 setup(
  name="molecupy",
- version="1.0.4",
- description="A Python PDB parser.",
- url="https://molecupy.readthedocs.org",
+ version="2.0.0",
+ description="A Python molecular modeller with PDB parsing.",
+ url="https://molecupy.readthedocs.io",
  author="Sam Ireland",
- author_email="Sam.Ireland@ed.ac.uk",
+ author_email="mail@samireland.com",
  license="MIT",
  classifiers=[
   "Development Status :: 4 - Beta",

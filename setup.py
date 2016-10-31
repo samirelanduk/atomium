@@ -22,6 +22,6 @@ setup(
   "Programming Language :: Python :: 3.5",
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules",
- packages=["molecupy", "molecupy.structures"],
+ packages=["molecupy", "molecupy.structures", "molecupy.pdb"],
  install_requires=["requests", "omnicanvas"]
 )

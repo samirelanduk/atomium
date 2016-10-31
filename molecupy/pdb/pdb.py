@@ -1,8 +1,8 @@
 """This module contains creates the final Pdb object itself, and processes the
 data contained in the data file."""
 
-from .structures import Model, PdbAtom, Atom, SmallMolecule, Residue, Chain
-from .structures import BindSite, AlphaHelix, BetaStrand
+from ..structures import Model, PdbAtom, Atom, SmallMolecule, Residue, Chain
+from ..structures import BindSite, AlphaHelix, BetaStrand
 from . import residues as residues_dict
 
 class Pdb:

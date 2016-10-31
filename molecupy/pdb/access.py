@@ -6,7 +6,7 @@ import requests
 from .pdbfile import PdbFile
 from .pdbdatafile import PdbDataFile
 from .pdb import Pdb
-from .exceptions import InvalidPdbCodeError
+from ..exceptions import InvalidPdbCodeError
 
 def pdb_from_string(text):
     """Creates a :py:class:`.Pdb` object from the text of a PDB file.
@@ -30,7 +30,7 @@ def get_pdb_from_file(path):
 def get_pdb_remotely(code):
     """Gets a :py:class:`.Pdb` object from a PDB code.
     The file is requested from the RCSB servers via a HTTP request.
-    
+
     :param str code: The PDB code required - e.g. '1NVQ'.
     :rtype: :py:class:`.Pdb`
     :raises: :class:`.InvalidPdbCodeError` if the PDB doesn't exist"""

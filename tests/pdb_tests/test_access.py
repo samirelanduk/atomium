@@ -19,7 +19,7 @@ class PdbFromStringTests(TestCase):
 class PdbFromFileTests(TestCase):
 
     def test_can_make_pdb_from_file(self):
-        pdb = get_pdb_from_file(os.path.sep.join(["tests", "1LOL.pdb"]))
+        pdb = get_pdb_from_file(os.path.sep.join(["tests", "pdb_tests", "1LOL.pdb"]))
         self.assertIsInstance(pdb, Pdb)
         self.assertEqual(pdb.keywords(), ["TIM BARREL", "LYASE"])
 
@@ -31,7 +31,7 @@ class PdbRemoteTests(TestCase):
     @patch("requests.get")
     def test_can_get_pdb_remotely(self, mock_get):
         response = unittest.mock.Mock()
-        with open("tests/1LOL.pdb") as f:
+        with open(os.path.sep.join(["tests", "pdb_tests", "1LOL.pdb"])) as f:
             response.text = f.read()
         response.status_code = 200
         mock_get.return_value = response

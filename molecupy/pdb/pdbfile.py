@@ -154,3 +154,8 @@ class PdbFile:
              "Can only search for records by str, not '%s'" % str(record_name)
             )
         return [record for record in self.records() if record.name() == record_name]
+
+
+    def convert_to_string(self):
+        lines = [record.text() for record in self.records()]
+        return "\n".join(lines)

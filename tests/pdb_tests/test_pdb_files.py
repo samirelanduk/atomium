@@ -95,3 +95,14 @@ class PdbFileRecordTests(PdbFileTest):
         pdb_file = PdbFile(self.file_string)
         with self.assertRaises(TypeError):
             pdb_file.get_records_by_name(100)
+
+
+
+class PdbFileToStringTests(PdbFileTest):
+
+    def test_can_turn_pdb_file_back_to_string(self):
+        pdb_file = PdbFile(self.file_string)
+        file_lines = self.file_string.split("\n")
+        file_lines = [line + (" " * (80-len(line))) for line in file_lines if line]
+        target_string = "\n".join(file_lines)
+        self.assertEqual(pdb_file.convert_to_string(), target_string)

@@ -1,6 +1,6 @@
 import random
 from unittest import TestCase
-from molecupy.pdbfile import PdbFile
+from molecupy.pdb.pdbfile import PdbFile
 
 class PdbFileTest(TestCase):
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.pdb import Pdb
-from molecupy.pdbdatafile import PdbDataFile
+from molecupy.pdb.pdb import Pdb
+from molecupy.pdb.pdbdatafile import PdbDataFile
 from molecupy.structures import Model, SmallMolecule, Chain, Residue, BindSite
 from molecupy.structures import AlphaHelix, BetaStrand
 

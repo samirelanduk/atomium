@@ -1,5 +1,5 @@
 from unittest import TestCase
-from molecupy.pdbfile import PdbRecord
+from molecupy.pdb.pdbfile import PdbRecord
 
 class RecordCreationTests(TestCase):
 

@@ -1,8 +1,8 @@
 import datetime
 from unittest import TestCase
-from molecupy.pdbfile import PdbFile, PdbRecord
-from molecupy.pdbdatafile import PdbDataFile, date_from_string, merge_records
-from molecupy.pdbdatafile import records_to_token_value_dicts
+from molecupy.pdb.pdbfile import PdbFile, PdbRecord
+from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string, merge_records
+from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
 
 class PdbDataFileTest(TestCase):
 

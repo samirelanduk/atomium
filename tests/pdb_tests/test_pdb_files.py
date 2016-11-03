@@ -91,6 +91,14 @@ class PdbFilePropertiesTests(PdbFileTest):
         self.assertEqual(len(pdb_file.records()), 0)
 
 
+    def test_adding_records_updates_those_records_pdb_file_property(self):
+        record = PdbRecord("TEST   123  HYT") # Need full pdb_file method
+        self.assertEqual(record.pdb_file(), None)
+        pdb_file = PdbFile()
+        pdb_file.add_record(record)
+        self.assertIs(record.pdb_file(), pdb_file)
+
+
 
 class PdbFileRecordTests(PdbFileTest):
 

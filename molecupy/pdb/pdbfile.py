@@ -229,6 +229,7 @@ class PdbFile:
              "Can only add PdbRecord objects to PdbFiles, not '%s'" % str(record)
             )
         self._records.append(record)
+        record.pdb_file(self)
 
 
     def convert_to_string(self):

@@ -157,6 +157,10 @@ class PdbFile:
 
 
     def add_record(self, record):
+        if not isinstance(record, PdbRecord):
+            raise TypeError(
+             "Can only add PdbRecord objects to PdbFiles, not '%s'" % str(record)
+            )
         self._records.append(record)
 
 

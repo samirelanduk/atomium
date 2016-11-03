@@ -76,6 +76,12 @@ class PdbFilePropertiesTests(PdbFileTest):
         self.assertEqual(pdb_file.records()[-1].name(), "TEST2")
 
 
+    def test_can_only_add_records(self):
+        pdb_file = PdbFile()
+        with self.assertRaises(TypeError):
+            pdb_file.add_record("TEST2  123  123.8    HYT")
+
+
 
 class PdbFileRecordTests(PdbFileTest):
 

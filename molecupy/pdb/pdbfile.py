@@ -171,9 +171,8 @@ class PdbFile:
          char for char in file_string if 32 <= ord(char) <= 126 or char=="\n"
         ])
         self._records = [
-         PdbRecord(line, i) for i, line in
-          enumerate(self._file_string.split("\n"), start=1) if line
-         ]
+         PdbRecord(line, self) for line in self._file_string.split("\n") if line
+        ]
 
 
     def __repr__(self):

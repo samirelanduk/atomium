@@ -1,5 +1,6 @@
 import random
 from unittest import TestCase
+import unittest.mock
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
 
 class PdbFileTest(TestCase):
@@ -66,14 +67,14 @@ class PdbFilePropertiesTests(PdbFileTest):
     def test_can_add_records(self):
         pdb_file = PdbFile()
         self.assertEqual(len(pdb_file.records()), 0)
-        record1 = PdbRecord("TEST   123  123.8    HYT", 1)
+        record1 = unittest.mock.Mock(PdbRecord)
         pdb_file.add_record(record1)
         self.assertEqual(len(pdb_file.records()), 1)
-        self.assertEqual(pdb_file.records()[-1].name(), "TEST")
-        record2 = PdbRecord("TEST2  123  123.8    HYT", 2)
+        self.assertIs(pdb_file.records()[-1], record1)
+        record2 = unittest.mock.Mock(PdbRecord)
         pdb_file.add_record(record2)
         self.assertEqual(len(pdb_file.records()), 2)
-        self.assertEqual(pdb_file.records()[-1].name(), "TEST2")
+        self.assertIs(pdb_file.records()[-1], record2)
 
 
     def test_can_only_add_records(self):
@@ -85,10 +86,10 @@ class PdbFilePropertiesTests(PdbFileTest):
     def test_can_only_add_records_with_method(self):
         pdb_file = PdbFile()
         self.assertEqual(len(pdb_file.records()), 0)
-        record = PdbRecord("TEST   123  123.8    HYT", 1)
+        record = unittest.mock.Mock(PdbRecord)
         pdb_file.records().append(record)
         self.assertEqual(len(pdb_file.records()), 0)
-        
+
 
 
 class PdbFileRecordTests(PdbFileTest):

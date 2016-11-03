@@ -179,6 +179,10 @@ class PdbFile:
         return "<PdbFile (%i Records)>" % len(self._records)
 
 
+    def __contains__(self, item):
+        return item in self.records()
+
+
     def file_string(self):
         """The file string from which the object was created.
 

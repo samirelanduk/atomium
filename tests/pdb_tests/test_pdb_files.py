@@ -184,3 +184,11 @@ class PdbFileToStringTests(PdbFileTest):
          pdb_file.convert_to_string(),
          "ONE   %s\nTWO   %s" % ("+" * 74, "-" * 74)
         )
+
+
+
+class PdbFileContainerTests(PdbFileTest):
+
+    def test_pdb_file_is_contaimer_of_records(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertIn(pdb_file.records()[0], pdb_file)

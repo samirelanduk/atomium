@@ -67,12 +67,22 @@ class PdbRecord:
             return None
 
 
-    def name(self):
+    def name(self, name=None):
         """The record's name (the first six characters).
 
         :rtype: ``str``"""
 
-        return self._name
+        if name:
+            if not isinstance(name, str):
+                raise TypeError("name must be str, not '%s'" % str(name))
+            if len(name) > 6:
+                raise ValueError(
+                 "Record name must be <= 6 chars, which '%s' is not" % name
+                )
+            self._name = name
+            self._text = "%-6s%s" % (self._name, self._content)
+        else:
+            return self._name
 
 
     def text(self):
@@ -93,12 +103,13 @@ class PdbRecord:
 
     def pdb_file(self, pdb_file=None):
         if pdb_file:
-            if not None and not isinstance(pdb_file, PdbFile):
+            if not isinstance(pdb_file, PdbFile):
                 raise TypeError(
                  "pdb_file text must be PdbFile, not '%s'" % str(pdb_file)
                 )
             self._pdb_file = pdb_file
-        return self._pdb_file
+        else:
+            return self._pdb_file
 
 
 

@@ -54,6 +54,29 @@ class RecordPropertyTests(TestCase):
         self.assertEqual(self.record._pdb_file, self.record.pdb_file())
 
 
+    def test_can_modify_record_name(self):
+        self.record.name("NOVEL")
+        self.assertEqual(self.record.name(), "NOVEL")
+        self.assertEqual(
+         self.record.content(),
+         " 123  123.8    HYT" + (" " * 56)
+        )
+        self.assertEqual(
+         self.record.text(),
+         "NOVEL  123  123.8    HYT" + (" " * 56)
+        )
+
+
+    def test_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            self.record.name(123456)
+
+
+    def test_record_name_cannot_be_made_longer_than_6_chars(self):
+        with self.assertRaises(ValueError):
+            self.record.name("1234567")
+
+
     def test_record_number_when_associated_file_is_none(self):
         self.assertEqual(self.record.number(), None)
 

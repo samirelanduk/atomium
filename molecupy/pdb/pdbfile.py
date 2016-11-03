@@ -20,6 +20,8 @@ class PdbRecord:
         self._text = expanded_text
         self._name = expanded_text[:6].strip()
         self._content = expanded_text[6:]
+        if pdb_file is not None and not isinstance(pdb_file, PdbFile):
+            raise TypeError("pdb_file text must be PdbFile, not '%s'" % str(pdb_file))
         self._pdb_file = pdb_file
 
 

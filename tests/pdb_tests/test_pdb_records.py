@@ -1,6 +1,6 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.pdb.pdbfile import PdbRecord
+from molecupy.pdb.pdbfile import PdbRecord, PdbFile
 
 class RecordCreationTests(TestCase):
 
@@ -30,9 +30,14 @@ class RecordCreationTests(TestCase):
 
 
     def test_can_create_record_with_pdb_file(self):
-        pdb_file = unittest.mock.Mock()
+        pdb_file = unittest.mock.Mock(PdbFile)
         record = PdbRecord("TEST   123  123.8    HYT", pdb_file)
         self.assertEqual(record._pdb_file, pdb_file)
+
+
+    def test_pdb_file_must_be_pdbfile(self):
+        with self.assertRaises(TypeError):
+            record = PdbRecord("TEST   123  123.8    HYT", "pdb_file")
 
 
 

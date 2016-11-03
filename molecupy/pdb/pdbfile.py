@@ -125,7 +125,7 @@ class PdbFile:
 
         :returns: list of :py:class:`PdbRecord` objects."""
 
-        return self._records
+        return self._records[:]
 
 
     def get_record_by_name(self, record_name):

@@ -82,6 +82,14 @@ class PdbFilePropertiesTests(PdbFileTest):
             pdb_file.add_record("TEST2  123  123.8    HYT")
 
 
+    def test_can_only_add_records_with_method(self):
+        pdb_file = PdbFile()
+        self.assertEqual(len(pdb_file.records()), 0)
+        record = PdbRecord("TEST   123  123.8    HYT", 1)
+        pdb_file.records().append(record)
+        self.assertEqual(len(pdb_file.records()), 0)
+        
+
 
 class PdbFileRecordTests(PdbFileTest):
 

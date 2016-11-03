@@ -6,10 +6,10 @@ class PdbRecord:
 
     Indexing a ``PdbRecord`` will get the equivalent slice of the record text,
     only stripped, and converted to ``int`` or ``float`` if possible. Empty
-    strings will return ``None``.
+    sub-strings will return ``None``.
 
     :param str text: The raw text of the record.
-    :param int number: The line number in the file."""
+    :param PdbFile pdb_file: Optional: a :py:class:`.PdbFile` that the record should be associated with."""
 
     def __init__(self, text, pdb_file=None):
         if not isinstance(text, str):
@@ -57,7 +57,8 @@ class PdbRecord:
 
 
     def number(self):
-        """The record's line number.
+        """The record's line number in its associated :py:class:`.PdbFile`. If
+        there is no file associated, this will return ``None``.
 
         :rtype: ``int``"""
 
@@ -68,8 +69,11 @@ class PdbRecord:
 
 
     def name(self, name=None):
-        """The record's name (the first six characters).
+        """The record's name (the first six characters). If a string value is
+        supplied, the name will be set to the new value, and the text will also
+        be updated.
 
+        :param str name: (optional) A new name to change to.
         :rtype: ``str``"""
 
         if name:
@@ -86,8 +90,11 @@ class PdbRecord:
 
 
     def content(self, content=None):
-        """The record's text exlcuding the first six characters.
+        """The record's text exlcuding the first six characters. If a string
+        value is supplied, the content will be set to the new value, and the
+        text will also be updated.
 
+        :param str content: (optional) A new content to change to.
         :rtype: ``str``"""
 
         if content:
@@ -106,8 +113,11 @@ class PdbRecord:
 
 
     def text(self, text=None):
-        """The record's text, extended to 80 characters.
+        """The record's text, extended to 80 characters. If a string
+        value is supplied, the text will be set to the new value, and the
+        name and content will also be updated.
 
+        :param str text: (optional) A new text to change to.
         :rtype: ``str``"""
 
         if text:
@@ -127,6 +137,13 @@ class PdbRecord:
 
 
     def pdb_file(self, pdb_file=None):
+        """The :py:class:`.PdbFile` that the record is associated with. This
+        method can update the associated file by passing a :py:class:`.PdbFile`
+        to it.
+
+        :param PdbFile pdb_file: (optional) A new :py:class:`.PdbFile` to set.
+        :rtype: ``PdbFile``"""
+
         if pdb_file:
             if not isinstance(pdb_file, PdbFile):
                 raise TypeError(

@@ -26,7 +26,10 @@ class PdbRecord:
 
 
     def __repr__(self):
-        return "<PdbRecord (%s)>" % self._name
+        if self.number():
+            return "<PdbRecord %i (%s)>" % (self.number(), self._name)
+        else:
+            return "<PdbRecord (%s)>" % self._name
 
 
     def __getitem__(self, key):

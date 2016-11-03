@@ -40,6 +40,17 @@ class RecordCreationTests(TestCase):
             record = PdbRecord("TEST   123  123.8    HYT", "pdb_file")
 
 
+    def test_repr_when_line_number_is_available(self):
+        pdb_file = unittest.mock.Mock(PdbFile)
+        record1 = unittest.mock.Mock(PdbRecord)
+        record3 = unittest.mock.Mock(PdbRecord)
+        record = PdbRecord("TEST   123  123.8    HYT", pdb_file)
+        pdb_file.records.return_value = [record1, record, record3]
+        self.assertEqual(str(record), "<PdbRecord 2 (TEST)>")
+
+
+
+
 
 class RecordPropertyTests(TestCase):
 

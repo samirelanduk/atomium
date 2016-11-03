@@ -23,7 +23,7 @@ class PdbFileTest(TestCase):
 
 class PdbFileCreationTests(PdbFileTest):
 
-    def test_can_create_file(self):
+    def test_can_create_file_from_string(self):
         pdb_file = PdbFile(self.file_string)
         self.assertEqual(pdb_file._file_string, self.file_string)
         self.assertEqual(len(pdb_file._records), 9)
@@ -47,6 +47,11 @@ class PdbFileCreationTests(PdbFileTest):
         new_file = "".join(new_file)
         pdb_file = PdbFile(new_file)
         self.assertEqual(pdb_file._file_string, self.file_string)
+
+
+    def test_can_create_file_without_string(self):
+        pdb_file = PdbFile()
+        self.assertEqual(str(pdb_file), "<PdbFile (0 Records)>")
 
 
 

@@ -98,7 +98,7 @@ class PdbFile:
     :param str file_string: The raw text of a PDB file."""
 
 
-    def __init__(self, file_string):
+    def __init__(self, file_string=""):
         self._file_string = "".join([
          char for char in file_string if 32 <= ord(char) <= 126 or char=="\n"
         ])

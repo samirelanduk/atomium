@@ -139,3 +139,17 @@ class PdbFileToStringTests(PdbFileTest):
         file_lines = [line + (" " * (80-len(line))) for line in file_lines if line]
         target_string = "\n".join(file_lines)
         self.assertEqual(pdb_file.convert_to_string(), target_string)
+
+
+    def test_de_novo_file_creation(self):
+        pdb_file = PdbFile()
+        record1 = unittest.mock.Mock(PdbRecord)
+        record2 = unittest.mock.Mock(PdbRecord)
+        record1.text.return_value = "ONE   " + ("+" * 74)
+        record2.text.return_value = "TWO   " + ("-" * 74)
+        pdb_file.add_record(record1)
+        pdb_file.add_record(record2)
+        self.assertEqual(
+         pdb_file.convert_to_string(),
+         "ONE   %s\nTWO   %s" % ("+" * 74, "-" * 74)
+        )

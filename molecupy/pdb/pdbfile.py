@@ -11,11 +11,7 @@ class PdbRecord:
     :param str text: The raw text of the record.
     :param int number: The line number in the file."""
 
-    def __init__(self, text, number):
-        if not isinstance(number, int):
-            raise TypeError("PdbRecord number must be int, not '%s'" % str(number))
-        self._number = number
-
+    def __init__(self, text):
         if not isinstance(text, str):
             raise TypeError("PdbRecord text must be str, not '%s'" % str(text))
         if len(text) == 0:
@@ -27,7 +23,7 @@ class PdbRecord:
 
 
     def __repr__(self):
-        return "<PdbRecord %i (%s)>" % (self._number, self._name)
+        return "<PdbRecord (%s)>" % self._name
 
 
     def __getitem__(self, key):

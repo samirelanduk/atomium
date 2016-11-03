@@ -233,7 +233,12 @@ class PdbFile:
 
 
     def remove_record(self, record):
+        if not isinstance(record, PdbRecord):
+            raise TypeError(
+             "Can only remove PdbRecord objects from PdbFiles, not '%s'" % str(record)
+            )
         self._records.remove(record)
+        record._pdb_file = None
 
 
     def convert_to_string(self):

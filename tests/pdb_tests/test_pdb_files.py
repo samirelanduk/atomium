@@ -108,6 +108,20 @@ class PdbFilePropertiesTests(PdbFileTest):
         self.assertNotIn(record_to_remove, pdb_file.records())
 
 
+    def test_can_only_remove_pdb_records(self):
+        pdb_file = PdbFile(self.file_string)
+        with self.assertRaises(TypeError):
+            pdb_file.remove_record("record_to_remove")
+
+
+    def test_removing_record_changes_records_file_association_to_none(self):
+        pdb_file = PdbFile(self.file_string)
+        record_to_remove = pdb_file.records()[4]
+        self.assertIs(record_to_remove.pdb_file(), pdb_file)
+        pdb_file.remove_record(record_to_remove)
+        self.assertIs(record_to_remove.pdb_file(), None)
+
+
 
 class PdbFileRecordTests(PdbFileTest):
 

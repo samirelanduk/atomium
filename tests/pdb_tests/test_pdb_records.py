@@ -1,4 +1,5 @@
 from unittest import TestCase
+import unittest.mock
 from molecupy.pdb.pdbfile import PdbRecord
 
 class RecordCreationTests(TestCase):
@@ -10,6 +11,7 @@ class RecordCreationTests(TestCase):
         self.assertTrue(record._content.startswith(" 123  123.8    HYT"))
         self.assertEqual(len(record._text), 80)
         self.assertEqual(len(record._content), 74)
+        self.assertEqual(record._pdb_file, None)
 
 
     def test_text_must_be_string(self):
@@ -25,6 +27,12 @@ class RecordCreationTests(TestCase):
     def test_repr(self):
         record = PdbRecord("TEST   123  123.8    HYT")
         self.assertEqual(str(record), "<PdbRecord (TEST)>")
+
+
+    def test_can_create_record_with_pdb_file(self):
+        pdb_file = unittest.mock.Mock()
+        record = PdbRecord("TEST   123  123.8    HYT", pdb_file)
+        self.assertEqual(record._pdb_file, pdb_file)
 
 
 

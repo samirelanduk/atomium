@@ -61,7 +61,10 @@ class PdbRecord:
 
         :rtype: ``int``"""
 
-        return self._number
+        if self._pdb_file:
+            return self._pdb_file.records().index(self) + 1
+        else:
+            return None
 
 
     def name(self):
@@ -86,6 +89,10 @@ class PdbRecord:
         :rtype: ``str``"""
 
         return self._content
+
+
+    def pdb_file(self):
+        return self._pdb_file
 
 
 

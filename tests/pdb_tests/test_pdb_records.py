@@ -43,11 +43,30 @@ class RecordCreationTests(TestCase):
 
 class RecordPropertyTests(TestCase):
 
+    def setUp(self):
+        self.record = PdbRecord("TEST   123  123.8    HYT")
+
+
     def test_record_properties(self):
-        record = PdbRecord("TEST   123  123.8    HYT")
-        self.assertEqual(record._name, record.name())
-        self.assertEqual(record._text, record.text())
-        self.assertTrue(record._content, record.content())
+        self.assertEqual(self.record._name, self.record.name())
+        self.assertEqual(self.record._text, self.record.text())
+        self.assertEqual(self.record._content, self.record.content())
+        self.assertEqual(self.record._pdb_file, self.record.pdb_file())
+
+
+    def test_record_number_when_no_associated_file_is_none(self):
+        self.assertEqual(self.record.number(), None)
+
+
+    def test_record_number_when_file_is_associated(self):
+        pdb_file = unittest.mock.Mock(PdbFile)
+        record2 = PdbRecord("TEST   129  123.8    HYT", pdb_file)
+        record3 = PdbRecord("TEST   133  123.8    HYT", pdb_file)
+        record4 = PdbRecord("TEST   523  123.8    HYT", pdb_file)
+        pdb_file.records.return_value = [record2, record3, record4]
+        self.assertEqual(record2.number(), 1)
+        self.assertEqual(record3.number(), 2)
+        self.assertEqual(record4.number(), 3)
 
 
 

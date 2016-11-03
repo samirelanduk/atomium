@@ -91,7 +91,13 @@ class PdbRecord:
         return self._content
 
 
-    def pdb_file(self):
+    def pdb_file(self, pdb_file=None):
+        if pdb_file:
+            if not None and not isinstance(pdb_file, PdbFile):
+                raise TypeError(
+                 "pdb_file text must be PdbFile, not '%s'" % str(pdb_file)
+                )
+            self._pdb_file = pdb_file
         return self._pdb_file
 
 

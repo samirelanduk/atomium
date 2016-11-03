@@ -54,7 +54,7 @@ class RecordPropertyTests(TestCase):
         self.assertEqual(self.record._pdb_file, self.record.pdb_file())
 
 
-    def test_record_number_when_no_associated_file_is_none(self):
+    def test_record_number_when_associated_file_is_none(self):
         self.assertEqual(self.record.number(), None)
 
 
@@ -67,6 +67,19 @@ class RecordPropertyTests(TestCase):
         self.assertEqual(record2.number(), 1)
         self.assertEqual(record3.number(), 2)
         self.assertEqual(record4.number(), 3)
+
+
+    def test_can_add_pdbfile_association(self):
+        self.assertEqual(self.record.pdb_file(), None)
+        pdb_file = unittest.mock.Mock(PdbFile)
+        self.record.pdb_file(pdb_file)
+        self.assertEqual(self.record.pdb_file(), pdb_file)
+
+
+    def test_can_only_add_pdbfile_as_pdb_file(self):
+        with self.assertRaises(TypeError):
+            self.record.pdb_file("pdb_file")
+
 
 
 

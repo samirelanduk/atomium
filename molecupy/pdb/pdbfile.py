@@ -105,12 +105,25 @@ class PdbRecord:
             return self._content
 
 
-    def text(self):
+    def text(self, text=None):
         """The record's text, extended to 80 characters.
 
         :rtype: ``str``"""
 
-        return self._text
+        if text:
+            if not isinstance(text, str):
+                raise TypeError(
+                 "Record text must be str, not '%s'" % str(text)
+                )
+            if len(text) > 80:
+                raise ValueError(
+                 "Record text must be <= 80 chars, which '%s' is not" % text
+                )
+            self._text = text + (" " * (80 - len(text)))
+            self._name = self._text[:6].strip()
+            self._content = self._text[6:]
+        else:
+            return self._text
 
 
     def pdb_file(self, pdb_file=None):

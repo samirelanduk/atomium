@@ -100,6 +100,29 @@ class RecordPropertyTests(TestCase):
             self.record.content("." * 75)
 
 
+    def test_can_modify_record_text(self):
+        self.record.text("NOVEL     ABC-ABC  .   ")
+        self.assertEqual(
+         self.record.text(),
+         "NOVEL     ABC-ABC  ." + (" " * 60)
+        )
+        self.assertEqual(self.record.name(), "NOVEL")
+        self.assertEqual(
+         self.record.content(),
+         "    ABC-ABC  ." + (" " * 60)
+        )
+
+
+    def test_text_must_be_str(self):
+        with self.assertRaises(TypeError):
+            self.record.text(123456)
+
+
+    def test_record_text_cannot_be_made_longer_than_80_chars(self):
+        with self.assertRaises(ValueError):
+            self.record.content("." * 81)
+
+
     def test_record_number_when_associated_file_is_none(self):
         self.assertEqual(self.record.number(), None)
 

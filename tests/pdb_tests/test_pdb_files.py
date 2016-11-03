@@ -1,6 +1,6 @@
 import random
 from unittest import TestCase
-from molecupy.pdb.pdbfile import PdbFile
+from molecupy.pdb.pdbfile import PdbFile, PdbRecord
 
 class PdbFileTest(TestCase):
 
@@ -51,7 +51,7 @@ class PdbFileCreationTests(PdbFileTest):
 
     def test_can_create_file_without_string(self):
         pdb_file = PdbFile()
-        self.assertEqual(str(pdb_file), "<PdbFile (0 Records)>")
+        self.assertEqual(len(pdb_file.records()), 0)
 
 
 
@@ -61,6 +61,19 @@ class PdbFilePropertiesTests(PdbFileTest):
         pdb_file = PdbFile(self.file_string)
         self.assertEqual(pdb_file.file_string(), pdb_file._file_string)
         self.assertEqual(pdb_file.records(), pdb_file._records)
+
+
+    def test_can_add_records(self):
+        pdb_file = PdbFile()
+        self.assertEqual(len(pdb_file.records()), 0)
+        record1 = PdbRecord("TEST   123  123.8    HYT", 1)
+        pdb_file.add_record(record1)
+        self.assertEqual(len(pdb_file.records()), 1)
+        self.assertEqual(pdb_file.records()[-1].name(), "TEST")
+        record2 = PdbRecord("TEST2  123  123.8    HYT", 2)
+        pdb_file.add_record(record2)
+        self.assertEqual(len(pdb_file.records()), 2)
+        self.assertEqual(pdb_file.records()[-1].name(), "TEST2")
 
 
 

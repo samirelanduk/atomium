@@ -156,6 +156,10 @@ class PdbFile:
         return [record for record in self.records() if record.name() == record_name]
 
 
+    def add_record(self, record):
+        self._records.append(record)
+
+
     def convert_to_string(self):
         lines = [record.text() for record in self.records()]
         return "\n".join(lines)

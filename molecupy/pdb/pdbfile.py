@@ -232,6 +232,10 @@ class PdbFile:
         record.pdb_file(self)
 
 
+    def remove_record(self, record):
+        self._records.remove(record)
+
+
     def convert_to_string(self):
         lines = [record.text() for record in self.records()]
         return "\n".join(lines)

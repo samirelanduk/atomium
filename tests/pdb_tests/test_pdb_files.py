@@ -192,3 +192,8 @@ class PdbFileContainerTests(PdbFileTest):
     def test_pdb_file_is_contaimer_of_records(self):
         pdb_file = PdbFile(self.file_string)
         self.assertIn(pdb_file.records()[0], pdb_file)
+
+
+    def test_pdb_file_has_length(self):
+        pdb_file = PdbFile(self.file_string)
+        self.assertEqual(len(pdb_file), 9)

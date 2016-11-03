@@ -183,6 +183,10 @@ class PdbFile:
         return item in self.records()
 
 
+    def __len__(self):
+        return len(self.records())
+
+
     def file_string(self):
         """The file string from which the object was created.
 

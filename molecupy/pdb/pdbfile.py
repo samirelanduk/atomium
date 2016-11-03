@@ -74,7 +74,7 @@ class PdbRecord:
 
         if name:
             if not isinstance(name, str):
-                raise TypeError("name must be str, not '%s'" % str(name))
+                raise TypeError("Record name must be str, not '%s'" % str(name))
             if len(name) > 6:
                 raise ValueError(
                  "Record name must be <= 6 chars, which '%s' is not" % name
@@ -85,20 +85,32 @@ class PdbRecord:
             return self._name
 
 
+    def content(self, content=None):
+        """The record's text exlcuding the first six characters.
+
+        :rtype: ``str``"""
+
+        if content:
+            if not isinstance(content, str):
+                raise TypeError(
+                 "Record content must be str, not '%s'" % str(content)
+                )
+            if len(content) > 74:
+                raise ValueError(
+                 "Record content must be <= 74 chars, which '%s' is not" % content
+                )
+            self._content = content + (" " * (74 - len(content)))
+            self._text = "%-6s%s" % (self._name, self._content)
+        else:
+            return self._content
+
+
     def text(self):
         """The record's text, extended to 80 characters.
 
         :rtype: ``str``"""
 
         return self._text
-
-
-    def content(self):
-        """The record's text exlcuding the first six characters.
-
-        :rtype: ``str``"""
-
-        return self._content
 
 
     def pdb_file(self, pdb_file=None):

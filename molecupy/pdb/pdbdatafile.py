@@ -13,6 +13,7 @@ class PdbDataFile:
         self._original_pdb_file = pdb_file
         _process_header_records(self)
         _process_obslte_records(self)
+        _process_title_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -119,6 +120,15 @@ class PdbDataFile:
             return self._replacement_code
 
 
+    def title(self, title=None):
+        if title:
+            if not isinstance(title, str):
+                raise TypeError("title must be str, not '%s'" % str(title))
+            self._title = title
+        else:
+            return self._title
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -143,6 +153,15 @@ def _process_obslte_records(data_file):
     data_file._is_obsolete = False
     data_file._obsolete_date = None
     data_file._replacement_code = None
+
+
+def _process_title_records(data_file):
+    if data_file.original_pdb_file():
+        titles = data_file.original_pdb_file().get_records_by_name("TITLE")
+        if titles:
+            data_file._title = merge_records(titles, 10, dont_condense=",;:-")
+            return
+    data_file._title = None
 
 
 def date_from_string(s):
@@ -179,14 +198,6 @@ def merge_records(records, start, join=" ", dont_condense=""):
 
 
     '''
-
-
-    def title(self):
-        titles = self.pdb_file().get_records_by_name("TITLE")
-        title = merge_records(titles, 10, dont_condense=",;:-")
-        return title if title else None
-
-
     def split_codes(self):
         splits = self.pdb_file().get_records_by_name("SPLIT")
         return " ".join([r[10:] for r in splits]).split()

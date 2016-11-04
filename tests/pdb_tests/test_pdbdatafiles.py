@@ -185,6 +185,43 @@ class ObslteRecordTests(PdbDataFileTest):
 
 
 
+class TitleRecordTests(PdbDataFileTest):
+
+    def test_missing_title_processing(self):
+        self.assertEqual(self.empty._title, None)
+        self.assertEqual(self.blank._title, None)
+
+
+    def test_title_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "TITLE     CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE\n"
+         "TITLE    2 COMPLEX WITH XMP"
+        ))
+        self.assertEqual(
+         data_file._title,
+         "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
+        )
+
+
+    def test_title_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "TITLE     CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE\n"
+         "TITLE    2 COMPLEX WITH XMP"
+        ))
+        self.assertIs(data_file._title, data_file.title())
+
+
+    def test_can_modify_title_properties(self):
+        self.blank.title("123" * 10)
+        self.assertEqual(self.blank.title(), "123" * 10)
+
+
+    def test_title_must_be_str(self):
+        with self.assertRaises(TypeError):
+            self.blank.title(100)
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -360,21 +397,7 @@ class RecordsToDictTests(TestCase):
 
 
 
-class TitleRecordTests(PdbDataFileTest):
 
-    def test_title_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "TITLE     CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE\n"
-         "TITLE    2 COMPLEX WITH XMP"
-        ))
-        self.assertEqual(
-         data_file.title(),
-         "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
-        )
-
-
-    def test_missing_title_processing(self):
-        self.assertEqual(self.empty.title(), None)
 
 
 

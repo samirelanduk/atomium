@@ -159,18 +159,26 @@ def date_from_string(s):
         return None
 
 
-    '''def is_obsolete(self):
+def merge_records(records, start, join=" ", dont_condense=""):
+    """Gets a single continuous string from a sequence of records.
+
+    :param list records: The records to merge.
+    :param int start: The start point in each record.
+    :param str join: The string to join on.
+    :param str dont_condense: By default any spaces after spaces, semi-colons, \
+    colons, commas and dashes will be removed, unless listed here.
+    :rtype: ``str``"""
+
+    string = join.join(
+     str(record[start:]
+    ) if record[start:] else "" for record in records)
+    condense = [char for char in " ;:,-" if char not in dont_condense]
+    for char in condense:
+        string = string.replace(char + " ", char)
+    return string
 
 
-
-    def obsolete_date(self):
-        obslte = self.pdb_file().get_record_by_name("OBSLTE")
-        return  if obslte else None
-
-
-    def replacement_code(self):
-        obslte = self.pdb_file().get_record_by_name("OBSLTE")
-        return  if obslte else None
+    '''
 
 
     def title(self):
@@ -842,31 +850,6 @@ def date_from_string(s):
           "conect_num": master[60:65],
           "seqres_num": master[65:70]
         } if master else None
-
-
-
-
-
-
-
-
-def merge_records(records, start, join=" ", dont_condense=""):
-    """Gets a single continuous string from a sequence of records.
-
-    :param list records: The records to merge.
-    :param int start: The start point in each record.
-    :param str join: The string to join on.
-    :param str dont_condense: By default any spaces after spaces, semi-colons, \
-    colons, commas and dashes will be removed, unless listed here.
-    :rtype: ``str``"""
-
-    string = join.join(
-     str(record[start:]
-    ) if record[start:] else "" for record in records)
-    condense = [char for char in " ;:,-" if char not in dont_condense]
-    for char in condense:
-        string = string.replace(char + " ", char)
-    return string
 
 
 def records_to_token_value_dicts(records):

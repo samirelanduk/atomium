@@ -1,7 +1,7 @@
 import datetime
 from unittest import TestCase
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
-from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string#, merge_records
+from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string, merge_records
 #from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
 
 class PdbDataFileTest(TestCase):
@@ -201,20 +201,19 @@ class DateFromStringTests(TestCase):
     def test_date_conversion_will_return_none_if_given_nothing(self):
         self.assertEqual(date_from_string(""), None)
         self.assertEqual(date_from_string(None), None)
-'''
 
 
 
 class RecordMergingTests(TestCase):
 
     def setUp(self):
-        self.records = [PdbRecord(l, 1) for l in [
+        self.records = [PdbRecord(l) for l in [
          "0123456789",
          "abcdefghij",
          "0123456789"
         ]]
 
-        self.punc_records = [PdbRecord(l, 1) for l in [
+        self.punc_records = [PdbRecord(l) for l in [
          "0123, 456789",
          "abcd  efghij",
          "0123; 456789"
@@ -250,7 +249,7 @@ class RecordMergingTests(TestCase):
         )
 
 
-    def test_can_ignore_consensors(self):
+    def test_can_ignore_condensors(self):
         self.assertEqual(
          merge_records(self.punc_records, 2, dont_condense=","),
          "23, 456789 cd efghij 23;456789"
@@ -267,6 +266,11 @@ class RecordMergingTests(TestCase):
          merge_records(self.punc_records, 2, dont_condense=";, "),
          "23, 456789 cd  efghij 23; 456789"
         )
+'''
+
+
+
+
 
 
 

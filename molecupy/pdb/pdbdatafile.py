@@ -229,6 +229,39 @@ def merge_records(records, start, join=" ", dont_condense=""):
     return string
 
 
+def records_to_token_value_dicts(records):
+    """Produces a list of ``dict`` objects from the key-value pairs used in \
+    COMPND and SOURCE records.
+
+    :param list records: The records to use.
+    :rtype: ``list``"""
+
+    string = merge_records(records, 10)
+    pairs = list(filter(None, string.split(";")))
+    for pair_offset in range(1, len(pairs))[::-1]:
+        if pairs[pair_offset].count(":") == 0:
+            pairs[pair_offset-1] += "; " + pairs[pair_offset]
+    pairs = [pair for pair in pairs if pair.count(":") == 1]
+    pairs = [pair.split(":") for pair in pairs if pair]
+    entities = []
+    entity = {}
+    for pair in pairs:
+        if pair[1] == "NO":
+            pair[1] = False
+        elif pair[1] == "YES":
+            pair[1] = True
+        elif pair[1].isnumeric():
+            pair[1] = int(pair[1])
+        elif pair[0] == "CHAIN" or pair[0] == "SYNONYM":
+            pair[1] = pair[1].replace(", ", ",").split(",")
+        if pair[0] == "MOL_ID":
+            if entity: entities.append(entity)
+            entity = {}
+        entity[pair[0]] = pair[1]
+    if entity: entities.append(entity)
+    return entities
+
+
     '''def caveat(self):
         caveats = self.pdb_file().get_records_by_name("CAVEAT")
         caveat = merge_records(caveats, 19)
@@ -889,34 +922,4 @@ def merge_records(records, start, join=" ", dont_condense=""):
         } if master else None
 
 
-def records_to_token_value_dicts(records):
-    """Produces a list of ``dict`` objects from the key-value pairs used in \
-    COMPND and SOURCE records.
-
-    :param list records: The records to use.
-    :rtype: ``list``"""
-
-    string = merge_records(records, 10)
-    pairs = list(filter(None, string.split(";")))
-    for pair_offset in range(1, len(pairs))[::-1]:
-        if pairs[pair_offset].count(":") == 0:
-            pairs[pair_offset-1] += "; " + pairs[pair_offset]
-    pairs = [pair for pair in pairs if pair.count(":") == 1]
-    pairs = [pair.split(":") for pair in pairs if pair]
-    entities = []
-    entity = {}
-    for pair in pairs:
-        if pair[1] == "NO":
-            pair[1] = False
-        elif pair[1] == "YES":
-            pair[1] = True
-        elif pair[1].isnumeric():
-            pair[1] = int(pair[1])
-        elif pair[0] == "CHAIN" or pair[0] == "SYNONYM":
-            pair[1] = pair[1].replace(", ", ",").split(",")
-        if pair[0] == "MOL_ID":
-            if entity: entities.append(entity)
-            entity = {}
-        entity[pair[0]] = pair[1]
-    if entity: entities.append(entity)
-    return entities'''
+'''

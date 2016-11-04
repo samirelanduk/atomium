@@ -2,7 +2,7 @@ import datetime
 from unittest import TestCase
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
 from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string, merge_records
-#from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
+from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
 
 class PdbDataFileTest(TestCase):
 
@@ -384,18 +384,13 @@ class RecordMergingTests(TestCase):
          merge_records(self.punc_records, 2, dont_condense=";, "),
          "23, 456789 cd  efghij 23; 456789"
         )
-'''
-
-
-
-
 
 
 
 class RecordsToDictTests(TestCase):
 
     def test_can_make_dicts(self):
-        records = [PdbRecord(l, 1) for l in [
+        records = [PdbRecord(l) for l in [
          "COMPND    MOL_ID: A;",
          "COMPND   2 MOLECULE: MOLNAME;",
          "COMPND   3 CHAIN_: CHAINS;",
@@ -413,7 +408,7 @@ class RecordsToDictTests(TestCase):
 
 
     def test_can_detect_numeric_fields(self):
-        records = [PdbRecord(l, 1) for l in [
+        records = [PdbRecord(l) for l in [
          "COMPND    MOL_ID: 1;",
          "COMPND   2 MOLECULE: MOLNAME;",
          "COMPND   3 CHAIN_: CHAINS;"
@@ -427,7 +422,7 @@ class RecordsToDictTests(TestCase):
 
 
     def test_can_detect_boolean_fields(self):
-        records = [PdbRecord(l, 1) for l in [
+        records = [PdbRecord(l) for l in [
          "COMPND    MOL_ID: 1;",
          "COMPND   2 MOLECULE: YES;",
          "COMPND   3 CHAIN_: NO;"
@@ -441,7 +436,7 @@ class RecordsToDictTests(TestCase):
 
 
     def test_can_split_chains_and_synonyms(self):
-        records = [PdbRecord(l, 1) for l in [
+        records = [PdbRecord(l) for l in [
          "COMPND    MOL_ID: 1;",
          "COMPND   2 CHAIN: A,B;",
          "COMPND   2 SYNONYM: BEEP, BOOP;"
@@ -455,7 +450,7 @@ class RecordsToDictTests(TestCase):
 
 
     def test_can_account_for_people_not_knowing_how_to_format_source_records_semi_colons(self):
-        records = [PdbRecord(l, 1) for l in [
+        records = [PdbRecord(l) for l in [
          "COMPND    MOL_ID: 1;",
          "COMPND   2 FIELD: VALUE;",
          "COMPND   2 FIELD2: VALUE2; EXTRA;",
@@ -467,6 +462,14 @@ class RecordsToDictTests(TestCase):
           {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
          ]
         )
+'''
+
+
+
+
+
+
+
 
 
 

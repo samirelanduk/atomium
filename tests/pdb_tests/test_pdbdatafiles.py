@@ -222,6 +222,44 @@ class TitleRecordTests(PdbDataFileTest):
 
 
 
+class SplitRecordTests(PdbDataFileTest):
+
+    def test_missing_split_processing(self):
+        self.assertEqual(self.empty._split_codes, [])
+        self.assertEqual(self.blank._split_codes, [])
+
+
+    def test_split_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ 1VOY 1VP0 1VOZ 1VOZ\n"
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ"
+        ))
+        self.assertEqual(
+         data_file._split_codes,
+         [
+          "1VOQ", "1VOR", "1VOS", "1VOU", "1VOV", "1VOW",
+          "1VOX", "1VOY", "1VP0", "1VOZ", "1VOY", "1VP0",
+          "1VOZ", "1VOZ", "1VOQ", "1VOR", "1VOS", "1VOU",
+          "1VOV", "1VOW", "1VOX", "1VOY", "1VP0", "1VOZ"
+         ]
+        )
+
+
+    def test_split_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ 1VOY 1VP0 1VOZ 1VOZ\n"
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ"
+        ))
+        self.assertIs(data_file._split_codes, data_file.split_codes())
+
+
+
+
+
+
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -386,43 +424,6 @@ class RecordsToDictTests(TestCase):
           {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
          ]
         )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-class SplitRecordTests(PdbDataFileTest):
-
-    def test_split_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ 1VOY 1VP0 1VOZ 1VOZ\n"
-         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ"
-        ))
-        self.assertEqual(
-         data_file.split_codes(),
-         [
-          "1VOQ", "1VOR", "1VOS", "1VOU", "1VOV", "1VOW",
-          "1VOX", "1VOY", "1VP0", "1VOZ", "1VOY", "1VP0",
-          "1VOZ", "1VOZ", "1VOQ", "1VOR", "1VOS", "1VOU",
-          "1VOV", "1VOW", "1VOX", "1VOY", "1VP0", "1VOZ"
-         ]
-        )
-
-
-    def test_missing_split_processing(self):
-        self.assertEqual(self.empty.split_codes(), [])
-
-
 
 class CaveatRecordTests(PdbDataFileTest):
 

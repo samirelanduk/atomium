@@ -14,6 +14,7 @@ class PdbDataFile:
         _process_header_records(self)
         _process_obslte_records(self)
         _process_title_records(self)
+        _process_split_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -129,6 +130,10 @@ class PdbDataFile:
             return self._title
 
 
+    def split_codes(self):
+        return self._split_codes
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -164,6 +169,14 @@ def _process_title_records(data_file):
     data_file._title = None
 
 
+def _process_split_records(data_file):
+    if data_file.original_pdb_file():
+        splits = data_file.original_pdb_file().get_records_by_name("SPLIT")
+        data_file._split_codes = " ".join([r[10:] for r in splits]).split()
+        return
+    data_file._split_codes = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -197,13 +210,7 @@ def merge_records(records, start, join=" ", dont_condense=""):
     return string
 
 
-    '''
-    def split_codes(self):
-        splits = self.pdb_file().get_records_by_name("SPLIT")
-        return " ".join([r[10:] for r in splits]).split()
-
-
-    def caveat(self):
+    '''def caveat(self):
         caveats = self.pdb_file().get_records_by_name("CAVEAT")
         caveat = merge_records(caveats, 19)
         return caveat if caveat else None

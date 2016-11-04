@@ -15,6 +15,7 @@ class PdbDataFile:
         _process_obslte_records(self)
         _process_title_records(self)
         _process_split_records(self)
+        _process_caveat_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -134,6 +135,15 @@ class PdbDataFile:
         return self._split_codes
 
 
+    def caveat(self, caveat=None):
+        if caveat:
+            if not isinstance(caveat, str):
+                raise TypeError("caveat must be str, not '%s'" % str(caveat))
+            self._caveat = caveat
+        else:
+            return self._caveat
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -175,6 +185,15 @@ def _process_split_records(data_file):
         data_file._split_codes = " ".join([r[10:] for r in splits]).split()
         return
     data_file._split_codes = []
+
+
+def _process_caveat_records(data_file):
+    if data_file.original_pdb_file():
+        caveats = data_file.original_pdb_file().get_records_by_name("CAVEAT")
+        if caveats:
+            data_file._caveat = merge_records(caveats, 19)
+            return
+    data_file._caveat = None
 
 
 def date_from_string(s):

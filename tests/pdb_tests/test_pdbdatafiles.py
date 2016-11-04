@@ -254,6 +254,49 @@ class SplitRecordTests(PdbDataFileTest):
 
 
 
+class CaveatRecordTests(PdbDataFileTest):
+
+    def test_missing_caveat_processing(self):
+        self.assertEqual(self.empty._caveat, None)
+        self.assertEqual(self.blank._caveat, None)
+
+
+    def test_caveat_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CAVEAT     1SAM    THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS\n"
+         "CAVEAT   2 1SAM    UNCORRECTABLE AT THIS TIME"
+        ))
+        self.assertEqual(
+         data_file._caveat,
+         "THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS UNCORRECTABLE AT THIS TIME"
+        )
+
+
+    def test_caveat_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "TITLE     CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE\n"
+         "TITLE    2 COMPLEX WITH XMP"
+        ))
+        self.assertIs(data_file._caveat, data_file.caveat())
+
+
+    def test_can_modify_caveat_properties(self):
+        self.blank.caveat("123" * 10)
+        self.assertEqual(self.blank.caveat(), "123" * 10)
+
+
+    def test_caveat_must_be_str(self):
+        with self.assertRaises(TypeError):
+            self.blank.caveat(100)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -425,21 +468,7 @@ class RecordsToDictTests(TestCase):
          ]
         )
 
-class CaveatRecordTests(PdbDataFileTest):
 
-    def test_caveat_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "CAVEAT     1SAM    THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS\n"
-         "CAVEAT   2 1SAM    UNCORRECTABLE AT THIS TIME"
-        ))
-        self.assertEqual(
-         data_file.caveat(),
-         "THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS UNCORRECTABLE AT THIS TIME"
-        )
-
-
-    def test_missing_caveat_processing(self):
-        self.assertEqual(self.empty.caveat(), None)
 
 
 

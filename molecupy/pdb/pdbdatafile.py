@@ -42,6 +42,14 @@ class PdbDataFile:
 
     def classification(self, classification=None):
         if classification:
+            if not isinstance(classification, str):
+                raise TypeError(
+                 "classification must be str, not '%s'" % str(classification)
+                )
+            if len(classification) > 40:
+                raise ValueError(
+                 "classification must be <40 chars, not '%s'" % classification
+                )
             self._classification = classification
         else:
             return self._classification
@@ -49,6 +57,10 @@ class PdbDataFile:
 
     def deposition_date(self, deposition_date=None):
         if deposition_date:
+            if not isinstance(deposition_date, datetime.date):
+                raise TypeError(
+                 "deposition_date must be date, not '%s'" % str(deposition_date)
+                )
             self._deposition_date = deposition_date
         else:
             return self._deposition_date
@@ -56,6 +68,14 @@ class PdbDataFile:
 
     def pdb_code(self, pdb_code=None):
         if pdb_code:
+            if not isinstance(pdb_code, str):
+                raise TypeError(
+                 "pdb_code must be str, not '%s'" % str(pdb_code)
+                )
+            if len(pdb_code) != 4:
+                raise ValueError(
+                 "pdb_code must be 4 chars, not '%s'" % pdb_code
+                )
             self._pdb_code = pdb_code
         else:
             return self._pdb_code

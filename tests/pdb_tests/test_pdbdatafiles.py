@@ -76,16 +76,42 @@ class HeaderRecordTests(PdbDataFileTest):
 
 
     def test_can_modify_header_properties(self):
-        data_file = PdbDataFile()
-        data_file.classification("TEST CLASS")
-        data_file.deposition_date(datetime.datetime(2008, 1, 24).date())
-        data_file.pdb_code("1xxx")
-        self.assertEqual(data_file._classification, "TEST CLASS")
+        self.blank.classification("TEST CLASS")
+        self.blank.deposition_date(datetime.datetime(2008, 1, 24).date())
+        self.blank.pdb_code("1xxx")
+        self.assertEqual(self.blank._classification, "TEST CLASS")
         self.assertEqual(
-         data_file._deposition_date,
+         self.blank._deposition_date,
          datetime.datetime(2008, 1, 24).date()
         )
-        self.assertEqual(data_file._pdb_code, "1xxx")
+        self.assertEqual(self.blank._pdb_code, "1xxx")
+
+
+    def test_classification_must_be_str(self):
+        with self.assertRaises(TypeError):
+            self.blank.classification(1000)
+
+
+    def test_classifcation_must_be_less_than_40_chars(self):
+        with self.assertRaises(ValueError):
+            self.blank.classification("-" * 41)
+
+
+    def test_deposition_date_must_be_date(self):
+        with self.assertRaises(TypeError):
+            self.blank.deposition_date("1-1-91")
+
+
+    def test_pdb_code_must_be_string(self):
+        with self.assertRaises(TypeError):
+            self.blank.pdb_code(1000)
+
+
+    def test_pdb_code_must_be_4_chars(self):
+        with self.assertRaises(ValueError):
+            self.blank.pdb_code("1xx")
+        with self.assertRaises(ValueError):
+            self.blank.pdb_code("1xxxx")
 
 
 

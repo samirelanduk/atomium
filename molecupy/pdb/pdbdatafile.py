@@ -11,6 +11,7 @@ class PdbDataFile:
 
     def __init__(self, pdb_file=None):
         self._original_pdb_file = pdb_file
+        _process_header_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -39,22 +40,46 @@ class PdbDataFile:
         return self._original_pdb_file
 
 
-    '''def classification(self):
-        header = self.pdb_file().get_record_by_name("HEADER")
-        return header[10:50] if header else None
+    def classification(self):
+        return self._classification
 
 
     def deposition_date(self):
-        header = self.pdb_file().get_record_by_name("HEADER")
-        return date_from_string(header[50:59]) if header else None
+        return self._deposition_date
 
 
     def pdb_code(self):
-        header = self.pdb_file().get_record_by_name("HEADER")
-        return header[62:66] if header else None
+        return self._pdb_code
 
 
-    def is_obsolete(self):
+def _process_header_records(data_file):
+    if data_file.original_pdb_file():
+        header = data_file.original_pdb_file().get_record_by_name("HEADER")
+        if header:
+            data_file._classification = header[10:50]
+            data_file._deposition_date = date_from_string(header[50:59])
+            data_file._pdb_code = header[62:66]
+            return
+    data_file._classification = None
+    data_file._deposition_date = None
+    data_file._pdb_code = None
+
+
+def date_from_string(s):
+    """Gets a Date object from a PDB formatted date string.
+
+    :param str s: A date in the format DD-MM-YY.
+    :rtype: ``datetime.Date``"""
+
+    if s:
+        return datetime.datetime.strptime(
+         s, "%d-%b-%y"
+        ).date()
+    else:
+        return None
+
+
+    '''def is_obsolete(self):
         obslte = self.pdb_file().get_record_by_name("OBSLTE")
         return bool(obslte)
 
@@ -743,15 +768,7 @@ class PdbDataFile:
 
 
 
-def date_from_string(s):
-    """Gets a Date object from a PDB formatted date string.
 
-    :param str s: A date in the format DD-MM-YY.
-    :rtype: ``datetime.Date``"""
-
-    return datetime.datetime.strptime(
-     s, "%d-%b-%y"
-    ).date()
 
 
 def merge_records(records, start, join=" ", dont_condense=""):

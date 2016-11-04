@@ -1,13 +1,14 @@
 import datetime
 from unittest import TestCase
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
-from molecupy.pdb.pdbdatafile import PdbDataFile#, date_from_string, merge_records
+from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string#, merge_records
 #from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
 
 class PdbDataFileTest(TestCase):
 
     def setUp(self):
         self.empty = PdbDataFile(PdbFile(""))
+        self.blank = PdbDataFile()
 
 
 
@@ -42,13 +43,36 @@ class PdbDataFileCreationTests(PdbDataFileTest):
 
 
 
-'''class PdbdataFilePropertiesTests(PdbDataFileTest):
+class HeaderRecordTests(PdbDataFileTest):
 
-    def test_has_pdb_file(self):
-        self.assertIsInstance(self.empty.pdb_file(), PdbFile)
+    def test_header_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        ))
+        self.assertEqual(data_file._classification, "LYASE")
+        self.assertEqual(
+         data_file._deposition_date,
+         datetime.datetime(2002, 5, 6).date()
+        )
+        self.assertEqual(data_file._pdb_code, "1LOL")
 
 
+    def test_header_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        ))
+        self.assertIs(data_file._classification, data_file.classification())
+        self.assertIs(data_file._deposition_date, data_file.deposition_date())
+        self.assertIs(data_file._pdb_code, data_file.pdb_code())
 
+
+    def test_missing_header_processing(self):
+        self.assertEqual(self.empty.classification(), None)
+        self.assertEqual(self.empty.deposition_date(), None)
+        self.assertEqual(self.empty.pdb_code(), None)
+        self.assertEqual(self.blank.classification(), None)
+        self.assertEqual(self.blank.deposition_date(), None)
+        self.assertEqual(self.blank.pdb_code(), None)
 
 
 
@@ -63,6 +87,12 @@ class DateFromStringTests(TestCase):
          date_from_string("28-SEP-99"),
          datetime.datetime(1999, 9, 28).date()
         )
+
+
+    def test_date_conversion_will_return_none_if_given_nothing(self):
+        self.assertEqual(date_from_string(""), None)
+        self.assertEqual(date_from_string(None), None)
+'''
 
 
 
@@ -209,24 +239,7 @@ class RecordsToDictTests(TestCase):
 
 
 
-class HeaderRecordTests(PdbDataFileTest):
 
-    def test_header_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "HEADER    LYASE                                   06-MAY-02   1LOL"
-        ))
-        self.assertEqual(data_file.classification(), "LYASE")
-        self.assertEqual(
-         data_file.deposition_date(),
-         datetime.datetime(2002, 5, 6).date()
-        )
-        self.assertEqual(data_file.pdb_code(), "1LOL")
-
-
-    def test_missing_header_processing(self):
-        self.assertEqual(self.empty.classification(), None)
-        self.assertEqual(self.empty.deposition_date(), None)
-        self.assertEqual(self.empty.pdb_code(), None)
 
 
 

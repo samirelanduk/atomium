@@ -1,8 +1,8 @@
 import datetime
 from unittest import TestCase
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
-from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string, merge_records
-from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
+from molecupy.pdb.pdbdatafile import PdbDataFile#, date_from_string, merge_records
+#from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
 
 class PdbDataFileTest(TestCase):
 
@@ -11,7 +11,16 @@ class PdbDataFileTest(TestCase):
 
 
 
-class PdbdataFilePropertiesTests(PdbDataFileTest):
+class PdbDataFileCreationTests(TestCase):
+
+    def test_can_create_data_file_from_pdb_file(self):
+        pdb_file = PdbFile("HEADER    LYASE")
+        data_file = PdbDataFile(pdb_file)
+        self.assertIs(data_file._original_pdb_file, pdb_file)
+
+
+
+'''class PdbdataFilePropertiesTests(PdbDataFileTest):
 
     def test_has_pdb_file(self):
         self.assertIsInstance(self.empty.pdb_file(), PdbFile)
@@ -1773,4 +1782,4 @@ class MiscRecordTests(PdbDataFileTest):
 
 
     def test_missing_misc_processing(self):
-        self.assertEqual(self.empty.master(), None)
+        self.assertEqual(self.empty.master(), None)'''

@@ -10,8 +10,8 @@ class PdbDataFile:
     :param PdbFile pdb_file: The PDB file to extract information from."""
 
     def __init__(self, pdb_file):
-        self._pdb_file = pdb_file
-        model_records = self.pdb_file().get_records_by_name("MODEL")
+        self._original_pdb_file = pdb_file
+        '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
         self._models = [{
@@ -803,4 +803,4 @@ def records_to_token_value_dicts(records):
             entity = {}
         entity[pair[0]] = pair[1]
     if entity: entities.append(entity)
-    return entities
+    return entities'''

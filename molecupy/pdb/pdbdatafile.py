@@ -40,16 +40,25 @@ class PdbDataFile:
         return self._original_pdb_file
 
 
-    def classification(self):
-        return self._classification
+    def classification(self, classification=None):
+        if classification:
+            self._classification = classification
+        else:
+            return self._classification
 
 
-    def deposition_date(self):
-        return self._deposition_date
+    def deposition_date(self, deposition_date=None):
+        if deposition_date:
+            self._deposition_date = deposition_date
+        else:
+            return self._deposition_date
 
 
-    def pdb_code(self):
-        return self._pdb_code
+    def pdb_code(self, pdb_code=None):
+        if pdb_code:
+            self._pdb_code = pdb_code
+        else:
+            return self._pdb_code
 
 
 def _process_header_records(data_file):

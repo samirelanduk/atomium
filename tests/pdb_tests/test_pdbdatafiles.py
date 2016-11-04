@@ -75,6 +75,19 @@ class HeaderRecordTests(PdbDataFileTest):
         self.assertEqual(self.blank.pdb_code(), None)
 
 
+    def test_can_modify_header_properties(self):
+        data_file = PdbDataFile()
+        data_file.classification("TEST CLASS")
+        data_file.deposition_date(datetime.datetime(2008, 1, 24).date())
+        data_file.pdb_code("1xxx")
+        self.assertEqual(data_file._classification, "TEST CLASS")
+        self.assertEqual(
+         data_file._deposition_date,
+         datetime.datetime(2008, 1, 24).date()
+        )
+        self.assertEqual(data_file._pdb_code, "1xxx")
+
+
 
 class DateFromStringTests(TestCase):
 

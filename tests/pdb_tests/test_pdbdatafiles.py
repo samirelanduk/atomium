@@ -11,7 +11,7 @@ class PdbDataFileTest(TestCase):
 
 
 
-class PdbDataFileCreationTests(TestCase):
+class PdbDataFileCreationTests(PdbDataFileTest):
 
     def test_can_create_data_file_from_pdb_file(self):
         pdb_file = PdbFile("HEADER    LYASE")
@@ -24,6 +24,14 @@ class PdbDataFileCreationTests(TestCase):
         self.assertIs(data_file._original_pdb_file, None)
 
 
+    def test_repr(self):
+        self.assertEqual(str(self.empty), "<PdbDataFile (????)>")
+        data_file = PdbDataFile(PdbFile(
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        ))
+        # self.assertEqual(str(data_file), "<PdbDataFile (1LOL)>")
+
+
 
 '''class PdbdataFilePropertiesTests(PdbDataFileTest):
 
@@ -31,12 +39,7 @@ class PdbDataFileCreationTests(TestCase):
         self.assertIsInstance(self.empty.pdb_file(), PdbFile)
 
 
-    def test_repr(self):
-        self.assertEqual(str(self.empty), "<PdbDataFile (????)>")
-        data_file = PdbDataFile(PdbFile(
-         "HEADER    LYASE                                   06-MAY-02   1LOL"
-        ))
-        self.assertEqual(str(data_file), "<PdbDataFile (1LOL)>")
+
 
 
 

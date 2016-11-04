@@ -24,14 +24,14 @@ class PdbDataFile:
              "model_id": 1,
              "start_record": 0,
              "end_record": len(self.pdb_file().records()),
-            }]
+            }]'''
 
 
     def __repr__(self):
-        return "<PdbDataFile (%s)>"% (self.pdb_code() if self.pdb_code() else "????")
+        return "<PdbDataFile (%s)>" % "????"#(self.pdb_code() if self.pdb_code() else "????")
 
 
-    def pdb_file(self):
+    '''def pdb_file(self):
         """The :py:class:`.PdbFile` from which the object was created.
 
         :rtype: ``PdbFile``"""

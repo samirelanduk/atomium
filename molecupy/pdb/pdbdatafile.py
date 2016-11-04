@@ -12,6 +12,7 @@ class PdbDataFile:
     def __init__(self, pdb_file=None):
         self._original_pdb_file = pdb_file
         _process_header_records(self)
+        _process_obslte_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -81,6 +82,43 @@ class PdbDataFile:
             return self._pdb_code
 
 
+    def is_obsolete(self, is_obsolete=None):
+        if is_obsolete is not None:
+            if not isinstance(is_obsolete, bool):
+                raise TypeError(
+                 "is_obsolete must be bool, not '%s'" % str(is_obsolete)
+                )
+            self._is_obsolete = is_obsolete
+        else:
+            return self._is_obsolete
+
+
+    def obsolete_date(self, obsolete_date=None):
+        if obsolete_date:
+            if not isinstance(obsolete_date, datetime.date):
+                raise TypeError(
+                 "obsolete_date must be date, not '%s'" % str(obsolete_date)
+                )
+            self._obsolete_date = obsolete_date
+        else:
+            return self._obsolete_date
+
+
+    def replacement_code(self, replacement_code=None):
+        if replacement_code:
+            if not isinstance(replacement_code, str):
+                raise TypeError(
+                 "replacement_code must be str, not '%s'" % str(replacement_code)
+                )
+            if len(replacement_code) != 4:
+                raise ValueError(
+                 "replacement_code must be 4 chars, not '%s'" % replacement_code
+                )
+            self._replacement_code = replacement_code
+        else:
+            return self._replacement_code
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -92,6 +130,19 @@ def _process_header_records(data_file):
     data_file._classification = None
     data_file._deposition_date = None
     data_file._pdb_code = None
+
+
+def _process_obslte_records(data_file):
+    if data_file.original_pdb_file():
+        obslte = data_file.original_pdb_file().get_record_by_name("OBSLTE")
+        if obslte:
+            data_file._is_obsolete = True
+            data_file._obsolete_date = date_from_string(obslte[11:20])
+            data_file._replacement_code = obslte[31:35]
+            return
+    data_file._is_obsolete = False
+    data_file._obsolete_date = None
+    data_file._replacement_code = None
 
 
 def date_from_string(s):
@@ -109,18 +160,17 @@ def date_from_string(s):
 
 
     '''def is_obsolete(self):
-        obslte = self.pdb_file().get_record_by_name("OBSLTE")
-        return bool(obslte)
+
 
 
     def obsolete_date(self):
         obslte = self.pdb_file().get_record_by_name("OBSLTE")
-        return date_from_string(obslte[11:20]) if obslte else None
+        return  if obslte else None
 
 
     def replacement_code(self):
         obslte = self.pdb_file().get_record_by_name("OBSLTE")
-        return obslte[31:35] if obslte else None
+        return  if obslte else None
 
 
     def title(self):

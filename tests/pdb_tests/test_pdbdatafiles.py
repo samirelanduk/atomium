@@ -45,6 +45,15 @@ class PdbDataFileCreationTests(PdbDataFileTest):
 
 class HeaderRecordTests(PdbDataFileTest):
 
+    def test_missing_header_processing(self):
+        self.assertEqual(self.empty._classification, None)
+        self.assertEqual(self.empty._deposition_date, None)
+        self.assertEqual(self.empty._pdb_code, None)
+        self.assertEqual(self.blank._classification, None)
+        self.assertEqual(self.blank._deposition_date, None)
+        self.assertEqual(self.blank._pdb_code, None)
+
+
     def test_header_processing(self):
         data_file = PdbDataFile(PdbFile(
          "HEADER    LYASE                                   06-MAY-02   1LOL"
@@ -64,15 +73,6 @@ class HeaderRecordTests(PdbDataFileTest):
         self.assertIs(data_file._classification, data_file.classification())
         self.assertIs(data_file._deposition_date, data_file.deposition_date())
         self.assertIs(data_file._pdb_code, data_file.pdb_code())
-
-
-    def test_missing_header_processing(self):
-        self.assertEqual(self.empty.classification(), None)
-        self.assertEqual(self.empty.deposition_date(), None)
-        self.assertEqual(self.empty.pdb_code(), None)
-        self.assertEqual(self.blank.classification(), None)
-        self.assertEqual(self.blank.deposition_date(), None)
-        self.assertEqual(self.blank.pdb_code(), None)
 
 
     def test_can_modify_header_properties(self):
@@ -112,6 +112,76 @@ class HeaderRecordTests(PdbDataFileTest):
             self.blank.pdb_code("1xx")
         with self.assertRaises(ValueError):
             self.blank.pdb_code("1xxxx")
+
+
+
+class ObslteRecordTests(PdbDataFileTest):
+
+    def test_missing_obslte_processing(self):
+        self.assertFalse(self.empty._is_obsolete)
+        self.assertEqual(self.empty._obsolete_date, None)
+        self.assertEqual(self.empty._replacement_code, None)
+        self.assertFalse(self.blank._is_obsolete)
+        self.assertEqual(self.blank._obsolete_date, None)
+        self.assertEqual(self.blank._replacement_code, None)
+
+
+    def test_obslte_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "OBSLTE     30-SEP-93 1LOL      1SAM"
+        ))
+        self.assertTrue(data_file._is_obsolete)
+        self.assertEqual(
+         data_file._obsolete_date,
+         datetime.datetime(1993, 9, 30).date()
+        )
+        self.assertEqual(
+         data_file._replacement_code,
+         "1SAM"
+        )
+
+
+    def test_obslte_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "OBSLTE     30-SEP-93 1LOL      1SAM"
+        ))
+        self.assertIs(data_file._is_obsolete, data_file.is_obsolete())
+        self.assertIs(data_file._obsolete_date, data_file.obsolete_date())
+        self.assertIs(data_file._replacement_code, data_file.replacement_code())
+
+
+    def test_can_modify_obslte_properties(self):
+        self.blank.is_obsolete(True)
+        self.blank.obsolete_date(datetime.datetime(2008, 1, 24).date())
+        self.blank.replacement_code("1xxx")
+        self.assertTrue(self.blank._is_obsolete)
+        self.assertEqual(
+         self.blank._obsolete_date,
+         datetime.datetime(2008, 1, 24).date()
+        )
+        self.assertEqual(self.blank._replacement_code, "1xxx")
+
+
+    def test_is_obsolete_must_be_bool(self):
+        with self.assertRaises(TypeError):
+            self.blank.is_obsolete("yes")
+
+
+    def test_obsolete_date_must_be_date(self):
+        with self.assertRaises(TypeError):
+            self.blank.obsolete_date("1-1-91")
+
+
+    def test_replacement_code_must_be_string(self):
+        with self.assertRaises(TypeError):
+            self.blank.replacement_code(1000)
+
+
+    def test_replacement_code_must_be_4_chars(self):
+        with self.assertRaises(ValueError):
+            self.blank.replacement_code("1xx")
+        with self.assertRaises(ValueError):
+            self.blank.replacement_code("1xxxx")
 
 
 
@@ -282,27 +352,7 @@ class RecordsToDictTests(TestCase):
 
 
 
-class ObslteRecordTests(PdbDataFileTest):
 
-    def test_obslte_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "OBSLTE     30-SEP-93 1LOL      1SAM"
-        ))
-        self.assertTrue(data_file.is_obsolete())
-        self.assertEqual(
-         data_file.obsolete_date(),
-         datetime.datetime(1993, 9, 30).date()
-        )
-        self.assertEqual(
-         data_file.replacement_code(),
-         "1SAM"
-        )
-
-
-    def test_missing_obslte_processing(self):
-        self.assertFalse(self.empty.is_obsolete())
-        self.assertEqual(self.empty.obsolete_date(), None)
-        self.assertEqual(self.empty.replacement_code(), None)
 
 
 

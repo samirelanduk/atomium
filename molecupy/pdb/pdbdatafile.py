@@ -29,7 +29,7 @@ class PdbDataFile:
 
 
     def __repr__(self):
-        return "<PdbDataFile (%s)>" % "????"#(self.pdb_code() if self.pdb_code() else "????")
+        return "<PdbDataFile (%s)>" % (self.pdb_code() if self.pdb_code() else "????")
 
 
     def original_pdb_file(self):

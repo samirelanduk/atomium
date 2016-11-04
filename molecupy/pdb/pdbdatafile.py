@@ -31,15 +31,15 @@ class PdbDataFile:
         return "<PdbDataFile (%s)>" % "????"#(self.pdb_code() if self.pdb_code() else "????")
 
 
-    '''def pdb_file(self):
+    def original_pdb_file(self):
         """The :py:class:`.PdbFile` from which the object was created.
 
         :rtype: ``PdbFile``"""
 
-        return self._pdb_file
+        return self._original_pdb_file
 
 
-    def classification(self):
+    '''def classification(self):
         header = self.pdb_file().get_record_by_name("HEADER")
         return header[10:50] if header else None
 

@@ -19,6 +19,11 @@ class PdbDataFileCreationTests(TestCase):
         self.assertIs(data_file._original_pdb_file, pdb_file)
 
 
+    def test_can_create_data_file_from_nothing(self):
+        data_file = PdbDataFile()
+        self.assertIs(data_file._original_pdb_file, None)
+
+
 
 '''class PdbdataFilePropertiesTests(PdbDataFileTest):
 

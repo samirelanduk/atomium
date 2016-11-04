@@ -9,7 +9,7 @@ class PdbDataFile:
 
     :param PdbFile pdb_file: The PDB file to extract information from."""
 
-    def __init__(self, pdb_file):
+    def __init__(self, pdb_file=None):
         self._original_pdb_file = pdb_file
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")

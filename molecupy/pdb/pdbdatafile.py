@@ -16,6 +16,7 @@ class PdbDataFile:
         _process_title_records(self)
         _process_split_records(self)
         _process_caveat_records(self)
+        _process_compnd_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -144,6 +145,10 @@ class PdbDataFile:
             return self._caveat
 
 
+    def compounds(self):
+        return self._compounds
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -194,6 +199,14 @@ def _process_caveat_records(data_file):
             data_file._caveat = merge_records(caveats, 19)
             return
     data_file._caveat = None
+
+
+def _process_compnd_records(data_file):
+    if data_file.original_pdb_file():
+        records = data_file.original_pdb_file().get_records_by_name("COMPND")
+        data_file._compounds = records_to_token_value_dicts(records)
+        return
+    data_file._compounds = []
 
 
 def date_from_string(s):
@@ -262,12 +275,7 @@ def records_to_token_value_dicts(records):
     return entities
 
 
-    '''def caveat(self):
-        caveats = self.pdb_file().get_records_by_name("CAVEAT")
-        caveat = merge_records(caveats, 19)
-        return caveat if caveat else None
-
-
+    '''
     def compounds(self):
         records = self.pdb_file().get_records_by_name("COMPND")
         return records_to_token_value_dicts(records)

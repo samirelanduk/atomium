@@ -291,15 +291,54 @@ class CaveatRecordTests(PdbDataFileTest):
 
 
 
+class CompoundRecordTests(PdbDataFileTest):
 
 
+    def test_missing_compnd_processing(self):
+        self.assertEqual(self.empty._compounds, [])
+        self.assertEqual(self.blank._compounds, [])
 
 
+    def test_compnd_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "COMPND    MOL_ID: 1;\n"
+         "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
+         "COMPND   3 CHAIN: A, B;\n"
+         "COMPND   4 SYNONYM: OMP DECARBOXYLASE, OMPDCASE, OMPDECASE;\n"
+         "COMPND   5 EC: 4.1.1.23;\n"
+         "COMPND   6 ENGINEERED: YES;\n"
+         "COMPND   7 MOL_ID: 2;\n"
+         "COMPND   8 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE\n"
+         "COMPND   9 PLUS;"
+        ))
+        self.assertEqual(
+         data_file._compounds,
+         [
+          {
+           "MOL_ID": 1,
+           "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+           "CHAIN": ["A", "B"],
+           "SYNONYM": [
+            "OMP DECARBOXYLASE",
+            "OMPDCASE",
+            "OMPDECASE"
+           ],
+           "EC": "4.1.1.23",
+           "ENGINEERED": True
+          }, {
+           "MOL_ID": 2,
+           "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE PLUS"
+          }
+         ]
+        )
 
 
-
-
-
+    def test_compnd_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "COMPND    MOL_ID: 1;\n"
+         "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
+        ))
+        self.assertIs(data_file._compounds, data_file.compounds())
 
 
 
@@ -462,60 +501,9 @@ class RecordsToDictTests(TestCase):
           {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
          ]
         )
+
+
 '''
-
-
-
-
-
-
-
-
-
-
-
-
-class CompoundRecordTests(PdbDataFileTest):
-
-    def test_compnd_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "COMPND    MOL_ID: 1;\n"
-         "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
-         "COMPND   3 CHAIN: A, B;\n"
-         "COMPND   4 SYNONYM: OMP DECARBOXYLASE, OMPDCASE, OMPDECASE;\n"
-         "COMPND   5 EC: 4.1.1.23;\n"
-         "COMPND   6 ENGINEERED: YES;\n"
-         "COMPND   7 MOL_ID: 2;\n"
-         "COMPND   8 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE\n"
-         "COMPND   9 PLUS;"
-        ))
-        self.assertEqual(
-         data_file.compounds(),
-         [
-          {
-           "MOL_ID": 1,
-           "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
-           "CHAIN": ["A", "B"],
-           "SYNONYM": [
-            "OMP DECARBOXYLASE",
-            "OMPDCASE",
-            "OMPDECASE"
-           ],
-           "EC": "4.1.1.23",
-           "ENGINEERED": True
-          }, {
-           "MOL_ID": 2,
-           "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE PLUS"
-          }
-         ]
-        )
-
-
-    def test_missing_compnd_processing(self):
-        self.assertEqual(self.empty.compounds(), [])
-
-
-
 class SourceRecordTests(PdbDataFileTest):
 
     def test_source_processing(self):

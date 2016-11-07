@@ -22,6 +22,7 @@ class PdbDataFile:
         _process_expdta_records(self)
         _process_nummdl_records(self)
         _process_mdltyp_records(self)
+        _process_author_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -181,6 +182,11 @@ class PdbDataFile:
         return self._model_annotations
 
 
+    def authors(self):
+        return self._authors
+
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -290,6 +296,15 @@ def _process_mdltyp_records(data_file):
     data_file._model_annotations = []
 
 
+def _process_author_records(data_file):
+    if data_file.original_pdb_file():
+        authors = data_file.original_pdb_file().get_records_by_name("AUTHOR")
+        if authors:
+            data_file._authors = merge_records(authors, 10).split(",")
+            return
+    data_file._authors = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -357,20 +372,6 @@ def records_to_token_value_dicts(records):
 
 
     '''
-
-
-    def experimental_techniques(self):
-
-
-
-    def model_count(self):
-
-
-
-    def model_annotations(self):
-
-
-
     def authors(self):
         authors = self.pdb_file().get_records_by_name("AUTHOR")
         return merge_records(authors, 10).split(",") if authors else []

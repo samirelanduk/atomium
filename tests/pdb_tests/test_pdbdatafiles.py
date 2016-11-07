@@ -498,13 +498,49 @@ class MdltypRecordTests(PdbDataFileTest):
 
     def test_mdltyp_properties(self):
         data_file = PdbDataFile(PdbFile(
-         "SOURCE    MOL_ID: 1;\n"
-         "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
+         "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
+         "MDLTYP   2 CHAIN X, Y, Z"
         ))
         self.assertIs(
          data_file._model_annotations,
          data_file.model_annotations()
         )
+
+
+
+class AuthorRecordTests(PdbDataFileTest):
+
+    def test_missing_author_processing(self):
+        self.assertEqual(self.empty._authors, [])
+        self.assertEqual(self.blank._authors, [])
+
+
+    def test_author_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "AUTHOR    M.B.BERRY,B.MEADOR,T.BILDERBACK,P.LIANG,M.GLASER,\n"
+         "AUTHOR   2 G.N.PHILLIPS JR.,T.L.ST. STEVENS"
+        ))
+        self.assertEqual(
+         data_file._authors,
+         [
+          "M.B.BERRY", "B.MEADOR", "T.BILDERBACK", "P.LIANG", "M.GLASER",
+          "G.N.PHILLIPS JR.", "T.L.ST. STEVENS"
+         ]
+        )
+
+
+    def test_author_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "AUTHOR    M.B.BERRY,B.MEADOR,T.BILDERBACK,P.LIANG,M.GLASER,\n"
+         "AUTHOR   2 G.N.PHILLIPS JR.,T.L.ST. STEVENS"
+        ))
+        self.assertIs(
+         data_file._authors,
+         data_file.authors()
+        )
+
+
+
 
 
 
@@ -682,29 +718,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-
-
-
-class AuthorRecordTests(PdbDataFileTest):
-
-    def test_mdltyp_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "AUTHOR    M.B.BERRY,B.MEADOR,T.BILDERBACK,P.LIANG,M.GLASER,\n"
-         "AUTHOR   2 G.N.PHILLIPS JR.,T.L.ST. STEVENS"
-        ))
-        self.assertEqual(
-         data_file.authors(),
-         [
-          "M.B.BERRY", "B.MEADOR", "T.BILDERBACK", "P.LIANG", "M.GLASER",
-          "G.N.PHILLIPS JR.", "T.L.ST. STEVENS"
-         ]
-        )
-
-
-    def test_missing_mdltyp_processing(self):
-        self.assertEqual(self.empty.authors(), [])
-
-
 
 class RevdatRecordTests(PdbDataFileTest):
 

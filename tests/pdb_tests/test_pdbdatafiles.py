@@ -412,6 +412,38 @@ class KeywdsRecordTests(PdbDataFileTest):
 
 
 
+class ExpdtaRecordTests(PdbDataFileTest):
+
+    def test_missing_expdta_processing(self):
+        self.assertEqual(self.empty._experimental_techniques, [])
+        self.assertEqual(self.blank._experimental_techniques, [])
+
+
+    def test_expdta_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "EXPDTA    NEUTRON DIFFRACTION; X-RAY DIFFRACTION"
+        ))
+        self.assertEqual(
+         data_file._experimental_techniques,
+         ["NEUTRON DIFFRACTION", "X-RAY DIFFRACTION"]
+        )
+
+
+    def test_expdta_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SOURCE    MOL_ID: 1;\n"
+         "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
+        ))
+        self.assertIs(
+         data_file._experimental_techniques,
+         data_file.experimental_techniques()
+        )
+
+
+
+
+
+
 
 
 
@@ -578,20 +610,7 @@ class RecordsToDictTests(TestCase):
 
 '''
 
-class ExpdtaRecordTests(PdbDataFileTest):
 
-    def test_expdta_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "EXPDTA    NEUTRON DIFFRACTION; X-RAY DIFFRACTION"
-        ))
-        self.assertEqual(
-         data_file.experimental_techniques(),
-         ["NEUTRON DIFFRACTION", "X-RAY DIFFRACTION"]
-        )
-
-
-    def test_missing_expdta_processing(self):
-        self.assertEqual(self.empty.experimental_techniques(), [])
 
 
 

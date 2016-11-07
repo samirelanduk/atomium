@@ -386,6 +386,35 @@ class SourceRecordTests(PdbDataFileTest):
 
 
 
+class KeywdsRecordTests(PdbDataFileTest):
+
+    def test_missing_keywds_processing(self):
+        self.assertEqual(self.empty._keywords, [])
+        self.assertEqual(self.blank._keywords, [])
+
+
+    def test_keywds_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "KEYWDS    TIM BARREL, LYASE"
+        ))
+        self.assertEqual(
+         data_file._keywords,
+         ["TIM BARREL", "LYASE"]
+        )
+
+
+    def test_keyword_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SOURCE    MOL_ID: 1;\n"
+         "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
+        ))
+        self.assertIs(data_file._keywords, data_file.keywords())
+
+
+
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -548,56 +577,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-class SourceRecordTests(PdbDataFileTest):
-
-    def test_source_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "SOURCE    MOL_ID: 1;\n"
-         "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
-         "SOURCE   3 THERMAUTOTROPHICUS STR. DELTA H;\n"
-         "SOURCE   4 ORGANISM_TAXID: 187420;\n"
-         "SOURCE   5 STRAIN: DELTA H;\n"
-         "SOURCE   6 EXPRESSION_SYSTEM: ESCHERICHIA COLI;\n"
-         "SOURCE   7 EXPRESSION_SYSTEM_TAXID: 562;\n"
-         "SOURCE   8 EXPRESSION_SYSTEM_PLASMID: PET15B\n"
-        ))
-        self.assertEqual(
-         data_file.sources(),
-         [
-          {
-           "MOL_ID": 1,
-           "ORGANISM_SCIENTIFIC": "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H",
-           "ORGANISM_TAXID": 187420,
-           "STRAIN": "DELTA H",
-           "EXPRESSION_SYSTEM": "ESCHERICHIA COLI",
-           "EXPRESSION_SYSTEM_TAXID": 562,
-           "EXPRESSION_SYSTEM_PLASMID": "PET15B"
-          }
-         ]
-        )
-
-
-    def test_missing_source_processing(self):
-        self.assertEqual(self.empty.sources(), [])
-
-
-
-class KeywdsRecordTests(PdbDataFileTest):
-
-    def test_keywds_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "KEYWDS    TIM BARREL, LYASE"
-        ))
-        self.assertEqual(
-         data_file.keywords(),
-         ["TIM BARREL", "LYASE"]
-        )
-
-
-    def test_missing_keywds_processing(self):
-        self.assertEqual(self.empty.keywords(), [])
-
-
 
 class ExpdtaRecordTests(PdbDataFileTest):
 

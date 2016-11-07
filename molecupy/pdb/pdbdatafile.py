@@ -20,6 +20,7 @@ class PdbDataFile:
         _process_source_records(self)
         _process_keywd_records(self)
         _process_expdta_records(self)
+        _process_nummdl_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -164,6 +165,17 @@ class PdbDataFile:
         return self._experimental_techniques
 
 
+    def model_count(self, model_count=None):
+        if model_count:
+            if not isinstance(model_count, int):
+                raise TypeError(
+                 "model_count must be int, not '%s'" % str(model_count)
+                )
+            self._model_count = model_count
+        else:
+            return self._model_count
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -252,6 +264,15 @@ def _process_expdta_records(data_file):
     data_file._experimental_techniques = []
 
 
+def _process_nummdl_records(data_file):
+    if data_file.original_pdb_file():
+        nummdl = data_file.original_pdb_file().get_record_by_name("NUMMDL")
+        if nummdl:
+            data_file._model_count = nummdl[10:14]
+            return
+    data_file._model_count = 1
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -326,8 +347,7 @@ def records_to_token_value_dicts(records):
 
 
     def model_count(self):
-        nummdl = self.pdb_file().get_record_by_name("NUMMDL")
-        return nummdl[10:14] if nummdl else 1
+
 
 
     def model_annotations(self):

@@ -441,6 +441,43 @@ class ExpdtaRecordTests(PdbDataFileTest):
 
 
 
+class NummdlRecordTests(PdbDataFileTest):
+
+    def test_missing_nummdl_processing(self):
+        self.assertEqual(self.empty._model_count, 1)
+        self.assertEqual(self.blank._model_count, 1)
+
+
+    def test_nummdl_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "NUMMDL    2"
+        ))
+        self.assertEqual(data_file._model_count, 2)
+
+
+    def test_nummdl_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "NUMMDL    2"
+        ))
+        self.assertIs(data_file._model_count, data_file.model_count())
+
+
+    def test_can_modify_nummdl_properties(self):
+        self.blank.model_count(9)
+        self.assertEqual(self.blank.model_count(), 9)
+
+
+    def test_nummdl_must_be_int(self):
+        with self.assertRaises(TypeError):
+            self.blank.model_count("1")
+        with self.assertRaises(TypeError):
+            self.blank.model_count(9.8)
+
+
+
+
+
+
 
 
 
@@ -614,17 +651,7 @@ class RecordsToDictTests(TestCase):
 
 
 
-class NummdlRecordTests(PdbDataFileTest):
 
-    def test_nummdl_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "NUMMDL    2"
-        ))
-        self.assertEqual(data_file.model_count(), 2)
-
-
-    def test_missing_nummdl_processing(self):
-        self.assertEqual(self.empty.model_count(), 1)
 
 
 

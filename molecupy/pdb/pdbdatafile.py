@@ -23,6 +23,7 @@ class PdbDataFile:
         _process_nummdl_records(self)
         _process_mdltyp_records(self)
         _process_author_records(self)
+        _process_revdat_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -186,6 +187,10 @@ class PdbDataFile:
         return self._authors
 
 
+    def revisions(self):
+        return self._revisions
+
+
 
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
@@ -305,6 +310,26 @@ def _process_author_records(data_file):
     data_file._authors = []
 
 
+def _process_revdat_records(data_file):
+    if data_file.original_pdb_file():
+        revdats = data_file.original_pdb_file().get_records_by_name("REVDAT")
+        if revdats:
+            numbers = sorted(list(set([r[7:10] for r in revdats])))
+            revisions = []
+            for number in numbers:
+                records = [r for r in revdats if r[7:10] == number]
+                rec_types = merge_records(records, 39).split()
+                revisions.append({
+                 "number": number,
+                 "date": date_from_string(records[0][13:22]),
+                 "type": records[0][31],
+                 "records": [r for r in rec_types if r]
+                })
+            data_file._revisions = revisions
+            return
+    data_file._revisions = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -372,11 +397,6 @@ def records_to_token_value_dicts(records):
 
 
     '''
-    def authors(self):
-        authors = self.pdb_file().get_records_by_name("AUTHOR")
-        return merge_records(authors, 10).split(",") if authors else []
-
-
     def revisions(self):
         revdats = self.pdb_file().get_records_by_name("REVDAT")
         numbers = sorted(list(set([r[7:10] for r in revdats])))

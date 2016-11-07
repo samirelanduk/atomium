@@ -534,10 +534,52 @@ class AuthorRecordTests(PdbDataFileTest):
          "AUTHOR    M.B.BERRY,B.MEADOR,T.BILDERBACK,P.LIANG,M.GLASER,\n"
          "AUTHOR   2 G.N.PHILLIPS JR.,T.L.ST. STEVENS"
         ))
-        self.assertIs(
-         data_file._authors,
-         data_file.authors()
+        self.assertIs(data_file._authors, data_file.authors())
+
+
+
+class RevdatRecordTests(PdbDataFileTest):
+
+
+    def test_missing_revdat_processing(self):
+        self.assertEqual(self.empty._revisions, [])
+        self.assertEqual(self.blank._revisions, [])
+
+
+    def test_revdat_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "REVDAT   4 1 24-FEB-09 1LOL    1       VERSN  COMPND EXPDTA CAVEAT\n"
+         "REVDAT   4 2                   1       SOURCE JRNL\n"
+         "REVDAT   3   01-APR-03 1LOL    1       JRNL\n"
+         "REVDAT   2   14-AUG-02 1LOL    1       DBREF\n"
+         "REVDAT   1   07-AUG-02 1LOL    0"
+        ))
+        self.assertEqual(
+         data_file._revisions,
+         [
+          {
+           "number": 1, "date": datetime.datetime(2002, 8, 7).date(),
+           "type": 0, "records": []
+          }, {
+           "number": 2, "date": datetime.datetime(2002, 8, 14).date(),
+           "type": 1, "records": ["DBREF"]
+          }, {
+           "number": 3, "date": datetime.datetime(2003, 4, 1).date(),
+           "type": 1, "records": ["JRNL"]
+          }, {
+           "number": 4, "date": datetime.datetime(2009, 2, 24).date(),
+           "type": 1, "records": ["VERSN", "COMPND", "EXPDTA", "CAVEAT", "SOURCE", "JRNL"]
+          }
+         ]
         )
+
+
+    def test_revdat_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "REVDAT   4 1 24-FEB-09 1LOL    1       VERSN  COMPND EXPDTA CAVEAT\n"
+         "REVDAT   4 2                   1       SOURCE JRNL\n"
+        ))
+        self.assertIs(data_file._revisions, data_file.revisions())
 
 
 
@@ -719,38 +761,7 @@ class RecordsToDictTests(TestCase):
 
 '''
 
-class RevdatRecordTests(PdbDataFileTest):
 
-    def test_revdat_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "REVDAT   4 1 24-FEB-09 1LOL    1       VERSN  COMPND EXPDTA CAVEAT\n"
-         "REVDAT   4 2                   1       SOURCE JRNL\n"
-         "REVDAT   3   01-APR-03 1LOL    1       JRNL\n"
-         "REVDAT   2   14-AUG-02 1LOL    1       DBREF\n"
-         "REVDAT   1   07-AUG-02 1LOL    0"
-        ))
-        self.assertEqual(
-         data_file.revisions(),
-         [
-          {
-           "number": 1, "date": datetime.datetime(2002, 8, 7).date(),
-           "type": 0, "records": []
-          }, {
-           "number": 2, "date": datetime.datetime(2002, 8, 14).date(),
-           "type": 1, "records": ["DBREF"]
-          }, {
-           "number": 3, "date": datetime.datetime(2003, 4, 1).date(),
-           "type": 1, "records": ["JRNL"]
-          }, {
-           "number": 4, "date": datetime.datetime(2009, 2, 24).date(),
-           "type": 1, "records": ["VERSN", "COMPND", "EXPDTA", "CAVEAT", "SOURCE", "JRNL"]
-          }
-         ]
-        )
-
-
-    def test_missing_revdat_processing(self):
-        self.assertEqual(self.empty.revisions(), [])
 
 
 

@@ -26,6 +26,7 @@ class PdbDataFile:
         _process_revdat_records(self)
         _process_sprsde_records(self)
         _process_jrnl_records(self)
+        _process_remark_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -217,6 +218,16 @@ class PdbDataFile:
             self._journal = journal
         else:
             return self._journal
+
+
+    def remarks(self):
+        return self._remarks
+
+
+    def get_remark_by_number(self, number):
+        for remark in self.remarks():
+            if remark["number"] == number:
+                return remark
 
 
 
@@ -412,6 +423,24 @@ def _process_jrnl_records(data_file):
         data_file._journal = None
 
 
+def _process_remark_records(data_file):
+    if data_file.original_pdb_file():
+        remark_records = data_file.original_pdb_file().get_records_by_name("REMARK")
+        if remark_records:
+            remark_numbers = sorted(list(set([r[7:10] for r in remark_records])))
+            remarks = []
+            for number in remark_numbers:
+                recs = [r for r in remark_records if r[7:10] == number]
+                remark = {
+                 "number": number,
+                 "content": merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
+                }
+                remarks.append(remark)
+            data_file._remarks = remarks
+            return
+    data_file._remarks = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -479,25 +508,6 @@ def records_to_token_value_dicts(records):
 
 
     '''
-    def remarks(self):
-        remark_records = self.pdb_file().get_records_by_name("REMARK")
-        remark_numbers = sorted(list(set([r[7:10] for r in remark_records])))
-        remarks = []
-        for number in remark_numbers:
-            recs = [r for r in remark_records if r[7:10] == number]
-            remark = {
-             "number": number,
-             "content": merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
-            }
-            remarks.append(remark)
-        return remarks
-
-
-    def get_remark_by_number(self, number):
-        for remark in self.remarks():
-            if remark["number"] == number:
-                return remark
-
 
     def dbreferences(self):
         dbrefs = self.pdb_file().get_records_by_name("DBREF")

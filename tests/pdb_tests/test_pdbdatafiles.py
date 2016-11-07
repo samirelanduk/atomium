@@ -475,6 +475,42 @@ class NummdlRecordTests(PdbDataFileTest):
 
 
 
+class MdltypRecordTests(PdbDataFileTest):
+
+    def test_missing_mdltyp_processing(self):
+        self.assertEqual(self.empty._model_annotations, [])
+        self.assertEqual(self.blank._model_annotations, [])
+
+
+    def test_mdltyp_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
+         "MDLTYP   2 CHAIN X, Y, Z"
+        ))
+        self.assertEqual(
+         data_file._model_annotations,
+         [
+          "CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K",
+          "P ATOMS ONLY, CHAIN X, Y, Z"
+         ]
+        )
+
+
+    def test_mdltyp_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SOURCE    MOL_ID: 1;\n"
+         "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
+        ))
+        self.assertIs(
+         data_file._model_annotations,
+         data_file.model_annotations()
+        )
+
+
+
+
+
+
 
 
 
@@ -646,33 +682,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-
-
-
-
-
-
-
-
-
-class MdltypRecordTests(PdbDataFileTest):
-
-    def test_mdltyp_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
-         "MDLTYP   2 CHAIN X, Y, Z"
-        ))
-        self.assertEqual(
-         data_file.model_annotations(),
-         [
-          "CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K",
-          "P ATOMS ONLY, CHAIN X, Y, Z"
-         ]
-        )
-
-
-    def test_missing_mdltyp_processing(self):
-        self.assertEqual(self.empty.model_annotations(), [])
 
 
 

@@ -21,6 +21,7 @@ class PdbDataFile:
         _process_keywd_records(self)
         _process_expdta_records(self)
         _process_nummdl_records(self)
+        _process_mdltyp_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -176,6 +177,10 @@ class PdbDataFile:
             return self._model_count
 
 
+    def model_annotations(self):
+        return self._model_annotations
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -247,8 +252,8 @@ def _process_source_records(data_file):
 def _process_keywd_records(data_file):
     if data_file.original_pdb_file():
         keywords = data_file.original_pdb_file().get_records_by_name("KEYWDS")
-        keyword_text = merge_records(keywords, 10)
-        if keyword_text:
+        if keywords:
+            keyword_text = merge_records(keywords, 10)
             data_file._keywords = keyword_text.split(",")
             return
     data_file._keywords = []
@@ -257,8 +262,8 @@ def _process_keywd_records(data_file):
 def _process_expdta_records(data_file):
     if data_file.original_pdb_file():
         expdta = data_file.original_pdb_file().get_records_by_name("EXPDTA")
-        expdta_text = merge_records(expdta, 10)
-        if expdta_text:
+        if expdta:
+            expdta_text = merge_records(expdta, 10)
             data_file._experimental_techniques = expdta_text.split(";")
             return
     data_file._experimental_techniques = []
@@ -271,6 +276,18 @@ def _process_nummdl_records(data_file):
             data_file._model_count = nummdl[10:14]
             return
     data_file._model_count = 1
+
+
+def _process_mdltyp_records(data_file):
+    if data_file.original_pdb_file():
+        mdltyps = data_file.original_pdb_file().get_records_by_name("MDLTYP")
+        if mdltyps:
+            mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
+            data_file._model_annotations = [
+             ann.strip() for ann in mdltyp_text.split(";") if ann.strip()
+            ]
+            return
+    data_file._model_annotations = []
 
 
 def date_from_string(s):
@@ -351,11 +368,7 @@ def records_to_token_value_dicts(records):
 
 
     def model_annotations(self):
-        mdltyps = self.pdb_file().get_records_by_name("MDLTYP")
-        mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
-        return [
-         ann.strip() for ann in mdltyp_text.split(";") if ann.strip()
-        ]
+
 
 
     def authors(self):

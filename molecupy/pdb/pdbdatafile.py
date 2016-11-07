@@ -17,6 +17,7 @@ class PdbDataFile:
         _process_split_records(self)
         _process_caveat_records(self)
         _process_compnd_records(self)
+        _process_source_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -149,6 +150,10 @@ class PdbDataFile:
         return self._compounds
 
 
+    def sources(self):
+        return self._sources
+
+
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
         header = data_file.original_pdb_file().get_record_by_name("HEADER")
@@ -207,6 +212,14 @@ def _process_compnd_records(data_file):
         data_file._compounds = records_to_token_value_dicts(records)
         return
     data_file._compounds = []
+
+
+def _process_source_records(data_file):
+    if data_file.original_pdb_file():
+        records = data_file.original_pdb_file().get_records_by_name("SOURCE")
+        data_file._sources = records_to_token_value_dicts(records)
+        return
+    data_file._sources = []
 
 
 def date_from_string(s):

@@ -291,7 +291,7 @@ class CaveatRecordTests(PdbDataFileTest):
 
 
 
-class CompoundRecordTests(PdbDataFileTest):
+class CompndRecordTests(PdbDataFileTest):
 
 
     def test_missing_compnd_processing(self):
@@ -339,6 +339,50 @@ class CompoundRecordTests(PdbDataFileTest):
          "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
         ))
         self.assertIs(data_file._compounds, data_file.compounds())
+
+
+
+class SourceRecordTests(PdbDataFileTest):
+
+
+    def test_missing_source_processing(self):
+        self.assertEqual(self.empty._sources, [])
+        self.assertEqual(self.blank._sources, [])
+
+
+    def test_source_processing(self):
+        data_file = PdbDataFile(PdbFile(
+          "SOURCE    MOL_ID: 1;\n"
+          "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
+          "SOURCE   3 THERMAUTOTROPHICUS STR. DELTA H;\n"
+          "SOURCE   4 ORGANISM_TAXID: 187420;\n"
+          "SOURCE   5 STRAIN: DELTA H;\n"
+          "SOURCE   6 EXPRESSION_SYSTEM: ESCHERICHIA COLI;\n"
+          "SOURCE   7 EXPRESSION_SYSTEM_TAXID: 562;\n"
+          "SOURCE   8 EXPRESSION_SYSTEM_PLASMID: PET15B\n"
+        ))
+        self.assertEqual(
+         data_file._sources,
+         [
+          {
+           "MOL_ID": 1,
+           "ORGANISM_SCIENTIFIC": "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H",
+           "ORGANISM_TAXID": 187420,
+           "STRAIN": "DELTA H",
+           "EXPRESSION_SYSTEM": "ESCHERICHIA COLI",
+           "EXPRESSION_SYSTEM_TAXID": 562,
+           "EXPRESSION_SYSTEM_PLASMID": "PET15B"
+          }
+         ]
+        )
+
+
+    def test_compnd_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SOURCE    MOL_ID: 1;\n"
+         "SOURCE   2 ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER\n"
+        ))
+        self.assertIs(data_file._sources, data_file.sources())
 
 
 

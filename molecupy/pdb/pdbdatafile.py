@@ -24,6 +24,7 @@ class PdbDataFile:
         _process_mdltyp_records(self)
         _process_author_records(self)
         _process_revdat_records(self)
+        _process_sprsde_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -191,6 +192,21 @@ class PdbDataFile:
         return self._revisions
 
 
+    def supercedes(self):
+        return self._supercedes
+
+
+    def supercede_date(self, supercede_date=None):
+        if supercede_date:
+            if not isinstance(supercede_date, datetime.date):
+                raise TypeError(
+                 "supercede_date must be date, not '%s'" % str(supercede_date)
+                )
+            self._supercede_date = supercede_date
+        else:
+            return self._supercede_date
+
+
 
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
@@ -330,6 +346,17 @@ def _process_revdat_records(data_file):
     data_file._revisions = []
 
 
+def _process_sprsde_records(data_file):
+    if data_file.original_pdb_file():
+        sprsde = data_file.original_pdb_file().get_record_by_name("SPRSDE")
+        if sprsde:
+            data_file._supercedes = sprsde[31:75].split()
+            data_file._supercede_date = date_from_string(sprsde[11:20])
+            return
+    data_file._supercedes = []
+    data_file._supercede_date = None
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -397,20 +424,7 @@ def records_to_token_value_dicts(records):
 
 
     '''
-    def revisions(self):
-        revdats = self.pdb_file().get_records_by_name("REVDAT")
-        numbers = sorted(list(set([r[7:10] for r in revdats])))
-        revisions = []
-        for number in numbers:
-            records = [r for r in revdats if r[7:10] == number]
-            rec_types = merge_records(records, 39).split()
-            revisions.append({
-             "number": number,
-             "date": date_from_string(records[0][13:22]),
-             "type": records[0][31],
-             "records": [r for r in rec_types if r]
-            })
-        return revisions
+
 
 
     def supercedes(self):

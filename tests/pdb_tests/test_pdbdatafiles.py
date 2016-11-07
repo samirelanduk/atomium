@@ -583,18 +583,48 @@ class RevdatRecordTests(PdbDataFileTest):
 
 
 
+class SprsdeRecordTests(PdbDataFileTest):
+
+    def test_missing_sprsde_processing(self):
+        self.assertEqual(self.empty._supercedes, [])
+        self.assertEqual(self.empty._supercede_date, None)
+        self.assertEqual(self.blank._supercedes, [])
+        self.assertEqual(self.blank._supercede_date, None)
 
 
+    def test_sprsde_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SPRSDE     27-FEB-95 1GDJ      1LH4 2LH4"
+        ))
+        self.assertEqual(
+         data_file._supercedes,
+         ["1LH4", "2LH4"]
+        )
+        self.assertEqual(
+         data_file._supercede_date,
+         datetime.datetime(1995, 2, 27).date()
+        )
 
 
+    def test_sprsde_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SPRSDE     27-FEB-95 1GDJ      1LH4 2LH4"
+        ))
+        self.assertIs(data_file._supercedes, data_file.supercedes())
+        self.assertIs(data_file._supercede_date, data_file.supercede_date())
 
 
+    def test_can_modify_sprsde_properties(self):
+        self.blank.supercede_date(datetime.datetime(2008, 1, 24).date())
+        self.assertEqual(
+         self.blank.supercede_date(),
+         datetime.datetime(2008, 1, 24).date()
+        )
 
 
-
-
-
-
+    def test_supercede_date_must_be_date(self):
+        with self.assertRaises(TypeError):
+            self.blank.supercede_date("1-1-91")
 
 
 
@@ -765,25 +795,7 @@ class RecordsToDictTests(TestCase):
 
 
 
-class SprsdeRecordTests(PdbDataFileTest):
 
-    def test_sprsde_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "SPRSDE     27-FEB-95 1GDJ      1LH4 2LH4"
-        ))
-        self.assertEqual(
-         data_file.supercedes(),
-         ["1LH4", "2LH4"]
-        )
-        self.assertEqual(
-         data_file.supercede_date(),
-         datetime.datetime(1995, 2, 27).date()
-        )
-
-
-    def test_missing_sprsde_processing(self):
-        self.assertEqual(self.empty.supercedes(), [])
-        self.assertEqual(self.empty.supercede_date(), None)
 
 
 

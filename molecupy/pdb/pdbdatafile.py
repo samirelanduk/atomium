@@ -25,6 +25,7 @@ class PdbDataFile:
         _process_author_records(self)
         _process_revdat_records(self)
         _process_sprsde_records(self)
+        _process_jrnl_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -207,6 +208,17 @@ class PdbDataFile:
             return self._supercede_date
 
 
+    def journal(self, journal=None):
+        if journal:
+            if not isinstance(journal, dict):
+                raise TypeError(
+                 "journal must be dict, not '%s'" % str(journal)
+                )
+            self._journal = journal
+        else:
+            return self._journal
+
+
 
 def _process_header_records(data_file):
     if data_file.original_pdb_file():
@@ -357,6 +369,49 @@ def _process_sprsde_records(data_file):
     data_file._supercede_date = None
 
 
+def _process_jrnl_records(data_file):
+    if data_file.original_pdb_file():
+        jrnls = data_file.original_pdb_file().get_records_by_name("JRNL")
+        if jrnls:
+            journal = {}
+            auths = [r for r in jrnls if r[12:16] == "AUTH"]
+            journal["authors"] = merge_records(auths, 19).split(",") if auths else []
+            titls = [r for r in jrnls if r[12:16] == "TITL"]
+            journal["title"] = merge_records(titls, 19) if titls else None
+            edits = [r for r in jrnls if r[12:16] == "EDIT"]
+            journal["editors"] = merge_records(edits, 19).split(",") if edits else []
+            refs = [r for r in jrnls if r[12:16] == "REF"]
+            journal["reference"] = {} if refs else None
+            if refs and "TO BE PUBLISHED" in refs[0].text():
+                journal["reference"] = {
+                 "published": False, "publication": None,
+                 "volume": None, "page": None, "year": None
+                }
+            elif refs:
+                journal["reference"] = {
+                 "published": True,
+                 "publication": refs[0][19:47],
+                 "volume": refs[0][51:55],
+                 "page": refs[0][56:61],
+                 "year": refs[0][62:66]
+                }
+            publs = [r for r in jrnls if r[12:16] == "PUBL"]
+            journal["publisher"] = merge_records(publs, 19, dont_condense=",:;") if publs else None
+            refns = [r for r in jrnls if r[12:16] == "REFN"]
+            journal["reference_number"] = {
+             "type": refns[0][35:39],
+             "value": refns[0][40:65]
+            } if refns else None
+            pmids = [r for r in jrnls if r[12:16] == "PMID"]
+            journal["pubmed"] = pmids[0].get_as_string(19, 79) if pmids else None
+            dois = [r for r in jrnls if r[12:16] == "DOI"]
+            journal["doi"] = dois[0][19:79] if dois else None
+            data_file._journal = journal
+            return
+    else:
+        data_file._journal = None
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -424,60 +479,6 @@ def records_to_token_value_dicts(records):
 
 
     '''
-
-
-
-    def supercedes(self):
-        sprsde = self.pdb_file().get_record_by_name("SPRSDE")
-        return sprsde[31:75].split() if sprsde else []
-
-
-    def supercede_date(self):
-        sprsde = self.pdb_file().get_record_by_name("SPRSDE")
-        return date_from_string(sprsde[11:20]) if sprsde else None
-
-
-    def journal(self):
-        jrnls = self.pdb_file().get_records_by_name("JRNL")
-        if not jrnls:
-            return None
-        else:
-            journal = {}
-            auths = [r for r in jrnls if r[12:16] == "AUTH"]
-            journal["authors"] = merge_records(auths, 19).split(",") if auths else []
-            titls = [r for r in jrnls if r[12:16] == "TITL"]
-            journal["title"] = merge_records(titls, 19) if titls else None
-            edits = [r for r in jrnls if r[12:16] == "EDIT"]
-            journal["editors"] = merge_records(edits, 19).split(",") if edits else []
-            refs = [r for r in jrnls if r[12:16] == "REF"]
-            journal["reference"] = {} if refs else None
-            if refs and "TO BE PUBLISHED" in refs[0].text():
-                journal["reference"] = {
-                 "published": False, "publication": None,
-                 "volume": None, "page": None, "year": None
-                }
-            elif refs:
-                journal["reference"] = {
-                 "published": True,
-                 "publication": refs[0][19:47],
-                 "volume": refs[0][51:55],
-                 "page": refs[0][56:61],
-                 "year": refs[0][62:66]
-                }
-            publs = [r for r in jrnls if r[12:16] == "PUBL"]
-            journal["publisher"] = merge_records(publs, 19, dont_condense=",:;") if publs else None
-            refns = [r for r in jrnls if r[12:16] == "REFN"]
-            journal["reference_number"] = {
-             "type": refns[0][35:39],
-             "value": refns[0][40:65]
-            } if refns else None
-            pmids = [r for r in jrnls if r[12:16] == "PMID"]
-            journal["pubmed"] = pmids[0].get_as_string(19, 79) if pmids else None
-            dois = [r for r in jrnls if r[12:16] == "DOI"]
-            journal["doi"] = dois[0][19:79] if dois else None
-            return journal
-
-
     def remarks(self):
         remark_records = self.pdb_file().get_records_by_name("REMARK")
         remark_numbers = sorted(list(set([r[7:10] for r in remark_records])))

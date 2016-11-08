@@ -4,7 +4,7 @@ import math
 import warnings
 from ..exceptions import LongBondWarning
 
-class Atom:
+class GhostAtom:
     """This class represents generic atoms with no location.
 
     :param str element: The atom's element.
@@ -101,7 +101,7 @@ class Atom:
 
 
 
-class PdbAtom(Atom):
+class PdbAtom(GhostAtom):
     """Base class: :py:class:`Atom`
 
     A specific kind of atom that has coordinate information.

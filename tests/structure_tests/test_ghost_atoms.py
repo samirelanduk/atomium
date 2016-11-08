@@ -1,11 +1,11 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Atom
+from molecupy.structures import GhostAtom
 
-class AtomCreationTests(TestCase):
+class GhostAtomCreationTests(TestCase):
 
-    def test_can_create_atom(self):
-        atom = Atom("C", 100, "CA")
+    def test_can_create_ghost_atom(self):
+        atom = GhostAtom("C", 100, "CA")
         self.assertEqual(atom._element, "C")
         self.assertEqual(atom._atom_id, 100)
         self.assertEqual(atom._atom_name, "CA")
@@ -13,39 +13,39 @@ class AtomCreationTests(TestCase):
 
 
     def test_repr(self):
-        atom = Atom("C", 100, "CA")
-        self.assertEqual(str(atom), "<Atom 100 (CA)>")
+        atom = GhostAtom("C", 100, "CA")
+        self.assertEqual(str(atom), "<GhostAtom 100 (CA)>")
 
 
     def test_element_must_be_str(self):
         with self.assertRaises(TypeError):
-            atom = Atom(9, 100, "CA")
+            atom = GhostAtom(9, 100, "CA")
 
 
     def test_element_must_be_correct_length(self):
         with self.assertRaises(ValueError):
-            atom = Atom("", 100, "CA")
+            atom = GhostAtom("", 100, "CA")
         with self.assertRaises(ValueError):
-            atom = Atom("CAC", 100, "CA")
-        atom = Atom("MG", 100, "CA")
-        atom = Atom("M", 100, "CA")
+            atom = GhostAtom("CAC", 100, "CA")
+        atom = GhostAtom("MG", 100, "CA")
+        atom = GhostAtom("M", 100, "CA")
 
 
     def test_atom_id_must_be_int(self):
         with self.assertRaises(TypeError):
-            atom = Atom("C", "100", "CA")
+            atom = GhostAtom("C", "100", "CA")
 
 
     def test_atom_name_must_be_str(self):
         with self.assertRaises(TypeError):
-            atom = Atom("C", 100, 1.5)
+            atom = GhostAtom("C", 100, 1.5)
 
 
 
-class AtomPropertyTests(TestCase):
+class GhostAtomPropertyTests(TestCase):
 
     def setUp(self):
-        self.atom = Atom("C", 100, "CA")
+        self.atom = GhostAtom("C", 100, "CA")
 
 
     def test_basic_properties(self):
@@ -83,13 +83,13 @@ class AtomPropertyTests(TestCase):
 
 
 
-class AtomMassTests(TestCase):
+class GhostAtomMassTests(TestCase):
 
     def test_can_get_atom_mass(self):
-        lithium = Atom("Li", 1, "Li")
-        sodium = Atom("Na", 1, "Na")
-        iron = Atom("Fe", 1, "Fe")
-        uranium = Atom("U", 1, "U")
+        lithium = GhostAtom("Li", 1, "Li")
+        sodium = GhostAtom("Na", 1, "Na")
+        iron = GhostAtom("Fe", 1, "Fe")
+        uranium = GhostAtom("U", 1, "U")
         self.assertAlmostEqual(lithium.mass(), 7, delta=0.5)
         self.assertAlmostEqual(sodium.mass(), 23, delta=0.5)
         self.assertAlmostEqual(iron.mass(), 56, delta=0.5)
@@ -97,15 +97,15 @@ class AtomMassTests(TestCase):
 
 
     def test_strange_elements_have_zero_mass(self):
-        mysterium = Atom("My", 1, "My")
+        mysterium = GhostAtom("My", 1, "My")
         self.assertEqual(mysterium.mass(), 0)
 
 
 
-class AtomModelTests(TestCase):
+class GhostAtomModelTests(TestCase):
 
     def test_can_get_model_through_small_molecule(self):
-        atom = Atom("C", 100, "CA")
+        atom = GhostAtom("C", 100, "CA")
         small_molecule = unittest.mock.Mock()
         atom._molecule = small_molecule
         small_molecule.model.return_value = "model"
@@ -113,7 +113,7 @@ class AtomModelTests(TestCase):
 
 
     def test_can_get_model_through_chain(self):
-        atom = Atom("C", 100, "CA")
+        atom = GhostAtom("C", 100, "CA")
         residue = unittest.mock.Mock()
         residue.model.side_effect = AttributeError()
         atom._molecule = residue

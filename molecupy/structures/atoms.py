@@ -5,7 +5,19 @@ import warnings
 from ..exceptions import LongBondWarning
 
 class GhostAtom:
-    """This class represents generic atoms with no location.
+    """This class represents atoms with no location. It is a 'ghost' in the
+    sense that it is accounted for in terms of its mass, but it is 'not really
+    there' because it has no location and cannot form bonds.
+
+    The reason for the distinction between ghost atoms and 'real' atoms comes
+    from PDB files, where often not all the atoms in the studied molecule can
+    be located in the (for example) electron density data and so there are no
+    coordinates for them. They do 'exist' but they are missing from the PDB file
+    coordinates.
+
+    They are described in terms of an Atom ID, an Atom name, and an element.
+    Their mass can be caluclated from the element, and they can still be
+    associated with molecules and models.
 
     :param str element: The atom's element.
     :param int atom_id: The atom's id.

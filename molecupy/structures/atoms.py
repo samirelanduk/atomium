@@ -113,7 +113,7 @@ class GhostAtom:
 
 
 
-class PdbAtom(GhostAtom):
+class Atom(GhostAtom):
     """Base class: :py:class:`Atom`
 
     A specific kind of atom that has coordinate information.
@@ -136,7 +136,7 @@ class PdbAtom(GhostAtom):
             raise TypeError("z coordinate must be float, not '%s'" % str(z))
         self._z = z
         self._bonds = set()
-        Atom.__init__(self, *args)
+        GhostAtom.__init__(self, *args)
 
 
     def x(self, x=None):
@@ -187,7 +187,7 @@ class PdbAtom(GhostAtom):
         :param PdbAtom other_atom: The other atom.
         :rtype: ``float``"""
 
-        if not isinstance(other_atom, PdbAtom):
+        if not isinstance(other_atom, Atom):
             raise TypeError(
              "Can only get distance between PdbAtoms, not '%s'" % str(other_atom)
             )
@@ -291,7 +291,7 @@ class Bond:
     :param ``PdbAtom`` atom2: The second atom."""
 
     def __init__(self, atom1, atom2):
-        if not isinstance(atom1, PdbAtom) or not isinstance(atom2, PdbAtom):
+        if not isinstance(atom1, Atom) or not isinstance(atom2, Atom):
             raise TypeError(
              "Can only create bond between PdbAtoms, not %s and %s" % (
               str(atom1), str(atom2)

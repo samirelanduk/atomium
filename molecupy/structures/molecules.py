@@ -1,7 +1,7 @@
 """Contains classes for simple structures made of atoms."""
 
 from collections import Counter
-from .atoms import GhostAtom, PdbAtom
+from .atoms import GhostAtom, Atom
 from ..exceptions import NoAtomsError, MultipleResidueConnectionError, DuplicateAtomsError
 
 class AtomicStructure:

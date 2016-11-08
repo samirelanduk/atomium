@@ -1,12 +1,12 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Atom, PdbAtom
+from molecupy.structures import GhostAtom, Atom
 
-class PdbAtomCreationTests(TestCase):
+class AtomCreationTests(TestCase):
 
-    def test_can_create_pdb_atom(self):
-        atom = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
-        self.assertIsInstance(atom, Atom)
+    def test_can_create_atom(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.assertIsInstance(atom, GhostAtom)
         self.assertEqual(atom._x, 10.0)
         self.assertEqual(atom._y, 20.0)
         self.assertEqual(atom._z, 15.0)
@@ -17,24 +17,24 @@ class PdbAtomCreationTests(TestCase):
 
 
     def test_repr(self):
-        atom = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
-        self.assertEqual(str(atom), "<PdbAtom 100 (CA)>")
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.assertEqual(str(atom), "<Atom 100 (CA)>")
 
 
     def test_coordinates_must_be_float(self):
         with self.assertRaises(TypeError):
-            atom = PdbAtom("10.0", 20.0, 15.0, "C", 100, "CA")
+            atom = Atom("10.0", 20.0, 15.0, "C", 100, "CA")
         with self.assertRaises(TypeError):
-            atom = PdbAtom(10.0, "20.0", 15.0, "C", 100, "CA")
+            atom = Atom(10.0, "20.0", 15.0, "C", 100, "CA")
         with self.assertRaises(TypeError):
-            atom = PdbAtom(10.0, 20.0, "15.0", "C", 100, "CA")
+            atom = Atom(10.0, 20.0, "15.0", "C", 100, "CA")
 
 
 
-class PdbAtomPropertyTests(TestCase):
+class AtomPropertyTests(TestCase):
 
     def setUp(self):
-        self.atom = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
 
 
     def test_basic_properties(self):
@@ -62,36 +62,37 @@ class PdbAtomPropertyTests(TestCase):
 
 
 
-class PdbAtomDistanceTests(TestCase):
+class AtomDistanceTests(TestCase):
 
     def test_can_get_inter_atomic_distance(self):
-        atom1 = PdbAtom(-0.791, 64.789, 30.59, "O", 2621, "OD1") # Atom 2621 in 1LOL
-        atom2 = PdbAtom(5.132, 63.307, 56.785, "C", 1011, "CD") # Atom 1011 in 1LOL
+        atom1 = Atom(-0.791, 64.789, 30.59, "O", 2621, "OD1") # Atom 2621 in 1LOL
+        atom2 = Atom(5.132, 63.307, 56.785, "C", 1011, "CD") # Atom 1011 in 1LOL
         pymol_calculated_distance = 26.9
         self.assertAlmostEqual(
          atom1.distance_to(atom2),
          pymol_calculated_distance,
          delta=0.01
         )
+        self.assertEqual(atom1.distance_to(atom2), atom2.distance_to(atom1))
 
 
-    def test_can_only_measure_distance_between_pdb_atoms(self):
-        atom1 = PdbAtom(-0.791, 64.789, 30.59, "O", 2621, "OD1")
-        atom2 = Atom("C", 1011, "CD")
+    def test_can_only_measure_distance_between_localised_atoms(self):
+        atom1 = Atom(-0.791, 64.789, 30.59, "O", 2621, "OD1")
+        atom2 = GhostAtom("C", 1011, "CD")
         with self.assertRaises(TypeError):
             atom1.distance_to(atom2)
 
 
 
-class PdbAtomBondtests(TestCase):
+class AtomBondtests(TestCase):
 
     def setUp(self):
-        self.atom1 = PdbAtom(10.0, 20.0, 15.0, "C", 100, "CA")
-        self.atom2 = PdbAtom(10.0, 20.0, 17.0, "C", 100, "CA")
-        self.atom3 = PdbAtom(10.0, 20.0, 13.0, "C", 100, "CA")
-        self.atom4 = PdbAtom(10.0, 22.0, 17.0, "C", 100, "CA")
-        self.atom5 = PdbAtom(10.0, 18.0, 17.0, "C", 100, "CA")
-        self.atom6 = PdbAtom(10.0, 20.0, 19.0, "C", 100, "CA")
+        self.atom1 = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.atom2 = Atom(10.0, 20.0, 17.0, "C", 100, "CA")
+        self.atom3 = Atom(10.0, 20.0, 13.0, "C", 100, "CA")
+        self.atom4 = Atom(10.0, 22.0, 17.0, "C", 100, "CA")
+        self.atom5 = Atom(10.0, 18.0, 17.0, "C", 100, "CA")
+        self.atom6 = Atom(10.0, 20.0, 19.0, "C", 100, "CA")
 
 
     def test_can_bond_atoms(self):
@@ -126,7 +127,7 @@ class PdbAtomBondtests(TestCase):
         self.assertIn(self.atom2, self.atom6.bonded_atoms())
 
 
-    def test_can_only_bond_pdb_atoms(self):
+    def test_can_only_bond_atoms(self):
         with self.assertRaises(TypeError):
             self.atom1.bond_to("atom")
 
@@ -155,7 +156,7 @@ class PdbAtomBondtests(TestCase):
 
 
     def test_atom_can_get_all_atoms_covalently_accessible(self):
-        atoms = [PdbAtom(x / 10, x / 10, x / 10, "C", 1, "C") for x in range(11)]
+        atoms = [Atom(x / 10, x / 10, x / 10, "C", 1, "C") for x in range(11)]
         atoms[0].bond_to(atoms[1])
         atoms[1].bond_to(atoms[2])
         atoms[2].bond_to(atoms[3])
@@ -180,7 +181,7 @@ class NearbyPdbAtomTests(TestCase):
 
     def setUp(self):
         self.pdb_atoms = [
-         PdbAtom(10.0, 20.0, float(i), "C", int(i), "CA") for i in range(10)
+         Atom(10.0, 20.0, float(i), "C", int(i), "CA") for i in range(10)
         ]
         molecule = unittest.mock.Mock()
         self.model = unittest.mock.Mock()

@@ -885,6 +885,138 @@ class RemarkRecordTests(PdbDataFileTest):
 
 
 
+class DbrefRecordTests(PdbDataFileTest):
+
+    def test_missing_dbref_processing(self):
+        self.assertEqual(self.empty._dbreferences, [])
+        self.assertEqual(self.blank._dbreferences, [])
+
+
+    def test_dbref_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "DBREF  1LOL A    1   229  UNP    O26232   PYRF_METTH       1    228\n"
+         "DBREF  1LOL B 1001  1229  UNP    O26232   PYRF_METTH       1    228"
+        ))
+        self.assertEqual(
+         data_file._dbreferences,
+         [
+          {
+           "chain_id": "A",
+           "sequence_begin": 1,
+           "insert_begin": "",
+           "sequence_end": 229,
+           "insert_end": "",
+           "database": "UNP",
+           "accession": "O26232",
+           "db_id": "PYRF_METTH",
+           "db_sequence_begin": 1,
+           "db_insert_begin": None,
+           "db_sequence_end": 228,
+           "db_insert_end": None
+          }, {
+           "chain_id": "B",
+           "sequence_begin": 1001,
+           "insert_begin": "",
+           "sequence_end": 1229,
+           "insert_end": "",
+           "database": "UNP",
+           "accession": "O26232",
+           "db_id": "PYRF_METTH",
+           "db_sequence_begin": 1,
+           "db_insert_begin": None,
+           "db_sequence_end": 228,
+           "db_insert_end": None
+          }
+         ]
+        )
+
+
+    def test_long_dbref_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "DBREF1 1LOL C   61   322  GB                   AE017221\n"
+         "DBREF2 1LOL C     46197919                      1534489     1537377"
+        ))
+        self.assertEqual(
+         data_file._dbreferences,
+         [
+          {
+           "chain_id": "C",
+           "sequence_begin": 61,
+           "insert_begin": "",
+           "sequence_end": 322,
+           "insert_end": "",
+           "database": "GB",
+           "accession": "46197919",
+           "db_id": "AE017221",
+           "db_sequence_begin": 1534489,
+           "db_insert_begin": None,
+           "db_sequence_end": 1537377,
+           "db_insert_end": None
+          }
+         ]
+        )
+
+
+    def test_mixed_dbref_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "DBREF  1LOL A    1   229  UNP    O26232   PYRF_METTH       1    228\n"
+         "DBREF  1LOL B 1001  1229  UNP    O26232   PYRF_METTH       1    228\n"
+         "DBREF1 1LOL C   61   322  GB                   AE017221\n"
+         "DBREF2 1LOL C     46197919                      1534489     1537377"
+        ))
+        self.assertEqual(
+         data_file._dbreferences,
+         [
+          {
+           "chain_id": "A",
+           "sequence_begin": 1,
+           "insert_begin": "",
+           "sequence_end": 229,
+           "insert_end": "",
+           "database": "UNP",
+           "accession": "O26232",
+           "db_id": "PYRF_METTH",
+           "db_sequence_begin": 1,
+           "db_insert_begin": None,
+           "db_sequence_end": 228,
+           "db_insert_end": None
+          }, {
+           "chain_id": "B",
+           "sequence_begin": 1001,
+           "insert_begin": "",
+           "sequence_end": 1229,
+           "insert_end": "",
+           "database": "UNP",
+           "accession": "O26232",
+           "db_id": "PYRF_METTH",
+           "db_sequence_begin": 1,
+           "db_insert_begin": None,
+           "db_sequence_end": 228,
+           "db_insert_end": None
+          }, {
+           "chain_id": "C",
+           "sequence_begin": 61,
+           "insert_begin": "",
+           "sequence_end": 322,
+           "insert_end": "",
+           "database": "GB",
+           "accession": "46197919",
+           "db_id": "AE017221",
+           "db_sequence_begin": 1534489,
+           "db_insert_begin": None,
+           "db_sequence_end": 1537377,
+           "db_insert_end": None
+          }
+         ]
+        )
+
+
+    def test_dbref_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "DBREF1 1LOL C   61   322  GB                   AE017221\n"
+         "DBREF2 1LOL C     46197919                      1534489     1537377"
+        ))
+        self.assertEqual(data_file._dbreferences, data_file.dbreferences())
 
 
 
@@ -1050,136 +1182,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-
-
-
-
-
-
-class DbrefRecordTests(PdbDataFileTest):
-
-    def test_dbref_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "DBREF  1LOL A    1   229  UNP    O26232   PYRF_METTH       1    228\n"
-         "DBREF  1LOL B 1001  1229  UNP    O26232   PYRF_METTH       1    228"
-        ))
-        self.assertEqual(
-         data_file.dbreferences(),
-         [
-          {
-           "chain_id": "A",
-           "sequence_begin": 1,
-           "insert_begin": "",
-           "sequence_end": 229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }, {
-           "chain_id": "B",
-           "sequence_begin": 1001,
-           "insert_begin": "",
-           "sequence_end": 1229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }
-         ]
-        )
-
-
-    def test_long_dbref_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "DBREF1 1LOL C   61   322  GB                   AE017221\n"
-         "DBREF2 1LOL C     46197919                      1534489     1537377"
-        ))
-        self.assertEqual(
-         data_file.dbreferences(),
-         [
-          {
-           "chain_id": "C",
-           "sequence_begin": 61,
-           "insert_begin": "",
-           "sequence_end": 322,
-           "insert_end": "",
-           "database": "GB",
-           "accession": "46197919",
-           "db_id": "AE017221",
-           "db_sequence_begin": 1534489,
-           "db_insert_begin": None,
-           "db_sequence_end": 1537377,
-           "db_insert_end": None
-          }
-         ]
-        )
-
-
-    def test_mixed_dbref_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "DBREF  1LOL A    1   229  UNP    O26232   PYRF_METTH       1    228\n"
-         "DBREF  1LOL B 1001  1229  UNP    O26232   PYRF_METTH       1    228\n"
-         "DBREF1 1LOL C   61   322  GB                   AE017221\n"
-         "DBREF2 1LOL C     46197919                      1534489     1537377"
-        ))
-        self.assertEqual(
-         data_file.dbreferences(),
-         [
-          {
-           "chain_id": "A",
-           "sequence_begin": 1,
-           "insert_begin": "",
-           "sequence_end": 229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }, {
-           "chain_id": "B",
-           "sequence_begin": 1001,
-           "insert_begin": "",
-           "sequence_end": 1229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }, {
-           "chain_id": "C",
-           "sequence_begin": 61,
-           "insert_begin": "",
-           "sequence_end": 322,
-           "insert_end": "",
-           "database": "GB",
-           "accession": "46197919",
-           "db_id": "AE017221",
-           "db_sequence_begin": 1534489,
-           "db_insert_begin": None,
-           "db_sequence_end": 1537377,
-           "db_insert_end": None
-          }
-         ]
-        )
-    def test_missing_dbref_processing(self):
-        self.assertEqual(self.empty.dbreferences(), [])
-
-
-
 class SeqadvRecordTests(PdbDataFileTest):
 
     def test_seqadv_processing(self):

@@ -114,9 +114,14 @@ class GhostAtom:
 
 
 class Atom(GhostAtom):
-    """Base class: :py:class:`Atom`
+    """Base class: :py:class:`GhostAtom`
 
-    A specific kind of atom that has coordinate information.
+    Represents standard atoms which have Cartesian coordinates, and which can
+    form bonds with other atoms.
+
+    They are distinguished from :py:class:`GhostAtom` objects because they have
+    a location in three dimensional space, though they inherit some prpperties
+    from that more generic class of atom.
 
     :param float x: The atom's x-coordinate.
     :param float y: The atom's y-coordinate.
@@ -184,12 +189,12 @@ class Atom(GhostAtom):
     def distance_to(self, other_atom):
         """Returns the distance between this atom and another, in Angstroms.
 
-        :param PdbAtom other_atom: The other atom.
+        :param Atom other_atom: The other atom.
         :rtype: ``float``"""
 
         if not isinstance(other_atom, Atom):
             raise TypeError(
-             "Can only get distance between PdbAtoms, not '%s'" % str(other_atom)
+             "Can only get distance between Atoms, not '%s'" % str(other_atom)
             )
         x_sum = math.pow((other_atom.x() - self.x()), 2)
         y_sum = math.pow((other_atom.y() - self.y()), 2)
@@ -209,15 +214,15 @@ class Atom(GhostAtom):
     def bond_to(self, other_atom):
         """Creates a :py:class:`Bond` between this atom and another.
 
-        :param PdbAtom other_atom: The other atom."""
+        :param Atom other_atom: The other atom."""
 
         Bond(self, other_atom)
 
 
     def bonded_atoms(self):
-        """The set of :py:class:`PdbAtom` objects bonded to this atom.
+        """The set of :py:class:`Atom` objects bonded to this atom.
 
-        :returns: ``set`` of :py:class:`PdbAtom` objects."""
+        :returns: ``set`` of :py:class:`Atom` objects."""
 
         bonded_atoms = set()
         for bond in self.bonds():
@@ -231,7 +236,7 @@ class Atom(GhostAtom):
         """Returns the specific :py:class:`Bond` between this atom and some
         other atom, if it exists.
 
-        :param PdbAtom other_atom: The other atom.
+        :param Atom other_atom: The other atom.
         :rtype: ``Bond``"""
 
         for bond in self.bonds():
@@ -243,7 +248,7 @@ class Atom(GhostAtom):
         """Removes the specific :py:class:`Bond` between this atom and some
         other atom, if it exists.
 
-        :param PdbAtom other_atom: The other atom."""
+        :param Atom other_atom: The other atom."""
 
         bond = self.get_bond_with(other_atom)
         if bond:
@@ -251,10 +256,10 @@ class Atom(GhostAtom):
 
 
     def accessible_atoms(self, already_checked=None):
-        """The set of all :py:class:`PdbAtom` objects that can be accessed by
+        """The set of all :py:class:`Atom` objects that can be accessed by
         following bonds.
 
-        :returns: ``set`` of :py:class:`PdbAtom` objects."""
+        :returns: ``set`` of :py:class:`Atom` objects."""
 
         already_checked = already_checked if already_checked else set()
         already_checked.add(self)
@@ -267,12 +272,12 @@ class Atom(GhostAtom):
 
 
     def local_atoms(self, distance, include_hydrogens=True):
-        """Returns all :py:class:`PdbAtom` objects within a given distance of
+        """Returns all :py:class:`Atom` objects within a given distance of
         this atom (within a model).
 
         :param distance: The cutoff in Angstroms to use.
         :param bool include_hydrogens: determines whether to include hydrogen atoms.
-        :returns: ``set`` of :py:class:`PdbAtom` objects."""
+        :returns: ``set`` of :py:class:`Atom` objects."""
 
         if self.model():
             return set([atom for atom in self.model().atoms(atom_type="pdb")
@@ -284,16 +289,16 @@ class Atom(GhostAtom):
 
 
 class Bond:
-    """Represents a chemical bond between two :py:class:`PdbAtom` objects -
+    """Represents a chemical bond between two :py:class:`Atom` objects -
     covalent or ionic.
 
-    :param ``PdbAtom`` atom1: The first atom.
-    :param ``PdbAtom`` atom2: The second atom."""
+    :param ``Atom`` atom1: The first atom.
+    :param ``Atom`` atom2: The second atom."""
 
     def __init__(self, atom1, atom2):
         if not isinstance(atom1, Atom) or not isinstance(atom2, Atom):
             raise TypeError(
-             "Can only create bond between PdbAtoms, not %s and %s" % (
+             "Can only create bond between Atoms, not %s and %s" % (
               str(atom1), str(atom2)
              )
             )
@@ -318,7 +323,7 @@ class Bond:
     def atoms(self):
         """Returns the two atoms in this bond.
 
-        :returns: ``set`` of :py:class:`PdbAtom`"""
+        :returns: ``set`` of :py:class:`Atom`"""
 
         return set(self._atoms)
 

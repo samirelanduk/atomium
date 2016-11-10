@@ -43,6 +43,8 @@ class PdbDataFile:
         _process_site_records(self)
 
         _process_model_records(self)
+        _process_atom_records(self)
+        _process_anisou_records(self)
 
 
 
@@ -291,6 +293,14 @@ class PdbDataFile:
 
     def models(self):
         return self._models
+
+
+    def atoms(self):
+        return self._atoms
+
+
+    def anisou(self):
+        return self._anisou
 
 
 
@@ -842,6 +852,65 @@ def _process_model_records(data_file):
     }]
 
 
+def _process_atom_records(data_file):
+    if data_file.original_pdb_file():
+        atoms = data_file.original_pdb_file().get_records_by_name("ATOM")
+        if atoms:
+            data_file._atoms = [{
+             "atom_id": r[6:11],
+             "atom_name": r[12:16],
+             "alt_loc": r[16],
+             "residue_name": r[17:20],
+             "chain_id": r[21],
+             "residue_id": r[22:26],
+             "insert_code": r[26] if r[26] else "",
+             "x": r[30:38],
+             "y": r[38:46],
+             "z": r[46:54],
+             "occupancy": r[54:60],
+             "temperature_factor": r[60:66],
+             "element": r[76:78],
+             "charge": r[78:80],
+             "model_id": [m for m in data_file.models()
+              if r.number() >= m["start_record"]
+               and r.number() <= m["end_record"]][0]["model_id"] if len(
+                data_file.models()
+                 ) > 1 else 1
+            } for r in atoms]
+            return
+    data_file._atoms = []
+
+
+def _process_anisou_records(data_file):
+    if data_file.original_pdb_file():
+        anisou = data_file.original_pdb_file().get_records_by_name("ANISOU")
+        if anisou:
+            data_file._anisou = [{
+             "atom_id": r[6:11],
+             "atom_name": r[12:16],
+             "alt_loc": r[16],
+             "residue_name": r[17:20],
+             "chain_id": r[21],
+             "residue_id": r[22:26],
+             "insert_code": r[26] if r[26] else "",
+             "u11": r[29:35],
+             "u22": r[36:42],
+             "u33": r[43:49],
+             "u12": r[50:56],
+             "u13": r[57:63],
+             "u23": r[64:70],
+             "element": r[76:78],
+             "charge": r[78:80],
+             "model_id": [m for m in data_file.models()
+              if r.number() >= m["start_record"]
+               and r.number() <= m["end_record"]][0]["model_id"] if len(
+                data_file.models()
+                 ) > 1 else 1
+            } for r in anisou]
+            return
+    data_file._anisou = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -1065,49 +1134,12 @@ def records_to_token_value_dicts(records):
 
     def atoms(self):
         atoms = self.pdb_file().get_records_by_name("ATOM")
-        return [{
-         "atom_id": r[6:11],
-         "atom_name": r[12:16],
-         "alt_loc": r[16],
-         "residue_name": r[17:20],
-         "chain_id": r[21],
-         "residue_id": r[22:26],
-         "insert_code": r[26] if r[26] else "",
-         "x": r[30:38],
-         "y": r[38:46],
-         "z": r[46:54],
-         "occupancy": r[54:60],
-         "temperature_factor": r[60:66],
-         "element": r[76:78],
-         "charge": r[78:80],
-         "model_id": [m for m in self.models()
-          if r.number() >= m["start_record"]
-           and r.number() <= m["end_record"]][0]["model_id"]
-        } for r in atoms]
+        return
 
 
     def anisou(self):
         anisou = self.pdb_file().get_records_by_name("ANISOU")
-        return [{
-         "atom_id": r[6:11],
-         "atom_name": r[12:16],
-         "alt_loc": r[16],
-         "residue_name": r[17:20],
-         "chain_id": r[21],
-         "residue_id": r[22:26],
-         "insert_code": r[26] if r[26] else "",
-         "u11": r[29:35],
-         "u22": r[36:42],
-         "u33": r[43:49],
-         "u12": r[50:56],
-         "u13": r[57:63],
-         "u23": r[64:70],
-         "element": r[76:78],
-         "charge": r[78:80],
-         "model_id": [m for m in self.models()
-          if r.number() >= m["start_record"]
-           and r.number() <= m["end_record"]][0]["model_id"]
-        } for r in anisou]
+        return
 
 
     def termini(self):

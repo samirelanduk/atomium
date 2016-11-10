@@ -1675,6 +1675,127 @@ class ModelRecordTests(PdbDataFileTest):
 
 
 
+class AtomRecordTests(PdbDataFileTest):
+
+    def test_missing_atom_processing(self):
+        self.assertEqual(self.empty._atoms, [])
+        self.assertEqual(self.blank._atoms, [])
+
+
+    def test_atom_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ATOM    108  CA  GLY A  13      11.982  37.996 -26.241 1.000 16.92           C"
+        ))
+        self.assertEqual(
+         data_file._atoms,
+         [
+          {
+           "atom_id": 107,
+           "atom_name": "N",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "x": 12.681,
+           "y": 37.302,
+           "z": -25.211,
+           "occupancy": 1.0,
+           "temperature_factor": 15.56,
+           "element": "N",
+           "charge": None,
+           "model_id": 1
+          }, {
+           "atom_id": 108,
+           "atom_name": "CA",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "x": 11.982,
+           "y": 37.996,
+           "z": -26.241,
+           "occupancy": 1.0,
+           "temperature_factor": 16.92,
+           "element": "C",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_atom_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ATOM    108  CA  GLY A  13      11.982  37.996 -26.241 1.000 16.92           C"
+        ))
+        self.assertEqual(data_file._atoms, data_file.atoms())
+
+
+
+class AnisouRecordTests(PdbDataFileTest):
+
+    def test_missing_anisou_processing(self):
+        self.assertEqual(self.empty._anisou, [])
+        self.assertEqual(self.blank._anisou, [])
+
+
+    def test_anisou_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "ANISOU  107  N   GLY A  13     2406   1892   1614    198    519   -328       N\n"
+         "ANISOU  108  CA  GLY A  13     2748   2004   1679    -21    155   -419       C"
+        ))
+        self.assertEqual(
+         data_file._anisou,
+         [
+          {
+           "atom_id": 107,
+           "atom_name": "N",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "u11": 2406,
+           "u22": 1892,
+           "u33": 1614,
+           "u12": 198,
+           "u13": 519,
+           "u23": -328,
+           "element": "N",
+           "charge": None,
+           "model_id": 1
+          }, {
+           "atom_id": 108,
+           "atom_name": "CA",
+           "alt_loc": None,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "u11": 2748,
+           "u22": 2004,
+           "u33": 1679,
+           "u12": -21,
+           "u13": 155,
+           "u23": -419,
+           "element": "C",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_anisou_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "ANISOU  107  N   GLY A  13     2406   1892   1614    198    519   -328       N\n"
+         "ANISOU  108  CA  GLY A  13     2748   2004   1679    -21    155   -419       C"
+        ))
+        self.assertEqual(data_file._anisou, data_file.anisou())
 
 
 
@@ -1995,109 +2116,7 @@ class MtrixRecordTests(PdbDataFileTest):
 
 
 
-class AtomRecordTests(PdbDataFileTest):
 
-    def test_atom_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
-         "ATOM    108  CA  GLY A  13      11.982  37.996 -26.241 1.000 16.92           C"
-        ))
-        self.assertEqual(
-         data_file.atoms(),
-         [
-          {
-           "atom_id": 107,
-           "atom_name": "N",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "x": 12.681,
-           "y": 37.302,
-           "z": -25.211,
-           "occupancy": 1.0,
-           "temperature_factor": 15.56,
-           "element": "N",
-           "charge": None,
-           "model_id": 1
-          }, {
-           "atom_id": 108,
-           "atom_name": "CA",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "x": 11.982,
-           "y": 37.996,
-           "z": -26.241,
-           "occupancy": 1.0,
-           "temperature_factor": 16.92,
-           "element": "C",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
-
-
-    def test_missing_atom_processing(self):
-        self.assertEqual(self.empty.atoms(), [])
-
-
-
-class AnisouRecordTests(PdbDataFileTest):
-
-    def test_anisou_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "ANISOU  107  N   GLY A  13     2406   1892   1614    198    519   -328       N\n"
-         "ANISOU  108  CA  GLY A  13     2748   2004   1679    -21    155   -419       C"
-        ))
-        self.assertEqual(
-         data_file.anisou(),
-         [
-          {
-           "atom_id": 107,
-           "atom_name": "N",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "u11": 2406,
-           "u22": 1892,
-           "u33": 1614,
-           "u12": 198,
-           "u13": 519,
-           "u23": -328,
-           "element": "N",
-           "charge": None,
-           "model_id": 1
-          }, {
-           "atom_id": 108,
-           "atom_name": "CA",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "u11": 2748,
-           "u22": 2004,
-           "u33": 1679,
-           "u12": -21,
-           "u13": 155,
-           "u23": -419,
-           "element": "C",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
-
-
-    def test_missing_anisou_processing(self):
-        self.assertEqual(self.empty.anisou(), [])
 
 
 

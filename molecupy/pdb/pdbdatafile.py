@@ -29,6 +29,8 @@ class PdbDataFile:
         _process_remark_records(self)
         _process_dbref_records(self)
         _process_seqadv_records(self)
+        _process_seqres_records(self)
+        _process_modres_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -238,6 +240,14 @@ class PdbDataFile:
 
     def sequence_differences(self):
         return self._sequence_differences
+
+
+    def residue_sequences(self):
+        return self._residue_sequences
+
+
+    def modified_residues(self):
+        return self._modified_residues
 
 
 
@@ -512,6 +522,41 @@ def _process_seqadv_records(data_file):
     data_file._sequence_differences = []
 
 
+def _process_seqres_records(data_file):
+    if data_file.original_pdb_file():
+        seqres = data_file.original_pdb_file().get_records_by_name("SEQRES")
+        if seqres:
+            chains = sorted(list(set([r[11] for r in seqres])))
+            residue_sequences = []
+            for chain in chains:
+                records = [r for r in seqres if r[11] == chain]
+                residue_sequences.append({
+                 "chain_id": chain,
+                 "length": records[0][13:17],
+                 "residues": merge_records(records, 19).split()
+                })
+            data_file._residue_sequences = residue_sequences
+            return
+    data_file._residue_sequences = []
+
+
+def _process_modres_records(data_file):
+    if data_file.original_pdb_file():
+        modres = data_file.original_pdb_file().get_records_by_name("MODRES")
+        if modres:
+            modified_residues = [{
+             "residue_name": r[12:15],
+             "chain_id": r[16],
+             "residue_id": r[18:22],
+             "insert_code": r[22] if r[22] else "",
+             "standard_resisdue_name": r[24:27],
+             "comment": r[29:70]
+            } for r in modres]
+            data_file._modified_residues = modified_residues
+            return
+    data_file._modified_residues = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -578,42 +623,7 @@ def records_to_token_value_dicts(records):
     return entities
 
 
-    '''
-
-    def dbreferences(self):
-
-
-
-    def sequence_differences(self):
-        seqadvs = self.pdb_file().get_records_by_name("SEQADV")
-
-
-
-    def residue_sequences(self):
-        seqres = self.pdb_file().get_records_by_name("SEQRES")
-        chains = sorted(list(set([r[11] for r in seqres])))
-        residue_sequences = []
-        for chain in chains:
-            records = [r for r in seqres if r[11] == chain]
-            residue_sequences.append({
-             "chain_id": chain,
-             "length": records[0][13:17],
-             "residues": merge_records(records, 19).split()
-            })
-        return residue_sequences
-
-
-    def modified_residues(self):
-        modres = self.pdb_file().get_records_by_name("MODRES")
-        return [{
-         "residue_name": r[12:15],
-         "chain_id": r[16],
-         "residue_id": r[18:22],
-         "insert_code": r[22] if r[22] else "",
-         "standard_resisdue_name": r[24:27],
-         "comment": r[29:70]
-        } for r in modres]
-
+'''
 
     def hets(self):
         hets = self.pdb_file().get_records_by_name("HET")

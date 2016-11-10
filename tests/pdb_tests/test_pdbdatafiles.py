@@ -1072,6 +1072,94 @@ class SeqadvRecordTests(PdbDataFileTest):
 
 
 
+class SeqresRecordTests(PdbDataFileTest):
+
+    def test_missing_seqres_processing(self):
+        self.assertEqual(self.empty._residue_sequences, [])
+        self.assertEqual(self.blank._residue_sequences, [])
+
+
+    def test_seqres_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SEQRES   1 A    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
+         "SEQRES   2 A    8  ARG LEU ILE\n"
+         "SEQRES   1 B    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
+         "SEQRES   2 B    8  ARG LEU ILE"
+        ))
+        self.assertEqual(
+         data_file._residue_sequences,
+         [
+          {
+           "chain_id": "A",
+           "length": 8,
+           "residues": [
+            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
+            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE",
+           ]
+          }, {
+           "chain_id": "B",
+           "length": 8,
+           "residues": [
+            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
+            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE"
+           ]
+          }
+         ]
+        )
+
+
+    def test_seqres_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SEQRES   1 A    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
+         "SEQRES   2 A    8  ARG LEU ILE\n"
+        ))
+        self.assertEqual(
+         data_file._residue_sequences,
+         data_file.residue_sequences()
+        )
+
+
+
+class ModresRecordTests(PdbDataFileTest):
+
+    def test_missing_modres_processing(self):
+        self.assertEqual(self.empty._modified_residues, [])
+        self.assertEqual(self.blank._modified_residues, [])
+
+
+    def test_modres_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MODRES 1LOL ASP A   10  ASP  GLYCOSYLATION SITE"
+        ))
+        self.assertEqual(
+         data_file._modified_residues,
+         [
+          {
+           "residue_name": "ASP",
+           "chain_id": "A",
+           "residue_id": 10,
+           "insert_code": "",
+           "standard_resisdue_name": 'ASP',
+           "comment": "GLYCOSYLATION SITE"
+          }
+         ]
+        )
+
+
+    def test_modres_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "MODRES 1LOL ASP A   10  ASP  GLYCOSYLATION SITE"
+        ))
+        self.assertEqual(
+         data_file._modified_residues,
+         data_file.modified_residues()
+        )
+
+
+
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -1234,71 +1322,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-
-
-
-
-class SeqresRecordTests(PdbDataFileTest):
-
-    def test_seqres_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "SEQRES   1 A    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
-         "SEQRES   2 A    8  ARG LEU ILE\n"
-         "SEQRES   1 B    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
-         "SEQRES   2 B    8  ARG LEU ILE"
-        ))
-        self.assertEqual(
-         data_file.residue_sequences(),
-         [
-          {
-           "chain_id": "A",
-           "length": 8,
-           "residues": [
-            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
-            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE",
-           ]
-          }, {
-           "chain_id": "B",
-           "length": 8,
-           "residues": [
-            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
-            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE"
-           ]
-          }
-         ]
-        )
-
-
-    def test_missing_seqres_processing(self):
-        self.assertEqual(self.empty.residue_sequences(), [])
-
-
-
-class ModresRecordTests(PdbDataFileTest):
-
-    def test_modres_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "MODRES 1LOL ASP A   10  ASP  GLYCOSYLATION SITE"
-        ))
-        self.assertEqual(
-         data_file.modified_residues(),
-         [
-          {
-           "residue_name": "ASP",
-           "chain_id": "A",
-           "residue_id": 10,
-           "insert_code": "",
-           "standard_resisdue_name": 'ASP',
-           "comment": "GLYCOSYLATION SITE"
-          }
-         ]
-        )
-
-
-    def test_missing_modres_processing(self):
-        self.assertEqual(self.empty.modified_residues(), [])
-
-
 
 class HetRecordTests(PdbDataFileTest):
 

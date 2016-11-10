@@ -1278,6 +1278,40 @@ class HetsynRecordTests(PdbDataFileTest):
 
 
 
+class FormulRecordTests(PdbDataFileTest):
+
+    def test_missing_formul_processing(self):
+        self.assertEqual(self.empty._formulae, {})
+        self.assertEqual(self.blank._formulae, {})
+
+
+    def test_formul_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "FORMUL   3  BU2    2(C4 H10 O2)\n"
+         "FORMUL   5  XMP    2(C10 H14 N4 O9 P 1+)\n"
+         "FORMUL   7  HOH   *180(H2 O)"
+        ))
+        self.assertEqual(
+         data_file._formulae,
+         {
+          "BU2": {"component_number": 3, "is_water": False, "formula": "2(C4 H10 O2)"},
+          "XMP": {"component_number": 5, "is_water": False, "formula": "2(C10 H14 N4 O9 P 1+)"},
+          "HOH": {"component_number": 7, "is_water": True, "formula": "180(H2 O)"}
+         }
+        )
+
+
+    def test_hetsyn_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "FORMUL   3  BU2    2(C4 H10 O2)\n"
+        ))
+        self.assertEqual(data_file._formulae, data_file.formulae())
+
+
+
+
+
+
 
 
 
@@ -1443,29 +1477,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-class FormulRecordTests(PdbDataFileTest):
-
-    def test_formul_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "FORMUL   3  BU2    2(C4 H10 O2)\n"
-         "FORMUL   5  XMP    2(C10 H14 N4 O9 P 1+)\n"
-         "FORMUL   7  HOH   *180(H2 O)"
-        ))
-        self.assertEqual(
-         data_file.formulae(),
-         {
-          "BU2": {"component_number": 3, "is_water": False, "formula": "2(C4 H10 O2)"},
-          "XMP": {"component_number": 5, "is_water": False, "formula": "2(C10 H14 N4 O9 P 1+)"},
-          "HOH": {"component_number": 7, "is_water": True, "formula": "180(H2 O)"}
-         }
-        )
-
-
-    def test_missing_formul_processing(self):
-        self.assertEqual(self.empty.formulae(), {})
-
-
-
 class HelixRecordTests(PdbDataFileTest):
 
     def test_helix_processing(self):

@@ -34,6 +34,7 @@ class PdbDataFile:
         _process_het_records(self)
         _process_hetnam_records(self)
         _process_hetsyn_records(self)
+        _process_formul_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -263,6 +264,10 @@ class PdbDataFile:
 
     def het_synonyms(self):
         return self._het_synonyms
+
+
+    def formulae(self):
+        return self._formulae
 
 
 
@@ -612,6 +617,24 @@ def _process_hetsyn_records(data_file):
             }
             return
     data_file._het_synonyms = {}
+
+
+def _process_formul_records(data_file):
+    if data_file.original_pdb_file():
+        formuls = data_file.original_pdb_file().get_records_by_name("FORMUL")
+        if formuls:
+            ids = list(set([r[12:15] for r in formuls]))
+            data_file._formulae = {
+             het_id: {
+              "component_number": [r for r in formuls if r[12:15] == het_id][0][8:10],
+              "is_water": [r for r in formuls if r[12:15] == het_id][0][18] == "*",
+              "formula": merge_records(
+               [r for r in formuls if r[12:15] == het_id], 19
+              )
+             } for het_id in ids
+            }
+            return
+    data_file._formulae = {}
 
 
 def date_from_string(s):

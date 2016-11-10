@@ -41,6 +41,7 @@ class PdbDataFile:
         _process_link_records(self)
         _process_cispep_records(self)
         _process_site_records(self)
+        _process_cryst1_records(self)
 
         _process_model_records(self)
         _process_atom_records(self)
@@ -293,6 +294,94 @@ class PdbDataFile:
 
     def sites(self):
         return self._sites
+
+
+    def crystal_a(self, crystal_a=None):
+        if crystal_a:
+            if not isinstance(crystal_a, float):
+                raise TypeError(
+                 "crystal_a must be float, not '%s'" % str(crystal_a)
+                )
+            self._crystal_a = crystal_a
+        else:
+            return self._crystal_a
+
+
+    def crystal_b(self, crystal_b=None):
+        if crystal_b:
+            if not isinstance(crystal_b, float):
+                raise TypeError(
+                 "crystal_b must be float, not '%s'" % str(crystal_b)
+                )
+            self._crystal_b = crystal_b
+        else:
+            return self._crystal_b
+
+
+    def crystal_c(self, crystal_c=None):
+        if crystal_c:
+            if not isinstance(crystal_c, float):
+                raise TypeError(
+                 "crystal_c must be float, not '%s'" % str(crystal_c)
+                )
+            self._crystal_c = crystal_c
+        else:
+            return self._crystal_c
+
+
+    def crystal_alpha(self, crystal_alpha=None):
+        if crystal_alpha:
+            if not isinstance(crystal_alpha, float):
+                raise TypeError(
+                 "crystal_alpha must be float, not '%s'" % str(crystal_alpha)
+                )
+            self._crystal_alpha = crystal_alpha
+        else:
+            return self._crystal_alpha
+
+
+    def crystal_beta(self, crystal_beta=None):
+        if crystal_beta:
+            if not isinstance(crystal_beta, float):
+                raise TypeError(
+                 "crystal_beta must be float, not '%s'" % str(crystal_beta)
+                )
+            self._crystal_beta = crystal_beta
+        else:
+            return self._crystal_beta
+
+
+    def crystal_gamma(self, crystal_gamma=None):
+        if crystal_gamma:
+            if not isinstance(crystal_gamma, float):
+                raise TypeError(
+                 "crystal_gamma must be float, not '%s'" % str(crystal_gamma)
+                )
+            self._crystal_gamma = crystal_gamma
+        else:
+            return self._crystal_gamma
+
+
+    def crystal_s_group(self, crystal_s_group=None):
+        if crystal_s_group:
+            if not isinstance(crystal_s_group, str):
+                raise TypeError(
+                 "crystal_s_group must be str, not '%s'" % str(crystal_s_group)
+                )
+            self._crystal_s_group = crystal_s_group
+        else:
+            return self._crystal_s_group
+
+
+    def crystal_z(self, crystal_z=None):
+        if crystal_z:
+            if not isinstance(crystal_z, int):
+                raise TypeError(
+                 "crystal_z must be int, not '%s'" % str(crystal_z)
+                )
+            self._crystal_z = crystal_z
+        else:
+            return self._crystal_z
 
 
     def models(self):
@@ -859,6 +948,29 @@ def _process_site_records(data_file):
     data_file._sites = []
 
 
+def _process_cryst1_records(data_file):
+    if data_file.original_pdb_file():
+        crystal = data_file.original_pdb_file().get_record_by_name("CRYST1")
+        if crystal:
+            data_file._crystal_a = crystal[6:15]
+            data_file._crystal_b = crystal[15:24]
+            data_file._crystal_c = crystal[24:33]
+            data_file._crystal_alpha = crystal[33:40]
+            data_file._crystal_beta = crystal[40:47]
+            data_file._crystal_gamma = crystal[47:54]
+            data_file._crystal_s_group = crystal[55:66]
+            data_file._crystal_z = crystal[66:70]
+            return
+    data_file._crystal_a = None
+    data_file._crystal_b = None
+    data_file._crystal_c = None
+    data_file._crystal_alpha = None
+    data_file._crystal_beta = None
+    data_file._crystal_gamma = None
+    data_file._crystal_s_group = None
+    data_file._crystal_z = None
+
+
 
 def _process_model_records(data_file):
     if data_file.original_pdb_file():
@@ -1088,44 +1200,6 @@ def records_to_token_value_dicts(records):
 
 
 '''
-    def crystal_a(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[6:15] if crystal else None
-
-
-    def crystal_b(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[15:24] if crystal else None
-
-
-    def crystal_c(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[24:33] if crystal else None
-
-
-    def crystal_alpha(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[33:40] if crystal else None
-
-
-    def crystal_beta(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[40:47] if crystal else None
-
-
-    def crystal_gamma(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[47:54] if crystal else None
-
-
-    def crystal_s_group(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[55:66] if crystal else None
-
-
-    def crystal_z(self):
-        crystal = self.pdb_file().get_record_by_name("CRYST1")
-        return crystal[66:70] if crystal else None
 
 
     def origx(self, o):

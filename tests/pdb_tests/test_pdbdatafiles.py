@@ -1615,6 +1615,115 @@ class SiteRecordTests(PdbDataFileTest):
 
 
 
+class CrystalRecordTests(PdbDataFileTest):
+
+    def test_missing_crystal_processing(self):
+        self.assertEqual(self.empty._crystal_a, None)
+        self.assertEqual(self.empty._crystal_b, None)
+        self.assertEqual(self.empty._crystal_c, None)
+        self.assertEqual(self.empty._crystal_alpha, None)
+        self.assertEqual(self.empty._crystal_beta, None)
+        self.assertEqual(self.empty._crystal_gamma, None)
+        self.assertEqual(self.empty._crystal_s_group, None)
+        self.assertEqual(self.empty._crystal_z, None)
+        self.assertEqual(self.blank._crystal_a, None)
+        self.assertEqual(self.blank._crystal_b, None)
+        self.assertEqual(self.blank._crystal_c, None)
+        self.assertEqual(self.blank._crystal_alpha, None)
+        self.assertEqual(self.blank._crystal_beta, None)
+        self.assertEqual(self.blank._crystal_gamma, None)
+        self.assertEqual(self.blank._crystal_s_group, None)
+        self.assertEqual(self.blank._crystal_z, None)
+
+
+    def test_crystal_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "CRYST1   57.570   55.482   66.129  90.00  94.28  90.00 P 1 21 1      4"
+        ))
+        self.assertEqual(data_file._crystal_a, 57.57)
+        self.assertEqual(data_file._crystal_b, 55.482)
+        self.assertEqual(data_file._crystal_c, 66.129)
+        self.assertEqual(data_file._crystal_alpha, 90.0)
+        self.assertEqual(data_file._crystal_beta, 94.28)
+        self.assertEqual(data_file._crystal_gamma, 90.0)
+        self.assertEqual(data_file._crystal_s_group, "P 1 21 1")
+        self.assertEqual(data_file._crystal_z, 4)
+
+
+    def test_crystal_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "CRYST1   57.570   55.482   66.129  90.00  94.28  90.00 P 1 21 1      4"
+        ))
+        self.assertEqual(data_file._crystal_a, data_file.crystal_a())
+        self.assertEqual(data_file._crystal_b, data_file.crystal_b())
+        self.assertEqual(data_file._crystal_c, data_file.crystal_c())
+        self.assertEqual(data_file._crystal_beta, data_file.crystal_beta())
+        self.assertEqual(data_file._crystal_alpha, data_file.crystal_alpha())
+        self.assertEqual(data_file._crystal_gamma, data_file.crystal_gamma())
+        self.assertEqual(data_file._crystal_s_group, data_file.crystal_s_group())
+        self.assertEqual(data_file._crystal_z, data_file.crystal_z())
+
+
+    def test_can_modify_crystal_properties(self):
+        self.blank.crystal_a(57.57)
+        self.blank.crystal_b(55.482)
+        self.blank.crystal_c(66.129)
+        self.blank.crystal_alpha(90.0)
+        self.blank.crystal_beta(94.28)
+        self.blank.crystal_gamma(90.0)
+        self.blank.crystal_s_group("P 1 21 1")
+        self.blank.crystal_z(4)
+        self.assertEqual(self.blank._crystal_a, 57.57)
+        self.assertEqual(self.blank._crystal_b, 55.482)
+        self.assertEqual(self.blank._crystal_c, 66.129)
+        self.assertEqual(self.blank._crystal_alpha, 90.0)
+        self.assertEqual(self.blank._crystal_beta, 94.28)
+        self.assertEqual(self.blank._crystal_gamma, 90.0)
+        self.assertEqual(self.blank._crystal_s_group, "P 1 21 1")
+        self.assertEqual(self.blank._crystal_z, 4)
+
+
+    def test_crystal_a_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_a("aaa")
+
+
+    def test_crystal_b_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_b("aaa")
+
+
+    def test_crystal_c_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_c("aaa")
+
+
+    def test_crystal_alpha_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_alpha("aaa")
+
+
+    def test_crystal_beta_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_beta("aaa")
+
+
+    def test_crystal_gamma_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_gamma("aaa")
+
+
+    def test_crystal_s_group_must_be_str(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_s_group(1.5)
+
+
+    def test_crystal_z_must_be_int(self):
+        with self.assertRaises(TypeError):
+            self.blank.crystal_z(1.5)
+
+
+
 class ModelRecordTests(PdbDataFileTest):
 
     def test_missing_model_processing(self):
@@ -2167,31 +2276,7 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-class CrystalRecordTests(PdbDataFileTest):
 
-    def test_crystal_record_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "CRYST1   57.570   55.482   66.129  90.00  94.28  90.00 P 1 21 1      4"
-        ))
-        self.assertEqual(data_file.crystal_a(), 57.57)
-        self.assertEqual(data_file.crystal_b(), 55.482)
-        self.assertEqual(data_file.crystal_c(), 66.129)
-        self.assertEqual(data_file.crystal_alpha(), 90.0)
-        self.assertEqual(data_file.crystal_beta(), 94.28)
-        self.assertEqual(data_file.crystal_gamma(), 90.0)
-        self.assertEqual(data_file.crystal_s_group(), "P 1 21 1")
-        self.assertEqual(data_file.crystal_z(), 4)
-
-
-    def test_missing_crystal_processing(self):
-        self.assertEqual(self.empty.crystal_a(), None)
-        self.assertEqual(self.empty.crystal_b(), None)
-        self.assertEqual(self.empty.crystal_c(), None)
-        self.assertEqual(self.empty.crystal_alpha(), None)
-        self.assertEqual(self.empty.crystal_beta(), None)
-        self.assertEqual(self.empty.crystal_gamma(), None)
-        self.assertEqual(self.empty.crystal_s_group(), None)
-        self.assertEqual(self.empty.crystal_z(), None)
 
 
 

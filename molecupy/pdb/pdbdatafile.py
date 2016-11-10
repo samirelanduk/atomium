@@ -32,6 +32,7 @@ class PdbDataFile:
         _process_seqres_records(self)
         _process_modres_records(self)
         _process_het_records(self)
+        _process_hetnam_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -253,6 +254,10 @@ class PdbDataFile:
 
     def hets(self):
         return self._hets
+
+
+    def het_names(self):
+        return self._het_names
 
 
 
@@ -574,6 +579,20 @@ def _process_het_records(data_file):
             } for r in hets]
             return
     data_file._hets = []
+
+
+def _process_hetnam_records(data_file):
+    if data_file.original_pdb_file():
+        hetnams = data_file.original_pdb_file().get_records_by_name("HETNAM")
+        if hetnams:
+            ids = list(set([r[11:14] for r in hetnams]))
+            data_file._het_names = {
+             het_id: merge_records(
+              [r for r in hetnams if r[11:14] == het_id], 15, dont_condense=":;"
+             ) for het_id in ids
+            }
+            return
+    data_file._het_names = {}
 
 
 def date_from_string(s):

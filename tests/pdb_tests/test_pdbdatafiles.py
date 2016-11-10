@@ -1218,6 +1218,36 @@ class HetRecordTests(PdbDataFileTest):
 
 
 
+class HetnamRecordTests(PdbDataFileTest):
+
+    def test_missing_hetnam_processing(self):
+        self.assertEqual(self.blank._het_names, {})
+        self.assertEqual(self.empty._het_names, {})
+
+
+    def test_hetnam_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETNAM     BU2 1,3-BUTANEDIOL\n"
+         "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE"
+        ))
+        self.assertEqual(
+         data_file._het_names,
+         {
+          "BU2": "1,3-BUTANEDIOL",
+          "XMP": "XANTHOSINE-5'-MONOPHOSPHATE"
+         }
+        )
+
+
+    def test_hetnam_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETNAM     BU2 1,3-BUTANEDIOL\n"
+         "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE"
+        ))
+        self.assertEqual(data_file._het_names, data_file.het_names())
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -1380,28 +1410,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-
-
-class HetnamRecordTests(PdbDataFileTest):
-
-    def test_hetnam_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "HETNAM     BU2 1,3-BUTANEDIOL\n"
-         "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE"
-        ))
-        self.assertEqual(
-         data_file.het_names(),
-         {
-          "BU2": "1,3-BUTANEDIOL",
-          "XMP": "XANTHOSINE-5'-MONOPHOSPHATE"
-         }
-        )
-
-
-    def test_missing_hetnam_processing(self):
-        self.assertEqual(self.empty.het_names(), {})
-
-
 
 class HetsynRecordTests(PdbDataFileTest):
 

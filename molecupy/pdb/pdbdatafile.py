@@ -40,6 +40,7 @@ class PdbDataFile:
         _process_ssbond_records(self)
         _process_link_records(self)
         _process_cispep_records(self)
+        _process_site_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -293,6 +294,10 @@ class PdbDataFile:
 
     def cis_peptides(self):
         return self._cis_peptides
+
+
+    def sites(self):
+        return self._sites
 
 
 
@@ -792,6 +797,38 @@ def _process_cispep_records(data_file):
     data_file._cis_peptides = []
 
 
+def _process_site_records(data_file):
+    if data_file.original_pdb_file():
+        site_records = data_file.original_pdb_file().get_records_by_name("SITE")
+        if site_records:
+            site_names = sorted(list(set(
+             [r.get_as_string(11, 14) for r in site_records]
+            )))
+            sites = []
+            for site_name in site_names:
+                records = [
+                 r for r in site_records if r.get_as_string(11, 14) == site_name
+                ]
+                residues = []
+                for r in records:
+                    for i in range(1, 5):
+                        if r[(i * 11) + 7: (i * 11) + 17]:
+                            residues.append({
+                             "residue_name": r[(i * 11) + 7: (i * 11) + 10],
+                             "chain_id": r[(i * 11) + 11],
+                             "residue_id": r[(i * 11) + 12: (i * 11) + 16],
+                             "insert_code":  r[(i * 11) + 16] if r[(i * 11) + 16] else ""
+                            })
+                sites.append({
+                 "site_id": site_name,
+                 "residue_count": records[0][15:17],
+                 "residues": residues
+                })
+            data_file._sites = sites
+            return
+    data_file._sites = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -861,25 +898,7 @@ def records_to_token_value_dicts(records):
 '''
     def sites(self):
         site_records = self.pdb_file().get_records_by_name("SITE")
-        site_names = sorted(list(set([r.get_as_string(11, 14) for r in site_records])))
-        sites = []
-        for site_name in site_names:
-            records = [r for r in site_records if r.get_as_string(11, 14) == site_name]
-            residues = []
-            for r in records:
-                for i in range(1, 5):
-                    if r[(i * 11) + 7: (i * 11) + 17]:
-                        residues.append({
-                         "residue_name": r[(i * 11) + 7: (i * 11) + 10],
-                         "chain_id": r[(i * 11) + 11],
-                         "residue_id": r[(i * 11) + 12: (i * 11) + 16],
-                         "insert_code":  r[(i * 11) + 16] if r[(i * 11) + 16] else ""
-                        })
-            sites.append({
-             "site_id": site_name,
-             "residue_count": records[0][15:17],
-             "residues": residues
-            })
+
         return sites
 
 

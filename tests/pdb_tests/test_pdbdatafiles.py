@@ -1301,7 +1301,7 @@ class FormulRecordTests(PdbDataFileTest):
         )
 
 
-    def test_hetsyn_properties(self):
+    def test_formul_properties(self):
         data_file = PdbDataFile(PdbFile(
          "FORMUL   3  BU2    2(C4 H10 O2)\n"
         ))
@@ -1471,7 +1471,7 @@ class SsbondRecordTests(PdbDataFileTest):
         )
 
 
-    def test_sheet_properties(self):
+    def test_ssbond_properties(self):
         data_file = PdbDataFile(PdbFile(
          "SSBOND   1 CYS A  123    CYS A  155                          1555   1555  2.04"
         ))
@@ -1553,11 +1553,65 @@ class CispepRecordTests(PdbDataFileTest):
         )
 
 
-    def test_link_properties(self):
+    def test_cispep_properties(self):
         data_file = PdbDataFile(PdbFile(
          "CISPEP     ASP B 1188    PRO B 1189          0         0.35"
         ))
         self.assertEqual(data_file._cis_peptides, data_file.cis_peptides())
+
+
+
+class SiteRecordTests(PdbDataFileTest):
+
+    def test_missing_site_processing(self):
+        self.assertEqual(self.empty._sites, [])
+        self.assertEqual(self.blank._sites, [])
+
+
+    def test_site_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155\n"
+         "SITE     2 AC1  6 XMP A2001  HOH A3015\n"
+         "SITE     1 550  8 ALA A  18A ASP A  20  LYS A  42  ASP A  70\n"
+         "SITE     2 550  8 MET A 126  SER A 127  SER A 158  PRO A 180"
+        ))
+        self.assertEqual(
+         data_file._sites,
+         [
+          {
+           "site_id": "550",
+           "residue_count": 8,
+           "residues": [
+            {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": "A"},
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 20, "insert_code": ""},
+            {"residue_name": "LYS", "chain_id": "A", "residue_id": 42, "insert_code": ""},
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
+            {"residue_name": "MET", "chain_id": "A", "residue_id": 126, "insert_code": ""},
+            {"residue_name": "SER", "chain_id": "A", "residue_id": 127, "insert_code": ""},
+            {"residue_name": "SER", "chain_id": "A", "residue_id": 158, "insert_code": ""},
+            {"residue_name": "PRO", "chain_id": "A", "residue_id": 180, "insert_code": ""}
+           ]
+          }, {
+           "site_id": "AC1",
+           "residue_count": 6,
+           "residues": [
+            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
+            {"residue_name": "LYS", "chain_id": "A", "residue_id": 72, "insert_code": ""},
+            {"residue_name": "LEU", "chain_id": "A", "residue_id": 123, "insert_code": ""},
+            {"residue_name": "VAL", "chain_id": "A", "residue_id": 155, "insert_code": ""},
+            {"residue_name": "XMP", "chain_id": "A", "residue_id": 2001, "insert_code": ""},
+            {"residue_name": "HOH", "chain_id": "A", "residue_id": 3015, "insert_code": ""}
+           ]
+          }
+         ]
+        )
+
+
+    def test_site_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155"
+        ))
+        self.assertEqual(data_file._sites, data_file.sites())
 
 
 
@@ -1722,53 +1776,8 @@ class RecordsToDictTests(TestCase):
         )
 
 
+
 '''
-class SiteRecordTests(PdbDataFileTest):
-
-    def test_site_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155\n"
-         "SITE     2 AC1  6 XMP A2001  HOH A3015\n"
-         "SITE     1 550  8 ALA A  18A ASP A  20  LYS A  42  ASP A  70\n"
-         "SITE     2 550  8 MET A 126  SER A 127  SER A 158  PRO A 180"
-        ))
-        self.assertEqual(
-         data_file.sites(),
-         [
-          {
-           "site_id": "550",
-           "residue_count": 8,
-           "residues": [
-            {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": "A"},
-            {"residue_name": "ASP", "chain_id": "A", "residue_id": 20, "insert_code": ""},
-            {"residue_name": "LYS", "chain_id": "A", "residue_id": 42, "insert_code": ""},
-            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
-            {"residue_name": "MET", "chain_id": "A", "residue_id": 126, "insert_code": ""},
-            {"residue_name": "SER", "chain_id": "A", "residue_id": 127, "insert_code": ""},
-            {"residue_name": "SER", "chain_id": "A", "residue_id": 158, "insert_code": ""},
-            {"residue_name": "PRO", "chain_id": "A", "residue_id": 180, "insert_code": ""}
-           ]
-          }, {
-           "site_id": "AC1",
-           "residue_count": 6,
-           "residues": [
-            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
-            {"residue_name": "LYS", "chain_id": "A", "residue_id": 72, "insert_code": ""},
-            {"residue_name": "LEU", "chain_id": "A", "residue_id": 123, "insert_code": ""},
-            {"residue_name": "VAL", "chain_id": "A", "residue_id": 155, "insert_code": ""},
-            {"residue_name": "XMP", "chain_id": "A", "residue_id": 2001, "insert_code": ""},
-            {"residue_name": "HOH", "chain_id": "A", "residue_id": 3015, "insert_code": ""}
-           ]
-          }
-         ]
-        )
-
-
-    def test_missing_site_processing(self):
-        self.assertEqual(self.empty.sites(), [])
-
-
-
 class CrystalRecordTests(PdbDataFileTest):
 
     def test_crystal_record_processing(self):

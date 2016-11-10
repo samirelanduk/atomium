@@ -31,6 +31,7 @@ class PdbDataFile:
         _process_seqadv_records(self)
         _process_seqres_records(self)
         _process_modres_records(self)
+        _process_het_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -248,6 +249,10 @@ class PdbDataFile:
 
     def modified_residues(self):
         return self._modified_residues
+
+
+    def hets(self):
+        return self._hets
 
 
 
@@ -557,6 +562,22 @@ def _process_modres_records(data_file):
     data_file._modified_residues = []
 
 
+def _process_het_records(data_file):
+    if data_file.original_pdb_file():
+        hets = data_file.original_pdb_file().get_records_by_name("HET")
+        if hets:
+            data_file._hets = [{
+             "het_name": r[7:10],
+             "chain_id": r[12],
+             "het_id": r[13:17],
+             "insert_code": r[17] if r[17] else "",
+             "atom_num": r[20:25],
+             "description": r[30:70]
+            } for r in hets]
+            return
+    data_file._hets = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -626,15 +647,8 @@ def records_to_token_value_dicts(records):
 '''
 
     def hets(self):
-        hets = self.pdb_file().get_records_by_name("HET")
-        return [{
-         "het_name": r[7:10],
-         "chain_id": r[12],
-         "het_id": r[13:17],
-         "insert_code": r[17] if r[17] else "",
-         "atom_num": r[20:25],
-         "description": r[30:70]
-        } for r in hets]
+
+        return
 
 
     def het_names(self):

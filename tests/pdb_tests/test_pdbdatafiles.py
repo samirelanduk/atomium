@@ -1157,6 +1157,64 @@ class ModresRecordTests(PdbDataFileTest):
 
 
 
+class HetRecordTests(PdbDataFileTest):
+
+    def test_missing_het_processing(self):
+        self.assertEqual(self.empty._hets, [])
+        self.assertEqual(self.blank._hets, [])
+
+
+    def test_het_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HET    BU2  A5001       6\n"
+         "HET    BU2  B5002       6\n"
+         "HET    XMP  A2001      24\n"
+         "HET    XMP  B2002      24"
+        ))
+        self.assertEqual(
+         data_file._hets,
+         [
+          {
+           "het_name": "BU2",
+           "chain_id": "A",
+           "het_id": 5001,
+           "insert_code": "",
+           "atom_num": 6,
+           "description": None
+          }, {
+           "het_name": "BU2",
+           "chain_id": "B",
+           "het_id": 5002,
+           "insert_code": "",
+           "atom_num": 6,
+           "description": None
+          }, {
+           "het_name": "XMP",
+           "chain_id": "A",
+           "het_id": 2001,
+           "insert_code": "",
+           "atom_num": 24,
+           "description": None
+          }, {
+           "het_name": "XMP",
+           "chain_id": "B",
+           "het_id": 2002,
+           "insert_code": "",
+           "atom_num": 24,
+           "description": None
+          }
+         ]
+        )
+
+
+    def test_het_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "HET    BU2  A5001       6\n"
+         "HET    BU2  B5002       6\n"
+         "HET    XMP  A2001      24\n"
+         "HET    XMP  B2002      24"
+        ))
+        self.assertEqual(data_file._hets, data_file.hets())
 
 
 
@@ -1322,55 +1380,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-
-class HetRecordTests(PdbDataFileTest):
-
-    def test_het_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "HET    BU2  A5001       6\n"
-         "HET    BU2  B5002       6\n"
-         "HET    XMP  A2001      24\n"
-         "HET    XMP  B2002      24"
-        ))
-        self.assertEqual(
-         data_file.hets(),
-         [
-          {
-           "het_name": "BU2",
-           "chain_id": "A",
-           "het_id": 5001,
-           "insert_code": "",
-           "atom_num": 6,
-           "description": None
-          }, {
-           "het_name": "BU2",
-           "chain_id": "B",
-           "het_id": 5002,
-           "insert_code": "",
-           "atom_num": 6,
-           "description": None
-          }, {
-           "het_name": "XMP",
-           "chain_id": "A",
-           "het_id": 2001,
-           "insert_code": "",
-           "atom_num": 24,
-           "description": None
-          }, {
-           "het_name": "XMP",
-           "chain_id": "B",
-           "het_id": 2002,
-           "insert_code": "",
-           "atom_num": 24,
-           "description": None
-          }
-         ]
-        )
-
-
-    def test_missing_het_processing(self):
-        self.assertEqual(self.empty.hets(), [])
-
 
 
 class HetnamRecordTests(PdbDataFileTest):

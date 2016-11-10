@@ -28,6 +28,7 @@ class PdbDataFile:
         _process_jrnl_records(self)
         _process_remark_records(self)
         _process_dbref_records(self)
+        _process_seqadv_records(self)
         '''model_records = self.pdb_file().get_records_by_name("MODEL")
         endmdls = self.pdb_file().get_records_by_name("ENDMDL")
         pairs = list(zip(model_records, endmdls))
@@ -233,6 +234,10 @@ class PdbDataFile:
 
     def dbreferences(self):
         return self._dbreferences
+
+
+    def sequence_differences(self):
+        return self._sequence_differences
 
 
 
@@ -487,6 +492,26 @@ def _process_dbref_records(data_file):
     data_file._dbreferences = []
 
 
+def _process_seqadv_records(data_file):
+    if data_file.original_pdb_file():
+        seqadvs = data_file.original_pdb_file().get_records_by_name("SEQADV")
+        if seqadvs:
+            sequence_differences = [{
+             "residue_name": r[12:15],
+             "chain_id": r[16],
+             "residue_id": r[18:22],
+             "insert_code": r[22] if r[22] else "",
+             "database": r[24:28],
+             "accession": r[29:38],
+             "db_residue_name": r[39:42],
+             "db_residue_id": r[43:48],
+             "conflict": r[49:70]
+            } for r in seqadvs]
+            data_file._sequence_differences = sequence_differences
+            return
+    data_file._sequence_differences = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -561,17 +586,7 @@ def records_to_token_value_dicts(records):
 
     def sequence_differences(self):
         seqadvs = self.pdb_file().get_records_by_name("SEQADV")
-        return [{
-         "residue_name": r[12:15],
-         "chain_id": r[16],
-         "residue_id": r[18:22],
-         "insert_code": r[22] if r[22] else "",
-         "database": r[24:28],
-         "accession": r[29:38],
-         "db_residue_name": r[39:42],
-         "db_residue_id": r[43:48],
-         "conflict": r[49:70]
-        } for r in seqadvs]
+
 
 
     def residue_sequences(self):

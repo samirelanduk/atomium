@@ -47,6 +47,8 @@ class PdbDataFile:
         _process_anisou_records(self)
         _process_ter_records(self)
         _process_hetatm_records(self)
+        _process_conect_records(self)
+        _process_master_records(self)
 
 
 
@@ -311,6 +313,21 @@ class PdbDataFile:
 
     def heteroatoms(self):
         return self._heteroatoms
+
+
+    def connections(self):
+        return self._connections
+
+
+    def master(self, master=None):
+        if master:
+            if not isinstance(master, dict):
+                raise TypeError(
+                 "master must be dict, not '%s'" % str(master)
+                )
+            self._master = master
+        else:
+            return self._master
 
 
 
@@ -970,6 +987,40 @@ def _process_hetatm_records(data_file):
     data_file._heteroatoms = []
 
 
+def _process_conect_records(data_file):
+    if data_file.original_pdb_file():
+        conects = data_file.original_pdb_file().get_records_by_name("CONECT")
+        if conects:
+            atom_ids = sorted(list(set([r[6:11] for r in conects])))
+            data_file._connections = [{
+             "atom_id": num,
+             "bonded_atoms": [int(n) for n in merge_records([
+              r for r in conects if r[6:11] == num
+             ], 11).split()]
+            } for num in atom_ids]
+            return
+    data_file._connections = []
+
+
+def _process_master_records(data_file):
+    if data_file.original_pdb_file():
+        master = data_file.original_pdb_file().get_record_by_name("MASTER")
+        data_file._master = {
+          "remark_num": master[10:15],
+          "het_num": master[20:25],
+          "helix_num": master[25:30],
+          "sheet_num": master[30:35],
+          "site_num": master[40:45],
+          "crystal_num": master[45:50],
+          "coordinate_num": master[50:55],
+          "ter_num": master[55:60],
+          "conect_num": master[60:65],
+          "seqres_num": master[65:70]
+        } if master else None
+        return
+    data_file._master = None
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -1189,33 +1240,6 @@ def records_to_token_value_dicts(records):
                 }.get(m)
             else:
                 return None if "given" not in m else False
-
-
-    def connections(self):
-        conects = self.pdb_file().get_records_by_name("CONECT")
-        atom_ids = sorted(list(set([r[6:11] for r in conects])))
-        return [{
-         "atom_id": num,
-         "bonded_atoms": [int(n) for n in merge_records([
-          r for r in conects if r[6:11] == num
-         ], 11).split()]
-        } for num in atom_ids]
-
-
-    def master(self):
-        master = self.pdb_file().get_record_by_name("MASTER")
-        return {
-          "remark_num": master[10:15],
-          "het_num": master[20:25],
-          "helix_num": master[25:30],
-          "sheet_num": master[30:35],
-          "site_num": master[40:45],
-          "crystal_num": master[45:50],
-          "coordinate_num": master[50:55],
-          "ter_num": master[55:60],
-          "conect_num": master[60:65],
-          "seqres_num": master[65:70]
-        } if master else None
 
 
 '''

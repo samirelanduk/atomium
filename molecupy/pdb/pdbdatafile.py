@@ -511,7 +511,7 @@ def _process_seqadv_records(data_file):
     if data_file.original_pdb_file():
         seqadvs = data_file.original_pdb_file().get_records_by_name("SEQADV")
         if seqadvs:
-            sequence_differences = [{
+            data_file._sequence_differences = [{
              "residue_name": r[12:15],
              "chain_id": r[16],
              "residue_id": r[18:22],
@@ -522,7 +522,6 @@ def _process_seqadv_records(data_file):
              "db_residue_id": r[43:48],
              "conflict": r[49:70]
             } for r in seqadvs]
-            data_file._sequence_differences = sequence_differences
             return
     data_file._sequence_differences = []
 
@@ -549,7 +548,7 @@ def _process_modres_records(data_file):
     if data_file.original_pdb_file():
         modres = data_file.original_pdb_file().get_records_by_name("MODRES")
         if modres:
-            modified_residues = [{
+            data_file._modified_residues = [{
              "residue_name": r[12:15],
              "chain_id": r[16],
              "residue_id": r[18:22],
@@ -557,7 +556,6 @@ def _process_modres_records(data_file):
              "standard_resisdue_name": r[24:27],
              "comment": r[29:70]
             } for r in modres]
-            data_file._modified_residues = modified_residues
             return
     data_file._modified_residues = []
 

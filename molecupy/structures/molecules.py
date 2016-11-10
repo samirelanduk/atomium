@@ -13,7 +13,7 @@ class AtomicStructure:
         if len(atoms) == 0:
             raise NoAtomsError("Cannot make an AtomicStructure with no atoms")
         for atom in atoms:
-            if not isinstance(atom, Atom):
+            if not isinstance(atom, GhostAtom):
                 raise TypeError(
                  "Can only make AtomicStructures with Atoms, not '%s'" % str(atom)
                 )
@@ -29,7 +29,7 @@ class AtomicStructure:
         return "<%s (%i atoms)>" % (self.__class__.__name__, len(self._atoms))
 
 
-    def atoms(self, atom_type="all"):
+    def atoms(self, atom_type="localised"):
         """Returns the atoms in this structure as a ``set``.
 
         :param str atom_type: The kind of atom to return. ``"all"`` will\
@@ -39,13 +39,13 @@ class AtomicStructure:
 
         if not isinstance(atom_type, str):
             raise TypeError("atom_type must be str, not '%s'" % str(atom_type))
-        if atom_type == "pdb":
+        if atom_type == "localised":
             return set(
-             [atom for atom in self._atoms if isinstance(atom, PdbAtom)]
+             [atom for atom in self._atoms if isinstance(atom, Atom)]
             )
-        elif atom_type == "generic":
+        elif atom_type == "ghost":
             return set(
-             [atom for atom in self._atoms if not isinstance(atom, PdbAtom)]
+             [atom for atom in self._atoms if not isinstance(atom, Atom)]
             )
         elif atom_type == "all":
             return set(self._atoms)
@@ -58,11 +58,11 @@ class AtomicStructure:
 
         :param Atom atom: The atom to add."""
 
-        if not isinstance(atom, Atom):
+        if not isinstance(atom, GhostAtom):
             raise TypeError(
              "Can only add Atoms to AtomicStructures, not '%s'" % str(atom)
             )
-        if atom.atom_id() in [atom.atom_id() for atom in self.atoms()]:
+        if atom.atom_id() in [atom.atom_id() for atom in self.atoms(atom_type="all")]:
             raise DuplicateAtomsError(
              "Cannot add atom with ID %i to %s as there is already an atom with that ID" % (
               atom.atom_id(), self
@@ -79,7 +79,7 @@ class AtomicStructure:
         self._atoms.remove(atom)
 
 
-    def mass(self, atom_type="all"):
+    def mass(self, atom_type="localised"):
         """Returns the mass of the structure by summing the mass of all its
         atoms.
 

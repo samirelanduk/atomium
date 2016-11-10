@@ -2,15 +2,15 @@ from collections import Counter
 import warnings
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import AtomicStructure, PdbAtom, Atom, BindSite, Residue
+from molecupy.structures import AtomicStructure, Atom, GhostAtom, BindSite, Residue
 from molecupy import NoAtomsError, DuplicateAtomsError
 
 class AtomicStructureTest(TestCase):
 
     def setUp(self):
-        self.pdb_atoms = [unittest.mock.Mock(spec=PdbAtom) for _ in range(10)]
-        self.generic_atoms = [unittest.mock.Mock(spec=Atom) for _ in range(10)]
-        self.all_atoms = self.pdb_atoms + self.generic_atoms
+        self.atoms = [unittest.mock.Mock(Atom) for _ in range(10)]
+        self.ghost_atoms = [unittest.mock.Mock(GhostAtom) for _ in range(10)]
+        self.all_atoms = self.atoms + self.ghost_atoms
         for index, atom in enumerate(self.all_atoms):
             atom.mass.return_value = index + 1
             atom.atom_id.return_value = index + 1
@@ -19,21 +19,21 @@ class AtomicStructureTest(TestCase):
 
 class AtomicStructureCreationTests(AtomicStructureTest):
 
-    def test_can_create_atomic_structure_with_pdb_atoms(self):
-        atomic_structure = AtomicStructure(*self.pdb_atoms)
-        self.assertEqual(atomic_structure._atoms, set(self.pdb_atoms))
+    def test_can_create_atomic_structure_with_atoms(self):
+        atomic_structure = AtomicStructure(*self.atoms)
+        self.assertEqual(atomic_structure._atoms, set(self.atoms))
 
 
-    def test_can_create_atomic_structure_with_generic_atoms(self):
-        atomic_structure = AtomicStructure(*self.generic_atoms)
-        self.assertEqual(atomic_structure._atoms, set(self.generic_atoms))
+    def test_can_create_atomic_structure_with_ghost_atoms(self):
+        atomic_structure = AtomicStructure(*self.ghost_atoms)
+        self.assertEqual(atomic_structure._atoms, set(self.ghost_atoms))
 
 
     def test_can_create_atomic_structure_with_mixed_atoms(self):
         atomic_structure = AtomicStructure(*self.all_atoms)
         self.assertEqual(
          atomic_structure._atoms,
-         set(self.generic_atoms + self.pdb_atoms)
+         set(self.ghost_atoms + self.atoms)
         )
 
 
@@ -54,26 +54,26 @@ class AtomicStructureCreationTests(AtomicStructureTest):
 
 
     def test_repr(self):
-        atomic_structure = AtomicStructure(*self.pdb_atoms)
+        atomic_structure = AtomicStructure(*self.atoms)
         self.assertEqual(str(atomic_structure), "<AtomicStructure (10 atoms)>")
 
 
 
 class AtomicStructurePropertyTests(AtomicStructureTest):
 
-    def test_can_get_pdb_atoms(self):
+    def test_can_get_localised_atoms(self):
         atomic_structure = AtomicStructure(*self.all_atoms)
         self.assertEqual(
-         atomic_structure.atoms(atom_type="pdb"),
-         set(self.pdb_atoms)
+         atomic_structure.atoms(),
+         set(self.atoms)
         )
 
 
-    def test_can_get_generic_atoms(self):
+    def test_can_get_ghost_atoms(self):
         atomic_structure = AtomicStructure(*self.all_atoms)
         self.assertEqual(
-         atomic_structure.atoms(atom_type="generic"),
-         set(self.generic_atoms)
+         atomic_structure.atoms(atom_type="ghost"),
+         set(self.ghost_atoms)
         )
 
 
@@ -93,28 +93,20 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
             atomic_structure.atoms(atom_type="xyz")
 
 
-    def test_default_atom_retrieval_is_all(self):
-        atomic_structure = AtomicStructure(*self.all_atoms)
-        self.assertEqual(
-         atomic_structure.atoms(),
-         set(self.all_atoms)
-        )
-
-
     def test_atomic_structure_atoms_is_read_only(self):
-        atom21 = unittest.mock.Mock(spec=PdbAtom)
+        atom21 = unittest.mock.Mock(Atom)
         atomic_structure = AtomicStructure(*self.all_atoms)
-        self.assertEqual(len(atomic_structure.atoms()), 20)
+        self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 20)
         atomic_structure.atoms(atom_type="all").add(atom21)
-        self.assertEqual(len(atomic_structure.atoms()), 20)
+        self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 20)
 
 
     def test_can_add_atom(self):
-        atom21 = unittest.mock.Mock(spec=PdbAtom)
+        atom21 = unittest.mock.Mock(Atom)
         atomic_structure = AtomicStructure(*self.all_atoms)
         atomic_structure.add_atom(atom21)
-        self.assertEqual(len(atomic_structure.atoms()), 21)
-        self.assertIn(atom21, atomic_structure.atoms())
+        self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 21)
+        self.assertIn(atom21, atomic_structure.atoms(atom_type="all"))
 
 
     def test_can_only_add_atoms(self):
@@ -132,12 +124,15 @@ class AtomicStructurePropertyTests(AtomicStructureTest):
 
     def test_can_remove_atoms(self):
         atomic_structure = AtomicStructure(*self.all_atoms)
-        atomic_structure.remove_atom(self.pdb_atoms[5])
-        self.assertEqual(len(atomic_structure.atoms()), 19)
-        self.assertNotIn(self.pdb_atoms[5], atomic_structure.atoms(atom_type="all"))
-        atomic_structure.remove_atom(self.generic_atoms[5])
-        self.assertEqual(len(atomic_structure.atoms()), 18)
-        self.assertNotIn(self.generic_atoms[5], atomic_structure.atoms(atom_type="all"))
+        atomic_structure.remove_atom(self.atoms[5])
+        self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 19)
+        self.assertNotIn(self.atoms[5], atomic_structure.atoms(atom_type="all"))
+        atomic_structure.remove_atom(self.ghost_atoms[5])
+        self.assertEqual(len(atomic_structure.atoms(atom_type="all")), 18)
+        self.assertNotIn(
+         self.ghost_atoms[5],
+         atomic_structure.atoms(atom_type="all")
+        )
 
 
 
@@ -148,19 +143,14 @@ class AtomicStructureMassTests(AtomicStructureTest):
         self.assertEqual(atomic_structure.mass(atom_type="all"), 210)
 
 
-    def test_can_get_atomic_structure_mass_pdb(self):
+    def test_can_get_atomic_structure_mass_localised(self):
         atomic_structure = AtomicStructure(*self.all_atoms)
-        self.assertEqual(atomic_structure.mass(atom_type="pdb"), 55)
+        self.assertEqual(atomic_structure.mass(), 55)
 
 
-    def test_can_get_atomic_structure_mass_generic(self):
+    def test_can_get_atomic_structure_mass_ghost(self):
         atomic_structure = AtomicStructure(*self.all_atoms)
-        self.assertEqual(atomic_structure.mass(atom_type="generic"), 155)
-
-
-    def test_default_atomic_mass_is_all(self):
-        atomic_structure = AtomicStructure(*self.all_atoms)
-        self.assertEqual(atomic_structure.mass(), 210)
+        self.assertEqual(atomic_structure.mass(atom_type="ghost"), 155)
 
 
 
@@ -169,9 +159,9 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
     def setUp(self):
         AtomicStructureTest.setUp(self)
         for index, element in enumerate(["H", "H", "C", "C", "N", "C", "N", "F", "H", "H"]):
-            self.pdb_atoms[index].element.return_value = element
+            self.atoms[index].element.return_value = element
         for index, element in enumerate(["H", "P", "C", "N", "N", "C", "N", "F", "H", "H"]):
-            self.generic_atoms[index].element.return_value = element
+            self.ghost_atoms[index].element.return_value = element
         self.atomic_structure = AtomicStructure(*self.all_atoms)
 
 
@@ -225,7 +215,7 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
 
 
 
-class AtomRetrievalTests(AtomicStructureTest):
+'''class AtomRetrievalTests(AtomicStructureTest):
 
     def setUp(self):
         AtomicStructureTest.setUp(self)
@@ -255,14 +245,14 @@ class AtomRetrievalTests(AtomicStructureTest):
         )
 
 
-    def test_can_get_pdb_atoms_by_element(self):
+    def test_can_get_atoms_by_element(self):
         self.assertEqual(
          self.atomic_structure.get_atoms_by_element("B", atom_type="pdb"),
          set((self.all_atoms[1], self.all_atoms[6]))
         )
 
 
-    def test_can_get_generic_atoms_by_element(self):
+    def test_can_get_ghost_atoms_by_element(self):
         self.assertEqual(
          self.atomic_structure.get_atoms_by_element("B", atom_type="generic"),
          set((self.all_atoms[11], self.all_atoms[16]))
@@ -332,14 +322,14 @@ class AtomRetrievalTests(AtomicStructureTest):
         )
 
 
-    def test_can_get_pdb_atoms_by_name(self):
+    def test_can_get_atoms_by_name(self):
         self.assertEqual(
          self.atomic_structure.get_atoms_by_name("BX", atom_type="pdb"),
          set((self.all_atoms[1], self.all_atoms[6]))
         )
 
 
-    def test_can_get_generic_atoms_by_name(self):
+    def test_can_get_ghost_atoms_by_name(self):
         self.assertEqual(
          self.atomic_structure.get_atoms_by_name("BX", atom_type="generic"),
          set((self.all_atoms[11], self.all_atoms[16]))
@@ -408,44 +398,44 @@ class AtomicStructureContactsTests(AtomicStructureTest):
     def setUp(self):
         x_values = [10.0, 20.0, 30.0, 40.0, 50.0, 80.0, 80.0, 80.0, 80.0, 80.0]
         y_values = [30.0, 30.0, 30.0, 30.0, 30.0, 10.0, 20.0, 30.0, 40.0, 50.0]
-        self.pdb_atoms = [
+        self.atoms = [
          PdbAtom(x_values[i], y_values[i], 10.0, "C", i + 1, "CX") for i in range(10)
         ]
 
     def test_can_get_contacts_between_atomic_structures(self):
-        structure1 = AtomicStructure(*self.pdb_atoms[:5])
-        structure2 = AtomicStructure(*self.pdb_atoms[5:])
+        structure1 = AtomicStructure(*self.atoms[:5])
+        structure2 = AtomicStructure(*self.atoms[5:])
         self.assertEqual(
          structure1.contacts_with(structure2, distance=30),
-         set([frozenset([self.pdb_atoms[4], self.pdb_atoms[7]])])
+         set([frozenset([self.atoms[4], self.atoms[7]])])
         )
         self.assertEqual(
          structure1.contacts_with(structure2, distance=35),
          set([
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]])
+          frozenset([self.atoms[4], self.atoms[7]]),
+          frozenset([self.atoms[4], self.atoms[6]]),
+          frozenset([self.atoms[4], self.atoms[8]])
          ])
         )
         self.assertEqual(
          structure1.contacts_with(structure2, distance=40),
          set([
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]]),
-          frozenset([self.pdb_atoms[3], self.pdb_atoms[7]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[5]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[9]]),
+          frozenset([self.atoms[4], self.atoms[7]]),
+          frozenset([self.atoms[4], self.atoms[6]]),
+          frozenset([self.atoms[4], self.atoms[8]]),
+          frozenset([self.atoms[3], self.atoms[7]]),
+          frozenset([self.atoms[4], self.atoms[5]]),
+          frozenset([self.atoms[4], self.atoms[9]]),
          ])
         )
 
 
     def test_external_contacts_can_ignore_hydrogens(self):
-        self.pdb_atoms[4].element("H")
-        self.pdb_atoms[5].element("H")
-        self.pdb_atoms[9].element("H")
-        structure1 = AtomicStructure(*self.pdb_atoms[:5])
-        structure2 = AtomicStructure(*self.pdb_atoms[5:])
+        self.atoms[4].element("H")
+        self.atoms[5].element("H")
+        self.atoms[9].element("H")
+        structure1 = AtomicStructure(*self.atoms[:5])
+        structure2 = AtomicStructure(*self.atoms[5:])
         self.assertEqual(
          structure1.contacts_with(structure2, distance=30, include_hydrogens=False),
          set()
@@ -456,67 +446,67 @@ class AtomicStructureContactsTests(AtomicStructureTest):
         )
         self.assertEqual(
          structure1.contacts_with(structure2, distance=40, include_hydrogens=False),
-         set([frozenset([self.pdb_atoms[3], self.pdb_atoms[7]])])
+         set([frozenset([self.atoms[3], self.atoms[7]])])
         )
 
 
     def test_can_get_external_contacts_when_one_structure_is_part_of_the_other(self):
-        structure1 = AtomicStructure(*self.pdb_atoms[:5])
-        structure2 = AtomicStructure(*self.pdb_atoms)
+        structure1 = AtomicStructure(*self.atoms[:5])
+        structure2 = AtomicStructure(*self.atoms)
         self.assertEqual(
          structure1.contacts_with(structure2, distance=30),
-         set([frozenset([self.pdb_atoms[4], self.pdb_atoms[7]])])
+         set([frozenset([self.atoms[4], self.atoms[7]])])
         )
         self.assertEqual(
          structure1.contacts_with(structure2, distance=35),
          set([
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]])
+          frozenset([self.atoms[4], self.atoms[7]]),
+          frozenset([self.atoms[4], self.atoms[6]]),
+          frozenset([self.atoms[4], self.atoms[8]])
          ])
         )
         self.assertEqual(
          structure1.contacts_with(structure2, distance=40),
          set([
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[6]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[8]]),
-          frozenset([self.pdb_atoms[3], self.pdb_atoms[7]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[5]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[9]]),
+          frozenset([self.atoms[4], self.atoms[7]]),
+          frozenset([self.atoms[4], self.atoms[6]]),
+          frozenset([self.atoms[4], self.atoms[8]]),
+          frozenset([self.atoms[3], self.atoms[7]]),
+          frozenset([self.atoms[4], self.atoms[5]]),
+          frozenset([self.atoms[4], self.atoms[9]]),
          ])
         )
 
 
     def test_can_get_internal_contacts(self):
         warnings.simplefilter("ignore")
-        for index, atom in enumerate(self.pdb_atoms[:-1]):
-            atom.bond_to(self.pdb_atoms[index + 1])
-        structure = AtomicStructure(*self.pdb_atoms)
+        for index, atom in enumerate(self.atoms[:-1]):
+            atom.bond_to(self.atoms[index + 1])
+        structure = AtomicStructure(*self.atoms)
         self.assertEqual(
          structure.internal_contacts(distance=31),
          set([
-          frozenset([self.pdb_atoms[0], self.pdb_atoms[3]]),
-          frozenset([self.pdb_atoms[1], self.pdb_atoms[4]]),
-          frozenset([self.pdb_atoms[5], self.pdb_atoms[8]]),
-          frozenset([self.pdb_atoms[6], self.pdb_atoms[9]]),
-          frozenset([self.pdb_atoms[4], self.pdb_atoms[7]])
+          frozenset([self.atoms[0], self.atoms[3]]),
+          frozenset([self.atoms[1], self.atoms[4]]),
+          frozenset([self.atoms[5], self.atoms[8]]),
+          frozenset([self.atoms[6], self.atoms[9]]),
+          frozenset([self.atoms[4], self.atoms[7]])
          ])
         )
 
 
     def test_internal_contacts_can_ignore_hydrogens(self):
         warnings.simplefilter("ignore")
-        for index, atom in enumerate(self.pdb_atoms[:-1]):
-            atom.bond_to(self.pdb_atoms[index + 1])
-        self.pdb_atoms[4].element("H")
-        self.pdb_atoms[5].element("H")
-        self.pdb_atoms[9].element("H")
-        structure = AtomicStructure(*self.pdb_atoms)
+        for index, atom in enumerate(self.atoms[:-1]):
+            atom.bond_to(self.atoms[index + 1])
+        self.atoms[4].element("H")
+        self.atoms[5].element("H")
+        self.atoms[9].element("H")
+        structure = AtomicStructure(*self.atoms)
         self.assertEqual(
          structure.internal_contacts(distance=31, include_hydrogens=False),
          set([
-          frozenset([self.pdb_atoms[0], self.pdb_atoms[3]])
+          frozenset([self.atoms[0], self.atoms[3]])
          ])
         )
 
@@ -530,16 +520,16 @@ class BindSiteGenerationTests(AtomicStructureTest):
         self.residue1 = unittest.mock.Mock(spec=Residue)
         self.residue2 = unittest.mock.Mock(spec=Residue)
         molecule1 = unittest.mock.Mock()
-        self.pdb_atoms[-1].local_atoms.return_value = set(self.pdb_atoms[:2])
-        self.pdb_atoms[-2].local_atoms.return_value = set(self.pdb_atoms[2:4])
-        self.pdb_atoms[-3].local_atoms.return_value = set(self.pdb_atoms[4:6])
-        self.pdb_atoms[0].molecule.return_value = self.residue1
-        self.pdb_atoms[1].molecule.return_value = None
-        self.pdb_atoms[2].molecule.return_value = None
-        self.pdb_atoms[3].molecule.return_value = self.residue2
-        self.pdb_atoms[3].element("H")
-        self.pdb_atoms[4].molecule.return_value = None
-        self.pdb_atoms[5].molecule.return_value = molecule1
+        self.atoms[-1].local_atoms.return_value = set(self.atoms[:2])
+        self.atoms[-2].local_atoms.return_value = set(self.atoms[2:4])
+        self.atoms[-3].local_atoms.return_value = set(self.atoms[4:6])
+        self.atoms[0].molecule.return_value = self.residue1
+        self.atoms[1].molecule.return_value = None
+        self.atoms[2].molecule.return_value = None
+        self.atoms[3].molecule.return_value = self.residue2
+        self.atoms[3].element("H")
+        self.atoms[4].molecule.return_value = None
+        self.atoms[5].molecule.return_value = molecule1
 
 
     def test_can_find_bind_site(self):
@@ -549,6 +539,6 @@ class BindSiteGenerationTests(AtomicStructureTest):
 
 
     def test_can_exclude_hydrogens(self):
-        self.pdb_atoms[-2].local_atoms.return_value = set([self.pdb_atoms[2]])
+        self.atoms[-2].local_atoms.return_value = set([self.atoms[2]])
         site = self.atomic_structure.predict_bind_site(include_hydrogens=False)
-        self.assertEqual(site.residues(), set([self.residue1]))
+        self.assertEqual(site.residues(), set([self.residue1]))'''

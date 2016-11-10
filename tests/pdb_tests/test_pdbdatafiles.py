@@ -1248,6 +1248,39 @@ class HetnamRecordTests(PdbDataFileTest):
 
 
 
+class HetsynRecordTests(PdbDataFileTest):
+
+    def test_missing_hetsyn_processing(self):
+        self.assertEqual(self.empty._het_synonyms, {})
+        self.assertEqual(self.blank._het_synonyms, {})
+
+
+    def test_hetsyn_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETSYN     BU2 BOOM BOOM BOMB; WYRDSTUFF\n"
+         "HETSYN     XMP 5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"
+        ))
+        self.assertEqual(
+         data_file._het_synonyms,
+         {
+          "BU2": ["BOOM BOOM BOMB", "WYRDSTUFF"],
+          "XMP": ["5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"]
+         }
+        )
+
+
+    def test_hetsyn_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETSYN     BU2 BOOM BOOM BOMB; WYRDSTUFF\n"
+         "HETSYN     XMP 5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"
+        ))
+        self.assertEqual(data_file._het_synonyms, data_file.het_synonyms())
+
+
+
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -1410,28 +1443,6 @@ class RecordsToDictTests(TestCase):
 
 
 '''
-
-class HetsynRecordTests(PdbDataFileTest):
-
-    def test_hetsyn_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "HETSYN     BU2 BOOM BOOM BOMB; WYRDSTUFF\n"
-         "HETSYN     XMP 5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"
-        ))
-        self.assertEqual(
-         data_file.het_synonyms(),
-         {
-          "BU2": ["BOOM BOOM BOMB", "WYRDSTUFF"],
-          "XMP": ["5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"]
-         }
-        )
-
-
-    def test_missing_hetsyn_processing(self):
-        self.assertEqual(self.empty.het_synonyms(), {})
-
-
-
 class FormulRecordTests(PdbDataFileTest):
 
     def test_formul_processing(self):

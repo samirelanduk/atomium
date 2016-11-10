@@ -1615,6 +1615,69 @@ class SiteRecordTests(PdbDataFileTest):
 
 
 
+class ModelRecordTests(PdbDataFileTest):
+
+    def test_missing_model_processing(self):
+        self.assertEqual(
+         self.empty._models,
+         [
+          {
+           "model_id": 1,
+           "start_record": -1,
+           "end_record": -1
+          }
+         ]
+        )
+        self.assertEqual(
+         self.blank._models,
+         [
+          {
+           "model_id": 1,
+           "start_record": -1,
+           "end_record": -1
+          }
+         ]
+        )
+
+
+    def test_model_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MODEL        1\n"
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ENDMDL\n"
+         "MODEL        2\n"
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ENDMDL"
+        ))
+        self.assertEqual(
+         data_file._models,
+         [
+          {
+           "model_id": 1,
+           "start_record": 1,
+           "end_record": 3
+          }, {
+           "model_id": 2,
+           "start_record": 4,
+           "end_record": 6
+          }
+         ]
+        )
+
+
+    def test_model_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "MODEL        1\n"
+         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
+         "ENDMDL\n"
+        ))
+        self.assertEqual(data_file._models, data_file.models())
+
+
+
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -1929,47 +1992,6 @@ class MtrixRecordTests(PdbDataFileTest):
         self.assertEqual(self.empty.matrix("m33"), None)
         self.assertEqual(self.empty.matrix("v3"), None)
         self.assertEqual(self.empty.matrix("i_given_3"), False)
-
-
-
-class ModelRecordTests(PdbDataFileTest):
-
-    def test_model_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "MODEL        1\n"
-         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
-         "ENDMDL\n"
-         "MODEL        2\n"
-         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
-         "ENDMDL"
-        ))
-        self.assertEqual(
-         data_file.models(),
-         [
-          {
-           "model_id": 1,
-           "start_record": 1,
-           "end_record": 3
-          }, {
-           "model_id": 2,
-           "start_record": 4,
-           "end_record": 6
-          }
-         ]
-        )
-
-
-    def test_missing_model_processing(self):
-        self.assertEqual(
-         self.empty.models(),
-         [
-          {
-           "model_id": 1,
-           "start_record": 0,
-           "end_record": 0
-          }
-         ]
-        )
 
 
 

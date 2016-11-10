@@ -41,20 +41,9 @@ class PdbDataFile:
         _process_link_records(self)
         _process_cispep_records(self)
         _process_site_records(self)
-        '''model_records = self.pdb_file().get_records_by_name("MODEL")
-        endmdls = self.pdb_file().get_records_by_name("ENDMDL")
-        pairs = list(zip(model_records, endmdls))
-        self._models = [{
-         "model_id": pair[0][10:14],
-         "start_record": pair[0].number(),
-         "end_record": pair[1].number(),
-        } for pair in pairs]
-        if not pairs:
-            self._models = [{
-             "model_id": 1,
-             "start_record": 0,
-             "end_record": len(self.pdb_file().records()),
-            }]'''
+
+        _process_model_records(self)
+
 
 
     def __repr__(self):
@@ -298,6 +287,10 @@ class PdbDataFile:
 
     def sites(self):
         return self._sites
+
+
+    def models(self):
+        return self._models
 
 
 
@@ -829,6 +822,26 @@ def _process_site_records(data_file):
     data_file._sites = []
 
 
+
+def _process_model_records(data_file):
+    if data_file.original_pdb_file():
+        model_records = data_file.original_pdb_file().get_records_by_name("MODEL")
+        if model_records:
+            endmdls = data_file.original_pdb_file().get_records_by_name("ENDMDL")
+            pairs = list(zip(model_records, endmdls))
+            data_file._models = [{
+             "model_id": pair[0][10:14],
+             "start_record": pair[0].number(),
+             "end_record": pair[1].number(),
+            } for pair in pairs]
+            return
+    data_file._models = [{
+     "model_id": 1,
+     "start_record": -1,
+     "end_record": -1
+    }]
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -896,12 +909,6 @@ def records_to_token_value_dicts(records):
 
 
 '''
-    def sites(self):
-        site_records = self.pdb_file().get_records_by_name("SITE")
-
-        return sites
-
-
     def crystal_a(self):
         crystal = self.pdb_file().get_record_by_name("CRYST1")
         return crystal[6:15] if crystal else None
@@ -1054,10 +1061,6 @@ def records_to_token_value_dicts(records):
                 }.get(m)
             else:
                 return None if "given" not in m else False
-
-
-    def models(self):
-        return self._models
 
 
     def atoms(self):

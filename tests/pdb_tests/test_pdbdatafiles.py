@@ -1799,6 +1799,114 @@ class AnisouRecordTests(PdbDataFileTest):
 
 
 
+class TerRecordTests(PdbDataFileTest):
+
+    def test_missing_ter_processing(self):
+        self.assertEqual(self.empty._termini, [])
+        self.assertEqual(self.blank._termini, [])
+
+
+    def test_ter_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "TER     109      GLY A  13"
+        ))
+        self.assertEqual(
+         data_file._termini,
+         [
+          {
+           "atom_id": 109,
+           "residue_name": "GLY",
+           "chain_id": "A",
+           "residue_id": 13,
+           "insert_code": "",
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_ter_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "TER     109      GLY A  13"
+        ))
+        self.assertEqual(data_file._termini, data_file.termini())
+
+
+
+class HetatmRecordTests(PdbDataFileTest):
+
+    def test_missing_hetatm_processing(self):
+        self.assertEqual(self.empty._heteroatoms, [])
+        self.assertEqual(self.blank._heteroatoms, [])
+
+
+    def test_hetatm_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETATM 8237 MG    MG A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
+        ))
+        self.assertEqual(
+         data_file._heteroatoms,
+         [
+          {
+           "atom_id": 8237,
+           "atom_name": "MG",
+           "alt_loc": None,
+           "residue_name": "MG",
+           "chain_id": "A",
+           "residue_id": 1001,
+           "insert_code": "",
+           "x": 13.872,
+           "y": -2.555,
+           "z": -29.045,
+           "occupancy": 1.0,
+           "temperature_factor": 27.36,
+           "element": "MG",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_het_names_always_interpreted_as_string(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETATM 8237 MG   123 A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
+        ))
+        self.assertEqual(
+         data_file._heteroatoms,
+         [
+          {
+           "atom_id": 8237,
+           "atom_name": "MG",
+           "alt_loc": None,
+           "residue_name": "123",
+           "chain_id": "A",
+           "residue_id": 1001,
+           "insert_code": "",
+           "x": 13.872,
+           "y": -2.555,
+           "z": -29.045,
+           "occupancy": 1.0,
+           "temperature_factor": 27.36,
+           "element": "MG",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+
+
+    def test_hetatm_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "HETATM 8237 MG    MG A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
+        ))
+        self.assertEqual(data_file._heteroatoms, data_file.heteroatoms())
+
+
+
+
+
+
 class DateFromStringTests(TestCase):
 
     def test_can_get_date_from_string(self):
@@ -2113,99 +2221,6 @@ class MtrixRecordTests(PdbDataFileTest):
         self.assertEqual(self.empty.matrix("m33"), None)
         self.assertEqual(self.empty.matrix("v3"), None)
         self.assertEqual(self.empty.matrix("i_given_3"), False)
-
-
-
-
-
-
-
-class TerRecordTests(PdbDataFileTest):
-
-    def test_ter_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "TER     109      GLY A  13"
-        ))
-        self.assertEqual(
-         data_file.termini(),
-         [
-          {
-           "atom_id": 109,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "model_id": 1
-          }
-         ]
-        )
-
-
-    def test_missing_ter_processing(self):
-        self.assertEqual(self.empty.termini(), [])
-
-
-
-class HetatmRecordTests(PdbDataFileTest):
-
-    def test_hetatm_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "HETATM 8237 MG    MG A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
-        ))
-        self.assertEqual(
-         data_file.heteroatoms(),
-         [
-          {
-           "atom_id": 8237,
-           "atom_name": "MG",
-           "alt_loc": None,
-           "residue_name": "MG",
-           "chain_id": "A",
-           "residue_id": 1001,
-           "insert_code": "",
-           "x": 13.872,
-           "y": -2.555,
-           "z": -29.045,
-           "occupancy": 1.0,
-           "temperature_factor": 27.36,
-           "element": "MG",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
-
-
-    def test_het_names_always_interpreted_as_string(self):
-        data_file = PdbDataFile(PdbFile(
-         "HETATM 8237 MG   123 A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
-        ))
-        self.assertEqual(
-         data_file.heteroatoms(),
-         [
-          {
-           "atom_id": 8237,
-           "atom_name": "MG",
-           "alt_loc": None,
-           "residue_name": "123",
-           "chain_id": "A",
-           "residue_id": 1001,
-           "insert_code": "",
-           "x": 13.872,
-           "y": -2.555,
-           "z": -29.045,
-           "occupancy": 1.0,
-           "temperature_factor": 27.36,
-           "element": "MG",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
-
-
-    def test_missing_hetatm_processing(self):
-        self.assertEqual(self.empty.heteroatoms(), [])
 
 
 

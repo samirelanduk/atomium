@@ -45,6 +45,8 @@ class PdbDataFile:
         _process_model_records(self)
         _process_atom_records(self)
         _process_anisou_records(self)
+        _process_ter_records(self)
+        _process_hetatm_records(self)
 
 
 
@@ -301,6 +303,14 @@ class PdbDataFile:
 
     def anisou(self):
         return self._anisou
+
+
+    def termini(self):
+        return self._termini
+
+
+    def heteroatoms(self):
+        return self._heteroatoms
 
 
 
@@ -911,6 +921,55 @@ def _process_anisou_records(data_file):
     data_file._anisou = []
 
 
+def _process_ter_records(data_file):
+    if data_file.original_pdb_file():
+        ters = data_file.original_pdb_file().get_records_by_name("TER")
+        if ters:
+            data_file._termini = [{
+             "atom_id": r[6:11],
+             "residue_name": r[17:20],
+             "chain_id": r[21],
+             "residue_id": r[22:26],
+             "insert_code": r[26] if r[26] else "",
+             "model_id": [m for m in data_file.models()
+              if r.number() >= m["start_record"]
+               and r.number() <= m["end_record"]][0]["model_id"] if len(
+                data_file.models()
+                 ) > 1 else 1
+            } for r in ters]
+            return
+    data_file._termini = []
+
+
+def _process_hetatm_records(data_file):
+    if data_file.original_pdb_file():
+        hetatms = data_file.original_pdb_file().get_records_by_name("HETATM")
+        if hetatms:
+            data_file._heteroatoms = [{
+             "atom_id": r[6:11],
+             "atom_name": r[12:16],
+             "alt_loc": r[16],
+             "residue_name": r.get_as_string(17, 20),
+             "chain_id": r[21],
+             "residue_id": r[22:26],
+             "insert_code": r[26] if r[26] else "",
+             "x": r[30:38],
+             "y": r[38:46],
+             "z": r[46:54],
+             "occupancy": r[54:60],
+             "temperature_factor": r[60:66],
+             "element": r[76:78],
+             "charge": r[78:80],
+             "model_id": [m for m in data_file.models()
+              if r.number() >= m["start_record"]
+               and r.number() <= m["end_record"]][0]["model_id"] if len(
+                data_file.models()
+                 ) > 1 else 1
+            } for r in hetatms]
+            return
+    data_file._heteroatoms = []
+
+
 def date_from_string(s):
     """Gets a Date object from a PDB formatted date string.
 
@@ -1130,53 +1189,6 @@ def records_to_token_value_dicts(records):
                 }.get(m)
             else:
                 return None if "given" not in m else False
-
-
-    def atoms(self):
-        atoms = self.pdb_file().get_records_by_name("ATOM")
-        return
-
-
-    def anisou(self):
-        anisou = self.pdb_file().get_records_by_name("ANISOU")
-        return
-
-
-    def termini(self):
-        ters = self.pdb_file().get_records_by_name("TER")
-        return [{
-         "atom_id": r[6:11],
-         "residue_name": r[17:20],
-         "chain_id": r[21],
-         "residue_id": r[22:26],
-         "insert_code": r[26] if r[26] else "",
-         "model_id": [m for m in self.models()
-          if r.number() >= m["start_record"]
-           and r.number() <= m["end_record"]][0]["model_id"]
-        } for r in ters]
-
-
-    def heteroatoms(self):
-        hetatms = self.pdb_file().get_records_by_name("HETATM")
-        return [{
-         "atom_id": r[6:11],
-         "atom_name": r[12:16],
-         "alt_loc": r[16],
-         "residue_name": r.get_as_string(17, 20),
-         "chain_id": r[21],
-         "residue_id": r[22:26],
-         "insert_code": r[26] if r[26] else "",
-         "x": r[30:38],
-         "y": r[38:46],
-         "z": r[46:54],
-         "occupancy": r[54:60],
-         "temperature_factor": r[60:66],
-         "element": r[76:78],
-         "charge": r[78:80],
-         "model_id": [m for m in self.models()
-          if r.number() >= m["start_record"]
-           and r.number() <= m["end_record"]][0]["model_id"]
-        } for r in hetatms]
 
 
     def connections(self):

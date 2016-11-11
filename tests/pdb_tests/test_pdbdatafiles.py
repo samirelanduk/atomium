@@ -1724,6 +1724,545 @@ class CrystalRecordTests(PdbDataFileTest):
 
 
 
+class OrigxRecordTests(PdbDataFileTest):
+
+    def test_missing_origx_processing(self):
+        self.assertEqual(self.empty._origx_o11, None)
+        self.assertEqual(self.empty._origx_o12, None)
+        self.assertEqual(self.empty._origx_o13, None)
+        self.assertEqual(self.empty._origx_t1, None)
+        self.assertEqual(self.empty._origx_o21, None)
+        self.assertEqual(self.empty._origx_o22, None)
+        self.assertEqual(self.empty._origx_o23, None)
+        self.assertEqual(self.empty._origx_t2, None)
+        self.assertEqual(self.empty._origx_o31, None)
+        self.assertEqual(self.empty._origx_o32, None)
+        self.assertEqual(self.empty._origx_o33, None)
+        self.assertEqual(self.empty._origx_t3, None)
+        self.assertEqual(self.blank._origx_o11, None)
+        self.assertEqual(self.blank._origx_o12, None)
+        self.assertEqual(self.blank._origx_o13, None)
+        self.assertEqual(self.blank._origx_t1, None)
+        self.assertEqual(self.blank._origx_o21, None)
+        self.assertEqual(self.blank._origx_o22, None)
+        self.assertEqual(self.blank._origx_o23, None)
+        self.assertEqual(self.blank._origx_t2, None)
+        self.assertEqual(self.blank._origx_o31, None)
+        self.assertEqual(self.blank._origx_o32, None)
+        self.assertEqual(self.blank._origx_o33, None)
+        self.assertEqual(self.blank._origx_t3, None)
+
+
+    def test_origx_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "ORIGX1      0.963457  0.136613  0.230424       16.61000\n"
+         "ORIGX2     -0.158977  0.983924  0.081383       13.72000\n"
+         "ORIGX3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file._origx_o11, 0.963457)
+        self.assertEqual(data_file._origx_o12, 0.136613)
+        self.assertEqual(data_file._origx_o13, 0.230424)
+        self.assertEqual(data_file._origx_t1, 16.61)
+        self.assertEqual(data_file._origx_o21, -0.158977)
+        self.assertEqual(data_file._origx_o22, 0.983924)
+        self.assertEqual(data_file._origx_o23, 0.081383)
+        self.assertEqual(data_file._origx_t2, 13.72)
+        self.assertEqual(data_file._origx_o31, -0.215598)
+        self.assertEqual(data_file._origx_o32, -0.115048)
+        self.assertEqual(data_file._origx_o33, 0.969683)
+        self.assertEqual(data_file._origx_t3, 37.65)
+
+
+    def test_origx_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "ORIGX1      0.963457  0.136613  0.230424       16.61000\n"
+         "ORIGX2     -0.158977  0.983924  0.081383       13.72000\n"
+         "ORIGX3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file._origx_o11, data_file.origx_o11())
+        self.assertEqual(data_file._origx_o12, data_file.origx_o12())
+        self.assertEqual(data_file._origx_o13, data_file.origx_o13())
+        self.assertEqual(data_file._origx_t1, data_file.origx_t1())
+        self.assertEqual(data_file._origx_o21, data_file.origx_o21())
+        self.assertEqual(data_file._origx_o22, data_file.origx_o22())
+        self.assertEqual(data_file._origx_o23, data_file.origx_o23())
+        self.assertEqual(data_file._origx_t2, data_file.origx_t2())
+        self.assertEqual(data_file._origx_o31, data_file.origx_o31())
+        self.assertEqual(data_file._origx_o32, data_file.origx_o32())
+        self.assertEqual(data_file._origx_o33, data_file.origx_o33())
+        self.assertEqual(data_file._origx_t3, data_file.origx_t3())
+
+
+    def test_can_modify_origx_properties(self):
+        self.blank.origx_o11(0.963457)
+        self.blank.origx_o12(0.136613)
+        self.blank.origx_o13(0.230424)
+        self.blank.origx_t1(16.61)
+        self.blank.origx_o21(-0.158977)
+        self.blank.origx_o22(0.983924)
+        self.blank.origx_o23(0.081383)
+        self.blank.origx_t2(13.72)
+        self.blank.origx_o31(-0.215598)
+        self.blank.origx_o32(-0.115048)
+        self.blank.origx_o33(0.969683)
+        self.blank.origx_t3(37.65)
+        self.assertEqual(self.blank._origx_o11, 0.963457)
+        self.assertEqual(self.blank._origx_o12, 0.136613)
+        self.assertEqual(self.blank._origx_o13, 0.230424)
+        self.assertEqual(self.blank._origx_t1, 16.61)
+        self.assertEqual(self.blank._origx_o21, -0.158977)
+        self.assertEqual(self.blank._origx_o22, 0.983924)
+        self.assertEqual(self.blank._origx_o23, 0.081383)
+        self.assertEqual(self.blank._origx_t2, 13.72)
+        self.assertEqual(self.blank._origx_o31, -0.215598)
+        self.assertEqual(self.blank._origx_o32, -0.115048)
+        self.assertEqual(self.blank._origx_o33, 0.969683)
+        self.assertEqual(self.blank._origx_t3, 37.65)
+
+
+    def test_origx_o11_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o11("...")
+
+
+    def test_origx_o12_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o12("...")
+
+
+    def test_origx_o13_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o13("...")
+
+
+    def test_origx_t1_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_t1("...")
+
+
+    def test_origx_o21_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o21("...")
+
+
+    def test_origx_o22_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o22("...")
+
+
+    def test_origx_o23_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o23("...")
+
+
+    def test_origx_t2_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_t2("...")
+
+
+    def test_origx_o31_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o31("...")
+
+
+    def test_origx_o32_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o32("...")
+
+
+    def test_origx_o33_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_o33("...")
+
+
+    def test_origx_t3_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.origx_t3("...")
+
+
+
+class ScaleRecordTests(PdbDataFileTest):
+
+    def test_missing_scale_processing(self):
+        self.assertEqual(self.empty._scale_s11, None)
+        self.assertEqual(self.empty._scale_s12, None)
+        self.assertEqual(self.empty._scale_s13, None)
+        self.assertEqual(self.empty._scale_u1, None)
+        self.assertEqual(self.empty._scale_s21, None)
+        self.assertEqual(self.empty._scale_s22, None)
+        self.assertEqual(self.empty._scale_s23, None)
+        self.assertEqual(self.empty._scale_u2, None)
+        self.assertEqual(self.empty._scale_s31, None)
+        self.assertEqual(self.empty._scale_s32, None)
+        self.assertEqual(self.empty._scale_s33, None)
+        self.assertEqual(self.empty._scale_u3, None)
+        self.assertEqual(self.blank._scale_s11, None)
+        self.assertEqual(self.blank._scale_s12, None)
+        self.assertEqual(self.blank._scale_s13, None)
+        self.assertEqual(self.blank._scale_u1, None)
+        self.assertEqual(self.blank._scale_s21, None)
+        self.assertEqual(self.blank._scale_s22, None)
+        self.assertEqual(self.blank._scale_s23, None)
+        self.assertEqual(self.blank._scale_u2, None)
+        self.assertEqual(self.blank._scale_s31, None)
+        self.assertEqual(self.blank._scale_s32, None)
+        self.assertEqual(self.blank._scale_s33, None)
+        self.assertEqual(self.blank._scale_u3, None)
+
+
+    def test_scale_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "SCALE1      0.963457  0.136613  0.230424       16.61000\n"
+         "SCALE2     -0.158977  0.983924  0.081383       13.72000\n"
+         "SCALE3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file._scale_s11, 0.963457)
+        self.assertEqual(data_file._scale_s12, 0.136613)
+        self.assertEqual(data_file._scale_s13, 0.230424)
+        self.assertEqual(data_file._scale_u1, 16.61)
+        self.assertEqual(data_file._scale_s21, -0.158977)
+        self.assertEqual(data_file._scale_s22, 0.983924)
+        self.assertEqual(data_file._scale_s23, 0.081383)
+        self.assertEqual(data_file._scale_u2, 13.72)
+        self.assertEqual(data_file._scale_s31, -0.215598)
+        self.assertEqual(data_file._scale_s32, -0.115048)
+        self.assertEqual(data_file._scale_s33, 0.969683)
+        self.assertEqual(data_file._scale_u3, 37.65)
+
+
+    def test_scale_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "SCALE1      0.963457  0.136613  0.230424       16.61000\n"
+         "SCALE2     -0.158977  0.983924  0.081383       13.72000\n"
+         "SCALE3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file._scale_s11, data_file.scale_s11())
+        self.assertEqual(data_file._scale_s12, data_file.scale_s12())
+        self.assertEqual(data_file._scale_s13, data_file.scale_s13())
+        self.assertEqual(data_file._scale_u1, data_file.scale_u1())
+        self.assertEqual(data_file._scale_s21, data_file.scale_s21())
+        self.assertEqual(data_file._scale_s22, data_file.scale_s22())
+        self.assertEqual(data_file._scale_s23, data_file.scale_s23())
+        self.assertEqual(data_file._scale_u2, data_file.scale_u2())
+        self.assertEqual(data_file._scale_s31, data_file.scale_s31())
+        self.assertEqual(data_file._scale_s32, data_file.scale_s32())
+        self.assertEqual(data_file._scale_s33, data_file.scale_s33())
+        self.assertEqual(data_file._scale_u3, data_file.scale_u3())
+
+
+    def test_can_modify_scale_properties(self):
+        self.blank.scale_s11(0.963457)
+        self.blank.scale_s12(0.136613)
+        self.blank.scale_s13(0.230424)
+        self.blank.scale_u1(16.61)
+        self.blank.scale_s21(-0.158977)
+        self.blank.scale_s22(0.983924)
+        self.blank.scale_s23(0.081383)
+        self.blank.scale_u2(13.72)
+        self.blank.scale_s31(-0.215598)
+        self.blank.scale_s32(-0.115048)
+        self.blank.scale_s33(0.969683)
+        self.blank.scale_u3(37.65)
+        self.assertEqual(self.blank._scale_s11, 0.963457)
+        self.assertEqual(self.blank._scale_s12, 0.136613)
+        self.assertEqual(self.blank._scale_s13, 0.230424)
+        self.assertEqual(self.blank._scale_u1, 16.61)
+        self.assertEqual(self.blank._scale_s21, -0.158977)
+        self.assertEqual(self.blank._scale_s22, 0.983924)
+        self.assertEqual(self.blank._scale_s23, 0.081383)
+        self.assertEqual(self.blank._scale_u2, 13.72)
+        self.assertEqual(self.blank._scale_s31, -0.215598)
+        self.assertEqual(self.blank._scale_s32, -0.115048)
+        self.assertEqual(self.blank._scale_s33, 0.969683)
+        self.assertEqual(self.blank._scale_u3, 37.65)
+
+
+    def test_scale_s11_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s11("...")
+
+
+    def test_scale_s12_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s12("...")
+
+
+    def test_scale_s13_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s13("...")
+
+
+    def test_scale_u1_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_u1("...")
+
+
+    def test_scale_s21_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s21("...")
+
+
+    def test_scale_s22_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s22("...")
+
+
+    def test_scale_s23_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s23("...")
+
+
+    def test_scale_u2_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_u2("...")
+
+
+    def test_scale_s31_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s31("...")
+
+
+    def test_scale_s32_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s32("...")
+
+
+    def test_scale_s33_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_s33("...")
+
+
+    def test_scale_u3_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.scale_u3("...")
+
+
+
+class MtrixRecordTests(PdbDataFileTest):
+
+    def test_missing_matrix_processing(self):
+        self.assertEqual(self.empty._matrix_serial_1, None)
+        self.assertEqual(self.empty._matrix_m11, None)
+        self.assertEqual(self.empty._matrix_m12, None)
+        self.assertEqual(self.empty._matrix_m13, None)
+        self.assertEqual(self.empty._matrix_v1, None)
+        self.assertEqual(self.empty._matrix_i_given_1, None)
+        self.assertEqual(self.empty._matrix_serial_2, None)
+        self.assertEqual(self.empty._matrix_m21, None)
+        self.assertEqual(self.empty._matrix_m22, None)
+        self.assertEqual(self.empty._matrix_m23, None)
+        self.assertEqual(self.empty._matrix_v2, None)
+        self.assertEqual(self.empty._matrix_i_given_2, None)
+        self.assertEqual(self.empty._matrix_serial_3, None)
+        self.assertEqual(self.empty._matrix_m31, None)
+        self.assertEqual(self.empty._matrix_m32, None)
+        self.assertEqual(self.empty._matrix_m33, None)
+        self.assertEqual(self.empty._matrix_v3, None)
+        self.assertEqual(self.empty._matrix_i_given_3, None)
+        self.assertEqual(self.empty._matrix_serial_1, None)
+        self.assertEqual(self.blank._matrix_m11, None)
+        self.assertEqual(self.blank._matrix_m12, None)
+        self.assertEqual(self.blank._matrix_m13, None)
+        self.assertEqual(self.blank._matrix_v1, None)
+        self.assertEqual(self.empty._matrix_i_given_1, None)
+        self.assertEqual(self.empty._matrix_serial_2, None)
+        self.assertEqual(self.blank._matrix_m21, None)
+        self.assertEqual(self.blank._matrix_m22, None)
+        self.assertEqual(self.blank._matrix_m23, None)
+        self.assertEqual(self.blank._matrix_v2, None)
+        self.assertEqual(self.empty._matrix_i_given_2, None)
+        self.assertEqual(self.empty._matrix_serial_3, None)
+        self.assertEqual(self.blank._matrix_m31, None)
+        self.assertEqual(self.blank._matrix_m32, None)
+        self.assertEqual(self.blank._matrix_m33, None)
+        self.assertEqual(self.blank._matrix_v3, None)
+        self.assertEqual(self.empty._matrix_i_given_1, None)
+
+
+    def test_mtrix_record_processing(self):
+        data_file = PdbDataFile(PdbFile(
+         "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1\n"
+         "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1\n"
+         "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1"
+        ))
+        self.assertEqual(data_file._matrix_serial_1, 1)
+        self.assertEqual(data_file._matrix_m11, -1.0)
+        self.assertEqual(data_file._matrix_m12, 0.0)
+        self.assertEqual(data_file._matrix_m13, 0.0)
+        self.assertEqual(data_file._matrix_v1, 0.0)
+        self.assertEqual(data_file._matrix_i_given_1, True)
+        self.assertEqual(data_file._matrix_serial_2, 1)
+        self.assertEqual(data_file._matrix_m21, 0.0)
+        self.assertEqual(data_file._matrix_m22, 1.0)
+        self.assertEqual(data_file._matrix_m23, 0.0)
+        self.assertEqual(data_file._matrix_v2, 0.0)
+        self.assertEqual(data_file._matrix_i_given_2, True)
+        self.assertEqual(data_file._matrix_serial_3, 1)
+        self.assertEqual(data_file._matrix_m31, 0.0)
+        self.assertEqual(data_file._matrix_m32, 0.0)
+        self.assertEqual(data_file._matrix_m33, -1.0)
+        self.assertEqual(data_file._matrix_v3, 0.0)
+        self.assertEqual(data_file._matrix_i_given_3, True)
+
+
+    def test_mtrix_properties(self):
+        data_file = PdbDataFile(PdbFile(
+         "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1\n"
+         "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1\n"
+         "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1"
+        ))
+        self.assertEqual(data_file._matrix_serial_1, data_file.matrix_serial_1())
+        self.assertEqual(data_file._matrix_m11, data_file.matrix_m11())
+        self.assertEqual(data_file._matrix_m12, data_file.matrix_m12())
+        self.assertEqual(data_file._matrix_m13, data_file.matrix_m13())
+        self.assertEqual(data_file._matrix_v1, data_file.matrix_v1())
+        self.assertEqual(data_file._matrix_i_given_1, data_file.matrix_i_given_1())
+        self.assertEqual(data_file._matrix_serial_2, data_file.matrix_serial_2())
+        self.assertEqual(data_file._matrix_m21, data_file.matrix_m21())
+        self.assertEqual(data_file._matrix_m22, data_file.matrix_m22())
+        self.assertEqual(data_file._matrix_m23, data_file.matrix_m23())
+        self.assertEqual(data_file._matrix_v2, data_file.matrix_v2())
+        self.assertEqual(data_file._matrix_i_given_2, data_file.matrix_i_given_2())
+        self.assertEqual(data_file._matrix_serial_3, data_file.matrix_serial_3())
+        self.assertEqual(data_file._matrix_m31, data_file.matrix_m31())
+        self.assertEqual(data_file._matrix_m32, data_file.matrix_m32())
+        self.assertEqual(data_file._matrix_m33, data_file.matrix_m33())
+        self.assertEqual(data_file._matrix_v3, data_file.matrix_v3())
+        self.assertEqual(data_file._matrix_i_given_3, data_file.matrix_i_given_3())
+
+
+    def test_can_modify_mtrx_properties(self):
+        self.blank.matrix_serial_1(1)
+        self.blank.matrix_m11(-1.0)
+        self.blank.matrix_m12(0.0)
+        self.blank.matrix_m13(0.0)
+        self.blank.matrix_v1(0.0)
+        self.blank.matrix_i_given_1(True)
+        self.blank.matrix_serial_2(1)
+        self.blank.matrix_m21(0.0)
+        self.blank.matrix_m22(1.0)
+        self.blank.matrix_m23(0.0)
+        self.blank.matrix_v2(0.0)
+        self.blank.matrix_i_given_2(True)
+        self.blank.matrix_serial_3(1)
+        self.blank.matrix_m31(0.0)
+        self.blank.matrix_m32(0.0)
+        self.blank.matrix_m33(-1.0)
+        self.blank.matrix_v3(0.0)
+        self.blank.matrix_i_given_3(True)
+        self.assertEqual(self.blank._matrix_serial_1, 1)
+        self.assertEqual(self.blank._matrix_m11, -1.0)
+        self.assertEqual(self.blank._matrix_m12, 0.0)
+        self.assertEqual(self.blank._matrix_m13, 0.0)
+        self.assertEqual(self.blank._matrix_v1, 0.0)
+        self.assertEqual(self.blank._matrix_i_given_1, True)
+        self.assertEqual(self.blank._matrix_serial_2, 1)
+        self.assertEqual(self.blank._matrix_m21, 0.0)
+        self.assertEqual(self.blank._matrix_m22, 1.0)
+        self.assertEqual(self.blank._matrix_m23, 0.0)
+        self.assertEqual(self.blank._matrix_v2, 0.0)
+        self.assertEqual(self.blank._matrix_i_given_2, True)
+        self.assertEqual(self.blank._matrix_serial_3, 1)
+        self.assertEqual(self.blank._matrix_m31, 0.0)
+        self.assertEqual(self.blank._matrix_m32, 0.0)
+        self.assertEqual(self.blank._matrix_m33, -1.0)
+        self.assertEqual(self.blank._matrix_v3, 0.0)
+        self.assertEqual(self.blank._matrix_i_given_3, True)
+
+
+    def test_matrix_serial_1_must_be_int(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_serial_1("...")
+
+
+    def test_matrix_m11_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m11("...")
+
+
+    def test_matrix_m12_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m12("...")
+
+
+    def test_matrix_m13_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m13("...")
+
+
+    def test_matrix_v1_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_v1("...")
+
+
+    def test_matrix_i_given_1_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_i_given_1("...")
+
+
+    def test_matrix_serial_2_must_be_bool(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_serial_2("...")
+
+
+    def test_matrix_m21_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m21("...")
+
+
+    def test_matrix_m22_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m22("...")
+
+
+    def test_matrix_m23_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m23("...")
+
+
+    def test_matrix_v2_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_v2("...")
+
+
+    def test_matrix_i_given_2_must_be_bool(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_i_given_2("...")
+
+
+    def test_matrix_serial_3_must_be_int(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_serial_3("...")
+
+
+    def test_matrix_m31_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m31("...")
+
+
+    def test_matrix_m32_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m32("...")
+
+
+    def test_matrix_m33_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_m33("...")
+
+
+    def test_matrix_v3_must_be_float(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_v3("...")
+
+
+    def test_matrix_i_given_3_must_be_bool(self):
+        with self.assertRaises(TypeError):
+            self.blank.matrix_i_given_3("...")
+
+
+
+
+
 class ModelRecordTests(PdbDataFileTest):
 
     def test_missing_model_processing(self):
@@ -2272,138 +2811,3 @@ class RecordsToDictTests(TestCase):
           {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
          ]
         )
-
-
-
-'''
-
-
-
-
-class OrigxRecordTests(PdbDataFileTest):
-
-    def test_origx_record_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "ORIGX1      0.963457  0.136613  0.230424       16.61000\n"
-         "ORIGX2     -0.158977  0.983924  0.081383       13.72000\n"
-         "ORIGX3     -0.215598 -0.115048  0.969683       37.65000"
-        ))
-        self.assertEqual(data_file.origx("o11"), 0.963457)
-        self.assertEqual(data_file.origx("o12"), 0.136613)
-        self.assertEqual(data_file.origx("o13"), 0.230424)
-        self.assertEqual(data_file.origx("t1"), 16.61)
-        self.assertEqual(data_file.origx("o21"), -0.158977)
-        self.assertEqual(data_file.origx("o22"), 0.983924)
-        self.assertEqual(data_file.origx("o23"), 0.081383)
-        self.assertEqual(data_file.origx("t2"), 13.72)
-        self.assertEqual(data_file.origx("o31"), -0.215598)
-        self.assertEqual(data_file.origx("o32"), -0.115048)
-        self.assertEqual(data_file.origx("o33"), 0.969683)
-        self.assertEqual(data_file.origx("t3"), 37.65)
-
-
-    def test_missing_origx_processing(self):
-        self.assertEqual(self.empty.origx("o11"), None)
-        self.assertEqual(self.empty.origx("o12"), None)
-        self.assertEqual(self.empty.origx("o13"), None)
-        self.assertEqual(self.empty.origx("t1"), None)
-        self.assertEqual(self.empty.origx("o21"), None)
-        self.assertEqual(self.empty.origx("o22"), None)
-        self.assertEqual(self.empty.origx("o23"), None)
-        self.assertEqual(self.empty.origx("t2"), None)
-        self.assertEqual(self.empty.origx("o31"), None)
-        self.assertEqual(self.empty.origx("o32"), None)
-        self.assertEqual(self.empty.origx("o33"), None)
-        self.assertEqual(self.empty.origx("t3"), None)
-
-
-
-class ScaleRecordTests(PdbDataFileTest):
-
-    def test_scale_record_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "SCALE1      0.017370  0.000000  0.001301        0.00000\n"
-         "SCALE2      0.000000  0.018024  0.000000        0.00000\n"
-         "SCALE3      0.000000  0.000000  0.015164        0.00000"
-        ))
-        self.assertEqual(data_file.scale("s11"), 0.01737)
-        self.assertEqual(data_file.scale("s12"), 0.0)
-        self.assertEqual(data_file.scale("s13"), 0.001301)
-        self.assertEqual(data_file.scale("u1"), 0.0)
-        self.assertEqual(data_file.scale("s21"), 0.0)
-        self.assertEqual(data_file.scale("s22"), 0.018024)
-        self.assertEqual(data_file.scale("s23"), 0.0)
-        self.assertEqual(data_file.scale("u2"), 0.0)
-        self.assertEqual(data_file.scale("s31"), 0.0)
-        self.assertEqual(data_file.scale("s32"), 0.0)
-        self.assertEqual(data_file.scale("s33"), 0.015164)
-        self.assertEqual(data_file.scale("u3"), 0.0)
-
-
-    def test_missing_scale_processing(self):
-        self.assertEqual(self.empty.scale("s11"), None)
-        self.assertEqual(self.empty.scale("s12"), None)
-        self.assertEqual(self.empty.scale("s13"), None)
-        self.assertEqual(self.empty.scale("u1"), None)
-        self.assertEqual(self.empty.scale("s21"), None)
-        self.assertEqual(self.empty.scale("s22"), None)
-        self.assertEqual(self.empty.scale("s23"), None)
-        self.assertEqual(self.empty.scale("u2"), None)
-        self.assertEqual(self.empty.scale("s31"), None)
-        self.assertEqual(self.empty.scale("s32"), None)
-        self.assertEqual(self.empty.scale("s33"), None)
-        self.assertEqual(self.empty.scale("u3"), None)
-
-
-
-class MtrixRecordTests(PdbDataFileTest):
-
-    def test_mtrix_record_processing(self):
-        data_file = PdbDataFile(PdbFile(
-         "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1\n"
-         "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1\n"
-         "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1"
-        ))
-        self.assertEqual(data_file.matrix("serial_1"), 1)
-        self.assertEqual(data_file.matrix("m11"), -1.0)
-        self.assertEqual(data_file.matrix("m12"), 0.0)
-        self.assertEqual(data_file.matrix("m13"), 0.0)
-        self.assertEqual(data_file.matrix("v1"), 0.0)
-        self.assertEqual(data_file.matrix("i_given_1"), True)
-        self.assertEqual(data_file.matrix("serial_2"), 1)
-        self.assertEqual(data_file.matrix("m21"), 0.0)
-        self.assertEqual(data_file.matrix("m22"), 1.0)
-        self.assertEqual(data_file.matrix("m23"), 0.0)
-        self.assertEqual(data_file.matrix("v2"), 0.0)
-        self.assertEqual(data_file.matrix("i_given_3"), True)
-        self.assertEqual(data_file.matrix("serial_3"), 1)
-        self.assertEqual(data_file.matrix("m31"), 0.0)
-        self.assertEqual(data_file.matrix("m32"), 0.0)
-        self.assertEqual(data_file.matrix("m33"), -1.0)
-        self.assertEqual(data_file.matrix("v3"), 0.0)
-        self.assertEqual(data_file.matrix("i_given_3"), True)
-
-
-    def test_missing_mtrix_processing(self):
-        self.assertEqual(self.empty.matrix("serial_1"), None)
-        self.assertEqual(self.empty.matrix("m11"), None)
-        self.assertEqual(self.empty.matrix("m12"), None)
-        self.assertEqual(self.empty.matrix("m13"), None)
-        self.assertEqual(self.empty.matrix("v1"), None)
-        self.assertEqual(self.empty.matrix("i_given_3"), False)
-        self.assertEqual(self.empty.matrix("serial_1"), None)
-        self.assertEqual(self.empty.matrix("m21"), None)
-        self.assertEqual(self.empty.matrix("m22"), None)
-        self.assertEqual(self.empty.matrix("m23"), None)
-        self.assertEqual(self.empty.matrix("v2"), None)
-        self.assertEqual(self.empty.matrix("i_given_3"), False)
-        self.assertEqual(self.empty.matrix("serial_1"), None)
-        self.assertEqual(self.empty.matrix("m31"), None)
-        self.assertEqual(self.empty.matrix("m32"), None)
-        self.assertEqual(self.empty.matrix("m33"), None)
-        self.assertEqual(self.empty.matrix("v3"), None)
-        self.assertEqual(self.empty.matrix("i_given_3"), False)
-
-
-
-'''

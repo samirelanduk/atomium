@@ -18,11 +18,11 @@ class Model(AtomicStructure):
         if attribute == "_atoms":
             atoms = set()
             for molecule in self.small_molecules():
-                atoms.update(molecule.atoms())
+                atoms.update(molecule.atoms(atom_type="all"))
             for chain in self.chains():
-                atoms.update(chain.atoms())
+                atoms.update(chain.atoms(atom_type="all"))
             for site in self.bind_sites():
-                atoms.update(site.atoms())
+                atoms.update(site.atoms(atom_type="all"))
             return atoms
         else:
             return self.__getattribute__(attribute)

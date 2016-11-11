@@ -308,4 +308,7 @@ class ModelAtomsTests(ModelTest):
         model.add_bind_site(self.site1)
         model.add_bind_site(self.site2)
         self.assertEqual(model._atoms, set([str(i) for i in range(1, 13)]))
-        self.assertEqual(model.atoms(), set([str(i) for i in range(1, 13)]))
+        self.assertEqual(
+         model.atoms(atom_type="all"),
+         set([str(i) for i in range(1, 13)])
+        )

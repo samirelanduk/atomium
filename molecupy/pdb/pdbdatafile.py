@@ -54,7 +54,6 @@ class PdbDataFile:
         _process_master_records(self)
 
 
-
     def __repr__(self):
         return "<PdbDataFile (%s)>" % (self.pdb_code() if self.pdb_code() else "????")
 
@@ -764,8 +763,6 @@ class PdbDataFile:
             return self._matrix_i_given_3
 
 
-
-
     def models(self):
         return self._models
 
@@ -799,6 +796,12 @@ class PdbDataFile:
             self._master = master
         else:
             return self._master
+
+
+    def generate_pdb_file(self):
+        from .pdbfile import PdbFile
+        pdb_file = PdbFile()
+        return pdb_file
 
 
 

@@ -43,6 +43,15 @@ class PdbDataFileCreationTests(PdbDataFileTest):
 
 
 
+class PdbFileProductionTests(PdbDataFileTest):
+
+    def test_can_produce_pdb_file(self):
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertIsInstance(pdb_file, PdbFile)
+        self.assertEqual(pdb_file.records(), [])
+
+
+
 class HeaderRecordTests(PdbDataFileTest):
 
     def test_missing_header_processing(self):

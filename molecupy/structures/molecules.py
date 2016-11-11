@@ -446,7 +446,7 @@ class Residue(AtomicStructure):
 
         :rtype: ``bool``"""
 
-        return not bool(self.atoms(atom_type="pdb"))
+        return not bool(self.atoms())
 
 
     def downstream_residue(self):

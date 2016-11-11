@@ -1,12 +1,12 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Residue, AtomicStructure, PdbAtom, Atom
+from molecupy.structures import Residue, AtomicStructure, Atom, GhostAtom
 from molecupy.exceptions import MultipleResidueConnectionError
 
 class ResidueTest(TestCase):
 
     def setUp(self):
-        self.atoms = [unittest.mock.Mock(spec=PdbAtom) for _ in range(10)]
+        self.atoms = [unittest.mock.Mock(Atom) for _ in range(10)]
         for atom in self.atoms:
             atom._molecule = None
 
@@ -89,7 +89,7 @@ class ResiduePropertyTests(ResidueTest):
 class MissingResidueTests(ResidueTest):
 
     def test_residue_knows_if_it_is_missing(self):
-        generic_atoms = [unittest.mock.Mock(spec=Atom) for _ in range(10)]
+        generic_atoms = [unittest.mock.Mock(spec=GhostAtom) for _ in range(10)]
         whole_residue = Residue("A3", "MET", *self.atoms)
         part_residue = Residue("A2", "MET", self.atoms[0], self.atoms[1], generic_atoms[0])
         missing_residue = Residue("A1", "MET", *generic_atoms)

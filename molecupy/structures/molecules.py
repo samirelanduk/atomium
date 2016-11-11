@@ -29,6 +29,10 @@ class AtomicStructure:
         return "<%s (%i atoms)>" % (self.__class__.__name__, len(self._atoms))
 
 
+    def __iter__(self):
+        return iter(self._atoms)
+
+
     def atoms(self, atom_type="localised"):
         """Returns the atoms in this structure as a ``set``.
 

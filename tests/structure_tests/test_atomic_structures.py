@@ -58,6 +58,14 @@ class AtomicStructureCreationTests(AtomicStructureTest):
         self.assertEqual(str(atomic_structure), "<AtomicStructure (10 atoms)>")
 
 
+    def test_atomic_structure_is_iterable_of_atoms(self):
+        atomic_structure = AtomicStructure(*self.atoms)
+        atoms_from_loop = set()
+        for atom in atomic_structure:
+            atoms_from_loop.add(atom)
+        self.assertEqual(set(self.atoms), atoms_from_loop)
+
+
 
 class AtomicStructurePropertyTests(AtomicStructureTest):
 

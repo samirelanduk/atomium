@@ -3,7 +3,7 @@ from omnicanvas.canvas import Canvas
 import omnicanvas.graphics
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Chain, ResiduicSequence, Residue, PdbAtom, Atom
+from molecupy.structures import Chain, ResiduicSequence, Residue, Atom, GhostAtom
 from molecupy.structures import AlphaHelix, BetaStrand
 
 class ChainTest(TestCase):
@@ -118,21 +118,21 @@ class SecondaryStructureRetrievalTests(ChainTest):
 class ChainMatrixTests(ChainTest):
 
     def setUp(self):
-        self.atom1 = PdbAtom(3.696, 33.898, 63.219, "N", 1, "N")
-        self.atom2 = PdbAtom(3.198, 33.218, 61.983, "C", 2, "CA")
-        self.atom3 = PdbAtom(3.914, 31.863, 61.818, "O", 3, "C")
+        self.atom1 = Atom(3.696, 33.898, 63.219, "N", 1, "N")
+        self.atom2 = Atom(3.198, 33.218, 61.983, "C", 2, "CA")
+        self.atom3 = Atom(3.914, 31.863, 61.818, "O", 3, "C")
         self.residue1 = Residue("A11", "VAL", self.atom1, self.atom2, self.atom3)
-        self.atom4 = PdbAtom(3.155, 30.797, 61.557, "N", 4, "N")
-        self.atom5 = PdbAtom(3.728, 29.464, 61.400, "C", 5, "CA")
-        self.atom6 = PdbAtom(4.757, 29.459, 60.275, "O", 6, "C")
+        self.atom4 = Atom(3.155, 30.797, 61.557, "N", 4, "N")
+        self.atom5 = Atom(3.728, 29.464, 61.400, "C", 5, "CA")
+        self.atom6 = Atom(4.757, 29.459, 60.275, "O", 6, "C")
         self.residue2 = Residue("A12", "MET", self.atom4, self.atom5, self.atom6)
-        self.atomA = Atom("C", 1001, "CA")
+        self.atomA = GhostAtom("C", 1001, "CA")
         self.residue3 = Residue("A12A", "TRP", self.atomA)
-        self.atom7 = PdbAtom(5.980, 29.039, 60.600, "N", 7, "N")
-        self.atom8 = PdbAtom(7.092, 28.983, 59.649, "C", 8, "CA")
-        self.atom9 = PdbAtom(7.092, 30.310, 58.987, "O", 9, "C")
+        self.atom7 = Atom(5.980, 29.039, 60.600, "N", 7, "N")
+        self.atom8 = Atom(7.092, 28.983, 59.649, "C", 8, "CA")
+        self.atom9 = Atom(7.092, 30.310, 58.987, "O", 9, "C")
         self.residue4 = Residue("A13", "ASN", self.atom7, self.atom8, self.atom9)
-        self.atomB = Atom("C", 1002, "CA")
+        self.atomB = GhostAtom("C", 1002, "CA")
         self.residue5 = Residue("14", "TRP", self.atomA)
         self.chain = Chain(
          "A", self.residue1, self.residue2, self.residue3, self.residue4, self.residue5
@@ -274,6 +274,6 @@ class ChainMatrixTests(ChainTest):
         with self.assertRaises(ValueError):
             matrix = self.chain.generate_residue_distance_matrix(
              subsequence=(self.residue1, Residue(
-              "A4", "RES", PdbAtom(1.0, 1.0, 1.0, "H", 1, "H")
+              "A4", "RES", Atom(1.0, 1.0, 1.0, "H", 1, "H")
              ))
             )

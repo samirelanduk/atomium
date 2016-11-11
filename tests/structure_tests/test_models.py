@@ -3,6 +3,7 @@ import unittest.mock
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from molecupy.exceptions import DuplicateBindSitesError
+from molecupy.pdb.pdbdatafile import PdbDataFile
 
 class ModelTest(TestCase):
 
@@ -312,3 +313,12 @@ class ModelAtomsTests(ModelTest):
          model.atoms(atom_type="all"),
          set([str(i) for i in range(1, 13)])
         )
+
+
+
+class ConversionToPdbDataFileTests(ModelTest):
+
+    def test_model_can_produce_pdbdatafile(self):
+        model = Model()
+        data_file = model.pdb_data_file()
+        self.assertIsInstance(data_file, PdbDataFile)

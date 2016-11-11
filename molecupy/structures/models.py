@@ -2,6 +2,7 @@ from .molecules import AtomicStructure, SmallMolecule
 from .chains import Chain, BindSite
 from ..exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from ..exceptions import DuplicateBindSitesError
+from ..pdb.pdbdatafile import PdbDataFile
 
 class Model(AtomicStructure):
     """Base class: :py:class:`.AtomicStructure`
@@ -208,3 +209,8 @@ class Model(AtomicStructure):
         for site in self.bind_sites():
             if site.site_id() == site_id:
                 return site
+
+
+    def pdb_data_file(self):
+        data_file = PdbDataFile()
+        return data_file

@@ -213,4 +213,22 @@ class Model(AtomicStructure):
 
     def pdb_data_file(self):
         data_file = PdbDataFile()
+        for atom in sorted(list(self.atoms()), key=lambda k: k.atom_id()):
+            data_file.atoms().append({
+             "atom_id": atom.atom_id(),
+             "atom_name": atom.atom_name(),
+             "alt_loc": None,
+             "residue_name": None,
+             "chain_id": None,
+             "residue_id": None,
+             "insert_code": None,
+             "x": atom.x(),
+             "y": atom.y(),
+             "z": atom.z(),
+             "occupancy": None,
+             "temperature_factor": None,
+             "element": atom.element(),
+             "charge": None,
+             "model_id": 1
+            })
         return data_file

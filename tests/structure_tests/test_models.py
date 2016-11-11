@@ -1,6 +1,6 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite
+from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite, Atom
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from molecupy.exceptions import DuplicateBindSitesError
 from molecupy.pdb.pdbdatafile import PdbDataFile
@@ -322,3 +322,61 @@ class ConversionToPdbDataFileTests(ModelTest):
         model = Model()
         data_file = model.pdb_data_file()
         self.assertIsInstance(data_file, PdbDataFile)
+
+
+    def test_can_add_atoms_to_pdb_data_file(self):
+        model = Model()
+        atom1 = unittest.mock.Mock(Atom)
+        atom1.x.return_value, atom1.y.return_value, atom1.z.return_value = (
+         1.2, 2.3, 3.4
+        )
+        atom1.element.return_value, atom1.atom_id.return_value, atom1.atom_name.return_value = (
+         "G", 23, "GX"
+        )
+        atom2 = unittest.mock.Mock(Atom)
+        atom2.x.return_value, atom2.y.return_value, atom2.z.return_value = (
+         11.2, 11.3, 34.4
+        )
+        atom2.element.return_value, atom2.atom_id.return_value, atom2.atom_name.return_value = (
+         "Y", 38, "YT"
+        )
+        model._atoms = set((atom1, atom2))
+        data_file = model.pdb_data_file()
+        self.assertEqual(
+         data_file.atoms(),
+         [
+          {
+           "atom_id": 23,
+           "atom_name": "GX",
+           "alt_loc": None,
+           "residue_name": None,
+           "chain_id": None,
+           "residue_id": None,
+           "insert_code": None,
+           "x": 1.2,
+           "y": 2.3,
+           "z": 3.4,
+           "occupancy": None,
+           "temperature_factor": None,
+           "element": "G",
+           "charge": None,
+           "model_id": 1
+          }, {
+           "atom_id": 38,
+           "atom_name": "YT",
+           "alt_loc": None,
+           "residue_name": None,
+           "chain_id": None,
+           "residue_id": None,
+           "insert_code": None,
+           "x": 11.2,
+           "y": 11.3,
+           "z": 34.4,
+           "occupancy": None,
+           "temperature_factor": None,
+           "element": "Y",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )

@@ -36,7 +36,7 @@ class ResiduicStructure(AtomicStructure):
         if attribute == "_atoms":
             atoms = set()
             for residue in self.residues():
-                atoms.update(residue.atoms())
+                atoms.update(residue.atoms(atom_type="all"))
             return atoms
         else:
             return self.__getattribute__(attribute)

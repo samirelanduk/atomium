@@ -91,7 +91,7 @@ class AtomicStructure:
         return sum([atom.mass() for atom in self.atoms(atom_type)])
 
 
-    def formula(self, atom_type="all", include_hydrogens=False):
+    def formula(self, atom_type="localised", include_hydrogens=False):
         """Retrurns the formula (count of each atom) of the structure.
 
         :param str atom_type: The kind of atom to use. ``"all"`` will\
@@ -124,9 +124,9 @@ class AtomicStructure:
         :rtype: ``set`` of ``frozenset`` contacts."""
 
         contacts = set()
-        our_atoms = list(self.atoms(atom_type="pdb"))
+        our_atoms = list(self.atoms())
         their_atoms = [
-         a for a in list(other_atomic_structure.atoms(atom_type="pdb"))
+         a for a in list(other_atomic_structure.atoms())
           if a not in our_atoms
         ]
         if not include_hydrogens:
@@ -157,7 +157,7 @@ class AtomicStructure:
         :rtype: ``set`` of ``frozenset`` contacts."""
 
         contacts = set()
-        atoms = list(self.atoms(atom_type="pdb"))
+        atoms = list(self.atoms())
         if not include_hydrogens:
             atoms = [atom for atom in atoms if atom.element().upper() != "H"]
         for index, atom in enumerate(atoms[:-1]):
@@ -186,7 +186,7 @@ class AtomicStructure:
 
         from .chains import BindSite
         nearby_atoms = set()
-        for atom in [atom for atom in self.atoms(atom_type="pdb")
+        for atom in [atom for atom in self.atoms()
          if (include_hydrogens or atom.element().upper() != "H")]:
             nearby_atoms.update(atom.local_atoms(
              distance=distance, include_hydrogens=include_hydrogens
@@ -207,12 +207,12 @@ class AtomicStructure:
 
         if not isinstance(atom_id, int):
             raise TypeError("Atom ID search must be by int, not '%s'" % str(atom_id))
-        for atom in self.atoms():
+        for atom in self.atoms(atom_type="all"):
             if atom.atom_id() == atom_id:
                 return atom
 
 
-    def get_atoms_by_element(self, element, atom_type="all"):
+    def get_atoms_by_element(self, element, atom_type="localised"):
         """Retruns all the atoms a given element.
 
         :param str element: The element to search by.
@@ -228,7 +228,7 @@ class AtomicStructure:
         ])
 
 
-    def get_atom_by_element(self, element, atom_type="all"):
+    def get_atom_by_element(self, element, atom_type="localised"):
         """Retrurns the first atom that matches a given element.
 
         :param str element: The element to search by.
@@ -244,7 +244,7 @@ class AtomicStructure:
                 return atom
 
 
-    def get_atoms_by_name(self, atom_name, atom_type="all"):
+    def get_atoms_by_name(self, atom_name, atom_type="localised"):
         """Retruns all the atoms a given name.
 
         :param str atom_name: The name to search by.
@@ -260,7 +260,7 @@ class AtomicStructure:
         ])
 
 
-    def get_atom_by_name(self, atom_name, atom_type="all"):
+    def get_atom_by_name(self, atom_name, atom_type="localised"):
         """Retrurns the first atom that matches a given name.
 
         :param str atom_name: The name to search by.

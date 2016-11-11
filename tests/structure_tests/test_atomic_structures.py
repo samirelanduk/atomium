@@ -179,48 +179,47 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
         )
 
 
-    def test_can_get_pdb_atom_formula_with_hydrogens(self):
+    def test_can_get_localised_atom_formula_with_hydrogens(self):
         self.assertEqual(
-         self.atomic_structure.formula(atom_type="pdb", include_hydrogens=True),
+         self.atomic_structure.formula(include_hydrogens=True),
          Counter({"H": 4, "C": 3, "N": 2, "F": 1})
         )
 
 
-    def test_can_get_pdb_atom_formula_without_hydrogens(self):
+    def test_can_get_localised_atom_formula_without_hydrogens(self):
         self.assertEqual(
-         self.atomic_structure.formula(atom_type="pdb", include_hydrogens=False),
+         self.atomic_structure.formula(include_hydrogens=False),
          Counter({"C": 3, "N": 2, "F": 1})
         )
 
 
-    def test_can_get_generic_atom_formula_with_hydrogens(self):
+    def test_can_get_ghost_atom_formula_with_hydrogens(self):
         self.assertEqual(
-         self.atomic_structure.formula(atom_type="generic", include_hydrogens=True),
+         self.atomic_structure.formula(atom_type="ghost", include_hydrogens=True),
          Counter({"H": 3, "C": 2, "N": 3, "F": 1, "P": 1})
         )
 
 
-    def test_can_get_generic_atom_formula_without_hydrogens(self):
+    def test_can_get_ghost_atom_formula_without_hydrogens(self):
         self.assertEqual(
-         self.atomic_structure.formula(atom_type="generic", include_hydrogens=False),
+         self.atomic_structure.formula(atom_type="ghost", include_hydrogens=False),
          Counter({"C": 2, "N": 3, "F": 1, "P": 1})
         )
 
 
-    def test_default_formula_is_all_atoms_no_hydrogens(self):
+    def test_default_formula_is_localised_atoms_no_hydrogens(self):
         self.assertEqual(
          self.atomic_structure.formula(),
-         self.atomic_structure.formula(atom_type="all", include_hydrogens=False)
+         self.atomic_structure.formula(include_hydrogens=False)
         )
 
 
 
-'''class AtomRetrievalTests(AtomicStructureTest):
+class AtomRetrievalTests(AtomicStructureTest):
 
     def setUp(self):
         AtomicStructureTest.setUp(self)
         for index, atom in enumerate(self.all_atoms):
-            atom.atom_id.return_value = index + 1
             atom.element.return_value = chr((index % 5) + 65)
             atom.atom_name.return_value = atom.element() + "X"
         self.atomic_structure = AtomicStructure(*self.all_atoms)
@@ -245,24 +244,17 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
         )
 
 
-    def test_can_get_atoms_by_element(self):
+    def test_can_get_localised_atoms_by_element(self):
         self.assertEqual(
-         self.atomic_structure.get_atoms_by_element("B", atom_type="pdb"),
+         self.atomic_structure.get_atoms_by_element("B"),
          set((self.all_atoms[1], self.all_atoms[6]))
         )
 
 
     def test_can_get_ghost_atoms_by_element(self):
         self.assertEqual(
-         self.atomic_structure.get_atoms_by_element("B", atom_type="generic"),
+         self.atomic_structure.get_atoms_by_element("B", atom_type="ghost"),
          set((self.all_atoms[11], self.all_atoms[16]))
-        )
-
-
-    def test_default_element_atom_retrieval_is_all(self):
-        self.assertEqual(
-         self.atomic_structure.get_atoms_by_element("B"),
-         set((self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16]))
         )
 
 
@@ -280,24 +272,17 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
         )
 
 
-    def test_can_get_single_pdb_atom_by_element(self):
+    def test_can_get_single_localised_atom_by_element(self):
         self.assertIn(
-         self.atomic_structure.get_atom_by_element("B", atom_type="pdb"),
+         self.atomic_structure.get_atom_by_element("B"),
          (self.all_atoms[1], self.all_atoms[6])
         )
 
 
-    def test_can_get_single_generic_atom_by_element(self):
+    def test_can_get_single_ghost_atom_by_element(self):
         self.assertIn(
-         self.atomic_structure.get_atom_by_element("B", atom_type="generic"),
+         self.atomic_structure.get_atom_by_element("B", atom_type="ghost"),
          (self.all_atoms[11], self.all_atoms[16])
-        )
-
-
-    def test_default_element_single_atom_retrieval_is_all(self):
-        self.assertIn(
-         self.atomic_structure.get_atom_by_element("B"),
-         (self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16])
         )
 
 
@@ -322,24 +307,17 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
         )
 
 
-    def test_can_get_atoms_by_name(self):
+    def test_can_get_localised_atoms_by_name(self):
         self.assertEqual(
-         self.atomic_structure.get_atoms_by_name("BX", atom_type="pdb"),
+         self.atomic_structure.get_atoms_by_name("BX"),
          set((self.all_atoms[1], self.all_atoms[6]))
         )
 
 
     def test_can_get_ghost_atoms_by_name(self):
         self.assertEqual(
-         self.atomic_structure.get_atoms_by_name("BX", atom_type="generic"),
+         self.atomic_structure.get_atoms_by_name("BX", atom_type="ghost"),
          set((self.all_atoms[11], self.all_atoms[16]))
-        )
-
-
-    def test_default_name_atom_retrieval_is_all(self):
-        self.assertEqual(
-         self.atomic_structure.get_atoms_by_name("BX"),
-         set((self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16]))
         )
 
 
@@ -357,24 +335,17 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
         )
 
 
-    def test_can_get_single_pdb_atom_by_name(self):
+    def test_can_get_single_localised_atom_by_name(self):
         self.assertIn(
-         self.atomic_structure.get_atom_by_name("BX", atom_type="pdb"),
+         self.atomic_structure.get_atom_by_name("BX"),
          (self.all_atoms[1], self.all_atoms[6])
         )
 
 
     def test_can_get_single_generic_atom_by_name(self):
         self.assertIn(
-         self.atomic_structure.get_atom_by_name("BX", atom_type="generic"),
+         self.atomic_structure.get_atom_by_name("BX", atom_type="ghost"),
          (self.all_atoms[11], self.all_atoms[16])
-        )
-
-
-    def test_default_name_single_atom_retrieval_is_all(self):
-        self.assertIn(
-         self.atomic_structure.get_atom_by_name("BX"),
-         (self.all_atoms[1], self.all_atoms[6], self.all_atoms[11], self.all_atoms[16])
         )
 
 
@@ -399,7 +370,7 @@ class AtomicStructureContactsTests(AtomicStructureTest):
         x_values = [10.0, 20.0, 30.0, 40.0, 50.0, 80.0, 80.0, 80.0, 80.0, 80.0]
         y_values = [30.0, 30.0, 30.0, 30.0, 30.0, 10.0, 20.0, 30.0, 40.0, 50.0]
         self.atoms = [
-         PdbAtom(x_values[i], y_values[i], 10.0, "C", i + 1, "CX") for i in range(10)
+         Atom(x_values[i], y_values[i], 10.0, "C", i + 1, "CX") for i in range(10)
         ]
 
     def test_can_get_contacts_between_atomic_structures(self):
@@ -541,4 +512,4 @@ class BindSiteGenerationTests(AtomicStructureTest):
     def test_can_exclude_hydrogens(self):
         self.atoms[-2].local_atoms.return_value = set([self.atoms[2]])
         site = self.atomic_structure.predict_bind_site(include_hydrogens=False)
-        self.assertEqual(site.residues(), set([self.residue1]))'''
+        self.assertEqual(site.residues(), set([self.residue1]))

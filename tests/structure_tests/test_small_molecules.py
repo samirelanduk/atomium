@@ -1,11 +1,11 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import SmallMolecule, AtomicStructure, PdbAtom, BindSite
+from molecupy.structures import SmallMolecule, AtomicStructure, Atom, BindSite
 
 class SmallMoleculeTest(TestCase):
 
     def setUp(self):
-        self.atoms = [unittest.mock.Mock(spec=PdbAtom) for _ in range(10)]
+        self.atoms = [unittest.mock.Mock(Atom) for _ in range(10)]
         for atom in self.atoms:
             atom._molecule = None
 
@@ -47,7 +47,6 @@ class SmallMoleculeCreationTests(SmallMoleculeTest):
 
 
 
-
 class SmallMoleculePropertyTests(SmallMoleculeTest):
 
     def test_small_molecule_properties(self):
@@ -56,7 +55,6 @@ class SmallMoleculePropertyTests(SmallMoleculeTest):
         self.assertEqual(small_molecule.molecule_name(), "MOL")
         self.assertEqual(small_molecule.bind_site(), None)
         self.assertEqual(small_molecule.model(), None)
-
 
 
     def test_can_change_molecule_name(self):

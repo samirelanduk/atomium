@@ -2090,19 +2090,19 @@ class MtrixRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._matrix_m12, 0.0)
         self.assertEqual(data_file._matrix_m13, 0.0)
         self.assertEqual(data_file._matrix_v1, 0.0)
-        self.assertEqual(data_file._matrix_i_given_1, True)
+        self.assertIs(data_file._matrix_i_given_1, True)
         self.assertEqual(data_file._matrix_serial_2, 1)
         self.assertEqual(data_file._matrix_m21, 0.0)
         self.assertEqual(data_file._matrix_m22, 1.0)
         self.assertEqual(data_file._matrix_m23, 0.0)
         self.assertEqual(data_file._matrix_v2, 0.0)
-        self.assertEqual(data_file._matrix_i_given_2, True)
+        self.assertIs(data_file._matrix_i_given_2, True)
         self.assertEqual(data_file._matrix_serial_3, 1)
         self.assertEqual(data_file._matrix_m31, 0.0)
         self.assertEqual(data_file._matrix_m32, 0.0)
         self.assertEqual(data_file._matrix_m33, -1.0)
         self.assertEqual(data_file._matrix_v3, 0.0)
-        self.assertEqual(data_file._matrix_i_given_3, True)
+        self.assertIs(data_file._matrix_i_given_3, True)
 
 
     def test_mtrix_properties(self):

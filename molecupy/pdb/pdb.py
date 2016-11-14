@@ -213,7 +213,7 @@ def _give_model_small_molecules(model, data_file, model_id):
              and a["residue_name"] == molecule_name and a["chain_id"] +
               str(a["residue_id"]) + a["insert_code"] == molecule_id]
             if relevant_atoms:
-                atoms = [PdbAtom(
+                atoms = [Atom(
                  a["x"], a["y"], a["z"],
                  a["element"],
                  a["atom_id"],
@@ -242,7 +242,7 @@ def _give_model_chains(model, data_file, model_id):
             residue_atoms = [
              a for a in relevant_atoms if str(a["residue_id"]) + a["insert_code"] == residue_id
             ]
-            pdb_atoms = [PdbAtom(
+            pdb_atoms = [Atom(
              a["x"], a["y"], a["z"],
              a["element"],
              a["atom_id"],
@@ -277,7 +277,7 @@ def _give_model_chains(model, data_file, model_id):
                 if lookup:
                     empty_atoms = []
                     for atom_name in lookup:
-                        atom = Atom(atom_name[0], atom_id, atom_name)
+                        atom = GhostAtom(atom_name[0], atom_id, atom_name)
                         atom_id += 1
                         empty_atoms.append(atom)
                     residue = Residue(missing_id[1], missing_id[0], *empty_atoms)
@@ -361,8 +361,8 @@ def _bond_residues_together(model, data_file, model_id):
         for index, residue in enumerate(chain.residues()[:-1]):
             next_residue = chain.residues()[index + 1]
             residue.connect_to(next_residue)
-            carboxy_atom = residue.get_atom_by_name("C", atom_type="pdb")
-            amino_nitrogen = next_residue.get_atom_by_name("N", atom_type="pdb")
+            carboxy_atom = residue.get_atom_by_name("C",)
+            amino_nitrogen = next_residue.get_atom_by_name("N")
             if carboxy_atom and amino_nitrogen:
                 carboxy_atom.bond_to(amino_nitrogen)
 

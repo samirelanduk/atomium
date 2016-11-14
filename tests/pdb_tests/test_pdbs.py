@@ -506,10 +506,10 @@ class PdbChainTests(PdbTest):
         self.assertFalse(chain.residues()[1].is_missing())
         self.assertFalse(chain.residues()[2].is_missing())
         self.assertTrue(chain.residues()[3].is_missing())
-        self.assertEqual(len(chain.residues()[0].atoms()), 22)
-        self.assertEqual(len(chain.residues()[1].atoms()), 2)
-        self.assertEqual(len(chain.residues()[2].atoms()), 2)
-        self.assertEqual(len(chain.residues()[3].atoms()), 27)
+        self.assertEqual(len(chain.residues()[0].atoms(atom_type="all")), 22)
+        self.assertEqual(len(chain.residues()[1].atoms(atom_type="all")), 2)
+        self.assertEqual(len(chain.residues()[2].atoms(atom_type="all")), 2)
+        self.assertEqual(len(chain.residues()[3].atoms(atom_type="all")), 27)
 
 
     def test_handling_of_duplicate_missing_residues(self):

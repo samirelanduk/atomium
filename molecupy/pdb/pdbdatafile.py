@@ -2,6 +2,7 @@
 process the values that it extracts."""
 
 import datetime
+import math
 from .pdbfile import PdbRecord
 
 class PdbDataFile:
@@ -837,12 +838,32 @@ class PdbDataFile:
         )) for atom in self.heteroatoms()]
 
 
+    def generate_conect_records(self):
+        records = []
+        for connection in self.connections():
+            record_count = math.ceil(len(connection["bonded_atoms"]) / 4)
+            for n in range(record_count):
+                records.append(PdbRecord("CONECT%5i%5s%5s%5s%5s" % (
+                 connection["atom_id"],
+                 str(connection["bonded_atoms"][(n * 4)]) if (n * 4) < len(connection["bonded_atoms"]) else "",
+                 str(connection["bonded_atoms"][(n * 4) + 1])
+                  if (n * 4) + 1 < len(connection["bonded_atoms"]) else "",
+                 str(connection["bonded_atoms"][(n * 4) + 2])
+                  if (n * 4) + 2 < len(connection["bonded_atoms"]) else "",
+                 str(connection["bonded_atoms"][(n * 4) + 3])
+                  if (n * 4) + 3 < len(connection["bonded_atoms"]) else ""
+                )))
+        return records
+
+
     def generate_pdb_file(self):
         from .pdbfile import PdbFile
         pdb_file = PdbFile()
         for record in self.generate_atom_records():
             pdb_file.add_record(record)
         for record in self.generate_hetatm_records():
+            pdb_file.add_record(record)
+        for record in self.generate_conect_records():
             pdb_file.add_record(record)
         return pdb_file
 
@@ -1642,12 +1663,19 @@ def _process_conect_records(data_file):
         conects = data_file.original_pdb_file().get_records_by_name("CONECT")
         if conects:
             atom_ids = sorted(list(set([r[6:11] for r in conects])))
-            data_file._connections = [{
-             "atom_id": num,
-             "bonded_atoms": [int(n) for n in merge_records([
-              r for r in conects if r[6:11] == num
-             ], 11).split()]
-            } for num in atom_ids]
+            data_file._connections = []
+            for atom_id in atom_ids:
+                records = [r for r in conects if r[6:11] == atom_id]
+                bonded_atoms = []
+                for record in records:
+                    if record[11:16]: bonded_atoms.append(record[11:16])
+                    if record[16:21]: bonded_atoms.append(record[16:21])
+                    if record[21:26]: bonded_atoms.append(record[21:26])
+                    if record[26:31]: bonded_atoms.append(record[26:31])
+                data_file._connections.append({
+                 "atom_id": atom_id,
+                 "bonded_atoms": bonded_atoms
+                })
             return
     data_file._connections = []
 

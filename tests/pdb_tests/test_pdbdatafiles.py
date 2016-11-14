@@ -2684,12 +2684,53 @@ class ConectRecordTests(PdbDataFileTest):
         )
 
 
+    def test_can_handle_conect_records_smushed_together(self):
+        data_file = PdbDataFile(PdbFile(
+         "CONECT11056107961105711063"
+        ))
+        self.assertEqual(
+         data_file._connections,
+         [
+          {
+           "atom_id": 11056,
+           "bonded_atoms": [10796, 11057, 11063]
+          }
+         ]
+        )
+
+
     def test_conect_properties(self):
         data_file = PdbDataFile(PdbFile(
          "CONECT 1179  746 1184 1195 1203\n"
          "CONECT 1179 1211 1222"
         ))
         self.assertEqual(data_file._connections, data_file.connections())
+
+
+    def test_can_produce_conect_records(self):
+        connections = [{
+         "atom_id": 1179,
+         "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
+        }, {
+         "atom_id": 11,
+         "bonded_atoms": [746, 1184]
+        }]
+        for connection in connections:
+            self.blank.connections().append(connection)
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 3)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "CONECT 1179  746 1184 1195 1203" + (" " * 49)
+        )
+        self.assertEqual(
+         pdb_file.records()[1].text(),
+         "CONECT 1179 1211 1222" + (" " * 59)
+        )
+        self.assertEqual(
+         pdb_file.records()[2].text(),
+         "CONECT   11  746 1184" + (" " * 59)
+        )
 
 
 

@@ -818,11 +818,31 @@ class PdbDataFile:
         )) for atom in self.atoms()]
 
 
+    def generate_hetatm_records(self):
+        return [PdbRecord("HETATM%5i %-4s%1s%3s %s%4s%1s   %8s%8s%8s%6s%6s          %2s%2s" % (
+         atom["atom_id"],
+         atom["atom_name"],
+         atom["alt_loc"] if atom["alt_loc"] else "",
+         atom["residue_name"],
+         atom["chain_id"],
+         atom["residue_id"],
+         atom["insert_code"] if atom["insert_code"] else "",
+         str(atom["x"])[:8],
+         str(atom["y"])[:8],
+         str(atom["z"])[:8],
+         str(atom["occupancy"])[:6],
+         str(atom["temperature_factor"])[:6],
+         atom["element"],
+         str(atom["charge"]) if atom["charge"] else ""
+        )) for atom in self.heteroatoms()]
+
 
     def generate_pdb_file(self):
         from .pdbfile import PdbFile
         pdb_file = PdbFile()
         for record in self.generate_atom_records():
+            pdb_file.add_record(record)
+        for record in self.generate_hetatm_records():
             pdb_file.add_record(record)
         return pdb_file
 

@@ -2610,6 +2610,56 @@ class HetatmRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._heteroatoms, data_file.heteroatoms())
 
 
+    def test_can_produce_hetatm_records(self):
+        atoms = [
+         {
+          "atom_id": 107,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 108,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "A",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": -1,
+          "model_id": 1
+         }
+        ]
+        for atom in atoms:
+            self.blank.heteroatoms().append(atom)
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 2)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "HETATM  107 N    GLY A  13      12.681  37.302 -25.211   1.0 15.56           N  "
+        )
+        self.assertEqual(
+         pdb_file.records()[1].text(),
+         "HETATM  108 CA   GLY A  13A     11.982  37.996 -26.241   1.0 16.92           C-1"
+        )
+
+
 
 class ConectRecordTests(PdbDataFileTest):
 

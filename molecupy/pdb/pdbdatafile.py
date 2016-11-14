@@ -2,6 +2,7 @@
 process the values that it extracts."""
 
 import datetime
+from .pdbfile import PdbRecord
 
 class PdbDataFile:
     """This object is essentially a list of values extracted from a PDB file. It
@@ -798,9 +799,31 @@ class PdbDataFile:
             return self._master
 
 
+    def generate_atom_records(self):
+        return [PdbRecord("ATOM  %5i %-4s%1s%3s %s%4s%1s   %8s%8s%8s%6s%6s          %2s%2s" % (
+         atom["atom_id"],
+         atom["atom_name"],
+         atom["alt_loc"] if atom["alt_loc"] else "",
+         atom["residue_name"],
+         atom["chain_id"],
+         atom["residue_id"],
+         atom["insert_code"] if atom["insert_code"] else "",
+         str(atom["x"])[:8],
+         str(atom["y"])[:8],
+         str(atom["z"])[:8],
+         str(atom["occupancy"])[:6],
+         str(atom["temperature_factor"])[:6],
+         atom["element"],
+         str(atom["charge"]) if atom["charge"] else ""
+        )) for atom in self.atoms()]
+
+
+
     def generate_pdb_file(self):
         from .pdbfile import PdbFile
         pdb_file = PdbFile()
+        for record in self.generate_atom_records():
+            pdb_file.add_record(record)
         return pdb_file
 
 
@@ -1692,120 +1715,3 @@ def records_to_token_value_dicts(records):
         entity[pair[0]] = pair[1]
     if entity: entities.append(entity)
     return entities
-
-
-'''
-
-
-    def origx(self, o):
-        if o[1] == "1":
-            origx1 = self.pdb_file().get_record_by_name("ORIGX1")
-            if origx1:
-                return {
-
-                }.get(o)
-            else:
-                return None
-        elif o[1] == "2":
-            origx2 = self.pdb_file().get_record_by_name("ORIGX2")
-            if origx2:
-                return {
-                 "o21": origx2[10:20],
-                 "o22": origx2[20:30],
-                 "o23": origx2[30:40],
-                 "t2": origx2[45:55]
-                }.get(o)
-            else:
-                return None
-        elif o[1] == "3":
-            origx3 = self.pdb_file().get_record_by_name("ORIGX3")
-            if origx3:
-                return {
-                 "o31": origx3[10:20],
-                 "o32": origx3[20:30],
-                 "o33": origx3[30:40],
-                 "t3": origx3[45:55]
-                }.get(o)
-            else:
-                return None
-
-
-    def scale(self, s):
-        if s[1] == "1":
-            scale1 = self.pdb_file().get_record_by_name("SCALE1")
-            if scale1:
-                return {
-                 "s11": scale1[10:20],
-                 "s12": scale1[20:30],
-                 "s13": scale1[30:40],
-                 "u1": scale1[45:55]
-                }.get(s)
-            else:
-                return None
-        elif s[1] == "2":
-            scale2 = self.pdb_file().get_record_by_name("SCALE2")
-            if scale2:
-                return {
-                 "s21": scale2[10:20],
-                 "s22": scale2[20:30],
-                 "s23": scale2[30:40],
-                 "u2": scale2[45:55]
-                }.get(s)
-            else:
-                return None
-        elif s[1] == "3":
-            scale3 = self.pdb_file().get_record_by_name("SCALE3")
-            if scale3:
-                return {
-                 "s31": scale3[10:20],
-                 "s32": scale3[20:30],
-                 "s33": scale3[30:40],
-                 "u3": scale3[45:55]
-                }.get(s)
-            else:
-                return None
-
-
-    def matrix(self, m):
-        if m[1] == "1" or m[-2:] == "_1":
-            matrix1 = self.pdb_file().get_record_by_name("MTRIX1")
-            if matrix1:
-                return {
-                 "serial_1": matrix1[7:10],
-                 "m11": matrix1[10:20],
-                 "m12": matrix1[20:30],
-                 "m13": matrix1[30:40],
-                 "v1": matrix1[45:55],
-                 "i_given_1": matrix1[59] == 1
-                }.get(m)
-            else:
-                return None if "given" not in m else False
-        elif m[1] == "2" or m[-2:] == "_2":
-            matrix2 = self.pdb_file().get_record_by_name("MTRIX2")
-            if matrix2:
-                return {
-                 "serial_2": matrix2[7:10],
-                 "m21": matrix2[10:20],
-                 "m22": matrix2[20:30],
-                 "m23": matrix2[30:40],
-                 "v2": matrix2[45:55],
-                 "i_given_1": matrix2[59] == 1
-                }.get(m)
-            else:
-                return None if "given" not in m else False
-        elif m[1] == "3" or m[-2:] == "_3":
-            matrix3 = self.pdb_file().get_record_by_name("MTRIX3")
-            if matrix3:
-                return {
-                 "serial_3": matrix3[7:10],
-                 "m31": matrix3[10:20],
-                 "m32": matrix3[20:30],
-                 "m33": matrix3[30:40],
-                 "v3": matrix3[45:55],
-                 "i_given_3": matrix3[59] == 1
-                }.get(m)
-            else:
-                return None if "given" not in m else False
-
-
-'''

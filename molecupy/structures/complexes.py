@@ -21,6 +21,12 @@ class Complex(ResiduicStructure):
         self._chains = set(chains)
 
 
+    def __repr__(self):
+        return "<Complex '%s' (%i chains)>" % (
+         self._complex_name, len(self._chains)
+        )
+
+
     def __getattr__(self, attribute):
         if attribute == "_residues":
             residues = set()

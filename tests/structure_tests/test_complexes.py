@@ -43,3 +43,8 @@ class ComplexCreationTests(ComplexTest):
     def test_complex_chains_must_be_chains(self):
         with self.assertRaises(TypeError):
             Complex("1", "A Complex", "Chain 1", "Chain 2")
+
+
+    def test_repr(self):
+        complex_ = Complex("1", "A Complex", *self.chains)
+        self.assertEqual(str(complex_), "<Complex 'A Complex' (3 chains)>")

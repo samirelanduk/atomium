@@ -40,6 +40,12 @@ class ResiduicSequenceCreationTests(ResiduicSequenceTest):
         self.assertEqual(self.residues, residues_from_loop)
 
 
+    def test_can_index_residuic_sequences(self):
+        residuic_sequence = ResiduicSequence(*self.residues)
+        self.assertIs(residuic_sequence[4], self.residues[4])
+        self.assertEqual(residuic_sequence[3:-1], self.residues[3:-1])
+
+
 
 class ResiduicSequencePropertyTests(ResiduicSequenceTest):
 

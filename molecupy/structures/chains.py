@@ -146,6 +146,10 @@ class ResiduicSequence(ResiduicStructure):
         self._residues = list(residues)
 
 
+    def __len__(self):
+        return len(self._residues)
+
+
     def residues(self, include_missing=True):
         """Returns the residues in this structure as a ``list``.
 

@@ -27,6 +27,11 @@ class ResiduicSequenceCreationTests(ResiduicSequenceTest):
         self.assertEqual(str(residuic_sequence), "<ResiduicSequence (10 residues)>")
 
 
+    def test_residuic_sequence_length(self):
+        residuic_sequence = ResiduicSequence(*self.residues)
+        self.assertEqual(len(residuic_sequence), 10)
+
+
 
 class ResiduicSequencePropertyTests(ResiduicSequenceTest):
 

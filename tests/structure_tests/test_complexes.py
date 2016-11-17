@@ -28,3 +28,18 @@ class ComplexCreationTests(ComplexTest):
         self.assertEqual(complex_._complex_id, "1")
         self.assertEqual(complex_._complex_name, "A Complex")
         self.assertEqual(complex_._chains, set(self.chains))
+
+
+    def test_complex_id_must_be_str(self):
+        with self.assertRaises(TypeError):
+            Complex(1, "A Complex", *self.chains)
+
+
+    def test_complex_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            Complex("1", 100, *self.chains)
+
+
+    def test_complex_chains_must_be_chains(self):
+        with self.assertRaises(TypeError):
+            Complex("1", "A Complex", "Chain 1", "Chain 2")

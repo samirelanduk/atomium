@@ -1,8 +1,21 @@
-from . import ResiduicStructure
+from . import ResiduicStructure, Chain
 
 class Complex(ResiduicStructure):
 
     def __init__(self, complex_id, complex_name, *chains):
+        if not isinstance(complex_id, str):
+            raise TypeError(
+             "complex_id must be str, not '%s'" % str(complex_id)
+            )
+        if not isinstance(complex_name, str):
+            raise TypeError(
+             "complex_name must be str, not '%s'" % str(complex_name)
+            )
+        for chain in chains:
+            if not isinstance(chain, Chain):
+                raise TypeError(
+                 "Can only make Complexes with Chains, not '%s'" % str(chain)
+                )
         self._complex_id = complex_id
         self._complex_name = complex_name
         self._chains = set(chains)

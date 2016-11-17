@@ -1,5 +1,4 @@
 from .molecules import AtomicStructure, Residue, SmallMolecule
-from . import matrix
 from ..exceptions import NoResiduesError, BrokenHelixError, BrokenStrandError, DuplicateResiduesError
 
 class ResiduicStructure(AtomicStructure):
@@ -287,22 +286,6 @@ class Chain(ResiduicSequence):
         for strand in self.beta_strands():
             if strand.strand_id() == strand_id:
                 return strand
-
-
-    generate_residue_distance_matrix = matrix.generate_residue_distance_matrix
-    """Creates a 'distance matrix' as an
-    `OmniCanvas <http://omnicanvas.readthedocs.io/>`_ canvas. The distance
-    between any two residues are represented as gradients of colour.
-
-    To output the resulting canvas to svg, the ``.save("filename.svg")``
-    method can be used.
-
-    :param int dimension: The width and height of the matrix in pixels
-    :param int close_color: The colour of near residues (defaults to green)
-    :param int far_color: The colour of far residues (defaults to red)
-    :param int cutoff: The distance in Angstroms that the colour scale should end at (defaults to 40 Angstroms)
-    :param subsequence: A sequence of two :py:class:`PdbResidue` objects that constitute the beginning and end of some subsequence, which will be marked on the matrix.
-    :rtype: `OmniCanvas <http://omnicanvas.readthedocs.io/>`_ canvas"""
 
 
 

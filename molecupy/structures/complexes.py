@@ -16,6 +16,7 @@ class Complex(ResiduicStructure):
                 raise TypeError(
                  "Can only make Complexes with Chains, not '%s'" % str(chain)
                 )
+            chain._complex = self
         self._complex_id = complex_id
         self._complex_name = complex_name
         self._chains = set(chains)

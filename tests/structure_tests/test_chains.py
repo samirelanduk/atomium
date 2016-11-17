@@ -23,6 +23,7 @@ class ChainCreationTests(ChainTest):
         self.assertEqual(chain._alpha_helices, set())
         self.assertEqual(chain._beta_strands, set())
         self.assertEqual(chain._model, None)
+        self.assertEqual(chain._complex, None)
 
 
     def test_chain_updates_residues(self):
@@ -52,6 +53,7 @@ class ChainPropertyTests(ChainTest):
         self.assertEqual(chain.alpha_helices(), set())
         self.assertEqual(chain.beta_strands(), set())
         self.assertEqual(chain.model(), None)
+        self.assertEqual(chain.complex(), None)
 
 
     def test_can_add_residues_and_update_them(self):

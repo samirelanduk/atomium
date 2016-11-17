@@ -214,6 +214,7 @@ class Chain(ResiduicSequence):
         self._alpha_helices = set()
         self._beta_strands = set()
         self._model = None
+        self._complex = None
 
 
     def __repr__(self):
@@ -260,6 +261,10 @@ class Chain(ResiduicSequence):
         :rtype: ``Model``"""
 
         return self._model
+
+
+    def complex(self):
+        return self._complex
 
 
     def get_helix_by_id(self, helix_id):

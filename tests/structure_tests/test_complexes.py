@@ -5,7 +5,7 @@ from molecupy.structures import Chain, Complex, ResiduicStructure, Residue, Atom
 class ComplexTest(TestCase):
 
     def setUp(self):
-        self.chains = [Mock(Chain) for _ in range(3)]
+        self.chains = [Mock(Chain, _complex=None) for _ in range(3)]
         self.residues = [Mock(ResiduicStructure) for _ in range(6)]
         self.atoms = [Mock(Atom) for _ in range(18)]
         for index, chain in enumerate(self.chains):
@@ -43,6 +43,12 @@ class ComplexCreationTests(ComplexTest):
     def test_complex_chains_must_be_chains(self):
         with self.assertRaises(TypeError):
             Complex("1", "A Complex", "Chain 1", "Chain 2")
+
+
+    def test_complex_updates_chains(self):
+        complex_ = Complex("1", "A Complex", *self.chains)
+        for chain in self.chains:
+            self.assertIs(chain._complex, complex_)
 
 
     def test_repr(self):

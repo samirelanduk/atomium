@@ -32,6 +32,14 @@ class ResiduicSequenceCreationTests(ResiduicSequenceTest):
         self.assertEqual(len(residuic_sequence), 10)
 
 
+    def test_residuic_sequence_is_iterable_of_residues(self):
+        residuic_sequence = ResiduicSequence(*self.residues)
+        residues_from_loop = []
+        for residue in residuic_sequence:
+            residues_from_loop.append(residue)
+        self.assertEqual(self.residues, residues_from_loop)
+
+
 
 class ResiduicSequencePropertyTests(ResiduicSequenceTest):
 

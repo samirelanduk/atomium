@@ -150,6 +150,10 @@ class ResiduicSequence(ResiduicStructure):
         return len(self._residues)
 
 
+    def __iter__(self):
+        return iter(self._residues)
+
+
     def residues(self, include_missing=True):
         """Returns the residues in this structure as a ``list``.
 

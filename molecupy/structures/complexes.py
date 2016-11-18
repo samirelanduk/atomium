@@ -41,3 +41,15 @@ class Complex(ResiduicStructure):
             return atoms
         else:
             return self.__getattribute__(attribute)
+
+
+    def complex_id(self):
+        return self._complex_id
+
+
+    def complex_name(self):
+        return self._complex_name
+
+
+    def chains(self):
+        return self._chains

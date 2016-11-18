@@ -54,3 +54,13 @@ class ComplexCreationTests(ComplexTest):
     def test_repr(self):
         complex_ = Complex("1", "A Complex", *self.chains)
         self.assertEqual(str(complex_), "<Complex 'A Complex' (3 chains)>")
+
+
+
+class ComplexPropertyTests(ComplexTest):
+
+    def test_can_get_complex_properties(self):
+        complex_ = Complex("1", "A Complex", *self.chains)
+        self.assertEqual(complex_.complex_id(), "1")
+        self.assertEqual(complex_.complex_name(), "A Complex")
+        self.assertEqual(complex_.chains(), set(self.chains))

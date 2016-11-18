@@ -800,6 +800,44 @@ class PdbDataFile:
             return self._master
 
 
+    def generate_compnd_records(self):
+        lines = []
+        for compound in self.compounds():
+            segments = []
+            if "MOL_ID" in compound:
+                segments.append("MOL_ID: %s;" % str(compound["MOL_ID"]))
+            if "MOLECULE" in compound:
+                segments.append("MOLECULE: %s;" % str(compound["MOLECULE"]))
+            if "CHAIN" in compound:
+                segments.append("CHAIN: %s;" % ", ".join(compound["CHAIN"]))
+            if "SYNONYM" in compound:
+                segments.append("SYNONYM: %s;" % ", ".join(compound["SYNONYM"]))
+            if "EC" in compound:
+                segments.append("EC: %s;" % str(compound["EC"]))
+            if "ENGINEERED" in compound:
+                segments.append("ENGINEERED: %s;" % "YES" if compound["ENGINEERED"] else "NO")
+            for segment in segments:
+                if len(segment) <= 69:
+                    lines.append(segment)
+                else:
+                    chunks = segment.split(" ")[::-1]
+                    growing_line = ""
+                    while chunks:
+                        chunk = chunks.pop()
+                        if len(growing_line + chunk) > 69:
+                            lines.append(growing_line)
+                            growing_line = chunk + " "
+                        else:
+                            growing_line += chunk + " "
+                        if not chunks:
+                            lines.append(growing_line)
+
+        return [PdbRecord("COMPND %s%s" % (
+         str(index + 1).rjust(3) + " " if index != 0 else "   ",
+         line
+        )) for index, line in enumerate(lines)]
+
+
     def generate_atom_records(self):
         return [PdbRecord("ATOM  %5i %-4s%1s%3s %s%4s%1s   %8s%8s%8s%6s%6s          %2s%2s" % (
          atom["atom_id"],
@@ -859,6 +897,8 @@ class PdbDataFile:
     def generate_pdb_file(self):
         from .pdbfile import PdbFile
         pdb_file = PdbFile()
+        for record in self.generate_compnd_records():
+            pdb_file.add_record(record)
         for record in self.generate_atom_records():
             pdb_file.add_record(record)
         for record in self.generate_hetatm_records():

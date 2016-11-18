@@ -350,6 +350,43 @@ class CompndRecordTests(PdbDataFileTest):
         self.assertIs(data_file._compounds, data_file.compounds())
 
 
+    def test_can_produce_compnd_records(self):
+        compounds = [
+         {
+          "MOL_ID": 1,
+          "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+          "CHAIN": ["A", "B"],
+          "SYNONYM": [
+           "OMP DECARBOXYLASE",
+           "OMPDCASE",
+           "OMPDECASE"
+          ],
+          "EC": "4.1.1.23",
+          "ENGINEERED": True
+         }, {
+          "MOL_ID": 2,
+          "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE VERYPHOSPHATE INDEED DECARBOXYLASE PLUS"
+         }
+        ]
+        self.maxDiff = None
+        for compound in compounds:
+            self.blank.compounds().append(compound)
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 9)
+        self.assertEqual(
+         "\n".join([line.rstrip() for line in pdb_file.convert_to_string().split("\n")]),
+         "COMPND    MOL_ID: 1;\n"
+         "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
+         "COMPND   3 CHAIN: A, B;\n"
+         "COMPND   4 SYNONYM: OMP DECARBOXYLASE, OMPDCASE, OMPDECASE;\n"
+         "COMPND   5 EC: 4.1.1.23;\n"
+         "COMPND   6 ENGINEERED: YES;\n"
+         "COMPND   7 MOL_ID: 2;\n"
+         "COMPND   8 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE VERYPHOSPHATE INDEED\n"
+         "COMPND   9 DECARBOXYLASE PLUS;"
+        )
+
+
 
 class SourceRecordTests(PdbDataFileTest):
 
@@ -548,7 +585,6 @@ class AuthorRecordTests(PdbDataFileTest):
 
 
 class RevdatRecordTests(PdbDataFileTest):
-
 
     def test_missing_revdat_processing(self):
         self.assertEqual(self.empty._revisions, [])

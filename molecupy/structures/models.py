@@ -134,7 +134,7 @@ class Model(AtomicStructure):
                  "There is already a SmallMolecule with ID %s" % molecule_id
                 )
             new_molecule = SmallMolecule(
-             molecule_id, "1", *small_molecule.atoms(atom_type="all")
+             molecule_id, small_molecule.molecule_name(), *small_molecule.atoms(atom_type="all")
             )
         else:
             chain, residue = small_molecule.molecule_id()[0], int(small_molecule.molecule_id()[1:])
@@ -142,7 +142,9 @@ class Model(AtomicStructure):
             while "%s%i" % (chain, id_) in current_molecule_ids:
                 id_ += 1
             new_molecule = SmallMolecule(
-             "%s%i" % (chain, id_), "1", *small_molecule.atoms(atom_type="all")
+             "%s%i" % (chain, id_),
+             small_molecule.molecule_name(),
+             *small_molecule.atoms(atom_type="all")
             )
         self.add_small_molecule(new_molecule)
         return new_molecule

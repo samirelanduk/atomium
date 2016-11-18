@@ -230,7 +230,10 @@ class ModelSmallMoleculeTests(ModelTest):
 
 
     def test_duplicate_small_molecules_have_same_name(self):
-        pass
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        new_molecule = model.duplicate_small_molecule(self.small_molecule1)
+        self.assertEqual(new_molecule.molecule_name(), "MOL")
 
 
     def test_duplicate_small_molecules_have_distinct_atoms(self):

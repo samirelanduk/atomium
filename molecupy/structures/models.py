@@ -1,3 +1,4 @@
+from .atoms import Atom, GhostAtom
 from .molecules import AtomicStructure, SmallMolecule
 from .chains import Chain, BindSite
 from .complexes import Complex
@@ -128,13 +129,23 @@ class Model(AtomicStructure):
          mol.molecule_id() for mol in self.small_molecules()
         ]
         new_molecule = None
+        new_atoms = set()
+        next_id = 1
+        for atom in small_molecule.atoms(atom_type="all"):
+            if isinstance(atom, Atom):
+                new_atoms.add(Atom(
+                 atom.x(), atom.y(), atom.z(), atom.element(), next_id, atom.atom_name()
+                ))
+            else:
+                new_atoms.add(GhostAtom(atom.element(), next_id, atom.atom_name()))
+            next_id += 1
         if molecule_id:
             if molecule_id in current_molecule_ids:
                 raise ValueError(
                  "There is already a SmallMolecule with ID %s" % molecule_id
                 )
             new_molecule = SmallMolecule(
-             molecule_id, small_molecule.molecule_name(), *small_molecule.atoms(atom_type="all")
+             molecule_id, small_molecule.molecule_name(), *new_atoms
             )
         else:
             chain, residue = small_molecule.molecule_id()[0], int(small_molecule.molecule_id()[1:])
@@ -144,7 +155,7 @@ class Model(AtomicStructure):
             new_molecule = SmallMolecule(
              "%s%i" % (chain, id_),
              small_molecule.molecule_name(),
-             *small_molecule.atoms(atom_type="all")
+             *new_atoms
             )
         self.add_small_molecule(new_molecule)
         return new_molecule

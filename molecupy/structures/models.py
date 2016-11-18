@@ -114,7 +114,7 @@ class Model(AtomicStructure):
     def duplicate_small_molecule(self, small_molecule):
         if not isinstance(small_molecule, SmallMolecule):
             raise TypeError(
-             "Can only duplicate SmallMolecule with this methid, not '%s'" % str(
+             "Can only duplicate SmallMolecule with this method, not '%s'" % str(
               small_molecule
              )
             )
@@ -124,9 +124,18 @@ class Model(AtomicStructure):
               small_molecule
              )
             )
-        self.add_small_molecule(SmallMolecule(
-         "1", "1", *small_molecule.atoms()
-        ))
+        chain, residue = small_molecule.molecule_id()[0], int(small_molecule.molecule_id()[1:])
+        current_molecule_ids = [
+         mol.molecule_id() for mol in self.small_molecules()
+        ]
+        id_ = residue
+        while "%s%i" % (chain, id_) in current_molecule_ids:
+            id_ += 1
+        new_molecule = SmallMolecule(
+         "%s%i" % (chain, id_), "1", *small_molecule.atoms(atom_type="all")
+        )
+        self.add_small_molecule(new_molecule)
+        return new_molecule
 
 
     def chains(self):

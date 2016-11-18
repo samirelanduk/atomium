@@ -246,7 +246,12 @@ class ModelSmallMoleculeTests(ModelTest):
 
 
     def test_duplicte_small_molecules_have_atoms_with_ok_ids(self):
-        pass
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        existing_model_ids = [atom.atom_id() for atom in model.atoms(atom_type="all")]
+        new_molecule = model.duplicate_small_molecule(self.small_molecule1)
+        for atom in new_molecule.atoms(atom_type="all"):
+            self.assertNotIn(atom.atom_id(), existing_model_ids)
 
 
     def test_duplicate_small_molecule_has_ghost_and_localised_atoms(self):

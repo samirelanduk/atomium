@@ -130,7 +130,7 @@ class Model(AtomicStructure):
         ]
         new_molecule = None
         new_atoms = set()
-        next_id = 1
+        next_id = sorted([atom.atom_id() for atom in self.atoms(atom_type="all")])[-1] + 1
         for atom in small_molecule.atoms(atom_type="all"):
             if isinstance(atom, Atom):
                 new_atoms.add(Atom(

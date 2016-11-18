@@ -1,6 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock
 from molecupy.structures import Chain, Complex, ResiduicStructure, Residue, Atom
+from molecupy.exceptions import DuplicateChainsError
 
 class ComplexTest(TestCase):
 
@@ -12,6 +13,7 @@ class ComplexTest(TestCase):
             chain.residues.return_value = set(
              self.residues[index * 2: (index * 2) + 2]
             )
+            chain.chain_id.return_value = chr(index + 65)
         for index, residue in enumerate(self.residues):
             residue.atoms.return_value = set(
              self.atoms[index * 3: (index * 3) + 3]
@@ -85,3 +87,31 @@ class ComplexPropertyTests(ComplexTest):
         self.assertEqual(len(complex_.chains()), 3)
         complex_.chains().add(chain4)
         self.assertEqual(len(complex_.chains()), 3)
+
+
+    def test_can_add_chain(self):
+        chain4 = Mock(Chain)
+        complex_ = Complex("1", "A Complex", *self.chains)
+        complex_.add_chain(chain4)
+        self.assertEqual(len(complex_.chains()), 4)
+        self.assertIn(chain4, complex_.chains())
+
+
+    def test_can_only_add_chains(self):
+        complex_ = Complex("1", "A Complex", *self.chains)
+        with self.assertRaises(TypeError):
+            complex_.add_chain("chain4")
+
+
+    def test_can_only_add_chains_if_id_is_unique(self):
+        complex_ = Complex("1", "A Complex", *self.chains[:-1])
+        self.chains[-1].chain_id.return_value = "B"
+        with self.assertRaises(DuplicateChainsError):
+            complex_.add_chain(self.chains[-1])
+
+
+    def test_can_remove_chains(self):
+        complex_ = Complex("1", "A Complex", *self.chains)
+        complex_.remove_chain(self.chains[1])
+        self.assertEqual(len(complex_.chains()), 2)
+        self.assertNotIn(self.chains[1], complex_.chains())

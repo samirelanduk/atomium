@@ -1,4 +1,5 @@
 from . import ResiduicStructure, Chain
+from ..exceptions import DuplicateChainsError
 
 class Complex(ResiduicStructure):
 
@@ -60,3 +61,21 @@ class Complex(ResiduicStructure):
 
     def chains(self):
         return set(self._chains)
+
+
+    def add_chain(self, chain):
+        if not isinstance(chain, Chain):
+            raise TypeError(
+             "Can only add Chains to Complexes, not '%s'" % str(chain)
+            )
+        if chain.chain_id() in [chain.chain_id() for chain in self.chains()]:
+            raise DuplicateChainsError(
+             "Cannot add chain with ID %s to %s as there is already a chain with that ID" % (
+              chain.chain_id(), self
+             )
+            )
+        self._chains.add(chain)
+
+
+    def remove_chain(self, chain):
+        self._chains.remove(chain)

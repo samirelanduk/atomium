@@ -65,7 +65,7 @@ class ResiduicStructure(AtomicStructure):
             )
         if residue.residue_id() in [residue.residue_id() for residue in self.residues()]:
             raise DuplicateResiduesError(
-             "Cannot add residue with ID %i to %s as there is already an residue with that ID" % (
+             "Cannot add residue with ID %i to %s as there is already a residue with that ID" % (
               residue.residue_id(), self
              )
             )

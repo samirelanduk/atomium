@@ -112,6 +112,18 @@ class Model(AtomicStructure):
 
 
     def duplicate_small_molecule(self, small_molecule):
+        if not isinstance(small_molecule, SmallMolecule):
+            raise TypeError(
+             "Can only duplicate SmallMolecule with this methid, not '%s'" % str(
+              small_molecule
+             )
+            )
+        if small_molecule not in self.small_molecules():
+            raise ValueError(
+             "%s is not in this Model and so cannot be duplicated." % str(
+              small_molecule
+             )
+            )
         self.add_small_molecule(SmallMolecule(
          "1", "1", *small_molecule.atoms()
         ))

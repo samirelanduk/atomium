@@ -175,7 +175,12 @@ class ModelSmallMoleculeTests(ModelTest):
 
 
     def test_can_only_duplicate_present_small_molecule(self):
-        pass
+        model = Model()
+        model.add_chain(self.chain1)
+        with self.assertRaises(TypeError):
+            model.duplicate_small_molecule(self.chain1)
+        with self.assertRaises(ValueError):
+            model.duplicate_small_molecule(self.small_molecule1)
 
 
     def test_duplicate_small_molecules_have_unique_id(self):

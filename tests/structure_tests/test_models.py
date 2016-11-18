@@ -1,6 +1,7 @@
 from unittest import TestCase
 import unittest.mock
-from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain, BindSite, Atom
+from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
+from molecupy.structures import BindSite, Atom, Complex
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from molecupy.exceptions import DuplicateBindSitesError
 from molecupy.pdb.pdbdatafile import PdbDataFile
@@ -34,12 +35,14 @@ class ModelTest(TestCase):
         self.site2._model = None
         self.site2.site_id.return_value = "BB"
         self.site2.atoms.return_value = set()
+        self.complex1 = unittest.mock.Mock(Complex)
+        self.complex2 = unittest.mock.Mock(Complex)
 
 
 
 class ModelCreationTest(ModelTest):
 
-    def test_can_create_chain(self):
+    def test_can_create_model(self):
         model = Model()
         self.assertIsInstance(model, AtomicStructure)
         self.assertEqual(model._atoms, set())
@@ -289,6 +292,18 @@ class ModelBindSiteTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_bind_site_by_id(100)
+
+
+
+class ModelComplexTests(ModelTest):
+
+    def test_can_add_complexes(self):
+        model = Model()
+        self.assertEqual(model.complexes(), set())
+        model.add_complex(self.complex1)
+        self.assertEqual(model.complexes(), set([self.complex1]))
+        model.add_complex(self.complex2)
+        self.assertEqual(model.complexes(), set([self.complex1, self.complex2]))
 
 
 

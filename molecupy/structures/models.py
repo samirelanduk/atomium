@@ -13,6 +13,7 @@ class Model(AtomicStructure):
         self._small_molecules = set()
         self._chains = set()
         self._bind_sites = set()
+        self._complexes = set()
 
 
     def __getattr__(self, attribute):
@@ -209,6 +210,14 @@ class Model(AtomicStructure):
         for site in self.bind_sites():
             if site.site_id() == site_id:
                 return site
+
+
+    def complexes(self):
+        return self._complexes
+
+
+    def add_complex(self, complex_):
+        self._complexes.add(complex_)
 
 
     def pdb_data_file(self):

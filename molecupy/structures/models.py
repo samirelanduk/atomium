@@ -111,7 +111,7 @@ class Model(AtomicStructure):
          if molecule.molecule_name() == molecule_name])
 
 
-    def duplicate_small_molecule(self, small_molecule):
+    def duplicate_small_molecule(self, small_molecule, molecule_id=None):
         if not isinstance(small_molecule, SmallMolecule):
             raise TypeError(
              "Can only duplicate SmallMolecule with this method, not '%s'" % str(
@@ -124,16 +124,26 @@ class Model(AtomicStructure):
               small_molecule
              )
             )
-        chain, residue = small_molecule.molecule_id()[0], int(small_molecule.molecule_id()[1:])
         current_molecule_ids = [
          mol.molecule_id() for mol in self.small_molecules()
         ]
-        id_ = residue
-        while "%s%i" % (chain, id_) in current_molecule_ids:
-            id_ += 1
-        new_molecule = SmallMolecule(
-         "%s%i" % (chain, id_), "1", *small_molecule.atoms(atom_type="all")
-        )
+        new_molecule = None
+        if molecule_id:
+            if molecule_id in current_molecule_ids:
+                raise ValueError(
+                 "There is already a SmallMolecule with ID %s" % molecule_id
+                )
+            new_molecule = SmallMolecule(
+             molecule_id, "1", *small_molecule.atoms(atom_type="all")
+            )
+        else:
+            chain, residue = small_molecule.molecule_id()[0], int(small_molecule.molecule_id()[1:])
+            id_ = residue
+            while "%s%i" % (chain, id_) in current_molecule_ids:
+                id_ += 1
+            new_molecule = SmallMolecule(
+             "%s%i" % (chain, id_), "1", *small_molecule.atoms(atom_type="all")
+            )
         self.add_small_molecule(new_molecule)
         return new_molecule
 

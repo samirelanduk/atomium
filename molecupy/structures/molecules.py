@@ -1,5 +1,6 @@
 """Contains classes for simple structures made of atoms."""
 
+import re
 from collections import Counter
 from .atoms import GhostAtom, Atom
 from ..exceptions import NoAtomsError, MultipleResidueConnectionError, DuplicateAtomsError
@@ -294,6 +295,10 @@ class SmallMolecule(AtomicStructure):
     def __init__(self, molecule_id, molecule_name, *atoms):
         if not isinstance(molecule_id, str):
             raise TypeError("'%s' is not a valid molecule_id" % str(molecule_id))
+        if not re.match(r"^[A-Z]\d+([A-Z]?)$", molecule_id):
+            raise ValueError(
+             "molecule_id must take the form <char><integer><optional-char> - not '%s'" % molecule_id
+            )
         self._molecule_id = molecule_id
         if not isinstance(molecule_name, str):
             raise TypeError("'%s' is not a valid molecule_name" % str(molecule_name))

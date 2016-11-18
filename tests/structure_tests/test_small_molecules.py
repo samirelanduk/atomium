@@ -28,6 +28,15 @@ class SmallMoleculeCreationTests(SmallMoleculeTest):
             SmallMolecule(1.1, "HET", *self.atoms)
 
 
+    def test_molecule_id_must_be_valid(self):
+        with self.assertRaises(ValueError):
+            SmallMolecule("100", "HET", *self.atoms)
+        with self.assertRaises(ValueError):
+            SmallMolecule("B_100", "HET", *self.atoms)
+        with self.assertRaises(ValueError):
+            SmallMolecule("CA34", "HET", *self.atoms)
+
+
     def test_molecule_name_must_be_str(self):
         with self.assertRaises(TypeError):
             SmallMolecule("A1", 1, *self.atoms)

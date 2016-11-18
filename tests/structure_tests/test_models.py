@@ -194,7 +194,39 @@ class ModelSmallMoleculeTests(ModelTest):
 
 
     def test_duplicate_small_molecules_can_be_given_id(self):
-        pass
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        new_molecule = model.duplicate_small_molecule(
+         self.small_molecule1, molecule_id="A123"
+        )
+        self.assertEqual(new_molecule.molecule_id(), "A123")
+
+
+    def test_dupicate_small_molecule_id_must_be_str(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        with self.assertRaises(TypeError):
+            new_molecule = model.duplicate_small_molecule(
+             self.small_molecule1, molecule_id=123
+            )
+
+
+    def test_duplicate_small_molecule_ids_must_be_valid(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        model.add_small_molecule(self.small_molecule2)
+        with self.assertRaises(ValueError):
+            new_molecule = model.duplicate_small_molecule(
+             self.small_molecule1, molecule_id="A101"
+            )
+        with self.assertRaises(ValueError):
+            new_molecule = model.duplicate_small_molecule(
+             self.small_molecule1, molecule_id="105"
+            )
+        with self.assertRaises(ValueError):
+            new_molecule = model.duplicate_small_molecule(
+             self.small_molecule1, molecule_id="A_105"
+            )
 
 
     def test_duplicate_small_molecules_have_same_name(self):

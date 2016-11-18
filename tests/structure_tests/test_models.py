@@ -37,9 +37,11 @@ class ModelTest(TestCase):
         self.site2.atoms.return_value = set()
         self.complex1 = unittest.mock.Mock(Complex)
         self.complex1.complex_id.return_value = "1"
+        self.complex1.complex_name.return_value = "COM1"
         self.complex1._model = None
         self.complex2 = unittest.mock.Mock(Complex)
         self.complex2.complex_id.return_value = "2"
+        self.complex2.complex_name.return_value = "COM2"
         self.complex2._model = None
 
 
@@ -346,6 +348,58 @@ class ModelComplexTests(ModelTest):
         self.assertIs(self.complex1._model, model)
         model.remove_complex(self.complex1)
         self.assertIs(self.complex1._model, None)
+
+
+    def test_can_get_complex_by_id(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        model.add_complex(self.complex2)
+        self.assertIs(model.get_complex_by_id("1"), self.complex1)
+        self.assertIs(model.get_complex_by_id("2"), self.complex2)
+        self.assertIs(model.get_complex_by_id("3"), None)
+
+
+    def test_can_only_get_complex_with_str_id(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_complex_by_id(100)
+
+
+    def test_can_get_complex_by_name(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        model.add_complex(self.complex2)
+        self.assertIs(model.get_complex_by_name("COM1"), self.complex1)
+        self.assertIs(model.get_complex_by_name("COM2"), self.complex2)
+        self.assertIs(model.get_complex_by_name("COM3"), None)
+
+
+    def test_can_only_get_complex_str_name(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_complex_by_name(100)
+
+
+    def test_can_get_complexes_by_name(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        model.add_complex(self.complex2)
+        self.assertEqual(
+         model.get_complexes_by_name("COM1"),
+         set([self.complex1])
+        )
+        self.complex2.complex_name.return_value = "COM1"
+        self.assertEqual(
+         model.get_complexes_by_name("COM1"),
+         set([self.complex1, self.complex2])
+        )
+        self.assertEqual(model.get_complexes_by_name("ABC"), set())
+
+
+    def test_can_only_get_complexes_with_str_name(self):
+        model = Model()
+        with self.assertRaises(TypeError):
+            model.get_complexes_by_name(100)
 
 
 

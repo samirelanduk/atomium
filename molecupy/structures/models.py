@@ -237,6 +237,35 @@ class Model(AtomicStructure):
         complex_._model = None
 
 
+    def get_complex_by_id(self, complex_id):
+        if not isinstance(complex_id, str):
+            raise TypeError(
+             "Complex ID search must be by str, not '%s'" % str(complex_id)
+            )
+        for complex_ in self.complexes():
+            if complex_.complex_id() == complex_id:
+                return complex_
+
+
+    def get_complex_by_name(self, complex_name):
+        if not isinstance(complex_name, str):
+            raise TypeError(
+             "Complex name search must be by str, not '%s'" % str(complex_name)
+            )
+        for complex_ in self.complexes():
+            if complex_.complex_name() == complex_name:
+                return complex_
+
+
+    def get_complexes_by_name(self, complex_name):
+        if not isinstance(complex_name, str):
+            raise TypeError(
+             "Complex name search must be by str, not '%s'" % str(complex_name)
+            )
+        return set([complex_ for complex_ in self.complexes()
+         if complex_.complex_name() == complex_name])
+
+
     def pdb_data_file(self):
         data_file = PdbDataFile()
         for atom in sorted(list(self.atoms()), key=lambda k: k.atom_id()):

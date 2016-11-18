@@ -6,6 +6,8 @@ from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsErr
 from molecupy.exceptions import DuplicateBindSitesError, DuplicateComplexesError
 from molecupy.pdb.pdbdatafile import PdbDataFile
 
+#TODO: Make sure user can't add SmallMolecule, Chain etc. if there are Atom ID clashes
+
 class ModelTest(TestCase):
 
     def setUp(self):
@@ -255,8 +257,15 @@ class ModelSmallMoleculeTests(ModelTest):
 
 
     def test_duplicate_small_molecule_has_ghost_and_localised_atoms(self):
-        pass
-
+        real_atoms = [Atom(1.0, 1.0, 1.0, "A", i + 1, "ATM") for i in range(10, 20)]
+        self.small_molecule1.atoms.return_value = self.atoms + real_atoms
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        self.assertEqual(len(model.atoms()), 10)
+        self.assertEqual(len(model.atoms(atom_type="all")), 20)
+        new_molecule = model.duplicate_small_molecule(self.small_molecule1)
+        self.assertEqual(len(new_molecule.atoms()), 10)
+        self.assertEqual(len(new_molecule.atoms(atom_type="all")), 20)
 
 
 

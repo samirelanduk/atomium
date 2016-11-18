@@ -64,3 +64,16 @@ class ComplexPropertyTests(ComplexTest):
         self.assertEqual(complex_.complex_id(), "1")
         self.assertEqual(complex_.complex_name(), "A Complex")
         self.assertEqual(complex_.chains(), set(self.chains))
+
+
+    def test_can_change_complex_name(self):
+        complex_ = Complex("1", "A Complex", *self.chains)
+        self.assertEqual(complex_.complex_name(), "A Complex")
+        complex_.complex_name("Complex2")
+        self.assertEqual(complex_.complex_name(), "Complex2")
+
+
+    def test_complex_name_can_only_be_changed_to_str(self):
+        complex_ = Complex("1", "A Complex", *self.chains)
+        with self.assertRaises(TypeError):
+            complex_.complex_name(100)

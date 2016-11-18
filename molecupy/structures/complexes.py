@@ -47,8 +47,15 @@ class Complex(ResiduicStructure):
         return self._complex_id
 
 
-    def complex_name(self):
-        return self._complex_name
+    def complex_name(self, complex_name=None):
+        if complex_name:
+            if not isinstance(complex_name, str):
+                raise TypeError(
+                 "complex_name must be str, not '%s'" % str(complex_name)
+                )
+            self._complex_name = complex_name
+        else:
+            return self._complex_name
 
 
     def chains(self):

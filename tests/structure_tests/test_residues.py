@@ -28,6 +28,15 @@ class ResidueCreationTests(ResidueTest):
             Residue(1.1, "TYR", *self.atoms)
 
 
+    def test_molecule_id_must_be_valid(self):
+        with self.assertRaises(ValueError):
+            Residue("100", "TYR", *self.atoms)
+        with self.assertRaises(ValueError):
+            Residue("B_100", "TYR", *self.atoms)
+        with self.assertRaises(ValueError):
+            Residue("CA34", "TYR", *self.atoms)
+
+
     def test_residue_name_must_be_str(self):
         with self.assertRaises(TypeError):
             Residue("A5", 1, *self.atoms)

@@ -387,6 +387,10 @@ class Residue(AtomicStructure):
     def __init__(self, residue_id, residue_name, *atoms):
         if not isinstance(residue_id, str):
             raise TypeError("'%s' is not a valid residue_id" % str(residue_id))
+        if not re.match(r"^[A-Z]\d+([A-Z]?)$", residue_id):
+            raise ValueError(
+             "residue_id must take the form <char><integer><optional-char> - not '%s'" % residue_id
+            )
         self._residue_id = residue_id
         if not isinstance(residue_name, str):
             raise TypeError("'%s' is not a valid residue_name" % str(residue_name))

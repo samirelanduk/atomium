@@ -111,6 +111,12 @@ class Model(AtomicStructure):
          if molecule.molecule_name() == molecule_name])
 
 
+    def duplicate_small_molecule(self, small_molecule):
+        self.add_small_molecule(SmallMolecule(
+         "1", "1", *small_molecule.atoms()
+        ))
+
+
     def chains(self):
         """Returns all the :py:class:`.Chain` objects in this model.
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
-from molecupy.structures import BindSite, Atom, Complex
+from molecupy.structures import BindSite, Atom, GhostAtom, Complex
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from molecupy.exceptions import DuplicateBindSitesError, DuplicateComplexesError
 from molecupy.pdb.pdbdatafile import PdbDataFile
@@ -43,6 +43,8 @@ class ModelTest(TestCase):
         self.complex2.complex_id.return_value = "2"
         self.complex2.complex_name.return_value = "COM2"
         self.complex2._model = None
+        self.atoms = [GhostAtom("A", i + 1, "ATM") for i in range(10)]
+        self.small_molecule1.atoms.return_value = set(self.atoms)
 
 
 
@@ -162,6 +164,39 @@ class ModelSmallMoleculeTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_small_molecules_by_name(100)
+
+
+    def test_can_duplicate_small_molecules(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        self.assertEqual(model.small_molecules(), set([self.small_molecule1]))
+        model.duplicate_small_molecule(self.small_molecule1)
+        self.assertEqual(len(model.small_molecules()), 2)
+
+
+    def test_can_only_duplicate_present_small_molecule(self):
+        pass
+
+
+    def test_duplicate_small_molecules_have_unique_id(self):
+        pass
+
+
+    def test_duplicate_small_molecules_can_be_given_id(self):
+        pass
+
+
+    def test_duplicate_small_molecules_have_same_name(self):
+        pass
+
+
+    def test_duplicate_small_molecules_have_distinct_atoms(self):
+        pass
+
+
+    def test_duplicte_small_molecules_have_atoms_with_ok_ids(self):
+        pass
+
 
 
 

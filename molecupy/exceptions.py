@@ -77,6 +77,13 @@ class DuplicateBindSitesError(Exception):
 
 
 
+class DuplicateComplexesError(Exception):
+    """The exception raised if a Model is given a Complex when there is already
+     a Complex with that complex_id."""
+    pass
+
+
+
 class InvalidPdbCodeError(Exception):
     """The exception raised when a PDB file is requested that does not seem to
     exist."""

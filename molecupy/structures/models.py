@@ -1,7 +1,8 @@
 from .molecules import AtomicStructure, SmallMolecule
 from .chains import Chain, BindSite
+from .complexes import Complex
 from ..exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
-from ..exceptions import DuplicateBindSitesError
+from ..exceptions import DuplicateBindSitesError, DuplicateComplexesError
 from ..pdb.pdbdatafile import PdbDataFile
 
 class Model(AtomicStructure):
@@ -217,6 +218,16 @@ class Model(AtomicStructure):
 
 
     def add_complex(self, complex_):
+        if not isinstance(complex_, Complex):
+            raise TypeError(
+             "Can only add Complex to Model, not '%s'" % str(complex_)
+            )
+        if complex_.complex_id() in [mol.complex_id() for mol in self.complexes()]:
+             raise DuplicateComplexesError(
+              "Cannot add complex with ID %s to %s as there is already a complex with that ID" % (
+               complex_.complex_id(), str(self)
+              )
+             )
         self._complexes.add(complex_)
 
 

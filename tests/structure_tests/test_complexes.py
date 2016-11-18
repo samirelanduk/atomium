@@ -77,3 +77,11 @@ class ComplexPropertyTests(ComplexTest):
         complex_ = Complex("1", "A Complex", *self.chains)
         with self.assertRaises(TypeError):
             complex_.complex_name(100)
+
+
+    def test_complex_chains_is_read_only(self):
+        chain4 = Mock(Chain)
+        complex_ = Complex("1", "A Complex", *self.chains)
+        self.assertEqual(len(complex_.chains()), 3)
+        complex_.chains().add(chain4)
+        self.assertEqual(len(complex_.chains()), 3)

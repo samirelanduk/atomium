@@ -59,4 +59,4 @@ class Complex(ResiduicStructure):
 
 
     def chains(self):
-        return self._chains
+        return set(self._chains)

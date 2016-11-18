@@ -37,8 +37,10 @@ class ModelTest(TestCase):
         self.site2.atoms.return_value = set()
         self.complex1 = unittest.mock.Mock(Complex)
         self.complex1.complex_id.return_value = "1"
+        self.complex1._model = None
         self.complex2 = unittest.mock.Mock(Complex)
         self.complex2.complex_id.return_value = "2"
+        self.complex2._model = None
 
 
 
@@ -327,6 +329,23 @@ class ModelComplexTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.add_complex("site")
+
+
+    def test_can_remove_complexes(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        self.assertEqual(model.complexes(), set([self.complex1]))
+        model.remove_complex(self.complex1)
+        self.assertEqual(model.complexes(), set())
+
+
+    def test_complex_knows_about_model(self):
+        model = Model()
+        self.assertIs(self.complex1._model, None)
+        model.add_complex(self.complex1)
+        self.assertIs(self.complex1._model, model)
+        model.remove_complex(self.complex1)
+        self.assertIs(self.complex1._model, None)
 
 
 

@@ -21,6 +21,7 @@ class Complex(ResiduicStructure):
         self._complex_id = complex_id
         self._complex_name = complex_name
         self._chains = set(chains)
+        self._model = None
 
 
     def __repr__(self):
@@ -61,6 +62,10 @@ class Complex(ResiduicStructure):
 
     def chains(self):
         return set(self._chains)
+
+
+    def model(self):
+        return self._model
 
 
     def add_chain(self, chain):

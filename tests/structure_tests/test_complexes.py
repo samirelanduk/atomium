@@ -30,6 +30,7 @@ class ComplexCreationTests(ComplexTest):
         self.assertEqual(complex_._complex_id, "1")
         self.assertEqual(complex_._complex_name, "A Complex")
         self.assertEqual(complex_._chains, set(self.chains))
+        self.assertEqual(complex_._model, None)
 
 
     def test_complex_id_must_be_str(self):
@@ -66,6 +67,7 @@ class ComplexPropertyTests(ComplexTest):
         self.assertEqual(complex_.complex_id(), "1")
         self.assertEqual(complex_.complex_name(), "A Complex")
         self.assertEqual(complex_.chains(), set(self.chains))
+        self.assertEqual(complex_.model(), None)
 
 
     def test_can_change_complex_name(self):

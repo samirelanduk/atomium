@@ -229,6 +229,12 @@ class Model(AtomicStructure):
               )
              )
         self._complexes.add(complex_)
+        complex_._model = self
+
+
+    def remove_complex(self, complex_):
+        self._complexes.remove(complex_)
+        complex_._model = None
 
 
     def pdb_data_file(self):

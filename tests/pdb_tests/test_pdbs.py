@@ -3,7 +3,7 @@ import unittest.mock
 from molecupy.pdb.pdb import Pdb
 from molecupy.pdb.pdbdatafile import PdbDataFile
 from molecupy.structures import Model, SmallMolecule, Chain, Residue, BindSite
-from molecupy.structures import AlphaHelix, BetaStrand
+from molecupy.structures import AlphaHelix, BetaStrand, Complex
 
 class PdbTest(TestCase):
 
@@ -21,6 +21,7 @@ class PdbTest(TestCase):
         self.data_file.sites.return_value = []
         self.data_file.helices.return_value = []
         self.data_file.sheets.return_value = []
+        self.data_file.compounds.return_value = []
 
 
 class PdbCreationTests(PdbTest):
@@ -983,6 +984,7 @@ class PdbBindSiteTests(PdbBondTests):
         )
 
 
+
 class PdbSecondaryStructureTests(PdbBondTests):
 
     def setUp(self):
@@ -1054,3 +1056,92 @@ class PdbSecondaryStructureTests(PdbBondTests):
          list(pdb.model().chains())[0].residues()
         )
         self.assertEqual(strand.sense(), 0)
+
+
+
+class PdbComplexTests(PdbTest):
+
+    def setUp(self):
+        PdbTest.setUp(self)
+        self.data_file.atoms.return_value = [
+         {
+          "atom_id": 107,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 108,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "GLY",
+          "chain_id": "A",
+          "residue_id": 13,
+          "insert_code": "",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 109,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": "MET",
+          "chain_id": "B",
+          "residue_id": 13,
+          "insert_code": "A",
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": 1.0,
+          "temperature_factor": 15.56,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 110,
+          "atom_name": "CA",
+          "alt_loc": None,
+          "residue_name": "MET",
+          "chain_id": "B",
+          "residue_id": 13,
+          "insert_code": "A",
+          "x": 11.982,
+          "y": 37.996,
+          "z": -26.241,
+          "occupancy": 1.0,
+          "temperature_factor": 16.92,
+          "element": "C",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+        self.data_file.compounds.return_value = [{
+         "MOL_ID": 1,
+         "MOLECULE": "COMPLEX1",
+         "CHAIN": ["A", "B"]
+        }]
+
+
+    def test_can_add_single_complex(self):
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.model().complexes()), 1)
+        complex_ = list(pdb.model().complexes())[0]
+        self.assertIsInstance(complex_, Complex)
+        self.assertEqual(complex_.complex_id(), "1")
+        self.assertEqual(complex_.complex_name(), "COMPLEX1")
+        self.assertEqual(len(complex_.chains()), 2)

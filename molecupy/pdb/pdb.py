@@ -2,7 +2,7 @@
 data contained in the data file."""
 
 from ..structures import Model, Atom, GhostAtom, SmallMolecule, Residue, Chain
-from ..structures import BindSite, AlphaHelix, BetaStrand
+from ..structures import BindSite, AlphaHelix, BetaStrand, Complex
 from . import residues as residues_dict
 
 class Pdb:
@@ -26,6 +26,7 @@ class Pdb:
             _map_sites_to_ligands(model, data_file, model_dict["model_id"])
             _give_model_alpha_helices(model, data_file, model_dict["model_id"])
             _give_model_beta_strands(model, data_file, model_dict["model_id"])
+            _give_model_complexes(model, data_file, model_dict["model_id"])
             self._models.append(model)
 
 
@@ -510,6 +511,17 @@ def _give_model_beta_strands(model, data_file, model_id):
                      strand["sense"],
                      *chain.residues()[start_index:end_index + 1]
                     )
+
+
+def _give_model_complexes(model, data_file, model_id):
+    for compound in data_file.compounds():
+        chains = []
+        for chain in model.chains():
+            if chain.chain_id() in compound["CHAIN"]:
+                chains.append(chain)
+        if chains:
+            complex_ = Complex(str(compound["MOL_ID"]), compound["MOLECULE"], *chains)
+            model.add_complex(complex_)
 
 
 HELIX_CLASSES = {

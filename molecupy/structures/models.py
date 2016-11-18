@@ -213,7 +213,7 @@ class Model(AtomicStructure):
 
 
     def complexes(self):
-        return self._complexes
+        return set(self._complexes)
 
 
     def add_complex(self, complex_):

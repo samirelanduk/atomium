@@ -306,6 +306,13 @@ class ModelComplexTests(ModelTest):
         self.assertEqual(model.complexes(), set([self.complex1, self.complex2]))
 
 
+    def test_must_use_method_to_get_complexes(self):
+        model = Model()
+        self.assertEqual(model.complexes(), set())
+        model.complexes().add(self.complex1)
+        self.assertEqual(model.complexes(), set())
+
+
 
 class ModelAtomsTests(ModelTest):
 

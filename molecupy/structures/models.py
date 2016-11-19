@@ -238,11 +238,21 @@ class Model(AtomicStructure):
             while new_chain_id in current_chain_ids:
                 new_chain_id = chr(ord(new_chain_id) + 1)
         new_residues = []
+        next_atom_id = 1
         for residue in chain.residues():
+            new_atoms = set()
+            for atom in residue.atoms(atom_type="all"):
+                if isinstance(atom, Atom):
+                    new_atoms.add(Atom(
+                     atom.x(), atom.y(), atom.z(), atom.element(), next_atom_id, atom.atom_name()
+                    ))
+                else:
+                    new_atoms.add(GhostAtom(atom.element(), next_atom_id, atom.atom_name()))
+                next_atom_id += 1
             new_residues.append(Residue(
              new_chain_id + residue.residue_id()[1:],
              residue.residue_name(),
-             *residue.atoms(atom_type="all")
+             *new_atoms
             ))
 
         new_chain = Chain(new_chain_id, *new_residues)

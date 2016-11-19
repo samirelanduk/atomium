@@ -28,8 +28,8 @@ class ModelTest(TestCase):
         self.chain1 = unittest.mock.Mock(spec=Chain)
         self.chain1._model = None
         self.chain1.chain_id.return_value = "A"
-        self.chain1.atoms.return_value = set()
         self.chain1.residues.return_value = self.residues
+        self.chain1.atoms.return_value = set(self.atoms)
         self.chain2 = unittest.mock.Mock(spec=Chain)
         self.chain2._model = None
         self.chain2.chain_id.return_value = "B"
@@ -405,11 +405,20 @@ class ModelChainTests(ModelTest):
     def test_duplicate_chains_have_missing_and_present_residues(self):
         model = Model()
         model.add_chain(self.chain1)
-        for residue in self.residues[::2]:
-            residue.add_atom(unittest.mock.Mock(Atom))
+        for index, residue in enumerate(self.residues[::2]):
+            residue.add_atom(Atom(1.0, 1.0, 1.0, "Z", index + 100, "Z"))
         new_chain = model.duplicate_chain(self.chain1)
         self.assertEqual(len(new_chain.residues()), 10)
         self.assertEqual(len(new_chain.residues(include_missing=False)), 5)
+
+
+    def test_duplicate_chains_have_distinct_atoms(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        new_chain = model.duplicate_chain(self.chain1)
+        self.assertNotEqual(new_chain.atoms(atom_type="all"), self.chain1.atoms())
+        for atom in new_chain.atoms(atom_type="all"):
+            self.assertNotIn(atom, self.chain1.atoms())
 
 
 class ModelBindSiteTests(ModelTest):

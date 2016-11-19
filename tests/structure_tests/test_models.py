@@ -356,6 +356,16 @@ class ModelChainTests(ModelTest):
             model.duplicate_chain(self.chain1)
 
 
+    def test_duplicated_chains_have_unique_ids(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
+        new_chain = model.duplicate_chain(self.chain1)
+        self.assertEqual(new_chain.chain_id(), "C")
+        new_chain = model.duplicate_chain(new_chain)
+        self.assertEqual(new_chain.chain_id(), "D")
+
+
 class ModelBindSiteTests(ModelTest):
 
     def test_can_add_bind_sites(self):

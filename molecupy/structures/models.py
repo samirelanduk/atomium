@@ -225,8 +225,13 @@ class Model(AtomicStructure):
               chain
              )
             )
-        new_chain = Chain("X", *chain.residues())
+        chain_ids = [chain.chain_id() for chain in self.chains()]
+        id_ = "A"
+        while id_ in chain_ids:
+            id_ = chr(ord(id_) + 1)
+        new_chain = Chain(id_, *chain.residues())
         self.add_chain(new_chain)
+        return new_chain
 
 
     def bind_sites(self):

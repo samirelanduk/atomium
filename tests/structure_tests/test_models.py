@@ -22,7 +22,9 @@ class ModelTest(TestCase):
         self.small_molecule2.molecule_name.return_value = "HET"
         self.small_molecule2.atoms.return_value = set()
         self.atoms = [GhostAtom("A", i + 1, "ATM") for i in range(10)]
-        self.residues = [Residue("A%i" % (i + 1), "RES", *self.atoms) for i in range(10)]
+        self.residues = [
+         Residue("A%i" % (i + 1), "RES", *self.atoms[i:i+1]) for i in range(10)
+        ]
         self.chain1 = unittest.mock.Mock(spec=Chain)
         self.chain1._model = None
         self.chain1.chain_id.return_value = "A"
@@ -48,7 +50,6 @@ class ModelTest(TestCase):
         self.complex2.complex_id.return_value = "2"
         self.complex2.complex_name.return_value = "COM2"
         self.complex2._model = None
-        self.atoms = [GhostAtom("A", i + 1, "ATM") for i in range(10)]
         self.small_molecule1.atoms.return_value = set(self.atoms)
 
 
@@ -399,6 +400,16 @@ class ModelChainTests(ModelTest):
         self.assertNotEqual(self.chain1.residues(), new_chain.residues())
         for residue in new_chain.residues():
             self.assertNotIn(residue, self.chain1.residues())
+
+
+    def test_duplicate_chains_have_missing_and_present_residues(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        for residue in self.residues[::2]:
+            residue.add_atom(unittest.mock.Mock(Atom))
+        new_chain = model.duplicate_chain(self.chain1)
+        self.assertEqual(len(new_chain.residues()), 10)
+        self.assertEqual(len(new_chain.residues(include_missing=False)), 5)
 
 
 class ModelBindSiteTests(ModelTest):

@@ -212,6 +212,11 @@ class Model(AtomicStructure):
                 return chain
 
 
+    def duplicate_chain(self, chain):
+        new_chain = Chain("X", *chain.residues())
+        self.add_chain(new_chain)
+
+
     def bind_sites(self):
         """Returns all the :py:class:`.BindSite` objects in this model.
 

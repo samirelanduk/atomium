@@ -1,7 +1,7 @@
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
-from molecupy.structures import BindSite, Atom, GhostAtom, Complex
+from molecupy.structures import BindSite, Atom, GhostAtom, Complex, Residue
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from molecupy.exceptions import DuplicateBindSitesError, DuplicateComplexesError
 from molecupy.pdb.pdbdatafile import PdbDataFile
@@ -21,10 +21,13 @@ class ModelTest(TestCase):
         self.small_molecule2.molecule_id.return_value = "A101"
         self.small_molecule2.molecule_name.return_value = "HET"
         self.small_molecule2.atoms.return_value = set()
+        self.atoms = [GhostAtom("A", i + 1, "ATM") for i in range(10)]
+        self.residues = [Residue("A%i" % (i + 1), "RES", *self.atoms) for i in range(10)]
         self.chain1 = unittest.mock.Mock(spec=Chain)
         self.chain1._model = None
         self.chain1.chain_id.return_value = "A"
         self.chain1.atoms.return_value = set()
+        self.chain1.residues.return_value = self.residues
         self.chain2 = unittest.mock.Mock(spec=Chain)
         self.chain2._model = None
         self.chain2.chain_id.return_value = "B"
@@ -334,6 +337,14 @@ class ModelChainTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_chain_by_id(100)
+
+
+    def test_can_duplicate_chains(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        self.assertEqual(model.chains(), set([self.chain1]))
+        model.duplicate_chain(self.chain1)
+        self.assertEqual(len(model.chains()), 2)
 
 
 

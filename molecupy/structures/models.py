@@ -212,7 +212,7 @@ class Model(AtomicStructure):
                 return chain
 
 
-    def duplicate_chain(self, chain):
+    def duplicate_chain(self, chain, chain_id=None):
         if not isinstance(chain, Chain):
             raise TypeError(
              "Can only duplicate Chain with this method, not '%s'" % str(
@@ -226,10 +226,14 @@ class Model(AtomicStructure):
              )
             )
         chain_ids = [chain.chain_id() for chain in self.chains()]
-        id_ = "A"
-        while id_ in chain_ids:
-            id_ = chr(ord(id_) + 1)
-        new_chain = Chain(id_, *chain.residues())
+        new_chain = None
+        if chain_id:
+            new_chain = Chain(chain_id, *chain.residues())
+        else:
+            id_ = "A"
+            while id_ in chain_ids:
+                id_ = chr(ord(id_) + 1)
+            new_chain = Chain(id_, *chain.residues())
         self.add_chain(new_chain)
         return new_chain
 

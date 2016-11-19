@@ -421,6 +421,29 @@ class ModelChainTests(ModelTest):
             self.assertNotIn(atom, self.chain1.atoms())
 
 
+    def test_duplicte_chains_have_atoms_with_ok_ids(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        existing_model_ids = [atom.atom_id() for atom in model.atoms(atom_type="all")]
+        new_chain = model.duplicate_chain(self.chain1)
+        for atom in new_chain.atoms(atom_type="all"):
+            self.assertNotIn(atom.atom_id(), existing_model_ids)
+
+
+    def test_duplicate_chain_has_ghost_and_localised_atoms(self):
+        real_atoms = [Atom(1.0, 1.0, 1.0, "A", i + 1, "ATM") for i in range(10, 20)]
+        for index, residue in enumerate(self.residues):
+            residue.add_atom(real_atoms[index])
+        self.chain1.atoms.return_value = real_atoms + self.atoms
+        model = Model()
+        model.add_chain(self.chain1)
+        self.assertEqual(len(model.atoms()), 10)
+        self.assertEqual(len(model.atoms(atom_type="all")), 20)
+        new_chain = model.duplicate_chain(self.chain1)
+        self.assertEqual(len(new_chain.atoms(atom_type="all")), 20)
+        self.assertEqual(len(new_chain.atoms()), 10)
+
+
 class ModelBindSiteTests(ModelTest):
 
     def test_can_add_bind_sites(self):

@@ -238,7 +238,9 @@ class Model(AtomicStructure):
             while new_chain_id in current_chain_ids:
                 new_chain_id = chr(ord(new_chain_id) + 1)
         new_residues = []
-        next_atom_id = 1
+        next_atom_id = sorted(
+         [atom.atom_id() for atom in self.atoms(atom_type="all")]
+        )[-1] + 1
         for residue in chain.residues():
             new_atoms = set()
             for atom in residue.atoms(atom_type="all"):

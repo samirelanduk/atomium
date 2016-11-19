@@ -347,6 +347,14 @@ class ModelChainTests(ModelTest):
         self.assertEqual(len(model.chains()), 2)
 
 
+    def test_can_only_duplicate_chains(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        with self.assertRaises(TypeError):
+            model.duplicate_chain(self.small_molecule1)
+        with self.assertRaises(ValueError):
+            model.duplicate_chain(self.chain1)
+
 
 class ModelBindSiteTests(ModelTest):
 

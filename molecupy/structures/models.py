@@ -213,6 +213,18 @@ class Model(AtomicStructure):
 
 
     def duplicate_chain(self, chain):
+        if not isinstance(chain, Chain):
+            raise TypeError(
+             "Can only duplicate Chain with this method, not '%s'" % str(
+              chain
+             )
+            )
+        if chain not in self.chains():
+            raise ValueError(
+             "%s is not in this Model and so cannot be duplicated." % str(
+              chain
+             )
+            )
         new_chain = Chain("X", *chain.residues())
         self.add_chain(new_chain)
 

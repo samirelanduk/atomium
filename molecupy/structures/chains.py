@@ -1,3 +1,4 @@
+import re
 from .molecules import AtomicStructure, Residue, SmallMolecule
 from ..exceptions import NoResiduesError, BrokenHelixError, BrokenStrandError, DuplicateResiduesError
 
@@ -207,6 +208,10 @@ class Chain(ResiduicSequence):
     def __init__(self, chain_id, *residues):
         if not isinstance(chain_id, str):
             raise TypeError("'%s' is not a valid chain_id" % str(chain_id))
+        if not re.match(r"^[A-Z]$", chain_id):
+            raise ValueError(
+             "chain_id must be a single upper case letter - not '%s'" % chain_id
+            )
         self._chain_id = chain_id
         ResiduicSequence.__init__(self, *residues)
         for residue in self._residues:

@@ -225,13 +225,17 @@ class Model(AtomicStructure):
               chain
              )
             )
-        chain_ids = [chain.chain_id() for chain in self.chains()]
+        current_chain_ids = [chain.chain_id() for chain in self.chains()]
         new_chain = None
         if chain_id:
+            if chain_id in current_chain_ids:
+                raise ValueError(
+                 "There is already a Chain with ID %s" % chain_id
+                )
             new_chain = Chain(chain_id, *chain.residues())
         else:
             id_ = "A"
-            while id_ in chain_ids:
+            while id_ in current_chain_ids:
                 id_ = chr(ord(id_) + 1)
             new_chain = Chain(id_, *chain.residues())
         self.add_chain(new_chain)

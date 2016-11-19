@@ -39,6 +39,13 @@ class ChainCreationTests(ChainTest):
             Chain(200, *self.residues)
 
 
+    def test_chain_id_must_be_single_char(self):
+        with self.assertRaises(ValueError):
+            Chain("AA", *self.residues)
+        with self.assertRaises(ValueError):
+            Chain("1", *self.residues)
+
+
     def test_chain_repr(self):
         chain = Chain("A", *self.residues)
         self.assertEqual(str(chain), "<Chain A (10 residues)>")

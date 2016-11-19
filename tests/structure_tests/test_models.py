@@ -380,6 +380,18 @@ class ModelChainTests(ModelTest):
             new_chain = model.duplicate_chain(self.chain1, chain_id=12)
 
 
+    def test_duplicate_small_molecule_ids_must_be_valid(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
+        with self.assertRaises(ValueError):
+            new_chain = model.duplicate_chain(self.chain1, chain_id="B")
+        with self.assertRaises(ValueError):
+            new_chain = model.duplicate_chain(self.chain1, chain_id="CD")
+        with self.assertRaises(ValueError):
+            new_chain = model.duplicate_chain(self.chain1, chain_id="1")
+
+
 class ModelBindSiteTests(ModelTest):
 
     def test_can_add_bind_sites(self):

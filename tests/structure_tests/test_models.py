@@ -380,7 +380,7 @@ class ModelChainTests(ModelTest):
             new_chain = model.duplicate_chain(self.chain1, chain_id=12)
 
 
-    def test_duplicate_small_molecule_ids_must_be_valid(self):
+    def test_duplicate_chain_must_be_valid(self):
         model = Model()
         model.add_chain(self.chain1)
         model.add_chain(self.chain2)
@@ -390,6 +390,15 @@ class ModelChainTests(ModelTest):
             new_chain = model.duplicate_chain(self.chain1, chain_id="CD")
         with self.assertRaises(ValueError):
             new_chain = model.duplicate_chain(self.chain1, chain_id="1")
+
+
+    def test_duplicate_chains_have_distinct_residues(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        new_chain = model.duplicate_chain(self.chain1)
+        self.assertNotEqual(self.chain1.residues(), new_chain.residues())
+        for residue in new_chain.residues():
+            self.assertNotIn(residue, self.chain1.residues())
 
 
 class ModelBindSiteTests(ModelTest):

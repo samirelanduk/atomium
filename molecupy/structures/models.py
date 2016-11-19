@@ -1,5 +1,5 @@
 from .atoms import Atom, GhostAtom
-from .molecules import AtomicStructure, SmallMolecule
+from .molecules import AtomicStructure, SmallMolecule, Residue
 from .chains import Chain, BindSite
 from .complexes import Complex
 from ..exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
@@ -226,18 +226,26 @@ class Model(AtomicStructure):
              )
             )
         current_chain_ids = [chain.chain_id() for chain in self.chains()]
-        new_chain = None
+        new_chain_id = ""
         if chain_id:
             if chain_id in current_chain_ids:
                 raise ValueError(
                  "There is already a Chain with ID %s" % chain_id
                 )
-            new_chain = Chain(chain_id, *chain.residues())
+            new_chain_id = chain_id
         else:
-            id_ = "A"
-            while id_ in current_chain_ids:
-                id_ = chr(ord(id_) + 1)
-            new_chain = Chain(id_, *chain.residues())
+            new_chain_id = "A"
+            while new_chain_id in current_chain_ids:
+                new_chain_id = chr(ord(new_chain_id) + 1)
+        new_residues = []
+        for residue in chain.residues():
+            new_residues.append(Residue(
+             new_chain_id + residue.residue_id()[1:],
+             residue.residue_name(),
+             *residue.atoms(atom_type="all")
+            ))
+
+        new_chain = Chain(new_chain_id, *new_residues)
         self.add_chain(new_chain)
         return new_chain
 

@@ -51,6 +51,7 @@ class ModelTest(TestCase):
         self.complex2.complex_name.return_value = "COM2"
         self.complex2._model = None
         self.small_molecule1.atoms.return_value = set(self.atoms)
+        self.complex1.chains.return_value = set([self.chain1, self.chain2])
 
 
 
@@ -444,6 +445,7 @@ class ModelChainTests(ModelTest):
         self.assertEqual(len(new_chain.atoms()), 10)
 
 
+
 class ModelBindSiteTests(ModelTest):
 
     def test_can_add_bind_sites(self):
@@ -611,6 +613,14 @@ class ModelComplexTests(ModelTest):
         model = Model()
         with self.assertRaises(TypeError):
             model.get_complexes_by_name(100)
+
+
+    def test_can_duplicate_complexes(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        self.assertEqual(model.complexes(), set([self.complex1]))
+        model.duplicate_complex(self.complex1)
+        self.assertEqual(len(model.complexes()), 2)
 
 
 

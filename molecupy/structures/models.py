@@ -366,6 +366,11 @@ class Model(AtomicStructure):
          if complex_.complex_name() == complex_name])
 
 
+    def duplicate_complex(self, complex_):
+        new_complex = Complex("10", "...", *complex_.chains())
+        self.add_complex(new_complex)
+
+
     def pdb_data_file(self):
         data_file = PdbDataFile()
         for atom in sorted(list(self.atoms()), key=lambda k: k.atom_id()):

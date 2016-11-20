@@ -235,7 +235,7 @@ class Model(AtomicStructure):
                 )
             new_chain_id = chain_id
         else:
-            new_chain_id = "A"
+            new_chain_id = chain.chain_id()
             while new_chain_id in current_chain_ids:
                 new_chain_id = chr(ord(new_chain_id) + 1)
         new_residues = []

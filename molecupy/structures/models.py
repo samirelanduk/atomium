@@ -367,7 +367,7 @@ class Model(AtomicStructure):
          if complex_.complex_name() == complex_name])
 
 
-    def duplicate_complex(self, complex_):
+    def duplicate_complex(self, complex_, complex_id=None):
         if not isinstance(complex_, Complex):
             raise TypeError(
              "Can only duplicate Complex with this method, not '%s'" % str(
@@ -382,13 +382,19 @@ class Model(AtomicStructure):
             )
         current_complex_ids = [complex_.complex_id() for complex_ in self.complexes()]
         new_complex_id = ""
-        if re.match(r"(.+)_\d+$", complex_.complex_id()):
+        if complex_id:
+            if complex_id in current_complex_ids:
+                raise ValueError(
+                 "There is already a Complex with ID %s" % complex_id
+                )
+            new_complex_id = complex_id
+        elif re.match(r"(.+)_\d+$", complex_.complex_id()):
             current_iteration = int(complex_.complex_id().split("_")[-1])
-            while "_".join(complex_.complex_id().split("_")[:-1]) + "_"
-             + str(current_iteration) in current_complex_ids:
+            while "_".join(complex_.complex_id().split("_")[:-1]) + "_" +\
+             str(current_iteration) in current_complex_ids:
                 current_iteration += 1
-            new_complex_id = "_".join(complex_.complex_id().split("_")[:-1])
-              + "_" + str(current_iteration)
+            new_complex_id = "_".join(complex_.complex_id().split("_")[:-1]) +\
+             "_" + str(current_iteration)
         elif complex_.complex_id() + "_1" in current_complex_ids:
             current_iteration = 1
             while "%s_%i" % (complex_.complex_id(), current_iteration) in current_complex_ids:

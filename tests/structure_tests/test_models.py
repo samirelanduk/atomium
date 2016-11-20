@@ -649,6 +649,28 @@ class ModelComplexTests(ModelTest):
         self.assertEqual(new_complex.complex_id(), "2_2")
 
 
+    def test_duplicate_complexes_can_be_given_id(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        new_complex = model.duplicate_complex(self.complex1, complex_id=".+.")
+        self.assertEqual(new_complex.complex_id(), ".+.")
+
+
+    def test_dupicate_chain_id_must_be_str(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        with self.assertRaises(TypeError):
+            new_complex = model.duplicate_complex(self.complex1, complex_id=100)
+
+
+    def test_duplicate_chain_id_must_be_valid(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        model.add_complex(self.complex2)
+        with self.assertRaises(ValueError):
+            new_complex = model.duplicate_complex(self.complex1, complex_id="2")
+
+
 
 class ModelAtomsTests(ModelTest):
 

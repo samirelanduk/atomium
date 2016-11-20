@@ -52,6 +52,7 @@ class ModelTest(TestCase):
         self.complex2._model = None
         self.small_molecule1.atoms.return_value = set(self.atoms)
         self.complex1.chains.return_value = set([self.chain1, self.chain2])
+        self.complex2.chains.return_value = set([self.chain1, self.chain2])
 
 
 
@@ -630,6 +631,22 @@ class ModelComplexTests(ModelTest):
             model.duplicate_complex(self.small_molecule1)
         with self.assertRaises(ValueError):
             model.duplicate_complex(self.complex1)
+
+
+    def test_duplicated_complexes_have_unique_ids(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        model.add_complex(self.complex2)
+        new_complex = model.duplicate_complex(self.complex1)
+        self.assertEqual(new_complex.complex_id(), "1_1")
+        new_complex = model.duplicate_complex(new_complex)
+        self.assertEqual(new_complex.complex_id(), "1_2")
+        new_complex = model.duplicate_complex(self.complex1)
+        self.assertEqual(new_complex.complex_id(), "1_3")
+        new_complex = model.duplicate_complex(self.complex2)
+        self.assertEqual(new_complex.complex_id(), "2_1")
+        new_complex = model.duplicate_complex(new_complex)
+        self.assertEqual(new_complex.complex_id(), "2_2")
 
 
 

@@ -1,3 +1,4 @@
+import re
 from .atoms import Atom, GhostAtom
 from .molecules import AtomicStructure, SmallMolecule, Residue
 from .chains import Chain, BindSite
@@ -379,8 +380,25 @@ class Model(AtomicStructure):
               complex_
              )
             )
-        new_complex = Complex("10", "...", *complex_.chains())
+        current_complex_ids = [complex_.complex_id() for complex_ in self.complexes()]
+        new_complex_id = ""
+        if re.match(r"(.+)_\d+$", complex_.complex_id()):
+            current_iteration = int(complex_.complex_id().split("_")[-1])
+            while "_".join(complex_.complex_id().split("_")[:-1]) + "_"
+             + str(current_iteration) in current_complex_ids:
+                current_iteration += 1
+            new_complex_id = "_".join(complex_.complex_id().split("_")[:-1])
+              + "_" + str(current_iteration)
+        elif complex_.complex_id() + "_1" in current_complex_ids:
+            current_iteration = 1
+            while "%s_%i" % (complex_.complex_id(), current_iteration) in current_complex_ids:
+                current_iteration += 1
+            new_complex_id = "%s_%i" % (complex_.complex_id(), current_iteration)
+        else:
+            new_complex_id = complex_.complex_id() + "_1"
+        new_complex = Complex(new_complex_id, "...", *complex_.chains())
         self.add_complex(new_complex)
+        return new_complex
 
 
     def pdb_data_file(self):

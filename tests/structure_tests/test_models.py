@@ -623,6 +623,15 @@ class ModelComplexTests(ModelTest):
         self.assertEqual(len(model.complexes()), 2)
 
 
+    def test_can_only_duplicate_complexes(self):
+        model = Model()
+        model.add_small_molecule(self.small_molecule1)
+        with self.assertRaises(TypeError):
+            model.duplicate_complex(self.small_molecule1)
+        with self.assertRaises(ValueError):
+            model.duplicate_complex(self.complex1)
+
+
 
 class ModelAtomsTests(ModelTest):
 

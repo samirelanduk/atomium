@@ -367,6 +367,18 @@ class Model(AtomicStructure):
 
 
     def duplicate_complex(self, complex_):
+        if not isinstance(complex_, Complex):
+            raise TypeError(
+             "Can only duplicate Complex with this method, not '%s'" % str(
+              complex_
+             )
+            )
+        if complex_ not in self.complexes():
+            raise ValueError(
+             "%s is not in this Model and so cannot be duplicated." % str(
+              complex_
+             )
+            )
         new_complex = Complex("10", "...", *complex_.chains())
         self.add_complex(new_complex)
 

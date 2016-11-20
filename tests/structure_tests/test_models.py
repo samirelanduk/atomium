@@ -376,7 +376,7 @@ class ModelChainTests(ModelTest):
         self.assertEqual(new_chain.chain_id(), "Q")
 
 
-    def test_dupicate_chain_id_must_be_str(self):
+    def test_duplicate_chain_id_must_be_str(self):
         model = Model()
         model.add_chain(self.chain1)
         with self.assertRaises(TypeError):
@@ -423,7 +423,7 @@ class ModelChainTests(ModelTest):
             self.assertNotIn(atom, self.chain1.atoms())
 
 
-    def test_duplicte_chains_have_atoms_with_ok_ids(self):
+    def test_duplicate_chains_have_atoms_with_ok_ids(self):
         model = Model()
         model.add_chain(self.chain1)
         existing_model_ids = [atom.atom_id() for atom in model.atoms(atom_type="all")]
@@ -656,19 +656,26 @@ class ModelComplexTests(ModelTest):
         self.assertEqual(new_complex.complex_id(), ".+.")
 
 
-    def test_dupicate_chain_id_must_be_str(self):
+    def test_dupicate_complex_id_must_be_str(self):
         model = Model()
         model.add_complex(self.complex1)
         with self.assertRaises(TypeError):
             new_complex = model.duplicate_complex(self.complex1, complex_id=100)
 
 
-    def test_duplicate_chain_id_must_be_valid(self):
+    def test_duplicate_complex_id_must_be_valid(self):
         model = Model()
         model.add_complex(self.complex1)
         model.add_complex(self.complex2)
         with self.assertRaises(ValueError):
             new_complex = model.duplicate_complex(self.complex1, complex_id="2")
+
+
+    def test_duplicate_complex_name_stays_the_same(self):
+        model = Model()
+        model.add_complex(self.complex1)
+        new_complex = model.duplicate_complex(self.complex1)
+        self.assertEqual(new_complex.complex_name(), "COM1")
 
 
 

@@ -402,10 +402,13 @@ class Model(AtomicStructure):
             new_complex_id = "%s_%i" % (complex_.complex_id(), current_iteration)
         else:
             new_complex_id = complex_.complex_id() + "_1"
+        new_chains = []
+        for chain in complex_.chains():
+            new_chains.append(self.duplicate_chain(chain))
         new_complex = Complex(
          new_complex_id,
          complex_.complex_name(),
-         *complex_.chains()
+         *new_chains
         )
         self.add_complex(new_complex)
         return new_complex

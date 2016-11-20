@@ -34,6 +34,7 @@ class ModelTest(TestCase):
         self.chain2._model = None
         self.chain2.chain_id.return_value = "B"
         self.chain2.atoms.return_value = set()
+        self.chain2.residues.return_value = self.residues
         self.site1 = unittest.mock.Mock(spec=BindSite)
         self.site1._model = None
         self.site1.site_id.return_value = "AA"
@@ -383,7 +384,7 @@ class ModelChainTests(ModelTest):
             new_chain = model.duplicate_chain(self.chain1, chain_id=12)
 
 
-    def test_duplicate_chain_must_be_valid(self):
+    def test_duplicate_chain_id_must_be_valid(self):
         model = Model()
         model.add_chain(self.chain1)
         model.add_chain(self.chain2)
@@ -618,6 +619,8 @@ class ModelComplexTests(ModelTest):
 
     def test_can_duplicate_complexes(self):
         model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
         model.add_complex(self.complex1)
         self.assertEqual(model.complexes(), set([self.complex1]))
         model.duplicate_complex(self.complex1)
@@ -626,6 +629,8 @@ class ModelComplexTests(ModelTest):
 
     def test_can_only_duplicate_complexes(self):
         model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
         model.add_small_molecule(self.small_molecule1)
         with self.assertRaises(TypeError):
             model.duplicate_complex(self.small_molecule1)
@@ -635,6 +640,8 @@ class ModelComplexTests(ModelTest):
 
     def test_duplicated_complexes_have_unique_ids(self):
         model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
         model.add_complex(self.complex1)
         model.add_complex(self.complex2)
         new_complex = model.duplicate_complex(self.complex1)
@@ -651,6 +658,8 @@ class ModelComplexTests(ModelTest):
 
     def test_duplicate_complexes_can_be_given_id(self):
         model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
         model.add_complex(self.complex1)
         new_complex = model.duplicate_complex(self.complex1, complex_id=".+.")
         self.assertEqual(new_complex.complex_id(), ".+.")
@@ -658,6 +667,8 @@ class ModelComplexTests(ModelTest):
 
     def test_dupicate_complex_id_must_be_str(self):
         model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
         model.add_complex(self.complex1)
         with self.assertRaises(TypeError):
             new_complex = model.duplicate_complex(self.complex1, complex_id=100)
@@ -665,6 +676,8 @@ class ModelComplexTests(ModelTest):
 
     def test_duplicate_complex_id_must_be_valid(self):
         model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
         model.add_complex(self.complex1)
         model.add_complex(self.complex2)
         with self.assertRaises(ValueError):
@@ -673,9 +686,22 @@ class ModelComplexTests(ModelTest):
 
     def test_duplicate_complex_name_stays_the_same(self):
         model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
         model.add_complex(self.complex1)
         new_complex = model.duplicate_complex(self.complex1)
         self.assertEqual(new_complex.complex_name(), "COM1")
+
+
+    def test_duplicate_complexes_have_distinct_chains(self):
+        model = Model()
+        model.add_chain(self.chain1)
+        model.add_chain(self.chain2)
+        model.add_complex(self.complex1)
+        new_complex = model.duplicate_complex(self.complex1)
+        self.assertNotEqual(self.complex1.chains(), new_complex.chains())
+        for chain in new_complex.chains():
+            self.assertNotIn(chain, self.complex1.chains())
 
 
 

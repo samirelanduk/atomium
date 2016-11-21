@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase
 import unittest.mock
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
@@ -7,6 +8,7 @@ from molecupy.exceptions import DuplicateBindSitesError, DuplicateComplexesError
 from molecupy.pdb.pdbdatafile import PdbDataFile
 
 #TODO: Make sure user can't add SmallMolecule, Chain etc. if there are Atom ID clashes
+#TODO: Make sure bind sites, and secondary structure are duplicated
 
 class ModelTest(TestCase):
 
@@ -737,23 +739,36 @@ class ConversionToPdbDataFileTests(ModelTest):
         self.assertIsInstance(data_file, PdbDataFile)
 
 
+    def test_can_save_to_file(self):
+        model = Model()
+        model.add_small_molecule(
+         SmallMolecule("A1", "AA", Atom(1.0, 1.0, 1.0, "A", 1, "A"))
+        )
+        model.save_as_pdb("temp.pdb")
+        try:
+            with open("temp.pdb") as f:
+                self.assertEqual(
+                 f.read(),
+                 model.pdb_data_file().generate_pdb_file().convert_to_string()
+                )
+        finally:
+            os.remove("temp.pdb")
+
+
     def test_can_add_atoms_to_pdb_data_file(self):
         model = Model()
-        atom1 = unittest.mock.Mock(Atom)
-        atom1.x.return_value, atom1.y.return_value, atom1.z.return_value = (
-         1.2, 2.3, 3.4
-        )
-        atom1.element.return_value, atom1.atom_id.return_value, atom1.atom_name.return_value = (
-         "G", 23, "GX"
-        )
-        atom2 = unittest.mock.Mock(Atom)
-        atom2.x.return_value, atom2.y.return_value, atom2.z.return_value = (
-         11.2, 11.3, 34.4
-        )
-        atom2.element.return_value, atom2.atom_id.return_value, atom2.atom_name.return_value = (
-         "Y", 38, "YT"
-        )
-        model._atoms = set((atom1, atom2))
+        model.add_chain(Chain(
+         "A",
+         Residue(
+          "A1",
+          "PRO",
+          Atom(1.2, 2.3, 3.4, "G", 23, "GX")
+         ), Residue(
+          "A1A",
+          "VAL",
+          Atom(11.2, 11.3, 34.4, "Y", 38, "YT")
+         )
+        ))
         data_file = model.pdb_data_file()
         self.assertEqual(
          data_file.atoms(),
@@ -762,9 +777,9 @@ class ConversionToPdbDataFileTests(ModelTest):
            "atom_id": 23,
            "atom_name": "GX",
            "alt_loc": None,
-           "residue_name": None,
-           "chain_id": None,
-           "residue_id": None,
+           "residue_name": "PRO",
+           "chain_id": "A",
+           "residue_id": 1,
            "insert_code": None,
            "x": 1.2,
            "y": 2.3,
@@ -778,10 +793,10 @@ class ConversionToPdbDataFileTests(ModelTest):
            "atom_id": 38,
            "atom_name": "YT",
            "alt_loc": None,
-           "residue_name": None,
-           "chain_id": None,
-           "residue_id": None,
-           "insert_code": None,
+           "residue_name": "VAL",
+           "chain_id": "A",
+           "residue_id": 1,
+           "insert_code": "A",
            "x": 11.2,
            "y": 11.3,
            "z": 34.4,

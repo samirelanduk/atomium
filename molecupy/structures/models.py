@@ -417,14 +417,23 @@ class Model(AtomicStructure):
     def pdb_data_file(self):
         data_file = PdbDataFile()
         for atom in sorted(list(self.atoms()), key=lambda k: k.atom_id()):
+            residue_name, chain_id, residue_id, insert = None, None, None, None
+            if atom.molecule() and isinstance(atom.molecule(), Residue):
+                residue_name = atom.molecule().residue_name()
+                residue_id = atom.molecule().residue_id()[1:]
+                chain_id = atom.molecule().residue_id()[0]
+                if atom.molecule().residue_id()[-1].isalpha():
+                    insert = atom.molecule().residue_id()[-1]
+                    residue_id = atom.molecule().residue_id()[1:-1]
+                residue_id = int(residue_id)
             data_file.atoms().append({
              "atom_id": atom.atom_id(),
              "atom_name": atom.atom_name(),
              "alt_loc": None,
-             "residue_name": None,
-             "chain_id": None,
-             "residue_id": None,
-             "insert_code": None,
+             "residue_name": residue_name,
+             "chain_id": chain_id,
+             "residue_id": residue_id,
+             "insert_code": insert,
              "x": atom.x(),
              "y": atom.y(),
              "z": atom.z(),
@@ -435,3 +444,10 @@ class Model(AtomicStructure):
              "model_id": 1
             })
         return data_file
+
+
+    def save_as_pdb(self, path):
+        data_file = self.pdb_data_file()
+        pdb_file = data_file.generate_pdb_file()
+        with open(path, "w") as f:
+            f.write(pdb_file.convert_to_string())

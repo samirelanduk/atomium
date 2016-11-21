@@ -674,3 +674,27 @@ class TranslationTests(TransformationTest):
          (self.atom5.x(), self.atom5.y(), self.atom5.z()),
          (22.5, 25, 121.5)
         )
+
+
+    def test_can_translate_structure_in_multiple_directions(self):
+        self.structure.translate(19, -10432, 0.25)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (39, -10412, 20.25)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (44, -10412, 20.25)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (39, -10412, 25.25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (44, -10412, 25.25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (41.5, -10407, 22.75)
+        )

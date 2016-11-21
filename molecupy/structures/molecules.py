@@ -207,6 +207,7 @@ class AtomicStructure:
     def translate(self, x, y, z):
         for atom in self.atoms():
             atom.x(atom.x() + x)
+            atom.y(atom.y() + y)
 
 
     def get_atom_by_id(self, atom_id):

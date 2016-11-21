@@ -521,3 +521,66 @@ class BindSiteGenerationTests(AtomicStructureTest):
         self.atoms[-2].local_atoms.return_value = set([self.atoms[2]])
         site = self.atomic_structure.predict_bind_site(include_hydrogens=False)
         self.assertEqual(site.residues(), set([self.residue1]))
+
+
+
+class TransformationTest(TestCase):
+
+    def setUp(self):
+        self.atom1 = Atom(20.0, 20.0, 20.0, "X", 1, "X")
+        self.atom2 = Atom(25.0, 20.0, 20.0, "X", 2, "X")
+        self.atom3 = Atom(20.0, 20.0, 25.0, "X", 3, "X")
+        self.atom4 = Atom(25.0, 20.0, 25.0, "X", 4, "X")
+        self.atom5 = Atom(22.5, 25.0, 22.5, "X", 5, "X")
+        self.atom6 = GhostAtom("X", 6, "X")
+        self.structure = AtomicStructure(
+         self.atom1, self.atom2, self.atom3, self.atom4, self.atom5, self.atom6
+        )
+
+
+
+class TranslationTests(TransformationTest):
+
+    def test_can_translate_structure_in_x_direction(self):
+        self.structure.translate(10, 0, 0)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (30, 20, 20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (35, 20, 20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (30, 20, 25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (35, 20, 25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (32.5, 25, 22.5)
+        )
+        self.structure.translate(-120, 0, 0)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (-90, 20, 20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (-85, 20, 20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (-90, 20, 25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (-85, 20, 25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (-87.5, 25, 22.5)
+        )

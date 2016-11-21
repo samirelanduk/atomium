@@ -204,6 +204,11 @@ class AtomicStructure:
         return BindSite("CALC", *list(residues))
 
 
+    def translate(self, x, y, z):
+        for atom in self.atoms():
+            atom.x(atom.x() + x)
+
+
     def get_atom_by_id(self, atom_id):
         """Retrurns the first atom that matches a given atom ID.
 

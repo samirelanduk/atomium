@@ -698,3 +698,193 @@ class TranslationTests(TransformationTest):
          (self.atom5.x(), self.atom5.y(), self.atom5.z()),
          (41.5, -10407, 22.75)
         )
+
+
+
+class RotationTests(TransformationTest):
+
+    def test_can_rotate_around_x_axis_by_180(self):
+        self.structure.rotate("x", 180)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (20, -20, -20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (25, -20, -20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (20, -20, -25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (25, -20, -25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (22.5, -25, -22.5)
+        )
+
+
+    def test_can_rotate_around_x_axis_by_90(self):
+        self.structure.rotate("x", 90)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (20, -20, 20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (25, -20, 20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (20, -20, 25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (25, -20, 25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (22.5, -25, 22.5)
+        )
+
+
+    def test_can_rotate_around_y_axis_by_180(self):
+        self.structure.rotate("y", 180)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (-20, 20, -20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (-25, 20, -20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (-20, 20, -25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (-25, 20, -25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (-22.5, 25, -22.5)
+        )
+
+
+    def test_can_rotate_around_y_axis_by_90(self):
+        self.structure.rotate("y", 90)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (20, 20, -20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (25, 20, -20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (20, 20, -25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (25, 20, -25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (22.5, 25, -22.5)
+        )
+
+
+    def test_can_rotate_around_z_axis_by_180(self):
+        self.structure.rotate("z", 180)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (-20, -20, 20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (-25, -20, 20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (-20, -20, 25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (-25, -20, 25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (-22.5, -25, 22.5)
+        )
+
+
+    def test_can_rotate_around_z_axis_by_90(self):
+        self.structure.rotate("z", 90)
+        self.assertEqual(
+         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+         (-20, 20, 20)
+        )
+        self.assertEqual(
+         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+         (-25, 20, 20)
+        )
+        self.assertEqual(
+         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+         (-20, 20, 25)
+        )
+        self.assertEqual(
+         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+         (-25, 20, 25)
+        )
+        self.assertEqual(
+         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+         (-22.5, 25, 22.5)
+        )
+
+
+    def test_rotation_axis_must_be_string(self):
+        with self.assertRaises(TypeError):
+            self.structure.rotate(100, 90)
+
+
+    def test_rotation_axis_must_be_valid(self):
+        with self.assertRaises(ValueError):
+            self.structure.rotate("zz", 90)
+        with self.assertRaises(ValueError):
+            self.structure.rotate("a", 90)
+
+
+    def test_rotation_angle_must_be_numeric(self):
+        with self.assertRaises(TypeError):
+            self.structure.rotate(100, "90")
+        with self.assertRaises(TypeError):
+            self.structure.rotate(100, 90.7)
+
+
+
+
+'''self.assertEqual(
+ (self.atom1.x(), self.atom1.y(), self.atom1.z()),
+ (20, 20, 20)
+)
+self.assertEqual(
+ (self.atom2.x(), self.atom2.y(), self.atom2.z()),
+ (25, 20, 20)
+)
+self.assertEqual(
+ (self.atom3.x(), self.atom3.y(), self.atom3.z()),
+ (20, 20, 25)
+)
+self.assertEqual(
+ (self.atom4.x(), self.atom4.y(), self.atom4.z()),
+ (25, 20, 25)
+)
+self.assertEqual(
+ (self.atom5.x(), self.atom5.y(), self.atom5.z()),
+ (22.5, 25, 22.5)
+)'''

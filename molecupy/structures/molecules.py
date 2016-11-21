@@ -208,6 +208,7 @@ class AtomicStructure:
         for atom in self.atoms():
             atom.x(atom.x() + x)
             atom.y(atom.y() + y)
+            atom.z(atom.z() + z)
 
 
     def get_atom_by_id(self, atom_id):

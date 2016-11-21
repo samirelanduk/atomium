@@ -705,146 +705,116 @@ class RotationTests(TransformationTest):
 
     def test_can_rotate_around_x_axis_by_180(self):
         self.structure.rotate("x", 180)
-        self.assertEqual(
-         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
-         (20, -20, -20)
-        )
-        self.assertEqual(
-         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
-         (25, -20, -20)
-        )
-        self.assertEqual(
-         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
-         (20, -20, -25)
-        )
-        self.assertEqual(
-         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
-         (25, -20, -25)
-        )
-        self.assertEqual(
-         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
-         (22.5, -25, -22.5)
-        )
+        self.assertAlmostEqual(self.atom1.x(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.z(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.x(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom2.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.z(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.x(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.z(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.x(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom4.z(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.x(), 22.5, delta=0.005)
+        self.assertAlmostEqual(self.atom5.y(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.z(), -22.5, delta=0.005)
 
 
     def test_can_rotate_around_x_axis_by_90(self):
         self.structure.rotate("x", 90)
-        self.assertEqual(
-         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
-         (20, -20, 20)
-        )
-        self.assertEqual(
-         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
-         (25, -20, 20)
-        )
-        self.assertEqual(
-         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
-         (20, -20, 25)
-        )
-        self.assertEqual(
-         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
-         (25, -20, 25)
-        )
-        self.assertEqual(
-         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
-         (22.5, -25, 22.5)
-        )
+        self.assertAlmostEqual(self.atom1.x(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.x(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom2.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.x(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.y(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom3.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom4.x(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.y(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom5.x(), 22.5, delta=0.005)
+        self.assertAlmostEqual(self.atom5.y(), -22.5, delta=0.005)
+        self.assertAlmostEqual(self.atom5.z(), 25, delta=0.005)
 
 
     def test_can_rotate_around_y_axis_by_180(self):
         self.structure.rotate("y", 180)
-        self.assertEqual(
-         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
-         (-20, 20, -20)
-        )
-        self.assertEqual(
-         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
-         (-25, 20, -20)
-        )
-        self.assertEqual(
-         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
-         (-20, 20, -25)
-        )
-        self.assertEqual(
-         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
-         (-25, 20, -25)
-        )
-        self.assertEqual(
-         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
-         (-22.5, 25, -22.5)
-        )
+        self.assertAlmostEqual(self.atom1.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.z(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.x(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom2.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.z(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.z(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.x(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom4.z(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.x(), -22.5, delta=0.005)
+        self.assertAlmostEqual(self.atom5.y(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.z(), -22.5, delta=0.005)
 
 
     def test_can_rotate_around_y_axis_by_90(self):
         self.structure.rotate("y", 90)
-        self.assertEqual(
-         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
-         (20, 20, -20)
-        )
-        self.assertEqual(
-         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
-         (25, 20, -20)
-        )
-        self.assertEqual(
-         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
-         (20, 20, -25)
-        )
-        self.assertEqual(
-         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
-         (25, 20, -25)
-        )
-        self.assertEqual(
-         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
-         (22.5, 25, -22.5)
-        )
+        self.assertAlmostEqual(self.atom1.x(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.z(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.x(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.z(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom3.x(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom3.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.z(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom4.x(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom4.z(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.x(), 22.5, delta=0.005)
+        self.assertAlmostEqual(self.atom5.y(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.z(), -22.5, delta=0.005)
 
 
     def test_can_rotate_around_z_axis_by_180(self):
         self.structure.rotate("z", 180)
-        self.assertEqual(
-         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
-         (-20, -20, 20)
-        )
-        self.assertEqual(
-         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
-         (-25, -20, 20)
-        )
-        self.assertEqual(
-         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
-         (-20, -20, 25)
-        )
-        self.assertEqual(
-         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
-         (-25, -20, 25)
-        )
-        self.assertEqual(
-         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
-         (-22.5, -25, 22.5)
-        )
+        self.assertAlmostEqual(self.atom1.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.x(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom2.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.z(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.x(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.y(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom4.z(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.x(), -22.5, delta=0.005)
+        self.assertAlmostEqual(self.atom5.y(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.z(), 22.5, delta=0.005)
 
 
     def test_can_rotate_around_z_axis_by_90(self):
         self.structure.rotate("z", 90)
-        self.assertEqual(
-         (self.atom1.x(), self.atom1.y(), self.atom1.z()),
-         (-20, 20, 20)
-        )
-        self.assertEqual(
-         (self.atom2.x(), self.atom2.y(), self.atom2.z()),
-         (-25, 20, 20)
-        )
-        self.assertEqual(
-         (self.atom3.x(), self.atom3.y(), self.atom3.z()),
-         (-20, 20, 25)
-        )
-        self.assertEqual(
-         (self.atom4.x(), self.atom4.y(), self.atom4.z()),
-         (-25, 20, 25)
-        )
-        self.assertEqual(
-         (self.atom5.x(), self.atom5.y(), self.atom5.z()),
-         (-22.5, 25, 22.5)
-        )
+        self.assertAlmostEqual(self.atom1.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom1.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom2.y(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom2.z(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.y(), 20, delta=0.005)
+        self.assertAlmostEqual(self.atom3.z(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.x(), -20, delta=0.005)
+        self.assertAlmostEqual(self.atom4.y(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom4.z(), 25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.x(), -25, delta=0.005)
+        self.assertAlmostEqual(self.atom5.y(), 22.5, delta=0.005)
+        self.assertAlmostEqual(self.atom5.z(), 22.5, delta=0.005)
 
 
     def test_rotation_axis_must_be_string(self):

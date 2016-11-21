@@ -1,6 +1,7 @@
 """Contains classes for simple structures made of atoms."""
 
 import re
+import math
 from collections import Counter
 from .atoms import GhostAtom, Atom
 from ..exceptions import NoAtomsError, MultipleResidueConnectionError, DuplicateAtomsError
@@ -216,15 +217,40 @@ class AtomicStructure:
             raise TypeError("axis must be str, not '%s'" % str(axis))
         if not isinstance(angle, int) and not isinstance(angle, float):
             raise TypeError("angle must be numeric, not '%s'" % str(angle))
+        rotation_matrix = []
+        angle = math.radians(angle)
         if axis == "x":
-            pass
+            rotation_matrix.append([1, 0, 0])
+            rotation_matrix.append(
+             [0, math.cos(angle), -math.sin(angle)]
+            )
+            rotation_matrix.append(
+             [0, math.sin(angle),  math.cos(angle)]
+            )
         elif axis == "y":
-            pass
+            rotation_matrix.append(
+             [math.cos(angle), 0, math.sin(angle)]
+            )
+            rotation_matrix.append([0, 1, 0])
+            rotation_matrix.append(
+             [-math.sin(angle), 0, math.cos(angle)]
+            )
         elif axis == "z":
-            pass
+            rotation_matrix.append(
+             [math.cos(angle), -math.sin(angle), 0],
+            )
+            rotation_matrix.append(
+             [math.sin(angle), math.cos(angle), 0]
+            )
+            rotation_matrix.append([0, 0, 1])
         else:
             raise ValueError("axis can only be 'x', 'y' or 'z', not %s" % axis)
 
+        for atom in self.atoms():
+            original_coordinates = atom.x(), atom.y(), atom.z()
+            atom.x((rotation_matrix[0][0] * original_coordinates[0]) + (rotation_matrix[0][1] * original_coordinates[1]) + (rotation_matrix[0][2] * original_coordinates[2]))
+            atom.y((rotation_matrix[1][0] * original_coordinates[0]) + (rotation_matrix[1][1] * original_coordinates[1]) + (rotation_matrix[1][2] * original_coordinates[2]))
+            atom.z((rotation_matrix[2][0] * original_coordinates[0]) + (rotation_matrix[2][1] * original_coordinates[1]) + (rotation_matrix[2][2] * original_coordinates[2]))
 
 
     def get_atom_by_id(self, atom_id):

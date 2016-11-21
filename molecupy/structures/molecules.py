@@ -211,6 +211,22 @@ class AtomicStructure:
             atom.z(atom.z() + z)
 
 
+    def rotate(self, axis, angle):
+        if not isinstance(axis, str):
+            raise TypeError("axis must be str, not '%s'" % str(axis))
+        if not isinstance(angle, int) and not isinstance(angle, float):
+            raise TypeError("angle must be numeric, not '%s'" % str(angle))
+        if axis == "x":
+            pass
+        elif axis == "y":
+            pass
+        elif axis == "z":
+            pass
+        else:
+            raise ValueError("axis can only be 'x', 'y' or 'z', not %s" % axis)
+
+
+
     def get_atom_by_id(self, atom_id):
         """Retrurns the first atom that matches a given atom ID.
 

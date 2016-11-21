@@ -861,9 +861,8 @@ class RotationTests(TransformationTest):
 
     def test_rotation_angle_must_be_numeric(self):
         with self.assertRaises(TypeError):
-            self.structure.rotate(100, "90")
-        with self.assertRaises(TypeError):
-            self.structure.rotate(100, 90.7)
+            self.structure.rotate("x", "90")
+        self.structure.rotate("x", 90.7)
 
 
 

@@ -2478,6 +2478,36 @@ class AtomRecordTests(PdbDataFileTest):
         )
 
 
+    def test_can_handle_missing_atom_properties(self):
+        atoms = [
+         {
+          "atom_id": 107,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": None,
+          "chain_id": None,
+          "residue_id": None,
+          "insert_code": None,
+          "x": 12.681,
+          "y": 37.302,
+          "z": -25.211,
+          "occupancy": None,
+          "temperature_factor": None,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+        for atom in atoms:
+            self.blank.atoms().append(atom)
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 1)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "ATOM    107 N                   12.681  37.302 -25.211                       N  "
+        )
+
+
 
 class AnisouRecordTests(PdbDataFileTest):
 

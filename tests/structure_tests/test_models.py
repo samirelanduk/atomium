@@ -755,6 +755,39 @@ class ConversionToPdbDataFileTests(ModelTest):
             os.remove("temp.pdb")
 
 
+    def test_can_add_complexes_to_pdb_data_file(self):
+        chain1 = unittest.mock.Mock(Chain)
+        chain2 = unittest.mock.Mock(Chain)
+        chain3 = unittest.mock.Mock(Chain)
+        chain1.chain_id.return_value = "A"
+        chain2.chain_id.return_value = "B"
+        chain3.chain_id.return_value = "C"
+        complex1 = unittest.mock.Mock(Complex)
+        complex2 = unittest.mock.Mock(Complex)
+        complex1.chains.return_value = set([chain1, chain2])
+        complex2.chains.return_value = set([chain3])
+        complex1.complex_id.return_value = "1"
+        complex2.complex_id.return_value = "2"
+        complex1.complex_name.return_value = "FIRST COMPLEX"
+        complex2.complex_name.return_value = "SECOND COMPLEX"
+        model = Model()
+        model.add_complex(complex1)
+        model.add_complex(complex2)
+        data_file = model.pdb_data_file()
+        self.assertEqual(
+         data_file.compounds(),
+         [{
+          "MOL_ID": 1,
+          "MOLECULE": "FIRST COMPLEX",
+          "CHAIN": ["A", "B"]
+         }, {
+          "MOL_ID": 2,
+          "MOLECULE": "SECOND COMPLEX",
+          "CHAIN": ["C"]
+         }]
+        )
+
+
     def test_can_add_atoms_to_pdb_data_file(self):
         model = Model()
         model.add_chain(Chain(

@@ -416,6 +416,12 @@ class Model(AtomicStructure):
 
     def pdb_data_file(self):
         data_file = PdbDataFile()
+        for complex_ in sorted(list(self.complexes()), key=lambda k: k.complex_id()):
+            data_file.compounds().append({
+             "MOL_ID": int(complex_.complex_id()),
+             "MOLECULE": complex_.complex_name(),
+             "CHAIN": sorted([chain.chain_id() for chain in complex_.chains()])
+            })
         for atom in sorted(list(self.atoms()), key=lambda k: k.atom_id()):
             residue_name, chain_id, residue_id, insert = None, None, None, None
             if atom.molecule() and isinstance(atom.molecule(), Residue):

@@ -1824,7 +1824,12 @@ def _number_to_8_char_string(number):
         if len(int_component) >= 6 or float_component == 0:
             float_component = ".0"
         else:
-            float_component = "." + str(round(float_component, 7 - len(int_component))).split(".")[-1]
+            float_component = str(round(float_component, 7 - len(int_component)))
+            if float_component[0] == "1":
+                float_component = ".0"
+                int_component = str(int(int_component) + 1)
+            else:
+                float_component = "." + float_component.split(".")[-1]
         return (int_component + float_component).ljust(8)
 
 
@@ -1837,5 +1842,10 @@ def _number_to_6_char_string(number):
         if len(int_component) >= 6 or float_component == 0:
             float_component = ".0"
         else:
-            float_component = "." + str(round(float_component, 5 - len(int_component))).split(".")[-1]
+            float_component = str(round(float_component, 5 - len(int_component)))
+            if float_component[0] == "1":
+                float_component = ".0"
+                int_component = str(int(int_component) + 1)
+            else:
+                float_component = "." + float_component.split(".")[-1]
         return (int_component + float_component).ljust(6)

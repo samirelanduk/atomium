@@ -839,7 +839,29 @@ class PdbDataFile:
 
 
     def generate_atom_records(self):
-        return [PdbRecord("ATOM  %5i %-4s%1s%3s %s%4s%1s   %8s%8s%8s%6s%6s          %2s%2s" % (
+        records = []
+        for atom in self.atoms():
+            record_fragments = []
+            record_fragments.append("ATOM  ")
+            record_fragments.append("%5i" % atom["atom_id"] + " ")
+            record_fragments.append("%-4s" % atom["atom_name"][:4])
+            record_fragments.append(atom["alt_loc"][0] if atom["alt_loc"] else " ")
+            record_fragments.append(atom["residue_name"][0:3] + " " if atom["residue_name"] else "    ")
+            record_fragments.append(atom["chain_id"][0] if atom["chain_id"] else " ")
+            record_fragments.append(("%4i" % atom["residue_id"]) if atom["residue_id"] else "    ")
+            record_fragments.append(atom["insert_code"][0] + "   " if atom["insert_code"] else "    ")
+            record_fragments.append(_number_to_8_char_string(atom["x"]))
+            record_fragments.append(_number_to_8_char_string(atom["y"]))
+            record_fragments.append(_number_to_8_char_string(atom["z"]))
+            record_fragments.append(_number_to_6_char_string(atom["occupancy"]))
+            record_fragments.append(_number_to_6_char_string(atom["temperature_factor"]))
+            record_fragments.append(" " * 10)
+            record_fragments.append("%-2s" % atom["element"])
+            record_fragments.append(("%-2i" % atom["charge"]) if atom["charge"] else "  ")
+            records.append(PdbRecord("".join(record_fragments)))
+
+        return records
+        '''return [PdbRecord("ATOM  %5i %-4s%1s%3s %s%4s%1s   %8s%8s%8s%6s%6s          %2s%2s" % (
          atom["atom_id"],
          atom["atom_name"],
          atom["alt_loc"] if atom["alt_loc"] else "",
@@ -854,7 +876,7 @@ class PdbDataFile:
          str(atom["temperature_factor"])[:6] if atom["temperature_factor"] else "",
          atom["element"],
          str(atom["charge"]) if atom["charge"] else ""
-        )) for atom in self.atoms()]
+        )) for atom in self.atoms()]'''
 
 
     def generate_hetatm_records(self):
@@ -1803,3 +1825,29 @@ def records_to_token_value_dicts(records):
         entity[pair[0]] = pair[1]
     if entity: entities.append(entity)
     return entities
+
+
+def _number_to_8_char_string(number):
+    if number is None:
+        return " " * 8
+    else:
+        int_component = str(int(number))
+        float_component = number - int(number)
+        if len(int_component) >= 6 or float_component == 0:
+            float_component = ".0"
+        else:
+            float_component = "." + str(round(float_component, 7 - len(int_component))).split(".")[-1]
+        return (int_component + float_component).ljust(8)
+
+
+def _number_to_6_char_string(number):
+    if number is None:
+        return " " * 6
+    else:
+        int_component = str(int(number))
+        float_component = number - int(number)
+        if len(int_component) >= 6 or float_component == 0:
+            float_component = ".0"
+        else:
+            float_component = "." + str(round(float_component, 5 - len(int_component))).split(".")[-1]
+        return (int_component + float_component).ljust(6)

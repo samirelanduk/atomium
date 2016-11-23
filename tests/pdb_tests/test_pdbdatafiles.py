@@ -2457,7 +2457,7 @@ class AtomRecordTests(PdbDataFileTest):
           "x": 11.982,
           "y": 37.996,
           "z": -26.241,
-          "occupancy": 1.0,
+          "occupancy": 1.2,
           "temperature_factor": 16.92,
           "element": "C",
           "charge": -1,
@@ -2470,11 +2470,11 @@ class AtomRecordTests(PdbDataFileTest):
         self.assertEqual(len(pdb_file.records()), 2)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "ATOM    107 N    GLY A  13      12.681  37.302 -25.211   1.0 15.56           N  "
+         "ATOM    107 N    GLY A  13    12.681  37.302  -25.211 1.0   15.56           N   "
         )
         self.assertEqual(
          pdb_file.records()[1].text(),
-         "ATOM    108 CA   GLY A  13A     11.982  37.996 -26.241   1.0 16.92           C-1"
+         "ATOM    108 CA   GLY A  13A   11.982  37.996  -26.241 1.2   16.92           C -1"
         )
 
 
@@ -2504,7 +2504,37 @@ class AtomRecordTests(PdbDataFileTest):
         self.assertEqual(len(pdb_file.records()), 1)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "ATOM    107 N                   12.681  37.302 -25.211                       N  "
+         "ATOM    107 N                 12.681  37.302  -25.211                       N   "
+        )
+
+
+    def test_can_handle_awkward_coordinates(self):
+        atoms = [
+         {
+          "atom_id": 107,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": None,
+          "chain_id": None,
+          "residue_id": None,
+          "insert_code": None,
+          "x": 4,
+          "y": -114.142135623730951,
+          "z": 8.881784197001252e-16,
+          "occupancy": None,
+          "temperature_factor": None,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }
+        ]
+        for atom in atoms:
+            self.blank.atoms().append(atom)
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 1)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "ATOM    107 N                 4.0     -114.1420.0                           N   "
         )
 
 

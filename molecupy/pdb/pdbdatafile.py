@@ -859,43 +859,31 @@ class PdbDataFile:
             record_fragments.append("%-2s" % atom["element"])
             record_fragments.append(("%-2i" % atom["charge"]) if atom["charge"] else "  ")
             records.append(PdbRecord("".join(record_fragments)))
-
         return records
-        '''return [PdbRecord("ATOM  %5i %-4s%1s%3s %s%4s%1s   %8s%8s%8s%6s%6s          %2s%2s" % (
-         atom["atom_id"],
-         atom["atom_name"],
-         atom["alt_loc"] if atom["alt_loc"] else "",
-         atom["residue_name"] if atom["residue_name"] else "",
-         atom["chain_id"] if atom["chain_id"] else " ",
-         atom["residue_id"] if atom["residue_id"] else "",
-         atom["insert_code"] if atom["insert_code"] else "",
-         str(atom["x"])[:8],
-         str(atom["y"])[:8],
-         str(atom["z"])[:8],
-         str(atom["occupancy"])[:6] if atom["occupancy"] else "",
-         str(atom["temperature_factor"])[:6] if atom["temperature_factor"] else "",
-         atom["element"],
-         str(atom["charge"]) if atom["charge"] else ""
-        )) for atom in self.atoms()]'''
 
 
     def generate_hetatm_records(self):
-        return [PdbRecord("HETATM%5i %-4s%1s%3s %s%4s%1s   %8s%8s%8s%6s%6s          %2s%2s" % (
-         atom["atom_id"],
-         atom["atom_name"],
-         atom["alt_loc"] if atom["alt_loc"] else "",
-         atom["residue_name"],
-         atom["chain_id"],
-         atom["residue_id"],
-         atom["insert_code"] if atom["insert_code"] else "",
-         str(atom["x"])[:8],
-         str(atom["y"])[:8],
-         str(atom["z"])[:8],
-         str(atom["occupancy"])[:6],
-         str(atom["temperature_factor"])[:6],
-         atom["element"],
-         str(atom["charge"]) if atom["charge"] else ""
-        )) for atom in self.heteroatoms()]
+        records = []
+        for atom in self.heteroatoms():
+            record_fragments = []
+            record_fragments.append("HETATM")
+            record_fragments.append("%5i" % atom["atom_id"] + " ")
+            record_fragments.append("%-4s" % atom["atom_name"][:4])
+            record_fragments.append(atom["alt_loc"][0] if atom["alt_loc"] else " ")
+            record_fragments.append(atom["residue_name"][0:3] + " " if atom["residue_name"] else "    ")
+            record_fragments.append(atom["chain_id"][0] if atom["chain_id"] else " ")
+            record_fragments.append(("%4i" % atom["residue_id"]) if atom["residue_id"] else "    ")
+            record_fragments.append(atom["insert_code"][0] + "   " if atom["insert_code"] else "    ")
+            record_fragments.append(_number_to_8_char_string(atom["x"]))
+            record_fragments.append(_number_to_8_char_string(atom["y"]))
+            record_fragments.append(_number_to_8_char_string(atom["z"]))
+            record_fragments.append(_number_to_6_char_string(atom["occupancy"]))
+            record_fragments.append(_number_to_6_char_string(atom["temperature_factor"]))
+            record_fragments.append(" " * 10)
+            record_fragments.append("%-2s" % atom["element"])
+            record_fragments.append(("%-2i" % atom["charge"]) if atom["charge"] else "  ")
+            records.append(PdbRecord("".join(record_fragments)))
+        return records
 
 
     def generate_conect_records(self):

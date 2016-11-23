@@ -1828,6 +1828,9 @@ def _number_to_8_char_string(number):
             if float_component[0] == "1":
                 float_component = ".0"
                 int_component = str(int(int_component) + 1)
+            elif float_component[0:2] == "-1":
+                float_component = ".0"
+                int_component = str(int(int_component) - 1)
             else:
                 float_component = "." + float_component.split(".")[-1]
         return (int_component + float_component).ljust(8)

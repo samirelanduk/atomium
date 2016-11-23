@@ -2519,7 +2519,7 @@ class AtomRecordTests(PdbDataFileTest):
           "residue_id": None,
           "insert_code": None,
           "x": 3.9999999999998,
-          "y": -114.142135623730951,
+          "y": -7.9999999999999,
           "z": 8.881784197001252e-16,
           "occupancy": None,
           "temperature_factor": None,
@@ -2534,7 +2534,7 @@ class AtomRecordTests(PdbDataFileTest):
         self.assertEqual(len(pdb_file.records()), 1)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "ATOM    107 N                 4.0     -114.1420.0                           N   "
+         "ATOM    107 N                 4.0     -8.0    0.0                           N   "
         )
 
 
@@ -2797,7 +2797,7 @@ class HetatmRecordTests(PdbDataFileTest):
           "residue_id": None,
           "insert_code": None,
           "x": 3.9999999999998,
-          "y": -114.142135623730951,
+          "y": -7.99999999999998,
           "z": 8.881784197001252e-16,
           "occupancy": None,
           "temperature_factor": None,
@@ -2812,7 +2812,7 @@ class HetatmRecordTests(PdbDataFileTest):
         self.assertEqual(len(pdb_file.records()), 1)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "HETATM  107 N                 4.0     -114.1420.0                           N   "
+         "HETATM  107 N                 4.0     -8.0    0.0                           N   "
         )
 
 

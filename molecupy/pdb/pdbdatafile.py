@@ -1816,39 +1816,27 @@ def records_to_token_value_dicts(records):
 
 
 def _number_to_8_char_string(number):
-    if number is None:
-        return " " * 8
-    else:
-        int_component = str(int(number))
-        float_component = number - int(number)
-        if len(int_component) >= 6 or float_component == 0:
-            float_component = ".0"
-        else:
-            float_component = str(round(float_component, 7 - len(int_component)))
-            if float_component[0] == "1":
-                float_component = ".0"
-                int_component = str(int(int_component) + 1)
-            elif float_component[0:2] == "-1":
-                float_component = ".0"
-                int_component = str(int(int_component) - 1)
-            else:
-                float_component = "." + float_component.split(".")[-1]
-        return (int_component + float_component).ljust(8)
+    return _number_to_n_char_string(number, 8)
 
 
 def _number_to_6_char_string(number):
+    return _number_to_n_char_string(number, 6)
+
+
+def _number_to_n_char_string(number, n):
     if number is None:
-        return " " * 6
+        return " " * n
     else:
+        number = round(number, n)
         int_component = str(int(number))
         float_component = number - int(number)
-        if len(int_component) >= 6 or float_component == 0:
+        if len(int_component) >= 6 or float_component == 0 or "e" in str(float_component):
             float_component = ".0"
         else:
-            float_component = str(round(float_component, 5 - len(int_component)))
+            float_component = str(round(float_component, (n - 1) - len(int_component)))
             if float_component[0] == "1":
                 float_component = ".0"
                 int_component = str(int(int_component) + 1)
             else:
                 float_component = "." + float_component.split(".")[-1]
-        return (int_component + float_component).ljust(6)
+        return (int_component + float_component).ljust(n)

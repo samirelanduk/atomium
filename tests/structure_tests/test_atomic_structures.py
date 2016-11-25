@@ -774,7 +774,7 @@ class RotationTests(TransformationTest):
             atom5 = Atom(22.5, 25.0, 22.5, "X", 5, "X")
             atoms = [atom1, atom2, atom3, atom4, atom5]
             structure = AtomicStructure(*atoms)
-            structure.rotate("x", -45 + (360 * n))
+            structure.rotate("x", -90 + (360 * n))
             for atom in atoms:
                 xyz_values[n].append(atom.x())
                 xyz_values[n].append(atom.y())
@@ -854,7 +854,7 @@ class RotationTests(TransformationTest):
             atom5 = Atom(22.5, 25.0, 22.5, "X", 5, "X")
             atoms = [atom1, atom2, atom3, atom4, atom5]
             structure = AtomicStructure(*atoms)
-            structure.rotate("y", -45 + (360 * n))
+            structure.rotate("y", -90 + (360 * n))
             for atom in atoms:
                 xyz_values[n].append(atom.x())
                 xyz_values[n].append(atom.y())
@@ -935,7 +935,7 @@ class RotationTests(TransformationTest):
             atom5 = Atom(22.5, 25.0, 22.5, "X", 5, "X")
             atoms = [atom1, atom2, atom3, atom4, atom5]
             structure = AtomicStructure(*atoms)
-            structure.rotate("z", -45 + (360 * n))
+            structure.rotate("z", -90 + (360 * n))
             for atom in atoms:
                 xyz_values[n].append(atom.x())
                 xyz_values[n].append(atom.y())

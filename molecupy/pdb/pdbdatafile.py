@@ -1829,6 +1829,8 @@ def _number_to_n_char_string(number, n):
     else:
         number = round(number, n)
         int_component = str(int(number))
+        if number < 0 and int_component[0] != "-":
+            int_component = "-" + int_component
         float_component = number - int(number)
         if len(int_component) >= 6 or float_component == 0 or "e" in str(float_component):
             float_component = ".0"

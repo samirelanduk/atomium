@@ -2520,6 +2520,22 @@ class AtomRecordTests(PdbDataFileTest):
           "insert_code": None,
           "x": 3.9999999999998,
           "y": -7.9999999999999,
+          "z": -8.881784197001252e-16,
+          "occupancy": None,
+          "temperature_factor": None,
+          "element": "N",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 107,
+          "atom_name": "N",
+          "alt_loc": None,
+          "residue_name": None,
+          "chain_id": None,
+          "residue_id": None,
+          "insert_code": None,
+          "x": -5.000022760448198,
+          "y": -0.7071067811865478,
           "z": 8.881784197001252e-16,
           "occupancy": None,
           "temperature_factor": None,
@@ -2531,10 +2547,14 @@ class AtomRecordTests(PdbDataFileTest):
         for atom in atoms:
             self.blank.atoms().append(atom)
         pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 1)
+        self.assertEqual(len(pdb_file.records()), 2)
         self.assertEqual(
          pdb_file.records()[0].text(),
          "ATOM    107 N                 4.0     -8.0    0.0                           N   "
+        )
+        self.assertEqual(
+         pdb_file.records()[1].text(),
+         "ATOM    107 N                 -5.0    -0.707110.0                           N   "
         )
 
 
@@ -2813,7 +2833,7 @@ class HetatmRecordTests(PdbDataFileTest):
           "residue_id": None,
           "insert_code": None,
           "x": -5.000022760448198,
-          "y": -7.99999999999998,
+          "y": -0.7071067811865478,
           "z": 8.881784197001252e-16,
           "occupancy": None,
           "temperature_factor": None,
@@ -2832,7 +2852,7 @@ class HetatmRecordTests(PdbDataFileTest):
         )
         self.assertEqual(
          pdb_file.records()[1].text(),
-         "HETATM  107 N                 -5.0    -8.0    0.0                           N   "
+         "HETATM  107 N                 -5.0    -0.707110.0                           N   "
         )
 
 

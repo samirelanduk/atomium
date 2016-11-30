@@ -449,6 +449,14 @@ class Model(AtomicStructure):
              "charge": None,
              "model_id": 1
             })
+        for molecule in sorted(list(self.small_molecules()), key=lambda k: k.molecule_id()):
+            for atom in sorted(list(molecule.atoms()), key=lambda k: k.atom_id()):
+                other_atoms = sorted(list(atom.bonded_atoms()), key=lambda k: k.atom_id())
+                connection = {
+                 "atom_id": atom.atom_id(),
+                 "bonded_atoms": [atom.atom_id() for atom in other_atoms]
+                }
+                data_file.connections().append(connection)
         return data_file
 
 

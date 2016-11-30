@@ -841,3 +841,39 @@ class ConversionToPdbDataFileTests(ModelTest):
           }
          ]
         )
+
+
+    def test_can_add_heteroatom_bonds_to_pdb_data_file(self):
+        model = Model()
+        atom1 = Atom(1.0, 1.0, 1.0, "A", 1, "1")
+        atom2 = Atom(1.0, 1.0, 1.0, "A", 2, "1")
+        atom3 = Atom(1.0, 1.0, 1.0, "A", 3, "1")
+        atom4 = Atom(1.0, 1.0, 1.0, "A", 4, "1")
+        atom5 = Atom(1.0, 1.0, 1.0, "A", 5, "1")
+        atom1.bond_to(atom2)
+        atom1.bond_to(atom2)
+        atom1.bond_to(atom3)
+        atom1.bond_to(atom4)
+        atom5.bond_to(atom4)
+        molecule = SmallMolecule("A1", "MOL", atom1, atom2, atom3, atom4, atom5)
+        model.add_small_molecule(molecule)
+        data_file = model.pdb_data_file()
+        self.assertEqual(
+         data_file.connections(),
+         [{
+          "atom_id": 1,
+          "bonded_atoms": [2, 3, 4]
+         }, {
+          "atom_id": 2,
+          "bonded_atoms": [1]
+         }, {
+          "atom_id": 3,
+          "bonded_atoms": [1]
+         }, {
+          "atom_id": 4,
+          "bonded_atoms": [1, 5]
+         }, {
+          "atom_id": 5,
+          "bonded_atoms": [4]
+         }]
+        )

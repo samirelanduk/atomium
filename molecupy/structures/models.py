@@ -424,15 +424,23 @@ class Model(AtomicStructure):
             })
         for atom in sorted(list(self.atoms()), key=lambda k: k.atom_id()):
             residue_name, chain_id, residue_id, insert = None, None, None, None
-            if atom.molecule() and isinstance(atom.molecule(), Residue):
-                residue_name = atom.molecule().residue_name()
-                residue_id = atom.molecule().residue_id()[1:]
-                chain_id = atom.molecule().residue_id()[0]
-                if atom.molecule().residue_id()[-1].isalpha():
-                    insert = atom.molecule().residue_id()[-1]
-                    residue_id = atom.molecule().residue_id()[1:-1]
+            if atom.molecule():
+                if isinstance(atom.molecule(), Residue):
+                    residue_name = atom.molecule().residue_name()
+                    residue_id = atom.molecule().residue_id()[1:]
+                    chain_id = atom.molecule().residue_id()[0]
+                    if atom.molecule().residue_id()[-1].isalpha():
+                        insert = atom.molecule().residue_id()[-1]
+                        residue_id = atom.molecule().residue_id()[1:-1]
+                elif isinstance(atom.molecule(), SmallMolecule):
+                    residue_name = atom.molecule().molecule_name()
+                    residue_id = atom.molecule().molecule_id()[1:]
+                    chain_id = atom.molecule().molecule_id()[0]
+                    if atom.molecule().molecule_id()[-1].isalpha():
+                        insert = atom.molecule().molecule_id()[-1]
+                        residue_id = atom.molecule().molecule_id()[1:-1]
                 residue_id = int(residue_id)
-            data_file.atoms().append({
+            atom_dict = {
              "atom_id": atom.atom_id(),
              "atom_name": atom.atom_name(),
              "alt_loc": None,
@@ -448,7 +456,11 @@ class Model(AtomicStructure):
              "element": atom.element(),
              "charge": None,
              "model_id": 1
-            })
+            }
+            if atom.molecule() and isinstance(atom.molecule(), Residue):
+                data_file.atoms().append(atom_dict)
+            else:
+                data_file.heteroatoms().append(atom_dict)
         for molecule in sorted(list(self.small_molecules()), key=lambda k: k.molecule_id()):
             for atom in sorted(list(molecule.atoms()), key=lambda k: k.atom_id()):
                 other_atoms = sorted(list(atom.bonded_atoms()), key=lambda k: k.atom_id())

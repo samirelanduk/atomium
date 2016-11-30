@@ -841,6 +841,57 @@ class ConversionToPdbDataFileTests(ModelTest):
           }
          ]
         )
+        self.assertEqual(data_file.heteroatoms(), [])
+
+
+    def test_can_add_heteroatoms_to_pdb_data_file(self):
+        model = Model()
+        model.add_small_molecule(SmallMolecule(
+         "A1001A",
+         "MOL",
+         Atom(1.2, 2.3, 3.4, "G", 23, "GX"),
+         Atom(11.2, 11.3, 34.4, "Y", 38, "YT")
+        ))
+        data_file = model.pdb_data_file()
+        self.assertEqual(
+         data_file.heteroatoms(),
+         [
+          {
+           "atom_id": 23,
+           "atom_name": "GX",
+           "alt_loc": None,
+           "residue_name": "MOL",
+           "chain_id": "A",
+           "residue_id": 1001,
+           "insert_code": "A",
+           "x": 1.2,
+           "y": 2.3,
+           "z": 3.4,
+           "occupancy": None,
+           "temperature_factor": None,
+           "element": "G",
+           "charge": None,
+           "model_id": 1
+          }, {
+           "atom_id": 38,
+           "atom_name": "YT",
+           "alt_loc": None,
+           "residue_name": "MOL",
+           "chain_id": "A",
+           "residue_id": 1001,
+           "insert_code": "A",
+           "x": 11.2,
+           "y": 11.3,
+           "z": 34.4,
+           "occupancy": None,
+           "temperature_factor": None,
+           "element": "Y",
+           "charge": None,
+           "model_id": 1
+          }
+         ]
+        )
+        self.assertEqual(data_file.atoms(), [])
 
 
     def test_can_add_heteroatom_bonds_to_pdb_data_file(self):

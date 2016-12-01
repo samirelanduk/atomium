@@ -997,3 +997,33 @@ class MassCenterTests(AtomicStructureTest):
          structure.center_of_mass(),
          (1.5, 1.5, 1.5)
         )
+
+
+    def test_can_get_mass_center_between_multiple_identical_atoms_on_plane(self):
+        atom1 = Atom(1.0, 1.0, 0.0, "H", 1, "H")
+        atom2 = Atom(7.0, 1.0, 0.0, "H", 2, "H")
+        atom3 = Atom(1.0, 7.0, 0.0, "H", 3, "H")
+        atom4 = Atom(7.0, 7.0, 0.0, "H", 4, "H")
+        structure = AtomicStructure(atom1, atom2, atom3, atom4)
+        self.assertEqual(
+         structure.center_of_mass(),
+         (4.0, 4.0, 0.0)
+        )
+
+
+    def test_can_get_mass_center_between_multiple_identical_atoms_in_3d(self):
+        atom1 = Atom(1.0, 1.0, 0.0, "H", 1, "H")
+        atom2 = Atom(7.0, 1.0, 0.0, "H", 2, "H")
+        atom3 = Atom(1.0, 7.0, 0.0, "H", 3, "H")
+        atom4 = Atom(7.0, 7.0, 0.0, "H", 4, "H")
+        atom5 = Atom(1.0, 1.0, 10.0, "H", 5, "H")
+        atom6 = Atom(7.0, 1.0, 10.0, "H", 6, "H")
+        atom7 = Atom(1.0, 7.0, 10.0, "H", 7, "H")
+        atom8 = Atom(7.0, 7.0, 10.0, "H", 8, "H")
+        structure = AtomicStructure(
+         atom1, atom2, atom3, atom4, atom5, atom6, atom7, atom8
+        )
+        self.assertEqual(
+         structure.center_of_mass(),
+         (4.0, 4.0, 5.0)
+        )

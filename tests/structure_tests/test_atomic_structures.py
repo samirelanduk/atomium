@@ -987,24 +987,13 @@ class RotationTests(TransformationTest):
 
 
 
+class MassCenterTests(AtomicStructureTest):
 
-'''self.assertEqual(
- (self.atom1.x(), self.atom1.y(), self.atom1.z()),
- (20, 20, 20)
-)
-self.assertEqual(
- (self.atom2.x(), self.atom2.y(), self.atom2.z()),
- (25, 20, 20)
-)
-self.assertEqual(
- (self.atom3.x(), self.atom3.y(), self.atom3.z()),
- (20, 20, 25)
-)
-self.assertEqual(
- (self.atom4.x(), self.atom4.y(), self.atom4.z()),
- (25, 20, 25)
-)
-self.assertEqual(
- (self.atom5.x(), self.atom5.y(), self.atom5.z()),
- (22.5, 25, 22.5)
-)'''
+    def test_can_get_mass_centre_between_two_identical_atoms(self):
+        atom1 = Atom(1.0, 1.0, 1.0, "H", 1, "H")
+        atom2 = Atom(2.0, 2.0, 2.0, "H", 2, "H")
+        structure = AtomicStructure(atom1, atom2)
+        self.assertEqual(
+         structure.center_of_mass(),
+         (1.5, 1.5, 1.5)
+        )

@@ -253,6 +253,21 @@ class AtomicStructure:
             atom.z((rotation_matrix[2][0] * original_coordinates[0]) + (rotation_matrix[2][1] * original_coordinates[1]) + (rotation_matrix[2][2] * original_coordinates[2]))
 
 
+    def center_of_mass(self):
+        x_values, y_values, z_values = [], [], []
+        for atom in self.atoms():
+            x_values.append(atom.x())
+            y_values.append(atom.y())
+            z_values.append(atom.z())
+        atom_count = len(self.atoms())
+        return (
+         sum(x_values) / atom_count,
+         sum(y_values) / atom_count,
+         sum(z_values) / atom_count
+        )
+
+
+
     def get_atom_by_id(self, atom_id):
         """Retrurns the first atom that matches a given atom ID.
 

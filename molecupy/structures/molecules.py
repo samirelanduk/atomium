@@ -256,14 +256,14 @@ class AtomicStructure:
     def center_of_mass(self):
         x_values, y_values, z_values = [], [], []
         for atom in self.atoms():
-            x_values.append(atom.x())
-            y_values.append(atom.y())
-            z_values.append(atom.z())
-        atom_count = len(self.atoms())
+            x_values.append(atom.x() * atom.mass())
+            y_values.append(atom.y() * atom.mass())
+            z_values.append(atom.z() * atom.mass())
+        mass = self.mass()
         return (
-         sum(x_values) / atom_count,
-         sum(y_values) / atom_count,
-         sum(z_values) / atom_count
+         sum(x_values) / mass,
+         sum(y_values) / mass,
+         sum(z_values) / mass
         )
 
 

@@ -1027,3 +1027,22 @@ class MassCenterTests(AtomicStructureTest):
          structure.center_of_mass(),
          (4.0, 4.0, 5.0)
         )
+
+
+    def test_can_get_mass_centre_between_two_asymmetrical_atoms(self):
+        atom1 = unittest.mock.Mock(Atom)
+        atom1.x.return_value = 6.0
+        atom1.y.return_value = 0.0
+        atom1.z.return_value = 0.0
+        atom1.mass.return_value = 1.0
+        atom2 = unittest.mock.Mock(Atom)
+        atom2.x.return_value = 10.0
+        atom2.y.return_value = 0.0
+        atom2.z.return_value = 0.0
+        atom2.mass.return_value = 3.0
+
+        structure = AtomicStructure(atom1, atom2)
+        self.assertEqual(
+         structure.center_of_mass(),
+         (9.0, 0.0, 0.0)
+        )

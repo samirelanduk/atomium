@@ -1046,3 +1046,49 @@ class MassCenterTests(AtomicStructureTest):
          structure.center_of_mass(),
          (9.0, 0.0, 0.0)
         )
+
+
+    def test_can_get_mass_centre_between_four_asymmetrical_atoms(self):
+        atom1 = unittest.mock.Mock(Atom)
+        atom1.x.return_value = 0.0
+        atom1.y.return_value = 0.0
+        atom1.z.return_value = -1.0
+        atom1.mass.return_value = 9.0
+        atom2 = unittest.mock.Mock(Atom)
+        atom2.x.return_value = 0.0
+        atom2.y.return_value = 0.0
+        atom2.z.return_value = 2.0
+        atom2.mass.return_value = 1.0
+        atom3 = unittest.mock.Mock(Atom)
+        atom3.x.return_value = 0.0
+        atom3.y.return_value = 0.0
+        atom3.z.return_value = 6.0
+        atom3.mass.return_value = 5.0
+        atom4 = unittest.mock.Mock(Atom)
+        atom4.x.return_value = 0.0
+        atom4.y.return_value = 0.0
+        atom4.z.return_value = 8.0
+        atom4.mass.return_value = 2.0
+        structure = AtomicStructure(atom1, atom2, atom3, atom4)
+        self.assertAlmostEqual(structure.center_of_mass()[-1], 2.29, delta=0.005)
+
+
+    def test_can_get_mass_centre_between_asymmetrical_atoms_in_plane(self):
+        atom1 = unittest.mock.Mock(Atom)
+        atom1.x.return_value = -1.0
+        atom1.y.return_value = 1.0
+        atom1.z.return_value = 0.0
+        atom1.mass.return_value = 5.0
+        atom2 = unittest.mock.Mock(Atom)
+        atom2.x.return_value = 4.0
+        atom2.y.return_value = 3.0
+        atom2.z.return_value = 0.0
+        atom2.mass.return_value = 3.0
+        atom3 = unittest.mock.Mock(Atom)
+        atom3.x.return_value = 8.0
+        atom3.y.return_value = 7.0
+        atom3.z.return_value = 0.0
+        atom3.mass.return_value = 9.0
+        structure = AtomicStructure(atom1, atom2, atom3)
+        self.assertAlmostEqual(structure.center_of_mass()[0], 4.65, delta=0.005)
+        self.assertAlmostEqual(structure.center_of_mass()[1], 4.53, delta=0.005)

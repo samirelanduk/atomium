@@ -1092,3 +1092,16 @@ class MassCenterTests(AtomicStructureTest):
         structure = AtomicStructure(atom1, atom2, atom3)
         self.assertAlmostEqual(structure.center_of_mass()[0], 4.65, delta=0.005)
         self.assertAlmostEqual(structure.center_of_mass()[1], 4.53, delta=0.005)
+
+
+
+class RadiusOfGyrationTests(AtomicStructureTest):
+
+    def test_can_get_Rg_with_two_identical_atoms(self):
+        atom1 = Atom(0.0, 0.0, 0.0, "H", 1, "H")
+        atom2 = Atom(10.0, 0.0, 0.0, "H", 2, "H")
+        structure = AtomicStructure(atom1, atom2)
+        self.assertEqual(
+         structure.radius_of_gyration(),
+         5
+        )

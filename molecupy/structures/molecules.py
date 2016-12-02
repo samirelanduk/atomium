@@ -267,6 +267,17 @@ class AtomicStructure:
         )
 
 
+    def radius_of_gyration(self):
+        center = self.center_of_mass()
+        central_atom = Atom(center[0], center[1], center[2], "X", 0, "X")
+        square_deviation = sum(
+         [atom.distance_to(central_atom) ** 2 for atom in self.atoms()]
+        )
+        mean_square_deviation = square_deviation / len(self.atoms())
+        return math.sqrt(mean_square_deviation)
+
+
+
 
     def get_atom_by_id(self, atom_id):
         """Retrurns the first atom that matches a given atom ID.

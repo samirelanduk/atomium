@@ -452,7 +452,7 @@ class Model(AtomicStructure):
              "y": atom.y(),
              "z": atom.z(),
              "occupancy": 1.0,
-             "temperature_factor": None,
+             "temperature_factor": 0.0,
              "element": atom.element(),
              "charge": None,
              "model_id": 1

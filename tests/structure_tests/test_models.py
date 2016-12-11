@@ -818,7 +818,7 @@ class ConversionToPdbDataFileTests(ModelTest):
            "y": 2.3,
            "z": 3.4,
            "occupancy": 1.0,
-           "temperature_factor": None,
+           "temperature_factor": 0.0,
            "element": "G",
            "charge": None,
            "model_id": 1
@@ -834,7 +834,7 @@ class ConversionToPdbDataFileTests(ModelTest):
            "y": 11.3,
            "z": 34.4,
            "occupancy": 1.0,
-           "temperature_factor": None,
+           "temperature_factor": 0.0,
            "element": "Y",
            "charge": None,
            "model_id": 1
@@ -868,7 +868,7 @@ class ConversionToPdbDataFileTests(ModelTest):
            "y": 2.3,
            "z": 3.4,
            "occupancy": 1.0,
-           "temperature_factor": None,
+           "temperature_factor": 0.0,
            "element": "G",
            "charge": None,
            "model_id": 1
@@ -884,7 +884,7 @@ class ConversionToPdbDataFileTests(ModelTest):
            "y": 11.3,
            "z": 34.4,
            "occupancy": 1.0,
-           "temperature_factor": None,
+           "temperature_factor": 0.0,
            "element": "Y",
            "charge": None,
            "model_id": 1

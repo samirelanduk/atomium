@@ -1,5 +1,5 @@
 from unittest import TestCase
-import unittest.mock
+from unittest.mock import Mock
 from molecupy.pdb.pdbfile import PdbRecord, PdbFile
 
 class RecordCreationTests(TestCase):
@@ -30,7 +30,7 @@ class RecordCreationTests(TestCase):
 
 
     def test_can_create_record_with_pdb_file(self):
-        pdb_file = unittest.mock.Mock(PdbFile)
+        pdb_file = Mock(PdbFile)
         record = PdbRecord("TEST   123  123.8    HYT", pdb_file)
         self.assertEqual(record._pdb_file, pdb_file)
 
@@ -41,14 +41,12 @@ class RecordCreationTests(TestCase):
 
 
     def test_repr_when_line_number_is_available(self):
-        pdb_file = unittest.mock.Mock(PdbFile)
-        record1 = unittest.mock.Mock(PdbRecord)
-        record3 = unittest.mock.Mock(PdbRecord)
+        pdb_file = Mock(PdbFile)
+        record1 = Mock(PdbRecord)
+        record3 = Mock(PdbRecord)
         record = PdbRecord("TEST   123  123.8    HYT", pdb_file)
         pdb_file.records.return_value = [record1, record, record3]
         self.assertEqual(str(record), "<PdbRecord 2 (TEST)>")
-
-
 
 
 
@@ -139,7 +137,7 @@ class RecordPropertyTests(TestCase):
 
 
     def test_record_number_when_file_is_associated(self):
-        pdb_file = unittest.mock.Mock(PdbFile)
+        pdb_file = Mock(PdbFile)
         record2 = PdbRecord("TEST   129  123.8    HYT", pdb_file)
         record3 = PdbRecord("TEST   133  123.8    HYT", pdb_file)
         record4 = PdbRecord("TEST   523  123.8    HYT", pdb_file)
@@ -151,7 +149,7 @@ class RecordPropertyTests(TestCase):
 
     def test_can_add_pdbfile_association(self):
         self.assertEqual(self.record.pdb_file(), None)
-        pdb_file = unittest.mock.Mock(PdbFile)
+        pdb_file = Mock(PdbFile)
         self.record.pdb_file(pdb_file)
         self.assertEqual(self.record.pdb_file(), pdb_file)
 
@@ -159,7 +157,6 @@ class RecordPropertyTests(TestCase):
     def test_can_only_add_pdbfile_as_pdb_file(self):
         with self.assertRaises(TypeError):
             self.record.pdb_file("pdb_file")
-
 
 
 

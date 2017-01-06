@@ -1,6 +1,6 @@
 import random
 from unittest import TestCase
-import unittest.mock
+from unittest.mock import Mock
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
 
 class PdbFileTest(TestCase):
@@ -67,11 +67,11 @@ class PdbFilePropertiesTests(PdbFileTest):
     def test_can_add_records(self):
         pdb_file = PdbFile()
         self.assertEqual(len(pdb_file.records()), 0)
-        record1 = unittest.mock.Mock(PdbRecord)
+        record1 = Mock(PdbRecord)
         pdb_file.add_record(record1)
         self.assertEqual(len(pdb_file.records()), 1)
         self.assertIs(pdb_file.records()[-1], record1)
-        record2 = unittest.mock.Mock(PdbRecord)
+        record2 = Mock(PdbRecord)
         pdb_file.add_record(record2)
         self.assertEqual(len(pdb_file.records()), 2)
         self.assertIs(pdb_file.records()[-1], record2)
@@ -86,13 +86,13 @@ class PdbFilePropertiesTests(PdbFileTest):
     def test_can_only_add_records_with_method(self):
         pdb_file = PdbFile()
         self.assertEqual(len(pdb_file.records()), 0)
-        record = unittest.mock.Mock(PdbRecord)
+        record = Mock(PdbRecord)
         pdb_file.records().append(record)
         self.assertEqual(len(pdb_file.records()), 0)
 
 
     def test_adding_records_updates_those_records_pdb_file_property(self):
-        record = PdbRecord("TEST   123  HYT") # Need full pdb_file method
+        record = PdbRecord("TEST   123  HYT")
         self.assertEqual(record.pdb_file(), None)
         pdb_file = PdbFile()
         pdb_file.add_record(record)
@@ -123,7 +123,7 @@ class PdbFilePropertiesTests(PdbFileTest):
 
 
 
-class PdbFileRecordTests(PdbFileTest):
+class PdbFileRecordRetrievalTests(PdbFileTest):
 
     def test_can_get_record_by_name(self):
         pdb_file = PdbFile(self.file_string)
@@ -174,8 +174,8 @@ class PdbFileToStringTests(PdbFileTest):
 
     def test_de_novo_file_creation(self):
         pdb_file = PdbFile()
-        record1 = unittest.mock.Mock(PdbRecord)
-        record2 = unittest.mock.Mock(PdbRecord)
+        record1 = Mock(PdbRecord)
+        record2 = Mock(PdbRecord)
         record1.text.return_value = "ONE   " + ("+" * 74)
         record2.text.return_value = "TWO   " + ("-" * 74)
         pdb_file.add_record(record1)

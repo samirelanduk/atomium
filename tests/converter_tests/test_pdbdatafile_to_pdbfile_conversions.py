@@ -10,6 +10,11 @@ class PdbDataFileTest(TestCase):
         self.blank = PdbDataFile()
 
 
+    def add_compounds_to_blank(self, compounds):
+        for compound in compounds:
+            self.blank.compounds().append(compound)
+
+
 
 class PdbFileCreationTests(PdbDataFileTest):
 
@@ -22,26 +27,62 @@ class PdbFileCreationTests(PdbDataFileTest):
 
 class CompoundsConversionTests(PdbDataFileTest):
 
-    def test_can_produce_compnd_records(self):
-        compounds = [
-         {
-          "MOL_ID": 1,
-          "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
-          "CHAIN": ["A", "B"],
-          "SYNONYM": [
-           "OMP DECARBOXYLASE",
-           "OMPDCASE",
-           "OMPDECASE"
-          ],
-          "EC": "4.1.1.23",
-          "ENGINEERED": True
-         }, {
-          "MOL_ID": 2,
-          "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE VERYPHOSPHATE INDEED DECARBOXYLASE PLUS"
-         }
-        ]
-        for compound in compounds:
-            self.blank.compounds().append(compound)
+    def test_can_convert_simple_compound(self):
+        self.add_compounds_to_blank([{
+         "MOL_ID": 1,
+         "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+         "CHAIN": ["A", "B"]
+        }])
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(
+         "\n".join([line.rstrip() for line in pdb_file.convert_to_string().split("\n")]),
+         "COMPND    MOL_ID: 1;\n"
+         "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
+         "COMPND   3 CHAIN: A, B;"
+        )
+
+
+    def test_can_convert_longer_compound(self):
+        self.add_compounds_to_blank([{
+         "MOL_ID": 1,
+         "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+         "CHAIN": ["A", "B"],
+         "SYNONYM": [
+          "OMP DECARBOXYLASE",
+          "OMPDCASE",
+          "OMPDECASE"
+         ],
+         "EC": "4.1.1.23",
+         "ENGINEERED": True
+        }])
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(
+         "\n".join([line.rstrip() for line in pdb_file.convert_to_string().split("\n")]),
+         "COMPND    MOL_ID: 1;\n"
+         "COMPND   2 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE;\n"
+         "COMPND   3 CHAIN: A, B;\n"
+         "COMPND   4 SYNONYM: OMP DECARBOXYLASE, OMPDCASE, OMPDECASE;\n"
+         "COMPND   5 EC: 4.1.1.23;\n"
+         "COMPND   6 ENGINEERED: YES;"
+        )
+
+
+    def test_can_convert_multiple_compounds(self):
+        self.add_compounds_to_blank([{
+         "MOL_ID": 1,
+         "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+         "CHAIN": ["A", "B"],
+         "SYNONYM": [
+          "OMP DECARBOXYLASE",
+          "OMPDCASE",
+          "OMPDECASE"
+         ],
+         "EC": "4.1.1.23",
+         "ENGINEERED": True
+        }, {
+         "MOL_ID": 2,
+         "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE VERYPHOSPHATE INDEED DECARBOXYLASE PLUS"
+        }])
         pdb_file = self.blank.generate_pdb_file()
         self.assertEqual(len(pdb_file.records()), 9)
         self.assertEqual(

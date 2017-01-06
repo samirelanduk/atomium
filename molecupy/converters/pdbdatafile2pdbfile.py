@@ -5,7 +5,7 @@ def pdb_file_from_pdb_data_file(data_file):
     pdb_file = PdbFile()
     create_compnd_records(pdb_file, data_file)
     create_atom_records(pdb_file, data_file)
-    create_hetatm_records(pdb_file, data_file)
+    create_atom_records(pdb_file, data_file, hetero=True)
     create_conect_records(pdb_file, data_file)
     return pdb_file
 
@@ -49,32 +49,11 @@ def create_compnd_records(pdb_file, data_file):
         )))
 
 
-def create_atom_records(pdb_file, data_file):
-    for atom in data_file.atoms():
+def create_atom_records(pdb_file, data_file, hetero=False):
+    atoms = data_file.heteroatoms() if hetero else data_file.atoms()
+    for atom in atoms:
         record_fragments = []
-        record_fragments.append("ATOM  ")
-        record_fragments.append("%5i" % atom["atom_id"] + " ")
-        record_fragments.append("%-4s" % atom["atom_name"][:4])
-        record_fragments.append(atom["alt_loc"][0] if atom["alt_loc"] else " ")
-        record_fragments.append(atom["residue_name"][0:3] + " " if atom["residue_name"] else "    ")
-        record_fragments.append(atom["chain_id"][0] if atom["chain_id"] else " ")
-        record_fragments.append(("%4i" % atom["residue_id"]) if atom["residue_id"] else "    ")
-        record_fragments.append(atom["insert_code"][0] + "   " if atom["insert_code"] else "    ")
-        record_fragments.append(_number_to_8_char_string(atom["x"]))
-        record_fragments.append(_number_to_8_char_string(atom["y"]))
-        record_fragments.append(_number_to_8_char_string(atom["z"]))
-        record_fragments.append(_number_to_6_char_string(atom["occupancy"]))
-        record_fragments.append(_number_to_6_char_string(atom["temperature_factor"]))
-        record_fragments.append(" " * 10)
-        record_fragments.append("%-2s" % atom["element"])
-        record_fragments.append(("%-2i" % atom["charge"]) if atom["charge"] else "  ")
-        pdb_file.add_record(PdbRecord("".join(record_fragments)))
-
-
-def create_hetatm_records(pdb_file, data_file):
-    for atom in data_file.heteroatoms():
-        record_fragments = []
-        record_fragments.append("HETATM")
+        record_fragments.append("HETATM" if hetero else "ATOM  ")
         record_fragments.append("%5i" % atom["atom_id"] + " ")
         record_fragments.append("%-4s" % atom["atom_name"][:4])
         record_fragments.append(atom["alt_loc"][0] if atom["alt_loc"] else " ")

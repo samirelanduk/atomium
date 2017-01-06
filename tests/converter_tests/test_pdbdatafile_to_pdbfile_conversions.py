@@ -15,6 +15,16 @@ class PdbDataFileTest(TestCase):
             self.blank.compounds().append(compound)
 
 
+    def add_atoms_to_blank(self, atoms):
+        for atom in atoms:
+            self.blank.atoms().append(atom)
+
+
+    def add_heteroatoms_to_blank(self, heteroatoms):
+        for atom in heteroatoms:
+            self.blank.heteroatoms().append(atom)
+
+
 
 class PdbFileCreationTests(PdbDataFileTest):
 
@@ -102,266 +112,114 @@ class CompoundsConversionTests(PdbDataFileTest):
 
 class AtomsConversionTests(PdbDataFileTest):
 
-    def test_can_produce_atom_records(self):
-        atoms = [
-         {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": "GLY",
-          "chain_id": "A",
-          "residue_id": 13,
-          "insert_code": "",
-          "x": 12.681,
-          "y": 37.302,
-          "z": -25.211,
-          "occupancy": 1.0,
-          "temperature_factor": 15.56,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }, {
-          "atom_id": 108,
-          "atom_name": "CA",
-          "alt_loc": None,
-          "residue_name": "GLY",
-          "chain_id": "A",
-          "residue_id": 13,
-          "insert_code": "A",
-          "x": 11.982,
-          "y": 37.996,
-          "z": -26.241,
-          "occupancy": 1.2,
-          "temperature_factor": 16.92,
-          "element": "C",
-          "charge": -1,
-          "model_id": 1
-         }
-        ]
-        for atom in atoms:
-            self.blank.atoms().append(atom)
+    def setUp(self):
+        PdbDataFileTest.setUp(self)
+        self.atom = {
+         "atom_id": 107,
+         "atom_name": "N",
+         "alt_loc": None,
+         "residue_name": "GLY",
+         "chain_id": "A",
+         "residue_id": 13,
+         "insert_code": "A",
+         "x": 12.681,
+         "y": 37.302,
+         "z": -25.211,
+         "occupancy": 1.0,
+         "temperature_factor": 15.56,
+         "element": "N",
+         "charge": 1,
+         "model_id": 1
+        }
+
+
+    def test_can_convert_atom(self):
+        self.add_atoms_to_blank([self.atom])
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 1)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "ATOM    107 N    GLY A  13A   12.681  37.302  -25.211 1.0   15.56           N 1 "
+        )
+
+
+    def test_can_convert_multiple_atoms(self):
+        self.add_atoms_to_blank([self.atom, {
+         "atom_id": 108,
+         "atom_name": "CA",
+         "alt_loc": None,
+         "residue_name": "GLY",
+         "chain_id": "A",
+         "residue_id": 13,
+         "insert_code": "",
+         "x": 11.982,
+         "y": 37.996,
+         "z": -26.241,
+         "occupancy": 1.2,
+         "temperature_factor": 16.92,
+         "element": "C",
+         "charge": -1,
+         "model_id": 1
+        }])
         pdb_file = self.blank.generate_pdb_file()
         self.assertEqual(len(pdb_file.records()), 2)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "ATOM    107 N    GLY A  13    12.681  37.302  -25.211 1.0   15.56           N   "
+         "ATOM    107 N    GLY A  13A   12.681  37.302  -25.211 1.0   15.56           N 1 "
         )
         self.assertEqual(
          pdb_file.records()[1].text(),
-         "ATOM    108 CA   GLY A  13A   11.982  37.996  -26.241 1.2   16.92           C -1"
+         "ATOM    108 CA   GLY A  13    11.982  37.996  -26.241 1.2   16.92           C -1"
         )
 
 
     def test_can_handle_missing_atom_properties(self):
-        atoms = [
-         {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": None,
-          "chain_id": None,
-          "residue_id": None,
-          "insert_code": None,
-          "x": 12.681,
-          "y": 37.302,
-          "z": -25.211,
-          "occupancy": None,
-          "temperature_factor": None,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }
-        ]
-        for atom in atoms:
-            self.blank.atoms().append(atom)
+        self.atom["residue_name"] = None
+        self.atom["chain_id"] = None
+        self.atom["residue_id"] = None
+        self.atom["insert_code"] = None
+        self.atom["occupancy"] = None
+        self.atom["temperature_factor"] = None
+        self.atom["charge"] = None
+        self.add_atoms_to_blank([self.atom])
         pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 1)
         self.assertEqual(
          pdb_file.records()[0].text(),
          "ATOM    107 N                 12.681  37.302  -25.211                       N   "
         )
 
 
-    def test_can_handle_awkward_coordinates(self):
-        atoms = [
-         {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": None,
-          "chain_id": None,
-          "residue_id": None,
-          "insert_code": None,
-          "x": 3.9999999999998,
-          "y": -7.9999999999999,
-          "z": -8.881784197001252e-16,
-          "occupancy": None,
-          "temperature_factor": None,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }, {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": None,
-          "chain_id": None,
-          "residue_id": None,
-          "insert_code": None,
-          "x": -5.000022760448198,
-          "y": -0.7071067811865478,
-          "z": 8.881784197001252e-16,
-          "occupancy": None,
-          "temperature_factor": None,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }
-        ]
-        for atom in atoms:
-            self.blank.atoms().append(atom)
+    def test_atom_conversion_can_round_coordinates(self):
+        self.atom["x"] = 3.9999999999998
+        self.atom["y"] = -7.9999999999999
+        self.atom["z"] = -5.000022760448198
+        self.add_atoms_to_blank([self.atom])
         pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 2)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "ATOM    107 N                 4.0     -8.0    0.0                           N   "
-        )
-        self.assertEqual(
-         pdb_file.records()[1].text(),
-         "ATOM    107 N                 -5.0    -0.707110.0                           N   "
+         "ATOM    107 N    GLY A  13A   4.0     -8.0    -5.0    1.0   15.56           N 1 "
         )
 
 
-
-class HeteroatomsConversionTests(PdbDataFileTest):
-
-    def test_can_produce_hetatm_records(self):
-        atoms = [
-         {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": "GLY",
-          "chain_id": "A",
-          "residue_id": 13,
-          "insert_code": "",
-          "x": 12.681,
-          "y": 37.302,
-          "z": -25.211,
-          "occupancy": 1.0,
-          "temperature_factor": 15.56,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }, {
-          "atom_id": 108,
-          "atom_name": "CA",
-          "alt_loc": None,
-          "residue_name": "GLY",
-          "chain_id": "A",
-          "residue_id": 13,
-          "insert_code": "A",
-          "x": 11.982,
-          "y": 37.996,
-          "z": -26.241,
-          "occupancy": 1.2,
-          "temperature_factor": 16.92,
-          "element": "C",
-          "charge": -1,
-          "model_id": 1
-         }
-        ]
-        for atom in atoms:
-            self.blank.heteroatoms().append(atom)
+    def test_can_handle_scientific_notation_in_coordinates(self):
+        self.atom["x"] = 8.881784197001252e-16
+        self.atom["y"] = -0.7071067811865478
+        self.atom["z"] = -8.881784197001252e-16
+        self.add_atoms_to_blank([self.atom])
         pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 2)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "HETATM  107 N    GLY A  13    12.681  37.302  -25.211 1.0   15.56           N   "
-        )
-        self.assertEqual(
-         pdb_file.records()[1].text(),
-         "HETATM  108 CA   GLY A  13A   11.982  37.996  -26.241 1.2   16.92           C -1"
+         "ATOM    107 N    GLY A  13A   0.0     -0.707110.0     1.0   15.56           N 1 "
         )
 
 
-    def test_can_handle_missing_hetatom_properties(self):
-        atoms = [
-         {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": None,
-          "chain_id": None,
-          "residue_id": None,
-          "insert_code": None,
-          "x": 12.681,
-          "y": 37.302,
-          "z": -25.211,
-          "occupancy": None,
-          "temperature_factor": None,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }
-        ]
-        for atom in atoms:
-            self.blank.heteroatoms().append(atom)
+    def test_atom_conversion_will_produce_hetatm_records(self):
+        self.add_heteroatoms_to_blank([self.atom])
         pdb_file = self.blank.generate_pdb_file()
         self.assertEqual(len(pdb_file.records()), 1)
         self.assertEqual(
          pdb_file.records()[0].text(),
-         "HETATM  107 N                 12.681  37.302  -25.211                       N   "
-        )
-
-
-    def test_can_handle_awkward_coordinates(self):
-        atoms = [
-         {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": None,
-          "chain_id": None,
-          "residue_id": None,
-          "insert_code": None,
-          "x": 3.9999999999998,
-          "y": -7.99999999999998,
-          "z": 8.881784197001252e-16,
-          "occupancy": None,
-          "temperature_factor": None,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }, {
-          "atom_id": 107,
-          "atom_name": "N",
-          "alt_loc": None,
-          "residue_name": None,
-          "chain_id": None,
-          "residue_id": None,
-          "insert_code": None,
-          "x": -5.000022760448198,
-          "y": -0.7071067811865478,
-          "z": 8.881784197001252e-16,
-          "occupancy": None,
-          "temperature_factor": None,
-          "element": "N",
-          "charge": None,
-          "model_id": 1
-         }
-        ]
-        for atom in atoms:
-            self.blank.heteroatoms().append(atom)
-        pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 2)
-        self.assertEqual(
-         pdb_file.records()[0].text(),
-         "HETATM  107 N                 4.0     -8.0    0.0                           N   "
-        )
-        self.assertEqual(
-         pdb_file.records()[1].text(),
-         "HETATM  107 N                 -5.0    -0.707110.0                           N   "
+         "HETATM  107 N    GLY A  13A   12.681  37.302  -25.211 1.0   15.56           N 1 "
         )
 
 

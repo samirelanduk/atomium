@@ -11,6 +11,15 @@ class PdbDataFileTest(TestCase):
 
 
 
+class PdbFileCreationTests(PdbDataFileTest):
+
+    def test_can_make_basic_pdb_file(self):
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertIsInstance(pdb_file, PdbFile)
+        self.assertEqual(pdb_file.records(), [])
+
+
+
 class CompoundsConversionTests(PdbDataFileTest):
 
     def test_can_produce_compnd_records(self):

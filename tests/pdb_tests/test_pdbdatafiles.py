@@ -3,6 +3,7 @@ from unittest import TestCase
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
 from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string, merge_records
 from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
+from molecupy.converters.pdbdatafile2pdbfile import pdb_file_from_pdb_data_file
 
 class PdbDataFileTest(TestCase):
 
@@ -45,10 +46,8 @@ class PdbDataFileCreationTests(PdbDataFileTest):
 
 class PdbFileProductionTests(PdbDataFileTest):
 
-    def test_can_produce_pdb_file(self):
-        pdb_file = self.blank.generate_pdb_file()
-        self.assertIsInstance(pdb_file, PdbFile)
-        self.assertEqual(pdb_file.records(), [])
+    def test_pdb_file_production_uses_correct_function(self):
+        self.assertIs(PdbDataFile.generate_pdb_file, pdb_file_from_pdb_data_file)
 
 
 

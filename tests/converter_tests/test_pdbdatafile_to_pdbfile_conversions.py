@@ -25,6 +25,11 @@ class PdbDataFileTest(TestCase):
             self.blank.heteroatoms().append(atom)
 
 
+    def add_connections_to_blank(self, connections):
+        for connection in connections:
+            self.blank.connections().append(connection)
+
+
 
 class PdbFileCreationTests(PdbDataFileTest):
 
@@ -226,16 +231,44 @@ class AtomsConversionTests(PdbDataFileTest):
 
 class ConnectionsConversionTests(PdbDataFileTest):
 
-    def test_can_produce_conect_records(self):
-        connections = [{
+    def test_can_convert_connection(self):
+        self.add_connections_to_blank([{
+         "atom_id": 11,
+         "bonded_atoms": [746, 1184]
+        }])
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 1)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "CONECT   11  746 1184" + (" " * 59)
+        )
+
+
+    def test_can_convert_connection_with_more_than_four_bonds(self):
+        self.add_connections_to_blank([{
+         "atom_id": 1179,
+         "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
+        }])
+        pdb_file = self.blank.generate_pdb_file()
+        self.assertEqual(len(pdb_file.records()), 2)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "CONECT 1179  746 1184 1195 1203" + (" " * 49)
+        )
+        self.assertEqual(
+         pdb_file.records()[1].text(),
+         "CONECT 1179 1211 1222" + (" " * 59)
+        )
+
+
+    def test_can_convert_multiple_connection(self):
+        self.add_connections_to_blank([{
          "atom_id": 1179,
          "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
         }, {
          "atom_id": 11,
          "bonded_atoms": [746, 1184]
-        }]
-        for connection in connections:
-            self.blank.connections().append(connection)
+        }])
         pdb_file = self.blank.generate_pdb_file()
         self.assertEqual(len(pdb_file.records()), 3)
         self.assertEqual(

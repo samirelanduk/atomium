@@ -5,7 +5,7 @@ from .chains import Chain, BindSite
 from .complexes import Complex
 from ..exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from ..exceptions import DuplicateBindSitesError, DuplicateComplexesError
-from ..pdb.pdbdatafile import PdbDataFile
+from molecupy.converters.model2pdbdatafile import pdb_data_file_from_model
 
 class Model(AtomicStructure):
     """Base class: :py:class:`.AtomicStructure`
@@ -414,62 +414,7 @@ class Model(AtomicStructure):
         return new_complex
 
 
-    def pdb_data_file(self):
-        data_file = PdbDataFile()
-        for complex_ in sorted(list(self.complexes()), key=lambda k: k.complex_id()):
-            data_file.compounds().append({
-             "MOL_ID": int(complex_.complex_id()),
-             "MOLECULE": complex_.complex_name(),
-             "CHAIN": sorted([chain.chain_id() for chain in complex_.chains()])
-            })
-        for atom in sorted(list(self.atoms()), key=lambda k: k.atom_id()):
-            residue_name, chain_id, residue_id, insert = None, None, None, None
-            if atom.molecule():
-                if isinstance(atom.molecule(), Residue):
-                    residue_name = atom.molecule().residue_name()
-                    residue_id = atom.molecule().residue_id()[1:]
-                    chain_id = atom.molecule().residue_id()[0]
-                    if atom.molecule().residue_id()[-1].isalpha():
-                        insert = atom.molecule().residue_id()[-1]
-                        residue_id = atom.molecule().residue_id()[1:-1]
-                elif isinstance(atom.molecule(), SmallMolecule):
-                    residue_name = atom.molecule().molecule_name()
-                    residue_id = atom.molecule().molecule_id()[1:]
-                    chain_id = atom.molecule().molecule_id()[0]
-                    if atom.molecule().molecule_id()[-1].isalpha():
-                        insert = atom.molecule().molecule_id()[-1]
-                        residue_id = atom.molecule().molecule_id()[1:-1]
-                residue_id = int(residue_id)
-            atom_dict = {
-             "atom_id": atom.atom_id(),
-             "atom_name": atom.atom_name(),
-             "alt_loc": None,
-             "residue_name": residue_name,
-             "chain_id": chain_id,
-             "residue_id": residue_id,
-             "insert_code": insert,
-             "x": atom.x(),
-             "y": atom.y(),
-             "z": atom.z(),
-             "occupancy": 1.0,
-             "temperature_factor": 0.0,
-             "element": atom.element(),
-             "charge": None,
-             "model_id": 1
-            }
-            if atom.molecule() and isinstance(atom.molecule(), Residue):
-                data_file.atoms().append(atom_dict)
-            else:
-                data_file.heteroatoms().append(atom_dict)
-        for molecule in sorted(list(self.small_molecules()), key=lambda k: k.molecule_id()):
-            for atom in sorted(list(molecule.atoms()), key=lambda k: k.atom_id()):
-                other_atoms = sorted(list(atom.bonded_atoms()), key=lambda k: k.atom_id())
-                connection = {
-                 "atom_id": atom.atom_id(),
-                 "bonded_atoms": [atom.atom_id() for atom in other_atoms]
-                }
-                data_file.connections().append(connection)
-        return data_file
+    pdb_data_file = pdb_data_file_from_model
 
 
     def save_as_pdb(self, path):

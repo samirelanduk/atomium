@@ -198,3 +198,11 @@ class RecordAccessTests(TestCase):
     def test_empty_sections_return_none(self):
         self.assertIs(self.record[17:21], None)
         self.assertIs(self.record.get_as_string(17, 21), None)
+
+
+
+class PdbRecordContainerTests(TestCase):
+
+    def test_pdb_record_is_container_of_text(self):
+        record = PdbRecord("TEST   123  123.8    HYT")
+        self.assertIn(" 123 ", record)

@@ -32,6 +32,10 @@ class PdbRecord:
             return "<PdbRecord (%s)>" % self._name
 
 
+    def __contains__(self, item):
+        return item in self._text
+
+
     def __getitem__(self, key):
         chunk = self._text[key].strip()
         if not chunk: return None

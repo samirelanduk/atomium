@@ -189,7 +189,7 @@ class PdbFileToStringTests(PdbFileTest):
 
 class PdbFileContainerTests(PdbFileTest):
 
-    def test_pdb_file_is_contaimer_of_records(self):
+    def test_pdb_file_is_container_of_records(self):
         pdb_file = PdbFile(self.file_string)
         self.assertIn(pdb_file.records()[0], pdb_file)
 

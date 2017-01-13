@@ -1,19 +1,80 @@
-import datetime
 from unittest import TestCase
-from molecupy.pdb.pdbfile import PdbFile, PdbRecord
-from molecupy.pdb.pdbdatafile import PdbDataFile, date_from_string, merge_records
-from molecupy.pdb.pdbdatafile import records_to_token_value_dicts
-from molecupy.converters.pdbdatafile2pdbfile import pdb_file_from_pdb_data_file
+from molecupy.pdb.pdbdatafile import PdbDataFile
 
 class PdbDataFileTest(TestCase):
 
     def setUp(self):
-        self.empty = PdbDataFile(PdbFile(""))
-        self.blank = PdbDataFile()
+        pass
 
 
 
 class PdbDataFileCreationTests(PdbDataFileTest):
+
+    def test_can_create_empty_data_file(self):
+        data_file = PdbDataFile()
+
+        self.assertEqual(data_file._classification, None)
+        self.assertEqual(data_file._deposition_date, None)
+        self.assertEqual(data_file._pdb_code, None)
+        self.assertFalse(data_file._is_obsolete)
+        self.assertEqual(data_file._obsolete_date, None)
+        self.assertEqual(data_file._replacement_code, None)
+        self.assertEqual(data_file._title, None)
+        self.assertEqual(data_file._split_codes, [])
+        self.assertEqual(data_file._caveat, None)
+        self.assertEqual(data_file._compounds, [])
+        self.assertEqual(data_file._sources, [])
+        self.assertEqual(data_file._keywords, [])
+        self.assertEqual(data_file._experimental_techniques, [])
+        self.assertEqual(data_file._model_count, 1)
+        self.assertEqual(data_file._model_annotations, [])
+        self.assertEqual(data_file._authors, [])
+        self.assertEqual(data_file._revisions, [])
+        self.assertEqual(data_file._supercedes, [])
+        self.assertEqual(data_file._supercede_date, None)
+        self.assertEqual(data_file._journal, None)
+        self.assertEqual(data_file._remarks, [])
+
+        self.assertEqual(data_file._dbreferences, [])
+        self.assertEqual(data_file._sequence_differences, [])
+        self.assertEqual(data_file._residue_sequences, [])
+        self.assertEqual(data_file._modified_residues, [])
+
+        self.assertEqual(data_file._hets, [])
+        self.assertEqual(data_file._het_names, {})
+        self.assertEqual(data_file._het_synonyms, {})
+        self.assertEqual(data_file._formulae, {})
+
+        self.assertEqual(data_file._helices, [])
+        self.assertEqual(data_file._sheets, [])
+
+        self.assertEqual(data_file._ss_bonds, [])
+        self.assertEqual(data_file._links, [])
+        self.assertEqual(data_file._cis_peptides, [])
+
+        self.assertEqual(data_file._sites, [])
+
+        self.assertEqual(data_file._crystal, None)
+        self.assertEqual(data_file._origix, None)
+        self.assertEqual(data_file._scale, None)
+        self.assertEqual(data_file._matrix, None)
+
+        self.assertEqual(
+         data_file._models,
+         [{"model_id": 1, "start_record": -1, "end_record": -1}]
+        )
+        self.assertEqual(data_file._atoms, [])
+        self.assertEqual(data_file._anisou, [])
+        self.assertEqual(data_file._termini, [])
+        self.assertEqual(data_file._heteroatoms, [])
+
+        self.assertEqual(data_file._connections, [])
+
+        self.assertEqual(data_file._master, None)
+
+
+
+'''class PdbDataFileCreationTests(PdbDataFileTest):
 
     def test_can_create_data_file_from_pdb_file(self):
         pdb_file = PdbFile("HEADER    LYASE")
@@ -2668,4 +2729,4 @@ class MasterRecordTests(PdbDataFileTest):
 
     def test_master_must_be_dict(self):
         with self.assertRaises(TypeError):
-            self.blank.master("aaa")
+            self.blank.master("aaa")'''

@@ -1203,19 +1203,7 @@ class SiteRecordProcessingTests(PdbFile2PdbDataFileTest):
 class CrystalRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_crystal_processing(self):
-        self.assertEqual(
-         self.empty._crystal,
-         {
-          "a": None,
-          "b": None,
-          "c": None,
-          "alpha": None,
-          "beta": None,
-          "gamma": None,
-          "s_group": None,
-          "z": None,
-         }
-        )
+        self.assertEqual(self.empty._crystal, None)
 
 
     def test_crystal_record_processing(self):
@@ -1241,18 +1229,7 @@ class CrystalRecordProcessingTests(PdbFile2PdbDataFileTest):
 class OrigxRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_origx_processing(self):
-        self.assertEqual(self.empty._origx["o11"], None)
-        self.assertEqual(self.empty._origx["o12"], None)
-        self.assertEqual(self.empty._origx["o13"], None)
-        self.assertEqual(self.empty._origx["t1"], None)
-        self.assertEqual(self.empty._origx["o21"], None)
-        self.assertEqual(self.empty._origx["o22"], None)
-        self.assertEqual(self.empty._origx["o23"], None)
-        self.assertEqual(self.empty._origx["t2"], None)
-        self.assertEqual(self.empty._origx["o31"], None)
-        self.assertEqual(self.empty._origx["o32"], None)
-        self.assertEqual(self.empty._origx["o33"], None)
-        self.assertEqual(self.empty._origx["t3"], None)
+        self.assertEqual(self.empty._origix, None)
 
 
     def test_origx_record_processing(self):
@@ -1279,18 +1256,7 @@ class OrigxRecordProcessingTests(PdbFile2PdbDataFileTest):
 class ScaleRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_scale_processing(self):
-        self.assertEqual(self.empty._scale["s11"], None)
-        self.assertEqual(self.empty._scale["s12"], None)
-        self.assertEqual(self.empty._scale["s13"], None)
-        self.assertEqual(self.empty._scale["u1"], None)
-        self.assertEqual(self.empty._scale["s21"], None)
-        self.assertEqual(self.empty._scale["s22"], None)
-        self.assertEqual(self.empty._scale["s23"], None)
-        self.assertEqual(self.empty._scale["u2"], None)
-        self.assertEqual(self.empty._scale["s31"], None)
-        self.assertEqual(self.empty._scale["s32"], None)
-        self.assertEqual(self.empty._scale["s33"], None)
-        self.assertEqual(self.empty._scale["u3"], None)
+        self.assertEqual(self.empty._scale, None)
 
 
     def test_scale_record_processing(self):
@@ -1317,24 +1283,7 @@ class ScaleRecordProcessingTests(PdbFile2PdbDataFileTest):
 class MtrixRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_matrix_processing(self):
-        self.assertEqual(self.empty._matrix["serial_1"], None)
-        self.assertEqual(self.empty._matrix["m11"], None)
-        self.assertEqual(self.empty._matrix["m12"], None)
-        self.assertEqual(self.empty._matrix["m13"], None)
-        self.assertEqual(self.empty._matrix["v1"], None)
-        self.assertEqual(self.empty._matrix["i_given_1"], None)
-        self.assertEqual(self.empty._matrix["serial_2"], None)
-        self.assertEqual(self.empty._matrix["m21"], None)
-        self.assertEqual(self.empty._matrix["m22"], None)
-        self.assertEqual(self.empty._matrix["m23"], None)
-        self.assertEqual(self.empty._matrix["v2"], None)
-        self.assertEqual(self.empty._matrix["i_given_2"], None)
-        self.assertEqual(self.empty._matrix["serial_3"], None)
-        self.assertEqual(self.empty._matrix["m31"], None)
-        self.assertEqual(self.empty._matrix["m32"], None)
-        self.assertEqual(self.empty._matrix["m33"], None)
-        self.assertEqual(self.empty._matrix["v3"], None)
-        self.assertEqual(self.empty._matrix["i_given_3"], None)
+        self.assertEqual(self.empty._matrix, None)
 
 
     def test_mtrix_record_processing(self):

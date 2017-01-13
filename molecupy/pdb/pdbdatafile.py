@@ -12,49 +12,62 @@ class PdbDataFile:
 
     :param PdbFile pdb_file: The PDB file to extract information from."""
 
-    def __init__(self, pdb_file=None):
-        '''self._original_pdb_file = pdb_file
-        _process_header_records(self)
-        _process_obslte_records(self)
-        _process_title_records(self)
-        _process_split_records(self)
-        _process_caveat_records(self)
-        _process_compnd_records(self)
-        _process_source_records(self)
-        _process_keywd_records(self)
-        _process_expdta_records(self)
-        _process_nummdl_records(self)
-        _process_mdltyp_records(self)
-        _process_author_records(self)
-        _process_revdat_records(self)
-        _process_sprsde_records(self)
-        _process_jrnl_records(self)
-        _process_remark_records(self)
-        _process_dbref_records(self)
-        _process_seqadv_records(self)
-        _process_seqres_records(self)
-        _process_modres_records(self)
-        _process_het_records(self)
-        _process_hetnam_records(self)
-        _process_hetsyn_records(self)
-        _process_formul_records(self)
-        _process_helix_records(self)
-        _process_sheet_records(self)
-        _process_ssbond_records(self)
-        _process_link_records(self)
-        _process_cispep_records(self)
-        _process_site_records(self)
-        _process_cryst1_records(self)
-        _process_origx_records(self)
-        _process_scale_records(self)
-        _process_matrix_records(self)
-        _process_model_records(self)
-        _process_atom_records(self)
-        _process_anisou_records(self)
-        _process_ter_records(self)
-        _process_hetatm_records(self)
-        _process_conect_records(self)
-        _process_master_records(self)'''
+    def __init__(self):
+        self._classification = None
+        self._deposition_date = None
+        self._pdb_code = None
+        self._is_obsolete = False
+        self._obsolete_date = None
+        self._replacement_code = None
+        self._title = None
+        self._split_codes = []
+        self._caveat = None
+        self._compounds = []
+        self._sources = []
+        self._keywords = []
+        self._experimental_techniques = []
+        self._model_count = 1
+        self._model_annotations = []
+        self._authors = []
+        self._revisions = []
+        self._supercedes = []
+        self._supercede_date = None
+        self._journal = None
+        self._remarks = []
+
+        self._dbreferences = []
+        self._sequence_differences = []
+        self._residue_sequences = []
+        self._modified_residues = []
+
+        self._hets = []
+        self._het_names = {}
+        self._het_synonyms = {}
+        self._formulae = {}
+
+        self._helices = []
+        self._sheets = []
+
+        self._ss_bonds = []
+        self._links = []
+        self._cis_peptides = []
+
+        self._sites = []
+
+        self._crystal = None
+        self._origix = None
+        self._scale = None
+        self._matrix = None
+
+        self._models = [{"model_id": 1, "start_record": -1, "end_record": -1}]
+        self._atoms = []
+        self._anisou = []
+        self._termini = []
+        self._heteroatoms = []
+
+        self._connections = []
+
+        self._master = None
 
 
     def __repr__(self):

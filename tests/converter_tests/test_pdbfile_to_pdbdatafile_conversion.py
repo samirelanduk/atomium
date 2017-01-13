@@ -90,6 +90,29 @@ class TitleRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class SplitRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_split_processing(self):
+        self.assertEqual(self.empty._split_codes, [])
+
+
+    def test_split_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ 1VOY 1VP0 1VOZ 1VOZ\n"
+         "SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV 1VOW 1VOX 1VOY 1VP0 1VOZ"
+        ))
+        self.assertEqual(
+         data_file._split_codes,
+         [
+          "1VOQ", "1VOR", "1VOS", "1VOU", "1VOV", "1VOW",
+          "1VOX", "1VOY", "1VP0", "1VOZ", "1VOY", "1VP0",
+          "1VOZ", "1VOZ", "1VOQ", "1VOR", "1VOS", "1VOU",
+          "1VOV", "1VOW", "1VOX", "1VOY", "1VP0", "1VOZ"
+         ]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

@@ -10,6 +10,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_header_records(data_file, pdb_file)
     process_obslte_records(data_file, pdb_file)
     process_title_records(data_file, pdb_file)
+    process_split_records(data_file, pdb_file)
     return data_file
 
 
@@ -43,6 +44,11 @@ def process_title_records(data_file, pdb_file):
         data_file._title = merge_records(titles, 10, dont_condense=",;:-")
     else:
         data_file._title = None
+
+
+def process_split_records(data_file, pdb_file):
+    splits = pdb_file.get_records_by_name("SPLIT")
+    data_file._split_codes = " ".join([r[10:] for r in splits]).split()
 
 
 def date_from_string(s):

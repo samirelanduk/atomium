@@ -572,108 +572,66 @@ def process_origx_records(data_file, pdb_file):
     origx1 = pdb_file.get_record_by_name("ORIGX1")
     origx2 = pdb_file.get_record_by_name("ORIGX2")
     origx3 = pdb_file.get_record_by_name("ORIGX3")
-    if origx1 and origx2 and origx3:
-        data_file._origx_o11 = origx1[10:20]
-        data_file._origx_o12 = origx1[20:30]
-        data_file._origx_o13 = origx1[30:40]
-        data_file._origx_t1 = origx1[45:55]
-        data_file._origx_o21 = origx2[10:20]
-        data_file._origx_o22 = origx2[20:30]
-        data_file._origx_o23 = origx2[30:40]
-        data_file._origx_t2 = origx2[45:55]
-        data_file._origx_o31 = origx3[10:20]
-        data_file._origx_o32 = origx3[20:30]
-        data_file._origx_o33 = origx3[30:40]
-        data_file._origx_t3 = origx3[45:55]
-    else:
-        data_file._origx_o11 = None
-        data_file._origx_o12 = None
-        data_file._origx_o13 = None
-        data_file._origx_t1 = None
-        data_file._origx_o21 = None
-        data_file._origx_o22 = None
-        data_file._origx_o23 = None
-        data_file._origx_t2 = None
-        data_file._origx_o31 = None
-        data_file._origx_o32 = None
-        data_file._origx_o33 = None
-        data_file._origx_t3 = None
+    data_file._origx = {
+     "o11": origx1[10:20] if origx1 else None,
+     "o12": origx1[20:30] if origx1 else None,
+     "o13": origx1[30:40] if origx1 else None,
+     "t1": origx1[45:55] if origx1 else None,
+     "o21": origx2[10:20] if origx2 else None,
+     "o22": origx2[20:30] if origx2 else None,
+     "o23": origx2[30:40] if origx2 else None,
+     "t2": origx2[45:55] if origx2 else None,
+     "o31": origx3[10:20] if origx3 else None,
+     "o32": origx3[20:30] if origx3 else None,
+     "o33": origx3[30:40] if origx3 else None,
+     "t3": origx3[45:55] if origx3 else None,
+    }
 
 
 def process_scale_records(data_file, pdb_file):
     scale1 = pdb_file.get_record_by_name("SCALE1")
     scale2 = pdb_file.get_record_by_name("SCALE2")
     scale3 = pdb_file.get_record_by_name("SCALE3")
-    if scale1 and scale2 and scale3:
-        data_file._scale_s11 = scale1[10:20]
-        data_file._scale_s12 = scale1[20:30]
-        data_file._scale_s13 = scale1[30:40]
-        data_file._scale_u1 = scale1[45:55]
-        data_file._scale_s21 = scale2[10:20]
-        data_file._scale_s22 = scale2[20:30]
-        data_file._scale_s23 = scale2[30:40]
-        data_file._scale_u2 = scale2[45:55]
-        data_file._scale_s31 = scale3[10:20]
-        data_file._scale_s32 = scale3[20:30]
-        data_file._scale_s33 = scale3[30:40]
-        data_file._scale_u3 = scale3[45:55]
-    else:
-        data_file._scale_s11 = None
-        data_file._scale_s12 = None
-        data_file._scale_s13 = None
-        data_file._scale_u1 = None
-        data_file._scale_s21 = None
-        data_file._scale_s22 = None
-        data_file._scale_s23 = None
-        data_file._scale_u2 = None
-        data_file._scale_s31 = None
-        data_file._scale_s32 = None
-        data_file._scale_s33 = None
-        data_file._scale_u3 = None
+    data_file._scale = {
+     "s11": scale1[10:20] if scale1 else None,
+     "s12": scale1[20:30] if scale1 else None,
+     "s13": scale1[30:40] if scale1 else None,
+     "u1": scale1[45:55] if scale1 else None,
+     "s21": scale2[10:20] if scale2 else None,
+     "s22": scale2[20:30] if scale2 else None,
+     "s23": scale2[30:40] if scale2 else None,
+     "u2": scale2[45:55] if scale2 else None,
+     "s31": scale3[10:20] if scale3 else None,
+     "s32": scale3[20:30] if scale3 else None,
+     "s33": scale3[30:40] if scale3 else None,
+     "u3": scale3[45:55] if scale3 else None,
+    }
 
 
 def process_mtrix_records(data_file, pdb_file):
     matrx1 = pdb_file.get_record_by_name("MTRIX1")
     matrx2 = pdb_file.get_record_by_name("MTRIX2")
     matrx3 = pdb_file.get_record_by_name("MTRIX3")
-    if matrx1 and matrx2 and matrx3:
-        data_file._matrix_serial_1 = matrx1[7:10]
-        data_file._matrix_m11 = matrx1[10:20]
-        data_file._matrix_m12 = matrx1[20:30]
-        data_file._matrix_m13 = matrx1[30:40]
-        data_file._matrix_v1 = matrx1[45:55]
-        data_file._matrix_i_given_1 = matrx1[59] == 1
-        data_file._matrix_serial_2 = matrx2[7:10]
-        data_file._matrix_m21 = matrx2[10:20]
-        data_file._matrix_m22 = matrx2[20:30]
-        data_file._matrix_m23 = matrx2[30:40]
-        data_file._matrix_v2 = matrx2[45:55]
-        data_file._matrix_i_given_2 = matrx2[59] == 1
-        data_file._matrix_serial_3 = matrx3[7:10]
-        data_file._matrix_m31 = matrx3[10:20]
-        data_file._matrix_m32 = matrx3[20:30]
-        data_file._matrix_m33 = matrx3[30:40]
-        data_file._matrix_v3 = matrx3[45:55]
-        data_file._matrix_i_given_3 = matrx3[59] == 1
-    else:
-        data_file._matrix_serial_1 = None
-        data_file._matrix_m11 = None
-        data_file._matrix_m12 = None
-        data_file._matrix_m13 = None
-        data_file._matrix_v1 = None
-        data_file._matrix_i_given_1 = None
-        data_file._matrix_serial_2 = None
-        data_file._matrix_m21 = None
-        data_file._matrix_m22 = None
-        data_file._matrix_m23 = None
-        data_file._matrix_v2 = None
-        data_file._matrix_i_given_2 = None
-        data_file._matrix_serial_3 = None
-        data_file._matrix_m31 = None
-        data_file._matrix_m32 = None
-        data_file._matrix_m33 = None
-        data_file._matrix_v3 = None
-        data_file._matrix_i_given_3 = None
+    data_file._matrix = {
+     "serial_1": matrx1[7:10] if matrx1 else None,
+     "m11": matrx1[10:20] if matrx1 else None,
+     "m12": matrx1[20:30] if matrx1 else None,
+     "m13": matrx1[30:40] if matrx1 else None,
+     "v1": matrx1[45:55] if matrx1 else None,
+     "i_given_1": (matrx1[59] == 1) if matrx1 else None,
+     "serial_2": matrx2[7:10] if matrx2 else None,
+     "m21": matrx2[10:20] if matrx2 else None,
+     "m22": matrx2[20:30] if matrx2 else None,
+     "m23": matrx2[30:40] if matrx2 else None,
+     "v2": matrx2[45:55] if matrx2 else None,
+     "i_given_2": (matrx2[59] == 1) if matrx2 else None,
+     "serial_3": matrx3[7:10] if matrx3 else None,
+     "m31": matrx3[10:20] if matrx3 else None,
+     "m32": matrx3[20:30] if matrx3 else None,
+     "m33": matrx3[30:40] if matrx3 else None,
+     "v3": matrx3[45:55] if matrx3 else None,
+     "i_given_3": (matrx3[59] == 1) if matrx3 else None,
+    }
 
 
 def process_model_records(data_file, pdb_file):

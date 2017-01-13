@@ -817,6 +817,30 @@ class SeqresRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class ModresRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_modres_processing(self):
+        self.assertEqual(self.empty._modified_residues, [])
+
+
+    def test_modres_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "MODRES 1LOL ASP A   10  ASP  GLYCOSYLATION SITE"
+        ))
+        self.assertEqual(
+         data_file._modified_residues,
+         [{
+          "residue_name": "ASP",
+          "chain_id": "A",
+          "residue_id": 10,
+          "insert_code": "",
+          "standard_resisdue_name": 'ASP',
+          "comment": "GLYCOSYLATION SITE"
+         }]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

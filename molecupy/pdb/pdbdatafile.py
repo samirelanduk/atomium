@@ -805,23 +805,6 @@ class PdbDataFile:
 
 
 '''
-
-def process_modres_records(data_file, pdb_file):
-    if pdb_file:
-        modres = pdb_file.get_records_by_name("MODRES")
-        if modres:
-            data_file._modified_residues = [{
-             "residue_name": r[12:15],
-             "chain_id": r[16],
-             "residue_id": r[18:22],
-             "insert_code": r[22] if r[22] else "",
-             "standard_resisdue_name": r[24:27],
-             "comment": r[29:70]
-            } for r in modres]
-            return
-    data_file._modified_residues = []
-
-
 def process_het_records(data_file, pdb_file):
     if pdb_file:
         hets = pdb_file.get_records_by_name("HET")

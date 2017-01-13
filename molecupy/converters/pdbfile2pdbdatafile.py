@@ -27,6 +27,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_dbref_records(data_file, pdb_file)
     process_seqadv_records(data_file, pdb_file)
     process_seqres_records(data_file, pdb_file)
+    process_modres_records(data_file, pdb_file)
 
     return data_file
 
@@ -293,6 +294,21 @@ def process_seqres_records(data_file, pdb_file):
         data_file._residue_sequences = residue_sequences
     else:
         data_file._residue_sequences = []
+
+
+def process_modres_records(data_file, pdb_file):
+    modres = pdb_file.get_records_by_name("MODRES")
+    if modres:
+        data_file._modified_residues = [{
+         "residue_name": r[12:15],
+         "chain_id": r[16],
+         "residue_id": r[18:22],
+         "insert_code": r[22] if r[22] else "",
+         "standard_resisdue_name": r[24:27],
+         "comment": r[29:70]
+        } for r in modres]
+    else:
+        data_file._modified_residues = []
 
 
 def date_from_string(s):

@@ -1,14 +1,7 @@
 from unittest import TestCase
 from molecupy.pdb.pdbdatafile import PdbDataFile
 
-class PdbDataFileTest(TestCase):
-
-    def setUp(self):
-        pass
-
-
-
-class PdbDataFileCreationTests(PdbDataFileTest):
+class PdbDataFileCreationTests(TestCase):
 
     def test_can_create_empty_data_file(self):
         data_file = PdbDataFile()
@@ -73,46 +66,25 @@ class PdbDataFileCreationTests(PdbDataFileTest):
         self.assertEqual(data_file._master, None)
 
 
-
-'''class PdbDataFileCreationTests(PdbDataFileTest):
-
-    def test_can_create_data_file_from_pdb_file(self):
-        pdb_file = PdbFile("HEADER    LYASE")
-        data_file = PdbDataFile(pdb_file)
-        self.assertIs(data_file._original_pdb_file, pdb_file)
-
-
-    def test_can_create_data_file_from_nothing(self):
-        data_file = PdbDataFile()
-        self.assertIs(data_file._original_pdb_file, None)
-
-
     def test_repr(self):
-        self.assertEqual(str(self.empty), "<PdbDataFile (????)>")
-        data_file = PdbDataFile(PdbFile(
-         "HEADER    LYASE                                   06-MAY-02   1LOL"
-        ))
-        self.assertEqual(str(data_file), "<PdbDataFile (1LOL)>")
+        data_file = PdbDataFile()
+        self.assertEqual(str(data_file), "<PdbDataFile (????)>")
 
 
-    def test_data_file_basic_properties(self):
-        data_file = PdbDataFile(PdbFile(
-         "HEADER    LYASE                                   06-MAY-02   1LOL"
-        ))
-        self.assertIs(
-         data_file.original_pdb_file(), data_file._original_pdb_file
-        )
+    def test_repr_when_there_is_pdb_code(self):
+        data_file = PdbDataFile()
+        data_file._pdb_code = "ABCD"
+        self.assertEqual(str(data_file), "<PdbDataFile (ABCD)>")
 
-
-
-class PdbFileProductionTests(PdbDataFileTest):
+'''
+class PdbFileProductionTests(TestCase):
 
     def test_pdb_file_production_uses_correct_function(self):
         self.assertIs(PdbDataFile.generate_pdb_file, pdb_file_from_pdb_data_file)
 
 
 
-class HeaderRecordTests(PdbDataFileTest):
+class HeaderRecordTests(TestCase):
 
     def test_missing_header_processing(self):
         self.assertEqual(self.empty._classification, None)
@@ -184,7 +156,7 @@ class HeaderRecordTests(PdbDataFileTest):
 
 
 
-class ObslteRecordTests(PdbDataFileTest):
+class ObslteRecordTests(TestCase):
 
     def test_missing_obslte_processing(self):
         self.assertFalse(self.empty._is_obsolete)
@@ -254,7 +226,7 @@ class ObslteRecordTests(PdbDataFileTest):
 
 
 
-class TitleRecordTests(PdbDataFileTest):
+class TitleRecordTests(TestCase):
 
     def test_missing_title_processing(self):
         self.assertEqual(self.empty._title, None)
@@ -291,7 +263,7 @@ class TitleRecordTests(PdbDataFileTest):
 
 
 
-class SplitRecordTests(PdbDataFileTest):
+class SplitRecordTests(TestCase):
 
     def test_missing_split_processing(self):
         self.assertEqual(self.empty._split_codes, [])
@@ -323,7 +295,7 @@ class SplitRecordTests(PdbDataFileTest):
 
 
 
-class CaveatRecordTests(PdbDataFileTest):
+class CaveatRecordTests(TestCase):
 
     def test_missing_caveat_processing(self):
         self.assertEqual(self.empty._caveat, None)
@@ -360,7 +332,7 @@ class CaveatRecordTests(PdbDataFileTest):
 
 
 
-class CompndRecordTests(PdbDataFileTest):
+class CompndRecordTests(TestCase):
 
     def test_missing_compnd_processing(self):
         self.assertEqual(self.empty._compounds, [])
@@ -410,7 +382,7 @@ class CompndRecordTests(PdbDataFileTest):
 
 
 
-class SourceRecordTests(PdbDataFileTest):
+class SourceRecordTests(TestCase):
 
     def test_missing_source_processing(self):
         self.assertEqual(self.empty._sources, [])
@@ -453,7 +425,7 @@ class SourceRecordTests(PdbDataFileTest):
 
 
 
-class KeywdsRecordTests(PdbDataFileTest):
+class KeywdsRecordTests(TestCase):
 
     def test_missing_keywds_processing(self):
         self.assertEqual(self.empty._keywords, [])
@@ -479,7 +451,7 @@ class KeywdsRecordTests(PdbDataFileTest):
 
 
 
-class ExpdtaRecordTests(PdbDataFileTest):
+class ExpdtaRecordTests(TestCase):
 
     def test_missing_expdta_processing(self):
         self.assertEqual(self.empty._experimental_techniques, [])
@@ -508,7 +480,7 @@ class ExpdtaRecordTests(PdbDataFileTest):
 
 
 
-class NummdlRecordTests(PdbDataFileTest):
+class NummdlRecordTests(TestCase):
 
     def test_missing_nummdl_processing(self):
         self.assertEqual(self.empty._model_count, 1)
@@ -542,7 +514,7 @@ class NummdlRecordTests(PdbDataFileTest):
 
 
 
-class MdltypRecordTests(PdbDataFileTest):
+class MdltypRecordTests(TestCase):
 
     def test_missing_mdltyp_processing(self):
         self.assertEqual(self.empty._model_annotations, [])
@@ -575,7 +547,7 @@ class MdltypRecordTests(PdbDataFileTest):
 
 
 
-class AuthorRecordTests(PdbDataFileTest):
+class AuthorRecordTests(TestCase):
 
     def test_missing_author_processing(self):
         self.assertEqual(self.empty._authors, [])
@@ -605,7 +577,7 @@ class AuthorRecordTests(PdbDataFileTest):
 
 
 
-class RevdatRecordTests(PdbDataFileTest):
+class RevdatRecordTests(TestCase):
 
     def test_missing_revdat_processing(self):
         self.assertEqual(self.empty._revisions, [])
@@ -649,7 +621,7 @@ class RevdatRecordTests(PdbDataFileTest):
 
 
 
-class SprsdeRecordTests(PdbDataFileTest):
+class SprsdeRecordTests(TestCase):
 
     def test_missing_sprsde_processing(self):
         self.assertEqual(self.empty._supercedes, [])
@@ -694,7 +666,7 @@ class SprsdeRecordTests(PdbDataFileTest):
 
 
 
-class JrnlRecordTests(PdbDataFileTest):
+class JrnlRecordTests(TestCase):
 
     def test_empty_jrnl_processing(self):
         self.assertEqual(self.empty.journal(), None)
@@ -888,7 +860,7 @@ class JrnlRecordTests(PdbDataFileTest):
 
 
 
-class RemarkRecordTests(PdbDataFileTest):
+class RemarkRecordTests(TestCase):
 
     def test_missing_remark_processing(self):
         self.assertEqual(self.empty._remarks, [])
@@ -951,7 +923,7 @@ class RemarkRecordTests(PdbDataFileTest):
 
 
 
-class DbrefRecordTests(PdbDataFileTest):
+class DbrefRecordTests(TestCase):
 
     def test_missing_dbref_processing(self):
         self.assertEqual(self.empty._dbreferences, [])
@@ -1086,7 +1058,7 @@ class DbrefRecordTests(PdbDataFileTest):
 
 
 
-class SeqadvRecordTests(PdbDataFileTest):
+class SeqadvRecordTests(TestCase):
 
     def test_missing_seqadv_processing(self):
         self.assertEqual(self.empty._sequence_differences, [])
@@ -1138,7 +1110,7 @@ class SeqadvRecordTests(PdbDataFileTest):
 
 
 
-class SeqresRecordTests(PdbDataFileTest):
+class SeqresRecordTests(TestCase):
 
     def test_missing_seqres_processing(self):
         self.assertEqual(self.empty._residue_sequences, [])
@@ -1186,7 +1158,7 @@ class SeqresRecordTests(PdbDataFileTest):
 
 
 
-class ModresRecordTests(PdbDataFileTest):
+class ModresRecordTests(TestCase):
 
     def test_missing_modres_processing(self):
         self.assertEqual(self.empty._modified_residues, [])
@@ -1223,7 +1195,7 @@ class ModresRecordTests(PdbDataFileTest):
 
 
 
-class HetRecordTests(PdbDataFileTest):
+class HetRecordTests(TestCase):
 
     def test_missing_het_processing(self):
         self.assertEqual(self.empty._hets, [])
@@ -1284,7 +1256,7 @@ class HetRecordTests(PdbDataFileTest):
 
 
 
-class HetnamRecordTests(PdbDataFileTest):
+class HetnamRecordTests(TestCase):
 
     def test_missing_hetnam_processing(self):
         self.assertEqual(self.blank._het_names, {})
@@ -1314,7 +1286,7 @@ class HetnamRecordTests(PdbDataFileTest):
 
 
 
-class HetsynRecordTests(PdbDataFileTest):
+class HetsynRecordTests(TestCase):
 
     def test_missing_hetsyn_processing(self):
         self.assertEqual(self.empty._het_synonyms, {})
@@ -1344,7 +1316,7 @@ class HetsynRecordTests(PdbDataFileTest):
 
 
 
-class FormulRecordTests(PdbDataFileTest):
+class FormulRecordTests(TestCase):
 
     def test_missing_formul_processing(self):
         self.assertEqual(self.empty._formulae, {})
@@ -1375,7 +1347,7 @@ class FormulRecordTests(PdbDataFileTest):
 
 
 
-class HelixRecordTests(PdbDataFileTest):
+class HelixRecordTests(TestCase):
 
     def test_missing_helix_processing(self):
         self.assertEqual(self.empty._helices, [])
@@ -1432,7 +1404,7 @@ class HelixRecordTests(PdbDataFileTest):
 
 
 
-class SheetRecordTests(PdbDataFileTest):
+class SheetRecordTests(TestCase):
 
     def test_missing_sheet_processing(self):
         self.assertEqual(self.empty._sheets, [])
@@ -1507,7 +1479,7 @@ class SheetRecordTests(PdbDataFileTest):
 
 
 
-class SsbondRecordTests(PdbDataFileTest):
+class SsbondRecordTests(TestCase):
 
     def test_missing_ssbond_processing(self):
         self.assertEqual(self.empty._ss_bonds, [])
@@ -1545,7 +1517,7 @@ class SsbondRecordTests(PdbDataFileTest):
 
 
 
-class LinkRecordTests(PdbDataFileTest):
+class LinkRecordTests(TestCase):
 
     def test_missing_link_processing(self):
         self.assertEqual(self.empty._links, [])
@@ -1588,7 +1560,7 @@ class LinkRecordTests(PdbDataFileTest):
 
 
 
-class CispepRecordTests(PdbDataFileTest):
+class CispepRecordTests(TestCase):
 
     def test_missing_cispep_processing(self):
         self.assertEqual(self.empty._cis_peptides, [])
@@ -1627,7 +1599,7 @@ class CispepRecordTests(PdbDataFileTest):
 
 
 
-class SiteRecordTests(PdbDataFileTest):
+class SiteRecordTests(TestCase):
 
     def test_missing_site_processing(self):
         self.assertEqual(self.empty._sites, [])
@@ -1681,7 +1653,7 @@ class SiteRecordTests(PdbDataFileTest):
 
 
 
-class CrystalRecordTests(PdbDataFileTest):
+class CrystalRecordTests(TestCase):
 
     def test_missing_crystal_processing(self):
         self.assertEqual(self.empty._crystal_a, None)
@@ -1790,7 +1762,7 @@ class CrystalRecordTests(PdbDataFileTest):
 
 
 
-class OrigxRecordTests(PdbDataFileTest):
+class OrigxRecordTests(TestCase):
 
     def test_missing_origx_processing(self):
         self.assertEqual(self.empty._origx_o11, None)
@@ -1947,7 +1919,7 @@ class OrigxRecordTests(PdbDataFileTest):
 
 
 
-class ScaleRecordTests(PdbDataFileTest):
+class ScaleRecordTests(TestCase):
 
     def test_missing_scale_processing(self):
         self.assertEqual(self.empty._scale_s11, None)
@@ -2104,7 +2076,7 @@ class ScaleRecordTests(PdbDataFileTest):
 
 
 
-class MtrixRecordTests(PdbDataFileTest):
+class MtrixRecordTests(TestCase):
 
     def test_missing_matrix_processing(self):
         self.assertEqual(self.empty._matrix_serial_1, None)
@@ -2329,7 +2301,7 @@ class MtrixRecordTests(PdbDataFileTest):
 
 
 
-class ModelRecordTests(PdbDataFileTest):
+class ModelRecordTests(TestCase):
 
     def test_missing_model_processing(self):
         self.assertEqual(
@@ -2389,7 +2361,7 @@ class ModelRecordTests(PdbDataFileTest):
 
 
 
-class AtomRecordTests(PdbDataFileTest):
+class AtomRecordTests(TestCase):
 
     def test_missing_atom_processing(self):
         self.assertEqual(self.empty._atoms, [])
@@ -2450,7 +2422,7 @@ class AtomRecordTests(PdbDataFileTest):
 
 
 
-class AnisouRecordTests(PdbDataFileTest):
+class AnisouRecordTests(TestCase):
 
     def test_missing_anisou_processing(self):
         self.assertEqual(self.empty._anisou, [])
@@ -2513,7 +2485,7 @@ class AnisouRecordTests(PdbDataFileTest):
 
 
 
-class TerRecordTests(PdbDataFileTest):
+class TerRecordTests(TestCase):
 
     def test_missing_ter_processing(self):
         self.assertEqual(self.empty._termini, [])
@@ -2547,7 +2519,7 @@ class TerRecordTests(PdbDataFileTest):
 
 
 
-class HetatmRecordTests(PdbDataFileTest):
+class HetatmRecordTests(TestCase):
 
     def test_missing_hetatm_processing(self):
         self.assertEqual(self.empty._heteroatoms, [])
@@ -2618,7 +2590,7 @@ class HetatmRecordTests(PdbDataFileTest):
 
 
 
-class ConectRecordTests(PdbDataFileTest):
+class ConectRecordTests(TestCase):
 
     def test_missing_conect_processing(self):
         self.assertEqual(self.empty._connections, [])
@@ -2665,7 +2637,7 @@ class ConectRecordTests(PdbDataFileTest):
 
 
 
-class MasterRecordTests(PdbDataFileTest):
+class MasterRecordTests(TestCase):
 
     def test_missing_master_processing(self):
         self.assertEqual(self.empty._master, None)

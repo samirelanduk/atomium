@@ -783,6 +783,40 @@ class SeqadvRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class SeqresRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_seqres_processing(self):
+        self.assertEqual(self.empty._residue_sequences, [])
+
+
+    def test_seqres_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "SEQRES   1 A    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
+         "SEQRES   2 A    8  ARG LEU ILE\n"
+         "SEQRES   1 B    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
+         "SEQRES   2 B    8  ARG LEU ILE"
+        ))
+        self.assertEqual(
+         data_file._residue_sequences,
+         [{
+          "chain_id": "A",
+          "length": 8,
+          "residues": [
+           "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
+           "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE",
+          ]
+         }, {
+          "chain_id": "B",
+          "length": 8,
+          "residues": [
+           "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
+           "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE"
+          ]
+         }]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

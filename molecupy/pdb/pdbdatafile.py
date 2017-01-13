@@ -805,36 +805,7 @@ class PdbDataFile:
 
 
 '''
-def process_site_records(data_file, pdb_file):
-    if pdb_file:
-        site_records = pdb_file.get_records_by_name("SITE")
-        if site_records:
-            site_names = sorted(list(set(
-             [r.get_as_string(11, 14) for r in site_records]
-            )))
-            sites = []
-            for site_name in site_names:
-                records = [
-                 r for r in site_records if r.get_as_string(11, 14) == site_name
-                ]
-                residues = []
-                for r in records:
-                    for i in range(1, 5):
-                        if r[(i * 11) + 7: (i * 11) + 17]:
-                            residues.append({
-                             "residue_name": r[(i * 11) + 7: (i * 11) + 10],
-                             "chain_id": r[(i * 11) + 11],
-                             "residue_id": r[(i * 11) + 12: (i * 11) + 16],
-                             "insert_code":  r[(i * 11) + 16] if r[(i * 11) + 16] else ""
-                            })
-                sites.append({
-                 "site_id": site_name,
-                 "residue_count": records[0][15:17],
-                 "residues": residues
-                })
-            data_file._sites = sites
-            return
-    data_file._sites = []
+
 
 
 def process_cryst1_records(data_file, pdb_file):

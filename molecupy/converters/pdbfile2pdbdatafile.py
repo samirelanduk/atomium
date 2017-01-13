@@ -41,6 +41,8 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_link_records(data_file, pdb_file)
     process_cispep_records(data_file, pdb_file)
 
+    process_site_records(data_file, pdb_file)
+
     return data_file
 
 
@@ -504,6 +506,37 @@ def process_cispep_records(data_file, pdb_file):
         } for r in cispeps]
     else:
         data_file._cis_peptides = []
+
+
+def process_site_records(data_file, pdb_file):
+    site_records = pdb_file.get_records_by_name("SITE")
+    if site_records:
+        site_names = sorted(list(set(
+         [r.get_as_string(11, 14) for r in site_records]
+        )))
+        sites = []
+        for site_name in site_names:
+            records = [
+             r for r in site_records if r.get_as_string(11, 14) == site_name
+            ]
+            residues = []
+            for r in records:
+                for i in range(1, 5):
+                    if r[(i * 11) + 7: (i * 11) + 17]:
+                        residues.append({
+                         "residue_name": r[(i * 11) + 7: (i * 11) + 10],
+                         "chain_id": r[(i * 11) + 11],
+                         "residue_id": r[(i * 11) + 12: (i * 11) + 16],
+                         "insert_code":  r[(i * 11) + 16] if r[(i * 11) + 16] else ""
+                        })
+            sites.append({
+             "site_id": site_name,
+             "residue_count": records[0][15:17],
+             "residues": residues
+            })
+        data_file._sites = sites
+    else:
+        data_file._sites = []
 
 
 def date_from_string(s):

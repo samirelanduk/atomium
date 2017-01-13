@@ -20,6 +20,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_mdltyp_records(data_file, pdb_file)
     process_author_records(data_file, pdb_file)
     process_revdat_records(data_file, pdb_file)
+    process_sprsde_records(data_file, pdb_file)
     return data_file
 
 
@@ -140,6 +141,16 @@ def process_revdat_records(data_file, pdb_file):
         data_file._revisions = revisions
     else:
         data_file._revisions = []
+
+
+def process_sprsde_records(data_file, pdb_file):
+    sprsde = pdb_file.get_record_by_name("SPRSDE")
+    if sprsde:
+        data_file._supercedes = sprsde[31:75].split()
+        data_file._supercede_date = date_from_string(sprsde[11:20])
+    else:
+        data_file._supercedes = []
+        data_file._supercede_date = None
 
 
 def date_from_string(s):

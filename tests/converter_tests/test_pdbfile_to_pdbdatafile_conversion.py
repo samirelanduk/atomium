@@ -379,6 +379,29 @@ class RevdatRecordProcessingTests(PdbFile2PdbDataFileTest):
         )
 
 
+
+class SprsdeRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_sprsde_processing(self):
+        self.assertEqual(self.empty._supercedes, [])
+        self.assertEqual(self.empty._supercede_date, None)
+
+
+    def test_sprsde_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "SPRSDE     27-FEB-95 1GDJ      1LH4 2LH4"
+        ))
+        self.assertEqual(
+         data_file._supercedes,
+         ["1LH4", "2LH4"]
+        )
+        self.assertEqual(
+         data_file._supercede_date,
+         datetime.datetime(1995, 2, 27).date()
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

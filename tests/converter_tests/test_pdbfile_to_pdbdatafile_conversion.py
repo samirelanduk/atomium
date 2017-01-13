@@ -326,6 +326,27 @@ class MdltypRecordTests(PdbFile2PdbDataFileTest):
 
 
 
+class AuthorRecordTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_author_processing(self):
+        self.assertEqual(self.empty._authors, [])
+
+
+    def test_author_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "AUTHOR    M.B.BERRY,B.MEADOR,T.BILDERBACK,P.LIANG,M.GLASER,\n"
+         "AUTHOR   2 G.N.PHILLIPS JR.,T.L.ST. STEVENS"
+        ))
+        self.assertEqual(
+         data_file._authors,
+         [
+          "M.B.BERRY", "B.MEADOR", "T.BILDERBACK", "P.LIANG", "M.GLASER",
+          "G.N.PHILLIPS JR.", "T.L.ST. STEVENS"
+         ]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

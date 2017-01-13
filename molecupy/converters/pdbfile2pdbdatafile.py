@@ -18,6 +18,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_expdta_records(data_file, pdb_file)
     process_nummdl_records(data_file, pdb_file)
     process_mdltyp_records(data_file, pdb_file)
+    process_author_records(data_file, pdb_file)
     return data_file
 
 
@@ -111,6 +112,14 @@ def process_mdltyp_records(data_file, pdb_file):
         ]
     else:
         data_file._model_annotations = []
+
+
+def process_author_records(data_file, pdb_file):
+    authors = pdb_file.get_records_by_name("AUTHOR")
+    if authors:
+        data_file._authors = merge_records(authors, 10).split(",")
+    else:
+        data_file._authors = []
 
 
 def date_from_string(s):

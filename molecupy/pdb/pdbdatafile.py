@@ -806,16 +806,6 @@ class PdbDataFile:
 
 '''
 
-
-def process_author_records(data_file, pdb_file):
-    if pdb_file:
-        authors = pdb_file.get_records_by_name("AUTHOR")
-        if authors:
-            data_file._authors = merge_records(authors, 10).split(",")
-            return
-    data_file._authors = []
-
-
 def process_revdat_records(data_file, pdb_file):
     if pdb_file:
         revdats = pdb_file.get_records_by_name("REVDAT")

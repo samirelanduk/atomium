@@ -1228,6 +1228,132 @@ class CrystalRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class OrigxRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_origx_processing(self):
+        self.assertEqual(self.empty._origx_o11, None)
+        self.assertEqual(self.empty._origx_o12, None)
+        self.assertEqual(self.empty._origx_o13, None)
+        self.assertEqual(self.empty._origx_t1, None)
+        self.assertEqual(self.empty._origx_o21, None)
+        self.assertEqual(self.empty._origx_o22, None)
+        self.assertEqual(self.empty._origx_o23, None)
+        self.assertEqual(self.empty._origx_t2, None)
+        self.assertEqual(self.empty._origx_o31, None)
+        self.assertEqual(self.empty._origx_o32, None)
+        self.assertEqual(self.empty._origx_o33, None)
+        self.assertEqual(self.empty._origx_t3, None)
+
+
+    def test_origx_record_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "ORIGX1      0.963457  0.136613  0.230424       16.61000\n"
+         "ORIGX2     -0.158977  0.983924  0.081383       13.72000\n"
+         "ORIGX3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file._origx_o11, 0.963457)
+        self.assertEqual(data_file._origx_o12, 0.136613)
+        self.assertEqual(data_file._origx_o13, 0.230424)
+        self.assertEqual(data_file._origx_t1, 16.61)
+        self.assertEqual(data_file._origx_o21, -0.158977)
+        self.assertEqual(data_file._origx_o22, 0.983924)
+        self.assertEqual(data_file._origx_o23, 0.081383)
+        self.assertEqual(data_file._origx_t2, 13.72)
+        self.assertEqual(data_file._origx_o31, -0.215598)
+        self.assertEqual(data_file._origx_o32, -0.115048)
+        self.assertEqual(data_file._origx_o33, 0.969683)
+        self.assertEqual(data_file._origx_t3, 37.65)
+
+
+
+class ScaleRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_scale_processing(self):
+        self.assertEqual(self.empty._scale_s11, None)
+        self.assertEqual(self.empty._scale_s12, None)
+        self.assertEqual(self.empty._scale_s13, None)
+        self.assertEqual(self.empty._scale_u1, None)
+        self.assertEqual(self.empty._scale_s21, None)
+        self.assertEqual(self.empty._scale_s22, None)
+        self.assertEqual(self.empty._scale_s23, None)
+        self.assertEqual(self.empty._scale_u2, None)
+        self.assertEqual(self.empty._scale_s31, None)
+        self.assertEqual(self.empty._scale_s32, None)
+        self.assertEqual(self.empty._scale_s33, None)
+        self.assertEqual(self.empty._scale_u3, None)
+
+
+    def test_scale_record_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "SCALE1      0.963457  0.136613  0.230424       16.61000\n"
+         "SCALE2     -0.158977  0.983924  0.081383       13.72000\n"
+         "SCALE3     -0.215598 -0.115048  0.969683       37.65000"
+        ))
+        self.assertEqual(data_file._scale_s11, 0.963457)
+        self.assertEqual(data_file._scale_s12, 0.136613)
+        self.assertEqual(data_file._scale_s13, 0.230424)
+        self.assertEqual(data_file._scale_u1, 16.61)
+        self.assertEqual(data_file._scale_s21, -0.158977)
+        self.assertEqual(data_file._scale_s22, 0.983924)
+        self.assertEqual(data_file._scale_s23, 0.081383)
+        self.assertEqual(data_file._scale_u2, 13.72)
+        self.assertEqual(data_file._scale_s31, -0.215598)
+        self.assertEqual(data_file._scale_s32, -0.115048)
+        self.assertEqual(data_file._scale_s33, 0.969683)
+        self.assertEqual(data_file._scale_u3, 37.65)
+
+
+
+class MtrixRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_matrix_processing(self):
+        self.assertEqual(self.empty._matrix_serial_1, None)
+        self.assertEqual(self.empty._matrix_m11, None)
+        self.assertEqual(self.empty._matrix_m12, None)
+        self.assertEqual(self.empty._matrix_m13, None)
+        self.assertEqual(self.empty._matrix_v1, None)
+        self.assertEqual(self.empty._matrix_i_given_1, None)
+        self.assertEqual(self.empty._matrix_serial_2, None)
+        self.assertEqual(self.empty._matrix_m21, None)
+        self.assertEqual(self.empty._matrix_m22, None)
+        self.assertEqual(self.empty._matrix_m23, None)
+        self.assertEqual(self.empty._matrix_v2, None)
+        self.assertEqual(self.empty._matrix_i_given_2, None)
+        self.assertEqual(self.empty._matrix_serial_3, None)
+        self.assertEqual(self.empty._matrix_m31, None)
+        self.assertEqual(self.empty._matrix_m32, None)
+        self.assertEqual(self.empty._matrix_m33, None)
+        self.assertEqual(self.empty._matrix_v3, None)
+        self.assertEqual(self.empty._matrix_i_given_3, None)
+
+
+    def test_mtrix_record_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1\n"
+         "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1\n"
+         "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1"
+        ))
+        self.assertEqual(data_file._matrix_serial_1, 1)
+        self.assertEqual(data_file._matrix_m11, -1.0)
+        self.assertEqual(data_file._matrix_m12, 0.0)
+        self.assertEqual(data_file._matrix_m13, 0.0)
+        self.assertEqual(data_file._matrix_v1, 0.0)
+        self.assertIs(data_file._matrix_i_given_1, True)
+        self.assertEqual(data_file._matrix_serial_2, 1)
+        self.assertEqual(data_file._matrix_m21, 0.0)
+        self.assertEqual(data_file._matrix_m22, 1.0)
+        self.assertEqual(data_file._matrix_m23, 0.0)
+        self.assertEqual(data_file._matrix_v2, 0.0)
+        self.assertIs(data_file._matrix_i_given_2, True)
+        self.assertEqual(data_file._matrix_serial_3, 1)
+        self.assertEqual(data_file._matrix_m31, 0.0)
+        self.assertEqual(data_file._matrix_m32, 0.0)
+        self.assertEqual(data_file._matrix_m33, -1.0)
+        self.assertEqual(data_file._matrix_v3, 0.0)
+        self.assertIs(data_file._matrix_i_given_3, True)
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

@@ -556,24 +556,16 @@ def process_site_records(data_file, pdb_file):
 
 def process_cryst1_records(data_file, pdb_file):
     crystal = pdb_file.get_record_by_name("CRYST1")
-    if crystal:
-        data_file._crystal_a = crystal[6:15]
-        data_file._crystal_b = crystal[15:24]
-        data_file._crystal_c = crystal[24:33]
-        data_file._crystal_alpha = crystal[33:40]
-        data_file._crystal_beta = crystal[40:47]
-        data_file._crystal_gamma = crystal[47:54]
-        data_file._crystal_s_group = crystal[55:66]
-        data_file._crystal_z = crystal[66:70]
-    else:
-        data_file._crystal_a = None
-        data_file._crystal_b = None
-        data_file._crystal_c = None
-        data_file._crystal_alpha = None
-        data_file._crystal_beta = None
-        data_file._crystal_gamma = None
-        data_file._crystal_s_group = None
-        data_file._crystal_z = None
+    data_file._crystal = {
+     "a": crystal[6:15] if crystal else None,
+     "b": crystal[15:24] if crystal else None,
+     "c": crystal[24:33] if crystal else None,
+     "alpha": crystal[33:40] if crystal else None,
+     "beta": crystal[40:47] if crystal else None,
+     "gamma": crystal[47:54] if crystal else None,
+     "s_group": crystal[55:66] if crystal else None,
+     "z": crystal[66:70] if crystal else None
+    }
 
 
 def process_origx_records(data_file, pdb_file):

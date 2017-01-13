@@ -1203,28 +1203,38 @@ class SiteRecordProcessingTests(PdbFile2PdbDataFileTest):
 class CrystalRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_crystal_processing(self):
-        self.assertEqual(self.empty._crystal_a, None)
-        self.assertEqual(self.empty._crystal_b, None)
-        self.assertEqual(self.empty._crystal_c, None)
-        self.assertEqual(self.empty._crystal_alpha, None)
-        self.assertEqual(self.empty._crystal_beta, None)
-        self.assertEqual(self.empty._crystal_gamma, None)
-        self.assertEqual(self.empty._crystal_s_group, None)
-        self.assertEqual(self.empty._crystal_z, None)
+        self.assertEqual(
+         self.empty._crystal,
+         {
+          "a": None,
+          "b": None,
+          "c": None,
+          "alpha": None,
+          "beta": None,
+          "gamma": None,
+          "s_group": None,
+          "z": None,
+         }
+        )
 
 
     def test_crystal_record_processing(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
          "CRYST1   57.570   55.482   66.129  90.00  94.28  90.00 P 1 21 1      4"
         ))
-        self.assertEqual(data_file._crystal_a, 57.57)
-        self.assertEqual(data_file._crystal_b, 55.482)
-        self.assertEqual(data_file._crystal_c, 66.129)
-        self.assertEqual(data_file._crystal_alpha, 90.0)
-        self.assertEqual(data_file._crystal_beta, 94.28)
-        self.assertEqual(data_file._crystal_gamma, 90.0)
-        self.assertEqual(data_file._crystal_s_group, "P 1 21 1")
-        self.assertEqual(data_file._crystal_z, 4)
+        self.assertEqual(
+         data_file._crystal,
+         {
+          "a": 57.57,
+          "b": 55.482,
+          "c": 66.129,
+          "alpha": 90.0,
+          "beta": 94.28,
+          "gamma": 90.0,
+          "s_group": "P 1 21 1",
+          "z": 4,
+         }
+        )
 
 
 

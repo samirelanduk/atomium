@@ -807,15 +807,6 @@ class PdbDataFile:
 '''
 
 
-def process_nummdl_records(data_file, pdb_file):
-    if pdb_file:
-        nummdl = pdb_file.get_record_by_name("NUMMDL")
-        if nummdl:
-            data_file._model_count = nummdl[10:14]
-            return
-    data_file._model_count = 1
-
-
 def process_mdltyp_records(data_file, pdb_file):
     if pdb_file:
         mdltyps = pdb_file.get_records_by_name("MDLTYP")

@@ -275,7 +275,7 @@ class KeywdsRecordTests(PdbFile2PdbDataFileTest):
 
 
 class ExpdtaRecordTests(PdbFile2PdbDataFileTest):
-    
+
     def test_missing_expdta_processing(self):
         self.assertEqual(self.empty._experimental_techniques, [])
 
@@ -288,6 +288,20 @@ class ExpdtaRecordTests(PdbFile2PdbDataFileTest):
          data_file._experimental_techniques,
          ["NEUTRON DIFFRACTION", "X-RAY DIFFRACTION"]
         )
+
+
+
+class NummdlRecordTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_nummdl_processing(self):
+        self.assertEqual(self.empty._model_count, 1)
+
+
+    def test_nummdl_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "NUMMDL    2"
+        ))
+        self.assertEqual(data_file._model_count, 2)
 
 
 

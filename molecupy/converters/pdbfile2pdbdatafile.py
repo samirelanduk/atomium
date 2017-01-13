@@ -16,6 +16,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_source_records(data_file, pdb_file)
     process_keywd_records(data_file, pdb_file)
     process_expdta_records(data_file, pdb_file)
+    process_nummdl_records(data_file, pdb_file)
     return data_file
 
 
@@ -90,6 +91,14 @@ def process_expdta_records(data_file, pdb_file):
         data_file._experimental_techniques = expdta_text.split(";")
     else:
         data_file._experimental_techniques = []
+
+
+def process_nummdl_records(data_file, pdb_file):
+    nummdl = pdb_file.get_record_by_name("NUMMDL")
+    if nummdl:
+        data_file._model_count = nummdl[10:14]
+    else:
+        data_file._model_count = 1
 
 
 def date_from_string(s):

@@ -13,7 +13,7 @@ class PdbDataFile:
     :param PdbFile pdb_file: The PDB file to extract information from."""
 
     def __init__(self, pdb_file=None):
-        self._original_pdb_file = pdb_file
+        '''self._original_pdb_file = pdb_file
         _process_header_records(self)
         _process_obslte_records(self)
         _process_title_records(self)
@@ -54,7 +54,7 @@ class PdbDataFile:
         _process_ter_records(self)
         _process_hetatm_records(self)
         _process_conect_records(self)
-        _process_master_records(self)
+        _process_master_records(self)'''
 
 
     def __repr__(self):
@@ -804,20 +804,7 @@ class PdbDataFile:
     generate_pdb_file = pdb_file_from_pdb_data_file
 
 
-def _process_header_records(data_file):
-    if data_file.original_pdb_file():
-        header = data_file.original_pdb_file().get_record_by_name("HEADER")
-        if header:
-            data_file._classification = header[10:50]
-            data_file._deposition_date = date_from_string(header[50:59])
-            data_file._pdb_code = header[62:66]
-            return
-    data_file._classification = None
-    data_file._deposition_date = None
-    data_file._pdb_code = None
-
-
-def _process_obslte_records(data_file):
+'''def _process_obslte_records(data_file):
     if data_file.original_pdb_file():
         obslte = data_file.original_pdb_file().get_record_by_name("OBSLTE")
         if obslte:
@@ -1631,21 +1618,7 @@ def _process_master_records(data_file):
           "seqres_num": master[65:70]
         } if master else None
         return
-    data_file._master = None
-
-
-def date_from_string(s):
-    """Gets a Date object from a PDB formatted date string.
-
-    :param str s: A date in the format DD-MM-YY.
-    :rtype: ``datetime.Date``"""
-
-    if s:
-        return datetime.datetime.strptime(
-         s, "%d-%b-%y"
-        ).date()
-    else:
-        return None
+    data_file._master = None'''
 
 
 def merge_records(records, start, join=" ", dont_condense=""):

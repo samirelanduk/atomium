@@ -47,6 +47,30 @@ class HeaderRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class ObslteRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_header_processing(self):
+        self.assertFalse(self.empty._is_obsolete)
+        self.assertEqual(self.empty._obsolete_date, None)
+        self.assertEqual(self.empty._replacement_code, None)
+
+
+    def test_obslte_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "OBSLTE     30-SEP-93 1LOL      1SAM"
+        ))
+        self.assertTrue(data_file._is_obsolete)
+        self.assertEqual(
+         data_file._obsolete_date,
+         datetime.datetime(1993, 9, 30).date()
+        )
+        self.assertEqual(
+         data_file._replacement_code,
+         "1SAM"
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

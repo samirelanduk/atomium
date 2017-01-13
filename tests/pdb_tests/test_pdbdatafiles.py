@@ -2672,25 +2672,6 @@ class MasterRecordTests(PdbDataFileTest):
 
 
 
-class DateFromStringTests(TestCase):
-
-    def test_can_get_date_from_string(self):
-        self.assertEqual(
-         date_from_string("01-JAN-00"),
-         datetime.datetime(2000, 1, 1).date()
-        )
-        self.assertEqual(
-         date_from_string("28-SEP-99"),
-         datetime.datetime(1999, 9, 28).date()
-        )
-
-
-    def test_date_conversion_will_return_none_if_given_nothing(self):
-        self.assertEqual(date_from_string(""), None)
-        self.assertEqual(date_from_string(None), None)
-
-
-
 class RecordMergingTests(TestCase):
 
     def setUp(self):

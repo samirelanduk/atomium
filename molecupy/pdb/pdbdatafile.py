@@ -804,17 +804,7 @@ class PdbDataFile:
     generate_pdb_file = pdb_file_from_pdb_data_file
 
 
-'''def _process_obslte_records(data_file):
-    if data_file.original_pdb_file():
-        obslte = data_file.original_pdb_file().get_record_by_name("OBSLTE")
-        if obslte:
-            data_file._is_obsolete = True
-            data_file._obsolete_date = date_from_string(obslte[11:20])
-            data_file._replacement_code = obslte[31:35]
-            return
-    data_file._is_obsolete = False
-    data_file._obsolete_date = None
-    data_file._replacement_code = None
+'''
 
 
 def _process_title_records(data_file):

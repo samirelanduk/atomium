@@ -8,6 +8,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     data_file = PdbDataFile()
 
     process_header_records(data_file, pdb_file)
+    process_obslte_records(data_file, pdb_file)
     return data_file
 
 
@@ -21,6 +22,18 @@ def process_header_records(data_file, pdb_file):
         data_file._classification = None
         data_file._deposition_date = None
         data_file._pdb_code = None
+
+
+def process_obslte_records(data_file, pdb_file):
+    obslte = pdb_file.get_record_by_name("OBSLTE")
+    if obslte:
+        data_file._is_obsolete = True
+        data_file._obsolete_date = date_from_string(obslte[11:20])
+        data_file._replacement_code = obslte[31:35]
+    else:
+        data_file._is_obsolete = False
+        data_file._obsolete_date = None
+        data_file._replacement_code = None
 
 
 def date_from_string(s):

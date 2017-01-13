@@ -818,49 +818,6 @@ def process_sprsde_records(data_file, pdb_file):
     data_file._supercede_date = None
 
 
-def process_jrnl_records(data_file, pdb_file):
-    if pdb_file:
-        jrnls = pdb_file.get_records_by_name("JRNL")
-        if jrnls:
-            journal = {}
-            auths = [r for r in jrnls if r[12:16] == "AUTH"]
-            journal["authors"] = merge_records(auths, 19).split(",") if auths else []
-            titls = [r for r in jrnls if r[12:16] == "TITL"]
-            journal["title"] = merge_records(titls, 19) if titls else None
-            edits = [r for r in jrnls if r[12:16] == "EDIT"]
-            journal["editors"] = merge_records(edits, 19).split(",") if edits else []
-            refs = [r for r in jrnls if r[12:16] == "REF"]
-            journal["reference"] = {} if refs else None
-            if refs and "TO BE PUBLISHED" in refs[0].text():
-                journal["reference"] = {
-                 "published": False, "publication": None,
-                 "volume": None, "page": None, "year": None
-                }
-            elif refs:
-                journal["reference"] = {
-                 "published": True,
-                 "publication": refs[0][19:47],
-                 "volume": refs[0][51:55],
-                 "page": refs[0][56:61],
-                 "year": refs[0][62:66]
-                }
-            publs = [r for r in jrnls if r[12:16] == "PUBL"]
-            journal["publisher"] = merge_records(publs, 19, dont_condense=",:;") if publs else None
-            refns = [r for r in jrnls if r[12:16] == "REFN"]
-            journal["reference_number"] = {
-             "type": refns[0][35:39],
-             "value": refns[0][40:65]
-            } if refns else None
-            pmids = [r for r in jrnls if r[12:16] == "PMID"]
-            journal["pubmed"] = pmids[0].get_as_string(19, 79) if pmids else None
-            dois = [r for r in jrnls if r[12:16] == "DOI"]
-            journal["doi"] = dois[0][19:79] if dois else None
-            data_file._journal = journal
-            return
-    else:
-        data_file._journal = None
-
-
 def process_remark_records(data_file, pdb_file):
     if pdb_file:
         remark_records = pdb_file.get_records_by_name("REMARK")

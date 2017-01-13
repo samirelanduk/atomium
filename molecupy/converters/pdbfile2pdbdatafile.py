@@ -23,6 +23,9 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_sprsde_records(data_file, pdb_file)
     process_jrnl_records(data_file, pdb_file)
     process_remark_records(data_file, pdb_file)
+
+    process_dbref_records(data_file, pdb_file)
+    
     return data_file
 
 
@@ -213,6 +216,46 @@ def process_remark_records(data_file, pdb_file):
         data_file._remarks = remarks
     else:
         data_file._remarks = []
+
+
+def process_dbref_records(data_file, pdb_file):
+    dbrefs = pdb_file.get_records_by_name("DBREF")
+    dbref1s = pdb_file.get_records_by_name("DBREF1")
+    dbref2s = pdb_file.get_records_by_name("DBREF2")
+    if dbrefs or dbref1s or dbref2s:
+        dbreferences = [{
+         "chain_id": r[12],
+         "sequence_begin": r[14:18],
+         "insert_begin": r[18] if r[18] else "",
+         "sequence_end": r[20:24],
+         "insert_end": r[24] if r[24] else "",
+         "database": r[26:32],
+         "accession": r.get_as_string(33, 40),
+         "db_id": r[42:54],
+         "db_sequence_begin": r[55:60],
+         "db_insert_begin": r[60],
+         "db_sequence_end": r[62:67],
+         "db_insert_end": r[67]
+        } for r in dbrefs]
+        ref_pairs = zip(dbref1s, dbref2s)
+        dbreferences += [{
+         "chain_id": pair[0][12],
+         "sequence_begin": pair[0][14:18],
+         "insert_begin": pair[0][18] if pair[0][18] else "",
+         "sequence_end": pair[0][20:24],
+         "insert_end": pair[0][24] if pair[0][24] else "",
+         "database": pair[0][26:32],
+         "accession": pair[1].get_as_string(18, 40),
+         "db_id": pair[0][47:67],
+         "db_sequence_begin": pair[1][45:55],
+         "db_insert_begin": None,
+         "db_sequence_end": pair[1][57:67],
+         "db_insert_end": None
+        } for pair in ref_pairs]
+        dbreferences = sorted(dbreferences, key=lambda k: k["chain_id"])
+        data_file._dbreferences = dbreferences
+    else:
+        data_file._dbreferences = []
 
 
 def date_from_string(s):

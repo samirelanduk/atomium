@@ -17,6 +17,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_keywd_records(data_file, pdb_file)
     process_expdta_records(data_file, pdb_file)
     process_nummdl_records(data_file, pdb_file)
+    process_mdltyp_records(data_file, pdb_file)
     return data_file
 
 
@@ -99,6 +100,17 @@ def process_nummdl_records(data_file, pdb_file):
         data_file._model_count = nummdl[10:14]
     else:
         data_file._model_count = 1
+
+
+def process_mdltyp_records(data_file, pdb_file):
+    mdltyps = pdb_file.get_records_by_name("MDLTYP")
+    if mdltyps:
+        mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
+        data_file._model_annotations = [
+         ann.strip() for ann in mdltyp_text.split(";") if ann.strip()
+        ]
+    else:
+        data_file._model_annotations = []
 
 
 def date_from_string(s):

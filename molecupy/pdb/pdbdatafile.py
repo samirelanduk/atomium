@@ -807,18 +807,6 @@ class PdbDataFile:
 '''
 
 
-def process_mdltyp_records(data_file, pdb_file):
-    if pdb_file:
-        mdltyps = pdb_file.get_records_by_name("MDLTYP")
-        if mdltyps:
-            mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
-            data_file._model_annotations = [
-             ann.strip() for ann in mdltyp_text.split(";") if ann.strip()
-            ]
-            return
-    data_file._model_annotations = []
-
-
 def process_author_records(data_file, pdb_file):
     if pdb_file:
         authors = pdb_file.get_records_by_name("AUTHOR")

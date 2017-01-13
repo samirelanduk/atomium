@@ -305,6 +305,27 @@ class NummdlRecordTests(PdbFile2PdbDataFileTest):
 
 
 
+class MdltypRecordTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_mdltyp_processing(self):
+        self.assertEqual(self.empty._model_annotations, [])
+
+
+    def test_mdltyp_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
+         "MDLTYP   2 CHAIN X, Y, Z"
+        ))
+        self.assertEqual(
+         data_file._model_annotations,
+         [
+          "CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K",
+          "P ATOMS ONLY, CHAIN X, Y, Z"
+         ]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

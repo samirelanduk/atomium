@@ -805,25 +805,6 @@ class PdbDataFile:
 
 
 '''
-def process_seqadv_records(data_file, pdb_file):
-    if pdb_file:
-        seqadvs = pdb_file.get_records_by_name("SEQADV")
-        if seqadvs:
-            data_file._sequence_differences = [{
-             "residue_name": r[12:15],
-             "chain_id": r[16],
-             "residue_id": r[18:22],
-             "insert_code": r[22] if r[22] else "",
-             "database": r[24:28],
-             "accession": r[29:38],
-             "db_residue_name": r[39:42],
-             "db_residue_id": r[43:48],
-             "conflict": r[49:70]
-            } for r in seqadvs]
-            return
-    data_file._sequence_differences = []
-
-
 def process_seqres_records(data_file, pdb_file):
     if pdb_file:
         seqres = pdb_file.get_records_by_name("SEQRES")

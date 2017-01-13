@@ -744,7 +744,45 @@ class DbrefRecordProcessingTests(PdbFile2PdbDataFileTest):
         )
 
 
-        
+
+class SeqadvRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_seqadv_processing(self):
+        self.assertEqual(self.empty._sequence_differences, [])
+
+
+    def test_seqadv_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "SEQADV 1LOL GLU A  229  UNP  O26232              INSERTION\n"
+         "SEQADV 1LOL GLU B 1229  UNP  O26232              INSERTION"
+        ))
+        self.assertEqual(
+         data_file._sequence_differences,
+         [{
+          "residue_name": "GLU",
+          "chain_id": "A",
+          "residue_id": 229,
+          "insert_code": "",
+          "database": "UNP",
+          "accession": "O26232",
+          "db_residue_name": None,
+          "db_residue_id": None,
+          "conflict": "INSERTION"
+         }, {
+          "residue_name": "GLU",
+          "chain_id": "B",
+          "residue_id": 1229,
+          "insert_code": "",
+          "database": "UNP",
+          "accession": "O26232",
+          "db_residue_name": None,
+          "db_residue_id": None,
+          "conflict": "INSERTION"
+         }]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

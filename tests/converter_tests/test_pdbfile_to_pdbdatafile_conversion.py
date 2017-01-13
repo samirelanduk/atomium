@@ -257,6 +257,23 @@ class SourceRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class KeywdsRecordTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_keywds_processing(self):
+        self.assertEqual(self.empty._keywords, [])
+
+
+    def test_keywds_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "KEYWDS    TIM BARREL, LYASE"
+        ))
+        self.assertEqual(
+         data_file._keywords,
+         ["TIM BARREL", "LYASE"]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

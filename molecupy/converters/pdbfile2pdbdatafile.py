@@ -14,6 +14,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_caveat_records(data_file, pdb_file)
     process_compnd_records(data_file, pdb_file)
     process_source_records(data_file, pdb_file)
+    process_keywd_records(data_file, pdb_file)
     return data_file
 
 
@@ -70,6 +71,15 @@ def process_compnd_records(data_file, pdb_file):
 def process_source_records(data_file, pdb_file):
     records = pdb_file.get_records_by_name("SOURCE")
     data_file._sources = records_to_token_value_dicts(records)
+
+
+def process_keywd_records(data_file, pdb_file):
+    keywords = pdb_file.get_records_by_name("KEYWDS")
+    if keywords:
+        keyword_text = merge_records(keywords, 10)
+        data_file._keywords = keyword_text.split(",")
+    else:
+        data_file._keywords = []
 
 
 def date_from_string(s):

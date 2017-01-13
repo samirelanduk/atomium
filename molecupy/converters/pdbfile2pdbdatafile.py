@@ -43,6 +43,8 @@ def pdb_data_file_from_pdb_file(pdb_file):
 
     process_site_records(data_file, pdb_file)
 
+    process_cryst1_records(data_file, pdb_file)
+
     return data_file
 
 
@@ -537,6 +539,28 @@ def process_site_records(data_file, pdb_file):
         data_file._sites = sites
     else:
         data_file._sites = []
+
+
+def process_cryst1_records(data_file, pdb_file):
+    crystal = pdb_file.get_record_by_name("CRYST1")
+    if crystal:
+        data_file._crystal_a = crystal[6:15]
+        data_file._crystal_b = crystal[15:24]
+        data_file._crystal_c = crystal[24:33]
+        data_file._crystal_alpha = crystal[33:40]
+        data_file._crystal_beta = crystal[40:47]
+        data_file._crystal_gamma = crystal[47:54]
+        data_file._crystal_s_group = crystal[55:66]
+        data_file._crystal_z = crystal[66:70]
+    else:
+        data_file._crystal_a = None
+        data_file._crystal_b = None
+        data_file._crystal_c = None
+        data_file._crystal_alpha = None
+        data_file._crystal_beta = None
+        data_file._crystal_gamma = None
+        data_file._crystal_s_group = None
+        data_file._crystal_z = None
 
 
 def date_from_string(s):

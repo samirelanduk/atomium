@@ -807,34 +807,34 @@ class PdbDataFile:
 '''
 
 
-def _process_caveat_records(data_file):
-    if data_file.original_pdb_file():
-        caveats = data_file.original_pdb_file().get_records_by_name("CAVEAT")
+def process_caveat_records(data_file, pdb_file):
+    if pdb_file:
+        caveats = pdb_file.get_records_by_name("CAVEAT")
         if caveats:
             data_file._caveat = merge_records(caveats, 19)
             return
     data_file._caveat = None
 
 
-def _process_compnd_records(data_file):
-    if data_file.original_pdb_file():
-        records = data_file.original_pdb_file().get_records_by_name("COMPND")
+def process_compnd_records(data_file, pdb_file):
+    if pdb_file:
+        records = pdb_file.get_records_by_name("COMPND")
         data_file._compounds = records_to_token_value_dicts(records)
         return
     data_file._compounds = []
 
 
-def _process_source_records(data_file):
-    if data_file.original_pdb_file():
-        records = data_file.original_pdb_file().get_records_by_name("SOURCE")
+def process_source_records(data_file, pdb_file):
+    if pdb_file:
+        records = pdb_file.get_records_by_name("SOURCE")
         data_file._sources = records_to_token_value_dicts(records)
         return
     data_file._sources = []
 
 
-def _process_keywd_records(data_file):
-    if data_file.original_pdb_file():
-        keywords = data_file.original_pdb_file().get_records_by_name("KEYWDS")
+def process_keywd_records(data_file, pdb_file):
+    if pdb_file:
+        keywords = pdb_file.get_records_by_name("KEYWDS")
         if keywords:
             keyword_text = merge_records(keywords, 10)
             data_file._keywords = keyword_text.split(",")
@@ -842,9 +842,9 @@ def _process_keywd_records(data_file):
     data_file._keywords = []
 
 
-def _process_expdta_records(data_file):
-    if data_file.original_pdb_file():
-        expdta = data_file.original_pdb_file().get_records_by_name("EXPDTA")
+def process_expdta_records(data_file, pdb_file):
+    if pdb_file:
+        expdta = pdb_file.get_records_by_name("EXPDTA")
         if expdta:
             expdta_text = merge_records(expdta, 10)
             data_file._experimental_techniques = expdta_text.split(";")
@@ -852,18 +852,18 @@ def _process_expdta_records(data_file):
     data_file._experimental_techniques = []
 
 
-def _process_nummdl_records(data_file):
-    if data_file.original_pdb_file():
-        nummdl = data_file.original_pdb_file().get_record_by_name("NUMMDL")
+def process_nummdl_records(data_file, pdb_file):
+    if pdb_file:
+        nummdl = pdb_file.get_record_by_name("NUMMDL")
         if nummdl:
             data_file._model_count = nummdl[10:14]
             return
     data_file._model_count = 1
 
 
-def _process_mdltyp_records(data_file):
-    if data_file.original_pdb_file():
-        mdltyps = data_file.original_pdb_file().get_records_by_name("MDLTYP")
+def process_mdltyp_records(data_file, pdb_file):
+    if pdb_file:
+        mdltyps = pdb_file.get_records_by_name("MDLTYP")
         if mdltyps:
             mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
             data_file._model_annotations = [
@@ -873,18 +873,18 @@ def _process_mdltyp_records(data_file):
     data_file._model_annotations = []
 
 
-def _process_author_records(data_file):
-    if data_file.original_pdb_file():
-        authors = data_file.original_pdb_file().get_records_by_name("AUTHOR")
+def process_author_records(data_file, pdb_file):
+    if pdb_file:
+        authors = pdb_file.get_records_by_name("AUTHOR")
         if authors:
             data_file._authors = merge_records(authors, 10).split(",")
             return
     data_file._authors = []
 
 
-def _process_revdat_records(data_file):
-    if data_file.original_pdb_file():
-        revdats = data_file.original_pdb_file().get_records_by_name("REVDAT")
+def process_revdat_records(data_file, pdb_file):
+    if pdb_file:
+        revdats = pdb_file.get_records_by_name("REVDAT")
         if revdats:
             numbers = sorted(list(set([r[7:10] for r in revdats])))
             revisions = []
@@ -902,9 +902,9 @@ def _process_revdat_records(data_file):
     data_file._revisions = []
 
 
-def _process_sprsde_records(data_file):
-    if data_file.original_pdb_file():
-        sprsde = data_file.original_pdb_file().get_record_by_name("SPRSDE")
+def process_sprsde_records(data_file, pdb_file):
+    if pdb_file:
+        sprsde = pdb_file.get_record_by_name("SPRSDE")
         if sprsde:
             data_file._supercedes = sprsde[31:75].split()
             data_file._supercede_date = date_from_string(sprsde[11:20])
@@ -913,9 +913,9 @@ def _process_sprsde_records(data_file):
     data_file._supercede_date = None
 
 
-def _process_jrnl_records(data_file):
-    if data_file.original_pdb_file():
-        jrnls = data_file.original_pdb_file().get_records_by_name("JRNL")
+def process_jrnl_records(data_file, pdb_file):
+    if pdb_file:
+        jrnls = pdb_file.get_records_by_name("JRNL")
         if jrnls:
             journal = {}
             auths = [r for r in jrnls if r[12:16] == "AUTH"]
@@ -956,9 +956,9 @@ def _process_jrnl_records(data_file):
         data_file._journal = None
 
 
-def _process_remark_records(data_file):
-    if data_file.original_pdb_file():
-        remark_records = data_file.original_pdb_file().get_records_by_name("REMARK")
+def process_remark_records(data_file, pdb_file):
+    if pdb_file:
+        remark_records = pdb_file.get_records_by_name("REMARK")
         if remark_records:
             remark_numbers = sorted(list(set([r[7:10] for r in remark_records])))
             remarks = []
@@ -974,11 +974,11 @@ def _process_remark_records(data_file):
     data_file._remarks = []
 
 
-def _process_dbref_records(data_file):
-    if data_file.original_pdb_file():
-        dbrefs = data_file.original_pdb_file().get_records_by_name("DBREF")
-        dbref1s = data_file.original_pdb_file().get_records_by_name("DBREF1")
-        dbref2s = data_file.original_pdb_file().get_records_by_name("DBREF2")
+def process_dbref_records(data_file, pdb_file):
+    if pdb_file:
+        dbrefs = pdb_file.get_records_by_name("DBREF")
+        dbref1s = pdb_file.get_records_by_name("DBREF1")
+        dbref2s = pdb_file.get_records_by_name("DBREF2")
         if dbrefs or dbref1s or dbref2s:
             dbreferences = [{
              "chain_id": r[12],
@@ -1015,9 +1015,9 @@ def _process_dbref_records(data_file):
     data_file._dbreferences = []
 
 
-def _process_seqadv_records(data_file):
-    if data_file.original_pdb_file():
-        seqadvs = data_file.original_pdb_file().get_records_by_name("SEQADV")
+def process_seqadv_records(data_file, pdb_file):
+    if pdb_file:
+        seqadvs = pdb_file.get_records_by_name("SEQADV")
         if seqadvs:
             data_file._sequence_differences = [{
              "residue_name": r[12:15],
@@ -1034,9 +1034,9 @@ def _process_seqadv_records(data_file):
     data_file._sequence_differences = []
 
 
-def _process_seqres_records(data_file):
-    if data_file.original_pdb_file():
-        seqres = data_file.original_pdb_file().get_records_by_name("SEQRES")
+def process_seqres_records(data_file, pdb_file):
+    if pdb_file:
+        seqres = pdb_file.get_records_by_name("SEQRES")
         if seqres:
             chains = sorted(list(set([r[11] for r in seqres])))
             residue_sequences = []
@@ -1052,9 +1052,9 @@ def _process_seqres_records(data_file):
     data_file._residue_sequences = []
 
 
-def _process_modres_records(data_file):
-    if data_file.original_pdb_file():
-        modres = data_file.original_pdb_file().get_records_by_name("MODRES")
+def process_modres_records(data_file, pdb_file):
+    if pdb_file:
+        modres = pdb_file.get_records_by_name("MODRES")
         if modres:
             data_file._modified_residues = [{
              "residue_name": r[12:15],
@@ -1068,9 +1068,9 @@ def _process_modres_records(data_file):
     data_file._modified_residues = []
 
 
-def _process_het_records(data_file):
-    if data_file.original_pdb_file():
-        hets = data_file.original_pdb_file().get_records_by_name("HET")
+def process_het_records(data_file, pdb_file):
+    if pdb_file:
+        hets = pdb_file.get_records_by_name("HET")
         if hets:
             data_file._hets = [{
              "het_name": r[7:10],
@@ -1084,9 +1084,9 @@ def _process_het_records(data_file):
     data_file._hets = []
 
 
-def _process_hetnam_records(data_file):
-    if data_file.original_pdb_file():
-        hetnams = data_file.original_pdb_file().get_records_by_name("HETNAM")
+def process_hetnam_records(data_file, pdb_file):
+    if pdb_file:
+        hetnams = pdb_file.get_records_by_name("HETNAM")
         if hetnams:
             ids = list(set([r[11:14] for r in hetnams]))
             data_file._het_names = {
@@ -1098,9 +1098,9 @@ def _process_hetnam_records(data_file):
     data_file._het_names = {}
 
 
-def _process_hetsyn_records(data_file):
-    if data_file.original_pdb_file():
-        hetsyns = data_file.original_pdb_file().get_records_by_name("HETSYN")
+def process_hetsyn_records(data_file, pdb_file):
+    if pdb_file:
+        hetsyns = pdb_file.get_records_by_name("HETSYN")
         if hetsyns:
             ids = list(set([r[11:14] for r in hetsyns]))
             data_file._het_synonyms = {
@@ -1112,9 +1112,9 @@ def _process_hetsyn_records(data_file):
     data_file._het_synonyms = {}
 
 
-def _process_formul_records(data_file):
-    if data_file.original_pdb_file():
-        formuls = data_file.original_pdb_file().get_records_by_name("FORMUL")
+def process_formul_records(data_file, pdb_file):
+    if pdb_file:
+        formuls = pdb_file.get_records_by_name("FORMUL")
         if formuls:
             ids = list(set([r[12:15] for r in formuls]))
             data_file._formulae = {
@@ -1130,9 +1130,9 @@ def _process_formul_records(data_file):
     data_file._formulae = {}
 
 
-def _process_helix_records(data_file):
-    if data_file.original_pdb_file():
-        helix = data_file.original_pdb_file().get_records_by_name("HELIX")
+def process_helix_records(data_file, pdb_file):
+    if pdb_file:
+        helix = pdb_file.get_records_by_name("HELIX")
         if helix:
             data_file._helices = [{
              "helix_id": r[7:10],
@@ -1153,9 +1153,9 @@ def _process_helix_records(data_file):
     data_file._helices = []
 
 
-def _process_sheet_records(data_file):
-    if data_file.original_pdb_file():
-        sheet_records = data_file.original_pdb_file().get_records_by_name("SHEET")
+def process_sheet_records(data_file, pdb_file):
+    if pdb_file:
+        sheet_records = pdb_file.get_records_by_name("SHEET")
         if sheet_records:
             sheet_names = sorted(list(set([r[11:14] for r in sheet_records])))
             sheets = []
@@ -1192,9 +1192,9 @@ def _process_sheet_records(data_file):
     data_file._sheets = []
 
 
-def _process_ssbond_records(data_file):
-    if data_file.original_pdb_file():
-        ssbonds = data_file.original_pdb_file().get_records_by_name("SSBOND")
+def process_ssbond_records(data_file, pdb_file):
+    if pdb_file:
+        ssbonds = pdb_file.get_records_by_name("SSBOND")
         if ssbonds:
             data_file._ss_bonds = [{
              "serial_num": r[7:10],
@@ -1214,9 +1214,9 @@ def _process_ssbond_records(data_file):
     data_file._ss_bonds= []
 
 
-def _process_link_records(data_file):
-    if data_file.original_pdb_file():
-        links = data_file.original_pdb_file().get_records_by_name("LINK")
+def process_link_records(data_file, pdb_file):
+    if pdb_file:
+        links = pdb_file.get_records_by_name("LINK")
         if links:
             data_file._links = [{
              "atom_1": r[12:16],
@@ -1239,9 +1239,9 @@ def _process_link_records(data_file):
     data_file._links = []
 
 
-def _process_cispep_records(data_file):
-    if data_file.original_pdb_file():
-        cispeps = data_file.original_pdb_file().get_records_by_name("CISPEP")
+def process_cispep_records(data_file, pdb_file):
+    if pdb_file:
+        cispeps = pdb_file.get_records_by_name("CISPEP")
         if cispeps:
             data_file._cis_peptides = [{
              "serial_num": r[7:10],
@@ -1260,9 +1260,9 @@ def _process_cispep_records(data_file):
     data_file._cis_peptides = []
 
 
-def _process_site_records(data_file):
-    if data_file.original_pdb_file():
-        site_records = data_file.original_pdb_file().get_records_by_name("SITE")
+def process_site_records(data_file, pdb_file):
+    if pdb_file:
+        site_records = pdb_file.get_records_by_name("SITE")
         if site_records:
             site_names = sorted(list(set(
              [r.get_as_string(11, 14) for r in site_records]
@@ -1292,9 +1292,9 @@ def _process_site_records(data_file):
     data_file._sites = []
 
 
-def _process_cryst1_records(data_file):
-    if data_file.original_pdb_file():
-        crystal = data_file.original_pdb_file().get_record_by_name("CRYST1")
+def process_cryst1_records(data_file, pdb_file):
+    if pdb_file:
+        crystal = pdb_file.get_record_by_name("CRYST1")
         if crystal:
             data_file._crystal_a = crystal[6:15]
             data_file._crystal_b = crystal[15:24]
@@ -1315,11 +1315,11 @@ def _process_cryst1_records(data_file):
     data_file._crystal_z = None
 
 
-def _process_origx_records(data_file):
-    if data_file.original_pdb_file():
-        origx1 = data_file.original_pdb_file().get_record_by_name("ORIGX1")
-        origx2 = data_file.original_pdb_file().get_record_by_name("ORIGX2")
-        origx3 = data_file.original_pdb_file().get_record_by_name("ORIGX3")
+def process_origx_records(data_file, pdb_file):
+    if pdb_file:
+        origx1 = pdb_file.get_record_by_name("ORIGX1")
+        origx2 = pdb_file.get_record_by_name("ORIGX2")
+        origx3 = pdb_file.get_record_by_name("ORIGX3")
         if origx1 and origx2 and origx3:
             data_file._origx_o11 = origx1[10:20]
             data_file._origx_o12 = origx1[20:30]
@@ -1348,11 +1348,11 @@ def _process_origx_records(data_file):
     data_file._origx_t3 = None
 
 
-def _process_scale_records(data_file):
-    if data_file.original_pdb_file():
-        scale1 = data_file.original_pdb_file().get_record_by_name("SCALE1")
-        scale2 = data_file.original_pdb_file().get_record_by_name("SCALE2")
-        scale3 = data_file.original_pdb_file().get_record_by_name("SCALE3")
+def process_scale_records(data_file, pdb_file):
+    if pdb_file:
+        scale1 = pdb_file.get_record_by_name("SCALE1")
+        scale2 = pdb_file.get_record_by_name("SCALE2")
+        scale3 = pdb_file.get_record_by_name("SCALE3")
         if scale1 and scale2 and scale3:
             data_file._scale_s11 = scale1[10:20]
             data_file._scale_s12 = scale1[20:30]
@@ -1381,11 +1381,11 @@ def _process_scale_records(data_file):
     data_file._scale_u3 = None
 
 
-def _process_matrix_records(data_file):
-    if data_file.original_pdb_file():
-        matrx1 = data_file.original_pdb_file().get_record_by_name("MTRIX1")
-        matrx2 = data_file.original_pdb_file().get_record_by_name("MTRIX2")
-        matrx3 = data_file.original_pdb_file().get_record_by_name("MTRIX3")
+def process_matrix_records(data_file, pdb_file):
+    if pdb_file:
+        matrx1 = pdb_file.get_record_by_name("MTRIX1")
+        matrx2 = pdb_file.get_record_by_name("MTRIX2")
+        matrx3 = pdb_file.get_record_by_name("MTRIX3")
         if matrx1 and matrx2 and matrx3:
             data_file._matrix_serial_1 = matrx1[7:10]
             data_file._matrix_m11 = matrx1[10:20]
@@ -1426,11 +1426,11 @@ def _process_matrix_records(data_file):
     data_file._matrix_i_given_3 = None
 
 
-def _process_model_records(data_file):
-    if data_file.original_pdb_file():
-        model_records = data_file.original_pdb_file().get_records_by_name("MODEL")
+def process_model_records(data_file, pdb_file):
+    if pdb_file:
+        model_records = pdb_file.get_records_by_name("MODEL")
         if model_records:
-            endmdls = data_file.original_pdb_file().get_records_by_name("ENDMDL")
+            endmdls = pdb_file.get_records_by_name("ENDMDL")
             pairs = list(zip(model_records, endmdls))
             data_file._models = [{
              "model_id": pair[0][10:14],
@@ -1445,9 +1445,9 @@ def _process_model_records(data_file):
     }]
 
 
-def _process_atom_records(data_file):
-    if data_file.original_pdb_file():
-        atoms = data_file.original_pdb_file().get_records_by_name("ATOM")
+def process_atom_records(data_file, pdb_file):
+    if pdb_file:
+        atoms = pdb_file.get_records_by_name("ATOM")
         if atoms:
             data_file._atoms = [{
              "atom_id": r[6:11],
@@ -1474,9 +1474,9 @@ def _process_atom_records(data_file):
     data_file._atoms = []
 
 
-def _process_anisou_records(data_file):
-    if data_file.original_pdb_file():
-        anisou = data_file.original_pdb_file().get_records_by_name("ANISOU")
+def process_anisou_records(data_file, pdb_file):
+    if pdb_file:
+        anisou = pdb_file.get_records_by_name("ANISOU")
         if anisou:
             data_file._anisou = [{
              "atom_id": r[6:11],
@@ -1504,9 +1504,9 @@ def _process_anisou_records(data_file):
     data_file._anisou = []
 
 
-def _process_ter_records(data_file):
-    if data_file.original_pdb_file():
-        ters = data_file.original_pdb_file().get_records_by_name("TER")
+def process_ter_records(data_file, pdb_file):
+    if pdb_file:
+        ters = pdb_file.get_records_by_name("TER")
         if ters:
             data_file._termini = [{
              "atom_id": r[6:11],
@@ -1524,9 +1524,9 @@ def _process_ter_records(data_file):
     data_file._termini = []
 
 
-def _process_hetatm_records(data_file):
-    if data_file.original_pdb_file():
-        hetatms = data_file.original_pdb_file().get_records_by_name("HETATM")
+def process_hetatm_records(data_file, pdb_file):
+    if pdb_file:
+        hetatms = pdb_file.get_records_by_name("HETATM")
         if hetatms:
             data_file._heteroatoms = [{
              "atom_id": r[6:11],
@@ -1553,9 +1553,9 @@ def _process_hetatm_records(data_file):
     data_file._heteroatoms = []
 
 
-def _process_conect_records(data_file):
-    if data_file.original_pdb_file():
-        conects = data_file.original_pdb_file().get_records_by_name("CONECT")
+def process_conect_records(data_file, pdb_file):
+    if pdb_file:
+        conects = pdb_file.get_records_by_name("CONECT")
         if conects:
             atom_ids = sorted(list(set([r[6:11] for r in conects])))
             data_file._connections = []
@@ -1575,9 +1575,9 @@ def _process_conect_records(data_file):
     data_file._connections = []
 
 
-def _process_master_records(data_file):
-    if data_file.original_pdb_file():
-        master = data_file.original_pdb_file().get_record_by_name("MASTER")
+def process_master_records(data_file, pdb_file):
+    if pdb_file:
+        master = pdb_file.get_record_by_name("MASTER")
         data_file._master = {
           "remark_num": master[10:15],
           "het_num": master[20:25],

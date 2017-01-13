@@ -113,6 +113,24 @@ class SplitRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class CaveatRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_caveat_processing(self):
+        self.assertEqual(self.empty._caveat, None)
+
+
+    def test_caveat_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "CAVEAT     1SAM    THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS\n"
+         "CAVEAT   2 1SAM    UNCORRECTABLE AT THIS TIME"
+        ))
+        self.assertEqual(
+         data_file._caveat,
+         "THE CRYSTAL TRANSFORMATION IS IN ERROR BUT IS UNCORRECTABLE AT THIS TIME"
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

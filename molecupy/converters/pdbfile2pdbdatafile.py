@@ -11,6 +11,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_obslte_records(data_file, pdb_file)
     process_title_records(data_file, pdb_file)
     process_split_records(data_file, pdb_file)
+    process_caveat_records(data_file, pdb_file)
     return data_file
 
 
@@ -49,6 +50,14 @@ def process_title_records(data_file, pdb_file):
 def process_split_records(data_file, pdb_file):
     splits = pdb_file.get_records_by_name("SPLIT")
     data_file._split_codes = " ".join([r[10:] for r in splits]).split()
+
+
+def process_caveat_records(data_file, pdb_file):
+    caveats = pdb_file.get_records_by_name("CAVEAT")
+    if caveats:
+        data_file._caveat = merge_records(caveats, 19)
+    else:
+        data_file._caveat = None
 
 
 def date_from_string(s):

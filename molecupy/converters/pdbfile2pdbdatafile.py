@@ -15,6 +15,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_compnd_records(data_file, pdb_file)
     process_source_records(data_file, pdb_file)
     process_keywd_records(data_file, pdb_file)
+    process_expdta_records(data_file, pdb_file)
     return data_file
 
 
@@ -80,6 +81,15 @@ def process_keywd_records(data_file, pdb_file):
         data_file._keywords = keyword_text.split(",")
     else:
         data_file._keywords = []
+
+
+def process_expdta_records(data_file, pdb_file):
+    expdta = pdb_file.get_records_by_name("EXPDTA")
+    if expdta:
+        expdta_text = merge_records(expdta, 10)
+        data_file._experimental_techniques = expdta_text.split(";")
+    else:
+        data_file._experimental_techniques = []
 
 
 def date_from_string(s):

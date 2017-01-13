@@ -274,6 +274,23 @@ class KeywdsRecordTests(PdbFile2PdbDataFileTest):
 
 
 
+class ExpdtaRecordTests(PdbFile2PdbDataFileTest):
+    
+    def test_missing_expdta_processing(self):
+        self.assertEqual(self.empty._experimental_techniques, [])
+
+
+    def test_expdta_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "EXPDTA    NEUTRON DIFFRACTION; X-RAY DIFFRACTION"
+        ))
+        self.assertEqual(
+         data_file._experimental_techniques,
+         ["NEUTRON DIFFRACTION", "X-RAY DIFFRACTION"]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

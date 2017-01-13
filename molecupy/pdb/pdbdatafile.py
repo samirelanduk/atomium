@@ -807,40 +807,6 @@ class PdbDataFile:
 '''
 
 
-
-
-
-
-
-
-def process_source_records(data_file, pdb_file):
-    if pdb_file:
-        records = pdb_file.get_records_by_name("SOURCE")
-        data_file._sources = records_to_token_value_dicts(records)
-        return
-    data_file._sources = []
-
-
-def process_keywd_records(data_file, pdb_file):
-    if pdb_file:
-        keywords = pdb_file.get_records_by_name("KEYWDS")
-        if keywords:
-            keyword_text = merge_records(keywords, 10)
-            data_file._keywords = keyword_text.split(",")
-            return
-    data_file._keywords = []
-
-
-def process_expdta_records(data_file, pdb_file):
-    if pdb_file:
-        expdta = pdb_file.get_records_by_name("EXPDTA")
-        if expdta:
-            expdta_text = merge_records(expdta, 10)
-            data_file._experimental_techniques = expdta_text.split(";")
-            return
-    data_file._experimental_techniques = []
-
-
 def process_nummdl_records(data_file, pdb_file):
     if pdb_file:
         nummdl = pdb_file.get_record_by_name("NUMMDL")

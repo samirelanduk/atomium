@@ -841,6 +841,119 @@ class ModresRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
+class HetRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_het_processing(self):
+        self.assertEqual(self.empty._hets, [])
+
+
+    def test_het_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "HET    BU2  A5001       6\n"
+         "HET    BU2  B5002       6\n"
+         "HET    XMP  A2001      24\n"
+         "HET    XMP  B2002      24"
+        ))
+        self.assertEqual(
+         data_file._hets,
+         [{
+          "het_name": "BU2",
+          "chain_id": "A",
+          "het_id": 5001,
+          "insert_code": "",
+          "atom_num": 6,
+          "description": None
+         }, {
+          "het_name": "BU2",
+          "chain_id": "B",
+          "het_id": 5002,
+          "insert_code": "",
+          "atom_num": 6,
+          "description": None
+         }, {
+          "het_name": "XMP",
+          "chain_id": "A",
+          "het_id": 2001,
+          "insert_code": "",
+          "atom_num": 24,
+          "description": None
+         }, {
+          "het_name": "XMP",
+          "chain_id": "B",
+          "het_id": 2002,
+          "insert_code": "",
+          "atom_num": 24,
+          "description": None
+         }]
+        )
+
+
+
+class HetnamRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_hetnam_processing(self):
+        self.assertEqual(self.empty._het_names, {})
+
+
+    def test_hetnam_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "HETNAM     BU2 1,3-BUTANEDIOL\n"
+         "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE"
+        ))
+        self.assertEqual(
+         data_file._het_names,
+         {
+          "BU2": "1,3-BUTANEDIOL",
+          "XMP": "XANTHOSINE-5'-MONOPHOSPHATE"
+         }
+        )
+
+
+
+class HetsynRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_hetsyn_processing(self):
+        self.assertEqual(self.empty._het_synonyms, {})
+
+
+    def test_hetsyn_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "HETSYN     BU2 BOOM BOOM BOMB; WYRDSTUFF\n"
+         "HETSYN     XMP 5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"
+        ))
+        self.assertEqual(
+         data_file._het_synonyms,
+         {
+          "BU2": ["BOOM BOOM BOMB", "WYRDSTUFF"],
+          "XMP": ["5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"]
+         }
+        )
+
+
+
+class FormulRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_formul_processing(self):
+        self.assertEqual(self.empty._formulae, {})
+
+
+    def test_formul_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "FORMUL   3  BU2    2(C4 H10 O2)\n"
+         "FORMUL   5  XMP    2(C10 H14 N4 O9 P 1+)\n"
+         "FORMUL   7  HOH   *180(H2 O)"
+        ))
+        self.assertEqual(
+         data_file._formulae,
+         {
+          "BU2": {"component_number": 3, "is_water": False, "formula": "2(C4 H10 O2)"},
+          "XMP": {"component_number": 5, "is_water": False, "formula": "2(C10 H14 N4 O9 P 1+)"},
+          "HOH": {"component_number": 7, "is_water": True, "formula": "180(H2 O)"}
+         }
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

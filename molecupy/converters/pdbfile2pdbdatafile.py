@@ -29,6 +29,11 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_seqres_records(data_file, pdb_file)
     process_modres_records(data_file, pdb_file)
 
+    process_het_records(data_file, pdb_file)
+    process_hetnam_records(data_file, pdb_file)
+    process_hetsyn_records(data_file, pdb_file)
+    process_formul_records(data_file, pdb_file)
+
     return data_file
 
 
@@ -309,6 +314,64 @@ def process_modres_records(data_file, pdb_file):
         } for r in modres]
     else:
         data_file._modified_residues = []
+
+
+def process_het_records(data_file, pdb_file):
+    hets = pdb_file.get_records_by_name("HET")
+    if hets:
+        data_file._hets = [{
+         "het_name": r[7:10],
+         "chain_id": r[12],
+         "het_id": r[13:17],
+         "insert_code": r[17] if r[17] else "",
+         "atom_num": r[20:25],
+         "description": r[30:70]
+        } for r in hets]
+    else:
+        data_file._hets = []
+
+
+def process_hetnam_records(data_file, pdb_file):
+    hetnams = pdb_file.get_records_by_name("HETNAM")
+    if hetnams:
+        ids = list(set([r[11:14] for r in hetnams]))
+        data_file._het_names = {
+         het_id: merge_records(
+          [r for r in hetnams if r[11:14] == het_id], 15, dont_condense=":;"
+         ) for het_id in ids
+        }
+    else:
+        data_file._het_names = {}
+
+
+def process_hetsyn_records(data_file, pdb_file):
+    hetsyns = pdb_file.get_records_by_name("HETSYN")
+    if hetsyns:
+        ids = list(set([r[11:14] for r in hetsyns]))
+        data_file._het_synonyms = {
+         het_id: merge_records(
+          [r for r in hetsyns if r[11:14] == het_id], 15
+         ).split(";") for het_id in ids
+        }
+    else:
+        data_file._het_synonyms = {}
+
+
+def process_formul_records(data_file, pdb_file):
+    formuls = pdb_file.get_records_by_name("FORMUL")
+    if formuls:
+        ids = list(set([r[12:15] for r in formuls]))
+        data_file._formulae = {
+         het_id: {
+          "component_number": [r for r in formuls if r[12:15] == het_id][0][8:10],
+          "is_water": [r for r in formuls if r[12:15] == het_id][0][18] == "*",
+          "formula": merge_records(
+           [r for r in formuls if r[12:15] == het_id], 19
+          )
+         } for het_id in ids
+        }
+    else:
+        data_file._formulae = {}
 
 
 def date_from_string(s):

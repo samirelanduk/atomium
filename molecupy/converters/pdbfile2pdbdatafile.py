@@ -19,6 +19,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_nummdl_records(data_file, pdb_file)
     process_mdltyp_records(data_file, pdb_file)
     process_author_records(data_file, pdb_file)
+    process_revdat_records(data_file, pdb_file)
     return data_file
 
 
@@ -120,6 +121,25 @@ def process_author_records(data_file, pdb_file):
         data_file._authors = merge_records(authors, 10).split(",")
     else:
         data_file._authors = []
+
+
+def process_revdat_records(data_file, pdb_file):
+    revdats = pdb_file.get_records_by_name("REVDAT")
+    if revdats:
+        numbers = sorted(list(set([r[7:10] for r in revdats])))
+        revisions = []
+        for number in numbers:
+            records = [r for r in revdats if r[7:10] == number]
+            rec_types = merge_records(records, 39).split()
+            revisions.append({
+             "number": number,
+             "date": date_from_string(records[0][13:22]),
+             "type": records[0][31],
+             "records": [r for r in rec_types if r]
+            })
+        data_file._revisions = revisions
+    else:
+        data_file._revisions = []
 
 
 def date_from_string(s):

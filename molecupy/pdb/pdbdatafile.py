@@ -806,25 +806,6 @@ class PdbDataFile:
 
 '''
 
-def process_revdat_records(data_file, pdb_file):
-    if pdb_file:
-        revdats = pdb_file.get_records_by_name("REVDAT")
-        if revdats:
-            numbers = sorted(list(set([r[7:10] for r in revdats])))
-            revisions = []
-            for number in numbers:
-                records = [r for r in revdats if r[7:10] == number]
-                rec_types = merge_records(records, 39).split()
-                revisions.append({
-                 "number": number,
-                 "date": date_from_string(records[0][13:22]),
-                 "type": records[0][31],
-                 "records": [r for r in rec_types if r]
-                })
-            data_file._revisions = revisions
-            return
-    data_file._revisions = []
-
 
 def process_sprsde_records(data_file, pdb_file):
     if pdb_file:

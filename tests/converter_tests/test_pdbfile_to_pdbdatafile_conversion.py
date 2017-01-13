@@ -257,7 +257,7 @@ class SourceRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
-class KeywdsRecordTests(PdbFile2PdbDataFileTest):
+class KeywdsRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_keywds_processing(self):
         self.assertEqual(self.empty._keywords, [])
@@ -274,7 +274,7 @@ class KeywdsRecordTests(PdbFile2PdbDataFileTest):
 
 
 
-class ExpdtaRecordTests(PdbFile2PdbDataFileTest):
+class ExpdtaRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_expdta_processing(self):
         self.assertEqual(self.empty._experimental_techniques, [])
@@ -291,7 +291,7 @@ class ExpdtaRecordTests(PdbFile2PdbDataFileTest):
 
 
 
-class NummdlRecordTests(PdbFile2PdbDataFileTest):
+class NummdlRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_nummdl_processing(self):
         self.assertEqual(self.empty._model_count, 1)
@@ -305,7 +305,7 @@ class NummdlRecordTests(PdbFile2PdbDataFileTest):
 
 
 
-class MdltypRecordTests(PdbFile2PdbDataFileTest):
+class MdltypRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_mdltyp_processing(self):
         self.assertEqual(self.empty._model_annotations, [])
@@ -326,7 +326,7 @@ class MdltypRecordTests(PdbFile2PdbDataFileTest):
 
 
 
-class AuthorRecordTests(PdbFile2PdbDataFileTest):
+class AuthorRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_missing_author_processing(self):
         self.assertEqual(self.empty._authors, [])
@@ -345,6 +345,38 @@ class AuthorRecordTests(PdbFile2PdbDataFileTest):
          ]
         )
 
+
+
+class RevdatRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_revdat_processing(self):
+        self.assertEqual(self.empty._revisions, [])
+
+
+    def test_revdat_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "REVDAT   4 1 24-FEB-09 1LOL    1       VERSN  COMPND EXPDTA CAVEAT\n"
+         "REVDAT   4 2                   1       SOURCE JRNL\n"
+         "REVDAT   3   01-APR-03 1LOL    1       JRNL\n"
+         "REVDAT   2   14-AUG-02 1LOL    1       DBREF\n"
+         "REVDAT   1   07-AUG-02 1LOL    0"
+        ))
+        self.assertEqual(
+         data_file._revisions,
+         [{
+          "number": 1, "date": datetime.datetime(2002, 8, 7).date(),
+          "type": 0, "records": []
+         }, {
+          "number": 2, "date": datetime.datetime(2002, 8, 14).date(),
+          "type": 1, "records": ["DBREF"]
+         }, {
+          "number": 3, "date": datetime.datetime(2003, 4, 1).date(),
+          "type": 1, "records": ["JRNL"]
+         }, {
+          "number": 4, "date": datetime.datetime(2009, 2, 24).date(),
+          "type": 1, "records": ["VERSN", "COMPND", "EXPDTA", "CAVEAT", "SOURCE", "JRNL"]
+         }]
+        )
 
 
 class DateFromStringTests(PdbFile2PdbDataFileTest):

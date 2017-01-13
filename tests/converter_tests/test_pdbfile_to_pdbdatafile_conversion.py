@@ -1063,7 +1063,99 @@ class SheetRecordProcessingTests(PdbFile2PdbDataFileTest):
         )
 
 
-        
+
+class SsbondRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_ssbond_processing(self):
+        self.assertEqual(self.empty._ss_bonds, [])
+
+
+    def test_ssbond_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "SSBOND   1 CYS A  123    CYS A  155                          1555   1555  2.04"
+        ))
+        self.assertEqual(
+         data_file._ss_bonds,
+         [{
+          "serial_num": 1,
+          "residue_name_1": "CYS",
+          "chain_id_1": "A",
+          "residue_id_1": 123,
+          "insert_code_1": "",
+          "residue_name_2": "CYS",
+          "chain_id_2": "A",
+          "residue_id_2": 155,
+          "insert_code_2": "",
+          "symmetry_1": "1555",
+          "symmetry_2": "1555",
+          "length": 2.04
+         }]
+        )
+
+
+
+class LinkRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_link_processing(self):
+        self.assertEqual(self.empty._links, [])
+
+
+    def test_link_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "LINK         O   TYR A 146                 K     K A 501     1555   1555  2.75"
+        ))
+        self.assertEqual(
+         data_file._links,
+         [{
+          "atom_1": "O",
+          "alt_loc_1": None,
+          "residue_name_1": "TYR",
+          "chain_id_1": "A",
+          "residue_id_1": 146,
+          "insert_code_1": "",
+          "atom_2": "K",
+          "alt_loc_2": None,
+          "residue_name_2": "K",
+          "chain_id_2": "A",
+          "residue_id_2": 501,
+          "insert_code_2": "",
+          "symmetry_1": "1555",
+          "symmetry_2": "1555",
+          "length": 2.75
+         }]
+        )
+
+
+
+class CispepRecordProcessingTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_cispep_processing(self):
+        self.assertEqual(self.empty._cis_peptides, [])
+
+
+    def test_cispep_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "CISPEP     ASP B 1188    PRO B 1189          0         0.35"
+        ))
+        self.assertEqual(
+         data_file._cis_peptides,
+         [{
+          "serial_num": None,
+          "residue_name_1": "ASP",
+          "chain_id_1": "B",
+          "residue_id_1": 1188,
+          "insert_1": "",
+          "residue_name_2": "PRO",
+          "chain_id_2": "B",
+          "residue_id_2": 1189,
+          "insert_2": "",
+          "model_number": 0,
+          "angle": 0.35
+         }]
+        )
+
+
+
 class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):

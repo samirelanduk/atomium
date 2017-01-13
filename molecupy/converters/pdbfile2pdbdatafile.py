@@ -13,6 +13,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_split_records(data_file, pdb_file)
     process_caveat_records(data_file, pdb_file)
     process_compnd_records(data_file, pdb_file)
+    process_source_records(data_file, pdb_file)
     return data_file
 
 
@@ -64,6 +65,11 @@ def process_caveat_records(data_file, pdb_file):
 def process_compnd_records(data_file, pdb_file):
     records = pdb_file.get_records_by_name("COMPND")
     data_file._compounds = records_to_token_value_dicts(records)
+
+
+def process_source_records(data_file, pdb_file):
+    records = pdb_file.get_records_by_name("SOURCE")
+    data_file._sources = records_to_token_value_dicts(records)
 
 
 def date_from_string(s):

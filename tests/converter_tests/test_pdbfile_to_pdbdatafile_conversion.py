@@ -402,25 +402,6 @@ class SprsdeRecordProcessingTests(PdbFile2PdbDataFileTest):
 
 
 
-class DateFromStringTests(PdbFile2PdbDataFileTest):
-
-    def test_can_get_date_from_string(self):
-        self.assertEqual(
-         date_from_string("01-JAN-00"),
-         datetime.datetime(2000, 1, 1).date()
-        )
-        self.assertEqual(
-         date_from_string("28-SEP-99"),
-         datetime.datetime(1999, 9, 28).date()
-        )
-
-
-    def test_date_conversion_will_return_none_if_given_nothing(self):
-        self.assertEqual(date_from_string(""), None)
-        self.assertEqual(date_from_string(None), None)
-
-
-
 class JrnlRecordProcessingTests(PdbFile2PdbDataFileTest):
 
     def test_empty_jrnl_processing(self):
@@ -605,6 +586,60 @@ class JrnlRecordProcessingTests(PdbFile2PdbDataFileTest):
           "doi": "10.1074/JBC.M202362200"
          }
         )
+
+
+
+class RemarkRecordTests(PdbFile2PdbDataFileTest):
+
+    def test_missing_remark_processing(self):
+        self.assertEqual(self.empty._remarks, [])
+
+
+    def test_remark_processing(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile(
+         "REMARK   2\n"
+         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.\n"
+         "REMARK 999\n"
+         "REMARK 999  SEQUENCE\n"
+         "REMARK 999 AUTHOR STATES THAT ALTHOUGH RESIDUES 1 AND 1001 ARE MET\n"
+         "REMARK 999 AND RESIDUES 101 AND 1101 ARE ARG ACCORDING TO THE\n"
+         "REMARK 999 SWISSPROT ENTRY, RESIDUES 1 AND 1001 WERE LEU AND RESIDUES\n"
+         "REMARK 999 101 AND 1101 WERE PRO IN THE ORIGINAL CONSTRUCT CLONED\n"
+         "REMARK 999 OF MT GENOMIC DNA."
+        ))
+        self.assertEqual(
+         data_file._remarks,
+         [{
+          "number": 2,
+          "content": "RESOLUTION.    1.90 ANGSTROMS."
+         }, {
+          "number": 999,
+          "content": "SEQUENCE\n"
+          "AUTHOR STATES THAT ALTHOUGH RESIDUES 1 AND 1001 ARE MET\n"
+          "AND RESIDUES 101 AND 1101 ARE ARG ACCORDING TO THE\n"
+          "SWISSPROT ENTRY, RESIDUES 1 AND 1001 WERE LEU AND RESIDUES\n"
+          "101 AND 1101 WERE PRO IN THE ORIGINAL CONSTRUCT CLONED\n"
+          "OF MT GENOMIC DNA."
+         }]
+        )
+
+
+class DateFromStringTests(PdbFile2PdbDataFileTest):
+
+    def test_can_get_date_from_string(self):
+        self.assertEqual(
+         date_from_string("01-JAN-00"),
+         datetime.datetime(2000, 1, 1).date()
+        )
+        self.assertEqual(
+         date_from_string("28-SEP-99"),
+         datetime.datetime(1999, 9, 28).date()
+        )
+
+
+    def test_date_conversion_will_return_none_if_given_nothing(self):
+        self.assertEqual(date_from_string(""), None)
+        self.assertEqual(date_from_string(None), None)
 
 
 

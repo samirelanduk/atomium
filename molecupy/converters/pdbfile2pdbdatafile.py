@@ -22,6 +22,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     process_revdat_records(data_file, pdb_file)
     process_sprsde_records(data_file, pdb_file)
     process_jrnl_records(data_file, pdb_file)
+    process_remark_records(data_file, pdb_file)
     return data_file
 
 
@@ -195,6 +196,23 @@ def process_jrnl_records(data_file, pdb_file):
         data_file._journal = journal
     else:
         data_file._journal = None
+
+
+def process_remark_records(data_file, pdb_file):
+    remark_records = pdb_file.get_records_by_name("REMARK")
+    if remark_records:
+        remark_numbers = sorted(list(set([r[7:10] for r in remark_records])))
+        remarks = []
+        for number in remark_numbers:
+            recs = [r for r in remark_records if r[7:10] == number]
+            remark = {
+             "number": number,
+             "content": merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
+            }
+            remarks.append(remark)
+        data_file._remarks = remarks
+    else:
+        data_file._remarks = []
 
 
 def date_from_string(s):

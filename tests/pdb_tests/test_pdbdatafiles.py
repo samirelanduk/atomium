@@ -88,6 +88,7 @@ class PdbDataFileCreationTests(PdbDataFileTest):
         self.assertEqual(str(data_file), "<PdbDataFile (ABCD)>")
 
 
+
 class TitleSectionPropertyTests(PdbDataFileTest):
 
     def test_header_properties(self):
@@ -369,131 +370,7 @@ class TitleSectionPropertyTests(PdbDataFileTest):
 
 
 
-'''class DbrefRecordTests(PdbDataFileTest):
-
-    def test_missing_dbref_processing(self):
-        self.assertEqual(self.empty._dbreferences, [])
-        self.assertEqual(self.blank._dbreferences, [])
-
-
-    def test_dbref_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "DBREF  1LOL A    1   229  UNP    O26232   PYRF_METTH       1    228\n"
-         "DBREF  1LOL B 1001  1229  UNP    O26232   PYRF_METTH       1    228"
-        ))
-        self.assertEqual(
-         data_file._dbreferences,
-         [
-          {
-           "chain_id": "A",
-           "sequence_begin": 1,
-           "insert_begin": "",
-           "sequence_end": 229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }, {
-           "chain_id": "B",
-           "sequence_begin": 1001,
-           "insert_begin": "",
-           "sequence_end": 1229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }
-         ]
-        )
-
-
-    def test_long_dbref_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "DBREF1 1LOL C   61   322  GB                   AE017221\n"
-         "DBREF2 1LOL C     46197919                      1534489     1537377"
-        ))
-        self.assertEqual(
-         data_file._dbreferences,
-         [
-          {
-           "chain_id": "C",
-           "sequence_begin": 61,
-           "insert_begin": "",
-           "sequence_end": 322,
-           "insert_end": "",
-           "database": "GB",
-           "accession": "46197919",
-           "db_id": "AE017221",
-           "db_sequence_begin": 1534489,
-           "db_insert_begin": None,
-           "db_sequence_end": 1537377,
-           "db_insert_end": None
-          }
-         ]
-        )
-
-
-    def test_mixed_dbref_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "DBREF  1LOL A    1   229  UNP    O26232   PYRF_METTH       1    228\n"
-         "DBREF  1LOL B 1001  1229  UNP    O26232   PYRF_METTH       1    228\n"
-         "DBREF1 1LOL C   61   322  GB                   AE017221\n"
-         "DBREF2 1LOL C     46197919                      1534489     1537377"
-        ))
-        self.assertEqual(
-         data_file._dbreferences,
-         [
-          {
-           "chain_id": "A",
-           "sequence_begin": 1,
-           "insert_begin": "",
-           "sequence_end": 229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }, {
-           "chain_id": "B",
-           "sequence_begin": 1001,
-           "insert_begin": "",
-           "sequence_end": 1229,
-           "insert_end": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_id": "PYRF_METTH",
-           "db_sequence_begin": 1,
-           "db_insert_begin": None,
-           "db_sequence_end": 228,
-           "db_insert_end": None
-          }, {
-           "chain_id": "C",
-           "sequence_begin": 61,
-           "insert_begin": "",
-           "sequence_end": 322,
-           "insert_end": "",
-           "database": "GB",
-           "accession": "46197919",
-           "db_id": "AE017221",
-           "db_sequence_begin": 1534489,
-           "db_insert_begin": None,
-           "db_sequence_end": 1537377,
-           "db_insert_end": None
-          }
-         ]
-        )
-
+class PrimaryStructureSectionPropertyTests(PdbDataFileTest):
 
     def test_dbref_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -501,47 +378,6 @@ class TitleSectionPropertyTests(PdbDataFileTest):
          "DBREF2 1LOL C     46197919                      1534489     1537377"
         ))
         self.assertEqual(data_file._dbreferences, data_file.dbreferences())
-
-
-
-class SeqadvRecordTests(PdbDataFileTest):
-
-    def test_missing_seqadv_processing(self):
-        self.assertEqual(self.empty._sequence_differences, [])
-        self.assertEqual(self.blank._sequence_differences, [])
-
-
-    def test_seqadv_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "SEQADV 1LOL GLU A  229  UNP  O26232              INSERTION\n"
-         "SEQADV 1LOL GLU B 1229  UNP  O26232              INSERTION"
-        ))
-        self.assertEqual(
-         data_file._sequence_differences,
-         [
-          {
-           "residue_name": "GLU",
-           "chain_id": "A",
-           "residue_id": 229,
-           "insert_code": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_residue_name": None,
-           "db_residue_id": None,
-           "conflict": "INSERTION"
-          }, {
-           "residue_name": "GLU",
-           "chain_id": "B",
-           "residue_id": 1229,
-           "insert_code": "",
-           "database": "UNP",
-           "accession": "O26232",
-           "db_residue_name": None,
-           "db_residue_id": None,
-           "conflict": "INSERTION"
-          }
-         ]
-        )
 
 
     def test_seqadv_properties(self):
@@ -552,43 +388,6 @@ class SeqadvRecordTests(PdbDataFileTest):
         self.assertEqual(
          data_file._sequence_differences,
          data_file.sequence_differences()
-        )
-
-
-
-class SeqresRecordTests(PdbDataFileTest):
-
-    def test_missing_seqres_processing(self):
-        self.assertEqual(self.empty._residue_sequences, [])
-        self.assertEqual(self.blank._residue_sequences, [])
-
-
-    def test_seqres_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "SEQRES   1 A    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
-         "SEQRES   2 A    8  ARG LEU ILE\n"
-         "SEQRES   1 B    8  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
-         "SEQRES   2 B    8  ARG LEU ILE"
-        ))
-        self.assertEqual(
-         data_file._residue_sequences,
-         [
-          {
-           "chain_id": "A",
-           "length": 8,
-           "residues": [
-            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
-            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE",
-           ]
-          }, {
-           "chain_id": "B",
-           "length": 8,
-           "residues": [
-            "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL",
-            "MET", "ASP", "VAL", "MET", "ASN", "ARG", "LEU", "ILE"
-           ]
-          }
-         ]
         )
 
 
@@ -604,32 +403,6 @@ class SeqresRecordTests(PdbDataFileTest):
 
 
 
-class ModresRecordTests(PdbDataFileTest):
-
-    def test_missing_modres_processing(self):
-        self.assertEqual(self.empty._modified_residues, [])
-        self.assertEqual(self.blank._modified_residues, [])
-
-
-    def test_modres_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "MODRES 1LOL ASP A   10  ASP  GLYCOSYLATION SITE"
-        ))
-        self.assertEqual(
-         data_file._modified_residues,
-         [
-          {
-           "residue_name": "ASP",
-           "chain_id": "A",
-           "residue_id": 10,
-           "insert_code": "",
-           "standard_resisdue_name": 'ASP',
-           "comment": "GLYCOSYLATION SITE"
-          }
-         ]
-        )
-
-
     def test_modres_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
          "MODRES 1LOL ASP A   10  ASP  GLYCOSYLATION SITE"
@@ -641,55 +414,7 @@ class ModresRecordTests(PdbDataFileTest):
 
 
 
-class HetRecordTests(PdbDataFileTest):
-
-    def test_missing_het_processing(self):
-        self.assertEqual(self.empty._hets, [])
-        self.assertEqual(self.blank._hets, [])
-
-
-    def test_het_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "HET    BU2  A5001       6\n"
-         "HET    BU2  B5002       6\n"
-         "HET    XMP  A2001      24\n"
-         "HET    XMP  B2002      24"
-        ))
-        self.assertEqual(
-         data_file._hets,
-         [
-          {
-           "het_name": "BU2",
-           "chain_id": "A",
-           "het_id": 5001,
-           "insert_code": "",
-           "atom_num": 6,
-           "description": None
-          }, {
-           "het_name": "BU2",
-           "chain_id": "B",
-           "het_id": 5002,
-           "insert_code": "",
-           "atom_num": 6,
-           "description": None
-          }, {
-           "het_name": "XMP",
-           "chain_id": "A",
-           "het_id": 2001,
-           "insert_code": "",
-           "atom_num": 24,
-           "description": None
-          }, {
-           "het_name": "XMP",
-           "chain_id": "B",
-           "het_id": 2002,
-           "insert_code": "",
-           "atom_num": 24,
-           "description": None
-          }
-         ]
-        )
-
+class HeterogenSectionPropertyTests(PdbDataFileTest):
 
     def test_het_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -701,56 +426,12 @@ class HetRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._hets, data_file.hets())
 
 
-
-class HetnamRecordTests(PdbDataFileTest):
-
-    def test_missing_hetnam_processing(self):
-        self.assertEqual(self.blank._het_names, {})
-        self.assertEqual(self.empty._het_names, {})
-
-
-    def test_hetnam_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "HETNAM     BU2 1,3-BUTANEDIOL\n"
-         "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE"
-        ))
-        self.assertEqual(
-         data_file._het_names,
-         {
-          "BU2": "1,3-BUTANEDIOL",
-          "XMP": "XANTHOSINE-5'-MONOPHOSPHATE"
-         }
-        )
-
-
     def test_hetnam_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
          "HETNAM     BU2 1,3-BUTANEDIOL\n"
          "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE"
         ))
         self.assertEqual(data_file._het_names, data_file.het_names())
-
-
-
-class HetsynRecordTests(PdbDataFileTest):
-
-    def test_missing_hetsyn_processing(self):
-        self.assertEqual(self.empty._het_synonyms, {})
-        self.assertEqual(self.blank._het_synonyms, {})
-
-
-    def test_hetsyn_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "HETSYN     BU2 BOOM BOOM BOMB; WYRDSTUFF\n"
-         "HETSYN     XMP 5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"
-        ))
-        self.assertEqual(
-         data_file._het_synonyms,
-         {
-          "BU2": ["BOOM BOOM BOMB", "WYRDSTUFF"],
-          "XMP": ["5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE"]
-         }
-        )
 
 
     def test_hetsyn_properties(self):
@@ -761,30 +442,6 @@ class HetsynRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._het_synonyms, data_file.het_synonyms())
 
 
-
-class FormulRecordTests(PdbDataFileTest):
-
-    def test_missing_formul_processing(self):
-        self.assertEqual(self.empty._formulae, {})
-        self.assertEqual(self.blank._formulae, {})
-
-
-    def test_formul_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "FORMUL   3  BU2    2(C4 H10 O2)\n"
-         "FORMUL   5  XMP    2(C10 H14 N4 O9 P 1+)\n"
-         "FORMUL   7  HOH   *180(H2 O)"
-        ))
-        self.assertEqual(
-         data_file._formulae,
-         {
-          "BU2": {"component_number": 3, "is_water": False, "formula": "2(C4 H10 O2)"},
-          "XMP": {"component_number": 5, "is_water": False, "formula": "2(C10 H14 N4 O9 P 1+)"},
-          "HOH": {"component_number": 7, "is_water": True, "formula": "180(H2 O)"}
-         }
-        )
-
-
     def test_formul_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
          "FORMUL   3  BU2    2(C4 H10 O2)\n"
@@ -793,53 +450,7 @@ class FormulRecordTests(PdbDataFileTest):
 
 
 
-class HelixRecordTests(PdbDataFileTest):
-
-    def test_missing_helix_processing(self):
-        self.assertEqual(self.empty._helices, [])
-        self.assertEqual(self.blank._helices, [])
-
-
-    def test_helix_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "HELIX    1   1 VAL A   11  ASN A   13  5                                   3\n"
-         "HELIX    2   2 ASN A   23  ARG A   35  1                                  13"
-        ))
-        self.assertEqual(
-         data_file._helices,
-         [
-          {
-           "helix_id": 1,
-           "helix_name": "1",
-           "start_residue_name": "VAL",
-           "start_residue_chain_id": "A",
-           "start_residue_id": 11,
-           "start_residue_insert": "",
-           "end_residue_name": "ASN",
-           "end_residue_chain_id": "A",
-           "end_residue_id": 13,
-           "end_residue_insert": "",
-           "helix_class": 5,
-           "comment": None,
-           "length": 3
-          }, {
-           "helix_id": 2,
-           "helix_name": "2",
-           "start_residue_name": "ASN",
-           "start_residue_chain_id": "A",
-           "start_residue_id": 23,
-           "start_residue_insert": "",
-           "end_residue_name": "ARG",
-           "end_residue_chain_id": "A",
-           "end_residue_id": 35,
-           "end_residue_insert": "",
-           "helix_class": 1,
-           "comment": None,
-           "length": 13
-          }
-         ]
-        )
-
+class SecondaryStructurePropertyTests(PdbDataFileTest):
 
     def test_helix_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -847,73 +458,6 @@ class HelixRecordTests(PdbDataFileTest):
          "HELIX    2   2 ASN A   23  ARG A   35  1                                  13"
         ))
         self.assertEqual(data_file._helices, data_file.helices())
-
-
-
-class SheetRecordTests(PdbDataFileTest):
-
-    def test_missing_sheet_processing(self):
-        self.assertEqual(self.empty._sheets, [])
-        self.assertEqual(self.blank._sheets, [])
-
-
-    def test_sheet_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "SHEET    1   A 2 LEU A  15  MET A  19  0\n"
-         "SHEET    2   A 2 THR A  40  GLY A  44  1  O  LYS A  42   N  LEU A  17"
-        ))
-        self.assertEqual(
-         data_file._sheets,
-         [
-          {
-           "sheet_id": "A",
-           "strand_count": 2,
-           "strands": [{
-            "strand_id": 1,
-            "start_residue_name": "LEU",
-            "start_residue_chain_id": "A",
-            "start_residue_id": 15,
-            "start_residue_insert": "",
-            "end_residue_name": "MET",
-            "end_residue_chain_id": "A",
-            "end_residue_id": 19,
-            "end_residue_insert": "",
-            "sense": 0,
-            "current_atom": None,
-            "current_residue_name": None,
-            "current_chain_id": None,
-            "current_residue_id": None,
-            "current_insert": "",
-            "previous_atom": None,
-            "previous_residue_name": None,
-            "previous_chain_id": None,
-            "previous_residue_id": None,
-            "previous_insert": ""
-           }, {
-            "strand_id": 2,
-            "start_residue_name": "THR",
-            "start_residue_chain_id": "A",
-            "start_residue_id": 40,
-            "start_residue_insert": "",
-            "end_residue_name": "GLY",
-            "end_residue_chain_id": "A",
-            "end_residue_id": 44,
-            "end_residue_insert": "",
-            "sense": 1,
-            "current_atom": "O",
-            "current_residue_name": "LYS",
-            "current_chain_id": "A",
-            "current_residue_id": 42,
-            "current_insert": "",
-            "previous_atom": "N",
-            "previous_residue_name": "LEU",
-            "previous_chain_id": "A",
-            "previous_residue_id": 17,
-            "previous_insert": ""
-           }]
-          }
-         ]
-        )
 
 
     def test_sheet_properties(self):
@@ -925,35 +469,7 @@ class SheetRecordTests(PdbDataFileTest):
 
 
 
-class SsbondRecordTests(PdbDataFileTest):
-
-    def test_missing_ssbond_processing(self):
-        self.assertEqual(self.empty._ss_bonds, [])
-        self.assertEqual(self.blank._ss_bonds, [])
-
-
-    def test_ssbond_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "SSBOND   1 CYS A  123    CYS A  155                          1555   1555  2.04"
-        ))
-        self.assertEqual(
-         data_file._ss_bonds,
-         [{
-          "serial_num": 1,
-          "residue_name_1": "CYS",
-          "chain_id_1": "A",
-          "residue_id_1": 123,
-          "insert_code_1": "",
-          "residue_name_2": "CYS",
-          "chain_id_2": "A",
-          "residue_id_2": 155,
-          "insert_code_2": "",
-          "symmetry_1": "1555",
-          "symmetry_2": "1555",
-          "length": 2.04
-         }]
-        )
-
+class ConnectivityAnnotationPropertyTests(PdbDataFileTest):
 
     def test_ssbond_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -962,79 +478,11 @@ class SsbondRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._ss_bonds, data_file.ss_bonds())
 
 
-
-class LinkRecordTests(PdbDataFileTest):
-
-    def test_missing_link_processing(self):
-        self.assertEqual(self.empty._links, [])
-        self.assertEqual(self.blank._links, [])
-
-
-    def test_link_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "LINK         O   TYR A 146                 K     K A 501     1555   1555  2.75"
-        ))
-        self.assertEqual(
-         data_file._links,
-         [
-          {
-           "atom_1": "O",
-           "alt_loc_1": None,
-           "residue_name_1": "TYR",
-           "chain_id_1": "A",
-           "residue_id_1": 146,
-           "insert_code_1": "",
-           "atom_2": "K",
-           "alt_loc_2": None,
-           "residue_name_2": "K",
-           "chain_id_2": "A",
-           "residue_id_2": 501,
-           "insert_code_2": "",
-           "symmetry_1": "1555",
-           "symmetry_2": "1555",
-           "length": 2.75
-          }
-         ]
-        )
-
-
     def test_link_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
          "LINK         O   TYR A 146                 K     K A 501     1555   1555  2.75"
         ))
         self.assertEqual(data_file._links, data_file.links())
-
-
-
-class CispepRecordTests(PdbDataFileTest):
-
-    def test_missing_cispep_processing(self):
-        self.assertEqual(self.empty._cis_peptides, [])
-        self.assertEqual(self.blank._cis_peptides, [])
-
-
-    def test_cispep_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "CISPEP     ASP B 1188    PRO B 1189          0         0.35"
-        ))
-        self.assertEqual(
-         data_file._cis_peptides,
-         [
-          {
-           "serial_num": None,
-           "residue_name_1": "ASP",
-           "chain_id_1": "B",
-           "residue_id_1": 1188,
-           "insert_1": "",
-           "residue_name_2": "PRO",
-           "chain_id_2": "B",
-           "residue_id_2": 1189,
-           "insert_2": "",
-           "model_number": 0,
-           "angle": 0.35
-          }
-         ]
-        )
 
 
     def test_cispep_properties(self):
@@ -1045,51 +493,7 @@ class CispepRecordTests(PdbDataFileTest):
 
 
 
-class SiteRecordTests(PdbDataFileTest):
-
-    def test_missing_site_processing(self):
-        self.assertEqual(self.empty._sites, [])
-        self.assertEqual(self.blank._sites, [])
-
-
-    def test_site_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "SITE     1 AC1  6 ASP A  70  LYS A  72  LEU A 123  VAL A 155\n"
-         "SITE     2 AC1  6 XMP A2001  HOH A3015\n"
-         "SITE     1 550  8 ALA A  18A ASP A  20  LYS A  42  ASP A  70\n"
-         "SITE     2 550  8 MET A 126  SER A 127  SER A 158  PRO A 180"
-        ))
-        self.assertEqual(
-         data_file._sites,
-         [
-          {
-           "site_id": "550",
-           "residue_count": 8,
-           "residues": [
-            {"residue_name": "ALA", "chain_id": "A", "residue_id": 18, "insert_code": "A"},
-            {"residue_name": "ASP", "chain_id": "A", "residue_id": 20, "insert_code": ""},
-            {"residue_name": "LYS", "chain_id": "A", "residue_id": 42, "insert_code": ""},
-            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
-            {"residue_name": "MET", "chain_id": "A", "residue_id": 126, "insert_code": ""},
-            {"residue_name": "SER", "chain_id": "A", "residue_id": 127, "insert_code": ""},
-            {"residue_name": "SER", "chain_id": "A", "residue_id": 158, "insert_code": ""},
-            {"residue_name": "PRO", "chain_id": "A", "residue_id": 180, "insert_code": ""}
-           ]
-          }, {
-           "site_id": "AC1",
-           "residue_count": 6,
-           "residues": [
-            {"residue_name": "ASP", "chain_id": "A", "residue_id": 70, "insert_code": ""},
-            {"residue_name": "LYS", "chain_id": "A", "residue_id": 72, "insert_code": ""},
-            {"residue_name": "LEU", "chain_id": "A", "residue_id": 123, "insert_code": ""},
-            {"residue_name": "VAL", "chain_id": "A", "residue_id": 155, "insert_code": ""},
-            {"residue_name": "XMP", "chain_id": "A", "residue_id": 2001, "insert_code": ""},
-            {"residue_name": "HOH", "chain_id": "A", "residue_id": 3015, "insert_code": ""}
-           ]
-          }
-         ]
-        )
-
+class MiscellaneousSectionPropertyTests(PdbDataFileTest):
 
     def test_site_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -1098,7 +502,7 @@ class SiteRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._sites, data_file.sites())
 
 
-
+'''
 class CrystalRecordTests(PdbDataFileTest):
 
     def test_missing_crystal_processing(self):

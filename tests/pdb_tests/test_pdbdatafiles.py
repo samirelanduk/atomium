@@ -580,56 +580,7 @@ class CrystallographySectionPropertyTests(PdbDataFileTest):
 
 
 
-'''
-class ModelRecordTests(PdbDataFileTest):
-
-    def test_missing_model_processing(self):
-        self.assertEqual(
-         self.empty._models,
-         [
-          {
-           "model_id": 1,
-           "start_record": -1,
-           "end_record": -1
-          }
-         ]
-        )
-        self.assertEqual(
-         self.blank._models,
-         [
-          {
-           "model_id": 1,
-           "start_record": -1,
-           "end_record": -1
-          }
-         ]
-        )
-
-
-    def test_model_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "MODEL        1\n"
-         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
-         "ENDMDL\n"
-         "MODEL        2\n"
-         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
-         "ENDMDL"
-        ))
-        self.assertEqual(
-         data_file._models,
-         [
-          {
-           "model_id": 1,
-           "start_record": 1,
-           "end_record": 3
-          }, {
-           "model_id": 2,
-           "start_record": 4,
-           "end_record": 6
-          }
-         ]
-        )
-
+class CoordinateSectionPropertyTests(PdbDataFileTest):
 
     def test_model_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -640,120 +591,12 @@ class ModelRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._models, data_file.models())
 
 
-
-class AtomRecordTests(PdbDataFileTest):
-
-    def test_missing_atom_processing(self):
-        self.assertEqual(self.empty._atoms, [])
-        self.assertEqual(self.blank._atoms, [])
-
-
-    def test_atom_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
-         "ATOM    108  CA  GLY A  13      11.982  37.996 -26.241 1.000 16.92           C"
-        ))
-        self.assertEqual(
-         data_file._atoms,
-         [
-          {
-           "atom_id": 107,
-           "atom_name": "N",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "x": 12.681,
-           "y": 37.302,
-           "z": -25.211,
-           "occupancy": 1.0,
-           "temperature_factor": 15.56,
-           "element": "N",
-           "charge": None,
-           "model_id": 1
-          }, {
-           "atom_id": 108,
-           "atom_name": "CA",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "x": 11.982,
-           "y": 37.996,
-           "z": -26.241,
-           "occupancy": 1.0,
-           "temperature_factor": 16.92,
-           "element": "C",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
-
-
     def test_atom_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
          "ATOM    107  N   GLY A  13      12.681  37.302 -25.211 1.000 15.56           N\n"
          "ATOM    108  CA  GLY A  13      11.982  37.996 -26.241 1.000 16.92           C"
         ))
         self.assertEqual(data_file._atoms, data_file.atoms())
-
-
-
-class AnisouRecordTests(PdbDataFileTest):
-
-    def test_missing_anisou_processing(self):
-        self.assertEqual(self.empty._anisou, [])
-        self.assertEqual(self.blank._anisou, [])
-
-
-    def test_anisou_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "ANISOU  107  N   GLY A  13     2406   1892   1614    198    519   -328       N\n"
-         "ANISOU  108  CA  GLY A  13     2748   2004   1679    -21    155   -419       C"
-        ))
-        self.assertEqual(
-         data_file._anisou,
-         [
-          {
-           "atom_id": 107,
-           "atom_name": "N",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "u11": 2406,
-           "u22": 1892,
-           "u33": 1614,
-           "u12": 198,
-           "u13": 519,
-           "u23": -328,
-           "element": "N",
-           "charge": None,
-           "model_id": 1
-          }, {
-           "atom_id": 108,
-           "atom_name": "CA",
-           "alt_loc": None,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "u11": 2748,
-           "u22": 2004,
-           "u33": 1679,
-           "u12": -21,
-           "u13": 155,
-           "u23": -419,
-           "element": "C",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
 
 
     def test_anisou_properties(self):
@@ -764,102 +607,11 @@ class AnisouRecordTests(PdbDataFileTest):
         self.assertEqual(data_file._anisou, data_file.anisou())
 
 
-
-class TerRecordTests(PdbDataFileTest):
-
-    def test_missing_ter_processing(self):
-        self.assertEqual(self.empty._termini, [])
-        self.assertEqual(self.blank._termini, [])
-
-
-    def test_ter_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "TER     109      GLY A  13"
-        ))
-        self.assertEqual(
-         data_file._termini,
-         [
-          {
-           "atom_id": 109,
-           "residue_name": "GLY",
-           "chain_id": "A",
-           "residue_id": 13,
-           "insert_code": "",
-           "model_id": 1
-          }
-         ]
-        )
-
-
     def test_ter_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
          "TER     109      GLY A  13"
         ))
         self.assertEqual(data_file._termini, data_file.termini())
-
-
-
-class HetatmRecordTests(PdbDataFileTest):
-
-    def test_missing_hetatm_processing(self):
-        self.assertEqual(self.empty._heteroatoms, [])
-        self.assertEqual(self.blank._heteroatoms, [])
-
-
-    def test_hetatm_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "HETATM 8237 MG    MG A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
-        ))
-        self.assertEqual(
-         data_file._heteroatoms,
-         [
-          {
-           "atom_id": 8237,
-           "atom_name": "MG",
-           "alt_loc": None,
-           "residue_name": "MG",
-           "chain_id": "A",
-           "residue_id": 1001,
-           "insert_code": "",
-           "x": 13.872,
-           "y": -2.555,
-           "z": -29.045,
-           "occupancy": 1.0,
-           "temperature_factor": 27.36,
-           "element": "MG",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
-
-
-    def test_het_names_always_interpreted_as_string(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "HETATM 8237 MG   123 A1001      13.872  -2.555 -29.045  1.00 27.36          MG"
-        ))
-        self.assertEqual(
-         data_file._heteroatoms,
-         [
-          {
-           "atom_id": 8237,
-           "atom_name": "MG",
-           "alt_loc": None,
-           "residue_name": "123",
-           "chain_id": "A",
-           "residue_id": 1001,
-           "insert_code": "",
-           "x": 13.872,
-           "y": -2.555,
-           "z": -29.045,
-           "occupancy": 1.0,
-           "temperature_factor": 27.36,
-           "element": "MG",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
-        )
 
 
     def test_hetatm_properties(self):
@@ -870,43 +622,7 @@ class HetatmRecordTests(PdbDataFileTest):
 
 
 
-class ConectRecordTests(PdbDataFileTest):
-
-    def test_missing_conect_processing(self):
-        self.assertEqual(self.empty._connections, [])
-        self.assertEqual(self.blank._connections, [])
-
-
-    def test_conect_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "CONECT 1179  746 1184 1195 1203\n"
-         "CONECT 1179 1211 1222"
-        ))
-        self.assertEqual(
-         data_file._connections,
-         [
-          {
-           "atom_id": 1179,
-           "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
-          }
-         ]
-        )
-
-
-    def test_can_handle_conect_records_smushed_together(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "CONECT11056107961105711063"
-        ))
-        self.assertEqual(
-         data_file._connections,
-         [
-          {
-           "atom_id": 11056,
-           "bonded_atoms": [10796, 11057, 11063]
-          }
-         ]
-        )
-
+class ConnectionSectionPropertyTests(PdbDataFileTest):
 
     def test_conect_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -917,33 +633,7 @@ class ConectRecordTests(PdbDataFileTest):
 
 
 
-class MasterRecordTests(PdbDataFileTest):
-
-    def test_missing_master_processing(self):
-        self.assertEqual(self.empty._master, None)
-        self.assertEqual(self.blank._master, None)
-
-
-    def test_master_processing(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(
-         "MASTER       40    0    0    0    0    0    0    6 2930    2    0   29"
-        ))
-        self.assertEqual(
-         data_file._master,
-         {
-          "remark_num": 40,
-          "het_num": 0,
-          "helix_num": 0,
-          "sheet_num": 0,
-          "site_num": 0,
-          "crystal_num": 6,
-          "coordinate_num": 2930,
-          "ter_num": 2,
-          "conect_num": 0,
-          "seqres_num": 29
-         }
-        )
-
+class MasterSectionPropertyTests(PdbDataFileTest):
 
     def test_master_properties(self):
         data_file = pdb_data_file_from_pdb_file(PdbFile(
@@ -981,4 +671,4 @@ class MasterRecordTests(PdbDataFileTest):
 
     def test_master_must_be_dict(self):
         with self.assertRaises(TypeError):
-            self.blank.master("aaa")'''
+            self.blank.master("aaa")

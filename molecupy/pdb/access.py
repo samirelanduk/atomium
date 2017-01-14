@@ -26,32 +26,32 @@ def pdb_file_from_string(text):
 
 
 def get_pdb_from_file(path, processing="pdb"):
-    if processing not in ("pdb", "data_file", "pdb_file"):
+    if processing not in ("pdb", "datafile", "pdbfile"):
         raise ValueError(
-         "Only valid processing arguments are 'pdb', 'data_file' and 'pdb_file'"
+         "Only valid processing arguments are 'pdb', 'datafile' and 'pdbfile'"
         )
     with open(path) as f:
-        if processing == "pdb_file":
+        if processing == "pdbfile":
             return pdb_file_from_string(f.read())
-        elif processing == "data_file":
+        elif processing == "datafile":
             return pdb_data_file_from_string(f.read())
         else:
             return pdb_from_string(f.read())
 
 
 def get_pdb_remotely(code, processing="pdb"):
-    if processing not in ("pdb", "data_file", "pdb_file"):
+    if processing not in ("pdb", "datafile", "pdbfile"):
         raise ValueError(
-         "Only valid processing arguments are 'pdb', 'data_file' and 'pdb_file'"
+         "Only valid processing arguments are 'pdb', 'datafile' and 'pdbfile'"
         )
     response = requests.get(
      "http://www.ebi.ac.uk/pdbe/entry-files/pdb%s.ent" % code.lower()
     )
     if response.status_code == 200 and response.text[:6] == "HEADER":
         contents = response.text
-        if processing == "pdb_file":
+        if processing == "pdbfile":
             return pdb_file_from_string(contents)
-        elif processing == "data_file":
+        elif processing == "datafile":
             return pdb_data_file_from_string(contents)
         else:
             return pdb_from_string(contents)

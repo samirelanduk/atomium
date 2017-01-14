@@ -44,7 +44,7 @@ class PdbFromFileTests(TestCase):
     def test_can_make_pdb_data_file_from_file(self):
         pdb = get_pdb_from_file(
          os.path.sep.join(["tests", "pdb_tests", "1LOL.pdb"]),
-         processing="data_file"
+         processing="datafile"
         )
         self.assertIsInstance(pdb, PdbDataFile)
         self.assertEqual(pdb.keywords(), ["TIM BARREL", "LYASE"])
@@ -53,7 +53,7 @@ class PdbFromFileTests(TestCase):
     def test_can_make_pdb_file_from_file(self):
         pdb = get_pdb_from_file(
          os.path.sep.join(["tests", "pdb_tests", "1LOL.pdb"]),
-         processing="pdb_file"
+         processing="pdbfile"
         )
         self.assertIsInstance(pdb, PdbFile)
         self.assertEqual(
@@ -92,7 +92,7 @@ class PdbRemoteTests(TestCase):
             response.text = f.read()
         response.status_code = 200
         mock_get.return_value = response
-        pdb = get_pdb_remotely("1LOL", processing="data_file")
+        pdb = get_pdb_remotely("1LOL", processing="datafile")
         self.assertIsInstance(pdb, PdbDataFile)
         self.assertEqual(pdb.keywords(), ["TIM BARREL", "LYASE"])
 
@@ -104,7 +104,7 @@ class PdbRemoteTests(TestCase):
             response.text = f.read()
         response.status_code = 200
         mock_get.return_value = response
-        pdb = get_pdb_remotely("1LOL", processing="pdb_file")
+        pdb = get_pdb_remotely("1LOL", processing="pdbfile")
         self.assertIsInstance(pdb, PdbFile)
         self.assertEqual(
          pdb.get_record_by_name("KEYWDS").text(),

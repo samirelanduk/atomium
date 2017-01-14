@@ -61,9 +61,9 @@ class PdbFileCreationTests(PdbFileTest):
 class PdbFileConversionTests(PdbFileTest):
 
     @patch("molecupy.converters.pdbfile2pdbdatafile.pdb_data_file_from_pdb_file")
-    def test_can_convert_to_pdb_data_file(self, mock):
+    def test_can_convert_to_pdb_data_file(self, mock_converter):
         value = "Return value"
-        mock.return_value = value
+        mock_converter.return_value = value
         self.assertIs(PdbFile().to_pdb_data_file(), value)
 
 

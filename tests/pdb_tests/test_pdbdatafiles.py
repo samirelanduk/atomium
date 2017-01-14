@@ -97,7 +97,17 @@ class GeneralPdbDataFilePropertyTests(PdbDataFileTest):
         self.assertIs(data_file.source(), data_file._source)
 
 
-        
+
+class PdbDataFileConversionTests(PdbDataFileTest):
+
+    @patch("molecupy.converters.pdbdatafile2pdbfile.pdb_file_from_pdb_data_file")
+    def test_can_convert_to_pdb_file(self, mock):
+        value = "Return value"
+        mock.return_value = value
+        self.assertIs(PdbDataFile().to_pdb_file(), value)
+
+
+
 class TitleSectionPropertyTests(PdbDataFileTest):
 
     def test_header_properties(self):

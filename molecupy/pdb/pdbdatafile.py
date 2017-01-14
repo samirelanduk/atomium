@@ -79,7 +79,11 @@ class PdbDataFile:
         return self._source
 
 
-        
+    def to_pdb_file(self):
+        from ..converters.pdbdatafile2pdbfile import pdb_file_from_pdb_data_file
+        return pdb_file_from_pdb_data_file(self)
+
+
     def classification(self, classification=None):
         if classification:
             if not isinstance(classification, str):

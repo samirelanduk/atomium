@@ -12,7 +12,7 @@ class PdbDataFile:
     :param PdbFile pdb_file: The PDB file to extract information from."""
 
     def __init__(self):
-        
+
         self._classification = None
         self._deposition_date = None
         self._pdb_code = None
@@ -305,470 +305,48 @@ class PdbDataFile:
         return self._sites
 
 
-    def crystal_a(self, crystal_a=None):
-        if crystal_a is not None:
-            if not isinstance(crystal_a, float):
+    def crystal(self, crystal=None):
+        if crystal:
+            if not isinstance(crystal, dict):
                 raise TypeError(
-                 "crystal_a must be float, not '%s'" % str(crystal_a)
+                 "crystal must be dict, not '%s'" % str(crystal)
                 )
-            self._crystal_a = crystal_a
+            self._crystal = crystal
         else:
-            return self._crystal_a
+            return self._crystal
 
 
-    def crystal_b(self, crystal_b=None):
-        if crystal_b is not None:
-            if not isinstance(crystal_b, float):
+    def origx(self, origx=None):
+        if origx:
+            if not isinstance(origx, dict):
                 raise TypeError(
-                 "crystal_b must be float, not '%s'" % str(crystal_b)
+                 "origx must be dict, not '%s'" % str(origx)
                 )
-            self._crystal_b = crystal_b
+            self._origx = origx
         else:
-            return self._crystal_b
+            return self._origx
 
 
-    def crystal_c(self, crystal_c=None):
-        if crystal_c is not None:
-            if not isinstance(crystal_c, float):
+    def scale(self, scale=None):
+        if scale:
+            if not isinstance(scale, dict):
                 raise TypeError(
-                 "crystal_c must be float, not '%s'" % str(crystal_c)
+                 "scale must be dict, not '%s'" % str(scale)
                 )
-            self._crystal_c = crystal_c
+            self._scale = scale
         else:
-            return self._crystal_c
+            return self._scale
 
 
-    def crystal_alpha(self, crystal_alpha=None):
-        if crystal_alpha is not None:
-            if not isinstance(crystal_alpha, float):
+    def matrix(self, matrix=None):
+        if matrix:
+            if not isinstance(matrix, dict):
                 raise TypeError(
-                 "crystal_alpha must be float, not '%s'" % str(crystal_alpha)
+                 "matrix must be dict, not '%s'" % str(matrix)
                 )
-            self._crystal_alpha = crystal_alpha
+            self._matrix = matrix
         else:
-            return self._crystal_alpha
-
-
-    def crystal_beta(self, crystal_beta=None):
-        if crystal_beta is not None:
-            if not isinstance(crystal_beta, float):
-                raise TypeError(
-                 "crystal_beta must be float, not '%s'" % str(crystal_beta)
-                )
-            self._crystal_beta = crystal_beta
-        else:
-            return self._crystal_beta
-
-
-    def crystal_gamma(self, crystal_gamma=None):
-        if crystal_gamma is not None:
-            if not isinstance(crystal_gamma, float):
-                raise TypeError(
-                 "crystal_gamma must be float, not '%s'" % str(crystal_gamma)
-                )
-            self._crystal_gamma = crystal_gamma
-        else:
-            return self._crystal_gamma
-
-
-    def crystal_s_group(self, crystal_s_group=None):
-        if crystal_s_group is not None:
-            if not isinstance(crystal_s_group, str):
-                raise TypeError(
-                 "crystal_s_group must be str, not '%s'" % str(crystal_s_group)
-                )
-            self._crystal_s_group = crystal_s_group
-        else:
-            return self._crystal_s_group
-
-
-    def crystal_z(self, crystal_z=None):
-        if crystal_z is not None:
-            if not isinstance(crystal_z, int):
-                raise TypeError(
-                 "crystal_z must be int, not '%s'" % str(crystal_z)
-                )
-            self._crystal_z = crystal_z
-        else:
-            return self._crystal_z
-
-
-    def origx_o11(self, origx_o11=None):
-        if origx_o11 is not None:
-            if not isinstance(origx_o11, float):
-                raise TypeError("origx_o11 must be float, not '%s'" % str(origx_o11))
-            self._origx_o11 = origx_o11
-        else:
-            return self._origx_o11
-
-
-    def origx_o12(self, origx_o12=None):
-        if origx_o12 is not None:
-            if not isinstance(origx_o12, float):
-                raise TypeError("origx_o12 must be float, not '%s'" % str(origx_o12))
-            self._origx_o12 = origx_o12
-        else:
-            return self._origx_o12
-
-
-    def origx_o13(self, origx_o13=None):
-        if origx_o13 is not None:
-            if not isinstance(origx_o13, float):
-                raise TypeError("origx_o13 must be float, not '%s'" % str(origx_o13))
-            self._origx_o13 = origx_o13
-        else:
-            return self._origx_o13
-
-
-    def origx_t1(self, origx_t1=None):
-        if origx_t1 is not None:
-            if not isinstance(origx_t1, float):
-                raise TypeError("origx_t1 must be float, not '%s'" % str(origx_t1))
-            self._origx_t1 = origx_t1
-        else:
-            return self._origx_t1
-
-
-    def origx_o21(self, origx_o21=None):
-        if origx_o21 is not None:
-            if not isinstance(origx_o21, float):
-                raise TypeError("origx_o21 must be float, not '%s'" % str(origx_o21))
-            self._origx_o21 = origx_o21
-        else:
-            return self._origx_o21
-
-
-    def origx_o22(self, origx_o22=None):
-        if origx_o22 is not None:
-            if not isinstance(origx_o22, float):
-                raise TypeError("origx_o22 must be float, not '%s'" % str(origx_o22))
-            self._origx_o22 = origx_o22
-        else:
-            return self._origx_o22
-
-
-    def origx_o23(self, origx_o23=None):
-        if origx_o23 is not None:
-            if not isinstance(origx_o23, float):
-                raise TypeError("origx_o23 must be float, not '%s'" % str(origx_o23))
-            self._origx_o23 = origx_o23
-        else:
-            return self._origx_o23
-
-
-    def origx_t2(self, origx_t2=None):
-        if origx_t2 is not None:
-            if not isinstance(origx_t2, float):
-                raise TypeError("origx_t2 must be float, not '%s'" % str(origx_t2))
-            self._origx_t2 = origx_t2
-        else:
-            return self._origx_t2
-
-
-    def origx_o31(self, origx_o31=None):
-        if origx_o31 is not None:
-            if not isinstance(origx_o31, float):
-                raise TypeError("origx_o31 must be float, not '%s'" % str(origx_o31))
-            self._origx_o31 = origx_o31
-        else:
-            return self._origx_o31
-
-
-    def origx_o32(self, origx_o32=None):
-        if origx_o32 is not None:
-            if not isinstance(origx_o32, float):
-                raise TypeError("origx_o32 must be float, not '%s'" % str(origx_o32))
-            self._origx_o32 = origx_o32
-        else:
-            return self._origx_o32
-
-
-    def origx_o33(self, origx_o33=None):
-        if origx_o33 is not None:
-            if not isinstance(origx_o33, float):
-                raise TypeError("origx_o33 must be float, not '%s'" % str(origx_o33))
-            self._origx_o33 = origx_o33
-        else:
-            return self._origx_o33
-
-
-    def origx_t3(self, origx_t3=None):
-        if origx_t3 is not None:
-            if not isinstance(origx_t3, float):
-                raise TypeError("origx_t3 must be float, not '%s'" % str(origx_t3))
-            self._origx_t3 = origx_t3
-        else:
-            return self._origx_t3
-
-
-    def scale_s11(self, scale_s11=None):
-        if scale_s11 is not None:
-            if not isinstance(scale_s11, float):
-                raise TypeError("scale_s11 must be float, not '%s'" % str(scale_s11))
-            self._scale_s11 = scale_s11
-        else:
-            return self._scale_s11
-
-
-    def scale_s12(self, scale_s12=None):
-        if scale_s12 is not None:
-            if not isinstance(scale_s12, float):
-                raise TypeError("scale_s12 must be float, not '%s'" % str(scale_s12))
-            self._scale_s12 = scale_s12
-        else:
-            return self._scale_s12
-
-
-    def scale_s13(self, scale_s13=None):
-        if scale_s13 is not None:
-            if not isinstance(scale_s13, float):
-                raise TypeError("scale_s13 must be float, not '%s'" % str(scale_s13))
-            self._scale_s13 = scale_s13
-        else:
-            return self._scale_s13
-
-
-    def scale_u1(self, scale_u1=None):
-        if scale_u1 is not None:
-            if not isinstance(scale_u1, float):
-                raise TypeError("scale_u1 must be float, not '%s'" % str(scale_u1))
-            self._scale_u1 = scale_u1
-        else:
-            return self._scale_u1
-
-
-    def scale_s21(self, scale_s21=None):
-        if scale_s21 is not None:
-            if not isinstance(scale_s21, float):
-                raise TypeError("scale_s21 must be float, not '%s'" % str(scale_s21))
-            self._scale_s21 = scale_s21
-        else:
-            return self._scale_s21
-
-
-    def scale_s22(self, scale_s22=None):
-        if scale_s22 is not None:
-            if not isinstance(scale_s22, float):
-                raise TypeError("scale_s22 must be float, not '%s'" % str(scale_s22))
-            self._scale_s22 = scale_s22
-        else:
-            return self._scale_s22
-
-
-    def scale_s23(self, scale_s23=None):
-        if scale_s23 is not None:
-            if not isinstance(scale_s23, float):
-                raise TypeError("scale_s23 must be float, not '%s'" % str(scale_s23))
-            self._scale_s23 = scale_s23
-        else:
-            return self._scale_s23
-
-
-    def scale_u2(self, scale_u2=None):
-        if scale_u2 is not None:
-            if not isinstance(scale_u2, float):
-                raise TypeError("scale_u2 must be float, not '%s'" % str(scale_u2))
-            self._scale_u2 = scale_u2
-        else:
-            return self._scale_u2
-
-
-    def scale_s31(self, scale_s31=None):
-        if scale_s31 is not None:
-            if not isinstance(scale_s31, float):
-                raise TypeError("scale_s31 must be float, not '%s'" % str(scale_s31))
-            self._scale_s31 = scale_s31
-        else:
-            return self._scale_s31
-
-
-    def scale_s32(self, scale_s32=None):
-        if scale_s32 is not None:
-            if not isinstance(scale_s32, float):
-                raise TypeError("scale_s32 must be float, not '%s'" % str(scale_s32))
-            self._scale_s32 = scale_s32
-        else:
-            return self._scale_s32
-
-
-    def scale_s33(self, scale_s33=None):
-        if scale_s33 is not None:
-            if not isinstance(scale_s33, float):
-                raise TypeError("scale_s33 must be float, not '%s'" % str(scale_s33))
-            self._scale_s33 = scale_s33
-        else:
-            return self._scale_s33
-
-
-    def scale_u3(self, scale_u3=None):
-        if scale_u3 is not None:
-            if not isinstance(scale_u3, float):
-                raise TypeError("scale_u3 must be float, not '%s'" % str(scale_u3))
-            self._scale_u3 = scale_u3
-        else:
-            return self._scale_u3
-
-
-    def matrix_serial_1(self, matrix_serial_1=None):
-        if matrix_serial_1 is not None:
-            if not isinstance(matrix_serial_1, int):
-                raise TypeError("matrix_serial_1 must be int, not '%s'" % str(matrix_serial_1))
-            self._matrix_serial_1 = matrix_serial_1
-        else:
-            return self._matrix_serial_1
-
-
-    def matrix_m11(self, matrix_m11=None):
-        if matrix_m11 is not None:
-            if not isinstance(matrix_m11, float):
-                raise TypeError("matrix_m11 must be float, not '%s'" % str(matrix_m11))
-            self._matrix_m11 = matrix_m11
-        else:
-            return self._matrix_m11
-
-
-    def matrix_m12(self, matrix_m12=None):
-        if matrix_m12 is not None:
-            if not isinstance(matrix_m12, float):
-                raise TypeError("matrix_m12 must be float, not '%s'" % str(matrix_m12))
-            self._matrix_m12 = matrix_m12
-        else:
-            return self._matrix_m12
-
-
-    def matrix_m13(self, matrix_m13=None):
-        if matrix_m13 is not None:
-            if not isinstance(matrix_m13, float):
-                raise TypeError("matrix_m13 must be float, not '%s'" % str(matrix_m13))
-            self._matrix_m13 = matrix_m13
-        else:
-            return self._matrix_m13
-
-
-    def matrix_v1(self, matrix_v1=None):
-        if matrix_v1 is not None:
-            if not isinstance(matrix_v1, float):
-                raise TypeError("matrix_v1 must be float, not '%s'" % str(matrix_v1))
-            self._matrix_v1 = matrix_v1
-        else:
-            return self._matrix_v1
-
-
-    def matrix_i_given_1(self, matrix_i_given_1=None):
-        if matrix_i_given_1 is not None:
-            if not isinstance(matrix_i_given_1, bool):
-                raise TypeError("matrix_i_given_1 must be bool, not '%s'" % str(matrix_i_given_1))
-            self._matrix_i_given_1 = matrix_i_given_1
-        else:
-            return self._matrix_i_given_1
-
-
-    def matrix_serial_2(self, matrix_serial_2=None):
-        if matrix_serial_2 is not None:
-            if not isinstance(matrix_serial_2, int):
-                raise TypeError("matrix_serial_2 must be int, not '%s'" % str(matrix_serial_2))
-            self._matrix_serial_2 = matrix_serial_2
-        else:
-            return self._matrix_serial_2
-
-
-    def matrix_m21(self, matrix_m21=None):
-        if matrix_m21 is not None:
-            if not isinstance(matrix_m21, float):
-                raise TypeError("matrix_m21 must be float, not '%s'" % str(matrix_m21))
-            self._matrix_m21 = matrix_m21
-        else:
-            return self._matrix_m21
-
-
-    def matrix_m22(self, matrix_m22=None):
-        if matrix_m22 is not None:
-            if not isinstance(matrix_m22, float):
-                raise TypeError("matrix_m22 must be float, not '%s'" % str(matrix_m22))
-            self._matrix_m22 = matrix_m22
-        else:
-            return self._matrix_m22
-
-
-    def matrix_m23(self, matrix_m23=None):
-        if matrix_m23 is not None:
-            if not isinstance(matrix_m23, float):
-                raise TypeError("matrix_m23 must be float, not '%s'" % str(matrix_m23))
-            self._matrix_m23 = matrix_m23
-        else:
-            return self._matrix_m23
-
-
-    def matrix_v2(self, matrix_v2=None):
-        if matrix_v2 is not None:
-            if not isinstance(matrix_v2, float):
-                raise TypeError("matrix_v2 must be float, not '%s'" % str(matrix_v2))
-            self._matrix_v2 = matrix_v2
-        else:
-            return self._matrix_v2
-
-
-    def matrix_i_given_2(self, matrix_i_given_2=None):
-        if matrix_i_given_2 is not None:
-            if not isinstance(matrix_i_given_2, bool):
-                raise TypeError("matrix_i_given_2 must be bool, not '%s'" % str(matrix_i_given_2))
-            self._matrix_i_given_2 = matrix_i_given_2
-        else:
-            return self._matrix_i_given_2
-
-
-    def matrix_serial_3(self, matrix_serial_3=None):
-        if matrix_serial_3 is not None:
-            if not isinstance(matrix_serial_3, int):
-                raise TypeError("matrix_serial_3 must be int, not '%s'" % str(matrix_serial_3))
-            self._matrix_serial_3 = matrix_serial_3
-        else:
-            return self._matrix_serial_3
-
-
-    def matrix_m31(self, matrix_m31=None):
-        if matrix_m31 is not None:
-            if not isinstance(matrix_m31, float):
-                raise TypeError("matrix_m31 must be float, not '%s'" % str(matrix_m31))
-            self._matrix_m31 = matrix_m31
-        else:
-            return self._matrix_m31
-
-
-    def matrix_m32(self, matrix_m32=None):
-        if matrix_m32 is not None:
-            if not isinstance(matrix_m32, float):
-                raise TypeError("matrix_m32 must be float, not '%s'" % str(matrix_m32))
-            self._matrix_m32 = matrix_m32
-        else:
-            return self._matrix_m32
-
-
-    def matrix_m33(self, matrix_m33=None):
-        if matrix_m33 is not None:
-            if not isinstance(matrix_m33, float):
-                raise TypeError("matrix_m33 must be float, not '%s'" % str(matrix_m33))
-            self._matrix_m33 = matrix_m33
-        else:
-            return self._matrix_m33
-
-
-    def matrix_v3(self, matrix_v3=None):
-        if matrix_v3 is not None:
-            if not isinstance(matrix_v3, float):
-                raise TypeError("matrix_v3 must be float, not '%s'" % str(matrix_v3))
-            self._matrix_v3 = matrix_v3
-        else:
-            return self._matrix_v3
-
-
-    def matrix_i_given_3(self, matrix_i_given_3=None):
-        if matrix_i_given_3 is not None:
-            if not isinstance(matrix_i_given_3, bool):
-                raise TypeError("matrix_i_given_3 must be bool, not '%s'" % str(matrix_i_given_3))
-            self._matrix_i_given_3 = matrix_i_given_3
-        else:
-            return self._matrix_i_given_3
+            return self._matrix
 
 
     def models(self):

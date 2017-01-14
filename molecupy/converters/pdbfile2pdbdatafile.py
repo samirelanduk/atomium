@@ -6,6 +6,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
     if not isinstance(pdb_file, PdbFile):
         raise TypeError("pdb_data_file_from_pdb_file can only convert PdbFiles")
     data_file = PdbDataFile()
+    data_file._source = pdb_file
 
     process_header_records(data_file, pdb_file)
     process_obslte_records(data_file, pdb_file)

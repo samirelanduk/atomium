@@ -16,6 +16,7 @@ class PdbDataFileCreationTests(PdbDataFileTest):
 
     def test_can_create_empty_data_file(self):
         data_file = PdbDataFile()
+        self.assertEqual(data_file._source, None)
 
         self.assertEqual(data_file._classification, None)
         self.assertEqual(data_file._deposition_date, None)
@@ -89,6 +90,14 @@ class PdbDataFileCreationTests(PdbDataFileTest):
 
 
 
+class GeneralPdbDataFilePropertyTests(PdbDataFileTest):
+
+    def test_basic_properties(self):
+        data_file = pdb_data_file_from_pdb_file(PdbFile())
+        self.assertIs(data_file.source(), data_file._source)
+
+
+        
 class TitleSectionPropertyTests(PdbDataFileTest):
 
     def test_header_properties(self):

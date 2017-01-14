@@ -12,6 +12,7 @@ class PdbDataFile:
     :param PdbFile pdb_file: The PDB file to extract information from."""
 
     def __init__(self):
+        self._source = None
 
         self._classification = None
         self._deposition_date = None
@@ -74,6 +75,11 @@ class PdbDataFile:
         return "<PdbDataFile (%s)>" % (self.pdb_code() if self.pdb_code() else "????")
 
 
+    def source(self):
+        return self._source
+
+
+        
     def classification(self, classification=None):
         if classification:
             if not isinstance(classification, str):

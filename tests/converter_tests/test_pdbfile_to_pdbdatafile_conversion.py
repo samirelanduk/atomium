@@ -27,6 +27,12 @@ class BasicPdbDataFileCreationTests(PdbFile2PdbDataFileTest):
             pdb_data_file_from_pdb_file("PDB file")
 
 
+    def test_data_file_knows_source(self):
+        pdb_file = PdbFile()
+        data_file = pdb_data_file_from_pdb_file(pdb_file)
+        self.assertIs(data_file.source(), pdb_file)
+
+
 
 class HeaderRecordProcessingTests(PdbFile2PdbDataFileTest):
 

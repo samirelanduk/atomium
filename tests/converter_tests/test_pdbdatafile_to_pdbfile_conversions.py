@@ -4,7 +4,19 @@ from molecupy.pdb.pdbdatafile import PdbDataFile
 from molecupy.converters.pdbdatafile2pdbfile import pdb_file_from_pdb_data_file
 
 class PdbDataFile2PdbFileTest(TestCase):
-    pass
+
+    def setUp(self):
+        self.blank = PdbDataFile()
+
+
+    def add_compounds_to_blank(self, compounds):
+        for compound in compounds:
+            self.blank.compounds().append(compound)
+
+
+    def add_connections_to_blank(self, connections):
+        for connection in connections:
+            self.blank.connections().append(connection)
 
 
 
@@ -25,44 +37,9 @@ class BasicPdbFileCreationTests(PdbDataFile2PdbFileTest):
         pdb_file = pdb_file_from_pdb_data_file(data_file)
         self.assertIs(pdb_file.source(), data_file)
 
-'''class PdbDataFileTest(TestCase):
-
-    def setUp(self):
-        self.empty = PdbDataFile(PdbFile(""))
-        self.blank = PdbDataFile()
 
 
-    def add_compounds_to_blank(self, compounds):
-        for compound in compounds:
-            self.blank.compounds().append(compound)
-
-
-    def add_atoms_to_blank(self, atoms):
-        for atom in atoms:
-            self.blank.atoms().append(atom)
-
-
-    def add_heteroatoms_to_blank(self, heteroatoms):
-        for atom in heteroatoms:
-            self.blank.heteroatoms().append(atom)
-
-
-    def add_connections_to_blank(self, connections):
-        for connection in connections:
-            self.blank.connections().append(connection)
-
-
-
-class PdbFileCreationTests(PdbDataFileTest):
-
-    def test_can_make_basic_pdb_file(self):
-        pdb_file = self.blank.generate_pdb_file()
-        self.assertIsInstance(pdb_file, PdbFile)
-        self.assertEqual(pdb_file.records(), [])
-
-
-
-class CompoundsConversionTests(PdbDataFileTest):
+class CompoundsConversionTests(PdbDataFile2PdbFileTest):
 
     def test_can_convert_simple_compound(self):
         self.add_compounds_to_blank([{
@@ -70,7 +47,7 @@ class CompoundsConversionTests(PdbDataFileTest):
          "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
          "CHAIN": ["A", "B"]
         }])
-        pdb_file = self.blank.generate_pdb_file()
+        pdb_file = pdb_file_from_pdb_data_file(self.blank)
         self.assertEqual(
          "\n".join([line.rstrip() for line in pdb_file.convert_to_string().split("\n")]),
          "COMPND    MOL_ID: 1;\n"
@@ -92,7 +69,7 @@ class CompoundsConversionTests(PdbDataFileTest):
          "EC": "4.1.1.23",
          "ENGINEERED": True
         }])
-        pdb_file = self.blank.generate_pdb_file()
+        pdb_file = pdb_file_from_pdb_data_file(self.blank)
         self.assertEqual(
          "\n".join([line.rstrip() for line in pdb_file.convert_to_string().split("\n")]),
          "COMPND    MOL_ID: 1;\n"
@@ -120,7 +97,7 @@ class CompoundsConversionTests(PdbDataFileTest):
          "MOL_ID": 2,
          "MOLECULE": "OROTIDINE 5'-MONOPHOSPHATE VERYPHOSPHATE INDEED DECARBOXYLASE PLUS"
         }])
-        pdb_file = self.blank.generate_pdb_file()
+        pdb_file = pdb_file_from_pdb_data_file(self.blank)
         self.assertEqual(len(pdb_file.records()), 9)
         self.assertEqual(
          "\n".join([line.rstrip() for line in pdb_file.convert_to_string().split("\n")]),
@@ -134,6 +111,83 @@ class CompoundsConversionTests(PdbDataFileTest):
          "COMPND   8 MOLECULE: OROTIDINE 5'-MONOPHOSPHATE VERYPHOSPHATE INDEED\n"
          "COMPND   9 DECARBOXYLASE PLUS;"
         )
+
+
+
+class ConnectionsConversionTests(PdbDataFile2PdbFileTest):
+
+    def test_can_convert_connection(self):
+        self.add_connections_to_blank([{
+         "atom_id": 11,
+         "bonded_atoms": [746, 1184]
+        }])
+        pdb_file = pdb_file_from_pdb_data_file(self.blank)
+        self.assertEqual(len(pdb_file.records()), 1)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "CONECT   11  746 1184" + (" " * 59)
+        )
+
+
+    def test_can_convert_connection_with_more_than_four_bonds(self):
+        self.add_connections_to_blank([{
+         "atom_id": 1179,
+         "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
+        }])
+        pdb_file = pdb_file_from_pdb_data_file(self.blank)
+        self.assertEqual(len(pdb_file.records()), 2)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "CONECT 1179  746 1184 1195 1203" + (" " * 49)
+        )
+        self.assertEqual(
+         pdb_file.records()[1].text(),
+         "CONECT 1179 1211 1222" + (" " * 59)
+        )
+
+
+    def test_can_convert_multiple_connection(self):
+        self.add_connections_to_blank([{
+         "atom_id": 1179,
+         "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
+        }, {
+         "atom_id": 11,
+         "bonded_atoms": [746, 1184]
+        }])
+        pdb_file = pdb_file_from_pdb_data_file(self.blank)
+        self.assertEqual(len(pdb_file.records()), 3)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "CONECT 1179  746 1184 1195 1203" + (" " * 49)
+        )
+        self.assertEqual(
+         pdb_file.records()[1].text(),
+         "CONECT 1179 1211 1222" + (" " * 59)
+        )
+        self.assertEqual(
+         pdb_file.records()[2].text(),
+         "CONECT   11  746 1184" + (" " * 59)
+        )
+'''class PdbDataFileTest(TestCase):
+
+
+
+
+
+
+
+    def add_atoms_to_blank(self, atoms):
+        for atom in atoms:
+            self.blank.atoms().append(atom)
+
+
+    def add_heteroatoms_to_blank(self, heteroatoms):
+        for atom in heteroatoms:
+            self.blank.heteroatoms().append(atom)
+
+
+
+
 
 
 
@@ -251,57 +305,4 @@ class AtomsConversionTests(PdbDataFileTest):
 
 
 
-class ConnectionsConversionTests(PdbDataFileTest):
-
-    def test_can_convert_connection(self):
-        self.add_connections_to_blank([{
-         "atom_id": 11,
-         "bonded_atoms": [746, 1184]
-        }])
-        pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 1)
-        self.assertEqual(
-         pdb_file.records()[0].text(),
-         "CONECT   11  746 1184" + (" " * 59)
-        )
-
-
-    def test_can_convert_connection_with_more_than_four_bonds(self):
-        self.add_connections_to_blank([{
-         "atom_id": 1179,
-         "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
-        }])
-        pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 2)
-        self.assertEqual(
-         pdb_file.records()[0].text(),
-         "CONECT 1179  746 1184 1195 1203" + (" " * 49)
-        )
-        self.assertEqual(
-         pdb_file.records()[1].text(),
-         "CONECT 1179 1211 1222" + (" " * 59)
-        )
-
-
-    def test_can_convert_multiple_connection(self):
-        self.add_connections_to_blank([{
-         "atom_id": 1179,
-         "bonded_atoms": [746, 1184, 1195, 1203, 1211, 1222]
-        }, {
-         "atom_id": 11,
-         "bonded_atoms": [746, 1184]
-        }])
-        pdb_file = self.blank.generate_pdb_file()
-        self.assertEqual(len(pdb_file.records()), 3)
-        self.assertEqual(
-         pdb_file.records()[0].text(),
-         "CONECT 1179  746 1184 1195 1203" + (" " * 49)
-        )
-        self.assertEqual(
-         pdb_file.records()[1].text(),
-         "CONECT 1179 1211 1222" + (" " * 59)
-        )
-        self.assertEqual(
-         pdb_file.records()[2].text(),
-         "CONECT   11  746 1184" + (" " * 59)
-        )'''
+'''

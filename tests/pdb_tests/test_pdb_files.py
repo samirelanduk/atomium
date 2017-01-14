@@ -1,7 +1,8 @@
 import random
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
+from molecupy.converters.pdbfile2pdbdatafile import pdb_data_file_from_pdb_file
 
 class PdbFileTest(TestCase):
 
@@ -26,7 +27,7 @@ class PdbFileCreationTests(PdbFileTest):
 
     def test_can_create_file_from_string(self):
         pdb_file = PdbFile(self.file_string)
-        self.assertEqual(pdb_file._original_file_string, self.file_string)
+        self.assertEqual(pdb_file._source, self.file_string)
         self.assertEqual(len(pdb_file._records), 9)
         self.assertEqual(pdb_file._records[0].name(), "HEADER")
         self.assertEqual(pdb_file._records[-1].name(), "COMPND")
@@ -47,12 +48,23 @@ class PdbFileCreationTests(PdbFileTest):
             new_file.append(weird_char if weird_char != "\n" else "")
         new_file = "".join(new_file)
         pdb_file = PdbFile(new_file)
-        self.assertEqual(pdb_file._original_file_string, self.file_string)
+        self.assertEqual(pdb_file._source, self.file_string)
 
 
     def test_can_create_file_without_string(self):
         pdb_file = PdbFile()
+        self.assertEqual(pdb_file._source, None)
         self.assertEqual(len(pdb_file.records()), 0)
+
+
+
+class PdbFileConversionTests(PdbFileTest):
+
+    @patch("molecupy.converters.pdbfile2pdbdatafile.pdb_data_file_from_pdb_file")
+    def test_can_convert_to_pdb_data_file(self, mock):
+        value = "Return value"
+        mock.return_value = value
+        self.assertIs(PdbFile().to_pdb_data_file(), value)
 
 
 
@@ -60,7 +72,7 @@ class PdbFilePropertiesTests(PdbFileTest):
 
     def test_pdb_file_properties(self):
         pdb_file = PdbFile(self.file_string)
-        self.assertEqual(pdb_file.original_file_string(), pdb_file._original_file_string)
+        self.assertEqual(pdb_file.source(), pdb_file._source)
         self.assertEqual(pdb_file.records(), pdb_file._records)
 
 

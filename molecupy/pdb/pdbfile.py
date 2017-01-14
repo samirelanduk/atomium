@@ -171,12 +171,12 @@ class PdbFile:
 
 
     def __init__(self, file_string=""):
-        self._original_file_string = "".join([
+        self._source = "".join([
          char for char in file_string if 32 <= ord(char) <= 126 or char=="\n"
-        ])
+        ]) if file_string else None
         self._records = [
-         PdbRecord(line, self) for line in self._original_file_string.split("\n") if line
-        ]
+         PdbRecord(line, self) for line in self._source.split("\n") if line
+        ] if file_string else []
 
 
     def __repr__(self):
@@ -191,12 +191,8 @@ class PdbFile:
         return len(self.records())
 
 
-    def original_file_string(self):
-        """The file string from which the object was created.
-
-        :rtype: ``str``"""
-
-        return self._original_file_string
+    def source(self):
+        return self._source
 
 
     def records(self):
@@ -256,3 +252,8 @@ class PdbFile:
     def convert_to_string(self):
         lines = [record.text() for record in self.records()]
         return "\n".join(lines)
+
+
+    def to_pdb_data_file(self):
+        from ..converters.pdbfile2pdbdatafile import pdb_data_file_from_pdb_file
+        return pdb_data_file_from_pdb_file(self)

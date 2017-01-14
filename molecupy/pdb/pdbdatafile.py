@@ -3,8 +3,7 @@ process the values that it extracts."""
 
 import datetime
 import math
-from .pdbfile import PdbRecord
-from ..converters.pdbdatafile2pdbfile import pdb_file_from_pdb_data_file
+from .pdbfile import PdbRecord, PdbFile
 
 class PdbDataFile:
     """This object is essentially a list of values extracted from a PDB file. It
@@ -13,6 +12,7 @@ class PdbDataFile:
     :param PdbFile pdb_file: The PDB file to extract information from."""
 
     def __init__(self):
+        
         self._classification = None
         self._deposition_date = None
         self._pdb_code = None
@@ -72,14 +72,6 @@ class PdbDataFile:
 
     def __repr__(self):
         return "<PdbDataFile (%s)>" % (self.pdb_code() if self.pdb_code() else "????")
-
-
-    def original_pdb_file(self):
-        """The :py:class:`.PdbFile` from which the object was created.
-
-        :rtype: ``PdbFile``"""
-
-        return self._original_pdb_file
 
 
     def classification(self, classification=None):
@@ -812,6 +804,3 @@ class PdbDataFile:
             self._master = master
         else:
             return self._master
-
-
-    generate_pdb_file = pdb_file_from_pdb_data_file

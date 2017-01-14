@@ -4,7 +4,9 @@ from ..pdb.pdbdatafile import PdbDataFile
 
 def pdb_file_from_pdb_data_file(data_file):
     if not isinstance(data_file, PdbDataFile):
-        raise TypeError("pdb_file_from_pdb_data_file can only convert PdbDataFiles")
+        raise TypeError(
+         "pdb_file_from_pdb_data_file can only convert PdbDataFiles"
+        )
     pdb_file = PdbFile()
     pdb_file._source = data_file
 
@@ -12,6 +14,7 @@ def pdb_file_from_pdb_data_file(data_file):
     create_atom_records(pdb_file, data_file)
     create_atom_records(pdb_file, data_file, hetero=True)
     create_conect_records(pdb_file, data_file)
+
     return pdb_file
 
 
@@ -30,7 +33,9 @@ def create_compnd_records(pdb_file, data_file):
         if "EC" in compound:
             segments.append("EC: %s;" % str(compound["EC"]))
         if "ENGINEERED" in compound:
-            segments.append("ENGINEERED: %s;" % "YES" if compound["ENGINEERED"] else "NO")
+            segments.append(
+             "ENGINEERED: %s;" % "YES" if compound["ENGINEERED"] else "NO"
+            )
         for segment in segments:
             if len(segment) <= 69:
                 lines.append(segment)
@@ -62,18 +67,30 @@ def create_atom_records(pdb_file, data_file, hetero=False):
         record_fragments.append("%5i" % atom["atom_id"] + " ")
         record_fragments.append("%-4s" % atom["atom_name"][:4])
         record_fragments.append(atom["alt_loc"][0] if atom["alt_loc"] else " ")
-        record_fragments.append(atom["residue_name"][0:3] + " " if atom["residue_name"] else "    ")
-        record_fragments.append(atom["chain_id"][0] if atom["chain_id"] else " ")
-        record_fragments.append(("%4i" % atom["residue_id"]) if atom["residue_id"] else "    ")
-        record_fragments.append(atom["insert_code"][0] + "   " if atom["insert_code"] else "    ")
+        record_fragments.append(
+         atom["residue_name"][0:3] + " " if atom["residue_name"] else "    "
+        )
+        record_fragments.append(
+         atom["chain_id"][0] if atom["chain_id"] else " "
+        )
+        record_fragments.append(
+         ("%4i" % atom["residue_id"]) if atom["residue_id"] else "    "
+        )
+        record_fragments.append(
+         atom["insert_code"][0] + "   " if atom["insert_code"] else "    "
+        )
         record_fragments.append(_number_to_8_char_string(atom["x"]))
         record_fragments.append(_number_to_8_char_string(atom["y"]))
         record_fragments.append(_number_to_8_char_string(atom["z"]))
         record_fragments.append(_number_to_6_char_string(atom["occupancy"]))
-        record_fragments.append(_number_to_6_char_string(atom["temperature_factor"]))
+        record_fragments.append(
+         _number_to_6_char_string(atom["temperature_factor"])
+        )
         record_fragments.append(" " * 10)
         record_fragments.append("%-2s" % atom["element"])
-        record_fragments.append(("%-2i" % atom["charge"]) if atom["charge"] else "  ")
+        record_fragments.append(
+         ("%-2i" % atom["charge"]) if atom["charge"] else "  "
+        )
         pdb_file.add_record(PdbRecord("".join(record_fragments)))
 
 
@@ -83,7 +100,8 @@ def create_conect_records(pdb_file, data_file):
         for n in range(record_count):
             pdb_file.add_record(PdbRecord("CONECT%5i%5s%5s%5s%5s" % (
              connection["atom_id"],
-             str(connection["bonded_atoms"][(n * 4)]) if (n * 4) < len(connection["bonded_atoms"]) else "",
+             str(connection["bonded_atoms"][(n * 4)])\
+              if (n * 4) < len(connection["bonded_atoms"]) else "",
              str(connection["bonded_atoms"][(n * 4) + 1])
               if (n * 4) + 1 < len(connection["bonded_atoms"]) else "",
              str(connection["bonded_atoms"][(n * 4) + 2])

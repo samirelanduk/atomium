@@ -1,8 +1,13 @@
 import math
 from ..pdb.pdbfile import PdbFile, PdbRecord
+from ..pdb.pdbdatafile import PdbDataFile
 
 def pdb_file_from_pdb_data_file(data_file):
+    if not isinstance(data_file, PdbDataFile):
+        raise TypeError("pdb_file_from_pdb_data_file can only convert PdbDataFiles")
     pdb_file = PdbFile()
+    pdb_file._source = data_file
+
     create_compnd_records(pdb_file, data_file)
     create_atom_records(pdb_file, data_file)
     create_atom_records(pdb_file, data_file, hetero=True)

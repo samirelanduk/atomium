@@ -11,14 +11,14 @@ from molecupy.converters.pdbfile2pdbdatafile import records_to_token_value_dicts
 class PdbFile2PdbDataFileTest(TestCase):
 
     def setUp(self):
-        self.empty = pdb_data_file_from_pdb_file(PdbFile(""))
+        self.empty = pdb_data_file_from_pdb_file(PdbFile())
 
 
 
 class BasicPdbDataFileCreationTests(PdbFile2PdbDataFileTest):
 
     def test_can_create_pdb_data_file(self):
-        data_file = pdb_data_file_from_pdb_file(PdbFile(""))
+        data_file = pdb_data_file_from_pdb_file(PdbFile())
         self.assertIsInstance(data_file, PdbDataFile)
 
 

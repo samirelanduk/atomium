@@ -1,9 +1,31 @@
+from unittest import TestCase
 from molecupy.pdb.pdbfile import PdbFile
 from molecupy.pdb.pdbdatafile import PdbDataFile
+from molecupy.converters.pdbdatafile2pdbfile import pdb_file_from_pdb_data_file
 
-from unittest import TestCase
+class PdbDataFile2PdbFileTest(TestCase):
+    pass
 
-class PdbDataFileTest(TestCase):
+
+
+class BasicPdbFileCreationTests(PdbDataFile2PdbFileTest):
+
+    def test_can_create_pdb_file(self):
+        pdb_file = pdb_file_from_pdb_data_file(PdbDataFile())
+        self.assertIsInstance(pdb_file, PdbFile)
+
+
+    def test_can_only_convert_pdb_data_files(self):
+        with self.assertRaises(TypeError):
+            pdb_file_from_pdb_data_file("PDB file")
+
+
+    def test_pdb_file_knows_source(self):
+        data_file = PdbDataFile()
+        pdb_file = pdb_file_from_pdb_data_file(data_file)
+        self.assertIs(pdb_file.source(), data_file)
+
+'''class PdbDataFileTest(TestCase):
 
     def setUp(self):
         self.empty = PdbDataFile(PdbFile(""))
@@ -282,4 +304,4 @@ class ConnectionsConversionTests(PdbDataFileTest):
         self.assertEqual(
          pdb_file.records()[2].text(),
          "CONECT   11  746 1184" + (" " * 59)
-        )
+        )'''

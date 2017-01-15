@@ -1,11 +1,16 @@
 from ..structures import Model, Atom, GhostAtom, SmallMolecule, Residue, Chain
 from ..structures import BindSite, AlphaHelix, BetaStrand, Complex
+from ..pdb.pdbdatafile import PdbDataFile
 
-def model_from_pdb_data_file(data_file, model_id):
-    model = Model()
-    add_small_molecules_to_model(model, data_file, model_id)
-    add_chain_to_model(model, data_file, model_id)
-    return model
+def model_from_pdb_data_file(data_file, model=1):
+    if not isinstance(data_file, PdbDataFile):
+        raise TypeError("model_from_pdb_data_file can only convert PdbDataFiles")
+    for model_dict in data_file.models():
+        if model_dict["model_id"] == model:
+            model = Model()
+            model._source = data_file
+            return model
+    raise ValueError("There is no model with ID %i" % model)
 
 
 def add_small_molecules_to_model(model, data_file, model_id):

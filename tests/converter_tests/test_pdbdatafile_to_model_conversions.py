@@ -14,60 +14,16 @@ class PdbDataFile2ModelTest(TestCase):
          "start_record": -1,
          "end_record": -1
         }]
-
-
-
-class BasicModelCreationTests(PdbDataFile2ModelTest):
-
-    def test_can_create_model(self):
-        model = model_from_pdb_data_file(self.data_file)
-        self.assertIsInstance(model, Model)
-
-
-    def test_can_only_convert_pdb_data_files(self):
-        with self.assertRaises(TypeError):
-            model_from_pdb_data_file("PDB file")
-
-
-    def test_data_file_knows_source(self):
-        model = model_from_pdb_data_file(self.data_file)
-        self.assertIs(model.source(), self.data_file)
-
-
-    def test_can_get_specific_model(self):
-        self.data_file.models.return_value = [{
-         "model_id": 2,
-         "start_record": 3,
-         "end_record": 5
-        }]
-        model2 = model_from_pdb_data_file(self.data_file, model=2)
-        self.assertIsInstance(model2, Model)
-        with self.assertRaises(ValueError):
-            model_from_pdb_data_file(self.data_file)
-        with self.assertRaises(ValueError, model=1):
-            model_from_pdb_data_file(self.data_file)
-
-
-
-'''
-class ModelCreationTest(TestCase):
-
-    def setUp(self):
-        self.data_file = Mock(spec=PdbDataFile)
-        self.data_file.models.return_value = [
-         {"model_id": 1, "start_record": 0, "end_record": 0}
-        ]
-        self.data_file.heteroatoms.return_value = []
-        self.data_file.atoms.return_value = []
-        self.data_file.get_remark_by_number.return_value = {}
-        self.data_file.connections.return_value = []
+        self.data_file.compounds.return_value = []
+        self.data_file.helices.return_value = []
+        self.data_file.sheets.return_value = []
         self.data_file.ss_bonds.return_value = []
         self.data_file.links.return_value = []
         self.data_file.sites.return_value = []
-        self.data_file.helices.return_value = []
-        self.data_file.sheets.return_value = []
-        self.data_file.compounds.return_value = []
-
+        self.data_file.atoms.return_value = []
+        self.data_file.heteroatoms.return_value = []
+        self.data_file.connections.return_value = []
+        self.data_file.get_remark_by_number.return_value = {}
         self.atom1 = {
          "atom_id": 8237,
          "atom_name": "CA",
@@ -139,7 +95,39 @@ class ModelCreationTest(TestCase):
 
 
 
-class SmallMoleculeTests(ModelCreationTest):
+class BasicModelCreationTests(PdbDataFile2ModelTest):
+
+    def test_can_create_model(self):
+        model = model_from_pdb_data_file(self.data_file)
+        self.assertIsInstance(model, Model)
+
+
+    def test_can_only_convert_pdb_data_files(self):
+        with self.assertRaises(TypeError):
+            model_from_pdb_data_file("PDB file")
+
+
+    def test_data_file_knows_source(self):
+        model = model_from_pdb_data_file(self.data_file)
+        self.assertIs(model.source(), self.data_file)
+
+
+    def test_can_get_specific_model(self):
+        self.data_file.models.return_value = [{
+         "model_id": 2,
+         "start_record": 3,
+         "end_record": 5
+        }]
+        model2 = model_from_pdb_data_file(self.data_file, model_id=2)
+        self.assertIsInstance(model2, Model)
+        with self.assertRaises(ValueError):
+            model_from_pdb_data_file(self.data_file)
+        with self.assertRaises(ValueError, model_id=1):
+            model_from_pdb_data_file(self.data_file)
+
+
+
+class SmallMoleculeCreationTests(PdbDataFile2ModelTest):
 
     def test_single_small_molecule(self):
         self.data_file.heteroatoms.return_value = [self.atom1, self.atom2]
@@ -185,6 +173,8 @@ class SmallMoleculeTests(ModelCreationTest):
         )
 
 
+
+'''
 
 class ChainTests(ModelCreationTest):
 

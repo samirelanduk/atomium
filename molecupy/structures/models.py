@@ -17,6 +17,7 @@ class Model(AtomicStructure):
         self._chains = set()
         self._bind_sites = set()
         self._complexes = set()
+        self._source = None
 
 
     def __getattr__(self, attribute):
@@ -31,6 +32,10 @@ class Model(AtomicStructure):
             return atoms
         else:
             return self.__getattribute__(attribute)
+
+
+    def source(self):
+        return self._source
 
 
     def small_molecules(self):

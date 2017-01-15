@@ -1,6 +1,7 @@
 import os
 from unittest import TestCase
 import unittest.mock
+from molecupy.converters.pdbdatafile2model import model_from_pdb_data_file
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
 from molecupy.structures import BindSite, Atom, GhostAtom, Complex, Residue
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
@@ -65,11 +66,20 @@ class ModelCreationTest(ModelTest):
         model = Model()
         self.assertIsInstance(model, AtomicStructure)
         self.assertEqual(model._atoms, set())
+        self.assertEqual(model._source, None)
 
 
     def test_model_repr(self):
         model = Model()
         self.assertEqual(str(model), "<Model (0 atoms)>")
+
+
+
+class ModelPropertyTests(ModelTest):
+
+    def test_basic_properties(self):
+        model = model_from_pdb_data_file(PdbDataFile())
+        self.assertIs(model.source(), model._source)
 
 
 

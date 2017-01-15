@@ -11,6 +11,8 @@ def model_from_pdb_data_file(data_file, model_id=1):
             model._source = data_file
 
             add_small_molecules_to_model(model, data_file, model_id)
+            add_chains_to_model(model, data_file, model_id)
+
             return model
     raise ValueError("There is no model with ID %i" % model_id)
 
@@ -38,7 +40,7 @@ def add_small_molecules_to_model(model, data_file, model_id):
                 model.add_small_molecule(small_molecule)
 
 
-def add_chain_to_model(model, data_file, model_id):
+def add_chains_to_model(model, data_file, model_id):
     atoms = data_file.atoms()
     atom_id = max([atom["atom_id"] for atom in atoms]) * 100 if atoms else 1000
     chain_ids = set([a["chain_id"] for a in atoms])

@@ -122,8 +122,8 @@ class BasicModelCreationTests(PdbDataFile2ModelTest):
         self.assertIsInstance(model2, Model)
         with self.assertRaises(ValueError):
             model_from_pdb_data_file(self.data_file)
-        with self.assertRaises(ValueError, model_id=1):
-            model_from_pdb_data_file(self.data_file)
+        with self.assertRaises(ValueError):
+            model_from_pdb_data_file(self.data_file, model_id=1)
 
 
 
@@ -174,9 +174,7 @@ class SmallMoleculeCreationTests(PdbDataFile2ModelTest):
 
 
 
-'''
-
-class ChainTests(ModelCreationTest):
+class ChainTests(PdbDataFile2ModelTest):
 
     def test_single_chain(self):
         self.data_file.atoms.return_value = [
@@ -229,4 +227,4 @@ class ChainTests(ModelCreationTest):
         self.assertIsNot(
          [model1.chains()][0],
          [model2.chains()][0]
-        )'''
+        )

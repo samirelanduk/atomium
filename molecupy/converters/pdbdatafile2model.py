@@ -20,13 +20,11 @@ def model_from_pdb_data_file(data_file, model_id=1):
 def add_small_molecules_to_model(model, data_file, model_id):
     heteroatoms = data_file.heteroatoms()
     molecule_names = set([a["residue_name"] for a in heteroatoms])
-    molecule_ids = set([a["chain_id"] + str(a["residue_id"]) + a["insert_code"]
-     for a in heteroatoms])
+    molecule_ids = set([_mol_id_from_atom(a) for a in heteroatoms])
     for molecule_name in molecule_names:
         for molecule_id in molecule_ids:
             relevant_atoms = [a for a in heteroatoms if a["model_id"] == model_id
-             and a["residue_name"] == molecule_name and a["chain_id"] +
-              str(a["residue_id"]) + a["insert_code"] == molecule_id]
+             and a["residue_name"] == molecule_name and _mol_id_from_atom(a) == molecule_id]
             if relevant_atoms:
                 atoms = [Atom(
                  a["x"], a["y"], a["z"],
@@ -49,13 +47,13 @@ def add_chains_to_model(model, data_file, model_id):
          and a["chain_id"] == chain_id]
         residue_ids = []
         for a in relevant_atoms:
-            id_ = str(a["residue_id"]) + a["insert_code"]
+            id_ = _mol_id_from_atom(a)
             if id_ not in residue_ids:
                 residue_ids.append(id_)
         residues = []
         for residue_id in residue_ids:
             residue_atoms = [
-             a for a in relevant_atoms if str(a["residue_id"]) + a["insert_code"] == residue_id
+             a for a in relevant_atoms if _mol_id_from_atom(a) == residue_id
             ]
             pdb_atoms = [Atom(
              a["x"], a["y"], a["z"],
@@ -64,7 +62,7 @@ def add_chains_to_model(model, data_file, model_id):
              a["atom_name"]
             ) for a in residue_atoms]
             residue = Residue(
-             chain_id + residue_id, residue_atoms[0]["residue_name"], *pdb_atoms
+             residue_id, residue_atoms[0]["residue_name"], *pdb_atoms
             )
             residues.append(residue)
         missing_residues_remark = data_file.get_remark_by_number(465)
@@ -121,3 +119,7 @@ def add_chains_to_model(model, data_file, model_id):
                 )
         chain = Chain(chain_id, *residues)
         model.add_chain(chain)
+
+
+def _mol_id_from_atom(atom):
+    return atom["chain_id"] + str(atom["residue_id"]) + atom["insert_code"]

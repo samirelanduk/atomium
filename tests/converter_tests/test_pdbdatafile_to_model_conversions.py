@@ -361,6 +361,386 @@ class ChainTests(PdbDataFile2ModelTest):
 
 
 
+class BondTests(PdbDataFile2ModelTest):
+
+    def setUp(self):
+        PdbDataFile2ModelTest.setUp(self)
+        self.data_file.atoms.return_value = [{
+         "atom_id": 131,
+         "atom_name": "N",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 27,
+         "insert_code": "",
+         "x": 12.681,
+         "y": 37.302,
+         "z": -25.211,
+         "occupancy": 1.0,
+         "temperature_factor": 15.56,
+         "element": "N",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 132,
+         "atom_name": "CA",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 27,
+         "insert_code": "",
+         "x": 11.982,
+         "y": 37.996,
+         "z": -26.241,
+         "occupancy": 1.0,
+         "temperature_factor": 16.92,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 133,
+         "atom_name": "C",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 27,
+         "insert_code": "",
+         "x": 12.681,
+         "y": 37.302,
+         "z": -25.211,
+         "occupancy": 1.0,
+         "temperature_factor": 15.56,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 134,
+         "atom_name": "O",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 27,
+         "insert_code": "",
+         "x": 11.982,
+         "y": 37.996,
+         "z": -26.241,
+         "occupancy": 1.0,
+         "temperature_factor": 16.92,
+         "element": "O",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 135,
+         "atom_name": "CB",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 27,
+         "insert_code": "",
+         "x": 11.982,
+         "y": 37.996,
+         "z": -26.241,
+         "occupancy": 1.0,
+         "temperature_factor": 16.92,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 136,
+         "atom_name": "N",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 28,
+         "insert_code": "",
+         "x": 12.681,
+         "y": 37.302,
+         "z": -25.211,
+         "occupancy": 1.0,
+         "temperature_factor": 15.56,
+         "element": "N",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 137,
+         "atom_name": "CA",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 28,
+         "insert_code": "",
+         "x": 11.982,
+         "y": 37.996,
+         "z": -26.241,
+         "occupancy": 1.0,
+         "temperature_factor": 16.92,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 138,
+         "atom_name": "C",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 28,
+         "insert_code": "",
+         "x": 12.681,
+         "y": 37.302,
+         "z": -25.211,
+         "occupancy": 1.0,
+         "temperature_factor": 15.56,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 139,
+         "atom_name": "O",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 28,
+         "insert_code": "",
+         "x": 11.982,
+         "y": 37.996,
+         "z": -26.241,
+         "occupancy": 1.0,
+         "temperature_factor": 16.92,
+         "element": "O",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 140,
+         "atom_name": "CB",
+         "alt_loc": None,
+         "residue_name": "ALA",
+         "chain_id": "A",
+         "residue_id": 28,
+         "insert_code": "",
+         "x": 11.982,
+         "y": 37.996,
+         "z": -26.241,
+         "occupancy": 1.0,
+         "temperature_factor": 16.92,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }]
+        self.data_file.heteroatoms.return_value = [{
+         "atom_id": 8237,
+         "atom_name": "CA",
+         "alt_loc": None,
+         "residue_name": "123",
+         "chain_id": "A",
+         "residue_id": 1001,
+         "insert_code": "A",
+         "x": 13.872,
+         "y": -2.555,
+         "z": -29.045,
+         "occupancy": 1.0,
+         "temperature_factor": 27.36,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 8238,
+         "atom_name": "MG",
+         "alt_loc": None,
+         "residue_name": "123",
+         "chain_id": "A",
+         "residue_id": 1001,
+         "insert_code": "A",
+         "x": 13.872,
+         "y": -2.555,
+         "z": -29.045,
+         "occupancy": 1.0,
+         "temperature_factor": 27.36,
+         "element": "MG",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 8239,
+         "atom_name": "CA",
+         "alt_loc": None,
+         "residue_name": "MOL",
+         "chain_id": "A",
+         "residue_id": 1002,
+         "insert_code": "",
+         "x": 13.872,
+         "y": -2.555,
+         "z": -29.045,
+         "occupancy": 1.0,
+         "temperature_factor": 27.36,
+         "element": "C",
+         "charge": None,
+         "model_id": 1
+        }, {
+         "atom_id": 8240,
+         "atom_name": "MG",
+         "alt_loc": None,
+         "residue_name": "MOL",
+         "chain_id": "A",
+         "residue_id": 1002,
+         "insert_code": "",
+         "x": 13.872,
+         "y": -2.555,
+         "z": -29.045,
+         "occupancy": 1.0,
+         "temperature_factor": 27.36,
+         "element": "MG",
+         "charge": None,
+         "model_id": 1
+        }]
+
+
+    def test_small_molecules_bonded_together(self):
+        self.data_file.connections.return_value = [{
+          "atom_id": 8237,
+          "bonded_atoms": [8238]
+         }, {
+          "atom_id": 8238,
+          "bonded_atoms": [8237]
+         }, {
+          "atom_id": 8239,
+          "bonded_atoms": [8240]
+         }, {
+          "atom_id": 8240,
+          "bonded_atoms": [8239]
+         }]
+        model = model_from_pdb_data_file(self.data_file)
+        atom1 = model.get_atom_by_id(8237)
+        atom2 = model.get_atom_by_id(8238)
+        atom3 = model.get_atom_by_id(8239)
+        atom4 = model.get_atom_by_id(8240)
+        self.assertEqual(atom1.bonded_atoms(), set([atom2]))
+        self.assertEqual(atom2.bonded_atoms(), set([atom1]))
+        self.assertEqual(atom3.bonded_atoms(), set([atom4]))
+        self.assertEqual(atom4.bonded_atoms(), set([atom3]))
+
+
+    def test_can_handle_self_conect_records(self):
+        self.data_file.connections.return_value = [{
+          "atom_id": 8237,
+          "bonded_atoms": [8238]
+         }, {
+          "atom_id": 8238,
+          "bonded_atoms": [8237]
+         }, {
+          "atom_id": 8239,
+          "bonded_atoms": [8239]
+         }]
+        model_from_pdb_data_file(self.data_file)
+
+
+    def test_residues_are_connected_internally(self):
+        model = model_from_pdb_data_file(self.data_file)
+        atom1 = model.get_atom_by_id(131)
+        atom2 = model.get_atom_by_id(132)
+        atom3 = model.get_atom_by_id(133)
+        atom4 = model.get_atom_by_id(134)
+        atom5 = model.get_atom_by_id(135)
+        atom6 = model.get_atom_by_id(136)
+        atom7 = model.get_atom_by_id(137)
+        atom8 = model.get_atom_by_id(138)
+        atom9 = model.get_atom_by_id(139)
+        atom10 = model.get_atom_by_id(140)
+        self.assertEqual(atom1.bonded_atoms(), set([atom2]))
+        self.assertEqual(atom2.bonded_atoms(), set([atom1, atom3, atom5]))
+        self.assertEqual(atom3.bonded_atoms(), set([atom2, atom4, atom6]))
+        self.assertEqual(atom4.bonded_atoms(), set([atom3]))
+        self.assertEqual(atom5.bonded_atoms(), set([atom2]))
+        self.assertEqual(atom6.bonded_atoms(), set([atom7, atom3]))
+        self.assertEqual(atom7.bonded_atoms(), set([atom6, atom8, atom10]))
+        self.assertEqual(atom8.bonded_atoms(), set([atom7, atom9]))
+        self.assertEqual(atom9.bonded_atoms(), set([atom8]))
+        self.assertEqual(atom10.bonded_atoms(), set([atom7]))
+
+
+    def test_residues_are_connected_to_each_other(self):
+        model = model_from_pdb_data_file(self.data_file)
+        chain = list(model.chains())[0]
+        self.assertIs(chain.residues()[0].upstream_residue(), None)
+        self.assertIs(chain.residues()[0].downstream_residue(), chain.residues()[1])
+        self.assertIs(chain.residues()[1].upstream_residue(), chain.residues()[0])
+        self.assertIs(chain.residues()[1].downstream_residue(), None)
+        atom1 = model.get_atom_by_id(133)
+        atom2 = model.get_atom_by_id(136)
+        self.assertIn(atom1, atom2.bonded_atoms())
+        self.assertIn(atom2, atom1.bonded_atoms())
+
+
+    def test_disulphide_bonds_are_present(self):
+        self.data_file.ss_bonds.return_value = [{
+         "serial_num": 1,
+         "residue_name_1": "ALA",
+         "chain_id_1": "A",
+         "residue_id_1": 27,
+         "insert_code_1": "",
+         "residue_name_2": "ALA",
+         "chain_id_2": "A",
+         "residue_id_2": 28,
+         "insert_code_2": "",
+         "symmetry_1": "1555",
+         "symmetry_2": "1555",
+         "length": 2.04
+        }]
+        atoms = self.data_file.atoms()
+        atoms[4]["element"] = atoms[9]["element"] = "S"
+        self.data_file.atoms.return_value = atoms
+        model = model_from_pdb_data_file(self.data_file)
+        atom1 = model.get_atom_by_id(135)
+        atom2 = model.get_atom_by_id(140)
+        self.assertIn(atom1, atom2.bonded_atoms())
+        self.assertIn(atom2, atom1.bonded_atoms())
+
+
+    def test_can_account_for_disulphide_bonds_incorrectly_assigned_to_same_atom(self):
+        self.data_file.ss_bonds.return_value = [{
+         "serial_num": 1,
+         "residue_name_1": "ALA",
+         "chain_id_1": "A",
+         "residue_id_1": 27,
+         "insert_code_1": "",
+         "residue_name_2": "ALA",
+         "chain_id_2": "A",
+         "residue_id_2": 27,
+         "insert_code_2": "",
+         "symmetry_1": "1555",
+         "symmetry_2": "1555",
+         "length": 2.04
+        }]
+        atoms = self.data_file.atoms()
+        atoms[4]["element"] = atoms[9]["element"] = "S"
+        self.data_file.atoms.return_value = atoms
+        model = model_from_pdb_data_file(self.data_file)
+
+
+    def test_link_bonds_are_present(self):
+        self.data_file.links.return_value = [{
+         "atom_1": "CB",
+         "alt_loc_1": None,
+         "residue_name_1": "ALA",
+         "chain_id_1": "A",
+         "residue_id_1": 27,
+         "insert_code_1": "",
+         "atom_2": "CB",
+         "alt_loc_2": None,
+         "residue_name_2": "ALA",
+         "chain_id_2": "A",
+         "residue_id_2": 28,
+         "insert_code_2": "",
+         "symmetry_1": "1555",
+         "symmetry_2": "1555",
+         "length": 2.75
+        }]
+        model = model_from_pdb_data_file(self.data_file)
+        atom1 = model.get_atom_by_id(135)
+        atom2 = model.get_atom_by_id(140)
+        self.assertIn(atom1, atom2.bonded_atoms())
+        self.assertIn(atom2, atom1.bonded_atoms())
+
+
+        
 class MolIdFromAtomTests(TestCase):
 
     def test_can_get_basic_id(self):

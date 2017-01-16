@@ -13,6 +13,11 @@ def model_from_pdb_data_file(data_file, model_id=1):
 
             add_small_molecules_to_model(model, data_file, model_id)
             add_chains_to_model(model, data_file, model_id)
+            connect_atoms(model, data_file, model_id)
+            bond_residue_atoms(model, data_file, model_id)
+            bond_residues_together(model, data_file, model_id)
+            make_disulphide_bonds(model, data_file, model_id)
+            make_link_bonds(model, data_file, model_id)
 
             return model
     raise ValueError("There is no model with ID %i" % model_id)
@@ -37,6 +42,92 @@ def add_small_molecules_to_model(model, data_file, model_id):
                  molecule_id, molecule_name, *atoms
                 )
                 model.add_small_molecule(small_molecule)
+
+
+def connect_atoms(model, data_file, model_id):
+    for connection in data_file.connections():
+        atom = model.get_atom_by_id(connection["atom_id"])
+        if atom:
+            for bonded_atom_id in connection["bonded_atoms"]:
+                bonded_atom = model.get_atom_by_id(bonded_atom_id)
+                if bonded_atom and atom is not bonded_atom:
+                    atom.bond_to(bonded_atom)
+
+
+def bond_residue_atoms(model, data_file, model_id):
+    for chain in model.chains():
+        for residue in chain.residues(include_missing=False):
+            lookup = residues_dict.connection_data.get(residue.residue_name())
+            if lookup:
+                for atom in residue.atoms():
+                    atom_lookup = lookup.get(atom.atom_name())
+                    if atom_lookup:
+                        for other_atom_name in atom_lookup:
+                            other_atom = residue.get_atom_by_name(other_atom_name)
+                            if other_atom:
+                                atom.bond_to(other_atom)
+
+
+def bond_residues_together(model, data_file, model_id):
+    for chain in model.chains():
+        for index, residue in enumerate(chain.residues()[:-1]):
+            next_residue = chain.residues()[index + 1]
+            residue.connect_to(next_residue)
+            carboxy_atom = residue.get_atom_by_name("C",)
+            amino_nitrogen = next_residue.get_atom_by_name("N")
+            if carboxy_atom and amino_nitrogen:
+                carboxy_atom.bond_to(amino_nitrogen)
+
+
+def make_disulphide_bonds(model, data_file, model_id):
+    for disulphide_bond in data_file.ss_bonds():
+        chain1 = model.get_chain_by_id(disulphide_bond["chain_id_1"])
+        chain2 = model.get_chain_by_id(disulphide_bond["chain_id_2"])
+        if chain1 and chain2:
+            residue1 = chain1.get_residue_by_id(
+             disulphide_bond["chain_id_1"] +
+             str(disulphide_bond["residue_id_1"]) +
+             disulphide_bond["insert_code_1"]
+            )
+            residue2 = chain2.get_residue_by_id(
+             disulphide_bond["chain_id_2"] +
+             str(disulphide_bond["residue_id_2"]) +
+             disulphide_bond["insert_code_2"]
+            )
+            if residue1 and residue2:
+                atom1 = residue1.get_atom_by_element("S")
+                atom2 = residue2.get_atom_by_element("S")
+                if atom1 and atom2 and atom1 is not atom2:
+                    atom1.bond_to(atom2)
+
+
+def make_link_bonds(model, data_file, model_id):
+    for link in data_file.links():
+        chain1 = model.get_chain_by_id(link["chain_id_1"])
+        chain2 = model.get_chain_by_id(link["chain_id_2"])
+        if chain1 and chain2:
+            molecule1, molecule2 = [chain1.get_residue_by_id(
+             link["chain_id_%i" % n] +
+             str(link["residue_id_%i" % n]) +
+             link["insert_code_%i" % n]
+            ) for n in (1, 2)]
+            if not molecule1:
+                molecule1 = model.get_small_molecule_by_id(
+                 link["chain_id_1"] +
+                 str(link["residue_id_1"]) +
+                 link["insert_code_1"]
+                )
+            if not molecule2:
+                molecule2 = model.get_small_molecule_by_id(
+                 link["chain_id_2"] +
+                 str(link["residue_id_2"]) +
+                 link["insert_code_2"]
+                )
+            if molecule1 and molecule2:
+                atom1 = molecule1.get_atom_by_name(link["atom_1"])
+                atom2 = molecule2.get_atom_by_name(link["atom_2"])
+                if atom1 and atom2:
+                    atom1.bond_to(atom2)
 
 
 def _get_top_atom_id(atoms=None, heteroatoms=None):

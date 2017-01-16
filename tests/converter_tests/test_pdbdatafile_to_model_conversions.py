@@ -274,6 +274,62 @@ class ChainTests(PdbDataFile2ModelTest):
         self.assertEqual(len(chain.residues()[3].atoms(atom_type="all")), 27)
 
 
+    def test_missing_residues_on_multiple_chains(self):
+        self.data_file.get_remark_by_number.return_value = {
+         'content': 'MISSING RESIDUES\n'
+         'THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE\n'
+         'EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN\n'
+         'IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)\n\n'
+         'M RES C SSSEQI\n'
+         'ALA A     12\n'
+         'XXX A     14\n'
+         'ALA B     12\n'
+         'XXX B     14\n',
+         'number': 465
+        }
+        self.data_file.atoms.return_value = [
+         self.atom1, self.atom2, self.atom3, self.atom4
+        ]
+        self.atom3["chain_id"] = self.atom4["chain_id"] = "B"
+        self.atom2["residue_id"] = 1002
+        self.atom3["residue_id"] = 1001
+        self.atom1["insert_code"] = self.atom2["insert_code"] = ""
+        model = model_from_pdb_data_file(self.data_file)
+        chainA, chainB = model.get_chain_by_id("A"), model.get_chain_by_id("B")
+        self.assertEqual(
+         set([a.atom_id() for a in chainA.get_residue_by_id("A1001").atoms(atom_type="all")]),
+         set([8237])
+        )
+        self.assertEqual(
+         set([a.atom_id() for a in chainA.get_residue_by_id("A1002").atoms(atom_type="all")]),
+         set([8238])
+        )
+        self.assertEqual(
+         set([a.atom_id() for a in chainB.get_residue_by_id("B1001").atoms(atom_type="all")]),
+         set([8239])
+        )
+        self.assertEqual(
+         set([a.atom_id() for a in chainB.get_residue_by_id("B1002").atoms(atom_type="all")]),
+         set([8240])
+        )
+        self.assertEqual(
+         set([a.atom_id() for a in chainA.get_residue_by_id("A12").atoms(atom_type="all")]),
+         set([8241 + n for n in range(13)])
+        )
+        self.assertEqual(
+         set([a.atom_id() for a in chainA.get_residue_by_id("A14").atoms(atom_type="all")]),
+         set([8254 + n for n in range(3)])
+        )
+        self.assertEqual(
+         set([a.atom_id() for a in chainB.get_residue_by_id("B12").atoms(atom_type="all")]),
+         set([8257 + n for n in range(13)])
+        )
+        self.assertEqual(
+         set([a.atom_id() for a in chainB.get_residue_by_id("B14").atoms(atom_type="all")]),
+         set([8270 + n for n in range(3)])
+        )
+
+
     def test_handling_of_duplicate_missing_residues(self):
         self.data_file.get_remark_by_number.return_value = {
          'content': 'MISSING RESIDUES\n'

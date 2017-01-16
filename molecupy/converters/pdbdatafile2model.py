@@ -41,7 +41,8 @@ def add_small_molecules_to_model(model, data_file, model_id):
 
 def _get_top_atom_id(atoms=None, heteroatoms=None, missing_info=None):
     atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
-    return atom_id
+    hetero_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
+    return max((atom_id, hetero_id))
 
 
 def add_chains_to_model(model, data_file, model_id):

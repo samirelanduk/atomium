@@ -39,6 +39,11 @@ def add_small_molecules_to_model(model, data_file, model_id):
                 model.add_small_molecule(small_molecule)
 
 
+def _get_top_atom_id(atoms=None, heteroatoms=None, missing_info=None):
+    atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
+    return atom_id
+
+
 def add_chains_to_model(model, data_file, model_id):
     atoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
     heteroatoms = [a for a in data_file.atoms() if a["model_id"] == model_id]

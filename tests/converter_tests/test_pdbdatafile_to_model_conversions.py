@@ -8,6 +8,7 @@ from molecupy.converters.pdbdatafile2model import _get_missing_residue_info
 from molecupy.converters.pdbdatafile2model import _mol_id_from_atom
 from molecupy.converters.pdbdatafile2model import _add_residues_to_chain
 from molecupy.converters.pdbdatafile2model import _add_missing_residues_to_chain
+from molecupy.converters.pdbdatafile2model import _get_top_atom_id
 from molecupy.pdb.pdbdatafile import PdbDataFile
 from molecupy.structures import Model, SmallMolecule, Chain, Residue, BindSite
 from molecupy.structures import AlphaHelix, BetaStrand, Complex
@@ -318,6 +319,14 @@ class MolIdFromAtomTests(TestCase):
          _mol_id_from_atom({"chain_id": "A", "residue_id": 1, "insert_code": "A"}),
          "A1A"
         )
+
+
+
+class SafeAtomIdTests(PdbDataFile2ModelTest):
+
+    def test_can_get_safe_id_from_atoms(self):
+        self.data_file.atoms.return_value = [self.atom1, self.atom3]
+        self.assertEqual(_get_top_atom_id(self.data_file.atoms()), 8239)
 
 
 

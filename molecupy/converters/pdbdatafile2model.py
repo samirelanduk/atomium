@@ -39,7 +39,7 @@ def add_small_molecules_to_model(model, data_file, model_id):
                 model.add_small_molecule(small_molecule)
 
 
-def _get_top_atom_id(atoms=None, heteroatoms=None, missing_info=None):
+def _get_top_atom_id(atoms=None, heteroatoms=None):
     atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
     hetero_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
     return max((atom_id, hetero_id))
@@ -48,9 +48,7 @@ def _get_top_atom_id(atoms=None, heteroatoms=None, missing_info=None):
 def add_chains_to_model(model, data_file, model_id):
     atoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
     heteroatoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
-    atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
-    het_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
-    highest_id = max(atom_id, het_id)
+    highest_id = _get_top_atom_id(atoms, heteroatoms)
     chain_ids = set([a["chain_id"] for a in atoms])
     for chain_id in chain_ids:
         residues = []
@@ -59,6 +57,9 @@ def add_chains_to_model(model, data_file, model_id):
         if missing_residue_info:
             _add_missing_residues_to_chain(residues, missing_residue_info, highest_id)
         chain = Chain(chain_id, *residues)
+        highest_id = max(
+         [atom.atom_id() for atom in chain.residues()[-1].atoms(atom_type="all")]
+        )
         model.add_chain(chain)
 
 

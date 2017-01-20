@@ -907,6 +907,22 @@ class PdbComplexTests(PdbDataFile2ModelTest):
         self.assertEqual(len(complex_.chains()), 2)
 
 
+    def test_can_add_multiple_complexes(self):
+        self.data_file.compounds.return_value.append({
+         "MOL_ID": 2,
+         "MOLECULE": "COMPLEX2",
+         "CHAIN": ["C", "D"]
+        })
+        self.atom2["chain_id"] = "B"
+        self.atom3["chain_id"] = "C"
+        self.atom4["chain_id"] = "D"
+        model = model_from_pdb_data_file(self.data_file)
+        self.assertEqual(len(model.complexes()), 2)
+        complex1, complex2 = list(model.complexes())
+        self.assertEqual(len(complex1.chains()), 2)
+        self.assertEqual(len(complex2.chains()), 2)
+
+
 
 class MolIdFromAtomTests(TestCase):
 

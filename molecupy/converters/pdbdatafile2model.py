@@ -199,12 +199,6 @@ def give_model_alpha_helices(model, data_file, model_id):
                     )
 
 
-def _get_top_atom_id(atoms=None, heteroatoms=None):
-    atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
-    hetero_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
-    return max((atom_id, hetero_id))
-
-
 def add_chains_to_model(model, data_file, model_id):
     atoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
     heteroatoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
@@ -257,6 +251,12 @@ def give_model_complexes(model, data_file, model_id):
         if chains:
             complex_ = Complex(str(compound["MOL_ID"]), compound["MOLECULE"], *chains)
             model.add_complex(complex_)
+
+
+def _get_top_atom_id(atoms=None, heteroatoms=None):
+    atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
+    hetero_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
+    return max((atom_id, hetero_id))
 
 
 def _mol_id_from_atom(atom):

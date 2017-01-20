@@ -948,7 +948,7 @@ class SafeAtomIdTests(PdbDataFile2ModelTest):
         self.assertEqual(_get_top_atom_id(self.data_file.atoms()), 8239)
 
 
-    def test_can_get_safe_id_from_atoms(self):
+    def test_can_get_safe_id_from_hetatoms(self):
         self.data_file.heteroatoms.return_value = [self.atom2, self.atom4]
         self.assertEqual(_get_top_atom_id(
          self.data_file.atoms(), self.data_file.heteroatoms()

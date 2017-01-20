@@ -255,9 +255,7 @@ def give_model_complexes(model, data_file, model_id):
 
 def _get_top_atom_id(atoms=None, heteroatoms=None):
     atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
-    print(atom_id)
     hetero_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
-    print(hetero_id)
     return max((atom_id, hetero_id))
 
 

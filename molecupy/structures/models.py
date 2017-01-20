@@ -424,7 +424,7 @@ class Model(AtomicStructure):
 
 
     def save_as_pdb(self, path):
-        data_file = self.pdb_data_file()
-        pdb_file = data_file.generate_pdb_file()
+        data_file = self.to_pdb_data_file()
+        pdb_file = data_file.to_pdb_file()
         with open(path, "w") as f:
             f.write(pdb_file.convert_to_string())

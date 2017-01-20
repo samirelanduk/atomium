@@ -1,12 +1,14 @@
 import os
+import builtins
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
 from molecupy.converters.pdbdatafile2model import model_from_pdb_data_file
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
 from molecupy.structures import BindSite, Atom, GhostAtom, Complex, Residue
 from molecupy.exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from molecupy.exceptions import DuplicateBindSitesError, DuplicateComplexesError
 from molecupy.pdb.pdbdatafile import PdbDataFile
+from molecupy.pdb.pdbfile import PdbFile
 
 #TODO: Make sure user can't add SmallMolecule, Chain etc. if there are Atom ID clashes
 #TODO: Make sure bind sites, and secondary structure are duplicated
@@ -90,6 +92,26 @@ class ModelConversionTests(ModelTest):
         value = "Return value"
         mock_converter.return_value = value
         self.assertIs(Model().to_pdb_data_file(), value)
+
+
+    @patch("molecupy.structures.models.Model.to_pdb_data_file")
+    @patch("builtins.open")
+    def test_can_save_as_pdb(self, mock_open, mock_to_data_file):
+        data_file = Mock(PdbDataFile)
+        mock_to_data_file.return_value = data_file
+        pdb_file = Mock(PdbFile)
+        data_file.to_pdb_file.return_value = pdb_file
+        pdb_file.convert_to_string.return_value = "filestring"
+        open_return = MagicMock()
+        mock_file = Mock()
+        mock_write = MagicMock()
+        mock_file.write = mock_write
+        open_return.__enter__.return_value = mock_file
+        mock_open.return_value = open_return
+        Model().save_as_pdb("filename")
+        self.assertTrue(mock_to_data_file.called)
+        mock_open.assert_called_once_with("filename", "w")
+        mock_write.assert_called_once_with("filestring")
 
 
 

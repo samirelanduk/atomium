@@ -172,3 +172,10 @@ class PdbModelsTests(PdbTest):
         ]
         pdb = Pdb(self.data_file)
         self.assertIs(pdb.models()[0], pdb.model())
+
+
+    def test_models_are_read_only(self):
+        pdb = Pdb(self.data_file)
+        self.assertEqual(len(pdb.models()), 1)
+        pdb.models().append("crap")
+        self.assertEqual(len(pdb.models()), 1)

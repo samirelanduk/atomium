@@ -1,9 +1,6 @@
 """This module contains creates the final Pdb object itself, and processes the
 data contained in the data file."""
 
-
-import molecupy.converters.pdbdatafile2model
-
 class Pdb:
     """A representation of a PDB file and its contents, including the structure.
 
@@ -179,7 +176,7 @@ class Pdb:
 
         :rtype: ``list``"""
 
-        return self._models
+        return list(self._models)
 
 
     def model(self):

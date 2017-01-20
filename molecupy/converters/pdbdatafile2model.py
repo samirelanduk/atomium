@@ -49,6 +49,24 @@ def add_small_molecules_to_model(model, data_file, model_id):
                 model.add_small_molecule(small_molecule)
 
 
+def add_chains_to_model(model, data_file, model_id):
+    atoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
+    heteroatoms = [a for a in data_file.heteroatoms() if a["model_id"] == model_id]
+    highest_id = _get_top_atom_id(atoms, heteroatoms)
+    chain_ids = set([a["chain_id"] for a in atoms])
+    for chain_id in sorted(chain_ids):
+        residues = []
+        _add_residues_to_chain(residues, chain_id, atoms)
+        missing_residue_info = _get_missing_residue_info(data_file, chain_id)
+        if missing_residue_info:
+            _add_missing_residues_to_chain(residues, missing_residue_info, highest_id)
+        chain = Chain(chain_id, *residues)
+        highest_id = max(
+         [atom.atom_id() for atom in chain.atoms(atom_type="all")]
+        )
+        model.add_chain(chain)
+
+
 def connect_atoms(model, data_file, model_id):
     for connection in data_file.connections():
         atom = model.get_atom_by_id(connection["atom_id"])
@@ -199,24 +217,6 @@ def give_model_alpha_helices(model, data_file, model_id):
                     )
 
 
-def add_chains_to_model(model, data_file, model_id):
-    atoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
-    heteroatoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
-    highest_id = _get_top_atom_id(atoms, heteroatoms)
-    chain_ids = set([a["chain_id"] for a in atoms])
-    for chain_id in sorted(chain_ids):
-        residues = []
-        _add_residues_to_chain(residues, chain_id, atoms)
-        missing_residue_info = _get_missing_residue_info(data_file, chain_id)
-        if missing_residue_info:
-            _add_missing_residues_to_chain(residues, missing_residue_info, highest_id)
-        chain = Chain(chain_id, *residues)
-        highest_id = max(
-         [atom.atom_id() for atom in chain.atoms(atom_type="all")]
-        )
-        model.add_chain(chain)
-
-
 def give_model_beta_strands(model, data_file, model_id):
     for sheet in data_file.sheets():
         for strand in sheet["strands"]:
@@ -255,7 +255,9 @@ def give_model_complexes(model, data_file, model_id):
 
 def _get_top_atom_id(atoms=None, heteroatoms=None):
     atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
+    print(atom_id)
     hetero_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
+    print(hetero_id)
     return max((atom_id, hetero_id))
 
 

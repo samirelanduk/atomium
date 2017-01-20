@@ -49,7 +49,7 @@ class BasicDataFileCreationTests(Model2PdbDataFile):
 
 
 
-'''class ComplexConversionTests(TestCase):
+class ComplexConversionTests(Model2PdbDataFile):
 
     def test_can_add_complexes_to_pdb_data_file(self):
         chain1 = unittest.mock.Mock(Chain)
@@ -66,10 +66,9 @@ class BasicDataFileCreationTests(Model2PdbDataFile):
         complex2.complex_id.return_value = "2"
         complex1.complex_name.return_value = "FIRST COMPLEX"
         complex2.complex_name.return_value = "SECOND COMPLEX"
-        model = Model()
-        model.add_complex(complex1)
-        model.add_complex(complex2)
-        data_file = model.pdb_data_file()
+        self.model.add_complex(complex1)
+        self.model.add_complex(complex2)
+        data_file = pdb_data_file_from_model(self.model)
         self.assertEqual(
          data_file.compounds(),
          [{
@@ -85,11 +84,10 @@ class BasicDataFileCreationTests(Model2PdbDataFile):
 
 
 
-class AtomConversionTests(TestCase):
+class AtomConversionTests(Model2PdbDataFile):
 
     def test_can_add_atoms_to_pdb_data_file(self):
-        model = Model()
-        model.add_chain(Chain(
+        self.model.add_chain(Chain(
          "A",
          Residue(
           "A1",
@@ -101,100 +99,94 @@ class AtomConversionTests(TestCase):
           Atom(11.2, 11.3, 34.4, "Y", 38, "YT")
          )
         ))
-        data_file = model.pdb_data_file()
+        data_file = pdb_data_file_from_model(self.model)
         self.assertEqual(
          data_file.atoms(),
-         [
-          {
-           "atom_id": 23,
-           "atom_name": "GX",
-           "alt_loc": None,
-           "residue_name": "PRO",
-           "chain_id": "A",
-           "residue_id": 1,
-           "insert_code": None,
-           "x": 1.2,
-           "y": 2.3,
-           "z": 3.4,
-           "occupancy": 1.0,
-           "temperature_factor": 0.0,
-           "element": "G",
-           "charge": None,
-           "model_id": 1
-          }, {
-           "atom_id": 38,
-           "atom_name": "YT",
-           "alt_loc": None,
-           "residue_name": "VAL",
-           "chain_id": "A",
-           "residue_id": 1,
-           "insert_code": "A",
-           "x": 11.2,
-           "y": 11.3,
-           "z": 34.4,
-           "occupancy": 1.0,
-           "temperature_factor": 0.0,
-           "element": "Y",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
+         [{
+          "atom_id": 23,
+          "atom_name": "GX",
+          "alt_loc": None,
+          "residue_name": "PRO",
+          "chain_id": "A",
+          "residue_id": 1,
+          "insert_code": None,
+          "x": 1.2,
+          "y": 2.3,
+          "z": 3.4,
+          "occupancy": 1.0,
+          "temperature_factor": 0.0,
+          "element": "G",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 38,
+          "atom_name": "YT",
+          "alt_loc": None,
+          "residue_name": "VAL",
+          "chain_id": "A",
+          "residue_id": 1,
+          "insert_code": "A",
+          "x": 11.2,
+          "y": 11.3,
+          "z": 34.4,
+          "occupancy": 1.0,
+          "temperature_factor": 0.0,
+          "element": "Y",
+          "charge": None,
+          "model_id": 1
+         }]
         )
         self.assertEqual(data_file.heteroatoms(), [])
 
 
     def test_can_add_heteroatoms_to_pdb_data_file(self):
-        model = Model()
-        model.add_small_molecule(SmallMolecule(
+        self.model.add_small_molecule(SmallMolecule(
          "A1001A",
          "MOL",
          Atom(1.2, 2.3, 3.4, "G", 23, "GX"),
          Atom(11.2, 11.3, 34.4, "Y", 38, "YT")
         ))
-        data_file = model.pdb_data_file()
+        data_file = pdb_data_file_from_model(self.model)
         self.assertEqual(
          data_file.heteroatoms(),
-         [
-          {
-           "atom_id": 23,
-           "atom_name": "GX",
-           "alt_loc": None,
-           "residue_name": "MOL",
-           "chain_id": "A",
-           "residue_id": 1001,
-           "insert_code": "A",
-           "x": 1.2,
-           "y": 2.3,
-           "z": 3.4,
-           "occupancy": 1.0,
-           "temperature_factor": 0.0,
-           "element": "G",
-           "charge": None,
-           "model_id": 1
-          }, {
-           "atom_id": 38,
-           "atom_name": "YT",
-           "alt_loc": None,
-           "residue_name": "MOL",
-           "chain_id": "A",
-           "residue_id": 1001,
-           "insert_code": "A",
-           "x": 11.2,
-           "y": 11.3,
-           "z": 34.4,
-           "occupancy": 1.0,
-           "temperature_factor": 0.0,
-           "element": "Y",
-           "charge": None,
-           "model_id": 1
-          }
-         ]
+         [{
+          "atom_id": 23,
+          "atom_name": "GX",
+          "alt_loc": None,
+          "residue_name": "MOL",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "A",
+          "x": 1.2,
+          "y": 2.3,
+          "z": 3.4,
+          "occupancy": 1.0,
+          "temperature_factor": 0.0,
+          "element": "G",
+          "charge": None,
+          "model_id": 1
+         }, {
+          "atom_id": 38,
+          "atom_name": "YT",
+          "alt_loc": None,
+          "residue_name": "MOL",
+          "chain_id": "A",
+          "residue_id": 1001,
+          "insert_code": "A",
+          "x": 11.2,
+          "y": 11.3,
+          "z": 34.4,
+          "occupancy": 1.0,
+          "temperature_factor": 0.0,
+          "element": "Y",
+          "charge": None,
+          "model_id": 1
+         }]
         )
         self.assertEqual(data_file.atoms(), [])
 
 
     def test_can_add_heteroatom_bonds_to_pdb_data_file(self):
-        model = Model()
         atom1 = Atom(1.0, 1.0, 1.0, "A", 1, "1")
         atom2 = Atom(1.0, 1.0, 1.0, "A", 2, "1")
         atom3 = Atom(1.0, 1.0, 1.0, "A", 3, "1")
@@ -206,8 +198,8 @@ class AtomConversionTests(TestCase):
         atom1.bond_to(atom4)
         atom5.bond_to(atom4)
         molecule = SmallMolecule("A1", "MOL", atom1, atom2, atom3, atom4, atom5)
-        model.add_small_molecule(molecule)
-        data_file = model.pdb_data_file()
+        self.model.add_small_molecule(molecule)
+        data_file = pdb_data_file_from_model(self.model)
         self.assertEqual(
          data_file.connections(),
          [{
@@ -226,4 +218,4 @@ class AtomConversionTests(TestCase):
           "atom_id": 5,
           "bonded_atoms": [4]
          }]
-        )'''
+        )

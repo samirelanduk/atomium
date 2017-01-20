@@ -1,6 +1,6 @@
 import os
 from unittest import TestCase
-import unittest.mock
+from unittest.mock import patch, Mock
 from molecupy.converters.pdbdatafile2model import model_from_pdb_data_file
 from molecupy.structures import Model, AtomicStructure, SmallMolecule, Chain
 from molecupy.structures import BindSite, Atom, GhostAtom, Complex, Residue
@@ -14,12 +14,12 @@ from molecupy.pdb.pdbdatafile import PdbDataFile
 class ModelTest(TestCase):
 
     def setUp(self):
-        self.small_molecule1 = unittest.mock.Mock(spec=SmallMolecule)
+        self.small_molecule1 = Mock(SmallMolecule)
         self.small_molecule1._model = None
         self.small_molecule1.molecule_id.return_value = "A100"
         self.small_molecule1.molecule_name.return_value = "MOL"
         self.small_molecule1.atoms.return_value = set()
-        self.small_molecule2 = unittest.mock.Mock(spec=SmallMolecule)
+        self.small_molecule2 = Mock(SmallMolecule)
         self.small_molecule2._model = None
         self.small_molecule2.molecule_id.return_value = "A101"
         self.small_molecule2.molecule_name.return_value = "HET"
@@ -28,29 +28,29 @@ class ModelTest(TestCase):
         self.residues = [
          Residue("A%i" % (i + 1), "RES", *self.atoms[i:i+1]) for i in range(10)
         ]
-        self.chain1 = unittest.mock.Mock(spec=Chain)
+        self.chain1 = Mock(Chain)
         self.chain1._model = None
         self.chain1.chain_id.return_value = "A"
         self.chain1.residues.return_value = self.residues
         self.chain1.atoms.return_value = set(self.atoms)
-        self.chain2 = unittest.mock.Mock(spec=Chain)
+        self.chain2 = Mock(Chain)
         self.chain2._model = None
         self.chain2.chain_id.return_value = "B"
         self.chain2.atoms.return_value = set()
         self.chain2.residues.return_value = self.residues
-        self.site1 = unittest.mock.Mock(spec=BindSite)
+        self.site1 = Mock(BindSite)
         self.site1._model = None
         self.site1.site_id.return_value = "AA"
         self.site1.atoms.return_value = set()
-        self.site2 = unittest.mock.Mock(spec=BindSite)
+        self.site2 = Mock(BindSite)
         self.site2._model = None
         self.site2.site_id.return_value = "BB"
         self.site2.atoms.return_value = set()
-        self.complex1 = unittest.mock.Mock(Complex)
+        self.complex1 = Mock(Complex)
         self.complex1.complex_id.return_value = "1"
         self.complex1.complex_name.return_value = "COM1"
         self.complex1._model = None
-        self.complex2 = unittest.mock.Mock(Complex)
+        self.complex2 = Mock(Complex)
         self.complex2.complex_id.return_value = "2"
         self.complex2.complex_name.return_value = "COM2"
         self.complex2._model = None
@@ -80,6 +80,16 @@ class ModelPropertyTests(ModelTest):
     def test_basic_properties(self):
         model = model_from_pdb_data_file(PdbDataFile())
         self.assertIs(model.source(), model._source)
+
+
+
+class ModelConversionTests(ModelTest):
+
+    @patch("molecupy.converters.model2pdbdatafile.pdb_data_file_from_model")
+    def test_can_convert_to_pdb_data_file(self, mock_converter):
+        value = "Return value"
+        mock_converter.return_value = value
+        self.assertIs(Model().to_pdb_data_file(), value)
 
 
 

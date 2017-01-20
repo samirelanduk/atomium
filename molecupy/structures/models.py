@@ -418,7 +418,9 @@ class Model(AtomicStructure):
         return new_complex
 
 
-    # pdb_data_file = pdb_data_file_from_model
+    def to_pdb_data_file(self):
+        from ..converters.model2pdbdatafile import pdb_data_file_from_model
+        return pdb_data_file_from_model(self)
 
 
     def save_as_pdb(self, path):

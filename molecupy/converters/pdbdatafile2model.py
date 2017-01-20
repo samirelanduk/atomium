@@ -22,6 +22,7 @@ def model_from_pdb_data_file(data_file, model_id=1):
             map_sites_to_ligands(model, data_file, model_id)
             give_model_alpha_helices(model, data_file, model_id)
             give_model_beta_strands(model, data_file, model_id)
+            give_model_complexes(model, data_file, model_id)
 
             return model
     raise ValueError("There is no model with ID %i" % model_id)
@@ -245,6 +246,17 @@ def give_model_beta_strands(model, data_file, model_id):
                      strand["sense"],
                      *chain.residues()[start_index:end_index + 1]
                     )
+
+
+def give_model_complexes(model, data_file, model_id):
+    for compound in data_file.compounds():
+        chains = []
+        for chain in model.chains():
+            if chain.chain_id() in compound["CHAIN"]:
+                chains.append(chain)
+        if chains:
+            complex_ = Complex(str(compound["MOL_ID"]), compound["MOLECULE"], *chains)
+            model.add_complex(complex_)
 
 
 def _mol_id_from_atom(atom):

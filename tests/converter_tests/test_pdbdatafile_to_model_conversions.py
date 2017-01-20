@@ -842,7 +842,7 @@ class PdbSecondaryStructureTests(PdbDataFile2ModelTest):
         self.assertEqual(helix.helix_class(), "Right-handed 3 - 10")
 
 
-    def test_pdb_has_beta_strands(self):
+    def test_model_has_beta_strands(self):
         self.data_file.sheets.return_value = [{
          "sheet_id": "A",
          "strand_count": 1,
@@ -879,6 +879,32 @@ class PdbSecondaryStructureTests(PdbDataFile2ModelTest):
          list(model.chains())[0].residues()
         )
         self.assertEqual(strand.sense(), 0)
+
+
+
+class PdbComplexTests(PdbDataFile2ModelTest):
+
+    def setUp(self):
+        PdbDataFile2ModelTest.setUp(self)
+        self.data_file.atoms.return_value = [
+         self.atom1, self.atom2, self.atom3, self.atom4
+        ]
+        self.atom3["chain_id"] = self.atom4["chain_id"] = "B"
+        self.data_file.compounds.return_value = [{
+         "MOL_ID": 1,
+         "MOLECULE": "COMPLEX1",
+         "CHAIN": ["A", "B"]
+        }]
+
+
+    def test_can_add_single_complex(self):
+        model = model_from_pdb_data_file(self.data_file)
+        self.assertEqual(len(model.complexes()), 1)
+        complex_ = list(model.complexes())[0]
+        self.assertIsInstance(complex_, Complex)
+        self.assertEqual(complex_.complex_id(), "1")
+        self.assertEqual(complex_.complex_name(), "COMPLEX1")
+        self.assertEqual(len(complex_.chains()), 2)
 
 
 

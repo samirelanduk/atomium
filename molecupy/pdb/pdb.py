@@ -200,14 +200,3 @@ class Pdb:
         :rtype: ``Model``"""
 
         return self._models[0]
-
-
-def _give_model_complexes(model, data_file, model_id):
-    for compound in data_file.compounds():
-        chains = []
-        for chain in model.chains():
-            if chain.chain_id() in compound["CHAIN"]:
-                chains.append(chain)
-        if chains:
-            complex_ = Complex(str(compound["MOL_ID"]), compound["MOLECULE"], *chains)
-            model.add_complex(complex_)

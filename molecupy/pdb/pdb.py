@@ -1,9 +1,8 @@
 """This module contains creates the final Pdb object itself, and processes the
 data contained in the data file."""
 
-from ..structures import Model, Atom, GhostAtom, SmallMolecule, Residue, Chain
-from ..structures import BindSite, AlphaHelix, BetaStrand, Complex
-from . import residues as residues_dict
+
+import molecupy.converters.pdbdatafile2model
 
 class Pdb:
     """A representation of a PDB file and its contents, including the structure.
@@ -11,22 +10,11 @@ class Pdb:
     :param PdbDataFile data_file: The PDB data file with the parsed values."""
 
     def __init__(self, data_file):
+        from ..converters.pdbdatafile2model import model_from_pdb_data_file
         self._data_file = data_file
         self._models = []
         for model_dict in self._data_file.models():
-            model = Model()
-            _give_model_small_molecules(model, data_file, model_dict["model_id"])
-            _give_model_chains(model, data_file, model_dict["model_id"])
-            _connect_atoms(model, data_file, model_dict["model_id"])
-            _bond_residue_atoms(model, data_file, model_dict["model_id"])
-            _bond_residues_together(model, data_file, model_dict["model_id"])
-            _make_disulphide_bonds(model, data_file, model_dict["model_id"])
-            _make_link_bonds(model, data_file, model_dict["model_id"])
-            _give_model_sites(model, data_file, model_dict["model_id"])
-            _map_sites_to_ligands(model, data_file, model_dict["model_id"])
-            _give_model_alpha_helices(model, data_file, model_dict["model_id"])
-            _give_model_beta_strands(model, data_file, model_dict["model_id"])
-            _give_model_complexes(model, data_file, model_dict["model_id"])
+            model = model_from_pdb_data_file(data_file, model_dict["model_id"])
             self._models.append(model)
 
 

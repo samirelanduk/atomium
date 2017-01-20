@@ -1,5 +1,5 @@
 from unittest import TestCase
-import unittest.mock
+from unittest.mock import patch, Mock, call
 from molecupy.pdb.pdb import Pdb
 from molecupy.pdb.pdbdatafile import PdbDataFile
 from molecupy.structures import Model, SmallMolecule, Chain, Residue, BindSite
@@ -8,7 +8,7 @@ from molecupy.structures import AlphaHelix, BetaStrand, Complex
 class PdbTest(TestCase):
 
     def setUp(self):
-        self.data_file = unittest.mock.Mock(spec=PdbDataFile)
+        self.data_file = Mock(PdbDataFile)
         self.data_file.models.return_value = [
          {"model_id": 1, "start_record": 0, "end_record": 0}
         ]
@@ -28,7 +28,23 @@ class PdbCreationTests(PdbTest):
 
     def test_can_create_pdb(self):
         pdb = Pdb(self.data_file)
-        self.assertIs(pdb.data_file(), self.data_file)
+        self.assertIs(pdb._data_file, self.data_file)
+
+
+    def test_pdb_repr(self):
+        pdb = Pdb(self.data_file)
+        self.data_file.pdb_code.return_value = None
+        self.assertEqual(str(pdb), "<Pdb (????)>")
+        self.data_file.pdb_code.return_value = "1SAM"
+        self.assertEqual(str(pdb), "<Pdb (1SAM)>")
+
+
+
+class PdbPropertyTests(PdbTest):
+
+    def test_data_file_property(self):
+        pdb = Pdb(self.data_file)
+        self.assertIs(pdb._data_file, pdb.data_file())
 
 
     def test_can_get_data_attributes(self):
@@ -121,32 +137,32 @@ class PdbCreationTests(PdbTest):
         )
 
 
-    def test_pdb_repr(self):
-        pdb = Pdb(self.data_file)
-        self.data_file.pdb_code.return_value = None
-        self.assertEqual(str(pdb), "<Pdb (????)>")
-        self.data_file.pdb_code.return_value = "1SAM"
-        self.assertEqual(str(pdb), "<Pdb (1SAM)>")
-
-
 
 class PdbModelsTests(PdbTest):
 
-    def test_single_model(self):
+    @patch("molecupy.converters.pdbdatafile2model.model_from_pdb_data_file")
+    def test_can_create_single_model(self, mock_converter):
         pdb = Pdb(self.data_file)
+        value = "Return value"
+        mock_converter.return_value = value
+        mock_converter.assert_called_once_with(self.data_file, 1)
         self.assertEqual(len(pdb.models()), 1)
-        self.assertIsInstance(pdb.models()[0], Model)
+        self.assertIs(Pdb(self.data_file).models()[0], value)
 
 
-    def test_multiple_models(self):
+    @patch("molecupy.converters.pdbdatafile2model.model_from_pdb_data_file")
+    def test_can_create_multiple_model(self, mock_converter):
         self.data_file.models.return_value = [
          {"model_id": 1, "start_record": 1, "end_record": 3},
          {"model_id": 2, "start_record": 4, "end_record": 6}
         ]
+        mock_converter.side_effect = ("Return value 1", "Return value 2")
         pdb = Pdb(self.data_file)
+        calls = [call(self.data_file, 1), call(self.data_file, 2)]
+        mock_converter.assert_has_calls(calls)
         self.assertEqual(len(pdb.models()), 2)
-        self.assertIsInstance(pdb.models()[0], Model)
-        self.assertIsInstance(pdb.models()[1], Model)
+        self.assertEqual(pdb.models()[0], "Return value 1")
+        self.assertEqual(pdb.models()[1], "Return value 2")
 
 
     def test_one_model_access(self):

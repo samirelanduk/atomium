@@ -740,7 +740,71 @@ class BondTests(PdbDataFile2ModelTest):
         self.assertIn(atom2, atom1.bonded_atoms())
 
 
-        
+
+class BindSiteTests(PdbDataFile2ModelTest):
+
+    def setUp(self):
+        PdbDataFile2ModelTest.setUp(self)
+        self.data_file.sites.return_value = [{
+         "site_id": "AC1",
+         "residue_count": 2,
+         "residues": [
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 1001, "insert_code": "A"},
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 1002, "insert_code": ""},
+         ]
+        }]
+        self.data_file.atoms.return_value = [
+         self.atom1, self.atom2, self.atom3, self.atom4
+        ]
+        self.data_file.heteroatoms.return_value = [self.atom3, self.atom4]
+
+
+    def test_bind_sites_present(self):
+        model = model_from_pdb_data_file(self.data_file)
+        self.assertEqual(len(model.bind_sites()), 1)
+        site = list(model.bind_sites())[0]
+        self.assertIsInstance(site, BindSite)
+        self.assertEqual(site.site_id(), "AC1")
+        self.assertEqual(
+         site.residues(),
+         set(list(model.chains())[0].residues())
+        )
+
+
+    def test_bind_site_and_ligand_know_about_each_other(self):
+        self.data_file.get_remark_by_number.return_value = {
+         'content': 'SITE\n'
+         'SITE_IDENTIFIER: AC1\n'
+         'EVIDENCE_CODE: SOFTWARE\n'
+         'SITE_DESCRIPTION: BINDING SITE FOR RESIDUE MOL A1002\n\n',
+         'number': 465
+        }
+        model = model_from_pdb_data_file(self.data_file)
+        site = list(model.bind_sites())[0]
+        molecule = model.get_small_molecule_by_id("A1002")
+        self.assertIs(molecule.bind_site(), site)
+        self.assertIs(site.ligand(), molecule)
+
+
+    def test_site_can_discard_residues_on_absent_chain(self):
+        self.data_file.sites.return_value = [{
+         "site_id": "AC1",
+         "residue_count": 3,
+         "residues": [
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 1001, "insert_code": "A"},
+          {"residue_name": "ALA", "chain_id": "A", "residue_id": 1002, "insert_code": ""},
+          {"residue_name": "ALA", "chain_id": "Q", "residue_id": 1, "insert_code": ""},
+         ]
+        }]
+        model = model_from_pdb_data_file(self.data_file)
+        site = list(model.bind_sites())[0]
+        self.assertEqual(
+         site.residues(),
+         set(list(model.chains())[0].residues())
+        )
+
+
+
 class MolIdFromAtomTests(TestCase):
 
     def test_can_get_basic_id(self):

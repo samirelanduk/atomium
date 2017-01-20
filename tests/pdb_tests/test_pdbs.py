@@ -156,66 +156,10 @@ class PdbModelsTests(PdbTest):
         ]
         pdb = Pdb(self.data_file)
         self.assertIs(pdb.models()[0], pdb.model())
-        
 
 
-class PdbBindSiteTests(PdbBondTests):
-
-    def setUp(self):
-        PdbBondTests.setUp(self)
-        self.data_file.sites.return_value = [{
-         "site_id": "AC1",
-         "residue_count": 2,
-         "residues": [
-          {"residue_name": "ALA", "chain_id": "A", "residue_id": 27, "insert_code": ""},
-          {"residue_name": "ALA", "chain_id": "A", "residue_id": 28, "insert_code": ""},
-         ]
-        }]
 
 
-    def test_bind_sites_present(self):
-        pdb = Pdb(self.data_file)
-        self.assertEqual(len(pdb.model().bind_sites()), 1)
-        site = list(pdb.model().bind_sites())[0]
-        self.assertIsInstance(site, BindSite)
-        self.assertEqual(site.site_id(), "AC1")
-        self.assertEqual(
-         site.residues(),
-         set(list(pdb.model().chains())[0].residues())
-        )
-
-
-    def test_bind_site_and_ligand_know_about_each_other(self):
-        self.data_file.get_remark_by_number.return_value = {
-         'content': 'SITE\n'
-         'SITE_IDENTIFIER: AC1\n'
-         'EVIDENCE_CODE: SOFTWARE\n'
-         'SITE_DESCRIPTION: BINDING SITE FOR RESIDUE MOL A1002\n\n',
-         'number': 465
-        }
-        pdb = Pdb(self.data_file)
-        site = list(pdb.model().bind_sites())[0]
-        molecule = pdb.model().get_small_molecule_by_id("A1002")
-        self.assertIs(molecule.bind_site(), site)
-        self.assertIs(site.ligand(), molecule)
-
-
-    def test_site_can_discard_residues_on_absent_chain(self):
-        self.data_file.sites.return_value = [{
-         "site_id": "AC1",
-         "residue_count": 3,
-         "residues": [
-          {"residue_name": "ALA", "chain_id": "A", "residue_id": 27, "insert_code": ""},
-          {"residue_name": "ALA", "chain_id": "A", "residue_id": 28, "insert_code": ""},
-          {"residue_name": "ALA", "chain_id": "Q", "residue_id": 1, "insert_code": ""},
-         ]
-        }]
-        pdb = Pdb(self.data_file)
-        site = list(pdb.model().bind_sites())[0]
-        self.assertEqual(
-         site.residues(),
-         set(list(pdb.model().chains())[0].residues())
-        )
 
 
 

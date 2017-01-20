@@ -20,6 +20,8 @@ def model_from_pdb_data_file(data_file, model_id=1):
             make_link_bonds(model, data_file, model_id)
             give_model_sites(model, data_file, model_id)
             map_sites_to_ligands(model, data_file, model_id)
+            give_model_alpha_helices(model, data_file, model_id)
+            give_model_beta_strands(model, data_file, model_id)
 
             return model
     raise ValueError("There is no model with ID %i" % model_id)
@@ -170,6 +172,32 @@ def map_sites_to_ligands(model, data_file, model_id):
                                 site.ligand(ligand)
 
 
+def give_model_alpha_helices(model, data_file, model_id):
+    for helix in data_file.helices():
+        chain = model.get_chain_by_id(helix["start_residue_chain_id"])
+        if chain:
+            start_residue = chain.get_residue_by_id(
+             helix["start_residue_chain_id"] +
+             str(helix["start_residue_id"]) +
+             helix["start_residue_insert"]
+            )
+            end_residue = chain.get_residue_by_id(
+             helix["end_residue_chain_id"] +
+             str(helix["end_residue_id"]) +
+             helix["end_residue_insert"]
+            )
+            if start_residue and end_residue:
+                start_index = chain.residues().index(start_residue)
+                end_index = chain.residues().index(end_residue)
+                if end_index > start_index:
+                    AlphaHelix(
+                     helix["helix_name"],
+                     *chain.residues()[start_index:end_index + 1],
+                     comment=helix["comment"],
+                     helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
+                    )
+
+
 def _get_top_atom_id(atoms=None, heteroatoms=None):
     atom_id = max([atom["atom_id"] for atom in atoms]) if atoms else -1
     hetero_id = max([atom["atom_id"] for atom in heteroatoms]) if heteroatoms else -1
@@ -192,6 +220,31 @@ def add_chains_to_model(model, data_file, model_id):
          [atom.atom_id() for atom in chain.atoms(atom_type="all")]
         )
         model.add_chain(chain)
+
+
+def give_model_beta_strands(model, data_file, model_id):
+    for sheet in data_file.sheets():
+        for strand in sheet["strands"]:
+            chain = model.get_chain_by_id(strand["start_residue_chain_id"])
+            if chain:
+                start_residue = chain.get_residue_by_id(
+                 strand["start_residue_chain_id"] +
+                 str(strand["start_residue_id"]) +
+                 strand["start_residue_insert"]
+                )
+                end_residue = chain.get_residue_by_id(
+                 strand["end_residue_chain_id"] +
+                 str(strand["end_residue_id"]) +
+                 strand["end_residue_insert"]
+                )
+                if start_residue and end_residue:
+                    start_index = chain.residues().index(start_residue)
+                    end_index = chain.residues().index(end_residue)
+                    BetaStrand(
+                     str(strand["strand_id"]),
+                     strand["sense"],
+                     *chain.residues()[start_index:end_index + 1]
+                    )
 
 
 def _mol_id_from_atom(atom):
@@ -311,3 +364,17 @@ def _residue_id_is_greater_than_residue_id(residue_id1, residue_id2):
         return True
     else:
         return False
+
+
+HELIX_CLASSES = {
+ 1: "Right-handed alpha",
+ 2: "Right-handed omega",
+ 3: "Right-handed pi",
+ 4: "Right-handed gamma",
+ 5: "Right-handed 3 - 10",
+ 6: "Left-handed alpha",
+ 7: "Left-handed omega",
+ 8: "Left-handed gamma",
+ 9: "2 - 7 ribbon/helix",
+ 10: "Polyproline",
+}

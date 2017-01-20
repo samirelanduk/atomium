@@ -202,57 +202,6 @@ class Pdb:
         return self._models[0]
 
 
-def _give_model_alpha_helices(model, data_file, model_id):
-    for helix in data_file.helices():
-        chain = model.get_chain_by_id(helix["start_residue_chain_id"])
-        if chain:
-            start_residue = chain.get_residue_by_id(
-             helix["start_residue_chain_id"] +
-             str(helix["start_residue_id"]) +
-             helix["start_residue_insert"]
-            )
-            end_residue = chain.get_residue_by_id(
-             helix["end_residue_chain_id"] +
-             str(helix["end_residue_id"]) +
-             helix["end_residue_insert"]
-            )
-            if start_residue and end_residue:
-                start_index = chain.residues().index(start_residue)
-                end_index = chain.residues().index(end_residue)
-                if end_index > start_index:
-                    AlphaHelix(
-                     helix["helix_name"],
-                     *chain.residues()[start_index:end_index + 1],
-                     comment=helix["comment"],
-                     helix_class=HELIX_CLASSES.get(helix["helix_class"], HELIX_CLASSES[1])
-                    )
-
-
-def _give_model_beta_strands(model, data_file, model_id):
-    for sheet in data_file.sheets():
-        for strand in sheet["strands"]:
-            chain = model.get_chain_by_id(strand["start_residue_chain_id"])
-            if chain:
-                start_residue = chain.get_residue_by_id(
-                 strand["start_residue_chain_id"] +
-                 str(strand["start_residue_id"]) +
-                 strand["start_residue_insert"]
-                )
-                end_residue = chain.get_residue_by_id(
-                 strand["end_residue_chain_id"] +
-                 str(strand["end_residue_id"]) +
-                 strand["end_residue_insert"]
-                )
-                if start_residue and end_residue:
-                    start_index = chain.residues().index(start_residue)
-                    end_index = chain.residues().index(end_residue)
-                    BetaStrand(
-                     str(strand["strand_id"]),
-                     strand["sense"],
-                     *chain.residues()[start_index:end_index + 1]
-                    )
-
-
 def _give_model_complexes(model, data_file, model_id):
     for compound in data_file.compounds():
         chains = []
@@ -262,17 +211,3 @@ def _give_model_complexes(model, data_file, model_id):
         if chains:
             complex_ = Complex(str(compound["MOL_ID"]), compound["MOLECULE"], *chains)
             model.add_complex(complex_)
-
-
-HELIX_CLASSES = {
- 1: "Right-handed alpha",
- 2: "Right-handed omega",
- 3: "Right-handed pi",
- 4: "Right-handed gamma",
- 5: "Right-handed 3 - 10",
- 6: "Left-handed alpha",
- 7: "Left-handed omega",
- 8: "Left-handed gamma",
- 9: "2 - 7 ribbon/helix",
- 10: "Polyproline",
-}

@@ -805,6 +805,83 @@ class BindSiteTests(PdbDataFile2ModelTest):
 
 
 
+class PdbSecondaryStructureTests(PdbDataFile2ModelTest):
+
+    def setUp(self):
+        PdbDataFile2ModelTest.setUp(self)
+        self.data_file.atoms.return_value = [
+         self.atom1, self.atom2, self.atom3, self.atom4
+        ]
+
+
+    def test_model_has_alpha_helices(self):
+        self.data_file.helices.return_value = [{
+         "helix_id": 1,
+         "helix_name": "1",
+         "start_residue_name": "ALA",
+         "start_residue_chain_id": "A",
+         "start_residue_id": 1001,
+         "start_residue_insert": "A",
+         "end_residue_name": "ALA",
+         "end_residue_chain_id": "A",
+         "end_residue_id": 1002,
+         "end_residue_insert": "",
+         "helix_class": 5,
+         "comment": None,
+         "length": 3
+        }]
+        model = model_from_pdb_data_file(self.data_file)
+        self.assertEqual(len(model.get_chain_by_id("A").alpha_helices()), 1)
+        helix = list(model.get_chain_by_id("A").alpha_helices())[0]
+        self.assertIsInstance(helix, AlphaHelix)
+        self.assertEqual(helix.helix_id(), "1")
+        self.assertEqual(
+         helix.residues(),
+         list(model.chains())[0].residues()
+        )
+        self.assertEqual(helix.helix_class(), "Right-handed 3 - 10")
+
+
+    def test_pdb_has_beta_strands(self):
+        self.data_file.sheets.return_value = [{
+         "sheet_id": "A",
+         "strand_count": 1,
+         "strands": [{
+          "strand_id": 1,
+          "start_residue_name": "ALA",
+          "start_residue_chain_id": "A",
+          "start_residue_id": 1001,
+          "start_residue_insert": "A",
+          "end_residue_name": "ALA",
+          "end_residue_chain_id": "A",
+          "end_residue_id": 1002,
+          "end_residue_insert": "",
+          "sense": 0,
+          "current_atom": None,
+          "current_residue_name": None,
+          "current_chain_id": None,
+          "current_residue_id": None,
+          "current_insert": "",
+          "previous_atom": None,
+          "previous_residue_name": None,
+          "previous_chain_id": None,
+          "previous_residue_id": None,
+          "previous_insert": ""
+         }]
+        }]
+        model = model_from_pdb_data_file(self.data_file)
+        self.assertEqual(len(model.get_chain_by_id("A").beta_strands()), 1)
+        strand = list(model.get_chain_by_id("A").beta_strands())[0]
+        self.assertIsInstance(strand, BetaStrand)
+        self.assertEqual(strand.strand_id(), "1")
+        self.assertEqual(
+         strand.residues(),
+         list(model.chains())[0].residues()
+        )
+        self.assertEqual(strand.sense(), 0)
+
+
+
 class MolIdFromAtomTests(TestCase):
 
     def test_can_get_basic_id(self):

@@ -5,7 +5,6 @@ from .chains import Chain, BindSite
 from .complexes import Complex
 from ..exceptions import DuplicateSmallMoleculesError, DuplicateChainsError
 from ..exceptions import DuplicateBindSitesError, DuplicateComplexesError
-from molecupy.converters.model2pdbdatafile import pdb_data_file_from_model
 
 class Model(AtomicStructure):
     """Base class: :py:class:`.AtomicStructure`
@@ -419,7 +418,7 @@ class Model(AtomicStructure):
         return new_complex
 
 
-    pdb_data_file = pdb_data_file_from_model
+    # pdb_data_file = pdb_data_file_from_model
 
 
     def save_as_pdb(self, path):

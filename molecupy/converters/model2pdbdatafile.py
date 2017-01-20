@@ -1,11 +1,17 @@
 from ..pdb.pdbdatafile import PdbDataFile
 from ..structures.molecules import Residue, SmallMolecule
+from ..structures.models import Model
 
 def pdb_data_file_from_model(model):
+    if not isinstance(model, Model):
+        raise TypeError("pdb_data_file_from_model can only convert Models")
     data_file = PdbDataFile()
+    data_file._source = model
+
     add_complexes_to_data_file(data_file, model)
     add_atoms_to_data_file(data_file, model)
     add_connections_to_data_file(data_file, model)
+
     return data_file
 
 

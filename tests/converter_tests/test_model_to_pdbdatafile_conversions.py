@@ -1,6 +1,7 @@
 import os
 from unittest import TestCase
 import unittest.mock
+from molecupy.converters.model2pdbdatafile import pdb_data_file_from_model
 from molecupy.structures.models import Model
 from molecupy.structures.complexes import Complex
 from molecupy.structures.chains import Chain
@@ -8,15 +9,30 @@ from molecupy.structures.molecules import SmallMolecule, Residue
 from molecupy.structures.atoms import Atom
 from molecupy.pdb.pdbdatafile import PdbDataFile
 
-class ConversionToPdbDataFileTests(TestCase):
+class Model2PdbDataFile(TestCase):
 
-    def test_model_can_produce_pdbdatafile(self):
-        model = Model()
-        data_file = model.pdb_data_file()
+    def setUp(self):
+        self.model = Model()
+
+
+class BasicDataFileCreationTests(Model2PdbDataFile):
+
+    def test_model_can_create_pdbdatafile(self):
+        data_file = pdb_data_file_from_model(self.model)
         self.assertIsInstance(data_file, PdbDataFile)
 
 
-    def test_can_save_to_file(self):
+    def test_can_only_convert_models(self):
+        with self.assertRaises(TypeError):
+            pdb_data_file_from_model("PDB file")
+
+
+    def test_data_file_knows_source(self):
+        data_file = pdb_data_file_from_model(self.model)
+        self.assertIs(data_file.source(), self.model)
+
+
+    '''def test_can_save_to_file(self):
         model = Model()
         model.add_small_molecule(
          SmallMolecule("A1", "AA", Atom(1.0, 1.0, 1.0, "A", 1, "A"))
@@ -29,11 +45,11 @@ class ConversionToPdbDataFileTests(TestCase):
                  model.pdb_data_file().generate_pdb_file().convert_to_string()
                 )
         finally:
-            os.remove("temp.pdb")
+            os.remove("temp.pdb")'''
 
 
 
-class ComplexConversionTests(TestCase):
+'''class ComplexConversionTests(TestCase):
 
     def test_can_add_complexes_to_pdb_data_file(self):
         chain1 = unittest.mock.Mock(Chain)
@@ -210,4 +226,4 @@ class AtomConversionTests(TestCase):
           "atom_id": 5,
           "bonded_atoms": [4]
          }]
-        )
+        )'''

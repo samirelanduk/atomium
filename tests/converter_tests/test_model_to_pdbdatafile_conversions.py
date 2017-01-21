@@ -32,22 +32,6 @@ class BasicDataFileCreationTests(Model2PdbDataFile):
         self.assertIs(data_file.source(), self.model)
 
 
-    '''def test_can_save_to_file(self):
-        model = Model()
-        model.add_small_molecule(
-         SmallMolecule("A1", "AA", Atom(1.0, 1.0, 1.0, "A", 1, "A"))
-        )
-        model.save_as_pdb("temp.pdb")
-        try:
-            with open("temp.pdb") as f:
-                self.assertEqual(
-                 f.read(),
-                 model.pdb_data_file().generate_pdb_file().convert_to_string()
-                )
-        finally:
-            os.remove("temp.pdb")'''
-
-
 
 class ComplexConversionTests(Model2PdbDataFile):
 

@@ -66,7 +66,7 @@ def process_header_records(data_file, pdb_file):
     header = pdb_file.get_record_by_name("HEADER")
     if header:
         data_file._classification = header[10:50]
-        data_file._deposition_date = date_from_string(header[50:59])
+        data_file._deposition_date = _date_from_string(header[50:59])
         data_file._pdb_code = header[62:66]
     else:
         data_file._classification = None
@@ -78,7 +78,7 @@ def process_obslte_records(data_file, pdb_file):
     obslte = pdb_file.get_record_by_name("OBSLTE")
     if obslte:
         data_file._is_obsolete = True
-        data_file._obsolete_date = date_from_string(obslte[11:20])
+        data_file._obsolete_date = _date_from_string(obslte[11:20])
         data_file._replacement_code = obslte[31:35]
     else:
         data_file._is_obsolete = False
@@ -89,7 +89,7 @@ def process_obslte_records(data_file, pdb_file):
 def process_title_records(data_file, pdb_file):
     titles = pdb_file.get_records_by_name("TITLE")
     if titles:
-        data_file._title = merge_records(titles, 10, dont_condense=",;:-")
+        data_file._title = _merge_records(titles, 10, dont_condense=",;:-")
     else:
         data_file._title = None
 
@@ -102,25 +102,25 @@ def process_split_records(data_file, pdb_file):
 def process_caveat_records(data_file, pdb_file):
     caveats = pdb_file.get_records_by_name("CAVEAT")
     if caveats:
-        data_file._caveat = merge_records(caveats, 19)
+        data_file._caveat = _merge_records(caveats, 19)
     else:
         data_file._caveat = None
 
 
 def process_compnd_records(data_file, pdb_file):
     records = pdb_file.get_records_by_name("COMPND")
-    data_file._compounds = records_to_token_value_dicts(records)
+    data_file._compounds = _records_to_token_value_dicts(records)
 
 
 def process_source_records(data_file, pdb_file):
     records = pdb_file.get_records_by_name("SOURCE")
-    data_file._sources = records_to_token_value_dicts(records)
+    data_file._sources = _records_to_token_value_dicts(records)
 
 
 def process_keywd_records(data_file, pdb_file):
     keywords = pdb_file.get_records_by_name("KEYWDS")
     if keywords:
-        keyword_text = merge_records(keywords, 10)
+        keyword_text = _merge_records(keywords, 10)
         data_file._keywords = keyword_text.split(",")
     else:
         data_file._keywords = []
@@ -129,7 +129,7 @@ def process_keywd_records(data_file, pdb_file):
 def process_expdta_records(data_file, pdb_file):
     expdta = pdb_file.get_records_by_name("EXPDTA")
     if expdta:
-        expdta_text = merge_records(expdta, 10)
+        expdta_text = _merge_records(expdta, 10)
         data_file._experimental_techniques = expdta_text.split(";")
     else:
         data_file._experimental_techniques = []
@@ -146,7 +146,7 @@ def process_nummdl_records(data_file, pdb_file):
 def process_mdltyp_records(data_file, pdb_file):
     mdltyps = pdb_file.get_records_by_name("MDLTYP")
     if mdltyps:
-        mdltyp_text = merge_records(mdltyps, 10, dont_condense=",")
+        mdltyp_text = _merge_records(mdltyps, 10, dont_condense=",")
         data_file._model_annotations = [
          ann.strip() for ann in mdltyp_text.split(";") if ann.strip()
         ]
@@ -157,7 +157,7 @@ def process_mdltyp_records(data_file, pdb_file):
 def process_author_records(data_file, pdb_file):
     authors = pdb_file.get_records_by_name("AUTHOR")
     if authors:
-        data_file._authors = merge_records(authors, 10).split(",")
+        data_file._authors = _merge_records(authors, 10).split(",")
     else:
         data_file._authors = []
 
@@ -169,10 +169,10 @@ def process_revdat_records(data_file, pdb_file):
         revisions = []
         for number in numbers:
             records = [r for r in revdats if r[7:10] == number]
-            rec_types = merge_records(records, 39).split()
+            rec_types = _merge_records(records, 39).split()
             revisions.append({
              "number": number,
-             "date": date_from_string(records[0][13:22]),
+             "date": _date_from_string(records[0][13:22]),
              "type": records[0][31],
              "records": [r for r in rec_types if r]
             })
@@ -185,7 +185,7 @@ def process_sprsde_records(data_file, pdb_file):
     sprsde = pdb_file.get_record_by_name("SPRSDE")
     if sprsde:
         data_file._supercedes = sprsde[31:75].split()
-        data_file._supercede_date = date_from_string(sprsde[11:20])
+        data_file._supercede_date = _date_from_string(sprsde[11:20])
     else:
         data_file._supercedes = []
         data_file._supercede_date = None
@@ -196,11 +196,11 @@ def process_jrnl_records(data_file, pdb_file):
     if jrnls:
         journal = {}
         auths = [r for r in jrnls if r[12:16] == "AUTH"]
-        journal["authors"] = merge_records(auths, 19).split(",") if auths else []
+        journal["authors"] = _merge_records(auths, 19).split(",") if auths else []
         titls = [r for r in jrnls if r[12:16] == "TITL"]
-        journal["title"] = merge_records(titls, 19) if titls else None
+        journal["title"] = _merge_records(titls, 19) if titls else None
         edits = [r for r in jrnls if r[12:16] == "EDIT"]
-        journal["editors"] = merge_records(edits, 19).split(",") if edits else []
+        journal["editors"] = _merge_records(edits, 19).split(",") if edits else []
         refs = [r for r in jrnls if r[12:16] == "REF"]
         journal["reference"] = {} if refs else None
         if refs and "TO BE PUBLISHED" in refs[0].text():
@@ -217,7 +217,7 @@ def process_jrnl_records(data_file, pdb_file):
              "year": refs[0][62:66]
             }
         publs = [r for r in jrnls if r[12:16] == "PUBL"]
-        journal["publisher"] = merge_records(
+        journal["publisher"] = _merge_records(
          publs, 19, dont_condense=",:;"
         ) if publs else None
         refns = [r for r in jrnls if r[12:16] == "REFN"]
@@ -243,7 +243,7 @@ def process_remark_records(data_file, pdb_file):
             recs = [r for r in remark_records if r[7:10] == number]
             remark = {
              "number": number,
-             "content": merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
+             "content": _merge_records(recs[1:], 11, join="\n", dont_condense=" ,:;")
             }
             remarks.append(remark)
         data_file._remarks = remarks
@@ -319,7 +319,7 @@ def process_seqres_records(data_file, pdb_file):
             residue_sequences.append({
              "chain_id": chain,
              "length": records[0][13:17],
-             "residues": merge_records(records, 19).split()
+             "residues": _merge_records(records, 19).split()
             })
         data_file._residue_sequences = residue_sequences
     else:
@@ -361,7 +361,7 @@ def process_hetnam_records(data_file, pdb_file):
     if hetnams:
         ids = list(set([r[11:14] for r in hetnams]))
         data_file._het_names = {
-         het_id: merge_records(
+         het_id: _merge_records(
           [r for r in hetnams if r[11:14] == het_id], 15, dont_condense=":;"
          ) for het_id in ids
         }
@@ -374,7 +374,7 @@ def process_hetsyn_records(data_file, pdb_file):
     if hetsyns:
         ids = list(set([r[11:14] for r in hetsyns]))
         data_file._het_synonyms = {
-         het_id: merge_records(
+         het_id: _merge_records(
           [r for r in hetsyns if r[11:14] == het_id], 15
          ).split(";") for het_id in ids
         }
@@ -390,7 +390,7 @@ def process_formul_records(data_file, pdb_file):
          het_id: {
           "component_number": [r for r in formuls if r[12:15] == het_id][0][8:10],
           "is_water": [r for r in formuls if r[12:15] == het_id][0][18] == "*",
-          "formula": merge_records(
+          "formula": _merge_records(
            [r for r in formuls if r[12:15] == het_id], 19
           )
          } for het_id in ids
@@ -806,12 +806,7 @@ def process_master_records(data_file, pdb_file):
     } if master else None
 
 
-def date_from_string(s):
-    """Gets a Date object from a PDB formatted date string.
-
-    :param str s: A date in the format DD-MM-YY.
-    :rtype: ``datetime.Date``"""
-
+def _date_from_string(s):
     if s:
         return datetime.datetime.strptime(
          s, "%d-%b-%y"
@@ -820,16 +815,7 @@ def date_from_string(s):
         return None
 
 
-def merge_records(records, start, join=" ", dont_condense=""):
-    """Gets a single continuous string from a sequence of records.
-
-    :param list records: The records to merge.
-    :param int start: The start point in each record.
-    :param str join: The string to join on.
-    :param str dont_condense: By default any spaces after spaces, semi-colons, \
-    colons, commas and dashes will be removed, unless listed here.
-    :rtype: ``str``"""
-
+def _merge_records(records, start, join=" ", dont_condense=""):
     string = join.join(
      str(record[start:]
     ) if record[start:] else "" for record in records)
@@ -839,14 +825,8 @@ def merge_records(records, start, join=" ", dont_condense=""):
     return string
 
 
-def records_to_token_value_dicts(records):
-    """Produces a list of ``dict`` objects from the key-value pairs used in \
-    COMPND and SOURCE records.
-
-    :param list records: The records to use.
-    :rtype: ``list``"""
-
-    string = merge_records(records, 10)
+def _records_to_token_value_dicts(records):
+    string = _merge_records(records, 10)
     pairs = list(filter(None, string.split(";")))
     for pair_offset in range(1, len(pairs))[::-1]:
         if pairs[pair_offset].count(":") == 0:

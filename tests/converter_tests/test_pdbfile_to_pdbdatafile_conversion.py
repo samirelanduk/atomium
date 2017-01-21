@@ -4,9 +4,9 @@ from unittest.mock import Mock
 from molecupy.pdb.pdbfile import PdbFile, PdbRecord
 from molecupy.pdb.pdbdatafile import PdbDataFile
 from molecupy.converters.pdbfile2pdbdatafile import pdb_data_file_from_pdb_file
-from molecupy.converters.pdbfile2pdbdatafile import date_from_string
-from molecupy.converters.pdbfile2pdbdatafile import merge_records
-from molecupy.converters.pdbfile2pdbdatafile import records_to_token_value_dicts
+from molecupy.converters.pdbfile2pdbdatafile import _date_from_string
+from molecupy.converters.pdbfile2pdbdatafile import _merge_records
+from molecupy.converters.pdbfile2pdbdatafile import _records_to_token_value_dicts
 
 class PdbFile2PdbDataFileTest(TestCase):
 
@@ -1607,18 +1607,18 @@ class DateFromStringTests(PdbFile2PdbDataFileTest):
 
     def test_can_get_date_from_string(self):
         self.assertEqual(
-         date_from_string("01-JAN-00"),
+         _date_from_string("01-JAN-00"),
          datetime.datetime(2000, 1, 1).date()
         )
         self.assertEqual(
-         date_from_string("28-SEP-99"),
+         _date_from_string("28-SEP-99"),
          datetime.datetime(1999, 9, 28).date()
         )
 
 
     def test_date_conversion_will_return_none_if_given_nothing(self):
-        self.assertEqual(date_from_string(""), None)
-        self.assertEqual(date_from_string(None), None)
+        self.assertEqual(_date_from_string(""), None)
+        self.assertEqual(_date_from_string(None), None)
 
 
 
@@ -1640,48 +1640,48 @@ class RecordMergingTests(PdbFile2PdbDataFileTest):
 
     def test_can_merge_records(self):
         self.assertEqual(
-         merge_records(self.records, 5),
+         _merge_records(self.records, 5),
          "56789 fghij 56789"
         )
         self.assertEqual(
-         merge_records(self.records, 8),
+         _merge_records(self.records, 8),
          "89 ij 89"
         )
 
 
     def test_can_vary_join(self):
         self.assertEqual(
-         merge_records(self.records, 5, join=""),
+         _merge_records(self.records, 5, join=""),
          "56789fghij56789"
         )
         self.assertEqual(
-         merge_records(self.records, 8, join="."),
+         _merge_records(self.records, 8, join="."),
          "89.ij.89"
         )
 
 
     def test_can_condense(self):
         self.assertEqual(
-         merge_records(self.punc_records, 2),
+         _merge_records(self.punc_records, 2),
          "23,456789 cd efghij 23;456789"
         )
 
 
     def test_can_ignore_condensors(self):
         self.assertEqual(
-         merge_records(self.punc_records, 2, dont_condense=","),
+         _merge_records(self.punc_records, 2, dont_condense=","),
          "23, 456789 cd efghij 23;456789"
         )
         self.assertEqual(
-         merge_records(self.punc_records, 2, dont_condense=";"),
+         _merge_records(self.punc_records, 2, dont_condense=";"),
          "23,456789 cd efghij 23; 456789"
         )
         self.assertEqual(
-         merge_records(self.punc_records, 2, dont_condense=";,"),
+         _merge_records(self.punc_records, 2, dont_condense=";,"),
          "23, 456789 cd efghij 23; 456789"
         )
         self.assertEqual(
-         merge_records(self.punc_records, 2, dont_condense=";, "),
+         _merge_records(self.punc_records, 2, dont_condense=";, "),
          "23, 456789 cd  efghij 23; 456789"
         )
 
@@ -1699,7 +1699,7 @@ class RecordsToDictTests(PdbFile2PdbDataFileTest):
          "COMPND   6 CHAIN_: CHAINS2;"
         ]]
         self.assertEqual(
-         records_to_token_value_dicts(records),
+         _records_to_token_value_dicts(records),
          [
           {"MOL_ID": "A", "MOLECULE": "MOLNAME", "CHAIN_": "CHAINS"},
           {"MOL_ID": "B", "MOLECULE": "MOLNAME2", "CHAIN_": "CHAINS2"}
@@ -1714,7 +1714,7 @@ class RecordsToDictTests(PdbFile2PdbDataFileTest):
          "COMPND   3 CHAIN_: CHAINS;"
         ]]
         self.assertEqual(
-         records_to_token_value_dicts(records),
+         _records_to_token_value_dicts(records),
          [
           {"MOL_ID": 1, "MOLECULE": "MOLNAME", "CHAIN_": "CHAINS"}
          ]
@@ -1728,7 +1728,7 @@ class RecordsToDictTests(PdbFile2PdbDataFileTest):
          "COMPND   3 CHAIN_: NO;"
         ]]
         self.assertEqual(
-         records_to_token_value_dicts(records),
+         _records_to_token_value_dicts(records),
          [
           {"MOL_ID": 1, "MOLECULE": True, "CHAIN_": False}
          ]
@@ -1742,7 +1742,7 @@ class RecordsToDictTests(PdbFile2PdbDataFileTest):
          "COMPND   2 SYNONYM: BEEP, BOOP;"
         ]]
         self.assertEqual(
-         records_to_token_value_dicts(records),
+         _records_to_token_value_dicts(records),
          [
           {"MOL_ID": 1, "CHAIN": ["A", "B"], "SYNONYM": ["BEEP", "BOOP"]}
          ]
@@ -1757,7 +1757,7 @@ class RecordsToDictTests(PdbFile2PdbDataFileTest):
          "COMPND   2 FIELD3: VALUE3;"
         ]]
         self.assertEqual(
-         records_to_token_value_dicts(records),
+         _records_to_token_value_dicts(records),
          [
           {"MOL_ID": 1, "FIELD": "VALUE", "FIELD2": "VALUE2; EXTRA", "FIELD3": "VALUE3"}
          ]

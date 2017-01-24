@@ -186,19 +186,26 @@ class Atom(GhostAtom):
             self._z = z
 
 
+    def location(self):
+        return (self.x(), self.y(), self.z())
+
+
     def distance_to(self, other_atom):
         """Returns the distance between this atom and another, in Angstroms.
 
         :param Atom other_atom: The other atom.
         :rtype: ``float``"""
 
-        if not isinstance(other_atom, Atom):
+        from .molecules import AtomicStructure
+        if not isinstance(other_atom, Atom) and not isinstance(other_atom, AtomicStructure):
             raise TypeError(
              "Can only get distance between Atoms, not '%s'" % str(other_atom)
             )
-        x_sum = math.pow((other_atom.x() - self.x()), 2)
-        y_sum = math.pow((other_atom.y() - self.y()), 2)
-        z_sum = math.pow((other_atom.z() - self.z()), 2)
+        x, y, z = other_atom.location() if isinstance(other_atom, Atom)\
+         else other_atom.center_of_mass()
+        x_sum = math.pow((x - self.x()), 2)
+        y_sum = math.pow((y - self.y()), 2)
+        z_sum = math.pow((z - self.z()), 2)
         distance = math.sqrt(x_sum + y_sum + z_sum)
         return distance
 

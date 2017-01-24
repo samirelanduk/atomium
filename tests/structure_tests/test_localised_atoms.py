@@ -1,6 +1,6 @@
 from unittest import TestCase
-import unittest.mock
-from molecupy.structures import GhostAtom, Atom
+from unittest.mock import Mock
+from molecupy.structures import GhostAtom, Atom, AtomicStructure
 
 class AtomCreationTests(TestCase):
 
@@ -61,6 +61,13 @@ class AtomPropertyTests(TestCase):
             self.atom.z("10.0")
 
 
+    def test_can_get_all_coordinates(self):
+        self.assertEqual(
+         self.atom.location(),
+         (self.atom.x(), self.atom.y(), self.atom.z())
+        )
+
+
 
 class AtomDistanceTests(TestCase):
 
@@ -81,6 +88,18 @@ class AtomDistanceTests(TestCase):
         atom2 = GhostAtom("C", 1011, "CD")
         with self.assertRaises(TypeError):
             atom1.distance_to(atom2)
+
+
+    def test_can_distance_to_atomic_structure_uses_center_of_mass(self):
+        atom1 = Atom(-0.791, 64.789, 30.59, "O", 2621, "OD1")
+        atomic_structure = Mock(AtomicStructure)
+        atomic_structure.center_of_mass.return_value = (5.132, 63.307, 56.785)
+        pymol_calculated_distance = 26.9
+        self.assertAlmostEqual(
+         atom1.distance_to(atomic_structure),
+         pymol_calculated_distance,
+         delta=0.01
+        )
 
 
 
@@ -183,8 +202,8 @@ class NearbyPdbAtomTests(TestCase):
         self.pdb_atoms = [
          Atom(10.0, 20.0, float(i), "C", int(i), "CA") for i in range(10)
         ]
-        molecule = unittest.mock.Mock()
-        self.model = unittest.mock.Mock()
+        molecule = Mock()
+        self.model = Mock()
         molecule.model.return_value = self.model
         self.model.atoms.return_value = set(self.pdb_atoms)
         for atom in self.pdb_atoms:

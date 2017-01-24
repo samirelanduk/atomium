@@ -1101,7 +1101,13 @@ class RadiusOfGyrationTests(AtomicStructureTest):
         atom1 = Atom(0.0, 0.0, 0.0, "H", 1, "H")
         atom2 = Atom(10.0, 0.0, 0.0, "H", 2, "H")
         structure = AtomicStructure(atom1, atom2)
-        self.assertEqual(
-         structure.radius_of_gyration(),
-         5
-        )
+        self.assertEqual(structure.radius_of_gyration(), 5)
+
+
+    def test_can_get_Rg_from_plane(self):
+        atom1 = Atom(5.0, 0.0, 0.0, "H", 1, "H")
+        atom2 = Atom(-5.0, 0.0, 0.0, "H", 2, "H")
+        atom3 = Atom(0.0, 5.0, 0.0, "H", 3, "H")
+        atom4 = Atom(0.0, -5.0, 0.0, "H", 4, "H")
+        structure = AtomicStructure(atom1, atom2, atom3, atom4)
+        self.assertEqual(structure.radius_of_gyration(), 5)

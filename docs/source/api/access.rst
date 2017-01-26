@@ -1,5 +1,5 @@
-``molecupy.access`` (PDB Access)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``molecupy.pdb.access`` (PDB Access)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: molecupy.access
+.. automodule:: molecupy.pdb.access
     :members:

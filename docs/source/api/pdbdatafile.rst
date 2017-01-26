@@ -1,5 +1,5 @@
-``molecupy.pdbdatafile`` (PDB Data File)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``molecupy.pdb.pdbdatafile`` (PDB Data File)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: molecupy.pdbdatafile
+.. automodule:: molecupy.pdb.pdbdatafile
     :members:

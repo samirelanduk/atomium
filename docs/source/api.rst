@@ -1,6 +1,7 @@
 Full API
 --------
 
+
 .. toctree ::
     api/atoms
     api/molecules
@@ -10,4 +11,8 @@ Full API
     api/pdbdatafile
     api/pdb
     api/access
+    api/pdbfile2pdbdatafile
+    api/pdbdatafile2pdbfile
+    api/pdbdatafile2model
+    api/model2pdbdatafile
     api/exceptions

@@ -1,5 +1,5 @@
-``molecupy.structures.molecules`` (PDB molecules)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``molecupy.structures.molecules`` (Atomic Structures)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: molecupy.structures.molecules
     :members:

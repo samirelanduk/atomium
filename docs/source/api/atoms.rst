@@ -1,4 +1,4 @@
-``molecupy.structures.atoms`` (PDB Atoms)
+``molecupy.structures.atoms`` (Atoms)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: molecupy.structures.atoms

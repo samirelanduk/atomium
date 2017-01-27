@@ -73,7 +73,7 @@ def pdb_data_file_from_pdb_file(pdb_file):
 
 def process_header_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    header records in the provided :py:class:`.PdbFile`
+    HEADER records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -91,7 +91,7 @@ def process_header_records(data_file, pdb_file):
 
 def process_obslte_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    obslte records in the provided :py:class:`.PdbFile`
+    OBSLTE records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -109,7 +109,7 @@ def process_obslte_records(data_file, pdb_file):
 
 def process_title_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    title records in the provided :py:class:`.PdbFile`
+    TITLE records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -123,7 +123,7 @@ def process_title_records(data_file, pdb_file):
 
 def process_split_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    split records in the provided :py:class:`.PdbFile`
+    SPLIT records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -134,7 +134,7 @@ def process_split_records(data_file, pdb_file):
 
 def process_caveat_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    caveat records in the provided :py:class:`.PdbFile`
+    CAVEAT records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -148,7 +148,7 @@ def process_caveat_records(data_file, pdb_file):
 
 def process_compnd_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    compnd records in the provided :py:class:`.PdbFile`
+    COMPND records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -159,7 +159,7 @@ def process_compnd_records(data_file, pdb_file):
 
 def process_source_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    source records in the provided :py:class:`.PdbFile`
+    SOURCE records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -170,7 +170,7 @@ def process_source_records(data_file, pdb_file):
 
 def process_keywd_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    keywd records in the provided :py:class:`.PdbFile`
+    KEYWD records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -185,7 +185,7 @@ def process_keywd_records(data_file, pdb_file):
 
 def process_expdta_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    expdta records in the provided :py:class:`.PdbFile`
+    EXPDTA records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -200,7 +200,7 @@ def process_expdta_records(data_file, pdb_file):
 
 def process_nummdl_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    nummdl records in the provided :py:class:`.PdbFile`
+    NUMMDL records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -214,7 +214,7 @@ def process_nummdl_records(data_file, pdb_file):
 
 def process_mdltyp_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    mdltyp records in the provided :py:class:`.PdbFile`
+    MDLTYP records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -231,7 +231,7 @@ def process_mdltyp_records(data_file, pdb_file):
 
 def process_author_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    author records in the provided :py:class:`.PdbFile`
+    AUTHOR records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -245,7 +245,7 @@ def process_author_records(data_file, pdb_file):
 
 def process_revdat_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    revdat records in the provided :py:class:`.PdbFile`
+    REVDAT records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -270,7 +270,7 @@ def process_revdat_records(data_file, pdb_file):
 
 def process_sprsde_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    sprsde records in the provided :py:class:`.PdbFile`
+    SPRSDE records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -286,7 +286,7 @@ def process_sprsde_records(data_file, pdb_file):
 
 def process_jrnl_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    jrnl records in the provided :py:class:`.PdbFile`
+    JRNL records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -335,7 +335,7 @@ def process_jrnl_records(data_file, pdb_file):
 
 def process_remark_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    remark records in the provided :py:class:`.PdbFile`
+    REMARK records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -358,7 +358,7 @@ def process_remark_records(data_file, pdb_file):
 
 def process_dbref_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    dbref records in the provided :py:class:`.PdbFile`
+    DBREF records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -404,7 +404,7 @@ def process_dbref_records(data_file, pdb_file):
 
 def process_seqadv_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    seqadv records in the provided :py:class:`.PdbFile`
+    SEQADV records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -428,7 +428,7 @@ def process_seqadv_records(data_file, pdb_file):
 
 def process_seqres_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    seqres records in the provided :py:class:`.PdbFile`
+    SEQRES records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -451,7 +451,7 @@ def process_seqres_records(data_file, pdb_file):
 
 def process_modres_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    modres records in the provided :py:class:`.PdbFile`
+    MODRES records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -472,7 +472,7 @@ def process_modres_records(data_file, pdb_file):
 
 def process_het_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    het records in the provided :py:class:`.PdbFile`
+    HET records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -493,7 +493,7 @@ def process_het_records(data_file, pdb_file):
 
 def process_hetnam_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    hetnam records in the provided :py:class:`.PdbFile`
+    HETNAM records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -512,7 +512,7 @@ def process_hetnam_records(data_file, pdb_file):
 
 def process_hetsyn_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    hetsyn records in the provided :py:class:`.PdbFile`
+    HETSYN records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -531,7 +531,7 @@ def process_hetsyn_records(data_file, pdb_file):
 
 def process_formul_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    formul records in the provided :py:class:`.PdbFile`
+    FORMUL records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -554,7 +554,7 @@ def process_formul_records(data_file, pdb_file):
 
 def process_helix_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    helix records in the provided :py:class:`.PdbFile`
+    HELIX records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -582,7 +582,7 @@ def process_helix_records(data_file, pdb_file):
 
 def process_sheet_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    sheet records in the provided :py:class:`.PdbFile`
+    SHEET records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -626,7 +626,7 @@ def process_sheet_records(data_file, pdb_file):
 
 def process_ssbond_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    ssbond records in the provided :py:class:`.PdbFile`
+    SSBOND records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -653,7 +653,7 @@ def process_ssbond_records(data_file, pdb_file):
 
 def process_link_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    link records in the provided :py:class:`.PdbFile`
+    LINK records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -683,7 +683,7 @@ def process_link_records(data_file, pdb_file):
 
 def process_cispep_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    cispep records in the provided :py:class:`.PdbFile`
+    CISPEP records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -709,7 +709,7 @@ def process_cispep_records(data_file, pdb_file):
 
 def process_site_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    site records in the provided :py:class:`.PdbFile`
+    SITE records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -746,7 +746,7 @@ def process_site_records(data_file, pdb_file):
 
 def process_cryst1_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    cryst1 records in the provided :py:class:`.PdbFile`
+    CRYST1 records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -769,7 +769,7 @@ def process_cryst1_records(data_file, pdb_file):
 
 def process_origx_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    origx records in the provided :py:class:`.PdbFile`
+    ORIGX records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -798,7 +798,7 @@ def process_origx_records(data_file, pdb_file):
 
 def process_scale_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    scale records in the provided :py:class:`.PdbFile`
+    SCALE records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -827,7 +827,7 @@ def process_scale_records(data_file, pdb_file):
 
 def process_mtrix_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    mtrix records in the provided :py:class:`.PdbFile`
+    MTRIX records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -862,7 +862,7 @@ def process_mtrix_records(data_file, pdb_file):
 
 def process_model_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    model records in the provided :py:class:`.PdbFile`
+    MODEL records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -886,7 +886,7 @@ def process_model_records(data_file, pdb_file):
 
 def process_atom_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    atom records in the provided :py:class:`.PdbFile`
+    ATOM records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -920,7 +920,7 @@ def process_atom_records(data_file, pdb_file):
 
 def process_anisou_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    anisou records in the provided :py:class:`.PdbFile`
+    ANISOU records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -955,7 +955,7 @@ def process_anisou_records(data_file, pdb_file):
 
 def process_ter_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    ter records in the provided :py:class:`.PdbFile`
+    TER records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -980,7 +980,7 @@ def process_ter_records(data_file, pdb_file):
 
 def process_hetatm_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    hetatm records in the provided :py:class:`.PdbFile`
+    HETATM records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -1014,7 +1014,7 @@ def process_hetatm_records(data_file, pdb_file):
 
 def process_conect_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    conect records in the provided :py:class:`.PdbFile`
+    CONECT records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""
@@ -1041,7 +1041,7 @@ def process_conect_records(data_file, pdb_file):
 
 def process_master_records(data_file, pdb_file):
     """Takes a :py:class:`.PdbDataFile` and updates it based on the
-    master records in the provided :py:class:`.PdbFile`
+    MASTER records in the provided :py:class:`.PdbFile`
 
     :param PdbDataFile data_file: the Data File to update.
     :param PdbFile pdb_file: The source Pdb File"""

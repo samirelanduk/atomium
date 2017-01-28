@@ -356,6 +356,15 @@ def give_model_beta_strands(model, data_file, model_id):
 
 
 def give_model_complexes(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.Complex`
+    objects in it based on the ``compounds`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+    
     for compound in data_file.compounds():
         chains = []
         for chain in model.chains():

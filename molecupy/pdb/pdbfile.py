@@ -192,6 +192,8 @@ class PdbFile:
 
 
     def source(self):
+        """The object from which this PdbFile was created."""
+        
         return self._source
 
 

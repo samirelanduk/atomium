@@ -7,9 +7,7 @@ from .pdbfile import PdbRecord, PdbFile
 
 class PdbDataFile:
     """This object is essentially a list of values extracted from a PDB file. It
-    functions as a data sheet.
-
-    :param PdbFile pdb_file: The PDB file to extract information from."""
+    functions as a data sheet."""
 
     def __init__(self):
         self._source = None
@@ -76,15 +74,25 @@ class PdbDataFile:
 
 
     def source(self):
+        """The object from which this PdbDataFile was created."""
+
         return self._source
 
 
     def to_pdb_file(self):
+        """Converts the PdbDataFile to a :py:class:`.PdbFile`."""
+
         from ..converters.pdbdatafile2pdbfile import pdb_file_from_pdb_data_file
         return pdb_file_from_pdb_data_file(self)
 
 
     def classification(self, classification=None):
+        """The classification of the PDB.
+
+        :param str classification: if given, the classifcation will be set to\
+        this.
+        :rtype: ``str``"""
+
         if classification:
             if not isinstance(classification, str):
                 raise TypeError(

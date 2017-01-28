@@ -1,9 +1,24 @@
+"""This module handles the logic of converting a :py:class:`.PdbDataFile` to a
+:py:class:`.Model`"""
+
 from ..structures import Model, Atom, GhostAtom, SmallMolecule, Residue, Chain
 from ..structures import BindSite, AlphaHelix, BetaStrand, Complex
 from ..pdb.pdbdatafile import PdbDataFile
 from ..pdb import residues as residues_dict
 
 def model_from_pdb_data_file(data_file, model_id=1):
+    """Takes a :py:class:`.PdbDataFile`, converts it to a :py:class:`.Model`,
+    and returns it.
+
+    :py:class:`.PdbDataFile` objects can contain multiple models. By default,
+    model 1 will be used, but you can specify specific models with the
+    ``model_id`` argument.
+
+    :param PdbDataFile data_file: The :py:class:`.PdbDataFile` to convert.
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion.
+    :rtype: :py:class:`.Model`"""
+
     if not isinstance(data_file, PdbDataFile):
         raise TypeError("model_from_pdb_data_file can only convert PdbDataFiles")
     for model_dict in data_file.models():
@@ -29,6 +44,15 @@ def model_from_pdb_data_file(data_file, model_id=1):
 
 
 def add_small_molecules_to_model(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.SmallMolecule`
+    objects in it based on the ``heteroatoms`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     heteroatoms = data_file.heteroatoms()
     molecule_names = set([a["residue_name"] for a in heteroatoms])
     molecule_ids = set([_mol_id_from_atom(a) for a in heteroatoms])
@@ -50,6 +74,15 @@ def add_small_molecules_to_model(model, data_file, model_id):
 
 
 def add_chains_to_model(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.Chain`
+    objects in it based on the ``atoms`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     atoms = [a for a in data_file.atoms() if a["model_id"] == model_id]
     heteroatoms = [a for a in data_file.heteroatoms() if a["model_id"] == model_id]
     highest_id = _get_top_atom_id(atoms, heteroatoms)
@@ -68,6 +101,15 @@ def add_chains_to_model(model, data_file, model_id):
 
 
 def connect_atoms(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.Bond`
+    objects between atoms in it based on the ``connections`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for connection in data_file.connections():
         atom = model.get_atom_by_id(connection["atom_id"])
         if atom:
@@ -78,6 +120,15 @@ def connect_atoms(model, data_file, model_id):
 
 
 def bond_residue_atoms(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.Bond`
+    objects within the residues of the Model, based on a pre-defined
+    dictionary of how residues are connected internally.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for chain in model.chains():
         for residue in chain.residues(include_missing=False):
             lookup = residues_dict.connection_data.get(residue.residue_name())
@@ -92,6 +143,14 @@ def bond_residue_atoms(model, data_file, model_id):
 
 
 def bond_residues_together(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.Bond`
+    objects between the residues of chains in the model.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for chain in model.chains():
         for index, residue in enumerate(chain.residues()[:-1]):
             next_residue = chain.residues()[index + 1]
@@ -103,6 +162,15 @@ def bond_residues_together(model, data_file, model_id):
 
 
 def make_disulphide_bonds(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates disulphide :py:class:`.Bond`
+    objects in it based on the ``ss_bonds`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for disulphide_bond in data_file.ss_bonds():
         chain1 = model.get_chain_by_id(disulphide_bond["chain_id_1"])
         chain2 = model.get_chain_by_id(disulphide_bond["chain_id_2"])
@@ -125,6 +193,15 @@ def make_disulphide_bonds(model, data_file, model_id):
 
 
 def make_link_bonds(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates specified :py:class:`.Bond`
+    objects in it based on the ``links`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for link in data_file.links():
         chain1 = model.get_chain_by_id(link["chain_id_1"])
         chain2 = model.get_chain_by_id(link["chain_id_2"])
@@ -154,6 +231,15 @@ def make_link_bonds(model, data_file, model_id):
 
 
 def give_model_sites(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.BindSite`
+    objects in it based on the ``sites`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for site in data_file.sites():
         residues = [model.get_chain_by_id(residue["chain_id"]).get_residue_by_id(
          str(residue["chain_id"]) + str(residue["residue_id"]) + residue["insert_code"]
@@ -170,6 +256,15 @@ def give_model_sites(model, data_file, model_id):
 
 
 def map_sites_to_ligands(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and assocated ligands and binding sites to
+    each other based on 800-remarks in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     remark_800 = data_file.get_remark_by_number(800)
     if remark_800:
         remark_lines = [
@@ -192,6 +287,15 @@ def map_sites_to_ligands(model, data_file, model_id):
 
 
 def give_model_alpha_helices(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.AlphaHelix`
+    objects in it based on the ``helices`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for helix in data_file.helices():
         chain = model.get_chain_by_id(helix["start_residue_chain_id"])
         if chain:
@@ -218,6 +322,15 @@ def give_model_alpha_helices(model, data_file, model_id):
 
 
 def give_model_beta_strands(model, data_file, model_id):
+    """Takes a :py:class:`.Model` and creates :py:class:`.BetaStrand`
+    objects in it based on the ``sheets`` in the provided
+    :py:class:`.PdbDataFile`.
+
+    :param Model model: the model to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param int model_id: The ID of the model in the data fileto be used for\
+    conversion."""
+
     for sheet in data_file.sheets():
         for strand in sheet["strands"]:
             chain = model.get_chain_by_id(strand["start_residue_chain_id"])

@@ -232,6 +232,10 @@ class PdbFile:
 
 
     def add_record(self, record):
+        """Adds a :py:class:`PdbRecord` to the end of the list of records.
+
+        :param PdbRecord record: The :py:class:`PdbRecord` to add."""
+
         if not isinstance(record, PdbRecord):
             raise TypeError(
              "Can only add PdbRecord objects to PdbFiles, not '%s'" % str(record)
@@ -241,6 +245,10 @@ class PdbFile:
 
 
     def remove_record(self, record):
+        """Removes a :py:class:`PdbRecord` from the list of records.
+
+        :param PdbRecord record: The :py:class:`PdbRecord` to remove."""
+
         if not isinstance(record, PdbRecord):
             raise TypeError(
              "Can only remove PdbRecord objects from PdbFiles, not '%s'" % str(record)
@@ -250,10 +258,14 @@ class PdbFile:
 
 
     def convert_to_string(self):
+        """Converts the PdbFile to a string, that can be written to file."""
+
         lines = [record.text() for record in self.records()]
         return "\n".join(lines)
 
 
     def to_pdb_data_file(self):
+        """Converts the PdbFile to a :py:class:`.PdbDataFile`."""
+
         from ..converters.pdbfile2pdbdatafile import pdb_data_file_from_pdb_file
         return pdb_data_file_from_pdb_file(self)

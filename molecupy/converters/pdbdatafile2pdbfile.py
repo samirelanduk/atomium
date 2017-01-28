@@ -1,8 +1,17 @@
+"""This module handles the logic of converting a :py:class:`.PdbDataFile` to a
+:py:class:`.PdbFile`"""
+
 import math
 from ..pdb.pdbfile import PdbFile, PdbRecord
 from ..pdb.pdbdatafile import PdbDataFile
 
 def pdb_file_from_pdb_data_file(data_file):
+    """Takes a :py:class:`.PdbDataFile`, converts it to a :py:class:`.PdbFile`,
+    and returns it.
+
+    :param PdbDataFile data_file: The :py:class:`.PdbDataFile` to convert.
+    :rtype: :py:class:`.PdbFile`"""
+
     if not isinstance(data_file, PdbDataFile):
         raise TypeError(
          "pdb_file_from_pdb_data_file can only convert PdbDataFiles"
@@ -19,6 +28,12 @@ def pdb_file_from_pdb_data_file(data_file):
 
 
 def create_compnd_records(pdb_file, data_file):
+    """Takes a :py:class:`.PdbFile` and creates COMPND records in it based on
+    the data in the provided :py:class:`.PdbDataFile`
+
+    :param PdbFile pdb_file: the PDB File to update.
+    :param PdbDataFile data_file: The source Pdb Data File"""
+
     lines = []
     for compound in data_file.compounds():
         segments = []
@@ -60,6 +75,14 @@ def create_compnd_records(pdb_file, data_file):
 
 
 def create_atom_records(pdb_file, data_file, hetero=False):
+    """Takes a :py:class:`.PdbFile` and creates ATOM and HETATM records in it
+    based on the data in the provided :py:class:`.PdbDataFile`
+
+    :param PdbFile pdb_file: the PDB File to update.
+    :param PdbDataFile data_file: The source Pdb Data File
+    :param bool hetero: if True, the function will create HETATM records, and\
+    if False, ATOM records will be created. Default is False."""
+
     atoms = data_file.heteroatoms() if hetero else data_file.atoms()
     for atom in atoms:
         record_fragments = []
@@ -95,6 +118,12 @@ def create_atom_records(pdb_file, data_file, hetero=False):
 
 
 def create_conect_records(pdb_file, data_file):
+    """Takes a :py:class:`.PdbFile` and creates CONECT records in it based on
+    the data in the provided :py:class:`.PdbDataFile`
+
+    :param PdbFile pdb_file: the PDB File to update.
+    :param PdbDataFile data_file: The source Pdb Data File"""
+
     for connection in data_file.connections():
         record_count = math.ceil(len(connection["bonded_atoms"]) / 4)
         for n in range(record_count):

@@ -180,7 +180,7 @@ class Pdb:
 
 
     def model(self):
-        """The first Model in the PDB models.
+        """The first :py:class:`.Model` in the PDB models.
 
         :rtype: ``Model``"""
 

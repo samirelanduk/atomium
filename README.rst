@@ -25,7 +25,7 @@ Requirements
 
 molecuPy requires the Python libraries
 `requests <http://docs.python-requests.org/>`_ and
-`OmniCanvas <http://omnicanvas.readthedocs.io/>`_. These will be installed
+`OmniCanvas <http://omnicanvas.samireland.com/>`_. These will be installed
 automatically if molecuPy is installed with pip.
 
 Otherwise molecuPy has no external dependencies, and is pure Python.
@@ -312,13 +312,20 @@ property.
     <SmallMolecule A1000 (BU2)>
 
 
-
 Secondary Structure
 ~~~~~~~~~~~~~~~~~~~
 
 ``Chain`` objects have a ``alpha_helices`` property and a
 ``beta_strands`` property, which are sets of ``AlphaHelix`` objects
 and ``BetaStrand`` objects respectively.
+
+
+Saving
+~~~~~~
+
+Any model can be saved to file:
+
+    >>> model.save_as_pdb("filename.pdb")
 
 
 Changelog

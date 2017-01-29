@@ -90,8 +90,8 @@ themselves:
     <PdbAtom 23 (N)>
 
 
-The chains and small molecules of the model exist as sets, and can be queried
-by ID or name:
+The complexes, chains and small molecules of the model exist as sets, and can be
+queried by ID or name:
 
     >>> pdb.model().chains()
     {<Chain B (214 residues)>, <Chain A (204 residues)>}
@@ -279,10 +279,17 @@ property.
     <SmallMolecule A1000 (BU2)>
 
 
-
 Secondary Structure
 ~~~~~~~~~~~~~~~~~~~
 
 :py:class:`.Chain` objects have a ``alpha_helices`` property and a
 ``beta_strands`` property, which are sets of :py:class:`.AlphaHelix` objects
 and :py:class:`.BetaStrand` objects respectively.
+
+
+Saving
+~~~~~~
+
+Any model can be saved to file:
+
+    >>> model.save_as_pdb("filename.pdb")

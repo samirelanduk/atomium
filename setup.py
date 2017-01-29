@@ -4,7 +4,7 @@ setup(
  name="molecupy",
  version="1.1.0",
  description="A Python molecular modeller with PDB parsing.",
- url="https://molecupy.readthedocs.io",
+ url="https://molecupy.samireland.com",
  author="Sam Ireland",
  author_email="mail@samireland.com",
  license="MIT",

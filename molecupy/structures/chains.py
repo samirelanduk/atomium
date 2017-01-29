@@ -269,11 +269,15 @@ class Chain(ResiduicSequence):
 
 
     def complex(self):
+        """Returns the :py:class:`.Complex` that the chain is a part of.
+
+        :rtype: ``Model``"""
+
         return self._complex
 
 
     def get_helix_by_id(self, helix_id):
-        """Retrurns the first alpha helix that matches a given helix ID.
+        """Returns the first alpha helix that matches a given helix ID.
 
         :param str helix_id: The helix ID to search by.
         :rtype: :py:class:`.AlphaHelix` or ``None``"""
@@ -286,7 +290,7 @@ class Chain(ResiduicSequence):
 
 
     def get_strand_by_id(self, strand_id):
-        """Retrurns the first beta strand that matches a given strand ID.
+        """Returns the first beta strand that matches a given strand ID.
 
         :param str strand_id: The strand ID to search by.
         :rtype: :py:class:`.BetsStrand` or ``None``"""

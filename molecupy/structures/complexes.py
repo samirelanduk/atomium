@@ -1,3 +1,5 @@
+"""Contains classes pertaining to complexes and multi-chain assemblies."""
+
 from . import ResiduicStructure, Chain
 from ..exceptions import DuplicateChainsError
 

@@ -1,3 +1,5 @@
+"""Contains the Model class."""
+
 import re
 from .atoms import Atom, GhostAtom
 from .molecules import AtomicStructure, SmallMolecule, Residue
@@ -34,6 +36,8 @@ class Model(AtomicStructure):
 
 
     def source(self):
+        """The object the Model was created from."""
+
         return self._source
 
 
@@ -118,6 +122,13 @@ class Model(AtomicStructure):
 
 
     def duplicate_small_molecule(self, small_molecule, molecule_id=None):
+        """Creates a copy of a small molecule in the Model. The coordinates will
+        be identical but it will have a unique ID.
+
+        :param SmalllMolecule small_molecule: The molecule to duplicate.
+        :param str molecule_id: If given, this will determine the ID of the new\
+        molecule."""
+
         if not isinstance(small_molecule, SmallMolecule):
             raise TypeError(
              "Can only duplicate SmallMolecule with this method, not '%s'" % str(
@@ -218,6 +229,13 @@ class Model(AtomicStructure):
 
 
     def duplicate_chain(self, chain, chain_id=None):
+        """Creates a copy of a chain in the Model. The coordinates will
+        be identical but it will have a unique ID.
+
+        :param Chain chain: The chain to duplicate.
+        :param str chain_id: If given, this will determine the ID of the new\
+        chain."""
+
         if not isinstance(chain, Chain):
             raise TypeError(
              "Can only duplicate Chain with this method, not '%s'" % str(
@@ -319,10 +337,18 @@ class Model(AtomicStructure):
 
 
     def complexes(self):
+        """Returns all the :py:class:`.Complex` objects in this model.
+
+        :rtype: ``set``"""
+
         return set(self._complexes)
 
 
     def add_complex(self, complex_):
+        """Adds a complex to the model.
+
+        :param Complex complex: The complex to add."""
+
         if not isinstance(complex_, Complex):
             raise TypeError(
              "Can only add Complex to Model, not '%s'" % str(complex_)
@@ -338,11 +364,20 @@ class Model(AtomicStructure):
 
 
     def remove_complex(self, complex_):
+        """Removes a complex from the model.
+
+        :param Complex complex: The complex to remove."""
+
         self._complexes.remove(complex_)
         complex_._model = None
 
 
     def get_complex_by_id(self, complex_id):
+        """Returns the first complex that matches a given complex ID.
+
+        :param str complex_id: The complex ID to search by.
+        :rtype: :py:class:`.Complex` or ``None``"""
+
         if not isinstance(complex_id, str):
             raise TypeError(
              "Complex ID search must be by str, not '%s'" % str(complex_id)
@@ -353,6 +388,11 @@ class Model(AtomicStructure):
 
 
     def get_complex_by_name(self, complex_name):
+        """Returns the first complex that matches a given name.
+
+        :param str complex_name: The name to search by.
+        :rtype: :py:class:`.Complex` or ``None``"""
+
         if not isinstance(complex_name, str):
             raise TypeError(
              "Complex name search must be by str, not '%s'" % str(complex_name)
@@ -363,6 +403,11 @@ class Model(AtomicStructure):
 
 
     def get_complexes_by_name(self, complex_name):
+        """Returns all the complexes of a given name.
+
+        :param str complex_name: The name to search by.
+        :rtype: ``set`` of :py:class:`.Complex` objects."""
+
         if not isinstance(complex_name, str):
             raise TypeError(
              "Complex name search must be by str, not '%s'" % str(complex_name)
@@ -372,6 +417,15 @@ class Model(AtomicStructure):
 
 
     def duplicate_complex(self, complex_, complex_id=None, complex_name=None):
+        """Creates a copy of a complex in the Model. The coordinates will
+        be identical but it will have a unique ID.
+
+        :param Complex complex: The complex to duplicate.
+        :param str complex_id: If given, this will determine the ID of the new\
+        complex.
+        :param str complex_name: If given, this will determine the name of the\
+        new complex."""
+
         if not isinstance(complex_, Complex):
             raise TypeError(
              "Can only duplicate Complex with this method, not '%s'" % str(
@@ -419,11 +473,17 @@ class Model(AtomicStructure):
 
 
     def to_pdb_data_file(self):
+        """Converts the Model to a :py:class:`.PdbDataFile`."""
+
         from ..converters.model2pdbdatafile import pdb_data_file_from_model
         return pdb_data_file_from_model(self)
 
 
     def save_as_pdb(self, path):
+        """Saves the Model to file as a PDB file.
+
+        :param str path: The location and file name to save as."""
+
         data_file = self.to_pdb_data_file()
         pdb_file = data_file.to_pdb_file()
         with open(path, "w") as f:

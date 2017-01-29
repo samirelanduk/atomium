@@ -1,3 +1,5 @@
+"""Contains classes for macrostructures made of residues."""
+
 import re
 from .molecules import AtomicStructure, Residue, SmallMolecule
 from ..exceptions import NoResiduesError, BrokenHelixError, BrokenStrandError, DuplicateResiduesError

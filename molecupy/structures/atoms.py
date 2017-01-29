@@ -16,8 +16,8 @@ class GhostAtom:
     coordinates.
 
     They are described in terms of an Atom ID, an Atom name, and an element.
-    Their mass can be caluclated from the element, and they can still be
-    associated with molecules and models.
+    They have mass but no location, and they can still be associated with
+    molecules and models.
 
     :param str element: The atom's element.
     :param int atom_id: The atom's id.
@@ -120,7 +120,7 @@ class Atom(GhostAtom):
     form bonds with other atoms.
 
     They are distinguished from :py:class:`GhostAtom` objects because they have
-    a location in three dimensional space, though they inherit some prpperties
+    a location in three dimensional space, though they inherit some properties
     from that more generic class of atom.
 
     :param float x: The atom's x-coordinate.
@@ -187,13 +187,20 @@ class Atom(GhostAtom):
 
 
     def location(self):
+        """Returns the atom's xyz coordinates as a tuple.
+
+        :rtype: ``tuple``"""
+
         return (self.x(), self.y(), self.z())
 
 
     def distance_to(self, other_atom):
         """Returns the distance between this atom and another, in Angstroms.
+        Alternatively, an :py:class:`.AtomicStructure` can be provided and the
+        method will return the distance between this atom and that structure's
+        center of mass.
 
-        :param Atom other_atom: The other atom.
+        :param other_atom: The other atom or atomic structure.
         :rtype: ``float``"""
 
         from .molecules import AtomicStructure
@@ -345,7 +352,9 @@ class Bond:
 
 
     def delete(self):
-        """Removes the bond and updates the two atoms."""
+        """Removes the bond and updates the two atoms. Unless you have manually
+        created some other reference, this will remove all references to the
+        bond and it will eventually removed by garbage collection."""
 
         atom1, atom2 = tuple(self._atoms)
         atom1.bonds().remove(self)

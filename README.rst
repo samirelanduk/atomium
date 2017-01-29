@@ -331,6 +331,19 @@ Any model can be saved to file:
 Changelog
 ---------
 
+Release 1.1.0
+~~~~~~~~~~~~~
+
+`29 January 2017`
+
+* Added PDB writing to file.
+* Structures can now be translated and transformed.
+* Complexes added.
+* Models can now duplicate structures within them.
+* Added center of mass and radius of gyration metrics.
+* Atom distances can now be to a structure as well as another atom.
+* Renamed different Atom types (there are now 'ghost atoms')
+
 Release 1.0.3
 ~~~~~~~~~~~~~
 

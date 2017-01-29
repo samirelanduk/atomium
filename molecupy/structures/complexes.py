@@ -2,6 +2,13 @@ from . import ResiduicStructure, Chain
 from ..exceptions import DuplicateChainsError
 
 class Complex(ResiduicStructure):
+    """Base class: :py:class:`.ResiduicStructure`
+
+    Represents complexes of multiple :py:class:`.Chain` objects.
+
+    :param str complex_id: The complex's unique ID.
+    :param str complex_name: The complex's name.
+    :param \*chains: The chains to create the complex from."""
 
     def __init__(self, complex_id, complex_name, *chains):
         if not isinstance(complex_id, str):
@@ -46,10 +53,19 @@ class Complex(ResiduicStructure):
 
 
     def complex_id(self):
+        """Returns the complex's ID.
+
+        :rtype: ``str``"""
+
         return self._complex_id
 
 
     def complex_name(self, complex_name=None):
+        """Returns or sets the complex's name.
+
+        :param str complex_name: If given, the complex's name will be set to this.
+        :rtype: ``str``"""
+
         if complex_name:
             if not isinstance(complex_name, str):
                 raise TypeError(
@@ -61,14 +77,26 @@ class Complex(ResiduicStructure):
 
 
     def chains(self):
+        """Returns the :py:class:`.Chain` objects in this complex.
+
+        :returns: ``set`` of :py:class:`.Chain` objects"""
+
         return set(self._chains)
 
 
     def model(self):
+        """Returns the :py:class:`.Model` that the complex inhabits.
+
+        :rtype: ``Model``"""
+
         return self._model
 
 
     def add_chain(self, chain):
+        """Adds a :py:class:`.Chain` to the structure.
+
+        :param Chain chain: The chain to add."""
+
         if not isinstance(chain, Chain):
             raise TypeError(
              "Can only add Chains to Complexes, not '%s'" % str(chain)
@@ -83,4 +111,8 @@ class Complex(ResiduicStructure):
 
 
     def remove_chain(self, chain):
+        """Adds a :py:class:`.Chain` to the structure.
+
+        :param Chain chain: The chain to add."""
+
         self._chains.remove(chain)

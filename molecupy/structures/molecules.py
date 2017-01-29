@@ -39,8 +39,8 @@ class AtomicStructure:
         """Returns the atoms in this structure as a ``set``.
 
         :param str atom_type: The kind of atom to return. ``"all"`` will\
-        return all atoms, ``"pdb"`` just PdbAtoms and ``"generic"`` will just\
-        return generic non-PDB atoms.
+        return all atoms, ``"localised"`` just standard Atoms and ``"ghost"``\
+        will just return generic :py:class:`.GhostAtom` atoms.
         :rtype: ``set``"""
 
         if not isinstance(atom_type, str):
@@ -90,8 +90,8 @@ class AtomicStructure:
         atoms.
 
         :param str atom_type: The kind of atom to use. ``"all"`` will\
-        use all atoms, ``"pdb"`` just PdbAtoms and ``"generic"`` will just\
-        use generic non-PDB atoms.
+        use all atoms, ``"localised"`` just standard Atoms and ``"ghost"``\
+        will just return generic :py:class:`.GhostAtom` atoms.
         :rtype: float"""
 
         return sum([atom.mass() for atom in self.atoms(atom_type)])
@@ -101,8 +101,8 @@ class AtomicStructure:
         """Retrurns the formula (count of each atom) of the structure.
 
         :param str atom_type: The kind of atom to use. ``"all"`` will\
-        use all atoms, ``"pdb"`` just PdbAtoms and ``"generic"`` will just\
-        use generic non-PDB atoms.
+        use all atoms, ``"localised"`` just standard Atoms and ``"ghost"``\
+        will just return generic :py:class:`.GhostAtom` atoms.
         :param bool include_hydrogens: determines whether hydrogen atoms should\
         be included.
         :rtype: ``Counter``"""
@@ -206,6 +206,12 @@ class AtomicStructure:
 
 
     def translate(self, x, y, z):
+        """Translates the structure in space.
+
+        :param x: The distance in Angstroms to move in the x-direction.
+        :param y: The distance in Angstroms to move in the y-direction.
+        :param z: The distance in Angstroms to move in the z-direction."""
+
         for atom in self.atoms():
             atom.x(atom.x() + x)
             atom.y(atom.y() + y)
@@ -213,6 +219,13 @@ class AtomicStructure:
 
 
     def rotate(self, axis, angle):
+        """Rotates the structure around an axis.
+
+        :param str axis: The axis to rotate around - must be ``"x"``, ``"y"``\
+        or ``"z"``.
+        :param angle: The angle, in degrees, to rotate by. Rotation is\
+        clockwise."""
+
         if not isinstance(axis, str):
             raise TypeError("axis must be str, not '%s'" % str(axis))
         if not isinstance(angle, int) and not isinstance(angle, float):
@@ -254,6 +267,10 @@ class AtomicStructure:
 
 
     def center_of_mass(self):
+        """Returns the location of the structure's center of mass.
+
+        :rtype: ``tuple``"""
+
         x_values, y_values, z_values = [], [], []
         for atom in self.atoms():
             x_values.append(atom.x() * atom.mass())
@@ -268,6 +285,12 @@ class AtomicStructure:
 
 
     def radius_of_gyration(self):
+        """The radius of gyration of an atomic structure is a measure of how
+        extended it is. It is the root mean square deviation of the atoms from
+        the structure's center of mass.
+
+        :rtype: ``float``"""
+
         square_deviation = sum(
          [atom.distance_to(self) ** 2 for atom in self.atoms()]
         )
@@ -295,8 +318,10 @@ class AtomicStructure:
 
         :param str element: The element to search by.
         :param str atom_type: The kind of atom to use. ``"all"`` will\
-        use all atoms, ``"pdb"`` just PdbAtoms and ``"generic"`` will just\
-        use generic non-PDB atoms.
+        use all atoms, ``"localised"`` just standard Atoms and ``"ghost"``\
+        will just return generic :py:class:`.GhostAtom` atoms.
+        :param bool include_hydrogens: determines whether hydrogen atoms should\
+        be included.
         :rtype: ``set`` of :py:class:`.Atom` objects."""
 
         if not isinstance(element, str):
@@ -311,8 +336,10 @@ class AtomicStructure:
 
         :param str element: The element to search by.
         :param str atom_type: The kind of atom to use. ``"all"`` will\
-        use all atoms, ``"pdb"`` just PdbAtoms and ``"generic"`` will just\
-        use generic non-PDB atoms.
+        use all atoms, ``"localised"`` just standard Atoms and ``"ghost"``\
+        will just return generic :py:class:`.GhostAtom` atoms.
+        :param bool include_hydrogens: determines whether hydrogen atoms should\
+        be included.
         :rtype: :py:class:`.Atom` or ``None``"""
 
         if not isinstance(element, str):
@@ -327,8 +354,10 @@ class AtomicStructure:
 
         :param str atom_name: The name to search by.
         :param str atom_type: The kind of atom to use. ``"all"`` will\
-        use all atoms, ``"pdb"`` just PdbAtoms and ``"generic"`` will just\
-        use generic non-PDB atoms.
+        use all atoms, ``"localised"`` just standard Atoms and ``"ghost"``\
+        will just return generic :py:class:`.GhostAtom` atoms.
+        :param bool include_hydrogens: determines whether hydrogen atoms should\
+        be included.
         :rtype: ``set`` of :py:class:`.Atom` objects."""
 
         if not isinstance(atom_name, str):
@@ -343,8 +372,10 @@ class AtomicStructure:
 
         :param str atom_name: The name to search by.
         :param str atom_type: The kind of atom to use. ``"all"`` will\
-        use all atoms, ``"pdb"`` just PdbAtoms and ``"generic"`` will just\
-        use generic non-PDB atoms.
+        use all atoms, ``"localised"`` just standard Atoms and ``"ghost"``\
+        will just return generic :py:class:`.GhostAtom` atoms.
+        :param bool include_hydrogens: determines whether hydrogen atoms should\
+        be included.
         :rtype: :py:class:`.Atom` or ``None``"""
 
         if not isinstance(atom_name, str):
@@ -359,7 +390,7 @@ class SmallMolecule(AtomicStructure):
     """Base class: :py:class:`AtomicStructure`
 
     Represents the ligands, solvent molecules, and other non-polymeric
-    molecules in a PDB structure.
+    molecules in a structure.
 
     :param str molecule_id: The molecule's ID.
     :param str molecule_name: The molecule's name.

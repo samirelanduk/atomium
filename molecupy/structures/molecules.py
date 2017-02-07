@@ -3,6 +3,7 @@
 import re
 import math
 from collections import Counter
+from numerus import is_numeric
 from .atoms import GhostAtom, Atom
 from ..exceptions import NoAtomsError, MultipleResidueConnectionError, DuplicateAtomsError
 
@@ -228,7 +229,7 @@ class AtomicStructure:
 
         if not isinstance(axis, str):
             raise TypeError("axis must be str, not '%s'" % str(axis))
-        if not isinstance(angle, int) and not isinstance(angle, float):
+        if not is_numeric(angle):
             raise TypeError("angle must be numeric, not '%s'" % str(angle))
         rotation_matrix = []
         angle = math.radians(angle)

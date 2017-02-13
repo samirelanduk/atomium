@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from molecupy.structures import GhostAtom, Atom, AtomicStructure
 
 class AtomCreationTests(TestCase):
@@ -16,22 +16,28 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._bonds, set())
 
 
+    @patch("molecupy.structures.atoms.GhostAtom.__init__")
+    def test_atom_uses_ghost_atom_initialisation(self, mock):
+        Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.assertTrue(mock.called)
+
+
+    def test_coordinates_must_be_float(self):
+        with self.assertRaises(TypeError):
+            Atom("10.0", 20.0, 15.0, "C", 100, "CA")
+        with self.assertRaises(TypeError):
+            Atom(10.0, "20.0", 15.0, "C", 100, "CA")
+        with self.assertRaises(TypeError):
+            Atom(10.0, 20.0, "15.0", "C", 100, "CA")
+
+
     def test_repr(self):
         atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
         self.assertEqual(str(atom), "<Atom 100 (CA)>")
 
 
-    def test_coordinates_must_be_float(self):
-        with self.assertRaises(TypeError):
-            atom = Atom("10.0", 20.0, 15.0, "C", 100, "CA")
-        with self.assertRaises(TypeError):
-            atom = Atom(10.0, "20.0", 15.0, "C", 100, "CA")
-        with self.assertRaises(TypeError):
-            atom = Atom(10.0, 20.0, "15.0", "C", 100, "CA")
 
-
-
-class AtomPropertyTests(TestCase):
+class AtomLocationTests(TestCase):
 
     def setUp(self):
         self.atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
@@ -85,7 +91,7 @@ class AtomDistanceTests(TestCase):
 
     def test_can_only_measure_distance_between_localised_atoms(self):
         atom1 = Atom(-0.791, 64.789, 30.59, "O", 2621, "OD1")
-        atom2 = GhostAtom("C", 1011, "CD")
+        atom2 = Mock(GhostAtom)
         with self.assertRaises(TypeError):
             atom1.distance_to(atom2)
 
@@ -196,38 +202,38 @@ class AtomBondtests(TestCase):
 
 
 
-class NearbyPdbAtomTests(TestCase):
+class NearbyAtomTests(TestCase):
 
     def setUp(self):
-        self.pdb_atoms = [
+        self.atoms = [
          Atom(10.0, 20.0, float(i), "C", int(i), "CA") for i in range(10)
         ]
         molecule = Mock()
         self.model = Mock()
         molecule.model.return_value = self.model
-        self.model.atoms.return_value = set(self.pdb_atoms)
-        for atom in self.pdb_atoms:
+        self.model.atoms.return_value = set(self.atoms)
+        for atom in self.atoms:
             atom._molecule = molecule
             atom._element = "H" if atom.atom_id() == 3 else "C"
 
 
     def test_can_get_nearby_atoms(self):
         self.assertEqual(
-         self.pdb_atoms[4].local_atoms(1),
-         set([self.pdb_atoms[3], self.pdb_atoms[5]])
+         self.atoms[4].local_atoms(1),
+         set([self.atoms[3], self.atoms[5]])
         )
         self.assertEqual(
-         self.pdb_atoms[4].local_atoms(1.5),
-         set([self.pdb_atoms[3], self.pdb_atoms[5]])
+         self.atoms[4].local_atoms(1.5),
+         set([self.atoms[3], self.atoms[5]])
         )
         self.assertEqual(
-         self.pdb_atoms[4].local_atoms(2),
-         set([self.pdb_atoms[3], self.pdb_atoms[5], self.pdb_atoms[2], self.pdb_atoms[6]])
+         self.atoms[4].local_atoms(2),
+         set([self.atoms[3], self.atoms[5], self.atoms[2], self.atoms[6]])
         )
 
 
     def test_can_exclude_hydrogens_from_nearby_atoms(self):
         self.assertEqual(
-         self.pdb_atoms[4].local_atoms(1, include_hydrogens=False),
-         set([self.pdb_atoms[5]])
+         self.atoms[4].local_atoms(1, include_hydrogens=False),
+         set([self.atoms[5]])
         )

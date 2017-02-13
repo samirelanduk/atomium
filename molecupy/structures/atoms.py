@@ -322,7 +322,7 @@ class Atom(GhostAtom):
         :returns: ``set`` of :py:class:`Atom` objects."""
 
         if self.model():
-            return set([atom for atom in self.model().atoms(atom_type="pdb")
+            return set([atom for atom in self.model().atoms()
              if atom.distance_to(self) <= distance and atom is not self
               and (include_hydrogens or atom.element().upper() != "H")])
         else:

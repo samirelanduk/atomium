@@ -82,7 +82,6 @@ class GhostAtomPropertyTests(TestCase):
 
 
 
-
 class GhostAtomMassTests(TestCase):
 
     def test_can_get_atom_mass(self):

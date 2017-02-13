@@ -26,26 +26,26 @@ class BondCreationTests(BondTest):
 
     def test_bond_requires_atoms(self):
         with self.assertRaises(TypeError):
-            bond = Bond(self.atom1, "atom2")
+            Bond(self.atom1, "atom2")
 
 
     def test_atoms_must_be_different(self):
         with self.assertRaises(ValueError):
-            bond = Bond(self.atom1, self.atom1)
+            Bond(self.atom1, self.atom1)
         with self.assertRaises(ValueError):
-            bond = Bond(self.atom2, self.atom2)
-
-
-    def test_bond_repr(self):
-        bond = Bond(self.atom1, self.atom2)
-        self.assertEqual(str(bond), "<Bond between Atom 100 and Atom 101>")
+            Bond(self.atom2, self.atom2)
 
 
     def test_warning_issued_on_ludicrous_bond_length(self):
         self.atom1.distance_to.return_value = 22
         self.atom2.distance_to.return_value = 22
         with self.assertWarns(LongBondWarning):
-            bond = Bond(self.atom1, self.atom2)
+            Bond(self.atom1, self.atom2)
+
+
+    def test_bond_repr(self):
+        bond = Bond(self.atom1, self.atom2)
+        self.assertEqual(str(bond), "<Bond between Atom 100 and Atom 101>")
 
 
 
@@ -76,8 +76,8 @@ class BondAtomTests(BondTest):
 
     def test_atoms_know_about_bond(self):
         bond = Bond(self.atom1, self.atom2)
-        self.assertEqual(self.atom1.bonds(), set((bond,)))
-        self.assertEqual(self.atom2.bonds(), set((bond,)))
+        self.assertEqual(self.atom1.bonds(), set([bond]))
+        self.assertEqual(self.atom2.bonds(), set([bond]))
 
 
 

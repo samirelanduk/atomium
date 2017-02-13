@@ -213,6 +213,10 @@ class Atom(GhostAtom):
         return (self.x(), self.y(), self.z())
 
 
+    def locations(self):
+        return {self.location(): 1}
+
+
     def distance_to(self, other_atom):
         """Returns the distance between this atom and another, in Angstroms.
         Alternatively, an :py:class:`.AtomicStructure` can be provided and the

@@ -75,6 +75,17 @@ class AtomLocationTests(TestCase):
 
 
 
+class AlternateLocationTests(TestCase):
+
+    def test_by_default_atom_has_one_location(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        self.assertEqual(
+         atom.locations(),
+         {(10.0, 20.0, 15.0): 1}
+        )
+
+
+
 class AtomDistanceTests(TestCase):
 
     def test_can_get_inter_atomic_distance(self):

@@ -215,12 +215,24 @@ class Atom(GhostAtom):
 
 
     def locations(self):
-        locations = self._alt_locations
+        locations = self._alt_locations.copy() # Could be {**x, **y} in 3.5...
         locations[self.location()] = 1 - sum([val for val in locations.values()])
         return locations
 
 
     def add_location(self, x, y, z, occupancy):
+        if not (isinstance(x, float) and isinstance(y, float) and isinstance(z, float)):
+            raise TypeError("Locations must be floats, not %s" % str((x, y, z)))
+        if not isinstance(occupancy, float):
+            raise TypeError("Occupancy must be float, not '%s'" % str(occupancy))
+        if (x, y, z) in self.locations():
+            raise ValueError(
+             "There is already an atomic position at %s" % str((x, y, z))
+            )
+        if sum(self._alt_locations.values()) + occupancy >= 1:
+            raise ValueError(
+             "Cannot add position with occupancy %s as total would exceed 1" % str(occupancy)
+            )
         self._alt_locations[(x, y, z)] = occupancy
 
 

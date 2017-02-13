@@ -103,7 +103,47 @@ class AlternateLocationTests(TestCase):
          atom.locations(),
          {(10.0, 20.0, 15.0): 0.25, (11.0, 19.0, 15.5): 0.3, (9.0, 19.2, 15.9): 0.45}
         )
-        
+
+
+    def test_adding_locations_does_not_add_original_location_to_alt_locations(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        atom.add_location(11.0, 19.0, 15.5, 0.3)
+        self.assertEqual(atom._alt_locations, {(11.0, 19.0, 15.5): 0.3})
+
+
+    def test_location_adding_requires_floats(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        with self.assertRaises(TypeError):
+            atom.add_location("11.0", 19.0, 15.5, 0.3)
+        with self.assertRaises(TypeError):
+            atom.add_location(11.0, "19.0", 15.5, 0.3)
+        with self.assertRaises(TypeError):
+            atom.add_location(11.0, 19.0, "15.5", 0.3)
+        with self.assertRaises(TypeError):
+            atom.add_location(11.0, 19.0, 15.5, "0.3")
+
+
+    def test_cannot_add_location_if_it_would_make_total_more_than_1(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        with self.assertRaises(ValueError):
+            atom.add_location(11.0, 19.0, 15.5, 1.1)
+        with self.assertRaises(ValueError):
+            atom.add_location(11.0, 19.0, 15.5, 1.0)
+        atom.add_location(11.0, 19.0, 15.5, 0.3)
+        with self.assertRaises(ValueError):
+            atom.add_location(11.0, 19.0, 15.5, 0.71)
+        with self.assertRaises(ValueError):
+            atom.add_location(11.0, 19.0, 15.5, 0.7)
+
+
+    def test_cannot_duplicate_locations(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        with self.assertRaises(ValueError):
+            atom.add_location(10.0, 20.0, 15.0, 0.3)
+        atom.add_location(11.0, 19.0, 15.5, 0.3)
+        with self.assertRaises(ValueError):
+            atom.add_location(11.0, 19.0, 15.5, 0.3)
+
 
 
 class AtomDistanceTests(TestCase):

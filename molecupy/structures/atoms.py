@@ -1,4 +1,7 @@
-"""This module contains classes for atoms and their bonds."""
+"""This module contains classes for atoms and their bonds. It is perfectly
+possible, though probably not very useful, to describe a molecular system solely
+in terms of the classes in this module - a collection of atoms bonded to each
+other."""
 
 import math
 import warnings
@@ -18,6 +21,11 @@ class GhostAtom:
     They are described in terms of an Atom ID, an Atom name, and an element.
     They have mass but no location, and they can still be associated with
     molecules and models.
+
+    In terms of awareness of their context, all atoms know the molecule they are
+    part of (which must either be a :py:class:`.Residue` or
+    :py:class:`.SmallMolecule`), and the overall :py:class:`.Model` they exist
+    within.
 
     :param str element: The atom's element.
     :param int atom_id: The atom's id.
@@ -45,7 +53,10 @@ class GhostAtom:
 
 
     def element(self, element=None):
-        """Returns or sets the atom's element.
+        """Returns or sets the atom's element. This must be one or two character
+        string representing the atom's symbol on the periodic table (though no
+        check is made that the symbol corresponds to a real element, so you are
+        free to call elements 'X' etc.).
 
         :param str element: If given, the atom's element will be set to this.
         :rtype: ``str``"""
@@ -63,7 +74,12 @@ class GhostAtom:
 
 
     def atom_id(self):
-        """Returns the atom's ID.
+        """Returns the atom's ID. This should be a unique integer - most
+        structures that contain elements will not allow you to have two atoms
+        with the same ID.
+
+        The ID is set when the atom is created and cannot be changed after this
+        time.
 
         :rtype: ``int``"""
 
@@ -71,7 +87,8 @@ class GhostAtom:
 
 
     def atom_name(self, atom_name=None):
-        """Returns or sets the atom's name.
+        """Returns or sets the atom's name. In PDB files this corresponds to the
+        'Atom type' - so alpha carbons will be 'CA' for example.
 
         :param str name: If given, the atom's name will be set to this.
         :rtype: ``str``"""
@@ -85,7 +102,9 @@ class GhostAtom:
 
 
     def mass(self):
-        """Returns the atom's mass
+        """Returns the atom's mass. This is calculated from its element - if you
+        have set the element to be some made up symbol like 'X' this will return
+        0.
 
         :rtype: ``float``"""
 
@@ -187,7 +206,7 @@ class Atom(GhostAtom):
 
 
     def location(self):
-        """Returns the atom's xyz coordinates as a tuple.
+        """Returns the atom's xyz coordinates in the form of a (x, y, z) tuple.
 
         :rtype: ``tuple``"""
 
@@ -198,7 +217,7 @@ class Atom(GhostAtom):
         """Returns the distance between this atom and another, in Angstroms.
         Alternatively, an :py:class:`.AtomicStructure` can be provided and the
         method will return the distance between this atom and that structure's
-        center of mass.
+        :py:meth:`~.molecules.AtomicStructure.center_of_mass`.
 
         :param other_atom: The other atom or atomic structure.
         :rtype: ``float``"""
@@ -248,7 +267,7 @@ class Atom(GhostAtom):
 
     def get_bond_with(self, other_atom):
         """Returns the specific :py:class:`Bond` between this atom and some
-        other atom, if it exists.
+        other atom, if it exists. If not, it returns ``None``.
 
         :param Atom other_atom: The other atom.
         :rtype: ``Bond``"""
@@ -260,7 +279,8 @@ class Atom(GhostAtom):
 
     def break_bond_with(self, other_atom):
         """Removes the specific :py:class:`Bond` between this atom and some
-        other atom, if it exists.
+        other atom, if it exists. If there is no bond, this method has no
+        effect.
 
         :param Atom other_atom: The other atom."""
 
@@ -271,7 +291,9 @@ class Atom(GhostAtom):
 
     def accessible_atoms(self, already_checked=None):
         """The set of all :py:class:`Atom` objects that can be accessed by
-        following bonds.
+        following bonds. The method will traverse all accessible atom nodes on
+        the graph created by the bonds and, as long as there exists some path
+        between this atom and some other, this method will return it in its set.
 
         :returns: ``set`` of :py:class:`Atom` objects."""
 
@@ -287,7 +309,13 @@ class Atom(GhostAtom):
 
     def local_atoms(self, distance, include_hydrogens=True):
         """Returns all :py:class:`Atom` objects within a given distance of
-        this atom (within a model).
+        this atom (within a model). If this atom is not associated with a
+        :py:class:`.Model`, it will return an empty set, because they will be
+        invisible to it. Similarly any atoms nearby that are not associated with
+        the same :py:class:`.Model` will be invisible to this method.
+
+        By default, hydrogen atoms will be included in the search but if you
+        don't care about hydrogens you can disable this.
 
         :param distance: The cutoff in Angstroms to use.
         :param bool include_hydrogens: determines whether to include hydrogen atoms.
@@ -306,8 +334,20 @@ class Bond:
     """Represents a chemical bond between two :py:class:`Atom` objects -
     covalent or ionic.
 
+    Normally you would not need to directly instantiate this class yourself, as
+    the :py:meth:`~Atom.bond_to` method is a more convenient way of connecting
+    two atoms, and which creates a Bond object for you. This is the object type
+    that will be returned if you access the atom's bonds directly.
+
+    If you *do* create an instance manually, the two atoms will have their bonds
+    updated autoamtically.
+
+    If you try to bond too atoms that are more than 20 Ångstroms apart, a
+    warning will be issued.
+
     :param ``Atom`` atom1: The first atom.
-    :param ``Atom`` atom2: The second atom."""
+    :param ``Atom`` atom2: The second atom.
+    :raises ValueError: if you try to bond an atom to itself."""
 
     def __init__(self, atom1, atom2):
         if not isinstance(atom1, Atom) or not isinstance(atom2, Atom):

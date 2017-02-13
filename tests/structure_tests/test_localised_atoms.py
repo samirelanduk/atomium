@@ -14,6 +14,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._atom_id, 100)
         self.assertEqual(atom._atom_name, "CA")
         self.assertEqual(atom._bonds, set())
+        self.assertEqual(atom._alt_locations, {})
 
 
     @patch("molecupy.structures.atoms.GhostAtom.__init__")
@@ -84,6 +85,25 @@ class AlternateLocationTests(TestCase):
          {(10.0, 20.0, 15.0): 1}
         )
 
+
+    def test_can_add_second_location_to_atom(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        atom.add_location(11.0, 19.0, 15.5, 0.3)
+        self.assertEqual(
+         atom.locations(),
+         {(10.0, 20.0, 15.0): 0.7, (11.0, 19.0, 15.5): 0.3}
+        )
+
+
+    def test_can_add_third_location_and_main_location_still_updates(self):
+        atom = Atom(10.0, 20.0, 15.0, "C", 100, "CA")
+        atom.add_location(11.0, 19.0, 15.5, 0.3)
+        atom.add_location(9.0, 19.2, 15.9, 0.45)
+        self.assertEqual(
+         atom.locations(),
+         {(10.0, 20.0, 15.0): 0.25, (11.0, 19.0, 15.5): 0.3, (9.0, 19.2, 15.9): 0.45}
+        )
+        
 
 
 class AtomDistanceTests(TestCase):

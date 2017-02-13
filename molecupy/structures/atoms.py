@@ -160,6 +160,7 @@ class Atom(GhostAtom):
             raise TypeError("z coordinate must be float, not '%s'" % str(z))
         self._z = z
         self._bonds = set()
+        self._alt_locations = {}
         GhostAtom.__init__(self, *args)
 
 
@@ -214,7 +215,13 @@ class Atom(GhostAtom):
 
 
     def locations(self):
-        return {self.location(): 1}
+        locations = self._alt_locations
+        locations[self.location()] = 1 - sum([val for val in locations.values()])
+        return locations
+
+
+    def add_location(self, x, y, z, occupancy):
+        self._alt_locations[(x, y, z)] = occupancy
 
 
     def distance_to(self, other_atom):

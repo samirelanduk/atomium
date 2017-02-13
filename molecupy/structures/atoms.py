@@ -142,6 +142,14 @@ class Atom(GhostAtom):
     a location in three dimensional space, though they inherit some properties
     from that more generic class of atom.
 
+    .. note::
+
+       Atoms can have more than one location associated with them. Generally
+       you don't need to worry about this, but if you do add extra locations
+       (see below for details), the location that you define when you create
+       the atom will always be the 'main' location, even if other locations have
+       a higher occupancy/relative frequency.
+
     :param float x: The atom's x-coordinate.
     :param float y: The atom's y-coordinate.
     :param float z: The atom's z-coordinate.
@@ -208,6 +216,9 @@ class Atom(GhostAtom):
 
     def location(self):
         """Returns the atom's xyz coordinates in the form of a (x, y, z) tuple.
+        Where the atom has more than one location ('multiple occupancy') this
+        will return the main location - the one that was defined when the atom
+        was created.
 
         :rtype: ``tuple``"""
 
@@ -215,12 +226,34 @@ class Atom(GhostAtom):
 
 
     def locations(self):
+        """Returns all of the locations that an atom has.
+
+        File formats such as PDB support 'multiple occupancy', where an atom is
+        seen to switch between different positions in space. These extra
+        locations are accessible here.
+
+        Each extra location has a float associated that represents the relative
+        frequency of that position.
+
+        :rtype: ``dict``"""
+
         locations = self._alt_locations.copy() # Could be {**x, **y} in 3.5...
         locations[self.location()] = 1 - sum([val for val in locations.values()])
         return locations
 
 
     def add_location(self, x, y, z, occupancy):
+        """Adds an extra location to an atom. It takes the x,y,z coordinates, as
+        well as the relative frequency of this new position.
+
+        :param float x: The new position's x-coordinate.
+        :param float y: The new position's x-coordinate.
+        :param float z: The new position's x-coordinate.
+        :param float occupancy: The new position's relative frequency.
+        :raises ValueError: if the atom already has this location.
+        :raises ValueError: if the occupancy would take the total occupancy\
+        over 1."""
+
         if not (isinstance(x, float) and isinstance(y, float) and isinstance(z, float)):
             raise TypeError("Locations must be floats, not %s" % str((x, y, z)))
         if not isinstance(occupancy, float):

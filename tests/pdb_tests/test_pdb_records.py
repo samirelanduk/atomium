@@ -25,3 +25,22 @@ class PdbRecordTextTests(TestCase):
     def test_can_get_pdb_record_text(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         self.assertIs(record._text, record.text())
+
+
+    def test_can_update_record_text(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        record.text("RECORD AAA BBB CCC 02")
+        self.assertEqual(record._text, "RECORD AAA BBB CCC 02")
+
+
+    def test_record_must_be_str(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        with self.assertRaises(TypeError):
+            record.text(100)
+
+
+    def test_record_must_be_less_than_80_chars(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        with self.assertRaises(ValueError):
+            record.text("." * 81)
+        record.text("." * 80)

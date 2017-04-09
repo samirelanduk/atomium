@@ -3,6 +3,8 @@ class PdbRecord:
     the same constraints that the PDB file formats impose on the lines in the
     actual files - namely that it cannot be more than 80 characters.
 
+    Two PdbRecords are considered equal if they have the same text.
+
     :param str text: The string contents of the line in the PDB file.
     :raises ValueError: if a string longer than 80 characters is supplied."""
 
@@ -16,6 +18,10 @@ class PdbRecord:
 
     def __repr__(self):
         return "<{} record>".format(self.name())
+
+
+    def __eq__(self, other):
+        return isinstance(other, PdbRecord) and self._text == other._text
 
 
     def text(self, text=None):

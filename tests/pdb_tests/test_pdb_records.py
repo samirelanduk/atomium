@@ -38,6 +38,26 @@ class PdbRecordReprTests(TestCase):
 
 
 
+class PdbRecordEqualityTests(TestCase):
+
+    def test_equal_records(self):
+        record1 = PdbRecord("RECORD XXX YYY ZZZ 01")
+        record2 = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertEqual(record1, record2)
+
+
+    def test_unequal_records(self):
+        record1 = PdbRecord("RECORD AAA YYY ZZZ 01")
+        record2 = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertNotEqual(record1, record2)
+
+
+    def test_records_not_equal_other_objects(self):
+        record1 = PdbRecord("RECORD AAA YYY ZZZ 01")
+        self.assertNotEqual(record1, {})
+
+
+
 class PdbRecordTextTests(TestCase):
 
     def test_can_get_pdb_record_text(self):

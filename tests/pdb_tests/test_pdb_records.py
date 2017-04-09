@@ -94,6 +94,18 @@ class PdbRecordIndexingTests(TestCase):
             self.assertEqual(record[index], record._text[index])
 
 
+    def test_can_get_whitespace_characters_up_to_80(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertEqual(record[79], " ")
+
+
+    def test_record_index_out_of_range_on_characters_above_80(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        with self.assertRaises(IndexError):
+            record[80]
+
+
+
 
 class PdbRecordTextTests(TestCase):
 

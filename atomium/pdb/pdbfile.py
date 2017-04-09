@@ -14,6 +14,10 @@ class PdbRecord:
         self._text = text.rstrip()
 
 
+    def __repr__(self):
+        return "<{} record>".format(self.name())
+
+
     def text(self, text=None):
         """The full string of the record. If a string is passed as an argument,
         the text will be updated, though any trailing whitespace will be

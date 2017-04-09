@@ -24,6 +24,10 @@ class PdbRecord:
         return isinstance(other, PdbRecord) and self._text == other._text
 
 
+    def __len__(self):
+        return len(self._text)
+
+
     def text(self, text=None):
         """The full string of the record. If a string is passed as an argument,
         the text will be updated, though any trailing whitespace will be

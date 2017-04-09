@@ -58,6 +58,14 @@ class PdbRecordEqualityTests(TestCase):
 
 
 
+class PdbRecordLengthTests(TestCase):
+
+    def test_pdb_record_length(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertEqual(len(record), len(record._text))
+
+
+
 class PdbRecordTextTests(TestCase):
 
     def test_can_get_pdb_record_text(self):

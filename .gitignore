@@ -1,10 +1,7 @@
 *.pyc
 __pycache__
 .DS_Store
-old
-bigtest.py
-timetest.py
-matrixtest.py
+env
 _static
 _templates
 build

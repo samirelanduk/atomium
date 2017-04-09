@@ -86,6 +86,15 @@ class PdbRecordIterableTests(TestCase):
 
 
 
+class PdbRecordIndexingTests(TestCase):
+
+    def test_can_get_character_at_index_of_record(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        for index in range(len(record._text)):
+            self.assertEqual(record[index], record._text[index])
+
+
+
 class PdbRecordTextTests(TestCase):
 
     def test_can_get_pdb_record_text(self):

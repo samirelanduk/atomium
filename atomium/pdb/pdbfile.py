@@ -36,6 +36,10 @@ class PdbRecord:
         return iter(self._text)
 
 
+    def __getitem__(self, index):
+        return self._text[index]
+
+
     def text(self, text=None):
         """The full string of the record. If a string is passed as an argument,
         the text will be updated, though any trailing whitespace will be

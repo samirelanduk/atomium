@@ -75,6 +75,17 @@ class PdbRecordContainerTests(TestCase):
 
 
 
+class PdbRecordIterableTests(TestCase):
+
+    def test_can_iterate_through_pdb_record(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        chars = []
+        for char in record:
+            chars.append(char)
+        self.assertEqual(record._text, "".join(chars))
+
+
+
 class PdbRecordTextTests(TestCase):
 
     def test_can_get_pdb_record_text(self):

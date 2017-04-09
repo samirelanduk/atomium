@@ -1,7 +1,7 @@
 *.pyc
 __pycache__
 .DS_Store
-env
+*env
 _static
 _templates
 build

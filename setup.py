@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(
- name="molecupy",
+ name="atomium",
  version="0.1.0",
  description="A molecular modeller with PDB parsing.",
- url="https://molecupy.samireland.com",
+ url="https://atomium.samireland.com",
  author="Sam Ireland",
  author_email="mail@samireland.com",
  license="MIT",
@@ -23,5 +23,5 @@ setup(
   "Programming Language :: Python :: 3.6",
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules",
- packages=["molecupy"]
+ packages=["atomium"]
 )

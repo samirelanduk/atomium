@@ -11,12 +11,13 @@ class PdbRecord:
             raise TypeError("PdbRecord needs str, not '%s'" % str(text))
         if len(text) > 80:
             raise ValueError("'%s' is longer than 80 characters" % str(text))
-        self._text = text
+        self._text = text.rstrip()
 
 
     def text(self, text=None):
         """The full string of the record. If a string is passed as an argument,
-        the text will be updated.
+        the text will be updated, though any trailing whitespace will be
+        removed.
 
         :param str text: If given, the record's text will be updated to this.
         :raises ValueError: if a string longer than 80 characters is supplied."""
@@ -28,7 +29,7 @@ class PdbRecord:
                 raise TypeError("PdbRecord needs str, not '%s'" % str(text))
             if len(text) > 80:
                 raise ValueError("'%s' is longer than 80 characters" % str(text))
-            self._text = text
+            self._text = text.rstrip()
 
 
     def name(self, name=None):
@@ -47,3 +48,21 @@ class PdbRecord:
             if len(name) > 6:
                 raise ValueError("'%s' is longer than 6 characters" % str(name))
             self._text = name + (" " * (6 - len(name))) + self._text[6:]
+
+
+    def body(self, body=None):
+        """The body of the record - everything from column seven onwards (after
+        the name). If a string is passed as an argument, the body will be
+        updated, though any trailing whitespace will be removed.
+
+        :param str body: If given, the record's body will be updated to this.
+        :raises ValueError: if a string longer than 74 characters is supplied."""
+
+        if body is None:
+            return self._text[6:]
+        else:
+            if not isinstance(body, str):
+                raise TypeError("PdbRecord needs str, not '%s'" % str(body))
+            if len(body) > 74:
+                raise ValueError("'%s' is longer than 74 characters" % str(body))
+            self._text = self._text[:6] + body.rstrip()

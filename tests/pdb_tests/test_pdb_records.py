@@ -17,3 +17,11 @@ class PdbRecordCreationTests(TestCase):
         PdbRecord("." * 80)
         with self.assertRaises(ValueError):
             PdbRecord("." * 81)
+
+
+
+class PdbRecordTextTests(TestCase):
+
+    def test_can_get_pdb_record_text(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertIs(record._text, record.text())

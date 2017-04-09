@@ -6,3 +6,7 @@ class PdbRecord:
         if len(line) > 80:
             raise ValueError("'%s' is longer than 80 characters" % str(line))
         self._text = line
+
+
+    def text(self):
+        return self._text

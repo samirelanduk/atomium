@@ -66,6 +66,15 @@ class PdbRecordLengthTests(TestCase):
 
 
 
+class PdbRecordContainerTests(TestCase):
+
+    def test_pdb_record_container(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertIn("XXX", record)
+        self.assertNotIn("AAA", record)
+
+
+
 class PdbRecordTextTests(TestCase):
 
     def test_can_get_pdb_record_text(self):

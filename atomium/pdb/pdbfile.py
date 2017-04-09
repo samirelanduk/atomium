@@ -28,6 +28,10 @@ class PdbRecord:
         return len(self._text)
 
 
+    def __contains__(self, member):
+        return member in self._text
+
+
     def text(self, text=None):
         """The full string of the record. If a string is passed as an argument,
         the text will be updated, though any trailing whitespace will be

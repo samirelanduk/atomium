@@ -57,3 +57,27 @@ class PdbRecordNameTests(TestCase):
     def test_record_name_will_truncate(self):
         record = PdbRecord("REC    XXX YYY ZZZ 01")
         self.assertEqual(record.name(), "REC")
+
+
+    def test_can_update_record_name(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        record.name("DROCER")
+        self.assertEqual(record._text, "DROCER XXX YYY ZZZ 01")
+
+
+    def test_record_name_update_will_pad(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        record.name("DRO")
+        self.assertEqual(record._text, "DRO    XXX YYY ZZZ 01")
+
+
+    def test_record_name_must_be_str(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        with self.assertRaises(TypeError) as e:
+            record.name(100)
+
+
+    def test_record_name_cannot_be_more_than_7_chars(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        with self.assertRaises(ValueError):
+            record.name("DROCER.")

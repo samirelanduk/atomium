@@ -44,3 +44,16 @@ class PdbRecordTextTests(TestCase):
         with self.assertRaises(ValueError):
             record.text("." * 81)
         record.text("." * 80)
+
+
+
+class PdbRecordNameTests(TestCase):
+
+    def test_can_get_record_name_from_text(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertEqual(record.name(), "RECORD")
+
+
+    def test_record_name_will_truncate(self):
+        record = PdbRecord("REC    XXX YYY ZZZ 01")
+        self.assertEqual(record.name(), "REC")

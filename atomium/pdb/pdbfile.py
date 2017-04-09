@@ -29,3 +29,7 @@ class PdbRecord:
             if len(text) > 80:
                 raise ValueError("'%s' is longer than 80 characters" % str(text))
             self._text = text
+
+
+    def name(self):
+        return self._text[:6].strip()

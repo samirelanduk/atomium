@@ -91,7 +91,8 @@ class PdbRecordIndexingTests(TestCase):
     def test_can_get_character_at_index_of_record(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         for index in range(len(record._text)):
-            self.assertEqual(record[index], record._text[index])
+            if record._text[index].strip():
+                self.assertEqual(record[index], record._text[index])
 
 
     def test_can_get_whitespace_characters_up_to_80(self):
@@ -108,10 +109,18 @@ class PdbRecordIndexingTests(TestCase):
     def test_can_get_slice_of_record(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         for index in range(len(record._text) // 2):
-            self.assertEqual(
-             record[index * 2: index * 2 + 1],
-             record._text[index * 2: index * 2 + 1]
-            )
+            if record._text[index * 2: index * 2 + 1].strip():
+                self.assertEqual(
+                 record[index * 2: index * 2 + 1],
+                 record._text[index * 2: index * 2 + 1]
+                )
+
+
+    def test_record_index_will_strip(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertEqual(record[6:11], "XXX")
+
+
 
 
 

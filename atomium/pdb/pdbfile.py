@@ -37,7 +37,7 @@ class PdbRecord:
 
 
     def __getitem__(self, index):
-        if len(self._text) < index < 80:
+        if isinstance(index, int) and len(self._text) < index < 80:
             return " "
         return self._text[index]
 

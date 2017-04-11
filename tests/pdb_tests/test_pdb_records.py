@@ -105,6 +105,14 @@ class PdbRecordIndexingTests(TestCase):
             record[80]
 
 
+    def test_can_get_slice_of_record(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        for index in range(len(record._text) // 2):
+            self.assertEqual(
+             record[index * 2: index * 2 + 1],
+             record._text[index * 2: index * 2 + 1]
+            )
+
 
 
 class PdbRecordTextTests(TestCase):

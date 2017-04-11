@@ -121,6 +121,12 @@ class PdbRecordIndexingTests(TestCase):
         self.assertEqual(record[6:11], "XXX")
 
 
+    def test_record_index_returns_None_if_empty(self):
+        record = PdbRecord("RECORD XXX  YYY ZZZ 01")
+        self.assertEqual(record[6], None)
+        self.assertEqual(record[10:12], None)
+
+
 
 
 

@@ -1,3 +1,5 @@
+from numbers import Number
+
 class PdbRecord:
     """A PdbRecord represents a single line in a PDB file. As such, it follows
     the same constraints that the PDB file formats impose on the lines in the
@@ -46,8 +48,23 @@ class PdbRecord:
                 chunk = float(chunk)
             except ValueError:
                 pass
-        if chunk: return chunk
+        if chunk or isinstance(chunk, Number): return chunk
         return None
+
+
+    def get_as_string(self, index, index2=None):
+        """Indexing a PdbRecord will process the resultant substring in various
+        ways, such as by converting it to an int or float. If you just want the
+        string regardless, you can use this method to force a straight string
+        return.
+
+        :param int index: the index of the text you wish to get.
+        :param int index2: if given, a slice will be taken using the two indeces."""
+        
+        full_line = self._text + (" " * (80 - len(self._text)))
+        if index2:
+            return full_line[index: index2]
+        return full_line[index]
 
 
     def text(self, text=None):

@@ -143,11 +143,30 @@ class PdbRecordIndexingTests(TestCase):
         self.assertIsInstance(record[21], int)
 
 
+    def test_record_index_can_return_number_when_number_is_zero(self):
+        record = PdbRecord("RECORD XXX  YYY ZZZ 0.0")
+        self.assertEqual(record[20], 0)
+        self.assertIsInstance(record[20], int)
+        self.assertEqual(record[20:23], 0.0)
+        self.assertIsInstance(record[20:23], float)
+
+
     def test_record_index_can_return_float(self):
         record = PdbRecord("RECORD 1.23 YYY ZZZ 01")
         self.assertEqual(record[6:12], 1.23)
 
 
+
+class PdbRecordForceStringReturnTests(TestCase):
+
+    def test_can_force_record_to_return_string_index(self):
+        record = PdbRecord("RECORD 1.23 YYY ZZZ 01")
+        self.assertEqual(record.get_as_string(21), "1")
+
+
+    def test_can_force_record_to_return_string_slice(self):
+        record = PdbRecord("RECORD 1.23 YYY ZZZ 01")
+        self.assertEqual(record.get_as_string(19, 22), " 01")
 
 
 

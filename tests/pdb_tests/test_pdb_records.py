@@ -89,7 +89,7 @@ class PdbRecordIterableTests(TestCase):
 class PdbRecordIndexingTests(TestCase):
 
     def test_can_get_character_at_index_of_record(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        record = PdbRecord("RECORDXXXYYYZZZ")
         for index in range(len(record._text)):
             if record._text[index].strip():
                 self.assertEqual(record[index], record._text[index])
@@ -125,6 +125,17 @@ class PdbRecordIndexingTests(TestCase):
         record = PdbRecord("RECORD XXX  YYY ZZZ 01")
         self.assertEqual(record[6], None)
         self.assertEqual(record[10:12], None)
+
+
+    def test_record_index_can_return_int(self):
+        record = PdbRecord("RECORD XXX  YYY ZZZ 01")
+        self.assertEqual(record[21], 1)
+        self.assertEqual(record[20:22], 1)
+
+
+    def test_record_index_can_return_float(self):
+        record = PdbRecord("RECORD 1.23 YYY ZZZ 01")
+        self.assertEqual(record[6:12], 1.23)
 
 
 

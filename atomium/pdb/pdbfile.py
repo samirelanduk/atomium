@@ -40,6 +40,14 @@ class PdbRecord:
         if isinstance(index, int) and len(self._text) < index < 80:
             return " "
         chunk = self._text[index].strip()
+        try:
+            chunk = int(chunk)
+        except ValueError:
+            pass
+        try:
+            chunk = float(chunk)
+        except ValueError:
+            pass
         if chunk: return chunk
         return None
 

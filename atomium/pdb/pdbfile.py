@@ -37,17 +37,15 @@ class PdbRecord:
 
 
     def __getitem__(self, index):
-        if isinstance(index, int) and len(self._text) < index < 80:
-            return " "
-        chunk = self._text[index].strip()
+        full_line = self._text + (" " * (80 - len(self._text)))
+        chunk = full_line[index].strip()
         try:
             chunk = int(chunk)
         except ValueError:
-            pass
-        try:
-            chunk = float(chunk)
-        except ValueError:
-            pass
+            try:
+                chunk = float(chunk)
+            except ValueError:
+                pass
         if chunk: return chunk
         return None
 

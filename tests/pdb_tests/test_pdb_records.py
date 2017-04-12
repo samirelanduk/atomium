@@ -97,13 +97,22 @@ class PdbRecordIndexingTests(TestCase):
 
     def test_can_get_whitespace_characters_up_to_80(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        self.assertEqual(record[79], " ")
+        self.assertEqual(record[79], None)
 
 
     def test_record_index_out_of_range_on_characters_above_80(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         with self.assertRaises(IndexError):
             record[80]
+
+
+    def test_record_negative_index(self):
+        record = PdbRecord("RECORD XXX YYY ZZZ 01")
+        self.assertEqual(record[-1], None)
+        self.assertEqual(record[-10:], None)
+        record = PdbRecord("." * 80)
+        self.assertEqual(record[-1], ".")
+        self.assertEqual(record[-10:], "..........")
 
 
     def test_can_get_slice_of_record(self):
@@ -131,6 +140,7 @@ class PdbRecordIndexingTests(TestCase):
         record = PdbRecord("RECORD XXX  YYY ZZZ 01")
         self.assertEqual(record[21], 1)
         self.assertEqual(record[20:22], 1)
+        self.assertIsInstance(record[21], int)
 
 
     def test_record_index_can_return_float(self):

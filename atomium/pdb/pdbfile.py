@@ -7,6 +7,17 @@ class PdbRecord:
 
     Two PdbRecords are considered equal if they have the same text.
 
+    PdbRecords are containers and iterables, in the same way that strings are.
+
+    Also like strings you can index them using ``record[x:y]`` notation, but in
+    order to aid parsing, they will process the substring before returning it
+    It will strip whitespace from the substring, attempt to convert it to an
+    int or a float, and return None if an empty string would be returned. It
+    will also treat the record as an 80 character string, regardless of the
+    actual length of the record. If this is more of an annoyance than a
+    convenience, you can use :py:meth:`.get_as_string`, which works just like
+    regualar indexing.
+
     :param str text: The string contents of the line in the PDB file.
     :raises ValueError: if a string longer than 80 characters is supplied."""
 
@@ -60,7 +71,7 @@ class PdbRecord:
 
         :param int index: the index of the text you wish to get.
         :param int index2: if given, a slice will be taken using the two indeces."""
-        
+
         full_line = self._text + (" " * (80 - len(self._text)))
         if index2:
             return full_line[index: index2]

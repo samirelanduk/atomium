@@ -130,3 +130,13 @@ class PdbRecord:
             if len(body) > 74:
                 raise ValueError("'%s' is longer than 74 characters" % str(body))
             self._text = self._text[:6] + body.rstrip()
+
+
+
+class PdbFile:
+    """Represents a Pdb file structure and the records it contains.
+
+    :param \*records: The :py:class:`PdbRecord` objects that make up the file."""
+
+    def __init__(self, *records):
+        self._records = list(records)

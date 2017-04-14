@@ -19,3 +19,13 @@ class PdbFileCreationTests(PdbFileTest):
     def test_pdb_file_requires_pdb_records(self):
         with self.assertRaises(TypeError):
             PdbFile(self.records[0], "self.records[1]", self.records[2])
+
+
+
+class PdbFileLengthTests(PdbFileTest):
+
+    def test_can_get_length_of_pdb_file(self):
+        pdb_file = PdbFile(self.records[1], self.records[2])
+        self.assertEqual(pdb_file.length(), 2)
+        pdb_file = PdbFile(self.records[0], self.records[1], self.records[2])
+        self.assertEqual(pdb_file.length(), 3)

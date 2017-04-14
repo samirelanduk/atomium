@@ -143,3 +143,11 @@ class PdbFile:
             if not isinstance(record, PdbRecord):
                 raise TypeError("'%s' is not a PdbRecord" % str(record))
         self._records = list(records)
+
+
+    def length(self):
+        """Returns the number of records in this PdbFile.
+
+        :rtype: ``int``"""
+        
+        return len(self._records)

@@ -145,9 +145,13 @@ class PdbFile:
         self._records = list(records)
 
 
+    def __repr__(self):
+        return "<PdbFile ({} records)>".format(self.length())
+
+
     def length(self):
         """Returns the number of records in this PdbFile.
 
         :rtype: ``int``"""
-        
+
         return len(self._records)

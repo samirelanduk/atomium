@@ -139,4 +139,7 @@ class PdbFile:
     :param \*records: The :py:class:`PdbRecord` objects that make up the file."""
 
     def __init__(self, *records):
+        for record in records:
+            if not isinstance(record, PdbRecord):
+                raise TypeError("'%s' is not a PdbRecord" % str(record))
         self._records = list(records)

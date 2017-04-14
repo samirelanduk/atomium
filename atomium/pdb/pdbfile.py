@@ -149,6 +149,10 @@ class PdbFile:
         return "<PdbFile ({} records)>".format(self.length())
 
 
+    def __len__(self):
+        return self.length()
+
+
     def length(self):
         """Returns the number of records in this PdbFile.
 

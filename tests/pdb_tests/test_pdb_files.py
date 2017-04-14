@@ -39,3 +39,10 @@ class PdbFileLengthTests(PdbFileTest):
         self.assertEqual(pdb_file.length(), 2)
         pdb_file = PdbFile(self.records[0], self.records[1], self.records[2])
         self.assertEqual(pdb_file.length(), 3)
+
+
+    @patch("atomium.pdb.pdbfile.PdbFile.length")
+    def test_len_uses_length(self, mock_length):
+        mock_length.return_value = 3
+        pdb_file = PdbFile(self.records[0], self.records[1], self.records[2])
+        self.assertEqual(len(pdb_file), 3)

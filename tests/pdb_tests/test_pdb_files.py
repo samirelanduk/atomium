@@ -89,6 +89,23 @@ class PdbFileIterableTests(PdbFileTest):
 
 
 
+class PdbFileIndexingTests(PdbFileTest):
+
+    def test_can_get_records_by_index(self):
+        pdb_file = PdbFile(*self.records)
+        self.assertEqual(pdb_file[0], self.records[0])
+        self.assertEqual(pdb_file[2], self.records[2])
+        self.assertEqual(pdb_file[-1], self.records[-1])
+
+
+    def test_can_get_records_by_slice(self):
+        pdb_file = PdbFile(*self.records)
+        self.assertEqual(pdb_file[0:2], self.records[0:2])
+        self.assertEqual(pdb_file[2:4], self.records[2:4])
+        self.assertEqual(pdb_file[-3:-1:-1], self.records[-3:-1:-1])
+
+
+
 class PdbFileLengthTests(PdbFileTest):
 
     def test_can_get_length_of_pdb_file(self):

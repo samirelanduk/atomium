@@ -140,6 +140,9 @@ class PdbFile:
     and their records are equal. They do not need to share the same record
     objects in memory.
 
+    PdbFiles are containers and iterables of the records they contain, and can
+    be indexed and sliced to obtain them.
+
     :param \*records: The :py:class:`PdbRecord` objects that make up the file."""
 
     def __init__(self, *records):
@@ -172,6 +175,10 @@ class PdbFile:
 
     def __iter__(self):
         return iter(self._records)
+
+
+    def __getitem__(self, index):
+        return self._records[index]
 
 
     def length(self):

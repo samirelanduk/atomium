@@ -69,12 +69,23 @@ class PdbFileEqualityTests(PdbFileTest):
 
 class PdbFileContainerTests(PdbFileTest):
 
-    def test_pdb_record_container(self):
+    def test_pdb_file_container(self):
         pdb_file = PdbFile(self.records[0], self.records[2])
         self.assertIn(self.records[0], pdb_file)
         self.assertNotIn(self.records[1], pdb_file)
         self.assertIn(self.records[2], pdb_file)
         self.assertNotIn(self.records[3], pdb_file)
+
+
+
+class PdbFileIterableTests(PdbFileTest):
+
+    def test_can_iterate_through_pdb_file(self):
+        pdb_file = PdbFile(*self.records)
+        records = []
+        for record in pdb_file:
+            records.append(record)
+        self.assertEqual(self.records, records)
 
 
 

@@ -170,6 +170,10 @@ class PdbFile:
         return member in self._records
 
 
+    def __iter__(self):
+        return iter(self._records)
+
+
     def length(self):
         """Returns the number of records in this PdbFile.
 

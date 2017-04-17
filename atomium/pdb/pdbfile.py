@@ -166,6 +166,10 @@ class PdbFile:
         return True
 
 
+    def __contains__(self, member):
+        return member in self._records
+
+
     def length(self):
         """Returns the number of records in this PdbFile.
 

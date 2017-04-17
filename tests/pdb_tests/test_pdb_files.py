@@ -67,6 +67,17 @@ class PdbFileEqualityTests(PdbFileTest):
 
 
 
+class PdbFileContainerTests(PdbFileTest):
+
+    def test_pdb_record_container(self):
+        pdb_file = PdbFile(self.records[0], self.records[2])
+        self.assertIn(self.records[0], pdb_file)
+        self.assertNotIn(self.records[1], pdb_file)
+        self.assertIn(self.records[2], pdb_file)
+        self.assertNotIn(self.records[3], pdb_file)
+
+
+
 class PdbFileLengthTests(PdbFileTest):
 
     def test_can_get_length_of_pdb_file(self):

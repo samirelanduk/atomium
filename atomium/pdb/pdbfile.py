@@ -136,6 +136,10 @@ class PdbRecord:
 class PdbFile:
     """Represents a Pdb file structure and the records it contains.
 
+    Two PdbFiles are considered equal if they have the same number of records,
+    and their records are equal. They do not need to share the same record
+    objects in memory.
+
     :param \*records: The :py:class:`PdbRecord` objects that make up the file."""
 
     def __init__(self, *records):
@@ -151,6 +155,15 @@ class PdbFile:
 
     def __len__(self):
         return self.length()
+
+
+    def __eq__(self, other):
+        if not isinstance(other, PdbFile) or self.length() != other.length():
+            return False
+        for index, record in enumerate(self._records):
+            if record != other._records[index]:
+                return False
+        return True
 
 
     def length(self):

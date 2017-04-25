@@ -129,3 +129,18 @@ class PdbFileRecordTests(PdbFileTest):
         pdb_file = PdbFile(*self.records)
         self.assertEqual(pdb_file._records, pdb_file.records())
         self.assertIsNot(pdb_file._records, pdb_file.records())
+
+
+
+class PdbFileRecordAdditionTests(PdbFileTest):
+
+    def test_can_add_pdb_record(self):
+        pdb_file = PdbFile(*self.records[0:3])
+        pdb_file.add_record(self.records[3])
+        self.assertEqual(pdb_file._records, self.records)
+
+
+    def test_can_only_add_pdb_records(self):
+        pdb_file = PdbFile(*self.records[0:2])
+        with self.assertRaises(TypeError):
+            pdb_file.add_record("self.records[2]")

@@ -193,5 +193,15 @@ class PdbFile:
         """Returns the :py:class:`.PdbRecord`s in this PdbFile.
 
         :returns: ``list`` of ``PdbRecord``"""
-        
+
         return list(self._records)
+
+
+    def add_record(self, record):
+        """Adds a :py:class:`.PdbRecord` to the end of the PdbFile.
+
+        :param PdbRecord record: The record to add."""
+        
+        if not isinstance(record, PdbRecord):
+            raise TypeError("'%s' is not a PdbRecord" % str(record))
+        self._records.append(record)

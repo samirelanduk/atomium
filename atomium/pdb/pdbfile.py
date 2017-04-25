@@ -187,3 +187,11 @@ class PdbFile:
         :rtype: ``int``"""
 
         return len(self._records)
+
+
+    def records(self):
+        """Returns the :py:class:`.PdbRecord`s in this PdbFile.
+
+        :returns: ``list`` of ``PdbRecord``"""
+        
+        return list(self._records)

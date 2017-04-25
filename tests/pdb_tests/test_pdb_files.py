@@ -120,3 +120,12 @@ class PdbFileLengthTests(PdbFileTest):
         mock_length.return_value = 3
         pdb_file = PdbFile(self.records[0], self.records[1], self.records[2])
         self.assertEqual(len(pdb_file), 3)
+
+
+
+class PdbFileRecordTests(PdbFileTest):
+
+    def test_can_get_records(self):
+        pdb_file = PdbFile(*self.records)
+        self.assertEqual(pdb_file._records, pdb_file.records())
+        self.assertIsNot(pdb_file._records, pdb_file.records())

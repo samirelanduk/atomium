@@ -213,3 +213,16 @@ class PdbFile:
         :param PdbRecord record: The record to remove."""
 
         self._records.remove(record)
+
+
+    def get_record_by_name(self, name):
+        """Retrieves the first :py:class:`.PdbRecord` with the name given. If
+        there are no matches it will return ``None``.
+
+        :param str name: The name to search by."""
+        
+        if not isinstance(name, str):
+            raise TypeError("Can only get records by str, not '%s'" % str(name))
+        for record in self._records:
+            if record.name() == name:
+                return record

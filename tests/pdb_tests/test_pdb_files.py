@@ -144,3 +144,14 @@ class PdbFileRecordAdditionTests(PdbFileTest):
         pdb_file = PdbFile(*self.records[0:2])
         with self.assertRaises(TypeError):
             pdb_file.add_record("self.records[2]")
+
+
+
+class PdbFileRecordRemovalTests(PdbFileTest):
+
+    def test_can_remove_pdb_record(self):
+        pdb_file = PdbFile(*self.records)
+        pdb_file.remove_record(self.records[1])
+        self.assertEqual(pdb_file._records, [self.records[0]] + self.records[2:])
+        pdb_file.remove_record(self.records[0])
+        self.assertEqual(pdb_file._records, self.records[2:])

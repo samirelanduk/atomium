@@ -201,7 +201,15 @@ class PdbFile:
         """Adds a :py:class:`.PdbRecord` to the end of the PdbFile.
 
         :param PdbRecord record: The record to add."""
-        
+
         if not isinstance(record, PdbRecord):
             raise TypeError("'%s' is not a PdbRecord" % str(record))
         self._records.append(record)
+
+
+    def remove_record(self, record):
+        """Removes a :py:class:`.PdbRecord` from the PdbFile.
+
+        :param PdbRecord record: The record to remove."""
+
+        self._records.remove(record)

@@ -78,3 +78,66 @@ class AtomElementTests(TestCase):
         with self.assertRaises(ValueError):
             atom.element("XXX")
         atom.element("XX")
+
+
+
+class AtomXTests(TestCase):
+
+    def test_x_property(self):
+        atom = Atom("C", 2, 3, 5)
+        self.assertIs(atom._x, atom.x())
+
+
+    def test_can_update_x(self):
+        atom = Atom("C", 2, 3, 5)
+        atom.x(6)
+        self.assertEqual(atom._x, 6)
+
+
+    def test_atom_x_must_be_numeric(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom.x("4")
+        atom.x(4.5)
+
+
+
+class AtomYTests(TestCase):
+
+    def test_y_property(self):
+        atom = Atom("C", 2, 3, 5)
+        self.assertIs(atom._y, atom.y())
+
+
+    def test_can_update_y(self):
+        atom = Atom("C", 2, 3, 5)
+        atom.y(6)
+        self.assertEqual(atom._y, 6)
+
+
+    def test_atom_y_must_be_numeric(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom.y("4")
+        atom.y(4.5)
+
+
+
+class AtomZTests(TestCase):
+
+    def test_z_property(self):
+        atom = Atom("C", 2, 3, 5)
+        self.assertIs(atom._z, atom.z())
+
+
+    def test_can_update_z(self):
+        atom = Atom("C", 2, 3, 5)
+        atom.z(6)
+        self.assertEqual(atom._z, 6)
+
+
+    def test_atom_z_must_be_numeric(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom.z("4")
+        atom.z(4.5)

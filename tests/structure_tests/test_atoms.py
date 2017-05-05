@@ -49,3 +49,32 @@ class AtomReprTests(TestCase):
     def test_atom_repr(self):
         atom = Atom("C", 2, 3, 5)
         self.assertEqual(str(atom), "<C Atom at (2, 3, 5)>")
+
+
+
+class AtomElementTests(TestCase):
+
+    def test_element_property(self):
+        atom = Atom("C", 2, 3, 5)
+        self.assertIs(atom._element, atom.element())
+
+
+    def test_can_update_element(self):
+        atom = Atom("C", 2, 3, 5)
+        atom.element("N")
+        self.assertEqual(atom._element, "N")
+
+
+    def test_atom_element_must_be_str(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom.element(1)
+
+
+    def test_atom_element_must_be_1_or_2_chars(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(ValueError):
+            atom.element("")
+        with self.assertRaises(ValueError):
+            atom.element("XXX")
+        atom.element("XX")

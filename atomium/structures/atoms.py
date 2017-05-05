@@ -30,3 +30,9 @@ class Atom:
         self._x = x
         self._y = y
         self._z = z
+
+
+    def __repr__(self):
+        return "<{} Atom at ({}, {}, {})>".format(
+         self._element, self._x, self._y, self._z
+        )

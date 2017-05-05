@@ -41,3 +41,11 @@ class AtomCreationTests(TestCase):
         with self.assertRaises(TypeError):
             Atom("C", 2, 3, "5")
         Atom("C", 2, 3, 5.5)
+
+
+
+class AtomReprTests(TestCase):
+
+    def test_atom_repr(self):
+        atom = Atom("C", 2, 3, 5)
+        self.assertEqual(str(atom), "<C Atom at (2, 3, 5)>")

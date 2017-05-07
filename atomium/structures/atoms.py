@@ -1,3 +1,4 @@
+from math import sqrt
 from matrices.checks import is_numeric
 
 """Contains the Atom class and its associated classes."""
@@ -116,6 +117,22 @@ class Atom:
         :rtype: ``float``"""
 
         return PERIODIC_TABLE.get(self._element.upper(), 0)
+
+
+    def distance_to(self, other):
+        """Returns the distance (in whatever units the coordinates are defined
+        in) between this atom and another.
+
+        :param Atom other: The other atom.
+        :raises TypeError: if something other than an :py:class:`Atom` is given.
+        :rtype: ``float``"""
+
+        if not isinstance(other, Atom):
+            raise TypeError("'{}' is not an Atom".format(other))
+        x_sum = pow((other._x - self._x), 2)
+        y_sum = pow((other._y - self._y), 2)
+        z_sum = pow((other._z - self._z), 2)
+        return sqrt(x_sum + y_sum + z_sum)
 
 
 

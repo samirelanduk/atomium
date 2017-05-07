@@ -164,7 +164,28 @@ class AtomMassTests(TestCase):
         self.assertAlmostEqual(atom.mass(), 4, delta=0.1)
 
 
-
     def test_unknown_atom_mass(self):
         atom = Atom("XX", 2, 3, 5)
         self.assertEqual(atom.mass(), 0)
+
+
+
+class AtomDistanceToTests(TestCase):
+
+    def test_can_get_distance_between_atoms(self):
+        atom1 = Atom("C", 4, 8, 3)
+        atom2 = Atom("H", 2, 3, 5)
+        self.assertAlmostEqual(atom1.distance_to(atom2), 5.744, delta=0.001)
+
+
+    def test_atom_distance_can_be_zero(self):
+        atom1 = Atom("C", 4, 8, 3)
+        atom2 = Atom("H", 4, 8, 3)
+        self.assertEqual(atom1.distance_to(atom2), 0)
+
+
+    def test_other_atom_must_be_atom(self):
+        atom1 = Atom("C", 4, 8, 3)
+        atom2 = "atom"
+        with self.assertRaises(TypeError):
+            atom1.distance_to(atom2)

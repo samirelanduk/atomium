@@ -141,3 +141,30 @@ class AtomZTests(TestCase):
         with self.assertRaises(TypeError):
             atom.z("4")
         atom.z(4.5)
+
+
+
+class AtomMassTests(TestCase):
+
+    def test_known_element_mass(self):
+        atom = Atom("C", 2, 3, 5)
+        self.assertAlmostEqual(atom.mass(), 12, delta=0.1)
+        atom._element = "H"
+        self.assertAlmostEqual(atom.mass(), 1, delta=0.1)
+
+
+    def test_atom_mass_case_insensitive(self):
+        atom = Atom("he", 2, 3, 5)
+        self.assertAlmostEqual(atom.mass(), 4, delta=0.1)
+        atom = Atom("He", 2, 3, 5)
+        self.assertAlmostEqual(atom.mass(), 4, delta=0.1)
+        atom = Atom("hE", 2, 3, 5)
+        self.assertAlmostEqual(atom.mass(), 4, delta=0.1)
+        atom = Atom("HE", 2, 3, 5)
+        self.assertAlmostEqual(atom.mass(), 4, delta=0.1)
+
+
+
+    def test_unknown_atom_mass(self):
+        atom = Atom("XX", 2, 3, 5)
+        self.assertEqual(atom.mass(), 0)

@@ -41,3 +41,22 @@ class AtomicStructureContainerTests(AtomicStructureTest):
         self.assertIn(self.atom1, structure)
         self.assertIn(self.atom2, structure)
         self.assertNotIn(self.atom3, structure)
+
+
+
+class AtomicStructureAtomsTests(AtomicStructureTest):
+
+    def test_can_get_all_atoms(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.atoms(), structure._atoms)
+        self.assertIsNot(structure.atoms(), structure._atoms)
+
+
+    def test_can_get_atoms_by_element(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.atom1.element.return_value = "A"
+        self.atom2.element.return_value = "B"
+        self.atom3.element.return_value = "B"
+        self.assertEqual(structure.atoms(element="A"), set(self.atoms[:1]))
+        self.assertEqual(structure.atoms(element="B"), set(self.atoms[1:]))
+        self.assertEqual(structure.atoms(element="C"), set())

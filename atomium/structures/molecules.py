@@ -28,3 +28,17 @@ class AtomicStructure:
 
     def __contains__(self, member):
         return member in self._atoms
+
+
+    def atoms(self, element=None):
+        """Returns the :py:class:`.Atom`s in the structure. You can filter these
+        by element if you wish.
+
+        :param str element: If given, only atoms whose element matches this\
+        will be returned.
+        :rtype: ``set``"""
+        
+        atoms = set(self._atoms)
+        if element:
+            atoms = set(filter(lambda a: a.element() == element, atoms))
+        return atoms

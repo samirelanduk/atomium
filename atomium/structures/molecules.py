@@ -18,3 +18,7 @@ class AtomicStructure:
              "AtomicStructures need atoms, not '{}'".format(non_atoms[0])
             )
         self._atoms = set(atoms)
+
+
+    def __repr__(self):
+        return "<AtomicStructure ({} atoms)>".format(len(self._atoms))

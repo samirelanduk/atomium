@@ -23,3 +23,11 @@ class AtomicStructureCreationTests(AtomicStructureTest):
     def test_atomic_structure_needs_atoms(self):
         with self.assertRaises(TypeError):
             AtomicStructure("self.atom1", self.atom2, self.atom3)
+
+
+
+class AtomicStructureReprTests(AtomicStructureTest):
+
+    def test_atomic_structure_repr(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(str(structure), "<AtomicStructure (3 atoms)>")

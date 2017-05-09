@@ -18,3 +18,8 @@ class AtomicStructureCreationTests(AtomicStructureTest):
     def test_can_create_atomic_structure(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure._atoms, set(self.atoms))
+
+
+    def test_atomic_structure_needs_atoms(self):
+        with self.assertRaises(TypeError):
+            AtomicStructure("self.atom1", self.atom2, self.atom3)

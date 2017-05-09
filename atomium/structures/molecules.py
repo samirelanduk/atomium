@@ -49,7 +49,15 @@ class AtomicStructure:
 
         :param Atom atom: The atom to add.
         :raises TypeError: if the atom given is not an Atom."""
-        
+
         if not isinstance(atom, Atom):
             raise TypeError("Can only add atoms, not '{}'".format(atom))
         self._atoms.add(atom)
+
+
+    def remove_atom(self, atom):
+        """Removes an :py:class:`.Atom` from the structure.
+
+        :param Atom atom: The atom to remove."""
+
+        self._atoms.remove(atom)

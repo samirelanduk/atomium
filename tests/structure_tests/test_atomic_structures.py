@@ -75,3 +75,12 @@ class AtomicStructureAtomAdditionTests(AtomicStructureTest):
         structure = AtomicStructure(self.atom1, self.atom2)
         with self.assertRaises(TypeError):
             structure.add_atom("atom")
+
+
+
+class AtomicStructureAtomRemovalTests(AtomicStructureTest):
+
+    def test_can_remove_atoms_from_structure(self):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        structure.remove_atom(self.atom1)
+        self.assertEqual(structure._atoms, set(self.atoms[1:2]))

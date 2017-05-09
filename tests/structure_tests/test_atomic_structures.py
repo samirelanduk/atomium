@@ -31,3 +31,13 @@ class AtomicStructureReprTests(AtomicStructureTest):
     def test_atomic_structure_repr(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(str(structure), "<AtomicStructure (3 atoms)>")
+
+
+
+class AtomicStructureContainerTests(AtomicStructureTest):
+
+    def test_atomic_structure_is_container_of_its_atoms(self):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        self.assertIn(self.atom1, structure)
+        self.assertIn(self.atom2, structure)
+        self.assertNotIn(self.atom3, structure)

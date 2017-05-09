@@ -8,6 +8,8 @@ class AtomicStructure:
     instantiated directly, and is here to be a parent class to other, more
     specific entities.
 
+    AtomicStructures are containers of their atoms.
+
     :param \*atoms: The :py:class:`.Atom`s that make up the structure.
     :raises TypeError: if non-atoms are given."""
 
@@ -22,3 +24,7 @@ class AtomicStructure:
 
     def __repr__(self):
         return "<AtomicStructure ({} atoms)>".format(len(self._atoms))
+
+
+    def __contains__(self, member):
+        return member in self._atoms

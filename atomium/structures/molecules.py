@@ -37,8 +37,19 @@ class AtomicStructure:
         :param str element: If given, only atoms whose element matches this\
         will be returned.
         :rtype: ``set``"""
-        
+
         atoms = set(self._atoms)
         if element:
             atoms = set(filter(lambda a: a.element() == element, atoms))
         return atoms
+
+
+    def add_atom(self, atom):
+        """Adds an :py:class:`.Atom` to the structure.
+
+        :param Atom atom: The atom to add.
+        :raises TypeError: if the atom given is not an Atom."""
+        
+        if not isinstance(atom, Atom):
+            raise TypeError("Can only add atoms, not '{}'".format(atom))
+        self._atoms.add(atom)

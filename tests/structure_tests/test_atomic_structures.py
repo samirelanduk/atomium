@@ -60,3 +60,18 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
         self.assertEqual(structure.atoms(element="A"), set(self.atoms[:1]))
         self.assertEqual(structure.atoms(element="B"), set(self.atoms[1:]))
         self.assertEqual(structure.atoms(element="C"), set())
+
+
+
+class AtomicStructureAtomAdditionTests(AtomicStructureTest):
+
+    def test_can_add_atoms_to_structure(self):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        structure.add_atom(self.atom3)
+        self.assertEqual(structure._atoms, set(self.atoms))
+
+
+    def test_can_only_add_atoms(self):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        with self.assertRaises(TypeError):
+            structure.add_atom("atom")

@@ -103,3 +103,14 @@ class AtomicStructureAtomRemovalTests(AtomicStructureTest):
         structure = AtomicStructure(self.atom1, self.atom2)
         structure.remove_atom(self.atom1)
         self.assertEqual(structure._atoms, set(self.atoms[1:2]))
+
+
+
+class AtomicStructureMassTests(AtomicStructureTest):
+
+    def test_structure_mass_is_sum_of_atom_masses(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.atom1.mass.return_value = 8
+        self.atom2.mass.return_value = 5.1
+        self.atom3.mass.return_value = 4
+        self.assertEqual(structure.mass(), 17.1)

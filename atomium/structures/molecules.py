@@ -3,14 +3,14 @@
 from .atoms import Atom
 
 class AtomicStructure:
-    """Represents structures made of :py:class:`.Atom`s, which tends to be
-    rather a lot of things in practice. This class would not generally be
+    """Represents structures made of :py:class:`.Atom` objects, which tends to
+    be rather a lot of things in practice. This class would not generally be
     instantiated directly, and is here to be a parent class to other, more
     specific entities.
 
     AtomicStructures are containers of their atoms.
 
-    :param \*atoms: The :py:class:`.Atom`s that make up the structure.
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
     :raises TypeError: if non-atoms are given."""
 
     def __init__(self, *atoms):
@@ -72,3 +72,12 @@ class AtomicStructure:
         :param Atom atom: The atom to remove."""
 
         self._atoms.remove(atom)
+
+
+    def mass(self):
+        """Returns the mass of the structure in Daltons, based on the masses of
+        its atoms.
+
+        :rtype: ``float``"""
+
+        return sum([atom.mass() for atom in self._atoms])

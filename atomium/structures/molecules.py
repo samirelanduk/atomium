@@ -31,8 +31,8 @@ class AtomicStructure:
 
 
     def atoms(self, element=None):
-        """Returns the :py:class:`.Atom`s in the structure. You can filter these
-        by element if you wish.
+        """Returns the :py:class:`.Atom` objects in the structure. You can
+        filter these by element if you wish.
 
         :param str element: If given, only atoms whose element matches this\
         will be returned.
@@ -42,6 +42,17 @@ class AtomicStructure:
         if element:
             atoms = set(filter(lambda a: a.element() == element, atoms))
         return atoms
+
+
+    def atom(self, *args, **kwargs):
+        """Returns the first :py:class:`.Atom` that matches the criteria given.
+
+        :param str element: If given, only atoms whose element matches this\
+        will be searched.
+        :rtype: ``Atom``"""
+
+        atoms = self.atoms(*args, **kwargs)
+        for atom in atoms: return atom
 
 
     def add_atom(self, atom):

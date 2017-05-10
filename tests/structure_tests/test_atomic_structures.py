@@ -63,6 +63,25 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
 
 
 
+class AtomicStructureAtomTest(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.atoms")
+    def test_atom_calls_atoms(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms[:1])
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        atom = structure.atom(element="A")
+        mock_atoms.assert_called_with(element="A")
+        self.assertIs(atom, self.atom1)
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.atoms")
+    def test_atom_can_return_none(self, mock_atoms):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        mock_atoms.return_value = set()
+        self.assertIs(structure.atom(element="C"), None)
+
+
+
 class AtomicStructureAtomAdditionTests(AtomicStructureTest):
 
     def test_can_add_atoms_to_structure(self):

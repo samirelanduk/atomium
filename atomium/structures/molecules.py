@@ -1,5 +1,6 @@
 """Contains classes for structures made of atoms."""
 
+from collections import Counter
 from .atoms import Atom
 
 class AtomicStructure:
@@ -81,3 +82,11 @@ class AtomicStructure:
         :rtype: ``float``"""
 
         return sum([atom.mass() for atom in self._atoms])
+
+
+    def formula(self):
+        """Returns the formula (count of each atom) of the structure.
+
+        :rtype: ``Counter``"""
+        
+        return Counter([atom.element() for atom in self._atoms])

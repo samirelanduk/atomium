@@ -1,3 +1,4 @@
+from collections import Counter
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.structures.atoms import Atom
@@ -9,6 +10,12 @@ class AtomicStructureTest(TestCase):
         self.atom1 = Mock(Atom)
         self.atom2 = Mock(Atom)
         self.atom3 = Mock(Atom)
+        self.atom1.mass.return_value = 8
+        self.atom2.mass.return_value = 5.1
+        self.atom3.mass.return_value = 4
+        self.atom1.element.return_value = "A"
+        self.atom2.element.return_value = "B"
+        self.atom3.element.return_value = "B"
         self.atoms = [self.atom1, self.atom2, self.atom3]
 
 
@@ -54,9 +61,6 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
 
     def test_can_get_atoms_by_element(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.atom1.element.return_value = "A"
-        self.atom2.element.return_value = "B"
-        self.atom3.element.return_value = "B"
         self.assertEqual(structure.atoms(element="A"), set(self.atoms[:1]))
         self.assertEqual(structure.atoms(element="B"), set(self.atoms[1:]))
         self.assertEqual(structure.atoms(element="C"), set())
@@ -110,7 +114,12 @@ class AtomicStructureMassTests(AtomicStructureTest):
 
     def test_structure_mass_is_sum_of_atom_masses(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.atom1.mass.return_value = 8
-        self.atom2.mass.return_value = 5.1
-        self.atom3.mass.return_value = 4
         self.assertEqual(structure.mass(), 17.1)
+
+
+
+class AtomicStructureFormulaTests(AtomicStructureTest):
+
+    def test_can_get_formula(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.formula(), Counter({"A":1, "B":2}))

@@ -123,3 +123,43 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
     def test_can_get_formula(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure.formula(), Counter({"A":1, "B":2}))
+
+
+
+class AtomicStructureTranslationTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.translate")
+    def test_translation_uses_geometrica(self, mock_translate):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        mock_translate.return_value = [(6, 6, 1), (9, 9, 4)]
+        self.atom1._x, self.atom1._y, self.atom1._z = 1, 2, 3
+        self.atom2._x, self.atom2._y, self.atom2._z = 4, 5, 6
+        structure.translate(5, 4, -2)
+        mock_translate.assert_called_with(list(structure._atoms), 5, 4, -2)
+        self.assertEqual(
+         set([
+          (self.atom1._x, self.atom1._y, self.atom1._z),
+          (self.atom2._x, self.atom2._y, self.atom2._z)
+         ]),
+         set([(6, 6, 1), (9, 9, 4)])
+        )
+
+
+
+class AtomicStructureRotationTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.rotate")
+    def test_rotation_uses_geometrica(self, mock_rotate):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        mock_rotate.return_value = [(6, 6, 1), (9, 9, 4)]
+        self.atom1._x, self.atom1._y, self.atom1._z = 1, 2, 3
+        self.atom2._x, self.atom2._y, self.atom2._z = 4, 5, 6
+        structure.rotate("x", 90)
+        mock_rotate.assert_called_with(list(structure._atoms), "x", 90)
+        self.assertEqual(
+         set([
+          (self.atom1._x, self.atom1._y, self.atom1._z),
+          (self.atom2._x, self.atom2._y, self.atom2._z)
+         ]),
+         set([(6, 6, 1), (9, 9, 4)])
+        )

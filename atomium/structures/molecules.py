@@ -1,6 +1,7 @@
 """Contains classes for structures made of atoms."""
 
 from collections import Counter
+from geometrica import translate, rotate
 from .atoms import Atom
 
 class AtomicStructure:
@@ -88,5 +89,32 @@ class AtomicStructure:
         """Returns the formula (count of each atom) of the structure.
 
         :rtype: ``Counter``"""
-        
+
         return Counter([atom.element() for atom in self._atoms])
+
+
+    def translate(self, dx, dy, dz):
+        """Translates the structure through space, updating all atom
+        coordinates accordingly.
+
+        :param Number dx: The distance to move in the x direction.
+        :param Number dy: The distance to move in the y direction.
+        :param Number dz: The distance to move in the z direction."""
+
+        atoms = list(self._atoms)
+        points = translate(atoms, dx, dy, dz)
+        for index, atom in enumerate(atoms):
+            atom._x, atom._y, atom._z = points[index]
+
+
+    def rotate(self, axis, angle):
+        """Rotates the structure about an axis, updating all atom coordinates
+        accordingly.
+
+        :param str axis: The axis to rotate around. Can only be 'x', 'y' or 'z'.
+        :param Number angle: The angle in degrees. Rotation is right handed."""
+        
+        atoms = list(self._atoms)
+        points = rotate(atoms, axis, angle)
+        for index, atom in enumerate(atoms):
+            atom._x, atom._y, atom._z = points[index]

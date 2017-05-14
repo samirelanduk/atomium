@@ -113,8 +113,21 @@ class AtomicStructure:
 
         :param str axis: The axis to rotate around. Can only be 'x', 'y' or 'z'.
         :param Number angle: The angle in degrees. Rotation is right handed."""
-        
+
         atoms = list(self._atoms)
         points = rotate(atoms, axis, angle)
         for index, atom in enumerate(atoms):
             atom._x, atom._y, atom._z = points[index]
+
+
+    def center_of_mass(self):
+        """Returns the center of mass of the structure. This is the average of
+        all the atom coordinates, weighted the mass of each atom.
+
+        :returns: (x, y, z) ``tuple``"""
+
+        mass = self.mass()
+        average_x = sum([atom._x * atom.mass() for atom in self._atoms]) / mass
+        average_y = sum([atom._y * atom.mass() for atom in self._atoms]) / mass
+        average_z = sum([atom._z * atom.mass() for atom in self._atoms]) / mass
+        return (average_x, average_y, average_z)

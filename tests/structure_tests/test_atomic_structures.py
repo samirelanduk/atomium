@@ -163,3 +163,26 @@ class AtomicStructureRotationTests(AtomicStructureTest):
          ]),
          set([(6, 6, 1), (9, 9, 4)])
         )
+
+
+
+class AtomicStructureCenterOfMassTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.mass")
+    def test_can_get_center_of_mass_when_equal_mass(self, mock_mass):
+        mock_mass.return_value = 20
+        self.atom1._x, self.atom1._y, self.atom1._z = 0, 0, 0
+        self.atom2._x, self.atom2._y, self.atom2._z = 1, 1, 1
+        self.atom1.mass.return_value = 10
+        self.atom2.mass.return_value = 10
+        structure = AtomicStructure(self.atom1, self.atom2)
+        self.assertEqual(structure.center_of_mass(), (0.5, 0.5, 0.5))
+
+
+    def test_can_get_center_of_mass_when_unequal_mass(self):
+        self.atom1._x, self.atom1._y, self.atom1._z = 0, 0, 0
+        self.atom2._x, self.atom2._y, self.atom2._z = 1, 1, 1
+        self.atom1.mass.return_value = 10
+        self.atom2.mass.return_value = 30
+        structure = AtomicStructure(self.atom1, self.atom2)
+        self.assertEqual(structure.center_of_mass(), (0.75, 0.75, 0.75))

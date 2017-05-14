@@ -1,6 +1,7 @@
 """Contains classes for structures made of atoms."""
 
 from collections import Counter
+from math import sqrt
 from geometrica import translate, rotate
 from .atoms import Atom
 
@@ -131,3 +132,18 @@ class AtomicStructure:
         average_y = sum([atom._y * atom.mass() for atom in self._atoms]) / mass
         average_z = sum([atom._z * atom.mass() for atom in self._atoms]) / mass
         return (average_x, average_y, average_z)
+
+
+    def radius_of_gyration(self):
+        """The radius of gyration of a structure is a measure of how extended it
+        is. It is the root mean square deviation of the atoms from the
+        structure's :py:meth:`.center_of_mass`.
+
+        :rtype: ``float``"""
+
+        center_of_mass = self.center_of_mass()
+        square_deviation = sum(
+         [atom.distance_to(center_of_mass) ** 2 for atom in self._atoms]
+        )
+        mean_square_deviation = square_deviation / len(self._atoms)
+        return sqrt(mean_square_deviation)

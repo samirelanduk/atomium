@@ -179,10 +179,28 @@ class AtomicStructureCenterOfMassTests(AtomicStructureTest):
         self.assertEqual(structure.center_of_mass(), (0.5, 0.5, 0.5))
 
 
-    def test_can_get_center_of_mass_when_unequal_mass(self):
+    @patch("atomium.structures.molecules.AtomicStructure.mass")
+    def test_can_get_center_of_mass_when_unequal_mass(self, mock_mass):
+        mock_mass.return_value = 40
         self.atom1._x, self.atom1._y, self.atom1._z = 0, 0, 0
         self.atom2._x, self.atom2._y, self.atom2._z = 1, 1, 1
         self.atom1.mass.return_value = 10
         self.atom2.mass.return_value = 30
         structure = AtomicStructure(self.atom1, self.atom2)
         self.assertEqual(structure.center_of_mass(), (0.75, 0.75, 0.75))
+
+
+
+class AtomicStructureRadiusOfGyrationTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.center_of_mass")
+    def test_can_get_radius_of_gyration(self, mock_center):
+        mock_center.return_value = (5, 0, 0)
+        self.atom1.distance_to.return_value = 5
+        self.atom2.distance_to.return_value = 5
+        self.atom1._x, self.atom1._y, self.atom1._z = 0, 0, 0
+        self.atom2._x, self.atom2._y, self.atom2._z = 10, 0, 0
+        structure = AtomicStructure(self.atom1, self.atom2)
+        self.assertEqual(structure.radius_of_gyration(), 5)
+        self.atom1.distance_to.assert_called_with((5, 0, 0))
+        self.atom2.distance_to.assert_called_with((5, 0, 0))

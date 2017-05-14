@@ -189,3 +189,9 @@ class AtomDistanceToTests(TestCase):
         atom2 = "atom"
         with self.assertRaises(TypeError):
             atom1.distance_to(atom2)
+
+
+    def test_can_get_distance_to_xyz_tuple(self):
+        atom1 = Atom("C", 4, 8, 3)
+        atom2 = (2, 3, 5)
+        self.assertAlmostEqual(atom1.distance_to(atom2), 5.744, delta=0.001)

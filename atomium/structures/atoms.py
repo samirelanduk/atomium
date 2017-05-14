@@ -121,17 +121,26 @@ class Atom:
 
     def distance_to(self, other):
         """Returns the distance (in whatever units the coordinates are defined
-        in) between this atom and another.
+        in) between this atom and another. You can also give a (x, y, z) tuple
+        instead of another atom if you so wish.
 
         :param Atom other: The other atom.
-        :raises TypeError: if something other than an :py:class:`Atom` is given.
+        :raises TypeError: if something other than an :py:class:`Atom` is\
+        given and that object isn't in the form (x, y, z).
         :rtype: ``float``"""
 
+        x, y, z = None, None, None
         if not isinstance(other, Atom):
-            raise TypeError("'{}' is not an Atom".format(other))
-        x_sum = pow((other._x - self._x), 2)
-        y_sum = pow((other._y - self._y), 2)
-        z_sum = pow((other._z - self._z), 2)
+            try:
+                assert len(other) == 3
+                x, y, z = other
+            except:
+                raise TypeError("'{}' is not an Atom".format(other))
+        else:
+            x, y, z = other._x, other._y, other._z
+        x_sum = pow((x - self._x), 2)
+        y_sum = pow((y - self._y), 2)
+        z_sum = pow((z - self._z), 2)
         return sqrt(x_sum + y_sum + z_sum)
 
 

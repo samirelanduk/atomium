@@ -21,3 +21,11 @@ class ModelCreationTests(ModelTest):
         model = Model(*self.atoms)
         self.assertIsInstance(model, AtomicStructure)
         self.assertTrue(mock_init.called)
+
+
+
+class ModelReprTests(ModelTest):
+
+    def test_model_repr(self):
+        structure = Model(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(str(structure), "<Model (3 atoms)>")

@@ -26,7 +26,7 @@ class AtomicStructure:
 
 
     def __repr__(self):
-        return "<AtomicStructure ({} atoms)>".format(len(self._atoms))
+        return "<{} ({} atoms)>".format(self.__class__.__name__, len(self._atoms))
 
 
     def __contains__(self, member):

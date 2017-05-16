@@ -11,3 +11,7 @@ class Xyz:
             raise TypeError("comment must be str, not '{}'".format(comment))
         self._comment = comment
         self._model = None
+
+
+    def __repr__(self):
+        return "<Xyz ({})>".format(self._comment)

@@ -18,3 +18,11 @@ class XyzCreationTests(TestCase):
     def test_xyz_comment_must_be_str(self):
         with self.assertRaises(TypeError):
             Xyz(100)
+
+
+
+class XyzReprTests(TestCase):
+
+    def test_xyz_repr(self):
+        xyz = Xyz("Glucose molecule")
+        self.assertEqual(str(xyz), "<Xyz (Glucose molecule)>")

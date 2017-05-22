@@ -28,3 +28,16 @@ def string_to_xyz(s):
         element, x, y, z = line.split()
         xyz._model._atoms.add(Atom(element, float(x), float(y), float(z)))
     return xyz
+
+
+def remove_atom_num(lines):
+    """Takes a list of strings representing file lines and removes the first
+    line if it is an integer.
+
+    :param list lines: The file lines.
+    rtype: ``list``"""
+
+    try:
+        int(lines[0])
+        lines.pop(0)
+    except (ValueError, IndexError) as e: pass

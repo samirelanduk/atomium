@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from atomium.converters.string2xyz import string_to_xyz
+from atomium.converters.string2xyz import string_to_xyz, remove_atom_num
 from atomium.xyz.xyz import Xyz
 
 class StringToXyzTests(TestCase):
@@ -64,3 +64,24 @@ class StringToXyzTests(TestCase):
          set(((35.884, 30.895, 49.120), (36.177, 29.853, 50.124))),
          set([(atom._x, atom._y, atom._z) for atom in atoms])
         )
+
+
+
+class AtomNumRemovalTests(TestCase):
+
+    def test_can_remove_atom_num(self):
+        lines = ["34", "line1", "line2"]
+        remove_atom_num(lines)
+        self.assertEqual(lines, ["line1", "line2"])
+
+
+    def test_can_ignore_non_atom_num(self):
+        lines = ["34.7", "line1", "line2"]
+        remove_atom_num(lines)
+        self.assertEqual(lines, ["34.7", "line1", "line2"])
+
+
+    def test_can_handle_empty_lines(self):
+        lines = []
+        remove_atom_num(lines)
+        self.assertEqual(lines, [])

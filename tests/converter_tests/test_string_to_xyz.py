@@ -1,7 +1,9 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
 from atomium.converters.string2xyz import string_to_xyz, remove_atom_num
+from atomium.converters.string2xyz import parse_atom
 from atomium.xyz.xyz import Xyz
+from atomium.structures.atoms import Atom
 
 class StringToXyzTests(TestCase):
 
@@ -85,3 +87,20 @@ class AtomNumRemovalTests(TestCase):
         lines = []
         remove_atom_num(lines)
         self.assertEqual(lines, [])
+
+
+
+class AtomParserTests(TestCase):
+
+    def test_can_parse_atom(self):
+        atom = parse_atom("C  35.884  30.895  49.120")
+        self.assertIsInstance(atom, Atom)
+        self.assertEqual(atom._element, "C")
+        self.assertEqual(atom._x, 35.884)
+        self.assertEqual(atom._y, 30.895)
+        self.assertEqual(atom._z, 49.12)
+
+
+    def test_unparseable_line_returns_none(self):
+        atom = parse_atom("A comment line")
+        self.assertIs(atom, None)

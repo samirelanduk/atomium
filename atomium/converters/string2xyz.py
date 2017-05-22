@@ -41,3 +41,15 @@ def remove_atom_num(lines):
         int(lines[0])
         lines.pop(0)
     except (ValueError, IndexError) as e: pass
+
+
+def parse_atom(line):
+    """Takes a line from an .xyz file and creates an :py:class:`Atom` from it.
+    If the line canot be parsed it returns ``None``.
+
+    :param str line: The line to parse.
+    :rtype: ``Atom`` or ``None``"""
+    try:
+        element, x, y, z = line.split()
+        return Atom(element, float(x), float(y), float(z))
+    except: pass

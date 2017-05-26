@@ -7,5 +7,15 @@ def string2lines(s):
 
     :param str s: The string to break up.
     :rtype: ``str``."""
-    
+
     return s.replace("\r\n", "\n").split("\n")
+
+
+def string_from_file(path):
+    """Opens a file from the given path and returns the contents as a string.
+
+    :param str path: The path to the file.
+    :rtype: ``str``"""
+    
+    with open(path) as f:
+        return f.read()

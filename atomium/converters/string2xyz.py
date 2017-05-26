@@ -16,24 +16,6 @@ def string_to_xyz(s):
     xyz = Xyz(comment)
     xyz._model = Model(*atoms)
     return xyz
-    '''xyz = Xyz()
-    if len(lines) > 2:
-        try:
-            int(lines[0])
-            lines = lines[1:]
-        except:
-            pass
-        try:
-            element, x, y, z = lines[0].split()
-            float(x), float(y), float(z)
-        except:
-            xyz._comment = lines[0]
-            lines = lines[1:]
-    xyz._model = Model()
-    for line in lines:
-        element, x, y, z = line.split()
-        xyz._model._atoms.add(Atom(element, float(x), float(y), float(z)))
-    return xyz'''
 
 
 def remove_atom_num(lines):

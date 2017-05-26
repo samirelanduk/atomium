@@ -40,7 +40,7 @@ class Xyz:
 
         :param Model model: If given, the model will be updated to this.
         :raises TypeError: if the model given is not a :py:class:`.Model`."""
-        
+
         if model is None:
             return self._model
         else:

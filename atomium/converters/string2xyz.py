@@ -10,7 +10,13 @@ def string_to_xyz(s):
     :param str s: The string to convert."""
 
     lines = string2lines(s)
-    xyz = Xyz()
+    remove_atom_num(lines)
+    comment = extract_comment(lines)
+    atoms = [parse_atom(line) for line in lines]
+    xyz = Xyz(comment)
+    xyz._model = Model(*atoms)
+    return xyz
+    '''xyz = Xyz()
     if len(lines) > 2:
         try:
             int(lines[0])
@@ -27,7 +33,7 @@ def string_to_xyz(s):
     for line in lines:
         element, x, y, z = line.split()
         xyz._model._atoms.add(Atom(element, float(x), float(y), float(z)))
-    return xyz
+    return xyz'''
 
 
 def remove_atom_num(lines):
@@ -49,7 +55,21 @@ def parse_atom(line):
 
     :param str line: The line to parse.
     :rtype: ``Atom`` or ``None``"""
+
     try:
         element, x, y, z = line.split()
         return Atom(element, float(x), float(y), float(z))
     except: pass
+
+
+def extract_comment(lines):
+    """Checks the first line in a list of lines, and if it isn't an atom line,
+    removes and returns it. If it is an atom line, an empty string is returned.
+
+    :param list lines: The file lines.
+    :rtype: ``str``"""
+
+    if not lines or parse_atom(lines[0]):
+        return ""
+    else:
+        return lines.pop(0)

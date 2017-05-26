@@ -47,3 +47,11 @@ class Xyz:
             if not isinstance(model, Model):
                 raise TypeError("model must be Model, not '{}'".format(model))
             self._model = model
+
+
+
+def xyz_from_file(path):
+    from ..converters.strings import string_from_file
+    from ..converters.string2xyz import string_to_xyz
+    s = string_from_file(path)
+    return string_to_xyz(s)

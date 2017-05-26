@@ -13,6 +13,7 @@ def string_to_xyz(s):
     remove_atom_num(lines)
     comment = extract_comment(lines)
     atoms = [parse_atom(line) for line in lines]
+    atoms = filter(None, atoms)
     xyz = Xyz(comment)
     xyz._model = Model(*atoms)
     return xyz

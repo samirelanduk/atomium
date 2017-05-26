@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from atomium.xyz.xyz import Xyz
+from atomium.xyz.xyz import Xyz, xyz_from_file
 from atomium.structures.models import Model
 
 class XyzCreationTests(TestCase):
@@ -70,3 +70,17 @@ class XyzModelTests(TestCase):
         xyz = Xyz("Glucose molecule")
         with self.assertRaises(TypeError):
             xyz.model(100)
+
+
+
+class XyzFromFileTests(TestCase):
+
+    @patch("atomium.converters.strings.string_from_file")
+    @patch("atomium.converters.string2xyz.string_to_xyz")
+    def test_can_get_xyz_from_file(self, mock_xyz, mock_string):
+        mock_string.return_value = "filestring"
+        mock_xyz.return_value = "xyz"
+        xyz = xyz_from_file("path")
+        mock_string.assert_called_with("path")
+        mock_xyz.assert_called_with("filestring")
+        self.assertEqual(xyz, "xyz")

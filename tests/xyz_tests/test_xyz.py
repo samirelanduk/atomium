@@ -84,3 +84,16 @@ class XyzFromFileTests(TestCase):
         mock_string.assert_called_with("path")
         mock_xyz.assert_called_with("filestring")
         self.assertEqual(xyz, "xyz")
+
+
+
+class XyzToStringTests(TestCase):
+
+    @patch("atomium.converters.model2xyzstring.model_to_xyz_string")
+    def test_can_get_string_from_xyz(self, mock_string):
+        xyz = Xyz("Glucose molecule")
+        xyz._model = Model()
+        mock_string.return_value = "filecontents"
+        s = xyz.to_file_string()
+        mock_string.assert_called_with(xyz._model, xyz._comment)
+        self.assertEqual(s, "filecontents")

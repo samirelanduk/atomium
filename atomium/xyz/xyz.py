@@ -49,6 +49,15 @@ class Xyz:
             self._model = model
 
 
+    def to_file_string(self):
+        """Returns the file text that represents this Xyx.
+
+        :rtype ``str``"""
+        
+        from ..converters.model2xyzstring import model_to_xyz_string
+        return model_to_xyz_string(self._model, self._comment)
+
+
 
 def xyz_from_file(path):
     from ..converters.strings import string_from_file

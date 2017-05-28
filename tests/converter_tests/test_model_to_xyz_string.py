@@ -30,3 +30,18 @@ class ModelToXyzTest(TestCase):
     def test_model_needed(self):
         with self.assertRaises(TypeError):
             model_to_xyz_string("model")
+
+
+    def test_can_take_comment(self):
+        self.assertEqual(model_to_xyz_string(self.model, comment="comment"), (
+         "3\n"
+         "comment\n"
+         "A      0.100      0.010      0.001\n"
+         "B      5.200     -4.980   -999.998\n"
+         "C     10.300     -9.970  -1999.997"
+        ))
+
+
+    def test_comment_must_be_str(self):
+        with self.assertRaises(TypeError):
+            model_to_xyz_string(self.model, comment=100)

@@ -16,6 +16,17 @@ def string_from_file(path):
 
     :param str path: The path to the file.
     :rtype: ``str``"""
-    
+
     with open(path) as f:
         return f.read()
+
+
+
+def string_to_file(string, path):
+    """Saves a string to a given path as a file.
+
+    :param str string: The string to save.
+    :param str path: The file to save it in."""
+    
+    with open(path, "w") as f:
+        f.write(string)

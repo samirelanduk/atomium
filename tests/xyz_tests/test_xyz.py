@@ -97,3 +97,16 @@ class XyzToStringTests(TestCase):
         s = xyz.to_file_string()
         mock_string.assert_called_with(xyz._model, xyz._comment)
         self.assertEqual(s, "filecontents")
+
+
+
+class XyzToFileTests(TestCase):
+
+    @patch("atomium.converters.strings.string_to_file")
+    @patch("atomium.converters.model2xyzstring.model_to_xyz_string")
+    def test_can_save_xyz_to_file(self, mock_string, mock_save):
+        xyz = Xyz("Glucose molecule")
+        xyz._model = Model()
+        mock_string.return_value = "filestring"
+        xyz.save("glucose.xyz")
+        mock_save.assert_called_with("filestring", "glucose.xyz")

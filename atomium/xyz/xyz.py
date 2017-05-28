@@ -53,9 +53,18 @@ class Xyz:
         """Returns the file text that represents this Xyx.
 
         :rtype ``str``"""
-        
+
         from ..converters.model2xyzstring import model_to_xyz_string
         return model_to_xyz_string(self._model, self._comment)
+
+
+    def save(self, path):
+        """Saves the Xyz as a .xyz file.
+
+        :param str path: The path to save to."""
+        
+        from ..converters.strings import string_to_file
+        string_to_file(self.to_file_string(), path)
 
 
 

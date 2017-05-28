@@ -25,3 +25,8 @@ class ModelToXyzTest(TestCase):
          "B      5.200     -4.980   -999.998\n"
          "C     10.300     -9.970  -1999.997"
         ))
+
+
+    def test_model_needed(self):
+        with self.assertRaises(TypeError):
+            model_to_xyz_string("model")

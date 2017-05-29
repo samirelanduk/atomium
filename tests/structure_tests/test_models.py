@@ -29,3 +29,30 @@ class ModelReprTests(ModelTest):
     def test_model_repr(self):
         structure = Model(self.atom1, self.atom2, self.atom3)
         self.assertEqual(str(structure), "<Model (3 atoms)>")
+
+
+
+class ModelToStringTests(ModelTest):
+
+    @patch("atomium.converters.model2xyzstring.model_to_xyz_string")
+    def test_can_save_as_xyz_string(self, mock_convert):
+        mock_convert.return_value = "filestring"
+        model = Model(*self.atoms)
+        s = model.to_file_string("xyz")
+        self.assertEqual(s, "filestring")
+        mock_convert.assert_called_with(model, "")
+
+
+    @patch("atomium.converters.model2xyzstring.model_to_xyz_string")
+    def test_can_save_as_xyz_string_with_comment(self, mock_convert):
+        mock_convert.return_value = "filestring"
+        model = Model(*self.atoms)
+        s = model.to_file_string("xyz", description="A description")
+        self.assertEqual(s, "filestring")
+        mock_convert.assert_called_with(model, "A description")
+
+
+    def test_invalid_file_format_is_error(self):
+        model = Model(*self.atoms)
+        with self.assertRaises(ValueError):
+            model.to_file_string("nosuchfile")

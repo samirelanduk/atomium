@@ -56,3 +56,26 @@ class ModelToStringTests(ModelTest):
         model = Model(*self.atoms)
         with self.assertRaises(ValueError):
             model.to_file_string("nosuchfile")
+
+
+
+class ModelSavingTests(ModelTest):
+
+    @patch("atomium.structures.models.Model.to_file_string")
+    @patch("atomium.converters.strings.string_to_file")
+    def test_saving_uses_correct_functions(self, mock_save, mock_string):
+        mock_string.return_value = "filestring"
+        model = Model(*self.atoms)
+        model.save("file.xyz", "a description")
+        mock_string.assert_called_with("xyz", "a description")
+        mock_save.assert_called_with("filestring", "file.xyz")
+
+
+    @patch("atomium.structures.models.Model.to_file_string")
+    @patch("atomium.converters.strings.string_to_file")
+    def test_file_format_extracted(self, mock_save, mock_string):
+        mock_string.return_value = "filestring"
+        model = Model(*self.atoms)
+        model.save("path/to/file.dfghdfg", "a description")
+        mock_string.assert_called_with("dfghdfg", "a description")
+        mock_save.assert_called_with("filestring", "path/to/file.dfghdfg")

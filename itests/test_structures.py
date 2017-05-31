@@ -1,7 +1,8 @@
-from unittest import TestCase
+from base import IntegratedTest
 from atomium.structures import Model, Atom
+import atomium
 
-class StructureTests(TestCase):
+class StructureTests(IntegratedTest):
 
     def test_can_manipualte_model(self):
         # Create a model
@@ -44,6 +45,15 @@ class StructureTests(TestCase):
         self.assertEqual((atom1.x(), atom1.y(), atom1.z()), (0, 0, 0))
 
         # Atoms can be removed
-        model.remove_atom(atom2)
-        self.assertIn(atom1, model)
-        self.assertNotIn(atom2, model)
+        model.remove_atom(atom1)
+        self.assertIn(atom2, model)
+        self.assertNotIn(atom1, model)
+
+        # Model can be saved and reloaded
+        model.save("itests/files/model.xyz", description="Some atoms")
+        new = atomium.xyz_from_file("itests/files/model.xyz")
+        self.assertEqual(new.comment(), "Some atoms")
+        self.assertEqual(len(new.model().atoms()), 1)
+        self.assertEqual(new.model().atom().x(), 0.5)
+        self.assertEqual(new.model().atom().y(), 1.5)
+        self.assertEqual(new.model().atom().z(), -0.5)

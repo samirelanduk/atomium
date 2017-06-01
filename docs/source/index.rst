@@ -19,3 +19,7 @@ Example
 
 Table of Contents
 -----------------
+
+.. toctree ::
+
+    changelog

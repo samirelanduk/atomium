@@ -22,4 +22,5 @@ Table of Contents
 
 .. toctree ::
 
+    installing
     changelog

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
  name="atomium",
- version="0.1.0",
+ version="0.1.1",
  description="A molecular modeller.",
  url="https://atomium.samireland.com",
  author="Sam Ireland",
@@ -23,6 +23,6 @@ setup(
   "Programming Language :: Python :: 3.6",
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules PDB XYZ",
- packages=["atomium"],
+ packages=["atomium", "atomium.xyz", "atomium.converters", "atomium.structures"],
  install_requires=["geometrica"]
 )

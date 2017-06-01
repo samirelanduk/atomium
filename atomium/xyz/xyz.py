@@ -52,7 +52,7 @@ class Xyz:
     def to_file_string(self):
         """Returns the file text that represents this Xyx.
 
-        :rtype ``str``"""
+        :rtype: ``str``"""
 
         from ..converters.model2xyzstring import model_to_xyz_string
         return model_to_xyz_string(self._model, self._comment)
@@ -62,13 +62,18 @@ class Xyz:
         """Saves the Xyz as a .xyz file.
 
         :param str path: The path to save to."""
-        
+
         from ..converters.strings import string_to_file
         string_to_file(self.to_file_string(), path)
 
 
 
 def xyz_from_file(path):
+    """Opens a .xyz file at the specified path and creates a :py:class:`.Xyz`
+    from it.
+
+    :param str path: The path to open."""
+
     from ..converters.strings import string_from_file
     from ..converters.string2xyz import string_to_xyz
     s = string_from_file(path)

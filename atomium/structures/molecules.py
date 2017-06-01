@@ -136,7 +136,7 @@ class AtomicStructure:
 
     def radius_of_gyration(self):
         """The radius of gyration of a structure is a measure of how extended it
-        is. It is the root mean square deviation of the atoms from the
+        is. It is the root mean square deviation of the atoms' distance from the
         structure's :py:meth:`.center_of_mass`.
 
         :rtype: ``float``"""

@@ -24,7 +24,7 @@ def remove_atom_num(lines):
     line if it is an integer.
 
     :param list lines: The file lines.
-    rtype: ``list``"""
+    :rtype: ``list``"""
 
     try:
         int(lines[0])
@@ -33,7 +33,7 @@ def remove_atom_num(lines):
 
 
 def parse_atom(line):
-    """Takes a line from an .xyz file and creates an :py:class:`Atom` from it.
+    """Takes a line from an .xyz file and creates an :py:class:`.Atom` from it.
     If the line canot be parsed it returns ``None``.
 
     :param str line: The line to parse.

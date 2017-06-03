@@ -9,6 +9,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._x, 2)
         self.assertEqual(atom._y, 3)
         self.assertEqual(atom._z, 5)
+        self.assertEqual(atom._id, None)
 
 
     def test_atom_element_must_be_str(self):
@@ -43,12 +44,47 @@ class AtomCreationTests(TestCase):
         Atom("C", 2, 3, 5.5)
 
 
+    def test_can_create_atom_with_id(self):
+        atom = Atom("C", 2, 3, 5, atom_id=20)
+        self.assertEqual(atom._id, 20)
+
+
+    def test_atom_id_must_be_integer(self):
+        with self.assertRaises(TypeError):
+            Atom("C", 2, 3, 5, atom_id=20.5)
+
+
+    def test_atom_id_must_be_unique(self):
+        atom = Atom("C", 2, 3, 5, atom_id=21)
+        with self.assertRaises(ValueError):
+            Atom("D", 5, 1, 6.5, atom_id=21)
+
+
 
 class AtomReprTests(TestCase):
 
     def test_atom_repr(self):
         atom = Atom("C", 2, 3, 5)
         self.assertEqual(str(atom), "<C Atom at (2, 3, 5)>")
+
+
+
+class AtomIdChangesTests(TestCase):
+
+    def test_changing_id_updates_known_ids(self):
+        atom = Atom("C", 2, 3, 5, atom_id=30)
+        self.assertIn(30, Atom.known_ids)
+        atom._id = 31
+        self.assertIn(31, Atom.known_ids)
+        self.assertNotIn(30, Atom.known_ids)
+
+
+    def test_deleting_an_atom_frees_up_its_id(self):
+        atom = Atom("C", 2, 3, 5, atom_id=40)
+        self.assertIn(40, Atom.known_ids)
+        atom = Atom("C", 2, 3, 5, atom_id=41)
+        self.assertNotIn(40, Atom.known_ids)
+        self.assertIn(41, Atom.known_ids)
 
 
 

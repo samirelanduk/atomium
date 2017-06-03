@@ -147,3 +147,34 @@ class AtomicStructure:
         )
         mean_square_deviation = square_deviation / len(self._atoms)
         return sqrt(mean_square_deviation)
+
+
+    def to_file_string(self, file_format, description=""):
+        """Converts a structure to a filestring. Currently supported file formats
+        are: .xyz.
+
+        :param str file_format: The file format to use, in lowercase.
+        :param str description: A structure description to put in the file.
+        :raises ValueError: if an unsopported file format is given."""
+
+        if file_format == "xyz":
+            from ..converters.structure2xyzstring import structure_to_xyz_string
+            return structure_to_xyz_string(self, description)
+        else:
+            raise ValueError("{} is not a valid file type".format(file_format))
+
+
+    def save(self, path, *args, **kwargs):
+        """Saves the structure to file, in the format implied by the extension
+        of the path you provide (i.e. giving a path ``/path/to/file.xyz`` will
+        save as .xyz).
+
+        :param str path: The path to save to. The extension you provide here is\
+        important as atomium will use that to determine what file format to\
+        save as.
+        :param str description: A structure description to put in the file."""
+
+        file_format = path.split(".")[-1].lower()
+        s = self.to_file_string(file_format, *args, **kwargs)
+        from ..converters.strings import string_to_file
+        string_to_file(s, path)

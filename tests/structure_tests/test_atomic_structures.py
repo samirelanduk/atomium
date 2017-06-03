@@ -204,3 +204,53 @@ class AtomicStructureRadiusOfGyrationTests(AtomicStructureTest):
         self.assertEqual(structure.radius_of_gyration(), 5)
         self.atom1.distance_to.assert_called_with((5, 0, 0))
         self.atom2.distance_to.assert_called_with((5, 0, 0))
+
+
+
+class AtomicStructureToStringTests(AtomicStructureTest):
+
+    @patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
+    def test_can_save_as_xyz_string(self, mock_convert):
+        mock_convert.return_value = "filestring"
+        structure = AtomicStructure(*self.atoms)
+        s = structure.to_file_string("xyz")
+        self.assertEqual(s, "filestring")
+        mock_convert.assert_called_with(structure, "")
+
+
+    @patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
+    def test_can_save_as_xyz_string_with_comment(self, mock_convert):
+        mock_convert.return_value = "filestring"
+        structure = AtomicStructure(*self.atoms)
+        s = structure.to_file_string("xyz", description="A description")
+        self.assertEqual(s, "filestring")
+        mock_convert.assert_called_with(structure, "A description")
+
+
+    def test_invalid_file_format_is_error(self):
+        structure = AtomicStructure(*self.atoms)
+        with self.assertRaises(ValueError):
+            structure.to_file_string("nosuchfile")
+
+
+
+class AtomicStructureSavingTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.to_file_string")
+    @patch("atomium.converters.strings.string_to_file")
+    def test_saving_uses_correct_functions(self, mock_save, mock_string):
+        mock_string.return_value = "filestring"
+        structure = AtomicStructure(*self.atoms)
+        structure.save("file.xyz", "a description")
+        mock_string.assert_called_with("xyz", "a description")
+        mock_save.assert_called_with("filestring", "file.xyz")
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.to_file_string")
+    @patch("atomium.converters.strings.string_to_file")
+    def test_file_format_extracted(self, mock_save, mock_string):
+        mock_string.return_value = "filestring"
+        structure = AtomicStructure(*self.atoms)
+        structure.save("path/to/file.dfghdfg", "a description")
+        mock_string.assert_called_with("dfghdfg", "a description")
+        mock_save.assert_called_with("filestring", "path/to/file.dfghdfg")

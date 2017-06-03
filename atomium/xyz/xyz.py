@@ -54,8 +54,8 @@ class Xyz:
 
         :rtype: ``str``"""
 
-        from ..converters.model2xyzstring import model_to_xyz_string
-        return model_to_xyz_string(self._model, self._comment)
+        from ..converters.structure2xyzstring import structure_to_xyz_string
+        return structure_to_xyz_string(self._model, self._comment)
 
 
     def save(self, path):

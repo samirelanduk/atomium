@@ -16,6 +16,9 @@ class AtomicStructureTest(TestCase):
         self.atom1.element.return_value = "A"
         self.atom2.element.return_value = "B"
         self.atom3.element.return_value = "B"
+        self.atom1.atom_id.return_value = 500
+        self.atom2.atom_id.return_value = 600
+        self.atom3.atom_id.return_value = 700
         self.atoms = [self.atom1, self.atom2, self.atom3]
 
 
@@ -66,6 +69,13 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
         self.assertEqual(structure.atoms(element="C"), set())
 
 
+    def test_can_get_atoms_by_id(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.atoms(atom_id=500), set([self.atoms[0]]))
+        self.assertEqual(structure.atoms(atom_id=600), set([self.atoms[1]]))
+        self.assertEqual(structure.atoms(atom_id=300), set())
+
+
 
 class AtomicStructureAtomTest(AtomicStructureTest):
 
@@ -83,6 +93,15 @@ class AtomicStructureAtomTest(AtomicStructureTest):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         mock_atoms.return_value = set()
         self.assertIs(structure.atom(element="C"), None)
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.atoms")
+    def test_atom_can_get_atom_by_id_and_element(self, mock_atoms):
+        mock_atoms.return_value = set([self.atoms[0]])
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        atom = structure.atom(atom_id=500, element="A")
+        mock_atoms.assert_called_with(atom_id=500, element="A")
+        self.assertIs(atom, self.atom1)
 
 
 

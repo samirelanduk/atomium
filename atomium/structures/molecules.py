@@ -33,24 +33,34 @@ class AtomicStructure:
         return member in self._atoms
 
 
-    def atoms(self, element=None):
+    def atoms(self, element=None, atom_id=None):
         """Returns the :py:class:`.Atom` objects in the structure. You can
         filter these by element if you wish.
 
         :param str element: If given, only atoms whose element matches this\
         will be returned.
+        :param int atom_id: If given, only atoms whose atom ID matches this\
+        will be returned (this will only return one atom).
         :rtype: ``set``"""
 
         atoms = set(self._atoms)
         if element:
             atoms = set(filter(lambda a: a.element() == element, atoms))
+        if atom_id:
+            atoms = set(filter(lambda a: a.atom_id() == atom_id, atoms))
         return atoms
 
 
     def atom(self, *args, **kwargs):
         """Returns the first :py:class:`.Atom` that matches the criteria given.
 
+        Note that atoms are stored unordered in a ``set`` so if more than one
+        atom matches the criteria you give, it might not be the same atom that
+        is returned each time you call this method.
+
         :param str element: If given, only atoms whose element matches this\
+        will be searched.
+        :param int atom_id: If given, only atoms whose atom ID matches this\
         will be searched.
         :rtype: ``Atom``"""
 

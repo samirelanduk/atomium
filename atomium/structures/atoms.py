@@ -86,7 +86,7 @@ class Atom:
 
     def x(self, x=None):
         """Returns the atom's x coordinate. If a value is given, the x
-        coordinate woll be updated, but it must be numeric.
+        coordinate will be updated, but it must be numeric.
 
         :param number x: If given, the atom's x coordinate will be set to this.
         :raises TypeError: if the x coordinate given is not numeric.
@@ -102,7 +102,7 @@ class Atom:
 
     def y(self, y=None):
         """Returns the atom's y coordinate. If a value is given, the y
-        coordinate woll be updated, but it must be numeric.
+        coordinate will be updated, but it must be numeric.
 
         :param number y: If given, the atom's y coordinate will be set to this.
         :raises TypeError: if the y coordinate given is not numeric.
@@ -118,7 +118,7 @@ class Atom:
 
     def z(self, z=None):
         """Returns the atom's z coordinate. If a value is given, the z
-        coordinate woll be updated, but it must be numeric.
+        coordinate will be updated, but it must be numeric.
 
         :param number z: If given, the atom's z coordinate will be set to this.
         :raises TypeError: if the z coordinate given is not numeric.
@@ -130,6 +130,22 @@ class Atom:
             if not is_numeric(z):
                 raise TypeError("z coordinate '{}' is not numeric".format(z))
             self._z = z
+
+
+    def atom_id(self, atom_id=None):
+        """Returns the atom's unique integer ID. If a value is given, the ID
+        will be updated, provided it is a unique integer.
+
+        :param int atom_id: If given, the ID will be set to this.
+        :param TypeError: if the ID given is not numeric.
+        :raises ValueError: if the ID given is already in use."""
+        
+        if atom_id is None:
+            return self._id
+        else:
+            if not isinstance(atom_id, int):
+                raise TypeError("Atom ID '{}' is not int".format(atom_id))
+            self._id = atom_id
 
 
     def mass(self):

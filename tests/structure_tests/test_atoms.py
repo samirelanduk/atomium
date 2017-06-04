@@ -180,6 +180,26 @@ class AtomZTests(TestCase):
 
 
 
+class AtomIdTests(TestCase):
+
+    def test_id_property(self):
+        atom = Atom("C", 2, 3, 5, atom_id=100)
+        self.assertIs(atom._id, atom.atom_id())
+
+
+    def test_can_update_id(self):
+        atom = Atom("C", 2, 3, 5, atom_id=101)
+        atom.atom_id(102)
+        self.assertEqual(atom._id, 102)
+
+
+    def test_atom_z_must_be_numeric(self):
+        atom = Atom("C", 2, 3, 5, atom_id=105)
+        with self.assertRaises(TypeError):
+            atom.atom_id("4")
+
+
+
 class AtomMassTests(TestCase):
 
     def test_known_element_mass(self):

@@ -206,6 +206,11 @@ class Bond:
         self._atoms = set((atom1, atom2))
 
 
+    def __repr__(self):
+        atom1, atom2 = self._atoms
+        return "<{}-{} Bond>".format(atom1.element(), atom2.element())
+
+
 
 
 PERIODIC_TABLE = {

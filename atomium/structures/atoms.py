@@ -1,7 +1,7 @@
 from math import sqrt
 from matrices.checks import is_numeric
 
-"""Contains the Atom class and its associated classes."""
+"""Contains the classes for atoms and their bonds."""
 
 class Atom:
     """Represents an atom in three dimensional space. Every atom has an element
@@ -139,7 +139,7 @@ class Atom:
         :param int atom_id: If given, the ID will be set to this.
         :param TypeError: if the ID given is not numeric.
         :raises ValueError: if the ID given is already in use."""
-        
+
         if atom_id is None:
             return self._id
         else:
@@ -183,6 +183,28 @@ class Atom:
         y_sum = pow((y - self._y), 2)
         z_sum = pow((z - self._z), 2)
         return sqrt(x_sum + y_sum + z_sum)
+
+
+
+class Bond:
+    """Represents a chemical bond between an :py:class:`.Atom` and another. It
+    doesn't matter what order the atoms are given, as they are just stored
+    unordered in a set anyway.
+
+    :param Atom atom1: The first atom.
+    :param Atom atom2: The second atom.
+    :raises TypeError: if non :py:class:`.Atom` objects are given.
+    :raises ValueError: if the two atoms are the same atom."""
+
+    def __init__(self, atom1, atom2):
+        if not isinstance(atom1, Atom):
+            raise TypeError("bond atom {} is not an atom".format(atom1))
+        if not isinstance(atom2, Atom):
+            raise TypeError("bond atom {} is not an atom".format(atom2))
+        if atom1 is atom2:
+            raise ValueError("Cannot bond atom {} to itself".format(atom1))
+        self._atoms = set((atom1, atom2))
+
 
 
 

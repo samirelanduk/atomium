@@ -47,3 +47,13 @@ class BondAtomsTests(BondTest):
         bond = Bond(self.atom1, self.atom2)
         self.assertEqual(bond.atoms(), bond._atoms)
         self.assertIsNot(bond.atoms(), bond._atoms)
+
+
+
+class BondLengthTests(BondTest):
+
+    def test_bond_length(self):
+        self.atom1.distance_to.return_value = 10
+        self.atom2.distance_to.return_value = 10
+        bond = Bond(self.atom1, self.atom2)
+        self.assertEqual(bond.length(), 10)

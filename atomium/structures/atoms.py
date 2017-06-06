@@ -216,8 +216,18 @@ class Bond:
         They are given as an unordered set.
 
         :rtype: ``set``"""
-        
+
         return set(self._atoms)
+
+
+    def length(self):
+        """Returns the length of the bond, defined as the distance between its
+        two atoms.
+
+        :rtype: ``float``"""
+        
+        atom1, atom2 = self._atoms
+        return atom1.distance_to(atom2)
 
 
 

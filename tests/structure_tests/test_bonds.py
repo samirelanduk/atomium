@@ -38,3 +38,12 @@ class BondReprTests(BondTest):
     def test_bond_repr(self):
         bond = Bond(self.atom1, self.atom2)
         self.assertIn(str(bond), ("<C-N Bond>", "<N-C Bond>"))
+
+
+
+class BondAtomsTests(BondTest):
+
+    def test_bond_atoms(self):
+        bond = Bond(self.atom1, self.atom2)
+        self.assertEqual(bond.atoms(), bond._atoms)
+        self.assertIsNot(bond.atoms(), bond._atoms)

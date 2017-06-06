@@ -211,6 +211,15 @@ class Bond:
         return "<{}-{} Bond>".format(atom1.element(), atom2.element())
 
 
+    def atoms(self):
+        """Returns the two :py:class:`.Atom` objects that the bond connects.
+        They are given as an unordered set.
+
+        :rtype: ``set``"""
+        
+        return set(self._atoms)
+
+
 
 
 PERIODIC_TABLE = {

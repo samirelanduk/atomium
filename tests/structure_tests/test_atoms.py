@@ -10,6 +10,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._y, 3)
         self.assertEqual(atom._z, 5)
         self.assertEqual(atom._id, None)
+        self.assertEqual(atom._bonds, set())
 
 
     def test_atom_element_must_be_str(self):
@@ -197,6 +198,16 @@ class AtomIdTests(TestCase):
         atom = Atom("C", 2, 3, 5, atom_id=105)
         with self.assertRaises(TypeError):
             atom.atom_id("4")
+
+
+
+class AtomBondsTests(TestCase):
+
+    def test_bonds_property(self):
+        atom = Atom("C", 2, 3, 5)
+        atom._bonds = set(("bond1", "bond2"))
+        self.assertEqual(atom.bonds(), atom._bonds)
+        self.assertIsNot(atom.bonds(), atom._bonds)
 
 
 

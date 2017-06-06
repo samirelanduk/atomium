@@ -44,6 +44,7 @@ class Atom:
         self._z = z
         self._id = atom_id
         if atom_id is not None: Atom.known_ids.add(atom_id)
+        self._bonds = set()
 
 
     def __repr__(self):
@@ -148,6 +149,15 @@ class Atom:
             self._id = atom_id
 
 
+
+    def bonds(self):
+        """Returns the :py:class:`.Bond` objects that the atom is connected to.
+
+        :rtype: ``set``"""
+        
+        return set(self._bonds)
+
+
     def mass(self):
         """Returns the atom's mass according to the Periodic Table, based on the
         atom's :py:meth:`element`. If the element doesn't match any symbol on
@@ -225,7 +235,7 @@ class Bond:
         two atoms.
 
         :rtype: ``float``"""
-        
+
         atom1, atom2 = self._atoms
         return atom1.distance_to(atom2)
 

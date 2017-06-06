@@ -154,7 +154,7 @@ class Atom:
         """Returns the :py:class:`.Bond` objects that the atom is connected to.
 
         :rtype: ``set``"""
-        
+
         return set(self._bonds)
 
 
@@ -214,6 +214,7 @@ class Bond:
         if atom1 is atom2:
             raise ValueError("Cannot bond atom {} to itself".format(atom1))
         self._atoms = set((atom1, atom2))
+        atom1._bonds.add(self), atom2._bonds.add(self)
 
 
     def __repr__(self):

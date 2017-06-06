@@ -10,6 +10,7 @@ class BondTest(TestCase):
         self.atom2 = Mock(Atom)
         self.atom1.element.return_value = "C"
         self.atom2.element.return_value = "N"
+        self.atom1._bonds, self.atom2._bonds = set(), set()
         self.atoms = set([self.atom1, self.atom2])
 
 
@@ -30,6 +31,12 @@ class BondCreationTests(BondTest):
     def test_bond_atoms_must_be_different(self):
         with self.assertRaises(ValueError):
             Bond(self.atom1, self.atom1)
+
+
+    def test_creating_bonds_updates_atoms(self):
+        bond = Bond(self.atom1, self.atom2)
+        self.assertEqual(self.atom1._bonds, set([bond]))
+        self.assertEqual(self.atom2._bonds, set([bond]))
 
 
 

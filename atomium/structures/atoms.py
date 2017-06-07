@@ -149,7 +149,6 @@ class Atom:
             self._id = atom_id
 
 
-
     def bonds(self):
         """Returns the :py:class:`.Bond` objects that the atom is connected to.
 
@@ -239,6 +238,19 @@ class Bond:
 
         atom1, atom2 = self._atoms
         return atom1.distance_to(atom2)
+
+
+    def destroy(self):
+        """Destroys the bond and removes it from its atoms' ``set`` of bonds.
+
+        Usually those are the only pointers to the bond and so calling this
+        method will cause the bond to be removed by garbage collection. If you
+        do have other variables pointing to the bond though, the object will
+        remain in memory."""
+
+        atom1, atom2 = self._atoms
+        atom1._bonds.remove(self)
+        atom2._bonds.remove(self)
 
 
 

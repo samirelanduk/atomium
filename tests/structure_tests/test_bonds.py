@@ -64,3 +64,16 @@ class BondLengthTests(BondTest):
         self.atom2.distance_to.return_value = 10
         bond = Bond(self.atom1, self.atom2)
         self.assertEqual(bond.length(), 10)
+
+
+
+class BondDestructionTests(BondTest):
+
+    def test_destroying_bond_removes_from_atoms(self):
+        self.atom1._bonds.add("some bond")
+        bond = Bond(self.atom1, self.atom2)
+        self.assertEqual(self.atom1._bonds, set([bond, "some bond"]))
+        self.assertEqual(self.atom2._bonds, set([bond]))
+        bond.destroy()
+        self.assertEqual(self.atom1._bonds, set(["some bond"]))
+        self.assertEqual(self.atom2._bonds, set())

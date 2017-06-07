@@ -161,11 +161,18 @@ class Atom:
         """Returns all the atoms that are bonded to this atom.
 
         :rtype: ``set``"""
-        
+
         atoms = set()
         [atoms.update(bond.atoms()) for bond in self.bonds()]
         atoms.remove(self)
         return atoms
+
+
+    def bond(self, other):
+        """Bonds the atom to some other atom by creating a :py:class:`.Bond`
+        between them."""
+
+        Bond(self, other)
 
 
     def mass(self):

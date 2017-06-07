@@ -227,6 +227,18 @@ class BondedAtomTests(TestCase):
 
 
 
+class AtomBondingTests(TestCase):
+
+    @patch("atomium.structures.atoms.Bond.__init__")
+    def test_can_bond_other_atom(self, mock_bond):
+        atom1 = Atom("C", 2, 3, 5)
+        atom2 = Mock(Atom)
+        mock_bond.return_value = None
+        atom1.bond(atom2)
+        mock_bond.assert_called_with(atom1, atom2)
+
+
+
 class AtomMassTests(TestCase):
 
     def test_known_element_mass(self):

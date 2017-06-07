@@ -239,6 +239,40 @@ class AtomBondingTests(TestCase):
 
 
 
+class AtomBondBreakingTests(TestCase):
+
+    @patch("atomium.structures.atoms.Atom.bonds")
+    def test_can_break_bond_between_atoms(self, mock_bonds):
+        atom1 = Atom("C", 2, 3, 5)
+        atom2 = Mock(Atom)
+        bond = Mock(Bond)
+        bond.atoms.return_value = set([atom1, atom2])
+        mock_bonds.return_value = set([bond])
+        atom2.bonds.return_value = set([bond])
+        atom1.unbond(atom2)
+        bond.destroy.assert_called()
+
+
+    def test_bond_breaking_needs_atoms(self):
+        atom1 = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom1.unbond("atom2")
+
+
+    @patch("atomium.structures.atoms.Atom.bonds")
+    def test_bond_unbreaking_needs_actual_bond(self, mock_bonds):
+        atom1 = Atom("C", 2, 3, 5)
+        atom2 = Mock(Atom)
+        bond = Mock(Bond)
+        bond.atoms.return_value = set([atom1, Mock(Atom)])
+        mock_bonds.return_value = set([bond])
+        atom2.bonds.return_value = set([bond])
+        with self.assertRaises(ValueError):
+            atom1.unbond(atom2)
+
+
+
+
 class AtomMassTests(TestCase):
 
     def test_known_element_mass(self):

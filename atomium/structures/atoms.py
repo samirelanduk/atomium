@@ -175,6 +175,22 @@ class Atom:
         Bond(self, other)
 
 
+    def unbond(self, other):
+        """Breaks the bond between this atom and another.
+
+        :param Atom other: The atom to unbond from.
+        :raises TypeError: if something other than an :py:class:`Atom` is given.
+        :raises ValueError: if the atom given isn't bonded to begin with."""
+        
+        if not isinstance(other, Atom):
+            raise TypeError("Cannot unbond non-atom {}".format(other))
+        for bond in self.bonds():
+            if other in bond.atoms():
+                bond.destroy()
+                return
+        raise ValueError("{} cannot unbond non-bonded {}".format(self, other))
+
+
     def mass(self):
         """Returns the atom's mass according to the Periodic Table, based on the
         atom's :py:meth:`element`. If the element doesn't match any symbol on

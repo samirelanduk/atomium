@@ -157,6 +157,17 @@ class Atom:
         return set(self._bonds)
 
 
+    def bonded_atoms(self):
+        """Returns all the atoms that are bonded to this atom.
+
+        :rtype: ``set``"""
+        
+        atoms = set()
+        [atoms.update(bond.atoms()) for bond in self.bonds()]
+        atoms.remove(self)
+        return atoms
+
+
     def mass(self):
         """Returns the atom's mass according to the Periodic Table, based on the
         atom's :py:meth:`element`. If the element doesn't match any symbol on

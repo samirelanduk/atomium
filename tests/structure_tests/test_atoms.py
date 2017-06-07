@@ -1,5 +1,6 @@
 from unittest import TestCase
-from atomium.structures.atoms import Atom
+from unittest.mock import patch, Mock
+from atomium.structures.atoms import Atom, Bond
 
 class AtomCreationTests(TestCase):
 
@@ -208,6 +209,21 @@ class AtomBondsTests(TestCase):
         atom._bonds = set(("bond1", "bond2"))
         self.assertEqual(atom.bonds(), atom._bonds)
         self.assertIsNot(atom.bonds(), atom._bonds)
+
+
+
+class BondedAtomTests(TestCase):
+
+    @patch("atomium.structures.atoms.Atom.bonds")
+    def test_can_get_bonded_atoms(self, mock_bonds):
+        atom = Atom("C", 2, 3, 5)
+        bond1, bond2, bond3 = Mock(Bond), Mock(Bond), Mock(Bond)
+        atom2, atom3, atom4 = Mock(Atom), Mock(Atom), Mock(Atom)
+        bond1.atoms.return_value = set([atom, atom2])
+        bond2.atoms.return_value = set([atom, atom3])
+        bond3.atoms.return_value = set([atom, atom4])
+        mock_bonds.return_value = set([bond1, bond2, bond3])
+        self.assertEqual(atom.bonded_atoms(), set([atom2, atom3, atom4]))
 
 
 

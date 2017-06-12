@@ -2,7 +2,6 @@ from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.structures.atoms import Bond, Atom
 
-
 class BondTest(TestCase):
 
     def setUp(self):
@@ -12,6 +11,7 @@ class BondTest(TestCase):
         self.atom2.element.return_value = "N"
         self.atom1._bonds, self.atom2._bonds = set(), set()
         self.atoms = set([self.atom1, self.atom2])
+
 
 
 class BondCreationTests(BondTest):

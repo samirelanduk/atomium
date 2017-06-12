@@ -164,7 +164,7 @@ class Atom:
 
         atoms = set()
         [atoms.update(bond.atoms()) for bond in self.bonds()]
-        atoms.remove(self)
+        if atoms: atoms.remove(self)
         return atoms
 
 
@@ -181,7 +181,7 @@ class Atom:
         :param Atom other: The atom to unbond from.
         :raises TypeError: if something other than an :py:class:`Atom` is given.
         :raises ValueError: if the atom given isn't bonded to begin with."""
-        
+
         if not isinstance(other, Atom):
             raise TypeError("Cannot unbond non-atom {}".format(other))
         for bond in self.bonds():

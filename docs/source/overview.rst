@@ -77,6 +77,20 @@ distance to that:
   >>> atom.distance_to(model.center_of_mass())
   1.3371237139950765
 
+Atoms can be bonded to one another using the :py:meth:`~.Atom.bond` method:
+
+  >>> other_atom = model.atom(element="O")
+  >>> atom.bond(other_atom)
+  >>> atom.bonds()
+  {"<C-O Bond>"}
+  >>> atom.bonded_atoms()
+  {<O Atom at (37.441, 29.265, 52.113)>}
+  >>> atom.unbond(other_atom)
+  >>> atom.bonds()
+  {}
+  >>> atom.bonded_atoms()
+  {}
+
 
 Saving
 ~~~~~~

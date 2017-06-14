@@ -138,7 +138,7 @@ class Atom:
         will be updated, provided it is a unique integer.
 
         :param int atom_id: If given, the ID will be set to this.
-        :param TypeError: if the ID given is not numeric.
+        :raises TypeError: if the ID given is not numeric.
         :raises ValueError: if the ID given is already in use."""
 
         if atom_id is None:

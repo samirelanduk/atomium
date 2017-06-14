@@ -133,6 +133,20 @@ distance to that:
   >>> atom.distance_to(model.center_of_mass())
   1.3371237139950765
 
+Atoms can be bonded to one another using the ``Atom.bond`` method:
+
+  >>> other_atom = model.atom(element="O")
+  >>> atom.bond(other_atom)
+  >>> atom.bonds()
+  {"<C-O Bond>"}
+  >>> atom.bonded_atoms()
+  {<O Atom at (37.441, 29.265, 52.113)>}
+  >>> atom.unbond(other_atom)
+  >>> atom.bonds()
+  {}
+  >>> atom.bonded_atoms()
+  {}
+
 
 Saving
 ~~~~~~
@@ -149,6 +163,16 @@ The ``Xyz`` object itself can also be saved:
 
 Changelog
 ---------
+
+Release 0.2.0
+~~~~~~~~~~~~~
+
+`14 June 2017`
+
+* Made all Atomic Structures savable.
+* Added Atom IDs and uniqueness constraints.
+* Added Atom Bonds.
+
 
 Release 0.1.1
 ~~~~~~~~~~~~~

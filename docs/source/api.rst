@@ -23,4 +23,4 @@ Converters
 .. toctree ::
     api/strings
     api/string2xyz
-    api/model2xyzstring
+    api/structure2xyzstring

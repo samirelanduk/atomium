@@ -212,10 +212,11 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
         scale_height = legend_dimension * 0.1
         scale_left = legend_left + (0.1 * legend_dimension)
         scale_right = legend_left + (0.9 * legend_dimension)
-        scale_top = legend_top + (0.2 * legend_dimension)
-        scale_bottom = legend_top + (0.3 * legend_dimension)
-        scale_label_y = legend_top + (0.15 * legend_dimension)
-        number_label_y = legend_top + (0.38 * legend_dimension)
+        scale_top = legend_top + (0.1 * legend_dimension)
+        scale_bottom = legend_top + (0.2 * legend_dimension)
+        scale_label_y = legend_top + (0.05 * legend_dimension)
+        number_label_y = legend_top + (0.28 * legend_dimension)
+        white_top = legend_top + (0.36 * legend_dimension)
         helix_top = legend_top + (0.5 * legend_dimension)
         helix_bottom = legend_top + (0.6 * legend_dimension)
         helix_width = legend_dimension * 0.4
@@ -254,6 +255,12 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
         matrix.add_text(
          scale_right, number_label_y, "%i+" % cutoff,
          font_size=int(scale_width / 10)
+        )
+        matrix.add_text(
+         scale_right - (scale_width * 0.5), white_top,
+         "White areas: PDB missing residues",
+         font_size=int(scale_width / 15),
+         horizontal_align="center"
         )
         matrix.add_rectangle(
          helix_left, ((helix_bottom + helix_top) / 2) - ((bar_width / 2) + 0),

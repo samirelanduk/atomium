@@ -223,6 +223,8 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
         helix_right = helix_left + helix_width
         strand_top = legend_top + (0.7 * legend_dimension)
         strand_bottom = legend_top + (0.8 * legend_dimension)
+        bindseq_top = legend_top + (0.9 * legend_dimension)
+        bindseq_bottom = legend_top + (1.0 * legend_dimension)
         x_pixels = range(math.floor(scale_left), math.ceil(scale_right))
 
         matrix.add_text(
@@ -291,9 +293,23 @@ def generate_residue_distance_matrix(self, dimension=700, close_color=120,
         matrix.add_text(
          helix_right + (legend_dimension * 0.1),
          ((strand_bottom + strand_top) / 2),
-         "&#946;-helix",
+         "&#946;-strand",
          font_size=int(scale_width / 10),
          horizontal_align="right"
         )
+        if subsequence:
+            matrix.add_line(
+             helix_left, ((bindseq_bottom + bindseq_top) / 2) - ((bar_width / 2) + 0),
+             helix_right, ((bindseq_bottom + bindseq_top) / 2) - ((bar_width / 2) + 0),
+             line_width=1.5,
+             line_style=".."
+            )
+            matrix.add_text(
+             helix_right + (legend_dimension * 0.1),
+             ((bindseq_bottom + bindseq_top) / 2),
+             "Bind Sequence",
+             font_size=int(scale_width / 10),
+             horizontal_align="right"
+            )
 
         return matrix

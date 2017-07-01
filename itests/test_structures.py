@@ -140,6 +140,7 @@ class StructureTests(IntegratedTest):
 
         # Check model
         self.assertEqual(len(model.atoms()), 18)
+        self.assertEqual(model.atom(element="C", name="CA").name(), "CA")
         self.assertEqual(model.residues(), set(
          [residue1a, residue1b, residue1c, residue2a, residue2b, residue2c]
         ))

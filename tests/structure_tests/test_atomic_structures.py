@@ -19,6 +19,9 @@ class AtomicStructureTest(TestCase):
         self.atom1.atom_id.return_value = 500
         self.atom2.atom_id.return_value = 600
         self.atom3.atom_id.return_value = 700
+        self.atom1.name.return_value = "CA"
+        self.atom2.name.return_value = "CA"
+        self.atom3.name.return_value = "NY"
         self.atoms = [self.atom1, self.atom2, self.atom3]
 
 
@@ -74,6 +77,13 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
         self.assertEqual(structure.atoms(atom_id=500), set([self.atoms[0]]))
         self.assertEqual(structure.atoms(atom_id=600), set([self.atoms[1]]))
         self.assertEqual(structure.atoms(atom_id=300), set())
+
+
+    def test_can_get_atoms_by_name(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.atoms(name="CA"), set(self.atoms[:2]))
+        self.assertEqual(structure.atoms(name="NY"), set([self.atoms[2]]))
+        self.assertEqual(structure.atoms(name="CB"), set())
 
 
 

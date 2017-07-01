@@ -11,6 +11,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._y, 3)
         self.assertEqual(atom._z, 5)
         self.assertEqual(atom._id, None)
+        self.assertEqual(atom._name, None)
         self.assertEqual(atom._bonds, set())
 
 
@@ -60,6 +61,16 @@ class AtomCreationTests(TestCase):
         atom = Atom("C", 2, 3, 5, atom_id=21)
         with self.assertRaises(ValueError):
             Atom("D", 5, 1, 6.5, atom_id=21)
+
+
+    def test_can_create_atom_with_name(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        self.assertEqual(atom._name, "CA")
+
+
+    def test_atom_id_must_be_str(self):
+        with self.assertRaises(TypeError):
+            Atom("C", 2, 3, 5, name=20.5)
 
 
 
@@ -195,10 +206,30 @@ class AtomIdTests(TestCase):
         self.assertEqual(atom._id, 102)
 
 
-    def test_atom_z_must_be_numeric(self):
+    def test_atom_id_must_be_numeric(self):
         atom = Atom("C", 2, 3, 5, atom_id=105)
         with self.assertRaises(TypeError):
             atom.atom_id("4")
+
+
+
+class AtomNameTests(TestCase):
+
+    def test_name_property(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        self.assertIs(atom._name, atom.name())
+
+
+    def test_can_update_name(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        atom.name("CB")
+        self.assertEqual(atom._name, "CB")
+
+
+    def test_atom_name_must_be_str(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        with self.assertRaises(TypeError):
+            atom.name(4)
 
 
 

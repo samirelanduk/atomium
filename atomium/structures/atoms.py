@@ -15,15 +15,17 @@ class Atom:
     :param int atom_id: A unique integer ID for the atom. The class keeps track\
     of IDs that have already been used, though you can free up the ID by\
     changing or garbage collecting the atom that has the ID you want.
+    :param str name: The atom's name.
     :raises TypeError: if the element is not str.
     :raises ValueError: if the element is not 1 or 2 characters.
     :raises TypeError: if the coordinates are not numeric.
     :raises TypeError: if the atom_id is not int.
-    :raises ValueError: if you give an atom_id that has already been used."""
+    :raises ValueError: if you give an atom_id that has already been used.
+    :raises TypeError: if the name is not str."""
 
     known_ids = set()
 
-    def __init__(self, element, x, y, z, atom_id=None):
+    def __init__(self, element, x, y, z, atom_id=None, name=None):
         if not isinstance(element, str):
             raise TypeError("Element '{}' is not str".format(element))
         if not 0 < len(element) < 3:
@@ -38,12 +40,15 @@ class Atom:
             raise TypeError("ID {} is not an integer".format(atom_id))
         if atom_id in Atom.known_ids:
             raise ValueError("There's already an atom of ID {}".format(atom_id))
+        if name is not None and not isinstance(name, str):
+            raise TypeError("name {} is not a string".format(name))
         self._element = element
         self._x = x
         self._y = y
         self._z = z
         self._id = atom_id
         if atom_id is not None: Atom.known_ids.add(atom_id)
+        self._name = name
         self._bonds = set()
 
 
@@ -147,6 +152,21 @@ class Atom:
             if not isinstance(atom_id, int):
                 raise TypeError("Atom ID '{}' is not int".format(atom_id))
             self._id = atom_id
+
+
+    def name(self, name=None):
+        """Returns the atom's name. If a value is given, the name will be
+        updated, provided it is a string.
+
+        :param str name: If given, the name will be set to this.
+        :raises TypeError: if the name given is not str."""
+
+        if name is None:
+            return self._name
+        else:
+            if not isinstance(name, str):
+                raise TypeError("Atom name '{}' is not str".format(name))
+            self._name = name
 
 
     def bonds(self):

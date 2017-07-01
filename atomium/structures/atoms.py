@@ -25,7 +25,7 @@ class Atom:
 
     known_ids = set()
 
-    def __init__(self, element, x, y, z, atom_id=None, name=None):
+    def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0):
         if not isinstance(element, str):
             raise TypeError("Element '{}' is not str".format(element))
         if not 0 < len(element) < 3:
@@ -42,6 +42,8 @@ class Atom:
             raise ValueError("There's already an atom of ID {}".format(atom_id))
         if name is not None and not isinstance(name, str):
             raise TypeError("name {} is not a string".format(name))
+        if not is_numeric(charge):
+            raise TypeError("charge '{}' is not numeric".format(charge))
         self._element = element
         self._x = x
         self._y = y
@@ -49,6 +51,7 @@ class Atom:
         self._id = atom_id
         if atom_id is not None: Atom.known_ids.add(atom_id)
         self._name = name
+        self._charge = charge
         self._bonds = set()
 
 
@@ -167,6 +170,22 @@ class Atom:
             if not isinstance(name, str):
                 raise TypeError("Atom name '{}' is not str".format(name))
             self._name = name
+
+
+    def charge(self, charge=None):
+        """Returns the atom's charge. If a value is given, the charge will be
+        updated, but it must be numeric.
+
+        :param number charge: If given, the atom's charge will be set to this.
+        :raises TypeError: if the charge given is not numeric.
+        :rtype: ``int`` or ``float``"""
+
+        if charge is None:
+            return self._charge
+        else:
+            if not is_numeric(charge):
+                raise TypeError("charge '{}' is not numeric".format(charge))
+            self._charge = charge
 
 
     def bonds(self):

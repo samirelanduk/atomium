@@ -12,6 +12,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._z, 5)
         self.assertEqual(atom._id, None)
         self.assertEqual(atom._name, None)
+        self.assertEqual(atom._charge, 0)
         self.assertEqual(atom._bonds, set())
 
 
@@ -68,9 +69,20 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._name, "CA")
 
 
-    def test_atom_id_must_be_str(self):
+    def test_atom_name_must_be_str(self):
         with self.assertRaises(TypeError):
             Atom("C", 2, 3, 5, name=20.5)
+
+
+    def test_can_create_atom_with_charge(self):
+        atom = Atom("C", 2, 3, 5, charge=-2.5)
+        self.assertEqual(atom._charge, -2.5)
+
+
+    def test_atom_charge_must_be_number(self):
+        with self.assertRaises(TypeError):
+            Atom("C", 2, 3, 5, charge="20.5")
+        Atom("C", 2, 3, 5, charge=10)
 
 
 
@@ -230,6 +242,27 @@ class AtomNameTests(TestCase):
         atom = Atom("C", 2, 3, 5, name="CA")
         with self.assertRaises(TypeError):
             atom.name(4)
+
+
+
+class AtomChargeTests(TestCase):
+
+    def test_charge_property(self):
+        atom = Atom("C", 2, 3, 5, charge=0.5)
+        self.assertIs(atom._charge, atom.charge())
+
+
+    def test_can_update_charge(self):
+        atom = Atom("C", 2, 3, 5)
+        atom.charge(6)
+        self.assertEqual(atom._charge, 6)
+
+
+    def test_atom_charge_must_be_numeric(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom.charge("4")
+        atom.charge(4.5)
 
 
 

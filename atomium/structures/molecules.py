@@ -194,3 +194,15 @@ class AtomicStructure:
         s = self.to_file_string(file_format, *args, **kwargs)
         from ..converters.strings import string_to_file
         string_to_file(s, path)
+
+
+
+class Molecule(AtomicStructure):
+    """Base class: :py:class:`AtomicStructure`
+
+    A Molecule is a collection of atoms which form a unit of some kind.
+
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
+    :raises TypeError: if non-atoms are given."""
+    
+    pass

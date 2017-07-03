@@ -11,8 +11,8 @@ class StructureTests(IntegratedTest):
         self.assertEqual(model.mass(), 0)
 
         # Create some atoms
-        atom1 = Atom("N", 12.0, 11.5, 1.5, atom_id=1)
-        atom2 = Atom("C", 12.5, 10, 2, atom_id=2)
+        atom1 = Atom("N", 12.0, 11.5, 1.5, atom_id=101)
+        atom2 = Atom("C", 12.5, 10, 2, atom_id=102)
 
         # The atoms can work out their distance to each other
         self.assertAlmostEqual(atom1.distance_to(atom2), 1.658312, delta=0.0005)
@@ -30,8 +30,8 @@ class StructureTests(IntegratedTest):
         # Atom retrieval can pick by element and ID
         self.assertIs(model.atom(element="N"), atom1)
         self.assertIs(model.atom(element="C"), atom2)
-        self.assertIs(model.atom(atom_id=1), atom1)
-        self.assertIs(model.atom(atom_id=2), atom2)
+        self.assertIs(model.atom(atom_id=101), atom1)
+        self.assertIs(model.atom(atom_id=102), atom2)
 
         # Atoms can be bonded to each other
         self.assertEqual(atom1.bonded_atoms(), set())

@@ -237,3 +237,10 @@ class Molecule(AtomicStructure):
     def __del__(self):
         if "_id" in self.__dict__ and self._id in Molecule.known_ids:
             Molecule.known_ids.remove(self._id)
+
+
+    def __repr__(self):
+        id_, name = "", ""
+        if self._id: id_ = self._id + " "
+        if self._name: name = self._name + ", "
+        return "<Molecule {}({}{} atoms)>".format(id_, name, len(self._atoms))

@@ -66,3 +66,26 @@ class MoleculeIdChangesTests(MoleculeTest):
         mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A131")
         self.assertNotIn("A130", Molecule.known_ids)
         self.assertIn("A131", Molecule.known_ids)
+
+
+
+class MoleculeReprTests(MoleculeTest):
+
+    def test_molecule_repr_no_id_or_name(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(str(mol), "<Molecule (3 atoms)>")
+
+
+    def test_molecule_repr_id_no_name(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10A")
+        self.assertEqual(str(mol), "<Molecule B10A (3 atoms)>")
+
+
+    def test_molecule_repr_name_no_id(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, name="GLY")
+        self.assertEqual(str(mol), "<Molecule (GLY, 3 atoms)>")
+
+
+    def test_molecule_repr_id_and_name(self):
+        mol = Molecule(self.atom1, self.atom2, molecule_id="B10A", name="GLY")
+        self.assertEqual(str(mol), "<Molecule B10A (GLY, 2 atoms)>")

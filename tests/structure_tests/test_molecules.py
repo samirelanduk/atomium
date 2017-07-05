@@ -89,3 +89,43 @@ class MoleculeReprTests(MoleculeTest):
     def test_molecule_repr_id_and_name(self):
         mol = Molecule(self.atom1, self.atom2, molecule_id="B10A", name="GLY")
         self.assertEqual(str(mol), "<Molecule B10A (GLY, 2 atoms)>")
+
+
+
+class MoleculeIdTests(MoleculeTest):
+
+    def test_molecule_id_property(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10A")
+        self.assertIs(mol._id, mol.molecule_id())
+
+
+    def test_can_update_molecule_id(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10A")
+        mol.molecule_id("A20")
+        self.assertEqual(mol._id, "A20")
+
+
+    def test_molecule_id_must_be_str(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10A")
+        with self.assertRaises(TypeError):
+            mol.molecule_id(10)
+
+
+
+class MoleculeNameTests(MoleculeTest):
+
+    def test_molecule_name_property(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, name="VAL")
+        self.assertIs(mol._name, mol.name())
+
+
+    def test_can_update_molecule_name(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, name="VAL")
+        mol.name("HIS")
+        self.assertEqual(mol._name, "HIS")
+
+
+    def test_molecule_name_must_be_str(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, name="VAL")
+        with self.assertRaises(TypeError):
+            mol.name(10)

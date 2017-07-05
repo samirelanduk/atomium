@@ -244,3 +244,34 @@ class Molecule(AtomicStructure):
         if self._id: id_ = self._id + " "
         if self._name: name = self._name + ", "
         return "<Molecule {}({}{} atoms)>".format(id_, name, len(self._atoms))
+
+
+    def molecule_id(self, molecule_id=None):
+        """Returns the molecule's unique string ID. If a value is given, the ID
+        will be updated, provided it is a unique string.
+
+        :param int molecule_id: If given, the ID will be set to this.
+        :raises TypeError: if the ID given is not str.
+        :raises ValueError: if the ID given is already in use."""
+
+        if molecule_id is None:
+            return self._id
+        else:
+            if not isinstance(molecule_id, str):
+                raise TypeError("Molecule ID '{}' is not str".format(molecule_id))
+            self._id = molecule_id
+
+
+    def name(self, name=None):
+        """Returns the molecule's name. If a value is given, the name will be
+        updated, provided it is a string.
+
+        :param int name: If given, the name will be set to this.
+        :raises TypeError: if the name given is not str."""
+
+        if name is None:
+            return self._name
+        else:
+            if not isinstance(name, str):
+                raise TypeError("Molecule name '{}' is not str".format(name))
+            self._name = name

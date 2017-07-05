@@ -203,6 +203,34 @@ class Molecule(AtomicStructure):
     A Molecule is a collection of atoms which form a unit of some kind.
 
     :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
-    :raises TypeError: if non-atoms are given."""
-    
-    pass
+    :param str molecule_id: A unique str ID for the atom. The class keeps track\
+    of IDs that have already been used, though you can free up the ID by\
+    changing or garbage collecting the molecule that has the ID you want.
+    :raises TypeError: if non-atoms are given.
+    :raises TypeError: if the molecule_id is not str.
+    :raises ValueError: if you give a molecule_id that has already been used."""
+
+    known_ids = set()
+
+    def __init__(self, *atoms, molecule_id=None):
+        AtomicStructure.__init__(self, *atoms)
+        if molecule_id is not None and not isinstance(molecule_id, str):
+            raise TypeError("ID {} is not a string".format(molecule_id))
+        if molecule_id in Molecule.known_ids:
+            raise ValueError(
+             "There's already a molecule of ID {}".format(molecule_id)
+            )
+        self._id = molecule_id
+        if molecule_id is not None: Molecule.known_ids.add(molecule_id)
+
+
+    def __setattr__(self, attr, value):
+        if attr == "_id" and "_id" in self.__dict__ and value is not None:
+            Molecule.known_ids.remove(self._id)
+            Molecule.known_ids.add(value)
+        self.__dict__[attr] = value
+
+
+    def __del__(self):
+        if "_id" in self.__dict__ and self._id in Molecule.known_ids:
+            Molecule.known_ids.remove(self._id)

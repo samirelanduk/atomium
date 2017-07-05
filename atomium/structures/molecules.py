@@ -212,16 +212,19 @@ class Molecule(AtomicStructure):
 
     known_ids = set()
 
-    def __init__(self, *atoms, molecule_id=None):
+    def __init__(self, *atoms, molecule_id=None, name=None):
         AtomicStructure.__init__(self, *atoms)
         if molecule_id is not None and not isinstance(molecule_id, str):
             raise TypeError("ID {} is not a string".format(molecule_id))
+        if name is not None and not isinstance(name, str):
+            raise TypeError("Molecule name {} is not a string".format(name))
         if molecule_id in Molecule.known_ids:
             raise ValueError(
              "There's already a molecule of ID {}".format(molecule_id)
             )
         self._id = molecule_id
         if molecule_id is not None: Molecule.known_ids.add(molecule_id)
+        self._name = name
 
 
     def __setattr__(self, attr, value):

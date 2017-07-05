@@ -20,6 +20,7 @@ class MoleculeCreationTests(MoleculeTest):
         self.assertIsInstance(mol, Molecule)
         mock_init.assert_called_with(mol, self.atom1, self.atom2, self.atom3)
         self.assertEqual(mol._id, None)
+        self.assertEqual(mol._name, None)
 
 
     def test_can_create_molecule_with_id(self):
@@ -36,6 +37,16 @@ class MoleculeCreationTests(MoleculeTest):
         mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A110")
         with self.assertRaises(ValueError):
             Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A110")
+
+
+    def test_can_create_molecule_with_name(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, name="HIS")
+        self.assertEqual(mol._name, "HIS")
+
+
+    def test_molecule_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            Molecule(self.atom1, self.atom2, self.atom3, name=1000)
 
 
 

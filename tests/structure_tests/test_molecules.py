@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from atomium.structures.molecules import Molecule
+from atomium.structures.molecules import Molecule, AtomicStructure
 from atomium.structures.atoms import Atom
 
 class MoleculeTest(TestCase):
@@ -17,7 +17,7 @@ class MoleculeCreationTests(MoleculeTest):
     def test_can_create_molecule(self, mock_init):
         mock_init.return_value = None
         mol = Molecule(self.atom1, self.atom2, self.atom3)
-        self.assertIsInstance(mol, Molecule)
+        self.assertIsInstance(mol, AtomicStructure)
         mock_init.assert_called_with(mol, self.atom1, self.atom2, self.atom3)
         self.assertEqual(mol._id, None)
         self.assertEqual(mol._name, None)

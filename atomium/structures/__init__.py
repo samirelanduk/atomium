@@ -1,4 +1,5 @@
 from .models import Model
+from .molecules import Residue
 from .atoms import Atom
 
-Residue, Chain = None, None
+Chain = None

@@ -229,7 +229,9 @@ class Molecule(AtomicStructure):
 
     def __setattr__(self, attr, value):
         if attr == "_id" and "_id" in self.__dict__ and value is not None:
-            Molecule.known_ids.remove(self._id)
+            try:
+                Molecule.known_ids.remove(self._id)
+            except KeyError: pass
             Molecule.known_ids.add(value)
         self.__dict__[attr] = value
 
@@ -275,3 +277,17 @@ class Molecule(AtomicStructure):
             if not isinstance(name, str):
                 raise TypeError("Molecule name '{}' is not str".format(name))
             self._name = name
+
+
+
+class Residue(Molecule):
+
+    def __init__(self, *atoms, residue_id=None, **kwargs):
+        Molecule.__init__(self, *atoms, **kwargs)
+        if residue_id is not None and not isinstance(residue_id, str):
+            raise TypeError("ID {} is not a string".format(residue_id))
+        if residue_id in Molecule.known_ids:
+            raise ValueError(
+             "There's already a molecule of ID {}".format(residue_id)
+            )
+        self._id = residue_id

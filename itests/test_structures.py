@@ -101,12 +101,12 @@ class StructureTests(IntegratedTest):
         atom16.bond(atom15), atom16.bond(atom17), atom16.bond(atom18)
 
         # Make residues
-        redidue1a = Residue(atom1, atom2, atom3, residue_id="A1", name="GLY")
-        redidue2a = Residue(atom4, atom5, atom6, residue_id="A2", name="HIS")
-        redidue3a = Residue(atom7, atom8, atom9, residue_id="A3", name="GLY")
-        redidue1b = Residue(atom10, atom11, atom12, residue_id="B1", name="ASP")
-        redidue2b = Residue(atom13, atom14, atom15, residue_id="B2", name="GLU")
-        redidue3b = Residue(atom16, atom17, atom18, residue_id="B3", name="CYS")
+        residue1a = Residue(atom1, atom2, atom3, residue_id="A1", name="GLY")
+        residue2a = Residue(atom4, atom5, atom6, residue_id="A2", name="HIS")
+        residue3a = Residue(atom7, atom8, atom9, residue_id="A3", name="GLY")
+        residue1b = Residue(atom10, atom11, atom12, residue_id="B1", name="ASP")
+        residue2b = Residue(atom13, atom14, atom15, residue_id="B2", name="GLU")
+        residue3b = Residue(atom16, atom17, atom18, residue_id="B3", name="CYS")
 
         # Check residues
         self.assertEqual(residue1a.atoms(), set([atom1, atom2, atom3]))

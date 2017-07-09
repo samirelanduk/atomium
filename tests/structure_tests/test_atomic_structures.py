@@ -147,6 +147,17 @@ class AtomicStructureMassTests(AtomicStructureTest):
 
 
 
+class AtomicStructureChargeTests(AtomicStructureTest):
+
+    def test_structure_charge_is_sum_of_atom_charges(self):
+        self.atom1.charge.return_value = 0.2
+        self.atom2.charge.return_value = -1.4
+        self.atom3.charge.return_value = 0.6
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.charge(), -0.6)
+
+
+
 class AtomicStructureFormulaTests(AtomicStructureTest):
 
     def test_can_get_formula(self):

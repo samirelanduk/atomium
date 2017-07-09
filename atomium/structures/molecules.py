@@ -102,6 +102,15 @@ class AtomicStructure:
         return sum([atom.mass() for atom in self._atoms])
 
 
+    def charge(self):
+        """Returns the charge of the structure, based on the charges of its
+        atoms.
+
+        :rtype: ``float``"""
+
+        return sum([atom.charge() for atom in self._atoms])
+
+
     def formula(self):
         """Returns the formula (count of each atom) of the structure.
 

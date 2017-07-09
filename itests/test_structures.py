@@ -118,7 +118,7 @@ class StructureTests(IntegratedTest):
         self.assertEqual(residue1a.name(), "LYS")
         residue1a.name("GLY")
         self.assertEqual(residue2a.charge(), 0)
-        self.assertEqual(residue2c.charge(), -0.6)
+        self.assertEqual(residue3b.charge(), -0.6)
         self.assertIs(atom1.residue(), residue1a)
         self.assertIs(atom14.residue(), residue2b)
 

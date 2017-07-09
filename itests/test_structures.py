@@ -111,6 +111,7 @@ class StructureTests(IntegratedTest):
         # Check residues
         self.assertEqual(residue1a.atoms(), set([atom1, atom2, atom3]))
         self.assertEqual(residue1a.residue_id(), "A1")
+        self.assertEqual(residue1a.molecule_id(), "A1")
         self.assertEqual(residue1a.name(), "GLY")
         self.assertEqual(residue1a.charge(), 0.8)
         residue1a.name("LYS")

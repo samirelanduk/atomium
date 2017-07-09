@@ -245,7 +245,9 @@ class Molecule(AtomicStructure):
         id_, name = "", ""
         if self._id: id_ = self._id + " "
         if self._name: name = self._name + ", "
-        return "<Molecule {}({}{} atoms)>".format(id_, name, len(self._atoms))
+        return "<{} {}({}{} atoms)>".format(
+         self.__class__.__name__, id_, name, len(self._atoms)
+        )
 
 
     def molecule_id(self, molecule_id=None):
@@ -291,3 +293,19 @@ class Residue(Molecule):
              "There's already a molecule of ID {}".format(residue_id)
             )
         self._id = residue_id
+
+
+    def residue_id(self, residue_id=None):
+        """Returns the residue's unique string ID. If a value is given, the ID
+        will be updated, provided it is a unique string.
+
+        :param int residue_id: If given, the ID will be set to this.
+        :raises TypeError: if the ID given is not str.
+        :raises ValueError: if the ID given is already in use."""
+
+        if residue_id is None:
+            return self._id
+        else:
+            if not isinstance(residue_id, str):
+                raise TypeError("Residue ID '{}' is not str".format(residue_id))
+            self._id = residue_id

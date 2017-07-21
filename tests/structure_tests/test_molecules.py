@@ -49,6 +49,13 @@ class MoleculeCreationTests(MoleculeTest):
             Molecule(self.atom1, self.atom2, self.atom3, name=1000)
 
 
+    def test_atoms_are_linked_to_molecule(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3)
+        self.assertIs(self.atom1._molecule, mol)
+        self.assertIs(self.atom2._molecule, mol)
+        self.assertIs(self.atom3._molecule, mol)
+
+
 
 class MoleculeIdChangesTests(MoleculeTest):
 
@@ -87,26 +94,26 @@ class MoleculeReprTests(MoleculeTest):
 
 
     def test_molecule_repr_id_and_name(self):
-        mol = Molecule(self.atom1, self.atom2, molecule_id="B10A", name="GLY")
-        self.assertEqual(str(mol), "<Molecule B10A (GLY, 2 atoms)>")
+        mol = Molecule(self.atom1, self.atom2, molecule_id="B10B", name="GLY")
+        self.assertEqual(str(mol), "<Molecule B10B (GLY, 2 atoms)>")
 
 
 
 class MoleculeIdTests(MoleculeTest):
 
     def test_molecule_id_property(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10A")
+        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10C")
         self.assertIs(mol._id, mol.molecule_id())
 
 
     def test_can_update_molecule_id(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10A")
+        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10D")
         mol.molecule_id("A20")
         self.assertEqual(mol._id, "A20")
 
 
     def test_molecule_id_must_be_str(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10A")
+        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10E")
         with self.assertRaises(TypeError):
             mol.molecule_id(10)
 

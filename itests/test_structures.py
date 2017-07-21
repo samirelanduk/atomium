@@ -121,6 +121,8 @@ class StructureTests(IntegratedTest):
         self.assertEqual(residue3b.charge(), -0.6)
         self.assertIs(atom1.residue(), residue1a)
         self.assertIs(atom14.residue(), residue2b)
+        self.assertIs(atom1.molecule(), residue1a)
+        self.assertIs(atom14.molecule(), residue2b)
 
         # Make chains
         chaina = Chain(residue1a, residue2a, residue3a, chain_id="A")
@@ -133,6 +135,7 @@ class StructureTests(IntegratedTest):
         self.assertEqual(chaina.residues(residue_id="A2"), (residue2a,))
         self.assertIs(residue1b.chain(), chainb)
         self.assertIs(atom15.chain(), chainb)
+        self.assertIs(atom15.molecule(), chainb)
 
         # Make model
         model = Model()

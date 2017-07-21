@@ -234,6 +234,8 @@ class Molecule(AtomicStructure):
         self._id = molecule_id
         if molecule_id is not None: Molecule.known_ids.add(molecule_id)
         self._name = name
+        for atom in atoms:
+            atom._molecule = self
 
 
     def __setattr__(self, attr, value):
@@ -302,6 +304,8 @@ class Residue(Molecule):
              "There's already a molecule of ID {}".format(residue_id)
             )
         self._id = residue_id
+        for atom in atoms:
+            atom._residue = self
 
 
     def residue_id(self, residue_id=None):

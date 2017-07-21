@@ -292,6 +292,16 @@ class Molecule(AtomicStructure):
             self._name = name
 
 
+    def add_atom(self, atom, *args, **kwargs):
+        AtomicStructure.add_atom(self, atom, *args, **kwargs)
+        atom._molecule = self
+
+
+    def remove_atom(self, atom, *args, **kwargs):
+        AtomicStructure.remove_atom(self, atom, *args, **kwargs)
+        atom._molecule = None
+
+
 
 class Residue(Molecule):
 
@@ -322,3 +332,13 @@ class Residue(Molecule):
             if not isinstance(residue_id, str):
                 raise TypeError("Residue ID '{}' is not str".format(residue_id))
             self._id = residue_id
+
+
+    def add_atom(self, atom, *args, **kwargs):
+        Molecule.add_atom(self, atom, *args, **kwargs)
+        atom._residue = self
+
+
+    def remove_atom(self, atom, *args, **kwargs):
+        Molecule.remove_atom(self, atom, *args, **kwargs)
+        atom._residue = None

@@ -118,3 +118,21 @@ class ResidueIdTests(ResidueTest):
         res = Residue(self.atom1, self.atom2, self.atom3, residue_id="C10E")
         with self.assertRaises(TypeError):
             res.residue_id(10)
+
+
+
+class ResidueAtomAdditionTests(ResidueTest):
+
+    def test_adding_atom_updates_atom(self):
+        res = Residue(self.atom1, self.atom2)
+        res.add_atom(self.atom3)
+        self.assertIs(self.atom3._residue, res)
+
+
+
+class ResidueAtomRemovalTests(ResidueTest):
+
+    def test_removing_atom_updates_atom(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        res.remove_atom(self.atom3)
+        self.assertIs(self.atom3._residue, None)

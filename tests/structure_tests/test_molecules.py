@@ -136,3 +136,21 @@ class MoleculeNameTests(MoleculeTest):
         mol = Molecule(self.atom1, self.atom2, self.atom3, name="VAL")
         with self.assertRaises(TypeError):
             mol.name(10)
+
+
+
+class MoleculeAtomAdditionTests(MoleculeTest):
+
+    def test_adding_atom_updates_atom(self):
+        mol = Molecule(self.atom1, self.atom2)
+        mol.add_atom(self.atom3)
+        self.assertIs(self.atom3._molecule, mol)
+
+
+
+class MoleculeAtomRemovalTests(MoleculeTest):
+
+    def test_removing_atom_updates_atom(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3)
+        mol.remove_atom(self.atom3)
+        self.assertIs(self.atom3._molecule, None)

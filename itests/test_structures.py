@@ -123,6 +123,12 @@ class StructureTests(IntegratedTest):
         self.assertIs(atom14.residue(), residue2b)
         self.assertIs(atom1.molecule(), residue1a)
         self.assertIs(atom14.molecule(), residue2b)
+        residue1a.remove_atom(atom1)
+        self.assertIs(atom1.residue(), None)
+        self.assertIs(atom1.molecule(), None)
+        residue1a.add_atom(atom1)
+        self.assertIs(atom1.residue(), residue1a)
+        self.assertIs(atom1.molecule(), residue1a)
 
         # Make chains
         chaina = Chain(residue1a, residue2a, residue3a, chain_id="A")
@@ -159,6 +165,7 @@ class StructureTests(IntegratedTest):
         ))
         self.assertEqual(model.chains(), set([chaina]))
         chaina.remove_residue(chain1a)
+        self.assertIs(atom1.chain(), None)
         self.assertEqual(len(model.atoms()), 6)
         self.assertEqual(model.residues(), set([residue1b, residue1c]))
 

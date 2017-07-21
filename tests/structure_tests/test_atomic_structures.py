@@ -154,7 +154,7 @@ class AtomicStructureChargeTests(AtomicStructureTest):
         self.atom2.charge.return_value = -1.4
         self.atom3.charge.return_value = 0.6
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(structure.charge(), -0.6)
+        self.assertAlmostEqual(structure.charge(), -0.6, delta=0.000005)
 
 
 

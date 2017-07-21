@@ -53,6 +53,8 @@ class Atom:
         self._name = name
         self._charge = charge
         self._bonds = set()
+        self._residue, self._chain, self._molecule = None, None, None
+        self._model = None
 
 
     def __repr__(self):
@@ -170,6 +172,42 @@ class Atom:
             if not isinstance(name, str):
                 raise TypeError("Atom name '{}' is not str".format(name))
             self._name = name
+
+
+    def residue(self):
+        """Returns the :py:class:`.Residue` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Residue``"""
+
+        return self._residue
+
+
+    def chain(self):
+        """Returns the :py:class:`.Chain` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Chain``"""
+
+        return self._chain
+
+
+    def molecule(self):
+        """Returns the :py:class:`.Molecule` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Molecule``"""
+
+        return self._molecule
+
+
+    def model(self):
+        """Returns the :py:class:`.Model` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Model``"""
+
+        return self._model
 
 
     def charge(self, charge=None):

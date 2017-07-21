@@ -14,6 +14,10 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._name, None)
         self.assertEqual(atom._charge, 0)
         self.assertEqual(atom._bonds, set())
+        self.assertEqual(atom._residue, None)
+        self.assertEqual(atom._chain, None)
+        self.assertEqual(atom._molecule, None)
+        self.assertEqual(atom._model, None)
 
 
     def test_atom_element_must_be_str(self):
@@ -242,6 +246,46 @@ class AtomNameTests(TestCase):
         atom = Atom("C", 2, 3, 5, name="CA")
         with self.assertRaises(TypeError):
             atom.name(4)
+
+
+
+class AtomResidueTests(TestCase):
+
+    def test_residue_property(self):
+        residue = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._residue = residue
+        self.assertIs(atom.residue(), residue)
+
+
+
+class AtomChainTests(TestCase):
+
+    def test_chain_property(self):
+        chain = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._chain = chain
+        self.assertIs(atom.chain(), chain)
+
+
+
+class AtomMoleculeTests(TestCase):
+
+    def test_molecule_property(self):
+        molecule = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._molecule = molecule
+        self.assertIs(atom.molecule(), molecule)
+
+
+
+class AtomModelTests(TestCase):
+
+    def test_model_property(self):
+        model = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._model = model
+        self.assertIs(atom.model(), model)
 
 
 

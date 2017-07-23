@@ -70,3 +70,12 @@ class ResidueSequenceLengthTests(ResidueSequenceTest):
         mock_len.return_value = 100
         sequence = ResidueSequence(self.residue1, self.residue2)
         self.assertEqual(sequence.length(), 100)
+
+
+
+class ResidueIterableTests(ResidueSequenceTest):
+
+    def test_residue_sequence_is_iterable(self):
+        sequence = ResidueSequence(self.residue1, self.residue2)
+        for residue, correct_residue in zip(sequence, (self.residue1, self.residue2)):
+            self.assertEqual(residue, correct_residue)

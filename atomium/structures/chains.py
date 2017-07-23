@@ -30,9 +30,13 @@ class ResidueSequence(AtomicStructure):
         return len(self._residues)
 
 
+    def __iter__(self):
+        return iter(self._residues)
+
+
     def length(self):
         """Returns the number of residues in the sequence.
 
         :rtype: ``int``"""
-        
+
         return len(self)

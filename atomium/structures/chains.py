@@ -20,3 +20,7 @@ class ResidueSequence(AtomicStructure):
             atoms.update(residue.atoms())
         AtomicStructure.__init__(self, *atoms)
         self._residues = list(residues)
+
+
+    def __repr__(self):
+        return "<ResidueSequence ({} residues)>".format(len(self._residues))

@@ -44,3 +44,11 @@ class ResidueSequenceCreationTests(ResidueSequenceTest):
     def test_residue_needs_at_least_one_residue(self):
         with self.assertRaises(ValueError):
             ResidueSequence()
+
+
+
+class ResidueSequenceReprTests(ResidueSequenceTest):
+
+    def test_residue_sequence_repr(self):
+        sequence = ResidueSequence(self.residue1, self.residue2)
+        self.assertEqual(str(sequence), "<ResidueSequence (2 residues)>")

@@ -24,3 +24,15 @@ class ResidueSequence(AtomicStructure):
 
     def __repr__(self):
         return "<ResidueSequence ({} residues)>".format(len(self._residues))
+
+
+    def __len__(self):
+        return len(self._residues)
+
+
+    def length(self):
+        """Returns the number of residues in the sequence.
+
+        :rtype: ``int``"""
+        
+        return len(self)

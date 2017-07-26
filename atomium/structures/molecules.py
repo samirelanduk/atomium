@@ -115,6 +115,21 @@ class AtomicStructure:
         return residues
 
 
+    def residue(self, *args, **kwargs):
+        """Returns the first :py:class:`.Residue` that matches the criteria
+        given. If more than one Reside matches, it might not be the same
+        Residue that is returned every time you call this method.
+
+        :param int residue_id: If given, only residues whose residue ID matches\
+        this will be returned (this will only return one residue).
+        :param str name: If given, only residues whose name matches this will\
+        be returned.
+        :rtype: ``Residue``"""
+
+        residues = self.residues(*args, **kwargs)
+        for residue in residues: return residue
+
+
     def mass(self):
         """Returns the mass of the structure in Daltons, based on the masses of
         its atoms.

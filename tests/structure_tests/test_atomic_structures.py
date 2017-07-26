@@ -177,6 +177,48 @@ class AtomicStructureResiduesTests(AtomicStructureTest):
 
 
 
+class AtomicStructureResidueTest(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        self.residue1, self.residue2 = Mock(Residue), Mock(Residue)
+        self.residue1.residue_id.return_value = "A1"
+        self.residue2.residue_id.return_value = "A2"
+        self.residue1.name.return_value = "GLY"
+        self.residue2.name.return_value = "TYR"
+        self.atom1.residue.return_value = self.residue1
+        self.atom2.residue.return_value = self.residue1
+        self.atom3.residue.return_value = self.residue2
+        self.residue1.atoms.return_value = set([self.atom1, self.atom2])
+        self.residue2.atoms.return_value = set([self.atom3])
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.residues")
+    def test_residue_calls_residues(self, mock_residues):
+        mock_residues.return_value = set([self.residue1])
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        residue = structure.residue(name="A")
+        mock_residues.assert_called_with(name="A")
+        self.assertIs(residue, self.residue1)
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.residues")
+    def test_residue_can_return_none(self, mock_residues):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        mock_residues.return_value = set()
+        self.assertIs(structure.residue(name="C"), None)
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.residues")
+    def test_residue_can_get_residue_by_id_and_name(self, mock_residues):
+        mock_residues.return_value = set([self.residue1])
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        residue = structure.residue(residue_id="500", name="A")
+        mock_residues.assert_called_with(residue_id="500", name="A")
+        self.assertIs(residue, self.residue1)
+
+
+
 class AtomicStructureMassTests(AtomicStructureTest):
 
     def test_structure_mass_is_sum_of_atom_masses(self):

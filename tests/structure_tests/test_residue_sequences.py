@@ -79,3 +79,20 @@ class ResidueSequenceIterableTests(ResidueSequenceTest):
         sequence = ResidueSequence(self.residue1, self.residue2)
         for residue, correct_residue in zip(sequence, (self.residue1, self.residue2)):
             self.assertEqual(residue, correct_residue)
+
+
+
+class ResidueSequenceResiduesTests(ResidueSequenceTest):
+
+    def test_residues_by_default_returns_residues(self):
+        sequence = ResidueSequence(self.residue1, self.residue2)
+        self.assertEqual(sequence.residues(), tuple(sequence._residues))
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.residues")
+    def test_residues_uses_parent_method_for_search_terms(self, mock_residues):
+        mock_residues.return_value = set([self.residue2, self.residue1])
+        sequence = ResidueSequence(self.residue1, self.residue2)
+        residues = sequence.residues(name="A")
+        mock_residues.assert_called_with(sequence, name="A")
+        self.assertEqual(residues, (self.residue1, self.residue2))

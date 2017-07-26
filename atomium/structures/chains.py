@@ -40,3 +40,19 @@ class ResidueSequence(AtomicStructure):
         :rtype: ``int``"""
 
         return len(self)
+
+
+    def residues(self, *args, **kwargs):
+        """Returns the :py:class:`.Residue` objects in the structure, in order.
+        You can filter these by element if you wish.
+
+        :param int residue_id: If given, only residues whose residue ID matches\
+        this will be returned (this will only return one residue).
+        :param str name: If given, only residues whose name matches this will\
+        be returned.
+        :rtype: ``tuple``"""
+        
+        if args or kwargs:
+            residues = AtomicStructure.residues(self, *args, **kwargs)
+            return tuple(sorted(residues, key=lambda r: self._residues.index(r)))
+        return tuple(self._residues)

@@ -73,7 +73,7 @@ class ResidueSequenceLengthTests(ResidueSequenceTest):
 
 
 
-class ResidueIterableTests(ResidueSequenceTest):
+class ResidueSequenceIterableTests(ResidueSequenceTest):
 
     def test_residue_sequence_is_iterable(self):
         sequence = ResidueSequence(self.residue1, self.residue2)

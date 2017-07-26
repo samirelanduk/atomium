@@ -2,7 +2,7 @@ from collections import Counter
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.structures.atoms import Atom
-from atomium.structures.molecules import AtomicStructure
+from atomium.structures.molecules import AtomicStructure, Residue
 
 class AtomicStructureTest(TestCase):
 
@@ -136,6 +136,44 @@ class AtomicStructureAtomRemovalTests(AtomicStructureTest):
         structure = AtomicStructure(self.atom1, self.atom2)
         structure.remove_atom(self.atom1)
         self.assertEqual(structure._atoms, set(self.atoms[1:2]))
+
+
+
+class AtomicStructureResiduesTests(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        self.residue1, self.residue2 = Mock(Residue), Mock(Residue)
+        self.residue1.residue_id.return_value = "A1"
+        self.residue2.residue_id.return_value = "A2"
+        self.residue1.name.return_value = "GLY"
+        self.residue2.name.return_value = "TYR"
+        self.atom1.residue.return_value = self.residue1
+        self.atom2.residue.return_value = self.residue1
+        self.atom3.residue.return_value = self.residue2
+        self.residue1.atoms.return_value = set([self.atom1, self.atom2])
+        self.residue2.atoms.return_value = set([self.atom3])
+
+
+    def test_can_get_atom_residues(self):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        self.assertEqual(structure.residues(), set([self.residue1]))
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.residues(), set([self.residue1, self.residue2]))
+
+
+    def test_can_get_residues_by_id(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.residues(residue_id="A1"), set([self.residue1]))
+        self.assertEqual(structure.residues(residue_id="A2"), set([self.residue2]))
+        self.assertEqual(structure.residues(residue_id="A3"), set())
+
+
+    def test_can_get_residues_by_name(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.residues(name="GLY"), set([self.residue1]))
+        self.assertEqual(structure.residues(name="TYR"), set([self.residue2]))
+        self.assertEqual(structure.residues(name="CB"), set())
 
 
 

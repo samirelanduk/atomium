@@ -93,6 +93,28 @@ class AtomicStructure:
         self._atoms.remove(atom)
 
 
+    def residues(self, residue_id=None, name=None):
+        """Returns the :py:class:`.Residue` objects in the structure. You can
+        filter these by element if you wish.
+
+        :param int residue_id: If given, only residues whose residue ID matches\
+        this will be returned (this will only return one residue).
+        :param str name: If given, only residues whose name matches this will\
+        be returned.
+        :rtype: ``set``"""
+
+        residues = set()
+        for atom in self._atoms:
+            residues.add(atom.residue())
+            if residue_id:
+                residues = set(
+                 filter(lambda r: r.residue_id() == residue_id, residues)
+                )
+            if name:
+                residues = set(filter(lambda r: r.name() == name, residues))
+        return residues
+
+
     def mass(self):
         """Returns the mass of the structure in Daltons, based on the masses of
         its atoms.

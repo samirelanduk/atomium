@@ -1,6 +1,6 @@
 """Contains classes for Protein chains and other polymers."""
 
-from .molecules import AtomicStructure, Residue
+from .molecules import AtomicStructure, Residue, Molecule
 
 class ResidueSequence(AtomicStructure):
     """A ResidueSequence represents some linear sequence of :py:class:`.Residue`
@@ -66,3 +66,20 @@ class ResidueSequence(AtomicStructure):
     def remove_residue(self, residue):
         AtomicStructure.remove_residue(self, residue)
         self._residues.remove(residue)
+
+
+
+class Chain(ResidueSequence, Molecule):
+
+    known_ids = set()
+
+    def __init__(self, *residues, chain_id=None, **kwargs):
+        if chain_id is not None and not isinstance(chain_id, str):
+            raise TypeError("ID {} is not a string".format(chain_id))
+        if chain_id in Molecule.known_ids:
+            raise ValueError(
+             "There's already a molecule of ID {}".format(chain_id)
+            )
+        ResidueSequence.__init__(self, *residues, **kwargs)
+        if chain_id is not None: Molecule.known_ids.add(chain_id)
+        self._chain_id = chain_id

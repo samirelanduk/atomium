@@ -237,6 +237,32 @@ class AtomicStructureResidueAdditionTests(AtomicStructureTest):
 
 
 
+class AtomicStructureResidueRemovalTests(AtomicStructureTest):
+
+    def test_can_remove_residue(self):
+        residue1, residue2 = Mock(Residue), Mock(Residue)
+        residue1.atoms.return_value = set([self.atom1])
+        residue2.atoms.return_value = set([self.atom2, self.atom3])
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.remove_residue(residue2)
+        self.assertEqual(structure._atoms, set([self.atom1]))
+
+
+    def test_can_remove_partial_atom(self):
+        residue1, residue2 = Mock(Residue), Mock(Residue)
+        residue1.atoms.return_value = set([self.atom1])
+        residue2.atoms.return_value = set([self.atom2, self.atom3])
+        structure = AtomicStructure(self.atom1, self.atom2)
+        structure.remove_residue(residue2)
+        self.assertEqual(structure._atoms, set([self.atom1]))
+
+
+    def test_can_only_remove_residue(self):
+        structure = AtomicStructure(self.atom1)
+        with self.assertRaises(TypeError):
+            structure.remove_residue(self.atom1)
+
+
 class AtomicStructureMassTests(AtomicStructureTest):
 
     def test_structure_mass_is_sum_of_atom_masses(self):

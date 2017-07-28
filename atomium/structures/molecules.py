@@ -135,10 +135,25 @@ class AtomicStructure:
 
         :param Residue residue: The Residue to add.
         :raises TypeError: if a non-Residue is given."""
-        
+
         if not isinstance(residue, Residue):
             raise TypeError("{} is not a Residue".format(residue))
         self._atoms.update(residue.atoms())
+
+
+    def remove_residue(self, residue):
+        """Removes a :py:class:`.Residue` from the structure. This will work
+        even if not all of the Residue's atoms are in the structure.
+
+        :param Residue residue: The Residue to remove.
+        :raises TypeError: if a non-Residue is given."""
+
+        if not isinstance(residue, Residue):
+            raise TypeError("{} is not a Residue".format(residue))
+        for atom in residue.atoms():
+            try:
+                self._atoms.remove(atom)
+            except: pass
 
 
     def mass(self):

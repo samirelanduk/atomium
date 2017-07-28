@@ -261,6 +261,7 @@ class AtomicStructureResidueRemovalTests(AtomicStructureTest):
         structure = AtomicStructure(self.atom1)
         with self.assertRaises(TypeError):
             structure.remove_residue(self.atom1)
+            
 
 
 class AtomicStructureMassTests(AtomicStructureTest):

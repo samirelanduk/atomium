@@ -51,8 +51,18 @@ class ResidueSequence(AtomicStructure):
         :param str name: If given, only residues whose name matches this will\
         be returned.
         :rtype: ``tuple``"""
-        
+
         if args or kwargs:
             residues = AtomicStructure.residues(self, *args, **kwargs)
             return tuple(sorted(residues, key=lambda r: self._residues.index(r)))
         return tuple(self._residues)
+
+
+    def add_residue(self, residue):
+        AtomicStructure.add_residue(self, residue)
+        self._residues.append(residue)
+
+
+    def remove_residue(self, residue):
+        AtomicStructure.remove_residue(self, residue)
+        self._residues.remove(residue)

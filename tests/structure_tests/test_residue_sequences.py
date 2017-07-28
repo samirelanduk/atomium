@@ -96,3 +96,25 @@ class ResidueSequenceResiduesTests(ResidueSequenceTest):
         residues = sequence.residues(name="A")
         mock_residues.assert_called_with(sequence, name="A")
         self.assertEqual(residues, (self.residue1, self.residue2))
+
+
+
+class ResidueSequenceResidueAdditionTests(ResidueSequenceTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.add_residue")
+    def test_adding_residue_to_sequence_updates_residues(self, mock_add):
+        sequence = ResidueSequence(self.residue1)
+        sequence.add_residue(self.residue2)
+        mock_add.assert_called_with(sequence, self.residue2)
+        self.assertEqual(sequence._residues, [self.residue1, self.residue2])
+
+
+
+class ResidueSequenceResidueRemovalTests(ResidueSequenceTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.remove_residue")
+    def test_removing_residue_from_sequence_updates_residues(self, mock_remove):
+        sequence = ResidueSequence(self.residue1, self.residue2)
+        sequence.remove_residue(self.residue2)
+        mock_remove.assert_called_with(sequence, self.residue2)
+        self.assertEqual(sequence._residues, [self.residue1])

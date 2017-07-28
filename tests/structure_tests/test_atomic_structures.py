@@ -219,6 +219,24 @@ class AtomicStructureResidueTest(AtomicStructureTest):
 
 
 
+class AtomicStructureResidueAdditionTests(AtomicStructureTest):
+
+    def test_can_add_residue(self):
+        structure = AtomicStructure(self.atom1)
+        self.assertEqual(structure._atoms, set([self.atom1]))
+        residue = Mock(Residue)
+        residue.atoms.return_value = set([self.atom2, self.atom3])
+        structure.add_residue(residue)
+        self.assertEqual(structure._atoms, set([self.atom1, self.atom2, self.atom3]))
+
+
+    def test_can_only_add_residue(self):
+        structure = AtomicStructure(self.atom1)
+        with self.assertRaises(TypeError):
+            structure.add_residue(self.atom1)
+
+
+
 class AtomicStructureMassTests(AtomicStructureTest):
 
     def test_structure_mass_is_sum_of_atom_masses(self):

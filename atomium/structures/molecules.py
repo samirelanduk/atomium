@@ -130,6 +130,17 @@ class AtomicStructure:
         for residue in residues: return residue
 
 
+    def add_residue(self, residue):
+        """Adds a :py:class:`.Residue` to the structure.
+
+        :param Residue residue: The Residue to add.
+        :raises TypeError: if a non-Residue is given."""
+        
+        if not isinstance(residue, Residue):
+            raise TypeError("{} is not a Residue".format(residue))
+        self._atoms.update(residue.atoms())
+
+
     def mass(self):
         """Returns the mass of the structure in Daltons, based on the masses of
         its atoms.

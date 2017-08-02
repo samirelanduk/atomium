@@ -1,4 +1,4 @@
-from math import sqrt
+from math import sqrt, acos, degrees
 from matrices.checks import is_numeric
 
 """Contains the classes for atoms and their bonds."""
@@ -286,7 +286,49 @@ class Bond:
         atom1._bonds.remove(self)
         atom2._bonds.remove(self)
 
+    def _vector(self):
+        """
+        Calculates a vector formed by the two atoms in the bond
+        
+        :return: list
+        """
 
+        atom1, atom2 = self._atoms
+
+        # for readability here are the coordinates of the atom in a list [x,y,z]
+        atom1_coor = [atom1.x(), atom1.y(), atom1.z()]
+        atom2_coor = [atom2.x(), atom2.y(), atom2.z()]
+
+        # calculate a vector of atom1 and atom2 by subtracting the x, y and z coordinates of atom2 and atom1
+        return [atom2_coor_i - atom1_coor_i for atom2_coor_i, atom1_coor_i in zip(atom2_coor, atom1_coor)]
+
+    def angle_with(self, bond_obj, in_degrees=True):
+
+        """
+        Calculates the angle between two bonds using the Bond objects
+        
+        :param bond_obj: Bond object
+        :param in_degrees: boolean, determines if result is returned in degrees or radians
+        :return: float
+        """
+
+        if not isinstance(bond_obj, Bond):
+            raise TypeError("bond_obj is not a Bond object, it is {}".format(type(bond_obj)))
+
+        # first get calculate the dot product of the vectors of the two bonds
+        bond_dot_product = dot_product(self._vector(), bond_obj._vector())
+
+        # multiply the vector magnitude of each bond vector
+        magnitude_product = self.length() * bond_obj.length()
+
+        # calculate the angle by taking the arcosine of the ratio of the dot product to the product of vector u and v
+        # magnitude
+        angle = acos(bond_dot_product / magnitude_product)
+
+        if in_degrees:
+            return degrees(angle)
+        else:
+            return angle
 
 
 PERIODIC_TABLE = {
@@ -312,3 +354,26 @@ PERIODIC_TABLE = {
  "ES": 252, "FM": 257, "MD": 258, "NO": 259, "RF": 261, "LR": 262, "DB": 262,
  "BH": 264, "SG": 266, "MT": 268, "RG": 272, "HS": 277
 }
+
+
+def dot_product(u, v):
+
+    """
+    Calculates the dot product of two vectors, u and v
+    :param u: list
+    :param v: list
+    :return: float
+    """
+
+    return sum([u_i * v_i for u_i, v_i in zip(u, v)])
+
+
+# def magnitude(u):
+#
+#     """
+#     Calculates the magnitude of a vector u
+#     :param u: list
+#     :return: float
+#     """
+#
+#     return sqrt(sum(map(lambda x: x**2, u)))

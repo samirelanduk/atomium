@@ -20,6 +20,13 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._model, None)
 
 
+    def test_creating_atom_adds_ref_to_atom(self):
+        Atom._all_atoms = set()
+        atom = Atom("C", 2, 3, 6)
+        self.assertEqual(len(Atom._all_atoms), 1)
+        self.assertIs(list(Atom._all_atoms)[0](), atom)
+
+
     def test_atom_element_must_be_str(self):
         with self.assertRaises(TypeError):
             Atom(1, 2, 3, 5)
@@ -98,22 +105,15 @@ class AtomReprTests(TestCase):
 
 
 
-class AtomIdChangesTests(TestCase):
+class AtomDeletionTests(TestCase):
 
-    def test_changing_id_updates_known_ids(self):
-        atom = Atom("C", 2, 3, 5, atom_id=30)
-        self.assertIn(30, Atom.known_ids)
-        atom._id = 31
-        self.assertIn(31, Atom.known_ids)
-        self.assertNotIn(30, Atom.known_ids)
-
-
-    def test_deleting_an_atom_frees_up_its_id(self):
-        atom = Atom("C", 2, 3, 5, atom_id=40)
-        self.assertIn(40, Atom.known_ids)
-        atom = Atom("C", 2, 3, 5, atom_id=41)
-        self.assertNotIn(40, Atom.known_ids)
-        self.assertIn(41, Atom.known_ids)
+    def test_atom_deletion_removes_from_all_atoms(self):
+        self.assertEqual(Atom._all_atoms, set())
+        atom = Atom("C", 2, 3, 4)
+        self.assertEqual(len(Atom._all_atoms), 1)
+        atom = Atom("D", 2, 3, 6)
+        self.assertEqual(len(Atom._all_atoms), 1)
+        self.assertIs(list(Atom._all_atoms)[0](), atom)
 
 
 

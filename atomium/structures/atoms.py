@@ -1,3 +1,4 @@
+import weakref
 from math import sqrt
 from matrices.checks import is_numeric
 
@@ -23,7 +24,7 @@ class Atom:
     :raises ValueError: if you give an atom_id that has already been used.
     :raises TypeError: if the name is not str."""
 
-    known_ids = set()
+    _all_atoms = set()
 
     def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0):
         if not isinstance(element, str):
@@ -38,7 +39,7 @@ class Atom:
             raise TypeError("z coordinate '{}' is not numeric".format(z))
         if atom_id is not None and not isinstance(atom_id, int):
             raise TypeError("ID {} is not an integer".format(atom_id))
-        if atom_id in Atom.known_ids:
+        if atom_id is not None and atom_id in [a()._id for a in Atom._all_atoms]:
             raise ValueError("There's already an atom of ID {}".format(atom_id))
         if name is not None and not isinstance(name, str):
             raise TypeError("name {} is not a string".format(name))
@@ -49,12 +50,12 @@ class Atom:
         self._y = y
         self._z = z
         self._id = atom_id
-        if atom_id is not None: Atom.known_ids.add(atom_id)
         self._name = name
         self._charge = charge
         self._bonds = set()
         self._residue, self._chain, self._molecule = None, None, None
         self._model = None
+        Atom._all_atoms.add(weakref.ref(self))
 
 
     def __repr__(self):
@@ -63,16 +64,11 @@ class Atom:
         )
 
 
-    def __setattr__(self, attr, value):
-        if attr == "_id" and "_id" in self.__dict__ and value is not None:
-            Atom.known_ids.remove(self._id)
-            Atom.known_ids.add(value)
-        self.__dict__[attr] = value
-
-
     def __del__(self):
-        if "_id" in self.__dict__ and self._id in Atom.known_ids:
-            Atom.known_ids.remove(self._id)
+        for ref in Atom._all_atoms:
+            if ref() is self:
+                Atom._all_atoms.remove(ref)
+                break
 
 
     def element(self, element=None):
@@ -156,6 +152,8 @@ class Atom:
         else:
             if not isinstance(atom_id, int):
                 raise TypeError("Atom ID '{}' is not int".format(atom_id))
+            if atom_id in [a()._id for a in Atom._all_atoms]:
+                raise ValueError("There's already an atom of ID {}".format(atom_id))
             self._id = atom_id
 
 

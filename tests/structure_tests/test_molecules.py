@@ -33,12 +33,6 @@ class MoleculeCreationTests(MoleculeTest):
             Molecule(self.atom1, self.atom2, self.atom3, molecule_id=1000)
 
 
-    def test_molecule_id_must_be_unique(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A110")
-        with self.assertRaises(ValueError):
-            Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A110")
-
-
     def test_can_create_molecule_with_name(self):
         mol = Molecule(self.atom1, self.atom2, self.atom3, name="HIS")
         self.assertEqual(mol._name, "HIS")
@@ -54,25 +48,6 @@ class MoleculeCreationTests(MoleculeTest):
         self.assertIs(self.atom1._molecule, mol)
         self.assertIs(self.atom2._molecule, mol)
         self.assertIs(self.atom3._molecule, mol)
-
-
-
-class MoleculeIdChangesTests(MoleculeTest):
-
-    def test_changing_id_updates_known_ids(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A120")
-        self.assertIn("A120", Molecule.known_ids)
-        mol._id = "A121"
-        self.assertIn("A121", Molecule.known_ids)
-        self.assertNotIn("A120", Molecule.known_ids)
-
-
-    def test_deleting_a_molecule_frees_up_its_id(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A130")
-        self.assertIn("A130", Molecule.known_ids)
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="A131")
-        self.assertNotIn("A130", Molecule.known_ids)
-        self.assertIn("A131", Molecule.known_ids)
 
 
 

@@ -20,13 +20,6 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._model, None)
 
 
-    def test_creating_atom_adds_ref_to_atom(self):
-        Atom._all_atoms = set()
-        atom = Atom("C", 2, 3, 6)
-        self.assertEqual(len(Atom._all_atoms), 1)
-        self.assertIs(list(Atom._all_atoms)[0](), atom)
-
-
     def test_atom_element_must_be_str(self):
         with self.assertRaises(TypeError):
             Atom(1, 2, 3, 5)
@@ -69,12 +62,6 @@ class AtomCreationTests(TestCase):
             Atom("C", 2, 3, 5, atom_id=20.5)
 
 
-    def test_atom_id_must_be_unique(self):
-        atom = Atom("C", 2, 3, 5, atom_id=21)
-        with self.assertRaises(ValueError):
-            Atom("D", 5, 1, 6.5, atom_id=21)
-
-
     def test_can_create_atom_with_name(self):
         atom = Atom("C", 2, 3, 5, name="CA")
         self.assertEqual(atom._name, "CA")
@@ -102,18 +89,6 @@ class AtomReprTests(TestCase):
     def test_atom_repr(self):
         atom = Atom("C", 2, 3, 5)
         self.assertEqual(str(atom), "<C Atom at (2, 3, 5)>")
-
-
-
-class AtomDeletionTests(TestCase):
-
-    def test_atom_deletion_removes_from_all_atoms(self):
-        self.assertEqual(Atom._all_atoms, set())
-        atom = Atom("C", 2, 3, 4)
-        self.assertEqual(len(Atom._all_atoms), 1)
-        atom = Atom("D", 2, 3, 6)
-        self.assertEqual(len(Atom._all_atoms), 1)
-        self.assertIs(list(Atom._all_atoms)[0](), atom)
 
 
 

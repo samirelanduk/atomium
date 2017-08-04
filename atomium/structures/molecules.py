@@ -1,6 +1,7 @@
 """Contains classes for structures made of atoms."""
 
 from collections import Counter
+import weakref
 from math import sqrt
 from geometrica import translate, rotate
 from .atoms import Atom
@@ -91,69 +92,6 @@ class AtomicStructure:
         :param Atom atom: The atom to remove."""
 
         self._atoms.remove(atom)
-
-
-    def residues(self, residue_id=None, name=None):
-        """Returns the :py:class:`.Residue` objects in the structure. You can
-        filter these by element if you wish.
-
-        :param int residue_id: If given, only residues whose residue ID matches\
-        this will be returned (this will only return one residue).
-        :param str name: If given, only residues whose name matches this will\
-        be returned.
-        :rtype: ``set``"""
-
-        residues = set()
-        for atom in self._atoms:
-            residues.add(atom.residue())
-            if residue_id:
-                residues = set(
-                 filter(lambda r: r.residue_id() == residue_id, residues)
-                )
-            if name:
-                residues = set(filter(lambda r: r.name() == name, residues))
-        return residues
-
-
-    def residue(self, *args, **kwargs):
-        """Returns the first :py:class:`.Residue` that matches the criteria
-        given. If more than one Reside matches, it might not be the same
-        Residue that is returned every time you call this method.
-
-        :param int residue_id: If given, only residues whose residue ID matches\
-        this will be returned (this will only return one residue).
-        :param str name: If given, only residues whose name matches this will\
-        be returned.
-        :rtype: ``Residue``"""
-
-        residues = self.residues(*args, **kwargs)
-        for residue in residues: return residue
-
-
-    def add_residue(self, residue):
-        """Adds a :py:class:`.Residue` to the structure.
-
-        :param Residue residue: The Residue to add.
-        :raises TypeError: if a non-Residue is given."""
-
-        if not isinstance(residue, Residue):
-            raise TypeError("{} is not a Residue".format(residue))
-        self._atoms.update(residue.atoms())
-
-
-    def remove_residue(self, residue):
-        """Removes a :py:class:`.Residue` from the structure. This will work
-        even if not all of the Residue's atoms are in the structure.
-
-        :param Residue residue: The Residue to remove.
-        :raises TypeError: if a non-Residue is given."""
-
-        if not isinstance(residue, Residue):
-            raise TypeError("{} is not a Residue".format(residue))
-        for atom in residue.atoms():
-            try:
-                self._atoms.remove(atom)
-            except: pass
 
 
     def mass(self):
@@ -275,14 +213,11 @@ class Molecule(AtomicStructure):
     A Molecule is a collection of atoms which form a unit of some kind.
 
     :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
-    :param str molecule_id: A unique str ID for the atom. The class keeps track\
-    of IDs that have already been used, though you can free up the ID by\
-    changing or garbage collecting the molecule that has the ID you want.
+    :param str molecule_id: A unique str ID for the molecule. Uniqueness is not\
+    actually enforced.
+    :param str name: A name for the molecule.
     :raises TypeError: if non-atoms are given.
-    :raises TypeError: if the molecule_id is not str.
-    :raises ValueError: if you give a molecule_id that has already been used."""
-
-    known_ids = set()
+    :raises TypeError: if the molecule_id is not str."""
 
     def __init__(self, *atoms, molecule_id=None, name=None):
         AtomicStructure.__init__(self, *atoms)
@@ -290,29 +225,10 @@ class Molecule(AtomicStructure):
             raise TypeError("ID {} is not a string".format(molecule_id))
         if name is not None and not isinstance(name, str):
             raise TypeError("Molecule name {} is not a string".format(name))
-        if molecule_id in Molecule.known_ids:
-            raise ValueError(
-             "There's already a molecule of ID {}".format(molecule_id)
-            )
         self._id = molecule_id
-        if molecule_id is not None: Molecule.known_ids.add(molecule_id)
         self._name = name
         for atom in atoms:
             atom._molecule = self
-
-
-    def __setattr__(self, attr, value):
-        if attr == "_id" and "_id" in self.__dict__ and value is not None:
-            try:
-                Molecule.known_ids.remove(self._id)
-            except KeyError: pass
-            Molecule.known_ids.add(value)
-        self.__dict__[attr] = value
-
-
-    def __del__(self):
-        if "_id" in self.__dict__ and self._id in Molecule.known_ids:
-            Molecule.known_ids.remove(self._id)
 
 
     def __repr__(self):
@@ -326,11 +242,10 @@ class Molecule(AtomicStructure):
 
     def molecule_id(self, molecule_id=None):
         """Returns the molecule's unique string ID. If a value is given, the ID
-        will be updated, provided it is a unique string.
+        will be updated.
 
         :param int molecule_id: If given, the ID will be set to this.
-        :raises TypeError: if the ID given is not str.
-        :raises ValueError: if the ID given is already in use."""
+        :raises TypeError: if the ID given is not str."""
 
         if molecule_id is None:
             return self._id
@@ -367,15 +282,22 @@ class Molecule(AtomicStructure):
 
 
 class Residue(Molecule):
+    """Base class: :py:class:`Molcule`
+
+    A Residue is a subunit of some sort of polymer, such as an amino acid
+    residue.
+
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
+    :param str residue_id: A unique str ID for the residue. Uniqueness is not\
+    actually enforced.
+    :param str name: A name for the residue.
+    :raises TypeError: if non-atoms are given.
+    :raises TypeError: if the residue_id is not str."""
 
     def __init__(self, *atoms, residue_id=None, **kwargs):
         Molecule.__init__(self, *atoms, **kwargs)
         if residue_id is not None and not isinstance(residue_id, str):
             raise TypeError("ID {} is not a string".format(residue_id))
-        if residue_id in Molecule.known_ids:
-            raise ValueError(
-             "There's already a molecule of ID {}".format(residue_id)
-            )
         self._id = residue_id
         for atom in atoms:
             atom._residue = self
@@ -383,11 +305,10 @@ class Residue(Molecule):
 
     def residue_id(self, residue_id=None):
         """Returns the residue's unique string ID. If a value is given, the ID
-        will be updated, provided it is a unique string.
+        will be updated.
 
         :param int residue_id: If given, the ID will be set to this.
-        :raises TypeError: if the ID given is not str.
-        :raises ValueError: if the ID given is already in use."""
+        :raises TypeError: if the ID given is not str."""
 
         if residue_id is None:
             return self._id

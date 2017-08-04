@@ -13,18 +13,14 @@ class Atom:
     :param number x: The atom's x coordinate.
     :param number y: The atom's y coordinate.
     :param number z: The atom's z coordinate.
-    :param int atom_id: A unique integer ID for the atom. The class keeps track\
-    of IDs that have already been used, though you can free up the ID by\
-    changing or garbage collecting the atom that has the ID you want.
+    :param int atom_id: A unique integer ID for the atom. This is supposed to\
+    be unique but enforcing this is a bit of a hassle so they don't need to be.
     :param str name: The atom's name.
     :raises TypeError: if the element is not str.
     :raises ValueError: if the element is not 1 or 2 characters.
     :raises TypeError: if the coordinates are not numeric.
     :raises TypeError: if the atom_id is not int.
-    :raises ValueError: if you give an atom_id that has already been used.
     :raises TypeError: if the name is not str."""
-
-    _all_atoms = set()
 
     def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0):
         if not isinstance(element, str):
@@ -39,8 +35,6 @@ class Atom:
             raise TypeError("z coordinate '{}' is not numeric".format(z))
         if atom_id is not None and not isinstance(atom_id, int):
             raise TypeError("ID {} is not an integer".format(atom_id))
-        if atom_id is not None and atom_id in [a()._id for a in Atom._all_atoms]:
-            raise ValueError("There's already an atom of ID {}".format(atom_id))
         if name is not None and not isinstance(name, str):
             raise TypeError("name {} is not a string".format(name))
         if not is_numeric(charge):
@@ -55,20 +49,12 @@ class Atom:
         self._bonds = set()
         self._residue, self._chain, self._molecule = None, None, None
         self._model = None
-        Atom._all_atoms.add(weakref.ref(self))
 
 
     def __repr__(self):
         return "<{} Atom at ({}, {}, {})>".format(
          self._element, self._x, self._y, self._z
         )
-
-
-    def __del__(self):
-        for ref in Atom._all_atoms:
-            if ref() is self:
-                Atom._all_atoms.remove(ref)
-                break
 
 
     def element(self, element=None):
@@ -141,19 +127,16 @@ class Atom:
 
     def atom_id(self, atom_id=None):
         """Returns the atom's unique integer ID. If a value is given, the ID
-        will be updated, provided it is a unique integer.
+        will be updated.
 
         :param int atom_id: If given, the ID will be set to this.
-        :raises TypeError: if the ID given is not numeric.
-        :raises ValueError: if the ID given is already in use."""
+        :raises TypeError: if the ID given is not numeric."""
 
         if atom_id is None:
             return self._id
         else:
             if not isinstance(atom_id, int):
                 raise TypeError("Atom ID '{}' is not int".format(atom_id))
-            if atom_id in [a()._id for a in Atom._all_atoms]:
-                raise ValueError("There's already an atom of ID {}".format(atom_id))
             self._id = atom_id
 
 

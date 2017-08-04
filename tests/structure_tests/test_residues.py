@@ -45,36 +45,11 @@ class ResidueCreationTests(ResidueTest):
             Residue(self.atom1, self.atom2, self.atom3, residue_id=100)
 
 
-    def test_residue_id_must_be_unique(self):
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A200")
-        with self.assertRaises(ValueError):
-            Residue(self.atom1, self.atom2, self.atom3, residue_id="A200")
-
-
     def test_atoms_are_linked_to_residue(self):
         res = Residue(self.atom1, self.atom2, self.atom3)
         self.assertIs(self.atom1._residue, res)
         self.assertIs(self.atom2._residue, res)
         self.assertIs(self.atom3._residue, res)
-
-
-
-class ResiudeIdChangesTests(ResidueTest):
-
-    def test_changing_id_updates_known_ids(self):
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A220")
-        self.assertIn("A220", Molecule.known_ids)
-        res._id = "A221"
-        self.assertIn("A221", Molecule.known_ids)
-        self.assertNotIn("A220", Molecule.known_ids)
-
-
-    def test_deleting_a_molecule_frees_up_its_id(self):
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A225")
-        self.assertIn("A225", Molecule.known_ids)
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A226")
-        self.assertNotIn("A225", Molecule.known_ids)
-        self.assertIn("A226", Molecule.known_ids)
 
 
 

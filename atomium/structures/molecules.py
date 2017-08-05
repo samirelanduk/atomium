@@ -18,12 +18,17 @@ class AtomicStructure:
     :raises TypeError: if non-atoms are given."""
 
     def __init__(self, *atoms):
-        if not all(isinstance(atom, Atom) for atom in atoms):
-            non_atoms = [atom for atom in atoms if not isinstance(atom, Atom)]
-            raise TypeError(
-             "AtomicStructures need atoms, not '{}'".format(non_atoms[0])
-            )
-        self._atoms = set(atoms)
+        atoms_ = set()
+        for atom in atoms:
+            if isinstance(atom, Atom):
+                atoms_.add(atom)
+            elif isinstance(atom, AtomicStructure):
+                atoms_.update(atom.atoms())
+            else:
+                raise TypeError(
+                 "AtomicStructures need atoms, not '{}'".format(atom)
+                )
+        self._atoms = set(atoms_)
 
 
     def __repr__(self):

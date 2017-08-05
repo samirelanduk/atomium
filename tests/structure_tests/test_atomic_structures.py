@@ -38,6 +38,13 @@ class AtomicStructureCreationTests(AtomicStructureTest):
             AtomicStructure("self.atom1", self.atom2, self.atom3)
 
 
+    def test_atomic_structure_will_accept_atomic_structures(self):
+        structure = Mock(AtomicStructure)
+        structure.atoms.return_value = set(self.atoms[1:])
+        structure2 = AtomicStructure(self.atom1, structure)
+        self.assertEqual(structure2._atoms, set(self.atoms))
+
+
 
 class AtomicStructureReprTests(AtomicStructureTest):
 

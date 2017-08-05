@@ -295,10 +295,8 @@ class Residue(Molecule):
     :raises TypeError: if the residue_id is not str."""
 
     def __init__(self, *atoms, residue_id=None, **kwargs):
+        if residue_id: kwargs["molecule_id"] = residue_id
         Molecule.__init__(self, *atoms, **kwargs)
-        if residue_id is not None and not isinstance(residue_id, str):
-            raise TypeError("ID {} is not a string".format(residue_id))
-        self._id = residue_id
         for atom in atoms:
             atom._residue = self
 

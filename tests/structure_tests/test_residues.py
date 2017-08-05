@@ -29,7 +29,14 @@ class ResidueCreationTests(ResidueTest):
 
 
     @patch("atomium.structures.molecules.Molecule.__init__")
-    def test_can_residue_init_doesnt_send_residue_id(self, mock_init):
+    def test_can_create_residue_with_id(self, mock_init):
+        mock_init.return_value = None
+        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A1")
+        mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3, molecule_id="A1")
+
+
+    '''@patch("atomium.structures.molecules.Molecule.__init__")
+    def test_residue_init_doesnt_send_residue_id(self, mock_init):
         mock_init.return_value = None
         res = Residue(self.atom1, self.atom2, self.atom3, residue_id="B100")
         mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3)
@@ -42,7 +49,7 @@ class ResidueCreationTests(ResidueTest):
 
     def test_residue_id_must_be_str(self):
         with self.assertRaises(TypeError):
-            Residue(self.atom1, self.atom2, self.atom3, residue_id=100)
+            Residue(self.atom1, self.atom2, self.atom3, residue_id=100)'''
 
 
     def test_atoms_are_linked_to_residue(self):

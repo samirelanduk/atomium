@@ -29,6 +29,18 @@ class ResidueStructure:
         return res
 
 
+    def residue(self, *args, **kwargs):
+        """Returns the first py:class:`.Residue` object in the structure which
+        matches the given criteria.
+
+        :param str residue_id: Filter by residue ID.
+        :param str name: Filter by name.
+        :rtype: ``Residue``"""
+        
+        residues = self.residues(*args, **kwargs)
+        for res in residues: return res
+
+
 
 class Chain(Molecule):
     """Base class: :py:class:`Molcule`

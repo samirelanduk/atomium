@@ -64,3 +64,28 @@ class ResidueStructureResiduesTests(ResidueStructureTest):
          self.structure.residues(name="TYR"), set([self.residue1, self.residue3])
         )
         self.assertEqual(self.structure.residues(name="GLY"), set())
+
+
+
+class ResidueStructureResidueTest(ResidueStructureTest):
+
+    @patch("atomium.structures.chains.ResidueStructure.residues")
+    def test_residue_calls_residues(self, mock_residues):
+        mock_residues.return_value = set([self.residue4])
+        residue = self.structure.residue(name="A")
+        mock_residues.assert_called_with(name="A")
+        self.assertIs(residue, self.residue4)
+
+
+    @patch("atomium.structures.chains.ResidueStructure.residues")
+    def test_residue_can_return_none(self, mock_residues):
+        mock_residues.return_value = set()
+        self.assertIs(self.structure.residue(name="C"), None)
+
+
+    @patch("atomium.structures.chains.ResidueStructure.residues")
+    def test_residue_can_get_residue_by_id_and_name(self, mock_residues):
+        mock_residues.return_value = set([self.residue1])
+        residue = self.structure.residue(residue_id="A1", name="A")
+        mock_residues.assert_called_with(residue_id="A1", name="A")
+        self.assertIs(residue, self.residue1)

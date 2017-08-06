@@ -1,0 +1,66 @@
+from unittest import TestCase
+from unittest.mock import Mock, patch
+from atomium.structures.chains import ResidueStructure
+from atomium.structures.molecules import Residue
+from atomium.structures.atoms import Atom
+
+class ResidueStructureTest(TestCase):
+
+    def setUp(self):
+        self.structure = ResidueStructure()
+        self.atom1, self.atom2 = Mock(Atom), Mock(Atom)
+        self.atom3, self.atom4 = Mock(Atom), Mock(Atom)
+        self.atom5, self.atom6 = Mock(Atom), Mock(Atom)
+        self.atom7, self.atom8 = Mock(Atom), Mock(Atom)
+        self.residue1, self.residue2 = Mock(Residue), Mock(Residue)
+        self.residue3, self.residue4 = Mock(Residue), Mock(Residue)
+        self.residue1.residue_id.return_value = "A1"
+        self.residue2.residue_id.return_value = "A2"
+        self.residue3.residue_id.return_value = "A3"
+        self.residue4.residue_id.return_value = "A4"
+        self.residue1.name.return_value = "TYR"
+        self.residue2.name.return_value = "VAL"
+        self.residue3.name.return_value = "TYR"
+        self.residue4.name.return_value = "MET"
+        self.atom1.residue.return_value = self.residue1
+        self.atom2.residue.return_value = self.residue1
+        self.atom3.residue.return_value = self.residue2
+        self.atom4.residue.return_value = self.residue2
+        self.atom5.residue.return_value = self.residue3
+        self.atom6.residue.return_value = self.residue3
+        self.atom7.residue.return_value = self.residue4
+        self.atom8.residue.return_value = self.residue4
+        self.structure.atoms = lambda: set([
+         self.atom1, self.atom2, self.atom3, self.atom4,
+         self.atom5, self.atom6, self.atom7, self.atom8
+        ])
+
+
+
+class ResidueStructureResiduesTests(ResidueStructureTest):
+
+    def test_can_get_residues(self):
+        self.assertEqual(
+         self.structure.residues(),
+         set([self.residue1, self.residue2, self.residue3, self.residue4])
+        )
+
+
+    def test_can_get_residues_by_id(self):
+        self.assertEqual(
+         self.structure.residues(residue_id="A1"), set([self.residue1])
+        )
+        self.assertEqual(
+         self.structure.residues(residue_id="A2"), set([self.residue2])
+        )
+        self.assertEqual(self.structure.residues(residue_id="A5"), set())
+
+
+    def test_can_get_residues_by_name(self):
+        self.assertEqual(
+         self.structure.residues(name="VAL"), set([self.residue2])
+        )
+        self.assertEqual(
+         self.structure.residues(name="TYR"), set([self.residue1, self.residue3])
+        )
+        self.assertEqual(self.structure.residues(name="GLY"), set())

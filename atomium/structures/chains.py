@@ -2,6 +2,34 @@
 
 from .molecules import Molecule
 
+class ResidueStructure:
+    """This is an interface class which confers upon an object the ability to
+    retrieve the :py:class:`.Residue` objects (unordered) it contains. It should
+    not be instantiated directly.
+
+    Only classes which inherit from :py:class:`.AtomicStructure` should inherit
+    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    method."""
+
+    def residues(self, residue_id=None, name=None):
+        """Returns the py:class:`.Residue` objects in the structure. It can be
+        given search criteria if you wish.
+
+        :param str residue_id: Filter by residue ID.
+        :param str name: Filter by name.
+        :rtype: ``set``"""
+
+        res = set()
+        for atom in self.atoms():
+            res.add(atom.residue())
+        if residue_id:
+            res = set(filter(lambda r: r.residue_id() == residue_id, res))
+        if name:
+            res = set(filter(lambda r: r.name() == name, res))
+        return res
+
+
+
 class Chain(Molecule):
     """Base class: :py:class:`Molcule`
 

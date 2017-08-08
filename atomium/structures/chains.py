@@ -36,9 +36,39 @@ class ResidueStructure:
         :param str residue_id: Filter by residue ID.
         :param str name: Filter by name.
         :rtype: ``Residue``"""
-        
+
         residues = self.residues(*args, **kwargs)
         for res in residues: return res
+
+
+
+class ResidueSequence(ResidueStructure):
+    """Base class: :py:class:`ResidueStructure`
+
+    This is an interface class which confers upon an object the ability to
+    retrieve the :py:class:`.Residue` objects it contains, ordered by residue
+    connectivity. It should not be instantiated directly.
+
+    Only classes which inherit from :py:class:`.AtomicStructure` should inherit
+    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    method."""
+
+    def residues(self, *args, **kwargs):
+        """Returns the py:class:`.Residue` objects in the structure. It can be
+        given search criteria if you wish.
+
+        :param str residue_id: Filter by residue ID.
+        :param str name: Filter by name.
+        :rtype: ``tuple``"""
+
+        all_res = ResidueStructure.residues(self, *args, **kwargs)
+        initial_res = list(all_res)[0]
+        full_sequence = [initial_res]
+        while full_sequence[-1].next():
+            full_sequence.append(full_sequence[-1].next())
+        while full_sequence[0].previous():
+            full_sequence.insert(0, full_sequence[0].previous())
+        return tuple(sorted(all_res, key=lambda k: full_sequence.index(k)))
 
 
 

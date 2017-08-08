@@ -19,6 +19,8 @@ class ResidueCreationTests(ResidueTest):
         res = Residue(self.atom1, self.atom2, self.atom3)
         self.assertIsInstance(res, Molecule)
         mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3)
+        self.assertIsNone(res._next)
+        self.assertIsNone(res._previous)
 
 
     @patch("atomium.structures.molecules.Molecule.__init__")
@@ -33,23 +35,6 @@ class ResidueCreationTests(ResidueTest):
         mock_init.return_value = None
         res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A1")
         mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3, molecule_id="A1")
-
-
-    '''@patch("atomium.structures.molecules.Molecule.__init__")
-    def test_residue_init_doesnt_send_residue_id(self, mock_init):
-        mock_init.return_value = None
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="B100")
-        mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3)
-
-
-    def test_can_create_residue_with_id(self):
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A101")
-        self.assertEqual(res._id, "A101")
-
-
-    def test_residue_id_must_be_str(self):
-        with self.assertRaises(TypeError):
-            Residue(self.atom1, self.atom2, self.atom3, residue_id=100)'''
 
 
     def test_atoms_are_linked_to_residue(self):
@@ -118,3 +103,83 @@ class ResidueAtomRemovalTests(ResidueTest):
         res = Residue(self.atom1, self.atom2, self.atom3)
         res.remove_atom(self.atom3)
         self.assertIs(self.atom3._residue, None)
+
+
+
+class ResidueNextTests(ResidueTest):
+
+    def test_next_gets_next(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        res._next = Mock(Residue)
+        self.assertIs(res.next(), res._next)
+
+
+    def test_can_assign_next(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        next_res = Mock(Residue)
+        res.next(next_res)
+        self.assertIs(res._next, next_res)
+        self.assertIs(next_res._previous, res)
+
+
+    def test_next_residue_must_be_residue(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        mol = Mock(Molecule)
+        with self.assertRaises(TypeError):
+            res.next(mol)
+
+
+    def test_next_res_cannot_be_self(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(ValueError):
+            res.next(res)
+
+
+    def test_can_remove_next_residue(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        next_res = Mock(Residue)
+        res._next = next_res
+        next_res._previous = res
+        res.next(None)
+        self.assertIsNone(res._next)
+        self.assertIsNone(next_res._previous)
+
+
+
+class ResiduePreviousTests(ResidueTest):
+
+    def test_previous_gets_previous(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        res._previous = Mock(Residue)
+        self.assertIs(res.previous(), res._previous)
+
+
+    def test_can_assign_previous(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        previous_res = Mock(Residue)
+        res.previous(previous_res)
+        self.assertIs(res._previous, previous_res)
+        self.assertIs(previous_res._next, res)
+
+
+    def test_previous_residue_must_be_residue(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        mol = Mock(Molecule)
+        with self.assertRaises(TypeError):
+            res.previous(mol)
+
+
+    def test_previous_res_cannot_be_self(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(ValueError):
+            res.previous(res)
+
+
+    def test_can_remove_previous_residue(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        previous_res = Mock(Residue)
+        res._previous = previous_res
+        previous_res._next = res
+        res.previous(None)
+        self.assertIsNone(res._previous)
+        self.assertIsNone(previous_res._next)

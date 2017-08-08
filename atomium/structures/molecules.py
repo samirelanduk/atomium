@@ -302,6 +302,7 @@ class Residue(Molecule):
     def __init__(self, *atoms, residue_id=None, **kwargs):
         if residue_id: kwargs["molecule_id"] = residue_id
         Molecule.__init__(self, *atoms, **kwargs)
+        self._next, self._previous = None, None
         for atom in atoms:
             atom._residue = self
 
@@ -329,3 +330,63 @@ class Residue(Molecule):
     def remove_atom(self, atom, *args, **kwargs):
         Molecule.remove_atom(self, atom, *args, **kwargs)
         atom._residue = None
+
+
+    def next(self, residue=""):
+        """Residues can be linked to each other in a linear chain. This method
+        returns the :py:class:`.Residue` downstream of this one. Alternatively,
+        if you supply a residue, that residue will be assigned as the 'next' one
+        downstream to this, and this residue will be upstream to that.
+
+        Note that is a separate concept from bonds. Creating a connection of
+        this kind implies no, and requires no, explicit bonding.
+
+        :param Residue residue: The residue to connect to. If ``None`` is\
+        given, any existing connection downstream of this residue will be\
+        broken.
+        :raises TypeError: if a non-residue is given.
+        :raises ValueError: if you try to connect a residue to itself.
+        :rtype: ``Residue``"""
+
+        if residue is None:
+            if self._next: self._next._previous = None
+            self._next = None
+        elif residue == "":
+            return self._next
+        elif not isinstance(residue, Residue):
+            raise TypeError("{} is not a Residue".format(residue))
+        elif residue is self:
+            raise ValueError("Cannot link {} to itself".format(self))
+        else:
+            self._next = residue
+            residue._previous = self
+
+
+    def previous(self, residue=""):
+        """Residues can be linked to each other in a linear chain. This method
+        returns the :py:class:`.Residue` upstream of this one. Alternatively,
+        if you supply a residue, that residue will be assigned as the 'previous'
+        one upstream to this, and this residue will be downstream from that.
+
+        Note that is a separate concept from bonds. Creating a connection of
+        this kind implies no, and requires no, explicit bonding.
+
+        :param Residue residue: The residue to connect to. If ``None`` is\
+        given, any existing connection upstream of this residue will be\
+        broken.
+        :raises TypeError: if a non-residue is given.
+        :raises ValueError: if you try to connect a residue to itself.
+        :rtype: ``Residue``"""
+
+        if residue is None:
+            if self._previous: self._previous._next = None
+            self._previous = None
+        elif residue == "":
+            return self._previous
+        elif not isinstance(residue, Residue):
+            raise TypeError("{} is not a Residue".format(residue))
+        elif residue is self:
+            raise ValueError("Cannot link {} to itself".format(self))
+        else:
+            self._previous = residue
+            residue._next = self

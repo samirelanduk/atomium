@@ -187,12 +187,3 @@ class Chain(Molecule, ResidueSequence):
     def remove_atom(self, atom, *args, **kwargs):
         Molecule.remove_atom(self, atom, *args, **kwargs)
         atom._chain = None
-
-
-    def model(self):
-        """Returns the :py:class:`.Model` that the Chain is part of.
-
-        :rtype" ``Model``"""
-
-        for atom in self._atoms:
-            return atom.model()

@@ -285,6 +285,15 @@ class Molecule(AtomicStructure):
         atom._molecule = None
 
 
+    def model(self):
+        """Returns the :py:class:`.Model` that the Molecule is part of.
+
+        :rtype" ``Model``"""
+
+        for atom in self._atoms:
+            return atom.model()
+
+
 
 class Residue(Molecule):
     """Base class: :py:class:`Molcule`
@@ -399,12 +408,3 @@ class Residue(Molecule):
 
         for atom in self._atoms:
             return atom.chain()
-
-
-    def model(self):
-        """Returns the :py:class:`.Model` that the Residue is part of.
-
-        :rtype" ``Model``"""
-
-        for atom in self._atoms:
-            return atom.model()

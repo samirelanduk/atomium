@@ -1,5 +1,5 @@
 from base import IntegratedTest
-from atomium.structures import Model, Atom, Residue, Chain
+from atomium.structures import Model, Atom, Residue, Chain, Molecule
 import atomium
 
 class StructureTests(IntegratedTest):
@@ -86,7 +86,7 @@ class StructureTests(IntegratedTest):
         atom11 = Atom("C", 1, 0, 10.1, atom_id=11, name="CB")
         atom12 = Atom("N", 0.5, 1, 10, atom_id=12, name="N1")
         atom13 = Atom("C", 2, 0, 10, atom_id=13, name="CA")
-        atom14 = Atom("C", 3, 0, -10.2, atom_id=14, name="CB")
+        atom14 = Atom("C", 3, 0, 9.8, atom_id=14, name="CB")
         atom15 = Atom("N", 2.5, 1, 10, atom_id=15, name="N1")
         atom16 = Atom("C", 4, 0, 10, atom_id=16, name="CA")
         atom17 = Atom("C", 5, 0, 10, atom_id=17, name="CB")
@@ -260,3 +260,21 @@ class StructureTests(IntegratedTest):
         self.assertEqual(chaina.chain_id(), "X")
         self.assertEqual(chaina.molecule_id(), "X")
         chaina.chain_id("A")
+
+        # Add small molecule
+        atom19 = Atom("F", 3, 0, 1.8, atom_id=19, name="F1")
+        atom20 = Atom("F", 2.5, 1, 2.0, atom_id=20, name="F2")
+        mol = Molecule(atom19, atom20, molecule_id="FLU", name="FFF")
+        self.assertIs(atom19.molecule(), mol)
+        self.assertIs(atom20.molecule(), mol)
+        model.add_molecule(mol)
+        self.assertEqual(model.molecules(), set([mol, chaina, chainb]))
+        self.assertEqual(model.molecules(generic=True), set([mol]))
+        self.assertEqual(model.molecules(name="FFF"), set([mol]))
+        self.assertEqual(model.molecule(molecule_id="FLU"), mol)
+        self.assertEqual(model.molecule(molecule_id="A"), chaina)
+        self.assertIs(mol.model(), model)
+        self.assertIn(atom19, model)
+        self.assertIn(atom20, model)
+        model.remove_molecule(mol)
+        self.assertIs(mol.model(), None)

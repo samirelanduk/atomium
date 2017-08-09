@@ -111,22 +111,3 @@ class ChainIdTests(ChainTest):
         chain = Chain(self.atom1, self.atom2, self.atom3, chain_id="A")
         with self.assertRaises(TypeError):
             chain.chain_id(10)
-
-
-
-class ChainModelTests(ChainTest):
-
-    def test_can_get_model(self):
-        model = Mock()
-        self.atom1.model.return_value = model
-        self.atom2.model.return_value = model
-        self.atom3.model.return_value = model
-        chain = Chain(self.atom1, self.atom2, self.atom3)
-        self.assertIs(chain.model(), model)
-
-    def test_can_get_no_chain(self):
-        self.atom1.model.return_value = None
-        self.atom2.model.return_value = None
-        self.atom3.model.return_value = None
-        chain = Chain(self.atom1, self.atom2, self.atom3)
-        self.assertIs(chain.model(), None)

@@ -1,9 +1,16 @@
 """Contains the Model class."""
 
-from .molecules import AtomicStructure
+from .molecules import AtomicStructure, Molecule, Residue
 from .chains import ResidueStructure, Chain
 
 class ChainStructure:
+    """This is an interface class which confers upon an object the ability to
+    retrieve the :py:class:`.Chain` objects it contains. It should not be
+    instantiated directly.
+
+    Only classes which inherit from :py:class:`.AtomicStructure` should inherit
+    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    method."""
 
     def chains(self, chain_id=None, name=None):
         """Returns the py:class:`.Chain` objects in the structure. It can be
@@ -60,7 +67,77 @@ class ChainStructure:
 
 
 
-class Model(AtomicStructure, ResidueStructure, ChainStructure):
+class MoleculeStructure:
+    """This is an interface class which confers upon an object the ability to
+    retrieve the :py:class:`.Molecule` objects it contains. It should not be
+    instantiated directly.
+
+    Only classes which inherit from :py:class:`.AtomicStructure` should inherit
+    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    method."""
+
+    def molecules(self, molecule_id=None, name=None, generic=False):
+        """Returns the py:class:`.Molecule` objects in the structure. It can be
+        given search criteria if you wish.
+
+        :param str molecule_id: Filter by molecule ID.
+        :param str name: Filter by name.
+        :param bool generic: If ``True``, chains and residues will exlcuded, \
+        and only isolated small molecules will be returned.
+        :rtype: ``set``"""
+
+        molecules = set()
+        for atom in self.atoms():
+            molecules.add(atom.molecule())
+        if generic:
+            molecules = set(filter(
+             lambda m: not isinstance(m, (Residue, Chain)), molecules
+            ))
+        if molecule_id:
+            molecules = set(filter(lambda m: m.molecule_id() == molecule_id, molecules))
+        if name:
+            molecules = set(filter(lambda m: m.name() == name, molecules))
+        return molecules
+
+
+    def molecule(self, *args, **kwargs):
+        """Returns the first py:class:`.Molecule` object in the structure which
+        matches the given criteria.
+
+        :param str molecule_id: Filter by molecule ID.
+        :param str name: Filter by name.
+        :rtype: ``Molecule``"""
+
+        molecules = self.molecules(*args, **kwargs)
+        for molecule in molecules: return molecule
+
+
+    def add_molecule(self, molecule):
+        """Adds a :py:class:`.Molecule` to the structure.
+
+        :param Molecule molecule: The Molecule to add.
+        :raises TypeError: if a non-Molecule is given."""
+
+        if not isinstance(molecule, Molecule):
+            raise TypeError("{} is not a Molecule".format(molecule))
+        for atom in molecule.atoms():
+            self.add_atom(atom)
+
+
+    def remove_molecule(self, molecule):
+        """Removes a :py:class:`.Molecule` from the structure.
+
+        :param Molecule molecule: The Molecule to remove.
+        :raises TypeError: if a non-Molecule is given."""
+
+        if not isinstance(molecule, Molecule):
+            raise TypeError("{} is not a Molecule".format(molecule))
+        for atom in molecule.atoms():
+            self.remove_atom(atom)
+
+
+
+class Model(AtomicStructure, ResidueStructure, ChainStructure, MoleculeStructure):
     """Base class: :py:class:`.AtomicStructure`
 
     Represents molecular systems.

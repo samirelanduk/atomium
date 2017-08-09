@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from atomium.structures.models import Model, ChainStructure
+from atomium.structures.models import Model, ChainStructure, MoleculeStructure
 from atomium.structures.molecules import AtomicStructure
 from atomium.structures.chains import ResidueStructure
 from atomium.structures.atoms import Atom
@@ -27,6 +27,7 @@ class ModelCreationTests(ModelTest):
         self.assertIsInstance(model, AtomicStructure)
         self.assertIsInstance(model, ResidueStructure)
         self.assertIsInstance(model, ChainStructure)
+        self.assertIsInstance(model, MoleculeStructure)
         self.assertTrue(mock_init.called)
 
 

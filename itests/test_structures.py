@@ -172,7 +172,7 @@ class StructureTests(IntegratedTest):
         for residue in residues:
             self.assertIsNone(residue.chain())
 
-        # Make model from atoms
+        # Make model from residues
         model = Model(*residues)
         self.assertEqual(model.atoms(), set(atoms))
         self.assertEqual(model.residues(), set(residues))
@@ -223,12 +223,16 @@ class StructureTests(IntegratedTest):
             self.assertIs(residue, residues[index])
         self.assertIs(chaina[2], residue3a)
 
-        '''# Make model
-        model = Model()
-        model.add_chain(chaina)
-        model.add_chain(chainb)
+        # Make model
+        model = Model(chaina, chainb)
+        self.assertEqual(model.atoms(), set(atoms))
+        self.assertEqual(model.residues(), set(residues))
+        for chain in model.chains():
+            self.assertIs(chain.model(), model)
+            self.assertEqual(model.chains(), set([chaina, chainb]))
+        self.assertIs(model.chain(chain_id="A"), chaina)
 
-        # Check model
+        '''# Check model
         self.assertEqual(len(model.atoms()), 18)
         self.assertEqual(model.atom(element="C", name="CA").name(), "CA")
         self.assertEqual(model.residues(), set(

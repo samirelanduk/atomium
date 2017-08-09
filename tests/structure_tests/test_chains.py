@@ -91,3 +91,42 @@ class ChainAtomRemovalTests(ChainTest):
         chain = Chain(self.atom1, self.atom2, self.atom3)
         chain.remove_atom(self.atom3)
         self.assertIs(self.atom3._chain, None)
+
+
+
+class ChainIdTests(ChainTest):
+
+    def test_chain_id_property(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3, chain_id="A")
+        self.assertIs(chain._id, chain.chain_id())
+
+
+    def test_can_update_chain_id(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3, chain_id="A")
+        chain.chain_id("B")
+        self.assertEqual(chain._id, "B")
+
+
+    def test_chain_id_must_be_str(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3, chain_id="A")
+        with self.assertRaises(TypeError):
+            chain.chain_id(10)
+
+
+
+class ChainModelTests(ChainTest):
+
+    def test_can_get_model(self):
+        model = Mock()
+        self.atom1.model.return_value = model
+        self.atom2.model.return_value = model
+        self.atom3.model.return_value = model
+        chain = Chain(self.atom1, self.atom2, self.atom3)
+        self.assertIs(chain.model(), model)
+
+    def test_can_get_no_chain(self):
+        self.atom1.model.return_value = None
+        self.atom2.model.return_value = None
+        self.atom3.model.return_value = None
+        chain = Chain(self.atom1, self.atom2, self.atom3)
+        self.assertIs(chain.model(), None)

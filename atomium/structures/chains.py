@@ -164,6 +164,21 @@ class Chain(Molecule, ResidueSequence):
         )
 
 
+    def chain_id(self, chain_id=None):
+        """Returns the chain's unique string ID. If a value is given, the ID
+        will be updated.
+
+        :param int chain_id: If given, the ID will be set to this.
+        :raises TypeError: if the ID given is not str."""
+
+        if chain_id is None:
+            return self._id
+        else:
+            if not isinstance(chain_id, str):
+                raise TypeError("Chain ID '{}' is not str".format(chain_id))
+            self._id = chain_id
+
+
     def add_atom(self, atom, *args, **kwargs):
         Molecule.add_atom(self, atom, *args, **kwargs)
         atom._chain = self
@@ -172,3 +187,12 @@ class Chain(Molecule, ResidueSequence):
     def remove_atom(self, atom, *args, **kwargs):
         Molecule.remove_atom(self, atom, *args, **kwargs)
         atom._chain = None
+
+
+    def model(self):
+        """Returns the :py:class:`.Model` that the Chain is part of.
+
+        :rtype" ``Model``"""
+
+        for atom in self._atoms:
+            return atom.model()

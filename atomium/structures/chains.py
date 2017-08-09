@@ -104,6 +104,18 @@ class ResidueSequence(ResidueStructure):
         return True
 
 
+    def __len__(self):
+        return len(self.residues())
+
+
+    def length(self):
+        """Returns the length of the structure in residues.
+
+        :rtype: ``int``"""
+        
+        return len(self)
+
+
     def residues(self, *args, **kwargs):
         """Returns the py:class:`.Residue` objects in the structure. It can be
         given search criteria if you wish.

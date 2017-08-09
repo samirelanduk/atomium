@@ -198,7 +198,7 @@ class StructureTests(IntegratedTest):
         self.assertIs(atom18.model(), model)
 
 
-        '''# Make chains
+        # Make chains
         chaina = Chain(residue1a, residue2a, residue3a, chain_id="A")
         chainb = Chain(residue1b, residue2b, residue3b, chain_id="B")
 
@@ -207,11 +207,23 @@ class StructureTests(IntegratedTest):
         self.assertEqual(chainb.residues(), (residue1b, residue2b, residue3b))
         self.assertEqual(chaina.residues(name="GLY"), (residue1a, residue3a))
         self.assertEqual(chaina.residues(residue_id="A2"), (residue2a,))
-        self.assertIs(residue1b.chain(), chainb)
-        self.assertIs(atom15.chain(), chainb)
-        self.assertIs(atom15.molecule(), chainb)
+        for atom in atoms[:9]:
+            self.assertIs(atom.chain(), chaina)
+            self.assertIs(atom.molecule(), chaina)
+        for atom in atoms[9:]:
+            self.assertIs(atom.chain(), chainb)
+            self.assertIs(atom.molecule(), chainb)
+        for residue in residues[:3]:
+            self.assertIs(residue.chain(), chaina)
+        for residue in residues[3:]:
+            self.assertIs(residue.chain(), chainb)
+        self.assertEqual(chaina.length(), 3)
+        self.assertEqual(len(chainb), 3)
+        for index, residue in chaina:
+            self.assertIs(residue, residues[index])
+        self.assertIs(chaina[2], residue3b)
 
-        # Make model
+        '''# Make model
         model = Model()
         model.add_chain(chaina)
         model.add_chain(chainb)

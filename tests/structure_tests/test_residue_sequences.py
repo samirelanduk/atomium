@@ -46,6 +46,17 @@ class ResidueSequenceTest(TestCase):
 
 
 
+class ResidueSequenceLenTests(ResidueSequenceTest):
+
+    @patch("atomium.structures.chains.ResidueSequence.residues")
+    def test_can_get_len(self, mock_residues):
+        mock_residues.return_value = (
+         self.residue1, self.residue2, self.residue3, self.residue4
+        )
+        self.assertEqual(len(self.sequence), 4)
+
+
+
 class ResidueSequenceResiduesTests(ResidueSequenceTest):
 
     @patch("atomium.structures.chains.ResidueStructure.residues")
@@ -103,3 +114,12 @@ class ResidueSequenceCorrectCheckingTests(ResidueSequenceTest):
         ])
         with self.assertRaises(SequenceConnectivityError):
             ResidueSequence.verify(self.sequence)
+
+
+
+class ResidueSequenceLengthTests(ResidueSequenceTest):
+
+    @patch("atomium.structures.chains.ResidueSequence.__len__")
+    def test_can_get_len(self, mock_len):
+        mock_len.return_value = 100
+        self.assertEqual(self.sequence.length(), 100)

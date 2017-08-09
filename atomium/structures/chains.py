@@ -1,6 +1,6 @@
 """Contains chains and related polymer classes"""
 
-from .molecules import Molecule
+from .molecules import Molecule, Residue
 from .exceptions import SequenceConnectivityError
 
 class ResidueStructure:
@@ -40,6 +40,30 @@ class ResidueStructure:
 
         residues = self.residues(*args, **kwargs)
         for res in residues: return res
+
+
+    def add_residue(self, residue):
+        """Adds a :py:class:`.Residue` to the structure.
+
+        :param Residue residue: The Residue to add.
+        :raises TypeError: if a non-Residue is given."""
+
+        if not isinstance(residue, Residue):
+            raise TypeError("{} is not a Residue".format(residue))
+        for atom in residue.atoms():
+            self.add_atom(atom)
+
+
+    def remove_residue(self, residue):
+        """Removes a :py:class:`.Residue` from the structure.
+
+        :param Residue residue: The Residue to remove.
+        :raises TypeError: if a non-Residue is given."""
+
+        if not isinstance(residue, Residue):
+            raise TypeError("{} is not a Residue".format(residue))
+        for atom in residue.atoms():
+            self.remove_atom(atom)
 
 
 

@@ -182,7 +182,20 @@ class StructureTests(IntegratedTest):
         self.assertEqual(model.residues(name="GLY"), set([residue1a, residue3a]))
 
         # Remove and add residues
-        model.remove_residue(residue3a)
+        model.remove_residue(residue3b)
+        self.assertEqual(model.residues(), set(residues[:-1]))
+        self.assertEqual(model.atoms(), set(atoms[:-3]))
+        self.assertIsNone(residue3b.model())
+        self.assertIsNone(atom16.model())
+        self.assertIsNone(atom17.model())
+        self.assertIsNone(atom18.model())
+        model.add_residue(residue3b)
+        self.assertEqual(model.residues(), set(residues))
+        self.assertEqual(model.atoms(), set(atoms))
+        self.assertIs(residue3b.model(), model)
+        self.assertIs(atom16.model(), model)
+        self.assertIs(atom17.model(), model)
+        self.assertIs(atom18.model(), model)
 
 
         '''# Make chains

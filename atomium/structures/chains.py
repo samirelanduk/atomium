@@ -1,6 +1,7 @@
 """Contains chains and related polymer classes"""
 
 from .molecules import Molecule
+from .exceptions import SequenceConnectivityError
 
 class ResidueStructure:
     """This is an interface class which confers upon an object the ability to
@@ -53,6 +54,32 @@ class ResidueSequence(ResidueStructure):
     this class, because it requires the :py:meth:`~AtomicStructure.atoms`
     method."""
 
+    @staticmethod
+    def verify(sequence):
+        """A static method for checking that the residues in a sequence are all
+        connected together, and that there are no gaps in the sequence.
+
+        :param ResidueSequence sequence: The sequence to check.
+        :raises SequenceConnectivityError: if not properly connected.
+        :returns: ``True`` if the test passes."""
+        
+        residues = set()
+        for atom in sequence.atoms():
+            residues.add(atom.residue())
+        seq = [list(residues)[0]]
+        while seq[-1].next() is not None and seq[-1].next() in residues:
+            seq.append(seq[-1].next())
+        while seq[-1].previous() is not None and seq[-1].previous() in residues:
+            seq.append(seq[-1].previous())
+        if set(seq) != residues:
+            raise SequenceConnectivityError(
+             "{} missing from sequence {} - check connections".format(
+              residues, residues - set(seq)
+             )
+            )
+        return True
+
+
     def residues(self, *args, **kwargs):
         """Returns the py:class:`.Residue` objects in the structure. It can be
         given search criteria if you wish.
@@ -72,7 +99,7 @@ class ResidueSequence(ResidueStructure):
 
 
 
-class Chain(Molecule):
+class Chain(Molecule, ResidueSequence):
     """Base class: :py:class:`Molcule`
 
     A Chain is a polymer of :py:class:`.Residue` objects that form a
@@ -81,5 +108,6 @@ class Chain(Molecule):
     def __init__(self, *atoms, chain_id=None, **kwargs):
         if chain_id: kwargs["molecule_id"] = chain_id
         Molecule.__init__(self, *atoms, **kwargs)
+        ResidueSequence.verify(self)
         for atom in atoms:
             atom._chain = self

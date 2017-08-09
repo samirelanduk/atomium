@@ -333,7 +333,7 @@ class AtomBondBreakingTests(TestCase):
         mock_bonds.return_value = set([bond])
         atom2.bonds.return_value = set([bond])
         atom1.unbond(atom2)
-        bond.destroy.assert_called()
+        bond.destroy.assert_called_with()
 
 
     def test_bond_breaking_needs_atoms(self):

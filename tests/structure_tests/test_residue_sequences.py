@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch
 from atomium.structures.chains import ResidueStructure, ResidueSequence
 from atomium.structures.molecules import Residue
 from atomium.structures.atoms import Atom
+from atomium.structures.exceptions import SequenceConnectivityError
 
 class ResidueSequenceTest(TestCase):
 
@@ -68,3 +69,37 @@ class ResidueSequenceResiduesTests(ResidueSequenceTest):
          (self.residue2, self.residue4)
         )
         mock_residues.assert_called_with(self.sequence, a="a", b="b")
+
+
+
+class ResidueSequenceCorrectCheckingTests(ResidueSequenceTest):
+
+    def test_can_verify_conected_residues(self):
+        self.sequence.atoms = lambda: set([self.atom1, self.atom2])
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+        self.sequence.atoms = lambda: set([self.atom3, self.atom4])
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+        self.sequence.atoms = lambda: set([self.atom5, self.atom6])
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+        self.sequence.atoms = lambda: set([self.atom7, self.atom8])
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+        self.sequence.atoms = lambda: set([
+         self.atom1, self.atom2, self.atom3, self.atom4
+        ])
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+        self.sequence.atoms = lambda: set([
+         self.atom3, self.atom4, self.atom5, self.atom6
+        ])
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+        self.sequence.atoms = lambda: set([
+         self.atom5, self.atom6, self.atom7, self.atom8
+        ])
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+
+
+    def test_can_reject_unconnected_residues(self):
+        self.sequence.atoms = lambda: set([
+         self.atom3, self.atom4, self.atom7, self.atom8
+        ])
+        with self.assertRaises(SequenceConnectivityError):
+            ResidueSequence.verify(self.sequence)

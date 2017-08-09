@@ -232,7 +232,7 @@ class Molecule(AtomicStructure):
             raise TypeError("Molecule name {} is not a string".format(name))
         self._id = molecule_id
         self._name = name
-        for atom in atoms:
+        for atom in self._atoms:
             atom._molecule = self
 
 
@@ -303,7 +303,7 @@ class Residue(Molecule):
         if residue_id: kwargs["molecule_id"] = residue_id
         Molecule.__init__(self, *atoms, **kwargs)
         self._next, self._previous = None, None
-        for atom in atoms:
+        for atom in self._atoms:
             atom._residue = self
 
 
@@ -390,3 +390,21 @@ class Residue(Molecule):
         else:
             self._previous = residue
             residue._next = self
+
+
+    def chain(self):
+        """Returns the :py:class:`.Chain` that the Residue is part of.
+
+        :rtype" ``Chain``"""
+
+        for atom in self._atoms:
+            return atom.chain()
+
+
+    def model(self):
+        """Returns the :py:class:`.Model` that the Residue is part of.
+
+        :rtype" ``Model``"""
+
+        for atom in self._atoms:
+            return atom.model()

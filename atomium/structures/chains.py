@@ -109,7 +109,7 @@ class Chain(Molecule, ResidueSequence):
         if chain_id: kwargs["molecule_id"] = chain_id
         Molecule.__init__(self, *atoms, **kwargs)
         ResidueSequence.verify(self)
-        for atom in atoms:
+        for atom in self._atoms:
             atom._chain = self
 
 

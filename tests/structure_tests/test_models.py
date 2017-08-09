@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch, Mock
 from atomium.structures.models import Model
 from atomium.structures.molecules import AtomicStructure
+from atomium.structures.chains import ResidueStructure
 from atomium.structures.atoms import Atom
 
 class ModelTest(TestCase):
@@ -11,6 +12,9 @@ class ModelTest(TestCase):
         self.atom2 = Mock(Atom)
         self.atom3 = Mock(Atom)
         self.atoms = [self.atom1, self.atom2, self.atom3]
+        def mock_init(obj, *args, **kwargs):
+            obj._atoms = set()
+        self.mock_init = mock_init
 
 
 
@@ -18,8 +22,10 @@ class ModelCreationTests(ModelTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.__init__")
     def test_model_is_atomic_structure(self, mock_init):
+        mock_init.side_effect = self.mock_init
         model = Model(*self.atoms)
         self.assertIsInstance(model, AtomicStructure)
+        self.assertIsInstance(model, ResidueStructure)
         self.assertTrue(mock_init.called)
 
 

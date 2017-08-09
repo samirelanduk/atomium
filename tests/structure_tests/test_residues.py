@@ -8,6 +8,9 @@ class ResidueTest(TestCase):
     def setUp(self):
         self.atom1, self.atom2, self.atom3 = Mock(Atom), Mock(Atom), Mock(Atom)
         self.atoms = [self.atom1, self.atom2, self.atom3]
+        def mock_init(obj, *args, **kwargs):
+            obj._atoms = set()
+        self.mock_init = mock_init
 
 
 
@@ -15,7 +18,7 @@ class ResidueCreationTests(ResidueTest):
 
     @patch("atomium.structures.molecules.Molecule.__init__")
     def test_can_create_residue(self, mock_init):
-        mock_init.return_value = None
+        mock_init.side_effect = self.mock_init
         res = Residue(self.atom1, self.atom2, self.atom3)
         self.assertIsInstance(res, Molecule)
         mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3)
@@ -25,14 +28,14 @@ class ResidueCreationTests(ResidueTest):
 
     @patch("atomium.structures.molecules.Molecule.__init__")
     def test_can_create_residue_with_name(self, mock_init):
-        mock_init.return_value = None
+        mock_init.side_effect = self.mock_init
         res = Residue(self.atom1, self.atom2, self.atom3, name="GLY")
         mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3, name="GLY")
 
 
     @patch("atomium.structures.molecules.Molecule.__init__")
     def test_can_create_residue_with_id(self, mock_init):
-        mock_init.return_value = None
+        mock_init.side_effect = self.mock_init
         res = Residue(self.atom1, self.atom2, self.atom3, residue_id="A1")
         mock_init.assert_called_with(res, self.atom1, self.atom2, self.atom3, molecule_id="A1")
 
@@ -183,3 +186,41 @@ class ResiduePreviousTests(ResidueTest):
         res.previous(None)
         self.assertIsNone(res._previous)
         self.assertIsNone(previous_res._next)
+
+
+
+class ResidueChainTests(ResidueTest):
+
+    def test_can_get_chain(self):
+        chain = Mock()
+        self.atom1.chain.return_value = chain
+        self.atom2.chain.return_value = chain
+        self.atom3.chain.return_value = chain
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        self.assertIs(res.chain(), chain)
+
+    def test_can_get_no_chain(self):
+        self.atom1.chain.return_value = None
+        self.atom2.chain.return_value = None
+        self.atom3.chain.return_value = None
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        self.assertIs(res.chain(), None)
+
+
+
+class ResidueModelTests(ResidueTest):
+
+    def test_can_get_model(self):
+        model = Mock()
+        self.atom1.model.return_value = model
+        self.atom2.model.return_value = model
+        self.atom3.model.return_value = model
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        self.assertIs(res.model(), model)
+
+    def test_can_get_no_chain(self):
+        self.atom1.model.return_value = None
+        self.atom2.model.return_value = None
+        self.atom3.model.return_value = None
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        self.assertIs(res.model(), None)

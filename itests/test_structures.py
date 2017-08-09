@@ -125,7 +125,7 @@ class StructureTests(IntegratedTest):
         model.add_atom(atom16)
         self.assertIn(atom16, model)
 
-        '''# Make residues
+        # Make residues
         residue1a = Residue(atom1, atom2, atom3, residue_id="A1", name="GLY")
         residue2a = Residue(atom4, atom5, atom6, residue_id="A2", name="HIS")
         residue3a = Residue(atom7, atom8, atom9, residue_id="A3", name="GLY")
@@ -136,6 +136,9 @@ class StructureTests(IntegratedTest):
         residue2a.next(residue3a)
         residue1b.next(residue2b)
         residue2b.next(residue3b)
+        residues = [
+         residue1a, residue2a, residue3a, residue1b, residue2b, residue3b
+        ]
 
         # Check residues
         self.assertEqual(residue1a.atoms(), set([atom1, atom2, atom3]))
@@ -158,8 +161,31 @@ class StructureTests(IntegratedTest):
         residue1a.add_atom(atom1)
         self.assertIs(atom1.residue(), residue1a)
         self.assertIs(atom1.molecule(), residue1a)
+        self.assertIs(residue1a.next(), residue2a)
+        self.assertIs(residue3b.previous(), residue2b)
+        residue2b.next(None)
+        self.assertIsNone(residue2b.next())
+        self.assertIsNone(residue3b.previous())
+        residue3b.previous(residue2b)
+        self.assertIs(residue2b.next(), residue3b)
+        self.assertIs(residue3b.previous(), residue2b)
+        for residue in residues:
+            self.assertIsNone(residue.chain())
 
-        # Make chains
+        # Make model from atoms
+        model = Model(*residues)
+        self.assertEqual(model.atoms(), set(atoms))
+        self.assertEqual(model.residues(), set(residues))
+        for residue in model.residues():
+            self.assertIs(residue.model(), model)
+        self.assertIs(model.residue(residue_id="A1"), residue1a)
+        self.assertEqual(model.residues(name="GLY"), set([residue1a, residue3a]))
+
+        # Remove and add residues
+        model.remove_residue(residue3a)
+
+
+        '''# Make chains
         chaina = Chain(residue1a, residue2a, residue3a, chain_id="A")
         chainb = Chain(residue1b, residue2b, residue3b, chain_id="B")
 

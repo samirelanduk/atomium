@@ -16,6 +16,9 @@ class ChainTest(TestCase):
         self.patcher2 = patch("atomium.structures.chains.ResidueSequence.residues")
         self.mock_residues = self.patcher2.start()
         self.mock_residues.return_value = (self.residue1, self.residue2)
+        def mock_init(obj, *args, **kwargs):
+            obj._atoms = set()
+        self.mock_init = mock_init
 
 
     def tearDown(self):
@@ -28,7 +31,7 @@ class ChainCreationTests(ChainTest):
 
     @patch("atomium.structures.chains.Molecule.__init__")
     def test_can_create_chain(self, mock_init):
-        mock_init.return_value = None
+        mock_init.side_effect = self.mock_init
         chain = Chain(self.atom1, self.atom2, self.atom3)
         self.assertIsInstance(chain, Molecule)
         self.assertIsInstance(chain, ResidueSequence)
@@ -38,14 +41,14 @@ class ChainCreationTests(ChainTest):
 
     @patch("atomium.structures.chains.Molecule.__init__")
     def test_can_create_chain_with_name(self, mock_init):
-        mock_init.return_value = None
+        mock_init.side_effect = self.mock_init
         chain = Chain(self.atom1, self.atom2, name="BORG")
         mock_init.assert_called_with(chain, self.atom1, self.atom2, name="BORG")
 
 
     @patch("atomium.structures.chains.Molecule.__init__")
     def test_can_create_chain_with_id(self, mock_init):
-        mock_init.return_value = None
+        mock_init.side_effect = self.mock_init
         chain = Chain(self.atom1, self.atom2, chain_id="A")
         mock_init.assert_called_with(chain, self.atom1, self.atom2, molecule_id="A")
 

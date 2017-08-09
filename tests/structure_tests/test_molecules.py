@@ -8,6 +8,9 @@ class MoleculeTest(TestCase):
     def setUp(self):
         self.atom1, self.atom2, self.atom3 = Mock(Atom), Mock(Atom), Mock(Atom)
         self.atoms = [self.atom1, self.atom2, self.atom3]
+        def mock_init(obj, *args, **kwargs):
+            obj._atoms = set()
+        self.mock_init = mock_init
 
 
 
@@ -15,7 +18,7 @@ class MoleculeCreationTests(MoleculeTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.__init__")
     def test_can_create_molecule(self, mock_init):
-        mock_init.return_value = None
+        mock_init.side_effect = self.mock_init
         mol = Molecule(self.atom1, self.atom2, self.atom3)
         self.assertIsInstance(mol, AtomicStructure)
         mock_init.assert_called_with(mol, self.atom1, self.atom2, self.atom3)

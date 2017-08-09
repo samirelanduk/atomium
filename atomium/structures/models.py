@@ -1,8 +1,9 @@
 """Contains the Model class."""
 
 from .molecules import AtomicStructure
+from .chains import ResidueStructure
 
-class Model(AtomicStructure):
+class Model(AtomicStructure, ResidueStructure):
     """Base class: :py:class:`.AtomicStructure`
 
     Represents molecular systems.
@@ -11,7 +12,7 @@ class Model(AtomicStructure):
 
     def __init__(self, *atoms):
         AtomicStructure.__init__(self, *atoms)
-        for atom in atoms:
+        for atom in self._atoms:
             atom._model = self
 
 

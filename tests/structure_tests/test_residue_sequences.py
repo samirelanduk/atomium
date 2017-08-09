@@ -57,6 +57,27 @@ class ResidueSequenceLenTests(ResidueSequenceTest):
 
 
 
+class ResidueSequenceIterTests(ResidueSequenceTest):
+
+    @patch("atomium.structures.chains.ResidueSequence.residues")
+    def test_can_get_len(self, mock_residues):
+        mock_residues.return_value = (self.residue1, self.residue2)
+        for res, correct_res in zip(self.sequence, (self.residue1, self.residue2)):
+            self.assertEqual(res, correct_res)
+
+
+
+class ResidueSequenceIndexTests(ResidueSequenceTest):
+
+    @patch("atomium.structures.chains.ResidueSequence.residues")
+    def test_can_get_len(self, mock_residues):
+        mock_residues.return_value = (self.residue1, self.residue2)
+        self.assertEqual(self.sequence[0], self.residue1)
+        self.assertEqual(self.sequence[1], self.residue2)
+        self.assertEqual(self.sequence[-1], self.residue2)
+
+
+
 class ResidueSequenceResiduesTests(ResidueSequenceTest):
 
     @patch("atomium.structures.chains.ResidueStructure.residues")

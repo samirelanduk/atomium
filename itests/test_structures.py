@@ -219,9 +219,9 @@ class StructureTests(IntegratedTest):
             self.assertIs(residue.chain(), chainb)
         self.assertEqual(chaina.length(), 3)
         self.assertEqual(len(chainb), 3)
-        for index, residue in chaina:
+        for index, residue in enumerate(chaina):
             self.assertIs(residue, residues[index])
-        self.assertIs(chaina[2], residue3b)
+        self.assertIs(chaina[2], residue3a)
 
         '''# Make model
         model = Model()

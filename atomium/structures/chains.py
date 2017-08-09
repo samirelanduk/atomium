@@ -108,11 +108,19 @@ class ResidueSequence(ResidueStructure):
         return len(self.residues())
 
 
+    def __iter__(self):
+        return iter(self.residues())
+
+
+    def __getitem__(self, index):
+        return self.residues()[index]
+
+
     def length(self):
         """Returns the length of the structure in residues.
 
         :rtype: ``int``"""
-        
+
         return len(self)
 
 

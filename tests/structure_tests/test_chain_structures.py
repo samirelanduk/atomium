@@ -80,3 +80,34 @@ class ChainStructureChainTests(ChainStructureTest):
         chain = self.structure.chain(chain_id="A1", name="A")
         mock_chains.assert_called_with(chain_id="A1", name="A")
         self.assertIs(chain, self.chain1)
+
+
+
+class ChainStructureChainAdditionTests(ChainStructureTest):
+
+    def test_can_add_chain(self):
+        self.structure._atoms = set([
+         self.atom1, self.atom2
+        ])
+        self.structure.add_chain(self.chain2)
+        self.structure.add_atom.assert_any_call(self.atom3)
+        self.structure.add_atom.assert_any_call(self.atom4)
+
+
+    def test_can_only_add_chains(self):
+        with self.assertRaises(TypeError):
+            self.structure.add_chain("self.chain4")
+
+
+
+class ChainStructureChainRemovalTests(ChainStructureTest):
+
+    def test_can_remove_chain(self):
+        self.structure.remove_chain(self.chain2)
+        self.structure.remove_atom.assert_any_call(self.atom3)
+        self.structure.remove_atom.assert_any_call(self.atom4)
+
+
+    def test_can_only_remove_chains(self):
+        with self.assertRaises(TypeError):
+            self.structure.remove_chain("self.chain4")

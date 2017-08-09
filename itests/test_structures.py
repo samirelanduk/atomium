@@ -124,6 +124,7 @@ class StructureTests(IntegratedTest):
         self.assertNotIn(atom16, model)
         model.add_atom(atom16)
         self.assertIn(atom16, model)
+        self.assertAlmostEqual(model.charge(), 0.2, delta=0.0005)
 
         # Make residues
         residue1a = Residue(atom1, atom2, atom3, residue_id="A1", name="GLY")
@@ -171,6 +172,9 @@ class StructureTests(IntegratedTest):
         self.assertIs(residue3b.previous(), residue2b)
         for residue in residues:
             self.assertIsNone(residue.chain())
+        self.assertEqual(residue1a.charge(), 0.8)
+        self.assertEqual(residue3b.charge(), -0.6)
+        self.assertEqual(residue1b.charge(), 0)
 
         # Make model from residues
         model = Model(*residues)
@@ -196,7 +200,6 @@ class StructureTests(IntegratedTest):
         self.assertIs(atom16.model(), model)
         self.assertIs(atom17.model(), model)
         self.assertIs(atom18.model(), model)
-
 
         # Make chains
         chaina = Chain(residue1a, residue2a, residue3a, chain_id="A")
@@ -232,34 +235,28 @@ class StructureTests(IntegratedTest):
             self.assertEqual(model.chains(), set([chaina, chainb]))
         self.assertIs(model.chain(chain_id="A"), chaina)
 
-        '''# Check model
-        self.assertEqual(len(model.atoms()), 18)
-        self.assertEqual(model.atom(element="C", name="CA").name(), "CA")
-        self.assertEqual(model.residues(), set(
-         [residue1a, residue1b, residue1c, residue2a, residue2b, residue2c]
-        ))
-        self.assertEqual(model.chains(), set([chaina, chainb]))
-        self.assertIs(atom1.model(), model)
-        self.assertIs(residue1a.model(), model)
-        self.assertIs(chaina.model(), model)
+        # Remove and add chains
         model.remove_chain(chainb)
-        self.assertEqual(len(model.atoms()), 9)
-        self.assertEqual(model.residues(), set(
-         [residue1a, residue1b, residue1c]
-        ))
         self.assertEqual(model.chains(), set([chaina]))
-        chaina.remove_residue(chain1a)
-        self.assertIs(atom1.chain(), None)
-        self.assertEqual(len(model.atoms()), 6)
-        self.assertEqual(model.residues(), set([residue1b, residue1c]))
+        self.assertEqual(model.residues(), set(residues[:3]))
+        self.assertEqual(model.atoms(), set(atoms[:9]))
+        self.assertIsNone(chainb.model())
+        self.assertIsNone(residue3b.model())
+        self.assertIsNone(atom16.model())
+        self.assertIsNone(atom17.model())
+        self.assertIsNone(atom18.model())
+        model.add_chain(chainb)
+        self.assertEqual(model.chains(), set([chaina, chainb]))
+        self.assertEqual(model.residues(), set(residues))
+        self.assertEqual(model.atoms(), set(atoms))
+        self.assertIs(chainb.model(), model)
+        self.assertIs(residue3b.model(), model)
+        self.assertIs(atom16.model(), model)
+        self.assertIs(atom17.model(), model)
+        self.assertIs(atom18.model(), model)
 
-        # Make model from atoms
-        model = Model(
-         atom1, atom2, atom3, atom4, atom5, atom6, atom7, atom8, atom9,
-         atom10, atom11, atom12, atom13, atom14, atom15, atom16, atom17, atom18
-        )
-        self.assertEqual(len(model.atoms()), 18)
-        self.assertEqual(model.residues(), set(
-         [residue1a, residue1b, residue1c, residue2a, residue2b, residue2c]
-        ))
-        self.assertEqual(model.chains(), set([chaina, chainb]))'''
+        # Misc operations
+        chaina.chain_id("X")
+        self.assertEqual(chaina.chain_id(), "X")
+        self.assertEqual(chaina.molecule_id(), "X")
+        chaina.chain_id("A")

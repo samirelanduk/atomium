@@ -1,7 +1,7 @@
 """Contains the Model class."""
 
 from .molecules import AtomicStructure
-from .chains import ResidueStructure
+from .chains import ResidueStructure, Chain
 
 class ChainStructure:
 
@@ -33,6 +33,30 @@ class ChainStructure:
 
         chains = self.chains(*args, **kwargs)
         for chain in chains: return chain
+
+
+    def add_chain(self, chain):
+        """Adds a :py:class:`.Chain` to the structure.
+
+        :param Chain chain: The Chain to add.
+        :raises TypeError: if a non-Chain is given."""
+
+        if not isinstance(chain, Chain):
+            raise TypeError("{} is not a Chain".format(chain))
+        for atom in chain.atoms():
+            self.add_atom(atom)
+
+
+    def remove_chain(self, chain):
+        """Removes a :py:class:`.Chain` from the structure.
+
+        :param Chain chain: The Chain to remove.
+        :raises TypeError: if a non-Chain is given."""
+
+        if not isinstance(chain, Chain):
+            raise TypeError("{} is not a Chain".format(chain))
+        for atom in chain.atoms():
+            self.remove_atom(atom)
 
 
 

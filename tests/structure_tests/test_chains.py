@@ -70,3 +70,21 @@ class ChainReprTests(ChainTest):
         chain = Chain(self.atom1, self.atom2, self.atom3)
         chain._name = "A"
         self.assertEqual(str(chain), "<Chain A (2 residues)>")
+
+
+
+class ChainAtomAdditionTests(ChainTest):
+
+    def test_adding_atom_updates_atom(self):
+        chain = Chain(self.atom1, self.atom2)
+        chain.add_atom(self.atom3)
+        self.assertIs(self.atom3._chain, chain)
+
+
+
+class ChainAtomRemovalTests(ChainTest):
+
+    def test_removing_atom_updates_atom(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3)
+        chain.remove_atom(self.atom3)
+        self.assertIs(self.atom3._chain, None)

@@ -11,3 +11,15 @@ class Model(AtomicStructure):
 
     def __init__(self, *atoms):
         AtomicStructure.__init__(self, *atoms)
+        for atom in atoms:
+            atom._model = self
+
+
+    def add_atom(self, atom, *args, **kwargs):
+        AtomicStructure.add_atom(self, atom, *args, **kwargs)
+        atom._model = self
+
+
+    def remove_atom(self, atom, *args, **kwargs):
+        AtomicStructure.remove_atom(self, atom, *args, **kwargs)
+        atom._model = None

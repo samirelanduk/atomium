@@ -118,3 +118,13 @@ class Chain(Molecule, ResidueSequence):
          self._name + " " if self._name else "",
          len(self.residues())
         )
+
+
+    def add_atom(self, atom, *args, **kwargs):
+        Molecule.add_atom(self, atom, *args, **kwargs)
+        atom._chain = self
+
+
+    def remove_atom(self, atom, *args, **kwargs):
+        Molecule.remove_atom(self, atom, *args, **kwargs)
+        atom._chain = None

@@ -91,6 +91,10 @@ class StructureTests(IntegratedTest):
         atom16 = Atom("C", 4, 0, 10, atom_id=16, name="CA")
         atom17 = Atom("C", 5, 0, 10, atom_id=17, name="CB")
         atom18 = Atom("N", 4.5, 1, 10, atom_id=18, name="N1", charge=-0.6)
+        atoms = [
+         atom1, atom2, atom3, atom4, atom5, atom6, atom7, atom8, atom9,
+         atom10, atom11, atom12, atom13, atom14, atom15, atom16, atom17, atom18
+        ]
 
         # Bond atoms together
         atom1.bond(atom2), atom1.bond(atom3)
@@ -100,7 +104,28 @@ class StructureTests(IntegratedTest):
         atom13.bond(atom12), atom13.bond(atom14), atom13.bond(atom15)
         atom16.bond(atom15), atom16.bond(atom17), atom16.bond(atom18)
 
-        # Make residues
+        # Check atom awareness
+        for atom in atoms:
+            self.assertIsNone(atom.residue())
+            self.assertIsNone(atom.molecule())
+            self.assertIsNone(atom.chain())
+            self.assertIsNone(atom.model())
+
+        # Make model from atoms
+        model = Model(*atoms)
+        for atom in atoms:
+            self.assertIsNone(atom.residue())
+            self.assertIsNone(atom.molecule())
+            self.assertIsNone(atom.chain())
+            self.assertIs(atom.model(), model)
+            self.assertIn(atom, model)
+        model.remove_atom(atom16)
+        self.assertIsNone(atom16.model())
+        self.assertNotIn(atom16, model)
+        model.add_atom(atom16)
+        self.assertIn(atom16, model)
+
+        '''# Make residues
         residue1a = Residue(atom1, atom2, atom3, residue_id="A1", name="GLY")
         residue2a = Residue(atom4, atom5, atom6, residue_id="A2", name="HIS")
         residue3a = Residue(atom7, atom8, atom9, residue_id="A3", name="GLY")
@@ -182,4 +207,4 @@ class StructureTests(IntegratedTest):
         self.assertEqual(model.residues(), set(
          [residue1a, residue1b, residue1c, residue2a, residue2b, residue2c]
         ))
-        self.assertEqual(model.chains(), set([chaina, chainb]))
+        self.assertEqual(model.chains(), set([chaina, chainb]))'''

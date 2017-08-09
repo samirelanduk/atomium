@@ -23,9 +23,34 @@ class ModelCreationTests(ModelTest):
         self.assertTrue(mock_init.called)
 
 
+    def test_atoms_are_linked_to_model(self):
+        model = Model(*self.atoms)
+        self.assertIs(self.atom1._model, model)
+        self.assertIs(self.atom2._model, model)
+        self.assertIs(self.atom3._model, model)
+
+
 
 class ModelReprTests(ModelTest):
 
     def test_model_repr(self):
-        structure = Model(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(str(structure), "<Model (3 atoms)>")
+        model = Model(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(str(model), "<Model (3 atoms)>")
+
+
+
+class ModelAtomAdditionTests(ModelTest):
+
+    def test_adding_atom_updates_atom(self):
+        model = Model(self.atom1, self.atom2)
+        model.add_atom(self.atom3)
+        self.assertIs(self.atom3._model, model)
+
+
+
+class ModelAtomRemovalTests(ModelTest):
+
+    def test_removing_atom_updates_atom(self):
+        model = Model(self.atom1, self.atom2, self.atom3)
+        model.remove_atom(self.atom3)
+        self.assertIs(self.atom3._model, None)

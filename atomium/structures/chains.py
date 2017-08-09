@@ -62,7 +62,7 @@ class ResidueSequence(ResidueStructure):
         :param ResidueSequence sequence: The sequence to check.
         :raises SequenceConnectivityError: if not properly connected.
         :returns: ``True`` if the test passes."""
-        
+
         residues = set()
         for atom in sequence.atoms():
             residues.add(atom.residue())
@@ -111,3 +111,10 @@ class Chain(Molecule, ResidueSequence):
         ResidueSequence.verify(self)
         for atom in atoms:
             atom._chain = self
+
+
+    def __repr__(self):
+        return "<Chain {}({} residues)>".format(
+         self._name + " " if self._name else "",
+         len(self.residues())
+        )

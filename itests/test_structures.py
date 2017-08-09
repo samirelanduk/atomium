@@ -107,6 +107,10 @@ class StructureTests(IntegratedTest):
         residue1b = Residue(atom10, atom11, atom12, residue_id="B1", name="ASP")
         residue2b = Residue(atom13, atom14, atom15, residue_id="B2", name="GLU")
         residue3b = Residue(atom16, atom17, atom18, residue_id="B3", name="CYS")
+        residue1a.next(residue2a)
+        residue2a.next(residue3a)
+        residue1b.next(residue2b)
+        residue2b.next(residue3b)
 
         # Check residues
         self.assertEqual(residue1a.atoms(), set([atom1, atom2, atom3]))

@@ -1,8 +1,8 @@
+"""Contains the classes for atoms and their bonds."""
+
 import weakref
 from math import sqrt
 from matrices.checks import is_numeric
-
-"""Contains the classes for atoms and their bonds."""
 
 class Atom:
     """Represents an atom in three dimensional space. Every atom has an element
@@ -16,11 +16,13 @@ class Atom:
     :param int atom_id: A unique integer ID for the atom. This is supposed to\
     be unique but enforcing this is a bit of a hassle so they don't need to be.
     :param str name: The atom's name.
+    :param number charge: The charge of the atom.
     :raises TypeError: if the element is not str.
     :raises ValueError: if the element is not 1 or 2 characters.
     :raises TypeError: if the coordinates are not numeric.
     :raises TypeError: if the atom_id is not int.
-    :raises TypeError: if the name is not str."""
+    :raises TypeError: if the name is not str.
+    :raises TypeError: if the charge is not numeric."""
 
     def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0):
         if not isinstance(element, str):
@@ -208,7 +210,8 @@ class Atom:
 
 
     def bonds(self):
-        """Returns the :py:class:`.Bond` objects that the atom is connected to.
+        """Returns the :py:class:`.Bond` objects that the atom is associated
+        with.
 
         :rtype: ``set``"""
 

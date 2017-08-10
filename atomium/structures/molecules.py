@@ -14,8 +14,10 @@ class AtomicStructure:
 
     AtomicStructures are containers of their atoms.
 
-    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
-    :raises TypeError: if non-atoms are given."""
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
+    These can also be AtomicStructures themsevles, in which case the atoms of\
+    that structure will be used in its place.
+    :raises TypeError: if non-atoms or AtomicStructures are given."""
 
     def __init__(self, *atoms):
         atoms_ = set()
@@ -154,7 +156,7 @@ class AtomicStructure:
 
     def center_of_mass(self):
         """Returns the center of mass of the structure. This is the average of
-        all the atom coordinates, weighted the mass of each atom.
+        all the atom coordinates, weighted by the mass of each atom.
 
         :returns: (x, y, z) ``tuple``"""
 
@@ -186,7 +188,7 @@ class AtomicStructure:
 
         :param str file_format: The file format to use, in lowercase.
         :param str description: A structure description to put in the file.
-        :raises ValueError: if an unsopported file format is given."""
+        :raises ValueError: if an unsupported file format is given."""
 
         if file_format == "xyz":
             from ..converters.structure2xyzstring import structure_to_xyz_string
@@ -217,7 +219,9 @@ class Molecule(AtomicStructure):
 
     A Molecule is a collection of atoms which form a unit of some kind.
 
-    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
+    These can also be :py:class:`.AtomicStructure` objects, in which case the\
+    atoms of that structure will be used in its place.
     :param str molecule_id: A unique str ID for the molecule. Uniqueness is not\
     actually enforced.
     :param str name: A name for the molecule.
@@ -288,7 +292,7 @@ class Molecule(AtomicStructure):
     def model(self):
         """Returns the :py:class:`.Model` that the Molecule is part of.
 
-        :rtype" ``Model``"""
+        :rtype: ``Model``"""
 
         for atom in self._atoms:
             return atom.model()
@@ -296,12 +300,14 @@ class Molecule(AtomicStructure):
 
 
 class Residue(Molecule):
-    """Base class: :py:class:`Molcule`
+    """Base class: :py:class:`Molecule`
 
     A Residue is a subunit of some sort of polymer, such as an amino acid
     residue.
 
-    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
+    These can also be :py:class:`.AtomicStructure` objects, in which case the\
+    atoms of that structure will be used in its place.
     :param str residue_id: A unique str ID for the residue. Uniqueness is not\
     actually enforced.
     :param str name: A name for the residue.
@@ -404,7 +410,7 @@ class Residue(Molecule):
     def chain(self):
         """Returns the :py:class:`.Chain` that the Residue is part of.
 
-        :rtype" ``Chain``"""
+        :rtype: ``Chain``"""
 
         for atom in self._atoms:
             return atom.chain()

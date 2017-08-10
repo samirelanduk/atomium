@@ -6,8 +6,10 @@ Structures
 
 .. toctree ::
     api/models
+    api/chains
     api/molecules
     api/atoms
+    api/exceptions
 
 
 Files

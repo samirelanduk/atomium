@@ -1,4 +1,4 @@
-"""Contains the Model class."""
+"""Contains the Model class and its interfaces."""
 
 from .molecules import AtomicStructure, Molecule, Residue
 from .chains import ResidueStructure, Chain
@@ -9,11 +9,11 @@ class ChainStructure:
     instantiated directly.
 
     Only classes which inherit from :py:class:`.AtomicStructure` should inherit
-    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    this class, because it requires the :py:meth:`~.AtomicStructure.atoms`
     method."""
 
     def chains(self, chain_id=None, name=None):
-        """Returns the py:class:`.Chain` objects in the structure. It can be
+        """Returns the :py:class:`.Chain` objects in the structure. It can be
         given search criteria if you wish.
 
         :param str chain_id: Filter by chain ID.
@@ -31,7 +31,7 @@ class ChainStructure:
 
 
     def chain(self, *args, **kwargs):
-        """Returns the first py:class:`.Chain` object in the structure which
+        """Returns the first :py:class:`.Chain` object in the structure which
         matches the given criteria.
 
         :param str chain_id: Filter by chain ID.
@@ -73,11 +73,11 @@ class MoleculeStructure:
     instantiated directly.
 
     Only classes which inherit from :py:class:`.AtomicStructure` should inherit
-    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    this class, because it requires the :py:meth:`~.AtomicStructure.atoms`
     method."""
 
     def molecules(self, molecule_id=None, name=None, generic=False):
-        """Returns the py:class:`.Molecule` objects in the structure. It can be
+        """Returns the :py:class:`.Molecule` objects in the structure. It can be
         given search criteria if you wish.
 
         :param str molecule_id: Filter by molecule ID.
@@ -101,11 +101,13 @@ class MoleculeStructure:
 
 
     def molecule(self, *args, **kwargs):
-        """Returns the first py:class:`.Molecule` object in the structure which
+        """Returns the first :py:class:`.Molecule` object in the structure which
         matches the given criteria.
 
         :param str molecule_id: Filter by molecule ID.
         :param str name: Filter by name.
+        :param bool generic: If ``True``, chains and residues will exlcuded, \
+        and only isolated small molecules will be returned.
         :rtype: ``Molecule``"""
 
         molecules = self.molecules(*args, **kwargs)
@@ -138,11 +140,16 @@ class MoleculeStructure:
 
 
 class Model(AtomicStructure, ResidueStructure, ChainStructure, MoleculeStructure):
-    """Base class: :py:class:`.AtomicStructure`
+    """Base classes: :py:class:`.AtomicStructure` and
+    :py:class:`.ResidueStructure` and :py:class:`.ChainStructure` and
+    :py:class:`.MoleculeStructure`
 
-    Represents molecular systems.
+    Represents molecular systems. These are essentially the isolated universes
+    in which the other structures live.
 
-    :param \*atoms: The atoms that make up the model."""
+    :param \*atoms: The atoms that make up the model. These can also be\
+    :py:class:`.AtomicStructure` objects, in which case the atoms of that\
+    structure will be used in its place."""
 
     def __init__(self, *atoms):
         AtomicStructure.__init__(self, *atoms)

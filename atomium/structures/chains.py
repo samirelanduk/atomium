@@ -1,4 +1,4 @@
-"""Contains chains and related polymer classes"""
+"""Contains chains and related polymer classes."""
 
 from .molecules import Molecule, Residue
 from .exceptions import SequenceConnectivityError
@@ -9,11 +9,11 @@ class ResidueStructure:
     not be instantiated directly.
 
     Only classes which inherit from :py:class:`.AtomicStructure` should inherit
-    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    this class, because it requires the :py:meth:`~.AtomicStructure.atoms`
     method."""
 
     def residues(self, residue_id=None, name=None):
-        """Returns the py:class:`.Residue` objects in the structure. It can be
+        """Returns the :py:class:`.Residue` objects in the structure. It can be
         given search criteria if you wish.
 
         :param str residue_id: Filter by residue ID.
@@ -31,7 +31,7 @@ class ResidueStructure:
 
 
     def residue(self, *args, **kwargs):
-        """Returns the first py:class:`.Residue` object in the structure which
+        """Returns the first :py:class:`.Residue` object in the structure which
         matches the given criteria.
 
         :param str residue_id: Filter by residue ID.
@@ -74,8 +74,10 @@ class ResidueSequence(ResidueStructure):
     retrieve the :py:class:`.Residue` objects it contains, ordered by residue
     connectivity. It should not be instantiated directly.
 
+    They are iterable and indexable.
+
     Only classes which inherit from :py:class:`.AtomicStructure` should inherit
-    this class, because it requires the :py:meth:`~AtomicStructure.atoms`
+    this class, because it requires the :py:meth:`~.AtomicStructure.atoms`
     method."""
 
     @staticmethod
@@ -125,7 +127,7 @@ class ResidueSequence(ResidueStructure):
 
 
     def residues(self, *args, **kwargs):
-        """Returns the py:class:`.Residue` objects in the structure. It can be
+        """Returns the :py:class:`.Residue` objects in the structure. It can be
         given search criteria if you wish.
 
         :param str residue_id: Filter by residue ID.
@@ -144,10 +146,19 @@ class ResidueSequence(ResidueStructure):
 
 
 class Chain(Molecule, ResidueSequence):
-    """Base class: :py:class:`Molcule`
+    """Base classes: :py:class:`.Molecule` and :py:class:`ResidueSequence`
 
     A Chain is a polymer of :py:class:`.Residue` objects that form a
-    molecular unit."""
+    molecular unit. They are iterable and indexable.
+
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
+    These can also be :py:class:`.AtomicStructure` objects, in which case the\
+    atoms of that structure will be used in its place.
+    :param str chain_id: A unique str ID for the chain. Uniqueness is not\
+    actually enforced.
+    :param str name: A name for the chain.
+    :raises TypeError: if non-atoms or AtomicStructures are given.
+    :raises TypeError: if the chain_id is not str."""
 
     def __init__(self, *atoms, chain_id=None, **kwargs):
         if chain_id: kwargs["molecule_id"] = chain_id

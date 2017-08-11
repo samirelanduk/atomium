@@ -2,7 +2,7 @@ from collections import Counter
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.structures.atoms import Atom
-from atomium.structures.molecules import AtomicStructure
+from atomium.structures.molecules import AtomicStructure, Residue
 
 class AtomicStructureTest(TestCase):
 
@@ -19,6 +19,9 @@ class AtomicStructureTest(TestCase):
         self.atom1.atom_id.return_value = 500
         self.atom2.atom_id.return_value = 600
         self.atom3.atom_id.return_value = 700
+        self.atom1.name.return_value = "CA"
+        self.atom2.name.return_value = "CA"
+        self.atom3.name.return_value = "NY"
         self.atoms = [self.atom1, self.atom2, self.atom3]
 
 
@@ -33,6 +36,13 @@ class AtomicStructureCreationTests(AtomicStructureTest):
     def test_atomic_structure_needs_atoms(self):
         with self.assertRaises(TypeError):
             AtomicStructure("self.atom1", self.atom2, self.atom3)
+
+
+    def test_atomic_structure_will_accept_atomic_structures(self):
+        structure = Mock(AtomicStructure)
+        structure.atoms.return_value = set(self.atoms[1:])
+        structure2 = AtomicStructure(self.atom1, structure)
+        self.assertEqual(structure2._atoms, set(self.atoms))
 
 
 
@@ -74,6 +84,13 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
         self.assertEqual(structure.atoms(atom_id=500), set([self.atoms[0]]))
         self.assertEqual(structure.atoms(atom_id=600), set([self.atoms[1]]))
         self.assertEqual(structure.atoms(atom_id=300), set())
+
+
+    def test_can_get_atoms_by_name(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.atoms(name="CA"), set(self.atoms[:2]))
+        self.assertEqual(structure.atoms(name="NY"), set([self.atoms[2]]))
+        self.assertEqual(structure.atoms(name="CB"), set())
 
 
 
@@ -134,6 +151,17 @@ class AtomicStructureMassTests(AtomicStructureTest):
     def test_structure_mass_is_sum_of_atom_masses(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure.mass(), 17.1)
+
+
+
+class AtomicStructureChargeTests(AtomicStructureTest):
+
+    def test_structure_charge_is_sum_of_atom_charges(self):
+        self.atom1.charge.return_value = 0.2
+        self.atom2.charge.return_value = -1.4
+        self.atom3.charge.return_value = 0.6
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertAlmostEqual(structure.charge(), -0.6, delta=0.000005)
 
 
 

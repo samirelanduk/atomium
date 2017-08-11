@@ -164,6 +164,16 @@ The ``Xyz`` object itself can also be saved:
 Changelog
 ---------
 
+Release 0.3.0
+~~~~~~~~~~~~~
+
+`11 August 2017`
+
+* Added classes for Molecules, Chains, Residues, and their interfaces.
+* Added charges to atoms and structures.
+* Add ability to create AtomicStructures from AtomicStructures.
+
+
 Release 0.2.0
 ~~~~~~~~~~~~~
 

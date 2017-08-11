@@ -11,7 +11,13 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._y, 3)
         self.assertEqual(atom._z, 5)
         self.assertEqual(atom._id, None)
+        self.assertEqual(atom._name, None)
+        self.assertEqual(atom._charge, 0)
         self.assertEqual(atom._bonds, set())
+        self.assertEqual(atom._residue, None)
+        self.assertEqual(atom._chain, None)
+        self.assertEqual(atom._molecule, None)
+        self.assertEqual(atom._model, None)
 
 
     def test_atom_element_must_be_str(self):
@@ -56,10 +62,25 @@ class AtomCreationTests(TestCase):
             Atom("C", 2, 3, 5, atom_id=20.5)
 
 
-    def test_atom_id_must_be_unique(self):
-        atom = Atom("C", 2, 3, 5, atom_id=21)
-        with self.assertRaises(ValueError):
-            Atom("D", 5, 1, 6.5, atom_id=21)
+    def test_can_create_atom_with_name(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        self.assertEqual(atom._name, "CA")
+
+
+    def test_atom_name_must_be_str(self):
+        with self.assertRaises(TypeError):
+            Atom("C", 2, 3, 5, name=20.5)
+
+
+    def test_can_create_atom_with_charge(self):
+        atom = Atom("C", 2, 3, 5, charge=-2.5)
+        self.assertEqual(atom._charge, -2.5)
+
+
+    def test_atom_charge_must_be_number(self):
+        with self.assertRaises(TypeError):
+            Atom("C", 2, 3, 5, charge="20.5")
+        Atom("C", 2, 3, 5, charge=10)
 
 
 
@@ -68,25 +89,6 @@ class AtomReprTests(TestCase):
     def test_atom_repr(self):
         atom = Atom("C", 2, 3, 5)
         self.assertEqual(str(atom), "<C Atom at (2, 3, 5)>")
-
-
-
-class AtomIdChangesTests(TestCase):
-
-    def test_changing_id_updates_known_ids(self):
-        atom = Atom("C", 2, 3, 5, atom_id=30)
-        self.assertIn(30, Atom.known_ids)
-        atom._id = 31
-        self.assertIn(31, Atom.known_ids)
-        self.assertNotIn(30, Atom.known_ids)
-
-
-    def test_deleting_an_atom_frees_up_its_id(self):
-        atom = Atom("C", 2, 3, 5, atom_id=40)
-        self.assertIn(40, Atom.known_ids)
-        atom = Atom("C", 2, 3, 5, atom_id=41)
-        self.assertNotIn(40, Atom.known_ids)
-        self.assertIn(41, Atom.known_ids)
 
 
 
@@ -195,10 +197,91 @@ class AtomIdTests(TestCase):
         self.assertEqual(atom._id, 102)
 
 
-    def test_atom_z_must_be_numeric(self):
+    def test_atom_id_must_be_numeric(self):
         atom = Atom("C", 2, 3, 5, atom_id=105)
         with self.assertRaises(TypeError):
             atom.atom_id("4")
+
+
+
+class AtomNameTests(TestCase):
+
+    def test_name_property(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        self.assertIs(atom._name, atom.name())
+
+
+    def test_can_update_name(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        atom.name("CB")
+        self.assertEqual(atom._name, "CB")
+
+
+    def test_atom_name_must_be_str(self):
+        atom = Atom("C", 2, 3, 5, name="CA")
+        with self.assertRaises(TypeError):
+            atom.name(4)
+
+
+
+class AtomResidueTests(TestCase):
+
+    def test_residue_property(self):
+        residue = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._residue = residue
+        self.assertIs(atom.residue(), residue)
+
+
+
+class AtomChainTests(TestCase):
+
+    def test_chain_property(self):
+        chain = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._chain = chain
+        self.assertIs(atom.chain(), chain)
+
+
+
+class AtomMoleculeTests(TestCase):
+
+    def test_molecule_property(self):
+        molecule = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._molecule = molecule
+        self.assertIs(atom.molecule(), molecule)
+
+
+
+class AtomModelTests(TestCase):
+
+    def test_model_property(self):
+        model = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._model = model
+        self.assertIs(atom.model(), model)
+
+
+
+class AtomChargeTests(TestCase):
+
+    def test_charge_property(self):
+        atom = Atom("C", 2, 3, 5, charge=0.5)
+        self.assertIs(atom._charge, atom.charge())
+
+
+    def test_can_update_charge(self):
+        atom = Atom("C", 2, 3, 5)
+        atom.charge(6)
+        self.assertEqual(atom._charge, 6)
+
+
+    def test_atom_charge_must_be_numeric(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom.charge("4")
+        atom.charge(4.5)
 
 
 
@@ -250,7 +333,7 @@ class AtomBondBreakingTests(TestCase):
         mock_bonds.return_value = set([bond])
         atom2.bonds.return_value = set([bond])
         atom1.unbond(atom2)
-        bond.destroy.assert_called()
+        bond.destroy.assert_called_with()
 
 
     def test_bond_breaking_needs_atoms(self):

@@ -1,7 +1,8 @@
+"""Contains the classes for atoms and their bonds."""
+
+import weakref
 from math import sqrt, acos, degrees
 from matrices.checks import is_numeric
-
-"""Contains the classes for atoms and their bonds."""
 
 class Atom:
     """Represents an atom in three dimensional space. Every atom has an element
@@ -12,18 +13,18 @@ class Atom:
     :param number x: The atom's x coordinate.
     :param number y: The atom's y coordinate.
     :param number z: The atom's z coordinate.
-    :param int atom_id: A unique integer ID for the atom. The class keeps track\
-    of IDs that have already been used, though you can free up the ID by\
-    changing or garbage collecting the atom that has the ID you want.
+    :param int atom_id: A unique integer ID for the atom. This is supposed to\
+    be unique but enforcing this is a bit of a hassle so they don't need to be.
+    :param str name: The atom's name.
+    :param number charge: The charge of the atom.
     :raises TypeError: if the element is not str.
     :raises ValueError: if the element is not 1 or 2 characters.
     :raises TypeError: if the coordinates are not numeric.
     :raises TypeError: if the atom_id is not int.
-    :raises ValueError: if you give an atom_id that has already been used."""
+    :raises TypeError: if the name is not str.
+    :raises TypeError: if the charge is not numeric."""
 
-    known_ids = set()
-
-    def __init__(self, element, x, y, z, atom_id=None):
+    def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0):
         if not isinstance(element, str):
             raise TypeError("Element '{}' is not str".format(element))
         if not 0 < len(element) < 3:
@@ -36,33 +37,26 @@ class Atom:
             raise TypeError("z coordinate '{}' is not numeric".format(z))
         if atom_id is not None and not isinstance(atom_id, int):
             raise TypeError("ID {} is not an integer".format(atom_id))
-        if atom_id in Atom.known_ids:
-            raise ValueError("There's already an atom of ID {}".format(atom_id))
+        if name is not None and not isinstance(name, str):
+            raise TypeError("name {} is not a string".format(name))
+        if not is_numeric(charge):
+            raise TypeError("charge '{}' is not numeric".format(charge))
         self._element = element
         self._x = x
         self._y = y
         self._z = z
         self._id = atom_id
-        if atom_id is not None: Atom.known_ids.add(atom_id)
+        self._name = name
+        self._charge = charge
         self._bonds = set()
+        self._residue, self._chain, self._molecule = None, None, None
+        self._model = None
 
 
     def __repr__(self):
         return "<{} Atom at ({}, {}, {})>".format(
          self._element, self._x, self._y, self._z
         )
-
-
-    def __setattr__(self, attr, value):
-        if attr == "_id" and "_id" in self.__dict__ and value is not None:
-            Atom.known_ids.remove(self._id)
-            Atom.known_ids.add(value)
-        self.__dict__[attr] = value
-
-
-    def __del__(self):
-        if "_id" in self.__dict__ and self._id in Atom.known_ids:
-            Atom.known_ids.remove(self._id)
 
 
     def element(self, element=None):
@@ -135,11 +129,10 @@ class Atom:
 
     def atom_id(self, atom_id=None):
         """Returns the atom's unique integer ID. If a value is given, the ID
-        will be updated, provided it is a unique integer.
+        will be updated.
 
         :param int atom_id: If given, the ID will be set to this.
-        :raises TypeError: if the ID given is not numeric.
-        :raises ValueError: if the ID given is already in use."""
+        :raises TypeError: if the ID given is not numeric."""
 
         if atom_id is None:
             return self._id
@@ -149,8 +142,76 @@ class Atom:
             self._id = atom_id
 
 
+    def name(self, name=None):
+        """Returns the atom's name. If a value is given, the name will be
+        updated, provided it is a string.
+
+        :param str name: If given, the name will be set to this.
+        :raises TypeError: if the name given is not str."""
+
+        if name is None:
+            return self._name
+        else:
+            if not isinstance(name, str):
+                raise TypeError("Atom name '{}' is not str".format(name))
+            self._name = name
+
+
+    def residue(self):
+        """Returns the :py:class:`.Residue` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Residue``"""
+
+        return self._residue
+
+
+    def chain(self):
+        """Returns the :py:class:`.Chain` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Chain``"""
+
+        return self._chain
+
+
+    def molecule(self):
+        """Returns the :py:class:`.Molecule` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Molecule``"""
+
+        return self._molecule
+
+
+    def model(self):
+        """Returns the :py:class:`.Model` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Model``"""
+
+        return self._model
+
+
+    def charge(self, charge=None):
+        """Returns the atom's charge. If a value is given, the charge will be
+        updated, but it must be numeric.
+
+        :param number charge: If given, the atom's charge will be set to this.
+        :raises TypeError: if the charge given is not numeric.
+        :rtype: ``int`` or ``float``"""
+
+        if charge is None:
+            return self._charge
+        else:
+            if not is_numeric(charge):
+                raise TypeError("charge '{}' is not numeric".format(charge))
+            self._charge = charge
+
+
     def bonds(self):
-        """Returns the :py:class:`.Bond` objects that the atom is connected to.
+        """Returns the :py:class:`.Bond` objects that the atom is associated
+        with.
 
         :rtype: ``set``"""
 

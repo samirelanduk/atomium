@@ -137,6 +137,11 @@ class ResidueSequenceCorrectCheckingTests(ResidueSequenceTest):
             ResidueSequence.verify(self.sequence)
 
 
+    def test_empty_sequences_pass(self):
+        self.sequence.atoms = lambda: set()
+        self.assertTrue(ResidueSequence.verify(self.sequence))
+
+
 
 class ResidueSequenceLengthTests(ResidueSequenceTest):
 

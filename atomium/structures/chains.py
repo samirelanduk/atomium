@@ -92,17 +92,18 @@ class ResidueSequence(ResidueStructure):
         residues = set()
         for atom in sequence.atoms():
             residues.add(atom.residue())
-        seq = [list(residues)[0]]
-        while seq[-1].next() is not None and seq[-1].next() in residues:
-            seq.append(seq[-1].next())
-        while seq[-1].previous() is not None and seq[-1].previous() in residues:
-            seq.append(seq[-1].previous())
-        if set(seq) != residues:
-            raise SequenceConnectivityError(
-             "{} missing from sequence {} - check connections".format(
-              residues, residues - set(seq)
-             )
-            )
+        if residues:
+            seq = [list(residues)[0]]
+            while seq[-1].next() is not None and seq[-1].next() in residues:
+                seq.append(seq[-1].next())
+            while seq[-1].previous() is not None and seq[-1].previous() in residues:
+                seq.append(seq[-1].previous())
+            if set(seq) != residues:
+                raise SequenceConnectivityError(
+                 "{} missing from sequence {} - check connections".format(
+                  residues, residues - set(seq)
+                 )
+                )
         return True
 
 

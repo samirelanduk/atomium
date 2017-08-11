@@ -94,7 +94,9 @@ class MoleculeStructure:
              lambda m: not isinstance(m, (Residue, Chain)), molecules
             ))
         if molecule_id:
-            molecules = set(filter(lambda m: m.molecule_id() == molecule_id, molecules))
+            molecules = set(filter(
+             lambda m: m.molecule_id() == molecule_id, molecules
+            ))
         if name:
             molecules = set(filter(lambda m: m.name() == name, molecules))
         return molecules

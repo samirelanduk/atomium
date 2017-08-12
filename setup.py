@@ -23,6 +23,6 @@ setup(
   "Programming Language :: Python :: 3.6",
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules PDB XYZ",
- packages=["atomium", "atomium.xyz", "atomium.converters", "atomium.structures"],
+ packages=["atomium", "atomium.parse", "atomium.converters", "atomium.structures"],
  install_requires=["geometrica"]
 )

@@ -24,7 +24,7 @@ class PdbReadingTests(IntegratedTest):
             self.assertIsNone(chain.name())
             self.assertEqual(chain.length(), 229)
             self.assertAlmostEqual(chain.mass(), 24994.8, delta=0.005)
-        chaina, chainb = model.chain(chain_id="A", chain_id="B")
+        chaina, chainb = model.chain(chain_id="A"), model.chain(chain_id="B")
 
         # Residues are correct
         self.assertEqual(chaina[0].name(), "LEU")

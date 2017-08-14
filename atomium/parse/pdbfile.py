@@ -163,8 +163,8 @@ class PdbFile:
     def __eq__(self, other):
         if not isinstance(other, PdbFile) or self.length() != other.length():
             return False
-        for index, record in enumerate(self._records):
-            if record != other._records[index]:
+        for record, other_record in zip(self._records, other._records):
+            if record != other_record:
                 return False
         return True
 
@@ -189,12 +189,27 @@ class PdbFile:
         return len(self._records)
 
 
-    def records(self):
-        """Returns the :py:class:`.PdbRecord`s in this PdbFile.
+    def records(self, name=None):
+        """Returns the :py:class:`.PdbRecord` objects in this PdbFile. You can
+        filter these by name if you wish.
 
+        :param str name: The record name to filter by.
         :returns: ``list`` of ``PdbRecord``"""
 
-        return list(self._records)
+        records = self._records
+        if name:
+            records = filter(lambda r: r.name() == name, records)
+        return tuple(records)
+
+
+    def record(self, name):
+        """Returns the first :py:class:`.PdbRecord` that matches the name given.
+
+        :returns: ``PdbRecord``"""
+
+        for record in self._records:
+            if record.name() == name:
+                return record
 
 
     def add_record(self, record):
@@ -213,16 +228,3 @@ class PdbFile:
         :param PdbRecord record: The record to remove."""
 
         self._records.remove(record)
-
-
-    def get_record_by_name(self, name):
-        """Retrieves the first :py:class:`.PdbRecord` with the name given. If
-        there are no matches it will return ``None``.
-
-        :param str name: The name to search by."""
-        
-        if not isinstance(name, str):
-            raise TypeError("Can only get records by str, not '%s'" % str(name))
-        for record in self._records:
-            if record.name() == name:
-                return record

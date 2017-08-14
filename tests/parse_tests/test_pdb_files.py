@@ -6,6 +6,10 @@ class PdbFileTest(TestCase):
 
     def setUp(self):
         self.records = [Mock(PdbRecord) for i in (1, 2, 3, 4)]
+        self.records[0].name.return_value = "AAA"
+        self.records[1].name.return_value = "BBB"
+        self.records[2].name.return_value = "BBB"
+        self.records[3].name.return_value = "DDD"
 
 
 
@@ -123,12 +127,29 @@ class PdbFileLengthTests(PdbFileTest):
 
 
 
-class PdbFileRecordTests(PdbFileTest):
+class PdbFileRecordsTests(PdbFileTest):
 
     def test_can_get_records(self):
         pdb_file = PdbFile(*self.records)
-        self.assertEqual(pdb_file._records, pdb_file.records())
-        self.assertIsNot(pdb_file._records, pdb_file.records())
+        self.assertEqual(tuple(pdb_file._records), pdb_file.records())
+
+
+    def test_can_get_records_by_name(self):
+        pdb_file = PdbFile(*self.records)
+        self.assertEqual(pdb_file.records(name="AAA"), tuple(self.records[:1]))
+        self.assertEqual(pdb_file.records(name="BBB"), tuple(self.records[1:3]))
+        self.assertEqual(pdb_file.records(name="BXXXBB"), tuple())
+
+
+
+class PdbFileRecordTests(PdbFileTest):
+
+    def test_can_get_record_by_name(self):
+        pdb_file = PdbFile(*self.records)
+        self.assertIs(pdb_file.record(name="AAA"), self.records[0])
+        self.assertIs(pdb_file.record(name="BBB"), self.records[1])
+        self.assertIs(pdb_file.record(name="DDD"), self.records[3])
+        self.assertIs(pdb_file.record(name="EEE"), None)
 
 
 
@@ -155,33 +176,3 @@ class PdbFileRecordRemovalTests(PdbFileTest):
         self.assertEqual(pdb_file._records, [self.records[0]] + self.records[2:])
         pdb_file.remove_record(self.records[0])
         self.assertEqual(pdb_file._records, self.records[2:])
-
-
-
-class RecordRetrievalByNameTests(PdbFileTest):
-
-    def test_can_get_record_by_name(self):
-        self.records[0].name.return_value = "AAA"
-        self.records[1].name.return_value = "BBB"
-        self.records[2].name.return_value = "CCC"
-        self.records[3].name.return_value = "DDD"
-        pdb_file = PdbFile(*self.records)
-        self.assertIs(pdb_file.get_record_by_name("AAA"), self.records[0])
-        self.assertIs(pdb_file.get_record_by_name("BBB"), self.records[1])
-        self.assertIs(pdb_file.get_record_by_name("CCC"), self.records[2])
-        self.assertIs(pdb_file.get_record_by_name("DDD"), self.records[3])
-
-
-    def test_no_match_returns_none(self):
-        self.records[0].name.return_value = "AAA"
-        self.records[1].name.return_value = "BBB"
-        self.records[2].name.return_value = "CCC"
-        self.records[3].name.return_value = "DDD"
-        pdb_file = PdbFile(*self.records)
-        self.assertIs(pdb_file.get_record_by_name("EEE"), None)
-
-
-    def test_can_only_search_records_by_text(self):
-        pdb_file = PdbFile(*self.records)
-        with self.assertRaises(TypeError):
-            pdb_file.get_record_by_name(100)

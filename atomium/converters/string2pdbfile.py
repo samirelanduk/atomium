@@ -7,7 +7,8 @@ def string_to_pdb_file(s):
     """Converts a string taken from a .pdb file and turns it into a
     :py:class:`.PdbFile` object.
 
-    :param str s: The string to convert."""
+    :param str s: The string to convert.
+    :rtype: ``PdbFile``"""
 
     pdb_file = PdbFile()
     lines = string2lines(s)

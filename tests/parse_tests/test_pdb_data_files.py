@@ -8,6 +8,7 @@ class PdbDataFileSlotsTests(TestCase):
         data_file = PdbDataFile()
         data_file.atoms = "aaa"
         data_file.heteroatoms = "aaa"
+        data_file.connections = "aaa"
         with self.assertRaises(AttributeError):
             data_file.snorgleborgle = "aaa"
 

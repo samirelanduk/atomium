@@ -3,6 +3,20 @@
 from math import ceil
 from ..parse.pdbfile import PdbRecord
 
+def pack_structure(data_file, pdb_file):
+    """Adds the :py:class:`.PdbRecord` objetcs to a :py:class:`.PdbFile`
+    pertaining to structure, from a :py:class:`.PdbDataFile`.
+
+    :param PdbDataFile data_file: The source PdbDataFile.
+    :param PdbFile pdb_file: The PdbFile to update."""
+
+    for atom in data_file.atoms:
+        pdb_file._records.append(atom_dict_to_record(atom))
+    for atom in data_file.heteroatoms:
+        pdb_file._records.append(atom_dict_to_record(atom, hetero=True))
+    pdb_file._records += conections_list_to_records(data_file.connections)
+
+
 def atom_dict_to_record(d, hetero=False):
     """Converts an atom ``dict`` to an ATOM or HETATM :py:class:`.PdbRecord`.
 
@@ -40,7 +54,7 @@ def conections_list_to_records(l):
 
     :param list l: The list of connections.
     :returns: ``list`` of ``PdbRecord``"""
-    
+
     records = []
     for connection in l:
         for line_num in range(ceil(len(connection["bond_to"]) / 4)):

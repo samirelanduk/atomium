@@ -1,6 +1,31 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.converters.pdbdatafile2pdbfile import *
+from atomium.parse.pdbfile import PdbFile
+from atomium.parse.pdbdatafile import PdbDataFile
+
+class StructurePackingTests(TestCase):
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.atom_dict_to_record")
+    @patch("atomium.converters.pdbdatafile2pdbfile.conections_list_to_records")
+    def test_can_pack_structure(self, mock_connections, mock_atom):
+        mock_connections.return_value = ["c1", "c2"]
+        mock_atom.side_effect = ["a1", "a2", "h1", "h2"]
+        pdb_file = Mock(PdbFile)
+        pdb_file._records = []
+        data_file = Mock(PdbDataFile)
+        data_file.connections = "ccc"
+        data_file.atoms = ["1", "2"]
+        data_file.heteroatoms = ["3", "4"]
+        pack_structure(data_file, pdb_file)
+        mock_connections.assert_called_with("ccc")
+        mock_atom.assert_any_call("1")
+        mock_atom.assert_any_call("2")
+        mock_atom.assert_any_call("3", hetero=True)
+        mock_atom.assert_any_call("4", hetero=True)
+        self.assertEqual(pdb_file._records, ["a1", "a2", "h1", "h2", "c1", "c2"])
+
+
 
 class AtomDictToAtomRecordTests(TestCase):
 

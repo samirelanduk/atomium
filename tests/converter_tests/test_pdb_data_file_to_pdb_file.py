@@ -4,6 +4,17 @@ from atomium.converters.pdbdatafile2pdbfile import *
 from atomium.parse.pdbfile import PdbFile
 from atomium.parse.pdbdatafile import PdbDataFile
 
+class PdbDataFileToPdbFileTests(TestCase):
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.pack_structure")
+    def test_can_create_pdb_file_from_data_file(self, mock_pack):
+        data_file = Mock(PdbDataFile)
+        pdb_file = pdb_data_file_to_pdb_file(data_file)
+        self.assertIsInstance(pdb_file, PdbFile)
+        mock_pack.assert_called_with(data_file, pdb_file)
+
+
+
 class StructurePackingTests(TestCase):
 
     @patch("atomium.converters.pdbdatafile2pdbfile.atom_dict_to_record")

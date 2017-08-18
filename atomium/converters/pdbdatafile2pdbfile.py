@@ -1,5 +1,6 @@
 """Contains the function for creating PdbFiles from PdbDataFiles."""
 
+from math import ceil
 from ..parse.pdbfile import PdbRecord
 
 def atom_dict_to_record(d, hetero=False):
@@ -32,3 +33,20 @@ def atom_dict_to_record(d, hetero=False):
      d.get("charge", 0) if d.get("charge") else 0
     )
     return PdbRecord(line)
+
+
+def conections_list_to_records(l):
+    """Converts a list of connections to CONECT :py:class:`.PdbRecord` objects.
+
+    :param list l: The list of connections.
+    :returns: ``list`` of ``PdbRecord``"""
+    
+    records = []
+    for connection in l:
+        for line_num in range(ceil(len(connection["bond_to"]) / 4)):
+            bonded_ids = connection["bond_to"][line_num * 4: (line_num + 1) * 4]
+            line = "CONECT" + "{:5}" * (len(bonded_ids) + 1)
+            records.append(PdbRecord(line.format(
+             connection["atom"], *bonded_ids
+            )))
+    return records

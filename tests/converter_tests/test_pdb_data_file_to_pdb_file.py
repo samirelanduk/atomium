@@ -52,3 +52,25 @@ class AtomDictToAtomRecordTests(TestCase):
         converted_record = atom_dict_to_record(self.atom_dict, hetero=True)
         mock_record.assert_called_with("HETATM  107  N   GLY A  13A     " +
          "12.681  37.302 -25.211 1.000 15.56           N-2")
+
+
+
+class ConectListToRecordsTests(TestCase):
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
+    def test_can_convert_connections_list_to_records(self, mock_record):
+        records = [Mock(), Mock(), Mock()]
+        mock_record.side_effect = records
+        connections = [{
+         "atom": 1179, "bond_to": [746, 1184, 1195, 1203, 1211, 1222]
+        }, {
+         "atom": 1221, "bond_to": [544, 1017, 1020, 1022]
+        }]
+        converted_records = conections_list_to_records(connections)
+        args1, kwargs = mock_record.call_args_list[0]
+        args2, kwargs = mock_record.call_args_list[1]
+        args3, kwargs = mock_record.call_args_list[2]
+        self.assertEqual(args1[0], "CONECT 1179  746 1184 1195 1203")
+        self.assertEqual(args2[0], "CONECT 1179 1211 1222")
+        self.assertEqual(args3[0], "CONECT 1221  544 1017 1020 1022")
+        self.assertEqual(converted_records, records)

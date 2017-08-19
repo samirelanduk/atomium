@@ -198,7 +198,7 @@ class PdbFile:
 
         records = self._records
         if name:
-            records = filter(lambda r: r.name() == name, records)
+            records = filter(lambda r: r.name().upper() == name.upper(), records)
         return tuple(records)
 
 
@@ -208,7 +208,7 @@ class PdbFile:
         :returns: ``PdbRecord``"""
 
         for record in self._records:
-            if record.name() == name:
+            if record.name().upper() == name.upper():
                 return record
 
 

@@ -137,7 +137,7 @@ class PdbFileRecordsTests(PdbFileTest):
     def test_can_get_records_by_name(self):
         pdb_file = PdbFile(*self.records)
         self.assertEqual(pdb_file.records(name="AAA"), tuple(self.records[:1]))
-        self.assertEqual(pdb_file.records(name="BBB"), tuple(self.records[1:3]))
+        self.assertEqual(pdb_file.records(name="bbb"), tuple(self.records[1:3]))
         self.assertEqual(pdb_file.records(name="BXXXBB"), tuple())
 
 
@@ -147,7 +147,7 @@ class PdbFileRecordTests(PdbFileTest):
     def test_can_get_record_by_name(self):
         pdb_file = PdbFile(*self.records)
         self.assertIs(pdb_file.record(name="AAA"), self.records[0])
-        self.assertIs(pdb_file.record(name="BBB"), self.records[1])
+        self.assertIs(pdb_file.record(name="bbb"), self.records[1])
         self.assertIs(pdb_file.record(name="DDD"), self.records[3])
         self.assertIs(pdb_file.record(name="EEE"), None)
 

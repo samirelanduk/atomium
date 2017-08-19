@@ -44,3 +44,28 @@ def pdb_from_file(path):
     data_file = pdb_file_to_pdb_data_file(pdb_file)
     pdb = pdb_data_file_to_pdb(data_file)
     return pdb
+
+
+def fetch(code):
+    """Gets a :py:class:`.Pdb` from the RCSB web services.
+
+    :param str code: The PDB code to fetch.
+    :raises TypeError: if the code is not a string.
+    :raises ValueError: if the code is not four caracters long.
+    :rtype: ``Pdb``"""
+
+    if not isinstance(code, str):
+        raise TypeError("PDB code {} is not string".format(code))
+    if len(code) != 4:
+        raise ValueError("PDB code {} is not of length 4".format(code))
+    from requests import get
+    from ..converters.string2pdbfile import string_to_pdb_file
+    from ..converters.pdbfile2pdbdatafile import pdb_file_to_pdb_data_file
+    from ..converters.pdbdatafile2pdb import pdb_data_file_to_pdb
+    response = get("https://files.rcsb.org/view/{}.pdb".format(code))
+    if response.status_code == 200:
+        s = response.text
+        pdb_file = string_to_pdb_file(s)
+        data_file = pdb_file_to_pdb_data_file(pdb_file)
+        pdb = pdb_data_file_to_pdb(data_file)
+        return pdb

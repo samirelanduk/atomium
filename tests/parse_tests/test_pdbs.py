@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from atomium.parse.pdb import Pdb, pdb_from_file
+from atomium.parse.pdb import Pdb, pdb_from_file, fetch
 from atomium.structures.models import Model
 
 class PdbCreationTests(TestCase):
@@ -61,3 +61,44 @@ class PdbFromFileTests(TestCase):
         mock_data.assert_called_with(pdb_file)
         mock_pdb.assert_called_with(data_file)
         self.assertIs(pdb, returned_pdb)
+
+
+
+class PdbfetchingTests(TestCase):
+
+    @patch("requests.get")
+    @patch("atomium.converters.string2pdbfile.string_to_pdb_file")
+    @patch("atomium.converters.pdbfile2pdbdatafile.pdb_file_to_pdb_data_file")
+    @patch("atomium.converters.pdbdatafile2pdb.pdb_data_file_to_pdb")
+    def test_can_get_pdb_from_file(self, mock_pdb, mock_data, mock_file, mock_get):
+        response = Mock()
+        response.status_code = 200
+        response.text = "filestring"
+        mock_get.return_value = response
+        pdb_file, data_file, pdb = Mock(), Mock(), Mock()
+        mock_file.return_value = pdb_file
+        mock_data.return_value = data_file
+        mock_pdb.return_value = pdb
+        returned_pdb = fetch("1XXX")
+        mock_get.assert_called_with("https://files.rcsb.org/view/1XXX.pdb")
+        mock_file.assert_called_with("filestring")
+        mock_data.assert_called_with(pdb_file)
+        mock_pdb.assert_called_with(data_file)
+        self.assertIs(pdb, returned_pdb)
+
+
+    @patch("requests.get")
+    def test_can_get_none_if_no_file_found(self, mock_get):
+        response = Mock()
+        response.status_code = 404
+        self.assertIsNone(fetch("1XXX"))
+
+
+    def test_pdb_code_must_be_string(self):
+        with self.assertRaises(TypeError):
+            fetch(4000)
+
+
+    def test_pdb_code_must_be_len_4(self):
+        with self.assertRaises(ValueError):
+            fetch("1xx")

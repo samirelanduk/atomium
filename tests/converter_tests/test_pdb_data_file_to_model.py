@@ -5,12 +5,14 @@ from atomium.files.pdbdatafile import PdbDataFile
 from atomium.structures.models import Model
 from atomium.structures.molecules import Residue, Molecule
 from atomium.structures.atoms import Atom
+from atomium.structures.reference import bonds
 
 class PdbDataFileToModelTests(TestCase):
 
     @patch("atomium.converters.pdbdatafile2model.load_chains")
     @patch("atomium.converters.pdbdatafile2model.load_molecules")
-    def test_can_get_model_from_data_file(self, mock_mol, mock_chains):
+    @patch("atomium.converters.pdbdatafile2model.bond_atoms")
+    def test_can_get_model_from_data_file(self, mock_bond, mock_mol, mock_chains):
         data_file = Mock(PdbDataFile)
         data_file.atoms = "aaa"
         data_file.heteroatoms = "hhh"
@@ -18,6 +20,7 @@ class PdbDataFileToModelTests(TestCase):
         self.assertIsInstance(model, Model)
         mock_chains.assert_called_with("aaa", model)
         mock_mol.assert_called_with("hhh", model)
+        mock_bond.assert_called_with(model)
 
 
 
@@ -184,3 +187,51 @@ class ResiduesToChainsTests(TestCase):
         for residue in residues:
             with self.assertRaises(AttributeError):
                 residue.temp_chain_id
+
+
+
+class AtomBondingTests(TestCase):
+
+    @patch("atomium.converters.pdbdatafile2model.make_intra_residue_bonds")
+    def test_can_bond_atoms(self, mock_intra):
+        residues = [Mock(), Mock()]
+        model = Mock()
+        model.residues.return_value = set(residues)
+        bond_atoms(model)
+        mock_intra.assert_called_with(set(residues), bonds)
+
+
+
+class IntraResidueConnectionTests(TestCase):
+
+    def test_can_connect_residue(self):
+        residues = [Mock(), Mock(), Mock(), Mock()]
+        atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        atoms += [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        for atom in atoms:
+            atom.bond = MagicMock()
+        for i, residue in enumerate(residues):
+            residue.atoms.return_value = set(atoms[i * 3: i * 3 + 3])
+            residue.name.return_value = ["CYS", "TYR", "MET", "VAL"][i]
+            atoms[i * 3].name.return_value = "A"
+            atoms[i * 3 + 1].name.return_value = "B"
+            atoms[i * 3 + 2].name.return_value = ["C", "P", "U", "D"][i]
+        d = {
+         "CYS": {"A": ["B"], "B": ["A"]},
+         "TYR": {"A": ["B", "P"], "B": ["A"], "P": ["A"]},
+         "MET": {"A": ["B", "X"], "X": ["A"], "B": ["A"]}
+        }
+        make_intra_residue_bonds(residues, d)
+        atoms[0].bond.assert_called_with(atoms[1])
+        atoms[1].bond.assert_called_with(atoms[0])
+        atoms[3].bond.assert_any_call(atoms[4])
+        atoms[3].bond.assert_any_call(atoms[5])
+        atoms[4].bond.assert_called_with(atoms[3])
+        atoms[5].bond.assert_called_with(atoms[3])
+        atoms[6].bond.assert_called_with(atoms[7])
+        atoms[7].bond.assert_called_with(atoms[6])
+        self.assertFalse(atoms[2].bond.called)
+        self.assertFalse(atoms[8].bond.called)
+        self.assertFalse(atoms[9].bond.called)
+        self.assertFalse(atoms[10].bond.called)
+        self.assertFalse(atoms[11].bond.called)

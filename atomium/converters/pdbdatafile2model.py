@@ -14,6 +14,7 @@ def pdb_data_file_to_model(data_file):
     model = Model()
     load_chains(data_file.atoms, model)
     load_molecules(data_file.heteroatoms, model)
+    bond_atoms(model)
     return model
 
 
@@ -42,6 +43,15 @@ def load_molecules(atom_dicts, model):
     molecules = atoms_to_residues(atoms, molecule=True)
     for mol in molecules:
         model.add_molecule(mol)
+
+
+def bond_atoms(model):
+    """Bonds the atoms of a :py:class:`.Model` in a sensible way.
+
+    :param Model model: The Model to be connected up."""
+
+    from ..structures.reference import bonds
+    make_intra_residue_bonds(model.residues(), bonds)
 
 
 def atom_dict_to_atom(d):
@@ -122,3 +132,21 @@ def residues_to_chains(residues):
     for residue in residues:
         del residue.temp_chain_id
     return real_chains
+
+
+def make_intra_residue_bonds(residues, d):
+    """Takes some :py:class:`.Residue` objects and bonds together its atoms
+    internally, using a ``dict`` and the residue names as a reference.
+
+    :param residues: A collection of Residues.
+    :param dict d: The reference ``dict``"""
+
+    for residue in residues:
+        res_ref = d.get(residue.name())
+        if res_ref:
+            for atom in residue.atoms():
+                atom_ref = res_ref.get(atom.name())
+                if atom_ref:
+                    for atom2 in residue.atoms():
+                        if atom2.name() in atom_ref:
+                            atom.bond(atom2)

@@ -193,12 +193,14 @@ class ResiduesToChainsTests(TestCase):
 class AtomBondingTests(TestCase):
 
     @patch("atomium.converters.pdbdatafile2model.make_intra_residue_bonds")
-    def test_can_bond_atoms(self, mock_intra):
+    @patch("atomium.converters.pdbdatafile2model.make_inter_residue_bonds")
+    def test_can_bond_atoms(self, mock_inter, mock_intra):
         residues = [Mock(), Mock()]
         model = Mock()
         model.residues.return_value = set(residues)
         bond_atoms(model)
         mock_intra.assert_called_with(set(residues), bonds)
+        mock_inter.assert_called_with(set(residues))
 
 
 
@@ -235,3 +237,72 @@ class IntraResidueConnectionTests(TestCase):
         self.assertFalse(atoms[9].bond.called)
         self.assertFalse(atoms[10].bond.called)
         self.assertFalse(atoms[11].bond.called)
+
+
+
+class InterResidueConnectionTests(TestCase):
+
+    def test_can_connect_residues(self):
+        residues = [Mock(), Mock(), Mock(), Mock()]
+        atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        atoms += [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        for atom in atoms:
+            atom.bond = MagicMock()
+            atom.distance_to.return_value = 4.9
+        def get_atom1(name=None):
+            return atoms[0] if name == "N" else atoms[2]
+        def get_atom2(name=None):
+            return atoms[3] if name == "N" else atoms[5]
+        def get_atom3(name=None):
+            return atoms[6] if name == "N" else atoms[8]
+        def get_atom4(name=None):
+            return atoms[9] if name == "N" else atoms[11]
+        residues[0].atom.side_effect = get_atom1
+        residues[1].atom.side_effect = get_atom2
+        residues[2].atom.side_effect = get_atom3
+        residues[3].atom.side_effect = get_atom4
+        for i, residue in enumerate(residues):
+            residue.next.return_value = residues[i + 1] if i != 3 else None
+        make_inter_residue_bonds(residues)
+        atoms[2].bond.assert_called_with(atoms[3])
+        atoms[5].bond.assert_called_with(atoms[6])
+        atoms[8].bond.assert_called_with(atoms[9])
+        self.assertFalse(atoms[0].bond.called)
+        self.assertFalse(atoms[1].bond.called)
+        self.assertFalse(atoms[3].bond.called)
+        self.assertFalse(atoms[4].bond.called)
+        self.assertFalse(atoms[6].bond.called)
+        self.assertFalse(atoms[7].bond.called)
+        self.assertFalse(atoms[9].bond.called)
+        self.assertFalse(atoms[10].bond.called)
+        self.assertFalse(atoms[11].bond.called)
+
+
+    def test_can_skip_bond_where_atom_not_present(self):
+        residue1, residue2 = Mock(), Mock()
+        residue1.next.return_value = residue2
+        residue2.next.return_value = None
+        atom = Mock()
+        atom.bond = MagicMock()
+        atom.distance_to.return_value = 4.9
+        residue1.atom.return_value = atom
+        residue2.atom.return_value = None
+        make_inter_residue_bonds([residue1, residue2])
+        self.assertFalse(atom.bond.called)
+        residue2.atom.return_value = atom
+        residue1.atom.return_value = None
+        make_inter_residue_bonds([residue1, residue2])
+        self.assertFalse(atom.bond.called)
+
+
+    def test_can_skip_bond_where_distance_too_great(self):
+        residue1, residue2 = Mock(), Mock()
+        residue1.next.return_value = residue2
+        residue2.next.return_value = None
+        atom = Mock()
+        atom.bond = MagicMock()
+        atom.distance_to.return_value = 5.1
+        residue1.atom.return_value = atom
+        residue2.atom.return_value = atom
+        make_inter_residue_bonds([residue1, residue2])
+        self.assertFalse(atom.bond.called)

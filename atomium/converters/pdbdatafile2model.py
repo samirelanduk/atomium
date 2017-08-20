@@ -52,6 +52,7 @@ def bond_atoms(model):
 
     from ..structures.reference import bonds
     make_intra_residue_bonds(model.residues(), bonds)
+    make_inter_residue_bonds(model.residues())
 
 
 def atom_dict_to_atom(d):
@@ -150,3 +151,18 @@ def make_intra_residue_bonds(residues, d):
                     for atom2 in residue.atoms():
                         if atom2.name() in atom_ref:
                             atom.bond(atom2)
+
+
+def make_inter_residue_bonds(residues):
+    """Takes some :py:class:`.Residue` objects and bonds them together with
+    peptide bonds. If the relevant atoms are more than 5 Angstroms apart, no
+    bond will be made.
+
+    :param residues: A collection of Residues.`"""
+
+    for residue in residues:
+        if residue.next():
+            c = residue.atom(name="C")
+            n = residue.next().atom(name="N")
+            if c and n and c.distance_to(n) < 5:
+                c.bond(n)

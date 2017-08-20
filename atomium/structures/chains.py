@@ -22,7 +22,7 @@ class ResidueStructure:
 
         res = set()
         for atom in self.atoms():
-            res.add(atom.residue())
+            if atom.residue(): res.add(atom.residue())
         if residue_id:
             res = set(filter(lambda r: r.residue_id() == residue_id, res))
         if name:

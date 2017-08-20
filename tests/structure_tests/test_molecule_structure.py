@@ -37,6 +37,14 @@ class MoleculeStructureMoleculesTests(MoleculeStructureTest):
         )
 
 
+    def test_can_filter_none_from_molecules(self):
+        self.atom4.molecule.return_value = None
+        self.assertEqual(
+         self.structure.molecules(),
+         set([self.molecule1, self.molecule2])
+        )
+
+
     def test_can_get_molecules_by_id(self):
         self.assertEqual(
          self.structure.molecules(molecule_id="C"), set([self.molecule1])

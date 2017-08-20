@@ -22,7 +22,7 @@ class ChainStructure:
 
         chains = set()
         for atom in self.atoms():
-            chains.add(atom.chain())
+            if atom.chain(): chains.add(atom.chain())
         if chain_id:
             chains = set(filter(lambda c: c.chain_id() == chain_id, chains))
         if name:
@@ -88,7 +88,7 @@ class MoleculeStructure:
 
         molecules = set()
         for atom in self.atoms():
-            molecules.add(atom.molecule())
+            if atom.molecule(): molecules.add(atom.molecule())
         if generic:
             molecules = set(filter(
              lambda m: not isinstance(m, (Residue, Chain)), molecules

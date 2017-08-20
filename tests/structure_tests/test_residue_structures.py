@@ -52,6 +52,14 @@ class ResidueStructureResiduesTests(ResidueStructureTest):
         )
 
 
+    def test_can_filter_none_from_residues(self):
+        self.atom4.residue.return_value = None
+        self.assertEqual(
+         self.structure.residues(),
+         set([self.residue1, self.residue2, self.residue3, self.residue4])
+        )
+
+
     def test_can_get_residues_by_id(self):
         self.assertEqual(
          self.structure.residues(residue_id="A1"), set([self.residue1])

@@ -37,6 +37,14 @@ class ChainStructureChainsTests(ChainStructureTest):
         )
 
 
+    def test_can_filter_none_from_chains(self):
+        self.atom4.chain.return_value = None
+        self.assertEqual(
+         self.structure.chains(),
+         set([self.chain1, self.chain2])
+        )
+
+
     def test_can_get_chains_by_id(self):
         self.assertEqual(
          self.structure.chains(chain_id="C"), set([self.chain1])

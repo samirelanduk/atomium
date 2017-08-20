@@ -14,7 +14,7 @@ def pdb_data_file_to_model(data_file):
     model = Model()
     load_chains(data_file.atoms, model)
     load_molecules(data_file.heteroatoms, model)
-    bond_atoms(model)
+    bond_atoms(data_file.connections, model)
     return model
 
 
@@ -45,7 +45,7 @@ def load_molecules(atom_dicts, model):
         model.add_molecule(mol)
 
 
-def bond_atoms(model):
+def bond_atoms(connections, model):
     """Bonds the atoms of a :py:class:`.Model` in a sensible way.
 
     :param Model model: The Model to be connected up."""
@@ -53,6 +53,7 @@ def bond_atoms(model):
     from ..structures.reference import bonds
     make_intra_residue_bonds(model.residues(), bonds)
     make_inter_residue_bonds(model.residues())
+    make_connections_bonds(model, connections)
 
 
 def atom_dict_to_atom(d):
@@ -166,3 +167,20 @@ def make_inter_residue_bonds(residues):
             n = residue.next().atom(name="N")
             if c and n and c.distance_to(n) < 5:
                 c.bond(n)
+
+
+def make_connections_bonds(model, connections):
+    """Takes a :py:class:`.Model` and a connections ``list`` and connects the
+    atoms according to the specifications in the ``list``.
+
+    :param model Model: A Model to connect up.
+    :param list connections: The connections list from a\
+    :py:class:`.PdbDataFile`"""
+
+    for connection in connections:
+        atom = model.atom(atom_id=connection["atom"])
+        if atom:
+            for other in connection["bond_to"]:
+                other_atom = model.atom(atom_id=other)
+                if other_atom:
+                    atom.bond(other_atom)

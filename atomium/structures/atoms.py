@@ -131,7 +131,7 @@ class Atom:
         """Returns the atom's Cartesian coordinates.
 
         :rtype: ``tuple``"""
-        
+
         return (self.x(), self.y(), self.z())
 
 
@@ -241,7 +241,8 @@ class Atom:
         """Bonds the atom to some other atom by creating a :py:class:`.Bond`
         between them."""
 
-        Bond(self, other)
+        if other not in self.bonded_atoms():
+            Bond(self, other)
 
 
     def unbond(self, other):

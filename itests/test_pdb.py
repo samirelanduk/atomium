@@ -70,6 +70,7 @@ class PdbReadingTests(IntegratedTest):
         cg2 = residue.atom(name="CG2")
         next_atom = chain[1].atom(name="N")
         self.assertEqual(n.bonded_atoms(), set([ca]))
+        self.assertEqual(len(n.bonds()), 1)
         self.assertEqual(ca.bonded_atoms(), set([n, c, cb]))
         self.assertEqual(c.bonded_atoms(), set([ca, o, next_atom]))
         self.assertEqual(o.bonded_atoms(), set([c]))
@@ -81,12 +82,12 @@ class PdbReadingTests(IntegratedTest):
         c, n = res181.atom(name="C"), res190.atom(name="N")
         self.assertNotIn(c, n.bonded_atoms())
         self.assertNotIn(n, c.bonded_atoms())
+        self.assertIn(
+         model.atom(atom_id=3194), model.atom(atom_id=3195).bonded_atoms()
+        )
         bond1 = n.bond_with(ca)
         bond2 = ca.bond_with(c)
         self.assertAlmostEqual(bond1.angle_with(bond2), 109.474, delta=0.005)
-        self.assertIn(
-         model.atom(atom_id=48), model.atom(atom_id=1082).bonded_atoms()
-        )
 
 
 

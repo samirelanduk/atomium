@@ -336,6 +336,16 @@ class AtomBondingTests(TestCase):
         mock_bond.assert_called_with(atom1, atom2)
 
 
+    @patch("atomium.structures.atoms.Bond.__init__")
+    @patch("atomium.structures.atoms.Atom.bonded_atoms")
+    def test_cant_make_second_bond(self, mock_atoms, mock_init):
+        atom1 = Atom("C", 2, 3, 5)
+        atom2 = Mock(Atom)
+        mock_atoms.return_value = set([atom2])
+        atom1.bond(atom2)
+        self.assertFalse(mock_init.called)
+
+
 
 class AtomBondBreakingTests(TestCase):
 

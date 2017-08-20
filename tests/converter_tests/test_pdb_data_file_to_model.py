@@ -16,11 +16,12 @@ class PdbDataFileToModelTests(TestCase):
         data_file = Mock(PdbDataFile)
         data_file.atoms = "aaa"
         data_file.heteroatoms = "hhh"
+        data_file.connections = "ccc"
         model = pdb_data_file_to_model(data_file)
         self.assertIsInstance(model, Model)
         mock_chains.assert_called_with("aaa", model)
         mock_mol.assert_called_with("hhh", model)
-        mock_bond.assert_called_with(model)
+        mock_bond.assert_called_with("ccc", model)
 
 
 
@@ -194,13 +195,16 @@ class AtomBondingTests(TestCase):
 
     @patch("atomium.converters.pdbdatafile2model.make_intra_residue_bonds")
     @patch("atomium.converters.pdbdatafile2model.make_inter_residue_bonds")
-    def test_can_bond_atoms(self, mock_inter, mock_intra):
+    @patch("atomium.converters.pdbdatafile2model.make_connections_bonds")
+    def test_can_bond_atoms(self, mock_con, mock_inter, mock_intra):
         residues = [Mock(), Mock()]
         model = Mock()
         model.residues.return_value = set(residues)
-        bond_atoms(model)
+        connections = "ccc"
+        bond_atoms(connections, model)
         mock_intra.assert_called_with(set(residues), bonds)
         mock_inter.assert_called_with(set(residues))
+        mock_con.assert_called_with(model, "ccc")
 
 
 
@@ -306,3 +310,32 @@ class InterResidueConnectionTests(TestCase):
         residue2.atom.return_value = atom
         make_inter_residue_bonds([residue1, residue2])
         self.assertFalse(atom.bond.called)
+
+
+
+class ConnectionBondsTests(TestCase):
+
+    def test_can_bond_from_connections(self):
+        model = Mock()
+        atoms = [Mock(), Mock(), Mock(), Mock()]
+        model.atom.side_effect = [
+         atoms[1], atoms[2], atoms[3], None, atoms[2], atoms[1], atoms[3], atoms[1], None
+        ]
+        for index, atom in enumerate(atoms):
+            atom.atom_id.return_value = index
+            atom.bond = MagicMock()
+        connections = [{
+         "atom": 1, "bond_to": [2, 3, 4]
+        }, {
+         "atom": 2, "bond_to": [1]
+        }, {
+         "atom": 3, "bond_to": [1]
+        }, {
+         "atom": 4, "bond_to": [1]
+        }]
+        make_connections_bonds(model, connections)
+        atoms[1].bond.assert_any_call(atoms[2])
+        atoms[1].bond.assert_any_call(atoms[3])
+        atoms[2].bond.assert_called_with(atoms[1])
+        atoms[3].bond.assert_called_with(atoms[1])
+        self.assertFalse(atoms[0].called)

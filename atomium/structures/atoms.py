@@ -127,6 +127,14 @@ class Atom:
             self._z = z
 
 
+    def location(self):
+        """Returns the atom's Cartesian coordinates.
+
+        :rtype: ``tuple``"""
+        
+        return (self.x(), self.y(), self.z())
+
+
     def atom_id(self, atom_id=None):
         """Returns the atom's unique integer ID. If a value is given, the ID
         will be updated.
@@ -350,7 +358,7 @@ class Bond:
     def _vector(self):
         """
         Calculates a vector formed by the two atoms in the bond
-        
+
         :return: list
         """
 
@@ -367,7 +375,7 @@ class Bond:
 
         """
         Calculates the angle between two bonds using the Bond objects
-        
+
         :param bond_obj: Bond object
         :param in_degrees: boolean, determines if result is returned in degrees or radians
         :return: float

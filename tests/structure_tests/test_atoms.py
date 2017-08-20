@@ -184,6 +184,21 @@ class AtomZTests(TestCase):
 
 
 
+class AtomLocationTests(TestCase):
+
+    @patch("atomium.structures.atoms.Atom.x")
+    @patch("atomium.structures.atoms.Atom.y")
+    @patch("atomium.structures.atoms.Atom.z")
+    def test_atom_location(self, mock_z, mock_y, mock_x):
+        mock_x.return_value = 10
+        mock_y.return_value = 20
+        mock_z.return_value = 30
+        atom = Atom("C", 2, 3, 5)
+        self.assertEqual(atom.location(), (10, 20, 30))
+
+
+
+
 class AtomIdTests(TestCase):
 
     def test_id_property(self):

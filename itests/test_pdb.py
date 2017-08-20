@@ -14,7 +14,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(atom.name(), "NE")
         self.assertEqual(atom.location(), (-20.082, 79.647, 41.645))
         self.assertAlmostEqual(
-         model.mass(), 2 * 24994.8 + 2 * 90.1 + 2 * 365.2 + 180 * 18, delta=0.005
+         model.mass(), 46018.5, delta=0.005
         )
 
         # Chains are correct
@@ -22,15 +22,13 @@ class PdbReadingTests(IntegratedTest):
         for chain in model.chains():
             self.assertIs(chain.model(), model)
             self.assertIsNone(chain.name())
-            self.assertEqual(chain.length(), 229)
-            self.assertAlmostEqual(chain.mass(), 24994.8, delta=0.005)
         chaina, chainb = model.chain(chain_id="A"), model.chain(chain_id="B")
 
         # Residues are correct
-        self.assertEqual(chaina[0].name(), "LEU")
-        self.assertEqual(chaina[0].next().name(), "ARG")
-        self.assertEqual(chaina[-1].name(), "GLU")
-        self.assertEqual(chaina[-1].previous().name(), "PRO")
+        self.assertEqual(chaina[0].name(), "VAL")
+        self.assertEqual(chaina[0].next().name(), "MET")
+        self.assertEqual(chaina[-1].name(), "ILE")
+        self.assertEqual(chaina[-1].previous().name(), "SER")
         self.assertEqual(len(chaina.residues(name="ASN")), 6)
         for residue in chaina:
             self.assertIs(residue.model(), model)
@@ -42,9 +40,9 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(residue.residue_id(), "A13")
         self.assertEqual(len(residue.atoms()), 8)
         self.assertEqual(len(residue.atoms(element="O")), 2)
-        for atom in residue:
+        for atom in residue.atoms():
             self.assertIs(atom.residue(), residue)
-            self.assertIs(atom.molecule(), residue)
+            self.assertIs(atom.molecule(), chain)
             self.assertIs(atom.chain(), chain)
             self.assertIs(atom.model(), model)
 

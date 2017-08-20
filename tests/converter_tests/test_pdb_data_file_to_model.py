@@ -3,18 +3,21 @@ from unittest.mock import patch, Mock, MagicMock
 from atomium.converters.pdbdatafile2model import *
 from atomium.parse.pdbdatafile import PdbDataFile
 from atomium.structures.models import Model
-from atomium.structures.molecules import Residue
+from atomium.structures.molecules import Residue, Molecule
 from atomium.structures.atoms import Atom
 
 class PdbDataFileToModelTests(TestCase):
 
     @patch("atomium.converters.pdbdatafile2model.load_chains")
-    def test_can_get_model_from_data_file(self, mock_chains):
+    @patch("atomium.converters.pdbdatafile2model.load_molecules")
+    def test_can_get_model_from_data_file(self, mock_mol, mock_chains):
         data_file = Mock(PdbDataFile)
         data_file.atoms = "aaa"
+        data_file.heteroatoms = "hhh"
         model = pdb_data_file_to_model(data_file)
         self.assertIsInstance(model, Model)
         mock_chains.assert_called_with("aaa", model)
+        mock_mol.assert_called_with("hhh", model)
 
 
 
@@ -41,6 +44,28 @@ class ChainLoadingTests(TestCase):
         mock_chains.assert_called_with([residue1, residue2])
         model.add_chain.assert_any_call(chain1)
         model.add_chain.assert_any_call(chain2)
+
+
+
+class MoleculeLoadingTests(TestCase):
+
+    @patch("atomium.converters.pdbdatafile2model.atoms_to_residues")
+    @patch("atomium.converters.pdbdatafile2model.atom_dict_to_atom")
+    def test_can_load_molecules(self, mock_atom, mock_residues):
+        atom1, atom2, atom3 = Mock(), Mock(), Mock()
+        mock_atom.side_effect = [atom1, atom2, atom3]
+        mol1, mol2 = Mock(), Mock()
+        mock_residues.return_value = [mol1, mol2]
+        atomdict1, atomdict2, atomdict3 = Mock(), Mock(), Mock()
+        model = Mock()
+        model.add_molecule = MagicMock()
+        load_molecules([atomdict1, atomdict2, atomdict3], model)
+        mock_atom.assert_any_call(atomdict1)
+        mock_atom.assert_any_call(atomdict2)
+        mock_atom.assert_any_call(atomdict3)
+        mock_residues.assert_called_with([atom1, atom2, atom3], molecule=True)
+        model.add_molecule.assert_any_call(mol1)
+        model.add_molecule.assert_any_call(mol2)
 
 
 
@@ -103,6 +128,30 @@ class AtomsToResiduesTests(TestCase):
             self.assertEqual(residue._id, str(index))
             self.assertEqual(residue._name, str(index) + "nm")
             self.assertEqual(residue.temp_chain_id, "A" if index < 3 else "B")
+        for atom in atoms:
+            with self.assertRaises(AttributeError):
+                atom.temp_residue_id
+            with self.assertRaises(AttributeError):
+                atom.temp_residue_name
+            with self.assertRaises(AttributeError):
+                atom.temp_chain_id
+
+
+    def test_can_get_molecules_from_atoms(self):
+        atoms = []
+        for n in range(12):
+            atoms.append(Mock(Atom))
+            atoms[-1].temp_residue_id = str(n // 2)
+            atoms[-1].temp_residue_name = str(n // 2) + "nm"
+            atoms[-1].temp_chain_id = "A" if n < 6 else "B"
+        molecules = atoms_to_residues(atoms, molecule=True)
+        self.assertEqual(len(molecules), 6)
+        for index, molecule in enumerate(molecules):
+            self.assertIsInstance(molecule, Molecule)
+            self.assertNotIsInstance(molecule, Residue)
+            self.assertEqual(molecule._atoms, set(atoms[index * 2: index * 2 + 2]))
+            self.assertEqual(molecule._id, str(index))
+            self.assertEqual(molecule._name, str(index) + "nm")
         for atom in atoms:
             with self.assertRaises(AttributeError):
                 atom.temp_residue_id

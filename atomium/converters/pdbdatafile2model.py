@@ -1,8 +1,8 @@
-"""Contains the function for creating Models from PdbDataFiles."""
+"""Contains the functions for creating Models from PdbDataFiles."""
 
 from ..structures.models import Model
 from ..structures.chains import Chain
-from ..structures.molecules import Residue
+from ..structures.molecules import Residue, Molecule
 from ..structures.atoms import Atom
 
 def pdb_data_file_to_model(data_file):
@@ -13,6 +13,7 @@ def pdb_data_file_to_model(data_file):
 
     model = Model()
     load_chains(data_file.atoms, model)
+    load_molecules(data_file.heteroatoms, model)
     return model
 
 
@@ -28,6 +29,19 @@ def load_chains(atom_dicts, model):
     chains = residues_to_chains(residues)
     for chain in chains:
         model.add_chain(chain)
+
+
+def load_molecules(atom_dicts, model):
+    """Adds :py:class:`.Molecule` objects to a :py:class:`.Model` from a list of
+    atom ``dict``s.
+
+    :param list atom_dicts: The atom ``dict`` objects.
+    :param Model model: The Model to update."""
+
+    atoms = [atom_dict_to_atom(d) for d in atom_dicts]
+    molecules = atoms_to_residues(atoms, molecule=True)
+    for mol in molecules:
+        model.add_molecule(mol)
 
 
 def atom_dict_to_atom(d):
@@ -49,12 +63,15 @@ def atom_dict_to_atom(d):
     return atom
 
 
-def atoms_to_residues(atoms):
+def atoms_to_residues(atoms, molecule=False):
     """Takes a list of atoms and creates a list of :py:class:`.Residue` objects
-    from them, with the order preserved.
+    from them, with the order preserved. Alternatively, simple
+    :py:class:`.Molecule` objects can be produced instead.
 
     :param atoms: A collection of :py:class:`.Atom` objects.
-    :returns: ``list`` of ``Residue``s"""
+    :param bool molecule: If ``True`` Molecules will be returned rather than\
+    Residues.
+    :returns: ``list``"""
 
     residue_ids = [atom.temp_residue_id for atom in atoms]
     unique_residue_ids = list(sorted(set(residue_ids), key=residue_ids.index))
@@ -66,10 +83,15 @@ def atoms_to_residues(atoms):
                 break
     real_residues = []
     for r in residues:
-        real_residues.append(Residue(
-         *r["atoms"], residue_id=r["res"], name=r["atoms"][0].temp_residue_name
-        ))
-        real_residues[-1].temp_chain_id = r["atoms"][0].temp_chain_id
+        if molecule:
+            real_residues.append(Molecule(
+             *r["atoms"], molecule_id=r["res"], name=r["atoms"][0].temp_residue_name
+            ))
+        else:
+            real_residues.append(Residue(
+             *r["atoms"], residue_id=r["res"], name=r["atoms"][0].temp_residue_name
+            ))
+            real_residues[-1].temp_chain_id = r["atoms"][0].temp_chain_id
     for atom in atoms:
         del atom.temp_residue_id
         del atom.temp_residue_name

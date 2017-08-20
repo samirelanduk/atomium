@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from atomium.parse.pdbdatafile import PdbDataFile
+from atomium.files.pdbdatafile import PdbDataFile
 
 class PdbDataFileSlotsTests(TestCase):
 

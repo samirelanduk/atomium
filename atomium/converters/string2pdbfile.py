@@ -1,7 +1,7 @@
 """Contains the function for creating PdbFilees from strings."""
 
 from .strings import string2lines
-from ..parse.pdbfile import PdbRecord, PdbFile
+from ..files.pdbfile import PdbRecord, PdbFile
 
 def string_to_pdb_file(s):
     """Converts a string taken from a .pdb file and turns it into a

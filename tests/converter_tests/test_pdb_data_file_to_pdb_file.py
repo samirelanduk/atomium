@@ -1,8 +1,8 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.converters.pdbdatafile2pdbfile import *
-from atomium.parse.pdbfile import PdbFile
-from atomium.parse.pdbdatafile import PdbDataFile
+from atomium.files.pdbfile import PdbFile
+from atomium.files.pdbdatafile import PdbDataFile
 
 class PdbDataFileToPdbFileTests(TestCase):
 

@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from atomium.parse.pdb import Pdb, pdb_from_file, fetch
+from atomium.files.pdb import Pdb, pdb_from_file, fetch
 from atomium.structures.models import Model
 
 class PdbCreationTests(TestCase):

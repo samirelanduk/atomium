@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.converters.pdbfile2pdbstring import pdb_file_to_pdb_string
-from atomium.parse.pdbfile import PdbFile, PdbRecord
+from atomium.files.pdbfile import PdbFile, PdbRecord
 
 class PdbFileToPdbStringTests(TestCase):
 

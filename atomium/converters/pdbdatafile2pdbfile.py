@@ -1,7 +1,7 @@
 """Contains the function for creating PdbFiles from PdbDataFiles."""
 
 from math import ceil
-from ..parse.pdbfile import PdbRecord, PdbFile
+from ..files.pdbfile import PdbRecord, PdbFile
 
 def pdb_data_file_to_pdb_file(data_file):
     """Converts a :py:class:`.PdbDataFile` to a :py:class:`.PdbFile`

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
 from atomium.converters.string2xyz import *
-from atomium.parse.xyz import Xyz
+from atomium.files.xyz import Xyz
 from atomium.structures.atoms import Atom
 from atomium.structures.models import Model
 

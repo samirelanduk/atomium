@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from atomium.parse.xyz import Xyz, xyz_from_file
+from atomium.files.xyz import Xyz, xyz_from_file
 from atomium.structures.models import Model
 
 class XyzCreationTests(TestCase):

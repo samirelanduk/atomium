@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch
-from atomium.parse.pdbfile import PdbRecord
+from atomium.files.pdbfile import PdbRecord
 
 class PdbRecordCreationTests(TestCase):
 
@@ -28,7 +28,7 @@ class PdbRecordCreationTests(TestCase):
 
 class PdbRecordReprTests(TestCase):
 
-    @patch("atomium.parse.pdbfile.PdbRecord.name")
+    @patch("atomium.files.pdbfile.PdbRecord.name")
     def test_pdb_record_repr(self, mock_name):
         mock_name.return_value = "MOCKNM"
         self.assertEqual(

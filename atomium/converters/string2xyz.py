@@ -1,4 +1,4 @@
-from ..parse.xyz import Xyz
+from ..files.xyz import Xyz
 from ..structures.models import Model
 from ..structures.atoms import Atom
 from .strings import string2lines

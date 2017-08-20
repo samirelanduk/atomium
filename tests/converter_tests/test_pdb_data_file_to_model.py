@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 from atomium.converters.pdbdatafile2model import *
-from atomium.parse.pdbdatafile import PdbDataFile
+from atomium.files.pdbdatafile import PdbDataFile
 from atomium.structures.models import Model
 from atomium.structures.molecules import Residue, Molecule
 from atomium.structures.atoms import Atom

@@ -71,6 +71,17 @@ class MoleculeStructureMoleculesTests(MoleculeStructureTest):
         )
 
 
+    def test_can_filter_out_water(self):
+        self.molecule2.name.return_value = "WAT"
+        self.assertEqual(
+         self.structure.molecules(water=False), set([self.molecule1])
+        )
+        self.molecule2.name.return_value = "HOH"
+        self.assertEqual(
+         self.structure.molecules(water=False), set([self.molecule1])
+        )
+
+
 
 class MoleculeStructureMoleculeTests(MoleculeStructureTest):
 

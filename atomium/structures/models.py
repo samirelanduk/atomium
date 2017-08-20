@@ -79,7 +79,7 @@ class MoleculeStructure:
     this class, because it requires the :py:meth:`~.AtomicStructure.atoms`
     method."""
 
-    def molecules(self, molecule_id=None, name=None, generic=False):
+    def molecules(self, molecule_id=None, name=None, generic=False, water=True):
         """Returns the :py:class:`.Molecule` objects in the structure. It can be
         given search criteria if you wish.
 
@@ -87,6 +87,7 @@ class MoleculeStructure:
         :param str name: Filter by name.
         :param bool generic: If ``True``, chains and residues will exlcuded, \
         and only isolated small molecules will be returned.
+        :param bool water: If ``False``, water molecules will be excluded.
         :rtype: ``set``"""
 
         molecules = set()
@@ -98,6 +99,10 @@ class MoleculeStructure:
         if generic:
             molecules = set(filter(
              lambda m: not isinstance(m, (Residue, Chain)), molecules
+            ))
+        if not water:
+            molecules = set(filter(
+             lambda m: m.name() not in ("HOH", "WAT"), molecules
             ))
         if molecule_id:
             molecules = set(filter(
@@ -116,6 +121,7 @@ class MoleculeStructure:
         :param str name: Filter by name.
         :param bool generic: If ``True``, chains and residues will exlcuded, \
         and only isolated small molecules will be returned.
+        :param bool water: If ``False``, water molecules will be excluded.
         :rtype: ``Molecule``"""
 
         molecules = self.molecules(*args, **kwargs)

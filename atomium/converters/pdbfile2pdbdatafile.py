@@ -34,6 +34,9 @@ def atom_record_to_dict(record):
     :param PdbRecord record: The record to parse.
     :rtype: ``dict``"""
 
+    charge = record[78:80]
+    if isinstance(charge, str):
+        charge = int(charge[::-1])
     return {
      "atom_id": record[6:11],
      "atom_name": record[12:16],
@@ -48,7 +51,7 @@ def atom_record_to_dict(record):
      "occupancy": record[54:60],
      "temperature_factor": record[60:66],
      "element": record[76:78],
-     "charge": record[78:80]
+     "charge": charge
     }
 
 

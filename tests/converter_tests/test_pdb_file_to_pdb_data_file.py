@@ -61,6 +61,13 @@ class AtomRecordToAtomDictTests(TestCase):
         })
 
 
+    def test_can_convert_opposite_charge_order(self):
+        self.record = PdbRecord("ATOM    107  N   GLY A  13A     12.681  " +
+         "37.302 -25.211 1.000 15.56           N2-")
+        d = atom_record_to_dict(self.record)
+        self.assertEqual(d["charge"], -2)
+
+
 
 class ConectRecordsToConectListTests(TestCase):
 

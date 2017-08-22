@@ -79,9 +79,9 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(cg2.bonded_atoms(), set([cb]))
         res181 = chaina.residue(residue_id="A181")
         res190 = chaina.residue(residue_id="A190")
-        c, n = res181.atom(name="C"), res190.atom(name="N")
-        self.assertNotIn(c, n.bonded_atoms())
-        self.assertNotIn(n, c.bonded_atoms())
+        c2, n2 = res181.atom(name="C"), res190.atom(name="N")
+        self.assertNotIn(c2, n2.bonded_atoms())
+        self.assertNotIn(n2, c2.bonded_atoms())
         self.assertIn(
          model.atom(atom_id=3194), model.atom(atom_id=3195).bonded_atoms()
         )

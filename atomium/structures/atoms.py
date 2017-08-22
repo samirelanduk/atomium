@@ -255,10 +255,26 @@ class Atom:
         if not isinstance(other, Atom):
             raise TypeError("Cannot unbond non-atom {}".format(other))
         for bond in self.bonds():
-            if other in bond.atoms():
+            if other in bond.atoms() and other is not self:
                 bond.destroy()
                 return
         raise ValueError("{} cannot unbond non-bonded {}".format(self, other))
+
+
+    def bond_with(self, other):
+        """Returns the :py:class:`.Bond` between this atom and another.
+
+        :param Atom other: The atom to get the bond with.
+        :raises TypeError: if something other than an :py:class:`Atom` is given.
+        :rtype: ``Bond`` (or ``None`` if no bond exists)."""
+
+        if not isinstance(other, Atom):
+            raise TypeError("Cannot get bond with non-atom {}".format(other))
+        if other is self:
+            return None
+        for bond in self.bonds():
+            if other in bond.atoms():
+                return bond
 
 
     def mass(self):

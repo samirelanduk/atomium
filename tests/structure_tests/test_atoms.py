@@ -368,6 +368,16 @@ class AtomBondBreakingTests(TestCase):
 
 
     @patch("atomium.structures.atoms.Atom.bonds")
+    def test_bond_breaking_needs_other_atom(self, mock_bonds):
+        atom1 = Atom("C", 2, 3, 5)
+        bond = Mock(Bond)
+        bond.atoms.return_value = set([atom1, Mock()])
+        mock_bonds.return_value = set([bond])
+        with self.assertRaises(ValueError):
+            atom1.unbond(atom1)
+
+
+    @patch("atomium.structures.atoms.Atom.bonds")
     def test_bond_unbreaking_needs_actual_bond(self, mock_bonds):
         atom1 = Atom("C", 2, 3, 5)
         atom2 = Mock(Atom)
@@ -378,6 +388,31 @@ class AtomBondBreakingTests(TestCase):
         with self.assertRaises(ValueError):
             atom1.unbond(atom2)
 
+
+
+class AtomBondWithTests(TestCase):
+
+    @patch("atomium.structures.atoms.Atom.bonds")
+    def test_can_get_bond_with_atom(self, mock_bonds):
+        atom1 = Atom("C", 2, 3, 5)
+        atom2 = Mock(Atom)
+        atom3 = Mock(Atom)
+        atom4 = Mock(Atom)
+        bonda = Mock(Bond)
+        bondb = Mock(Bond)
+        bonda.atoms.return_value = set([atom1, atom2])
+        bondb.atoms.return_value = set([atom1, atom3])
+        mock_bonds.return_value = set([bonda, bondb])
+        self.assertIs(atom1.bond_with(atom2), bonda)
+        self.assertIs(atom1.bond_with(atom3), bondb)
+        self.assertIs(atom1.bond_with(atom4), None)
+        self.assertIs(atom1.bond_with(atom1), None)
+
+
+    def test_bond_with_needs_atom(self):
+        atom1 = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom1.bond_with("atom2")
 
 
 

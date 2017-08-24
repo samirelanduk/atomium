@@ -7,7 +7,8 @@ class StructureToPdbDataFileTests(TestCase):
 
     @patch("atomium.converters.structure2pdbdatafile.atom_to_atom_dict")
     def test_can_convert_structure_to_data_file(self, mock_atom):
-        mock_atom.side_effect = ["a1", "a2", "a3", "a4", "h1", "h2", "h3"]
+        mock_atom.side_effect = ["a1", "a2", "a4", "a3", "h2", "h1", "h3"]
+        mock_atom.side_effect = [{"atom_id": a} for a in mock_atom.side_effect]
         structure = Mock()
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
         structure.atoms.return_value = atoms
@@ -17,8 +18,12 @@ class StructureToPdbDataFileTests(TestCase):
             atom.residue.return_value = None
         data_file = structure_to_pdb_data_file(structure)
         self.assertIsInstance(data_file, PdbDataFile)
-        self.assertEqual(data_file.atoms, ["a1", "a2", "a3", "a4"])
-        self.assertEqual(data_file.heteroatoms, ["h1", "h2", "h3"])
+        self.assertEqual(data_file.atoms, [
+         {"atom_id": "a1"}, {"atom_id": "a2"}, {"atom_id": "a3"}, {"atom_id": "a4"}
+        ])
+        self.assertEqual(data_file.heteroatoms, [
+         {"atom_id": "h1"}, {"atom_id": "h2"}, {"atom_id": "h3"}
+        ])
         for atom in atoms:
             mock_atom.assert_any_call(atom)
 
@@ -29,7 +34,7 @@ class AtomToAtomDictTest(TestCase):
     def setUp(self):
         self.atom = Mock()
         self.atom.atom_id.return_value = 107
-        self.atom.atom_name.return_value = "N1"
+        self.atom.name.return_value = "N1"
         self.atom.x.return_value = 12.681
         self.atom.y.return_value = 37.302
         self.atom.z.return_value = -25.211

@@ -37,7 +37,7 @@ def atom_dict_to_record(d, hetero=False):
     :rtype: ``PdbRecord``"""
 
     line = "{:6}{:5} {:4}{:1}{:3} {:1}{:4}{:1}   "
-    line += "{:8}{:8}{:8} {:.3f}{:6}          {:>2}{:2d}"
+    line += "{:8}{:8}{:8} {:.3f}{:6}          {:>2}{:2}"
     atom_name = d.get("atom_name", "") if d.get("atom_name") else ""
     atom_name = " " + atom_name if len(atom_name) < 4 else atom_name
     line = line.format(
@@ -55,7 +55,7 @@ def atom_dict_to_record(d, hetero=False):
      d.get("occupancy", 1) if d.get("occupancy") else 1,
      d.get("temperature_factor", "") if d.get("temperature_factor") else "",
      d.get("element", "") if d.get("element") else "",
-     d.get("charge", 0) if d.get("charge") else 0
+     d.get("charge", "") if d.get("charge") else ""
     )
     return PdbRecord(line)
 

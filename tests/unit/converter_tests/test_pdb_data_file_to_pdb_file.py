@@ -80,7 +80,7 @@ class AtomDictToAtomRecordTests(TestCase):
     @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
     def test_can_handle_empty_dict(self, mock_record):
         atom_dict_to_record({})
-        mock_record.assert_called_with("ATOM" + " " * 51 + "1.000" + " " * 19 + "0")
+        mock_record.assert_called_with("ATOM" + " " * 51 + "1.000" + " " * 20)
 
 
     @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")

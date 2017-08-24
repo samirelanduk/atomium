@@ -1,6 +1,28 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
-from atomium.converters.model2pdbdatafile import *
+from atomium.converters.structure2pdbdatafile import *
+from atomium.files.pdbdatafile import PdbDataFile
+
+class StructureToPdbDataFileTests(TestCase):
+
+    @patch("atomium.converters.structure2pdbdatafile.atom_to_atom_dict")
+    def test_can_convert_structure_to_data_file(self, mock_atom):
+        mock_atom.side_effect = ["a1", "a2", "a3", "a4", "h1", "h2", "h3"]
+        structure = Mock()
+        atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        structure.atoms.return_value = atoms
+        for atom in atoms[:4]:
+            atom.residue.return_value = "residue"
+        for atom in atoms[4:]:
+            atom.residue.return_value = None
+        data_file = structure_to_pdb_data_file(structure)
+        self.assertIsInstance(data_file, PdbDataFile)
+        self.assertEqual(data_file.atoms, ["a1", "a2", "a3", "a4"])
+        self.assertEqual(data_file.heteroatoms, ["h1", "h2", "h3"])
+        for atom in atoms:
+            mock_atom.assert_any_call(atom)
+
+
 
 class AtomToAtomDictTest(TestCase):
 

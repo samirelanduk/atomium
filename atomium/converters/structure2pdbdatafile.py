@@ -1,10 +1,29 @@
-"""Contains functions for converting Models to PdbDataFiles."""
+"""Contains functions for converting AtomicStructures to PdbDataFiles."""
+
+from ..files.pdbdatafile import PdbDataFile
+
+def structure_to_pdb_data_file(structure):
+    """Converts an :py:class:`.AtomicStructure` to a :py:class:`.PdbDataFile`.
+
+    :param AtomicStructure atom: The structure to convert.
+    :rtype: ``PdbDataFile``"""
+
+    data_file = PdbDataFile()
+    data_file.atoms, data_file.heteroatoms = [], []
+    for atom in structure.atoms():
+        if atom.residue():
+            data_file.atoms.append(atom_to_atom_dict(atom))
+        else:
+            data_file.heteroatoms.append(atom_to_atom_dict(atom))
+    return data_file
+
 
 def atom_to_atom_dict(atom):
     """Converts an :py:class:`.Atom` to an atom ``dict``.
 
-    :param Atom atom: The atom to convert."""
-    
+    :param Atom atom: The atom to convert.
+    :rtype: ``dict``"""
+
     residue_name, chain_id, residue_id, insert_code = None, None, None, None
     if atom.residue():
         id_ = atom.residue().residue_id()

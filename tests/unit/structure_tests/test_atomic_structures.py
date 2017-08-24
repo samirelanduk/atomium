@@ -265,6 +265,22 @@ class AtomicStructureToStringTests(AtomicStructureTest):
         mock_convert.assert_called_with(structure, "")
 
 
+    @patch("atomium.converters.structure2pdbdatafile.structure_to_pdb_data_file")
+    @patch("atomium.converters.pdbdatafile2pdbfile.pdb_data_file_to_pdb_file")
+    @patch("atomium.converters.pdbfile2pdbstring.pdb_file_to_pdb_string")
+    def test_can_save_as_pdb_string(self, mock_string, mock_file, mock_data):
+        structure = AtomicStructure(*self.atoms)
+        data_file, pdb_file = Mock(), Mock()
+        mock_string.return_value = "filecontents"
+        mock_file.return_value = pdb_file
+        mock_data.return_value = data_file
+        s = structure.to_file_string("pdb")
+        mock_data.assert_called_with(structure)
+        mock_file.assert_called_with(data_file)
+        mock_string.assert_called_with(pdb_file)
+        self.assertEqual(s, "filecontents")
+
+
     @patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
     def test_can_save_as_xyz_string_with_comment(self, mock_convert):
         mock_convert.return_value = "filestring"

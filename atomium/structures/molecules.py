@@ -193,6 +193,13 @@ class AtomicStructure:
         if file_format == "xyz":
             from ..converters.structure2xyzstring import structure_to_xyz_string
             return structure_to_xyz_string(self, description)
+        elif file_format == "pdb":
+            from ..converters.structure2pdbdatafile import structure_to_pdb_data_file
+            from ..converters.pdbdatafile2pdbfile import pdb_data_file_to_pdb_file
+            from ..converters.pdbfile2pdbstring import pdb_file_to_pdb_string
+            data_file = structure_to_pdb_data_file(self)
+            pdb_file = pdb_data_file_to_pdb_file(data_file)
+            return pdb_file_to_pdb_string(pdb_file)
         else:
             raise ValueError("{} is not a valid file type".format(file_format))
 

@@ -41,6 +41,15 @@ class Pdb:
         return pdb_file_to_pdb_string(pdb_file)
 
 
+    def save(self, path):
+        """Saves the Pdb as a .pdb file.
+
+        :param str path: The path to save to."""
+
+        from ..converters.strings import string_to_file
+        string_to_file(self.to_file_string(), path)
+
+
 
 def pdb_from_file(path):
     """Opens a .pdb file at the specified path and creates a :py:class:`.Pdb`

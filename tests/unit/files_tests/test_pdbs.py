@@ -62,6 +62,18 @@ class PdbToStringTests(TestCase):
 
 
 
+class PdbToFileTests(TestCase):
+
+    @patch("atomium.converters.strings.string_to_file")
+    @patch("atomium.files.pdb.Pdb.to_file_string")
+    def test_can_save_xyz_to_file(self, mock_string, mock_save):
+        pdb = Pdb()
+        mock_string.return_value = "filestring"
+        pdb.save("test.pdb")
+        mock_save.assert_called_with("filestring", "test.pdb")
+
+
+
 class PdbFromFileTests(TestCase):
 
     @patch("atomium.converters.strings.string_from_file")

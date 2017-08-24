@@ -103,7 +103,7 @@ class XyzToStringTests(TestCase):
 class XyzToFileTests(TestCase):
 
     @patch("atomium.converters.strings.string_to_file")
-    @patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
+    @patch("atomium.files.xyz.Xyz.to_file_string")
     def test_can_save_xyz_to_file(self, mock_string, mock_save):
         xyz = Xyz("Glucose molecule")
         xyz._model = Model()

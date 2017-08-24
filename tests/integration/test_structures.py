@@ -62,8 +62,8 @@ class StructureTests(IntegratedTest):
         self.assertNotIn(atom1, model)
 
         # Model can be saved and reloaded
-        model.save("itests/files/model.xyz", description="Some atoms")
-        new = atomium.xyz_from_file("itests/files/model.xyz")
+        model.save("tests/integration/files/model.xyz", description="Some atoms")
+        new = atomium.xyz_from_file("tests/integration/files/model.xyz")
         self.assertEqual(new.comment(), "Some atoms")
         self.assertEqual(len(new.model().atoms()), 1)
         self.assertEqual(new.model().atom().x(), 0.5)

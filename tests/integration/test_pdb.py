@@ -4,7 +4,7 @@ from base import IntegratedTest
 class PdbReadingTests(IntegratedTest):
 
     def test_can_read_pdb_file(self):
-        pdb = atomium.pdb_from_file("itests/files/1lol.pdb")
+        pdb = atomium.pdb_from_file("tests/integration/files/1lol.pdb")
 
         # Atoms are correct
         model = pdb.model()

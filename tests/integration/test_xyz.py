@@ -5,7 +5,7 @@ class XyzReadingTests(IntegratedTest):
 
     def test_can_read_xyz_file(self):
         # Read file
-        xyz = atomium.xyz_from_file("itests/files/glucose.xyz")
+        xyz = atomium.xyz_from_file("tests/integration/files/glucose.xyz")
         self.assertEqual(xyz.comment(), "glucose from 2gbp")
 
         # XYZ has model
@@ -27,15 +27,15 @@ class XyzReadingTests(IntegratedTest):
 
 
         # The xyz can be saved and reloaded
-        xyz.save("itests/files/glucose2.xyz")
-        with open("itests/files/glucose2.xyz") as f:
+        xyz.save("tests/integration/files/glucose2.xyz")
+        with open("tests/integration/files/glucose2.xyz") as f:
             new = f.readlines()
-        with open("itests/files/glucose.xyz") as f:
+        with open("tests/integration/files/glucose.xyz") as f:
             old = f.readlines()
         old[-1], new[-1] = old[-1] + "\n", new[-1] + "\n"
         self.assertEqual(old[:-12], new[:-12])
         self.assertEqual(set(old[-12:]), set(new[-12:]))
-        new = atomium.xyz_from_file("itests/files/glucose2.xyz")
+        new = atomium.xyz_from_file("tests/integration/files/glucose2.xyz")
         self.assertEqual(xyz.comment(), "glucose from 2gbp")
         model = xyz.model()
         self.assertAlmostEqual(model.mass(), 168, delta=0.5)

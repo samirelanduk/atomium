@@ -1,4 +1,4 @@
-"""Contains functions for converting AtomicStructures to PdbDataFiles."""
+"""Contains functions for converting PdbDataFiles from AtomicStructures."""
 
 from ..files.pdbdatafile import PdbDataFile
 

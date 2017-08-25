@@ -1,5 +1,5 @@
 import atomium
-from base import IntegratedTest
+from tests.integration.base import IntegratedTest
 
 class XyzReadingTests(IntegratedTest):
 

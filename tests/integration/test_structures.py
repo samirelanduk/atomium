@@ -1,4 +1,4 @@
-from base import IntegratedTest
+from tests.integration.base import IntegratedTest
 from atomium.structures import Model, Atom, Residue, Chain, Molecule
 import atomium
 

@@ -10,7 +10,6 @@ def structure_to_pdb_data_file(structure):
 
     data_file = PdbDataFile()
     data_file.atoms, data_file.heteroatoms = [], []
-    data_file.connections = []
     for atom in structure.atoms():
         if atom.residue():
             data_file.atoms.append(atom_to_atom_dict(atom))
@@ -18,6 +17,7 @@ def structure_to_pdb_data_file(structure):
             data_file.heteroatoms.append(atom_to_atom_dict(atom))
     data_file.atoms = sorted(data_file.atoms, key=lambda k: k["atom_id"])
     data_file.heteroatoms = sorted(data_file.heteroatoms, key=lambda k: k["atom_id"])
+    data_file.connections = atoms_to_connections(structure.atoms())
     return data_file
 
 
@@ -47,3 +47,20 @@ def atom_to_atom_dict(atom):
      "occupancy": 1.0, "temperature_factor": None,
      "element": atom.element(), "charge": atom.charge()
     }
+
+
+def atoms_to_connections(atoms):
+    """Gets a connections ``list`` from a collection of atoms. Only atoms that
+    are not part of residues will have their bonds used.
+
+    :param atoms: The :py:class:`.Atom` objects to use.
+    :rtype: ``list``"""
+
+    connections = []
+    for atom in atoms:
+        if not atom.residue():
+            connections.append({
+             "atom": atom.atom_id(),
+             "bond_to": sorted([a.atom_id() for a in atom.bonded_atoms()])
+            })
+    return sorted(connections, key=lambda k: k["atom"])

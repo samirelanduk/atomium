@@ -6,9 +6,11 @@ from atomium.files.pdbdatafile import PdbDataFile
 class StructureToPdbDataFileTests(TestCase):
 
     @patch("atomium.converters.structure2pdbdatafile.atom_to_atom_dict")
-    def test_can_convert_structure_to_data_file(self, mock_atom):
+    @patch("atomium.converters.structure2pdbdatafile.atoms_to_connections")
+    def test_can_convert_structure_to_data_file(self, mock_con, mock_atom):
         mock_atom.side_effect = ["a1", "a2", "a4", "a3", "h2", "h1", "h3"]
         mock_atom.side_effect = [{"atom_id": a} for a in mock_atom.side_effect]
+        mock_con.return_value = ["c1", "c2", "c3"]
         structure = Mock()
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
         structure.atoms.return_value = atoms
@@ -24,12 +26,14 @@ class StructureToPdbDataFileTests(TestCase):
         self.assertEqual(data_file.heteroatoms, [
          {"atom_id": "h1"}, {"atom_id": "h2"}, {"atom_id": "h3"}
         ])
+        self.assertEqual(data_file.connections, ["c1", "c2", "c3"])
         for atom in atoms:
             mock_atom.assert_any_call(atom)
+        mock_con.assert_called_with(atoms)
 
 
 
-class AtomToAtomDictTest(TestCase):
+class AtomToAtomDictTests(TestCase):
 
     def setUp(self):
         self.atom = Mock()
@@ -92,3 +96,24 @@ class AtomToAtomDictTest(TestCase):
          "occupancy": 1.0, "temperature_factor": None,
          "element": "N", "charge": -2
         })
+
+
+
+class AtomsToConnectionsTests(TestCase):
+
+    def test_can_convert_atoms_to_connections(self):
+        atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        for i, atom in enumerate(atoms):
+            atom.residue.return_value = "residue" if i < 4 else None
+            atom.atom_id.return_value = i + 1
+        atoms[4].bonded_atoms.return_value = set(atoms[5:])
+        atoms[5].bonded_atoms.return_value = set([atoms[4], atoms[6]])
+        atoms[6].bonded_atoms.return_value = set(atoms[4:6])
+        connections = atoms_to_connections(set(atoms))
+        self.assertEqual(connections, [{
+         "atom": 5, "bond_to": [6, 7]
+        }, {
+         "atom": 6, "bond_to": [5, 7]
+        }, {
+         "atom": 7, "bond_to": [5, 6]
+        }])

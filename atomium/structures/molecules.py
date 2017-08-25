@@ -184,7 +184,7 @@ class AtomicStructure:
 
     def to_file_string(self, file_format, description=""):
         """Converts a structure to a filestring. Currently supported file formats
-        are: .xyz.
+        are: .xyz and .pdb.
 
         :param str file_format: The file format to use, in lowercase.
         :param str description: A structure description to put in the file.
@@ -207,7 +207,7 @@ class AtomicStructure:
     def save(self, path, *args, **kwargs):
         """Saves the structure to file, in the format implied by the extension
         of the path you provide (i.e. giving a path ``/path/to/file.xyz`` will
-        save as .xyz).
+        save as .xyz etc.).
 
         :param str path: The path to save to. The extension you provide here is\
         important as atomium will use that to determine what file format to\

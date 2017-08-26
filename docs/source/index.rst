@@ -7,13 +7,11 @@ Example
 -------
 
   >>> import atomium
-  >>> glucose = atomium.xyz_from_file("glucose.xyz")
-  >>> glucose.comment()
-  'glucose from 2gbp'
-  >>> glucose.model()
-  <Model (12 atoms)>
-  >>> glucose.model().mass()
-  168.0606
+  >>> pdb = atomium.fetch("5HVD")
+  >>> pdb.model()
+  <Model (2156 atoms)>
+  >>> pdb.model().chain("A")
+  <Chain (204 residues)>
 
 
 

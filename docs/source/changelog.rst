@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+Release 0.4.0
+~~~~~~~~~~~~~
+
+`26 August 2017`
+
+* Added PDB parsing.
+* Added PDB saving.
+* Gave atoms ability to get specific bond with other atom.
+* Added bond angle calculation.
+* Added ability to filter out water molecules.
+
 Release 0.3.0
 ~~~~~~~~~~~~~
 

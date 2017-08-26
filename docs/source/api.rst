@@ -17,6 +17,9 @@ Files
 
 .. toctree ::
     api/xyz
+    api/pdbfile
+    api/pdbdatafile
+    api/pdb
 
 
 Converters
@@ -26,3 +29,11 @@ Converters
     api/strings
     api/string2xyz
     api/structure2xyzstring
+    api/string2pdbfile
+    api/pdbfile2pdbdatafile
+    api/pdbdatafile2model
+    api/pdbdatafile2pdb
+    api/pdb2pdbdatafile
+    api/structure2pdbdatafile
+    api/pdbdatafile2pdbfile
+    api/pdbfile2pdbstring

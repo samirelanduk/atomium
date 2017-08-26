@@ -20,7 +20,7 @@ def pdb_data_file_to_model(data_file):
 
 def load_chains(atom_dicts, model):
     """Adds :py:class:`.Chain` objects to a :py:class:`.Model` from a list of
-    atom ``dict``s.
+    atom ``dict`` objects.
 
     :param list atom_dicts: The atom ``dict`` objects.
     :param Model model: The Model to update."""
@@ -34,7 +34,7 @@ def load_chains(atom_dicts, model):
 
 def load_molecules(atom_dicts, model):
     """Adds :py:class:`.Molecule` objects to a :py:class:`.Model` from a list of
-    atom ``dict``s.
+    atom ``dict`` objects.
 
     :param list atom_dicts: The atom ``dict`` objects.
     :param Model model: The Model to update."""
@@ -116,7 +116,7 @@ def residues_to_chains(residues):
     from them, with the order preserved.
 
     :param residues: A collection of :py:class:`.Residue` objects.
-    :returns: ``list`` of ``Chain``s"""
+    :returns: ``list`` of ``Chain`` objects"""
 
     chain_ids = [res.temp_chain_id for res in residues]
     unique_chain_ids = list(sorted(set(chain_ids), key=chain_ids.index))
@@ -173,7 +173,7 @@ def make_connections_bonds(model, connections):
     """Takes a :py:class:`.Model` and a connections ``list`` and connects the
     atoms according to the specifications in the ``list``.
 
-    :param model Model: A Model to connect up.
+    :param Model model: A Model to connect up.
     :param list connections: The connections list from a\
     :py:class:`.PdbDataFile`"""
 

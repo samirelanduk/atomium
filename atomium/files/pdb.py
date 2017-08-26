@@ -3,7 +3,7 @@
 from ..structures.models import Model
 
 class Pdb:
-    """A PdbDataFile is used to represent a fully processed PDB file."""
+    """A Pdb is used to represent a fully processed PDB file."""
 
     def __init__(self):
         self._model = None
@@ -55,7 +55,8 @@ def pdb_from_file(path):
     """Opens a .pdb file at the specified path and creates a :py:class:`.Pdb`
     from it.
 
-    :param str path: The path to open."""
+    :param str path: The path to open.
+    :rtype: ``Pdb``"""
 
     from ..converters.strings import string_from_file
     from ..converters.string2pdbfile import string_to_pdb_file

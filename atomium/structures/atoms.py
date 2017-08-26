@@ -446,9 +446,10 @@ def dot_product(u, v):
 
     """
     Calculates the dot product of two vectors, u and v
-    :param u: list
-    :param v: list
-    :return: float
+    
+    :param u: ``list``
+    :param v: ``list``
+    :returns: ``float``
     """
 
     return sum([u_i * v_i for u_i, v_i in zip(u, v)])

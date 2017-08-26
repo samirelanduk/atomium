@@ -1,6 +1,6 @@
-``atomium.files.xyz`` (.xyz files)
+``atomium.files.pdb`` (.pdb files)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. automodule:: atomium.files.xyz
+.. automodule:: atomium.files.pdb
     :members:
     :inherited-members:

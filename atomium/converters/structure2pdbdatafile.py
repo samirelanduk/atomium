@@ -44,8 +44,9 @@ def atom_to_atom_dict(atom):
      "residue_name": residue_name,
      "chain_id": chain_id, "residue_id": residue_id, "insert_code": insert_code,
      "x": atom.x(), "y": atom.y(), "z": atom.z(),
-     "occupancy": 1.0, "temperature_factor": None,
-     "element": atom.element(), "charge": atom.charge()
+     "occupancy": 1.0,
+     "element": atom.element(), "charge": atom.charge(),
+     "temperature_factor": atom.bfactor() if atom.bfactor() else None
     }
 
 

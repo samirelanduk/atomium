@@ -96,6 +96,7 @@ class AtomDictToAtomTest(TestCase):
         self.assertEqual(atom._name, "N1")
         self.assertEqual(atom._element, "N")
         self.assertEqual(atom._charge, -2)
+        self.assertEqual(atom._bfactor, 15.56)
         self.assertEqual(atom.temp_chain_id, "A")
         self.assertEqual(atom.temp_residue_id, "A13A")
         self.assertEqual(atom.temp_residue_name, "GLY")
@@ -111,6 +112,7 @@ class AtomDictToAtomTest(TestCase):
         self.assertIsInstance(atom, Atom)
         self.assertEqual(atom._element, "X")
         self.assertEqual(atom._charge, 0)
+        self.assertEqual(atom._bfactor, 0)
         self.assertEqual(atom.temp_residue_id, "A13")
 
 

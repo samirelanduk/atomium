@@ -66,7 +66,8 @@ def atom_dict_to_atom(d):
      d["element"] if d["element"] else "X",
      d["x"], d["y"], d["z"],
      atom_id=d["atom_id"], name=d["atom_name"],
-     charge=d["charge"] if d["charge"] else 0
+     charge=d["charge"] if d["charge"] else 0,
+     bfactor=d["temperature_factor"] if d["temperature_factor"] else 0
     )
     atom.temp_chain_id = d["chain_id"]
     atom.temp_residue_id = d["chain_id"] + str(d["residue_id"])

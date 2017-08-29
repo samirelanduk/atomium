@@ -44,6 +44,7 @@ class AtomToAtomDictTests(TestCase):
         self.atom.z.return_value = -25.211
         self.atom.element.return_value = "N"
         self.atom.charge.return_value = -2
+        self.atom.bfactor.return_value = 12.5
         self.residue = Mock()
         self.residue.name.return_value = "GLY"
         self.residue.residue_id.return_value = "A13A"
@@ -60,7 +61,7 @@ class AtomToAtomDictTests(TestCase):
          "residue_name": "GLY",
          "chain_id": "A", "residue_id": 13, "insert_code": "A",
          "x": 12.681, "y": 37.302, "z": -25.211,
-         "occupancy": 1.0, "temperature_factor": None,
+         "occupancy": 1.0, "temperature_factor": 12.5,
          "element": "N", "charge": -2
         })
 
@@ -93,7 +94,7 @@ class AtomToAtomDictTests(TestCase):
          "residue_name": "SUC",
          "chain_id": "A", "residue_id": 200, "insert_code": None,
          "x": 12.681, "y": 37.302, "z": -25.211,
-         "occupancy": 1.0, "temperature_factor": None,
+         "occupancy": 1.0, "temperature_factor": 12.5,
          "element": "N", "charge": -2
         })
 

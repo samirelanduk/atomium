@@ -13,6 +13,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._id, None)
         self.assertEqual(atom._name, None)
         self.assertEqual(atom._charge, 0)
+        self.assertEqual(atom._bfactor, 0)
         self.assertEqual(atom._bonds, set())
         self.assertEqual(atom._residue, None)
         self.assertEqual(atom._chain, None)
@@ -81,6 +82,22 @@ class AtomCreationTests(TestCase):
         with self.assertRaises(TypeError):
             Atom("C", 2, 3, 5, charge="20.5")
         Atom("C", 2, 3, 5, charge=10)
+
+
+    def test_can_create_atom_with_bfactor(self):
+        atom = Atom("C", 2, 3, 5, bfactor=2.5)
+        self.assertEqual(atom._bfactor, 2.5)
+
+
+    def test_atom_bfactor_must_be_number(self):
+        with self.assertRaises(TypeError):
+            Atom("C", 2, 3, 5, bfactor="20.5")
+        Atom("C", 2, 3, 5, bfactor=10)
+
+
+    def test_atom_bfactor_must_be_positive(self):
+        with self.assertRaises(ValueError):
+            Atom("C", 2, 3, 5, bfactor=-3)
 
 
 
@@ -297,6 +314,33 @@ class AtomChargeTests(TestCase):
         with self.assertRaises(TypeError):
             atom.charge("4")
         atom.charge(4.5)
+
+
+
+class AtomBfactorTests(TestCase):
+
+    def test_bfactor_property(self):
+        atom = Atom("C", 2, 3, 5, bfactor=0.5)
+        self.assertIs(atom._bfactor, atom.bfactor())
+
+
+    def test_can_update_bfactor(self):
+        atom = Atom("C", 2, 3, 5)
+        atom.bfactor(6)
+        self.assertEqual(atom._bfactor, 6)
+
+
+    def test_atom_bfactor_must_be_numeric(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(TypeError):
+            atom.bfactor("4")
+        atom.bfactor(4.5)
+
+
+    def test_atom_bfactor_must_be_positive(self):
+        atom = Atom("C", 2, 3, 5)
+        with self.assertRaises(ValueError):
+            atom.bfactor(-9)
 
 
 

@@ -22,9 +22,11 @@ class Atom:
     :raises TypeError: if the coordinates are not numeric.
     :raises TypeError: if the atom_id is not int.
     :raises TypeError: if the name is not str.
-    :raises TypeError: if the charge is not numeric."""
+    :raises TypeError: if the charge is not numeric.
+    :raises TypeError: if the bfactor is not numeric.
+    :raises ValueError: if the bfactor is negative."""
 
-    def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0):
+    def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0, bfactor=0):
         if not isinstance(element, str):
             raise TypeError("Element '{}' is not str".format(element))
         if not 0 < len(element) < 3:
@@ -41,6 +43,10 @@ class Atom:
             raise TypeError("name {} is not a string".format(name))
         if not is_numeric(charge):
             raise TypeError("charge '{}' is not numeric".format(charge))
+        if not is_numeric(bfactor):
+            raise TypeError("bfactor '{}' is not numeric".format(bfactor))
+        if bfactor < 0:
+            raise ValueError("bfactor {} is negative".format(bfactor))
         self._element = element
         self._x = x
         self._y = y
@@ -48,6 +54,7 @@ class Atom:
         self._id = atom_id
         self._name = name
         self._charge = charge
+        self._bfactor = bfactor
         self._bonds = set()
         self._residue, self._chain, self._molecule = None, None, None
         self._model = None
@@ -215,6 +222,26 @@ class Atom:
             if not is_numeric(charge):
                 raise TypeError("charge '{}' is not numeric".format(charge))
             self._charge = charge
+
+
+    def bfactor(self, bfactor=None):
+        """Returns the atom's B-factor - the uncertainty in its position. If a
+        value is given, the bfactor will be updated, but it must be numeric and
+        positive.
+
+        :param number bfactor: If given, the atom's bfactor will be set to this.
+        :raises TypeError: if the bfactor given is not numeric.
+        :raises ValueError: if the bfactor given is negative.
+        :rtype: ``int`` or ``float``"""
+
+        if bfactor is None:
+            return self._bfactor
+        else:
+            if not is_numeric(bfactor):
+                raise TypeError("bfactor '{}' is not numeric".format(bfactor))
+            if bfactor < 0:
+                raise ValueError("bfactor {} is negative".format(bfactor))
+            self._bfactor = bfactor
 
 
     def bonds(self):
@@ -446,7 +473,7 @@ def dot_product(u, v):
 
     """
     Calculates the dot product of two vectors, u and v
-    
+
     :param u: ``list``
     :param v: ``list``
     :returns: ``float``

@@ -88,7 +88,9 @@ class PdbReadingTests(IntegratedTest):
         )
         bond1 = n.bond_with(ca)
         bond2 = ca.bond_with(c)
-        self.assertAlmostEqual(bond1.angle_with(bond2), 109.474, delta=0.005)
+        self.assertAlmostEqual(
+         bond1.angle_with(bond2, degrees=True), 109.474, delta=0.005
+        )
 
         # Can be saved
         pdb.save("tests/integration/files/1LOL2.pdb")

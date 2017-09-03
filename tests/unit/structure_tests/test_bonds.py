@@ -92,6 +92,68 @@ class BondVectorTests(BondTest):
 
 
 
+class BondAngleTests(BondTest):
+
+    @patch("atomium.structures.atoms.Bond.vector")
+    def test_can_get_angle_between_bonds_on_same_atom(self, mock_vector):
+        atom3 = Mock(Atom)
+        bond1 = Bond(self.atom1, self.atom2)
+        bond2 = Mock(Bond)
+        bond2._atoms = set([self.atom2, atom3])
+        vector1, vector2 = Mock(), Mock()
+        mock_vector.return_value = vector1
+        bond2.vector.return_value = vector2
+        vector1.angle_with.return_value = 50
+        angle = bond1.angle_with(bond2)
+        mock_vector.assert_called_with(self.atom1)
+        bond2.vector.assert_called_with(atom3)
+        vector1.angle_with.assert_called_with(vector2, degrees=False)
+        self.assertEqual(angle, 50)
+
+
+    @patch("atomium.structures.atoms.Bond.vector")
+    def test_can_get_angle_between_separated_bonds(self, mock_vector):
+        atom3, atom4 = Mock(Atom), Mock(Atom)
+        self.atom1._id, self.atom2._id, atom3._id, atom4._id = 1, 2, 3, 4
+        bond1 = Bond(self.atom1, self.atom2)
+        bond2 = Mock(Bond)
+        bond2._atoms = set([atom3, atom4])
+        vector1, vector2 = Mock(), Mock()
+        mock_vector.return_value = vector1
+        bond2.vector.return_value = vector2
+        vector1.angle_with.return_value = 50
+        self.atom1.distance_to.side_effect = lambda a: 1 if a is atom3 else 4
+        self.atom2.distance_to.side_effect = lambda a: 4 if a is atom3 else 6
+        angle = bond1.angle_with(bond2)
+        mock_vector.assert_called_with(self.atom2)
+        bond2.vector.assert_called_with(atom4)
+        vector1.angle_with.assert_called_with(vector2, degrees=False)
+        self.assertEqual(angle, 50)
+
+
+    @patch("atomium.structures.atoms.Bond.vector")
+    def test_can_get_angle_between_bonds_in_degrees(self, mock_vector):
+        atom3 = Mock(Atom)
+        bond1 = Bond(self.atom1, self.atom2)
+        bond2 = Mock(Bond)
+        bond2._atoms = set([self.atom2, atom3])
+        vector1, vector2 = Mock(), Mock()
+        mock_vector.return_value = vector1
+        bond2.vector.return_value = vector2
+        vector1.angle_with.return_value = 50
+        angle = bond1.angle_with(bond2, degrees=True)
+        vector1.angle_with.assert_called_with(vector2, degrees=True)
+        self.assertEqual(angle, 50)
+
+
+    def test_can_only_get_angle_with_bond(self):
+        bond1 = Bond(self.atom1, self.atom2)
+        with self.assertRaises(TypeError):
+            bond1.angle_with("bond")
+
+
+
+
 class BondDestructionTests(BondTest):
 
     def test_destroying_bond_removes_from_atoms(self):

@@ -67,6 +67,31 @@ class BondLengthTests(BondTest):
 
 
 
+class BondVectorTests(BondTest):
+
+    def test_bond_to_vector(self):
+        bond = Bond(self.atom1, self.atom2)
+        self.atom1.location.return_value = (1, 2, 3)
+        self.atom2.location.return_value = (-5, 32, 9)
+        vector = bond.vector(self.atom1)
+        self.assertEqual(vector.values(), (6, -30, -6))
+        vector = bond.vector(self.atom2)
+        self.assertEqual(vector.values(), (-6, 30, 6))
+
+
+    def test_vector_needs_atom(self):
+        bond = Bond(self.atom1, self.atom2)
+        with self.assertRaises(TypeError):
+            bond.vector("atom")
+
+
+    def test_vector_needs_present_atom(self):
+        bond = Bond(self.atom1, self.atom2)
+        with self.assertRaises(ValueError):
+            bond.vector(Mock(Atom))
+
+
+
 class BondDestructionTests(BondTest):
 
     def test_destroying_bond_removes_from_atoms(self):

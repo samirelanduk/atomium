@@ -2,7 +2,7 @@
 
 import weakref
 from math import sqrt, acos, degrees
-from matrices.checks import is_numeric
+from points import Vector, is_numeric
 
 class Atom:
     """Represents an atom in three dimensional space. Every atom has an element
@@ -385,6 +385,26 @@ class Bond:
 
         atom1, atom2 = self._atoms
         return atom1.distance_to(atom2)
+
+
+    def vector(self, target):
+        """Returns the ``Vector`` which represents the bond. You must specify
+        which atom you want the Vector to point towards.
+
+        The Vector comes from the ``points`` library.
+
+        :param Atom target: The atom the Vector will point towards.
+        :raises TypeError: if a non-atom is given.
+        :raises ValueError: if the atom given isn't in the Bond.
+        :rtype: ``Vector``"""
+
+        if not isinstance(target, Atom):
+            raise TypeError("bond atom {} is not an atom".format(target))
+        if target not in self._atoms:
+            raise ValueError("{} is not in bond {}".format(target, self))
+        base = [atom for atom in self._atoms if atom is not target][0]
+        values = [c1 - c2 for c1, c2 in zip(target.location(), base.location())]
+        return Vector(*values)
 
 
     def destroy(self):

@@ -111,7 +111,7 @@ class PdbfetchingTests(TestCase):
 
     @patch("requests.get")
     @patch("atomium.files.pdb.pdb_from_string")
-    def test_can_get_pdb_from_file(self, mock_pdb, mock_get):
+    def test_can_fetch_pdb(self, mock_pdb, mock_get):
         response = Mock()
         response.status_code = 200
         response.text = "filestring"
@@ -119,7 +119,24 @@ class PdbfetchingTests(TestCase):
         pdb = Mock()
         mock_pdb.return_value = pdb
         returned_pdb = fetch("1XXX")
-        mock_get.assert_called_with("https://files.rcsb.org/view/1XXX.pdb")
+        mock_get.assert_called_with("https://files.rcsb.org/view/1xxx.pdb")
+        mock_pdb.assert_called_with("filestring")
+        self.assertIs(pdb, returned_pdb)
+
+
+    @patch("requests.get")
+    @patch("atomium.files.pdb.pdb_from_string")
+    def test_can_fetch_pdb_from_europe(self, mock_pdb, mock_get):
+        response = Mock()
+        response.status_code = 200
+        response.text = "filestring"
+        mock_get.return_value = response
+        pdb = Mock()
+        mock_pdb.return_value = pdb
+        returned_pdb = fetch("1XXX", pdbe=True)
+        mock_get.assert_called_with(
+         "https://www.ebi.ac.uk/pdbe/entry-files/pdb1xxx.ent"
+        )
         mock_pdb.assert_called_with("filestring")
         self.assertIs(pdb, returned_pdb)
 

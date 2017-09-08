@@ -79,10 +79,11 @@ def pdb_from_file(path):
     return pdb
 
 
-def fetch(code):
+def fetch(code, pdbe=False):
     """Gets a :py:class:`.Pdb` from the RCSB web services.
 
     :param str code: The PDB code to fetch.
+    :param bool pdbe: If ``True``, the PDB will instead be fetched from PDBe.
     :raises TypeError: if the code is not a string.
     :raises ValueError: if the code is not four caracters long.
     :rtype: ``Pdb``"""
@@ -92,7 +93,10 @@ def fetch(code):
     if len(code) != 4:
         raise ValueError("PDB code {} is not of length 4".format(code))
     from requests import get
-    response = get("https://files.rcsb.org/view/{}.pdb".format(code))
+    url = "https://files.rcsb.org/view/{}.pdb"
+    if pdbe:
+        url = "https://www.ebi.ac.uk/pdbe/entry-files/pdb{}.ent"
+    response = get(url.format(code.lower()))
     if response.status_code == 200:
         s = response.text
         pdb = pdb_from_string(s)

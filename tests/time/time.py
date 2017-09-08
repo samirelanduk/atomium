@@ -3,7 +3,7 @@ import subprocess
 import atomium
 
 here = dir_path = os.path.dirname(os.path.realpath(__file__))
-version = atomium.__version__
+version = atomium.__version__.replace(".", "-")
 
 pdbs = ["1LOL"]
 for pdb in pdbs:

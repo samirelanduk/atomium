@@ -104,6 +104,8 @@ class BondAngleTests(BondTest):
         mock_vector.return_value = vector1
         bond2.vector.return_value = vector2
         vector1.angle_with.return_value = 50
+        self.atom1.distance_to.side_effect = lambda a: 1 if a is atom3 else 4
+        self.atom2.distance_to.side_effect = lambda a: 4 if a is atom3 else 0
         angle = bond1.angle_with(bond2)
         mock_vector.assert_called_with(self.atom1)
         bond2.vector.assert_called_with(atom3)
@@ -140,6 +142,8 @@ class BondAngleTests(BondTest):
         vector1, vector2 = Mock(), Mock()
         mock_vector.return_value = vector1
         bond2.vector.return_value = vector2
+        self.atom1.distance_to.side_effect = lambda a: 1 if a is atom3 else 4
+        self.atom2.distance_to.side_effect = lambda a: 4 if a is atom3 else 0
         vector1.angle_with.return_value = 50
         angle = bond1.angle_with(bond2, degrees=True)
         vector1.angle_with.assert_called_with(vector2, degrees=True)

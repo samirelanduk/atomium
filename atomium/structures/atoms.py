@@ -419,19 +419,12 @@ class Bond:
 
         if not isinstance(other, Bond):
             raise TypeError("{} is not a Bond".format(other))
-        common = self._atoms.intersection(other._atoms)
-        v1, v2 = None, None
-        if len(common) == 1:
-            common = next(iter(common))
-            v1 = self.vector([a for a in self._atoms if a is not common][0])
-            v2 = other.vector([a for a in other._atoms if a is not common][0])
-        else:
-            pairs = [
-             [set([a1, a2]), a1.distance_to(a2)]
-            for a1 in self._atoms for a2 in other._atoms]
-            pair = min(pairs, key=lambda k: k[1])[0]
-            v1 = self.vector([a for a in self._atoms if a not in pair][0])
-            v2 = other.vector([a for a in other._atoms if a not in pair][0])
+        pairs = [
+         [set([a1, a2]), a1.distance_to(a2)]
+        for a1 in self._atoms for a2 in other._atoms]
+        pair = min(pairs, key=lambda k: k[1])[0]
+        v1 = self.vector([a for a in self._atoms if a not in pair][0])
+        v2 = other.vector([a for a in other._atoms if a not in pair][0])
         return v1.angle_with(v2, degrees=degrees)
 
 

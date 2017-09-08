@@ -170,6 +170,8 @@ class Chain(Molecule, ResidueSequence):
         ResidueSequence.verify(self)
         for atom in self._atoms:
             atom._chain = self
+        for atom in self._id_atoms:
+            self._id_atoms[atom]._chain = self
 
 
     def __repr__(self):

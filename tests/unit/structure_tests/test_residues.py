@@ -10,6 +10,7 @@ class ResidueTest(TestCase):
         self.atoms = [self.atom1, self.atom2, self.atom3]
         def mock_init(obj, *args, **kwargs):
             obj._atoms = set()
+            obj._id_atoms = {}
         self.mock_init = mock_init
 
 
@@ -191,7 +192,9 @@ class ResiduePreviousTests(ResidueTest):
 
 class ResidueChainTests(ResidueTest):
 
-    def test_can_get_chain(self):
+    @patch("atomium.structures.molecules.Residue.atoms")
+    def test_can_get_chain(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
         chain = Mock()
         self.atom1.chain.return_value = chain
         self.atom2.chain.return_value = chain
@@ -199,7 +202,10 @@ class ResidueChainTests(ResidueTest):
         res = Residue(self.atom1, self.atom2, self.atom3)
         self.assertIs(res.chain(), chain)
 
-    def test_can_get_no_chain(self):
+
+    @patch("atomium.structures.molecules.Residue.atoms")
+    def test_can_get_no_chain(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
         self.atom1.chain.return_value = None
         self.atom2.chain.return_value = None
         self.atom3.chain.return_value = None

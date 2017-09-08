@@ -18,6 +18,7 @@ class ChainTest(TestCase):
         self.mock_residues.return_value = (self.residue1, self.residue2)
         def mock_init(obj, *args, **kwargs):
             obj._atoms = set()
+            obj._id_atoms = {}
         self.mock_init = mock_init
 
 

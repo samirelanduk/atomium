@@ -130,7 +130,9 @@ class AtomsToResiduesTests(TestCase):
         self.assertEqual(len(residues), 6)
         for index, residue in enumerate(residues):
             self.assertIsInstance(residue, Residue)
-            self.assertEqual(residue._atoms, set(atoms[index * 2: index * 2 + 2]))
+            self.assertEqual(
+             set(residue._id_atoms.values()), set(atoms[index * 2: index * 2 + 2])
+            )
             self.assertEqual(residue._id, str(index))
             self.assertEqual(residue._name, str(index) + "nm")
             self.assertEqual(residue.temp_chain_id, "A" if index < 3 else "B")
@@ -155,7 +157,9 @@ class AtomsToResiduesTests(TestCase):
         for index, molecule in enumerate(molecules):
             self.assertIsInstance(molecule, Molecule)
             self.assertNotIsInstance(molecule, Residue)
-            self.assertEqual(molecule._atoms, set(atoms[index * 2: index * 2 + 2]))
+            self.assertEqual(
+             set(molecule._id_atoms.values()), set(atoms[index * 2: index * 2 + 2])
+            )
             self.assertEqual(molecule._id, str(index))
             self.assertEqual(molecule._name, str(index) + "nm")
         for atom in atoms:

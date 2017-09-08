@@ -14,6 +14,7 @@ class ModelTest(TestCase):
         self.atoms = [self.atom1, self.atom2, self.atom3]
         def mock_init(obj, *args, **kwargs):
             obj._atoms = set()
+            obj._id_atoms = {}
         self.mock_init = mock_init
 
 

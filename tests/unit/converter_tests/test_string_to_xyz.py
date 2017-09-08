@@ -19,6 +19,8 @@ class StringToXyzTests(TestCase):
         self.mock_lines.return_value = ["12", "comment", "...", "line1", "line2"]
         self.mock_extract.return_value = "comment"
         self.atoms = [Mock(Atom) for _ in range(5)]
+        for atom in self.atoms:
+            atom.atom_id.return_value = None
         self.mock_parse.side_effect = self.atoms
 
 

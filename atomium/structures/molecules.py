@@ -30,15 +30,18 @@ class AtomicStructure:
                 raise TypeError(
                  "AtomicStructures need atoms, not '{}'".format(atom)
                 )
-        self._atoms = set(atoms_)
+        self._id_atoms = {atom.atom_id(): atom for atom in atoms_ if atom.atom_id()}
+        self._atoms = set([atom for atom in atoms_ if not atom.atom_id()])
 
 
     def __repr__(self):
-        return "<{} ({} atoms)>".format(self.__class__.__name__, len(self._atoms))
+        return "<{} ({} atoms)>".format(
+         self.__class__.__name__, len(self._atoms) + len(self._id_atoms)
+        )
 
 
     def __contains__(self, member):
-        return member in self._atoms
+        return member in self._atoms or member in self._id_atoms.values()
 
 
     def atoms(self, element=None, atom_id=None, name=None):
@@ -53,7 +56,7 @@ class AtomicStructure:
         returned.
         :rtype: ``set``"""
 
-        atoms = set(self._atoms)
+        atoms = self._atoms.union(set(self._id_atoms.values()))
         if element:
             atoms = set(filter(lambda a: a.element() == element, atoms))
         if atom_id:
@@ -78,6 +81,8 @@ class AtomicStructure:
         searched.
         :rtype: ``Atom``"""
 
+        if "atom_id" in kwargs:
+            return self._id_atoms.get(kwargs["atom_id"])
         atoms = self.atoms(*args, **kwargs)
         for atom in atoms: return atom
 
@@ -90,7 +95,10 @@ class AtomicStructure:
 
         if not isinstance(atom, Atom):
             raise TypeError("Can only add atoms, not '{}'".format(atom))
-        self._atoms.add(atom)
+        if atom.atom_id():
+            self._id_atoms[atom.atom_id()] = atom
+        else:
+            self._atoms.add(atom)
 
 
     def remove_atom(self, atom):
@@ -98,7 +106,10 @@ class AtomicStructure:
 
         :param Atom atom: The atom to remove."""
 
-        self._atoms.remove(atom)
+        if atom.atom_id():
+            del self._id_atoms[atom.atom_id()]
+        else:
+            self._atoms.remove(atom)
 
 
     def mass(self):
@@ -107,7 +118,7 @@ class AtomicStructure:
 
         :rtype: ``float``"""
 
-        return sum([atom.mass() for atom in self._atoms])
+        return sum([atom.mass() for atom in self.atoms()])
 
 
     def charge(self):
@@ -116,7 +127,7 @@ class AtomicStructure:
 
         :rtype: ``float``"""
 
-        return sum([atom.charge() for atom in self._atoms])
+        return sum([atom.charge() for atom in self.atoms()])
 
 
     def formula(self):
@@ -124,7 +135,7 @@ class AtomicStructure:
 
         :rtype: ``Counter``"""
 
-        return Counter([atom.element() for atom in self._atoms])
+        return Counter([atom.element() for atom in self.atoms()])
 
 
     def translate(self, dx, dy, dz):
@@ -135,7 +146,7 @@ class AtomicStructure:
         :param Number dy: The distance to move in the y direction.
         :param Number dz: The distance to move in the z direction."""
 
-        atoms = list(self._atoms)
+        atoms = list(self.atoms())
         points = translate(atoms, dx, dy, dz)
         for index, atom in enumerate(atoms):
             atom._x, atom._y, atom._z = points[index]
@@ -148,7 +159,7 @@ class AtomicStructure:
         :param str axis: The axis to rotate around. Can only be 'x', 'y' or 'z'.
         :param Number angle: The angle in degrees. Rotation is right handed."""
 
-        atoms = list(self._atoms)
+        atoms = list(self.atoms())
         points = rotate(atoms, axis, angle)
         for index, atom in enumerate(atoms):
             atom._x, atom._y, atom._z = points[index]
@@ -161,9 +172,10 @@ class AtomicStructure:
         :returns: (x, y, z) ``tuple``"""
 
         mass = self.mass()
-        average_x = sum([atom._x * atom.mass() for atom in self._atoms]) / mass
-        average_y = sum([atom._y * atom.mass() for atom in self._atoms]) / mass
-        average_z = sum([atom._z * atom.mass() for atom in self._atoms]) / mass
+        atoms = self.atoms()
+        average_x = sum([atom._x * atom.mass() for atom in atoms]) / mass
+        average_y = sum([atom._y * atom.mass() for atom in atoms]) / mass
+        average_z = sum([atom._z * atom.mass() for atom in atoms]) / mass
         return (average_x, average_y, average_z)
 
 
@@ -175,10 +187,11 @@ class AtomicStructure:
         :rtype: ``float``"""
 
         center_of_mass = self.center_of_mass()
+        atoms = self.atoms()
         square_deviation = sum(
-         [atom.distance_to(center_of_mass) ** 2 for atom in self._atoms]
+         [atom.distance_to(center_of_mass) ** 2 for atom in atoms]
         )
-        mean_square_deviation = square_deviation / len(self._atoms)
+        mean_square_deviation = square_deviation / len(atoms)
         return sqrt(mean_square_deviation)
 
 
@@ -245,6 +258,8 @@ class Molecule(AtomicStructure):
         self._name = name
         for atom in self._atoms:
             atom._molecule = self
+        for atom in self._id_atoms:
+            self._id_atoms[atom]._molecule = self
 
 
     def __repr__(self):
@@ -252,7 +267,7 @@ class Molecule(AtomicStructure):
         if self._id: id_ = self._id + " "
         if self._name: name = self._name + ", "
         return "<{} {}({}{} atoms)>".format(
-         self.__class__.__name__, id_, name, len(self._atoms)
+         self.__class__.__name__, id_, name, len(self._atoms) + len(self._id_atoms)
         )
 
 
@@ -301,7 +316,7 @@ class Molecule(AtomicStructure):
 
         :rtype: ``Model``"""
 
-        for atom in self._atoms:
+        for atom in self.atoms():
             return atom.model()
 
 
@@ -327,6 +342,8 @@ class Residue(Molecule):
         self._next, self._previous = None, None
         for atom in self._atoms:
             atom._residue = self
+        for atom in self._id_atoms:
+            self._id_atoms[atom]._residue = self
 
 
     def residue_id(self, residue_id=None):
@@ -419,5 +436,5 @@ class Residue(Molecule):
 
         :rtype: ``Chain``"""
 
-        for atom in self._atoms:
+        for atom in self.atoms():
             return atom.chain()

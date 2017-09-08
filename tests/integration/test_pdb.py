@@ -110,7 +110,7 @@ class PdbReadingTests(IntegratedTest):
 class PdbFetchingTests(IntegratedTest):
 
     def test_can_fetch_file(self):
-        pdb = atomium.fetch("1h4W")
+        pdb = atomium.fetch("1h4W", pdbe=True)
         model = pdb.model()
 
         self.assertEqual(len(model.chains()), 1)

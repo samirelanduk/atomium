@@ -169,6 +169,9 @@ class Model(AtomicStructure, ResidueStructure, ChainStructure, MoleculeStructure
         AtomicStructure.__init__(self, *atoms)
         for atom in self._atoms:
             atom._model = self
+        for atom in self._id_atoms:
+            self._id_atoms[atom]._model = self
+
 
 
     def add_atom(self, atom, *args, **kwargs):

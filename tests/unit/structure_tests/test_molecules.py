@@ -10,6 +10,7 @@ class MoleculeTest(TestCase):
         self.atoms = [self.atom1, self.atom2, self.atom3]
         def mock_init(obj, *args, **kwargs):
             obj._atoms = set()
+            obj._id_atoms = {}
         self.mock_init = mock_init
 
 
@@ -137,7 +138,9 @@ class MoleculeAtomRemovalTests(MoleculeTest):
 
 class MoleculeModelTests(MoleculeTest):
 
-    def test_can_get_model(self):
+    @patch("atomium.structures.molecules.Molecule.atoms")
+    def test_can_get_model(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
         model = Mock()
         self.atom1.model.return_value = model
         self.atom2.model.return_value = model
@@ -145,7 +148,10 @@ class MoleculeModelTests(MoleculeTest):
         mol = Molecule(self.atom1, self.atom2, self.atom3)
         self.assertIs(mol.model(), model)
 
-    def test_can_get_no_chain(self):
+
+    @patch("atomium.structures.molecules.Molecule.atoms")
+    def test_can_get_no_model(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
         self.atom1.model.return_value = None
         self.atom2.model.return_value = None
         self.atom3.model.return_value = None

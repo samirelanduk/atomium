@@ -51,6 +51,21 @@ class Pdb:
 
 
 
+def pdb_from_string(filestring):
+    """Creates a :py:class:`.Pdb` from the filestring of a .pdb file.
+
+    :param str filestring: The filestring.
+    :rtype: ``Pdb``"""
+
+    from ..converters.string2pdbfile import string_to_pdb_file
+    from ..converters.pdbfile2pdbdatafile import pdb_file_to_pdb_data_file
+    from ..converters.pdbdatafile2pdb import pdb_data_file_to_pdb
+    pdb_file = string_to_pdb_file(filestring)
+    data_file = pdb_file_to_pdb_data_file(pdb_file)
+    pdb = pdb_data_file_to_pdb(data_file)
+    return pdb
+
+
 def pdb_from_file(path):
     """Opens a .pdb file at the specified path and creates a :py:class:`.Pdb`
     from it.
@@ -59,13 +74,8 @@ def pdb_from_file(path):
     :rtype: ``Pdb``"""
 
     from ..converters.strings import string_from_file
-    from ..converters.string2pdbfile import string_to_pdb_file
-    from ..converters.pdbfile2pdbdatafile import pdb_file_to_pdb_data_file
-    from ..converters.pdbdatafile2pdb import pdb_data_file_to_pdb
     s = string_from_file(path)
-    pdb_file = string_to_pdb_file(s)
-    data_file = pdb_file_to_pdb_data_file(pdb_file)
-    pdb = pdb_data_file_to_pdb(data_file)
+    pdb = pdb_from_string(s)
     return pdb
 
 
@@ -82,13 +92,8 @@ def fetch(code):
     if len(code) != 4:
         raise ValueError("PDB code {} is not of length 4".format(code))
     from requests import get
-    from ..converters.string2pdbfile import string_to_pdb_file
-    from ..converters.pdbfile2pdbdatafile import pdb_file_to_pdb_data_file
-    from ..converters.pdbdatafile2pdb import pdb_data_file_to_pdb
     response = get("https://files.rcsb.org/view/{}.pdb".format(code))
     if response.status_code == 200:
         s = response.text
-        pdb_file = string_to_pdb_file(s)
-        data_file = pdb_file_to_pdb_data_file(pdb_file)
-        pdb = pdb_data_file_to_pdb(data_file)
+        pdb = pdb_from_string(s)
         return pdb

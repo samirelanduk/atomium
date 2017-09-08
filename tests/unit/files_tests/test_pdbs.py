@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from atomium.files.pdb import Pdb, pdb_from_file, fetch
+from atomium.files.pdb import Pdb, pdb_from_file, pdb_from_string, fetch
 from atomium.structures.models import Model
 
 class PdbCreationTests(TestCase):
@@ -74,20 +74,17 @@ class PdbToFileTests(TestCase):
 
 
 
-class PdbFromFileTests(TestCase):
+class PdbFromStringTests(TestCase):
 
-    @patch("atomium.converters.strings.string_from_file")
     @patch("atomium.converters.string2pdbfile.string_to_pdb_file")
     @patch("atomium.converters.pdbfile2pdbdatafile.pdb_file_to_pdb_data_file")
     @patch("atomium.converters.pdbdatafile2pdb.pdb_data_file_to_pdb")
-    def test_can_get_pdb_from_file(self, mock_pdb, mock_data, mock_file, mock_string):
-        mock_string.return_value = "filestring"
+    def test_can_get_pdb_from_file(self, mock_pdb, mock_data, mock_file):
         pdb_file, data_file, pdb = Mock(), Mock(), Mock()
         mock_file.return_value = pdb_file
         mock_data.return_value = data_file
         mock_pdb.return_value = pdb
-        returned_pdb = pdb_from_file("path")
-        mock_string.assert_called_with("path")
+        returned_pdb = pdb_from_string("filestring")
         mock_file.assert_called_with("filestring")
         mock_data.assert_called_with(pdb_file)
         mock_pdb.assert_called_with(data_file)
@@ -95,26 +92,35 @@ class PdbFromFileTests(TestCase):
 
 
 
+class PdbFromFileTests(TestCase):
+
+    @patch("atomium.converters.strings.string_from_file")
+    @patch("atomium.files.pdb.pdb_from_string")
+    def test_can_get_pdb_from_file(self, mock_pdb, mock_string):
+        mock_string.return_value = "filestring"
+        pdb = Mock()
+        mock_pdb.return_value = pdb
+        returned_pdb = pdb_from_file("path")
+        mock_string.assert_called_with("path")
+        mock_pdb.assert_called_with("filestring")
+        self.assertIs(pdb, returned_pdb)
+
+
+
 class PdbfetchingTests(TestCase):
 
     @patch("requests.get")
-    @patch("atomium.converters.string2pdbfile.string_to_pdb_file")
-    @patch("atomium.converters.pdbfile2pdbdatafile.pdb_file_to_pdb_data_file")
-    @patch("atomium.converters.pdbdatafile2pdb.pdb_data_file_to_pdb")
-    def test_can_get_pdb_from_file(self, mock_pdb, mock_data, mock_file, mock_get):
+    @patch("atomium.files.pdb.pdb_from_string")
+    def test_can_get_pdb_from_file(self, mock_pdb, mock_get):
         response = Mock()
         response.status_code = 200
         response.text = "filestring"
         mock_get.return_value = response
-        pdb_file, data_file, pdb = Mock(), Mock(), Mock()
-        mock_file.return_value = pdb_file
-        mock_data.return_value = data_file
+        pdb = Mock()
         mock_pdb.return_value = pdb
         returned_pdb = fetch("1XXX")
         mock_get.assert_called_with("https://files.rcsb.org/view/1XXX.pdb")
-        mock_file.assert_called_with("filestring")
-        mock_data.assert_called_with(pdb_file)
-        mock_pdb.assert_called_with(data_file)
+        mock_pdb.assert_called_with("filestring")
         self.assertIs(pdb, returned_pdb)
 
 

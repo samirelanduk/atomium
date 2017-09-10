@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from atomium.files.pdbfile import PdbRecord
 
 class PdbRecordCreationTests(TestCase):
@@ -7,6 +7,7 @@ class PdbRecordCreationTests(TestCase):
     def test_can_create_pdb_record(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         self.assertEqual(record._text, "RECORD XXX YYY ZZZ 01")
+        self.assertEqual(record._number, None)
 
 
     def test_pdb_record_will_rstrip(self):
@@ -167,6 +168,15 @@ class PdbRecordForceStringReturnTests(TestCase):
     def test_can_force_record_to_return_string_slice(self):
         record = PdbRecord("RECORD 1.23 YYY ZZZ 01")
         self.assertEqual(record.get_as_string(19, 22), " 01")
+
+
+
+class PdbRecordNumberTests(TestCase):
+
+    def test_record_number(self):
+        record = PdbRecord("RECORD 1.23 YYY ZZZ 01")
+        record._number = 10105
+        self.assertEqual(record.number(), 10105)
 
 
 

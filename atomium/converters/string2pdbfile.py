@@ -10,7 +10,6 @@ def string_to_pdb_file(s):
     :param str s: The string to convert.
     :rtype: ``PdbFile``"""
 
-    pdb_file = PdbFile()
     lines = string2lines(s)
-    pdb_file._records = [PdbRecord(line) for line in lines]
-    return pdb_file
+    records = [PdbRecord(line) for line in lines]
+    return PdbFile(*records)

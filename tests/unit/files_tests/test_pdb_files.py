@@ -10,6 +10,10 @@ class PdbFileTest(TestCase):
         self.records[1].name.return_value = "BBB"
         self.records[2].name.return_value = "BBB"
         self.records[3].name.return_value = "DDD"
+        self.records[0]._number = None
+        self.records[1]._number = None
+        self.records[2]._number = None
+        self.records[3]._number = None
 
 
 
@@ -23,6 +27,14 @@ class PdbFileCreationTests(PdbFileTest):
     def test_pdb_file_requires_pdb_records(self):
         with self.assertRaises(TypeError):
             PdbFile(self.records[0], "self.records[1]", self.records[2])
+
+
+    def test_records_updated_with_file(self):
+        pdb_file = PdbFile(self.records[0], self.records[1], self.records[2])
+        self.assertIs(self.records[0]._number, 1)
+        self.assertIs(self.records[1]._number, 2)
+        self.assertIs(self.records[2]._number, 3)
+        self.assertIs(self.records[3]._number, None)
 
 
 
@@ -167,6 +179,13 @@ class PdbFileRecordAdditionTests(PdbFileTest):
             pdb_file.add_record("self.records[2]")
 
 
+    def test_adding_pdb_record_updates_number(self):
+        pdb_file = PdbFile(*self.records[0:3])
+        self.assertIs(self.records[3]._number, None)
+        pdb_file.add_record(self.records[3])
+        self.assertEqual(self.records[3]._number, 4)
+
+
 
 class PdbFileRecordRemovalTests(PdbFileTest):
 
@@ -176,3 +195,16 @@ class PdbFileRecordRemovalTests(PdbFileTest):
         self.assertEqual(pdb_file._records, [self.records[0]] + self.records[2:])
         pdb_file.remove_record(self.records[0])
         self.assertEqual(pdb_file._records, self.records[2:])
+
+
+    def test_removing_pdb_record_changes_number(self):
+        pdb_file = PdbFile(*self.records)
+        self.assertEqual(self.records[0]._number, 1)
+        self.assertEqual(self.records[1]._number, 2)
+        self.assertEqual(self.records[2]._number, 3)
+        self.assertEqual(self.records[3]._number, 4)
+        pdb_file.remove_record(self.records[1])
+        self.assertEqual(self.records[0]._number, 1)
+        self.assertEqual(self.records[1]._number, None)
+        self.assertEqual(self.records[2]._number, 2)
+        self.assertEqual(self.records[3]._number, 3)

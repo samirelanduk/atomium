@@ -27,6 +27,7 @@ class PdbRecord:
         if len(text) > 80:
             raise ValueError("'%s' is longer than 80 characters" % str(text))
         self._text = text.rstrip()
+        self._number = None
 
 
     def __repr__(self):
@@ -76,6 +77,15 @@ class PdbRecord:
         if index2:
             return full_line[index: index2]
         return full_line[index]
+
+
+    def number(self):
+        """Returns the line number of the record in its associated
+        :py:class:`.PdbFile`.
+
+        :rtype: ``int``"""
+
+        return self._number
 
 
     def text(self, text=None):
@@ -150,6 +160,8 @@ class PdbFile:
             if not isinstance(record, PdbRecord):
                 raise TypeError("'%s' is not a PdbRecord" % str(record))
         self._records = list(records)
+        for index, record in enumerate(self._records, start=1):
+            record._number = index
 
 
     def __repr__(self):
@@ -220,6 +232,7 @@ class PdbFile:
         if not isinstance(record, PdbRecord):
             raise TypeError("'%s' is not a PdbRecord" % str(record))
         self._records.append(record)
+        record._number = len(self._records)
 
 
     def remove_record(self, record):
@@ -228,3 +241,6 @@ class PdbFile:
         :param PdbRecord record: The record to remove."""
 
         self._records.remove(record)
+        record._number = None
+        for index, record in enumerate(self._records, start=1):
+            record._number = index

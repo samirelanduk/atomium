@@ -20,23 +20,34 @@ def extract_structure(pdb_file, data_file):
     :param PdbFile pdb_file: The source PdbFile.
     :param PdbDataFile data_file: The PdbDataFile to update."""
 
+    model_records = pdb_file.records(name="model")
     atom_records = pdb_file.records(name="atom")
     hetatm_records = pdb_file.records(name="hetatm")
     conect_records = pdb_file.records(name="conect")
-    data_file.atoms = [atom_record_to_dict(rec) for rec in atom_records]
-    data_file.heteroatoms = [atom_record_to_dict(rec) for rec in hetatm_records]
+    data_file.atoms = [
+     atom_record_to_dict(rec, model_records) for rec in atom_records
+    ]
+    data_file.heteroatoms = [
+     atom_record_to_dict(rec, model_records) for rec in hetatm_records
+    ]
     data_file.connections = conect_records_to_list(conect_records)
 
 
-def atom_record_to_dict(record):
+def atom_record_to_dict(record, model_records):
     """Converts an ATOM or HETATM :py:class:`.PdbRecord` to a ``dict``.
 
     :param PdbRecord record: The record to parse.
+    :param list model_records: The model records to use as number reference.
     :rtype: ``dict``"""
 
     charge = record[78:80]
     if isinstance(charge, str):
         charge = int(charge[::-1])
+    model_locations = [rec.number() for rec in model_records]
+    model_number, this_number = 1, record.number()
+    for index, loc in enumerate(model_locations, start=1):
+        if this_number > loc:
+            model_number = index
     return {
      "atom_id": record[6:11],
      "atom_name": record[12:16],
@@ -51,7 +62,8 @@ def atom_record_to_dict(record):
      "occupancy": record[54:60],
      "temperature_factor": record[60:66],
      "element": record[76:78],
-     "charge": charge
+     "charge": charge,
+     "model": model_number
     }
 
 

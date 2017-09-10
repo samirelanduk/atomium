@@ -106,6 +106,41 @@ class PdbReadingTests(IntegratedTest):
         )
 
 
+    def test_can_read_multi_model_pdbs(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
+
+        models = pdb.models()
+        self.assertEqual(len(models), 10)
+        self.assertIs(pdb.model(), pdb.models()[0])
+
+        x_values = [
+         33.969, 34.064, 37.369, 36.023, 35.245,
+         35.835, 37.525, 35.062, 36.244, 37.677
+        ]
+        all_atoms = set()
+        for x, model in zip(x_values, models):
+            self.assertEqual(len(model.atoms()), 1828)
+            all_atoms.update(model.atoms())
+            atom = model.atom(1)
+            self.assertEqual(atom.x(), x)
+            self.assertEqual(len(atom.bonded_atoms()), 1)
+        self.assertEqual(len(all_atoms), 18280)
+
+        pdb.save("tests/integration/files/5XME2.pdb")
+        with open("tests/integration/files/5XME2.pdb") as f:
+            new = [l.strip() for l in f.readlines() if l.strip()]
+        with open("tests/integration/files/5xme_output.pdb") as f:
+            ref = [l.strip() for l in f.readlines() if l.strip()]
+        self.assertEqual(new, ref)
+        new = atomium.pdb_from_file("tests/integration/files/5XME2.pdb")
+        models = new.models()
+        self.assertEqual(len(models), 10)
+        for x, model in zip(x_values, models):
+            self.assertEqual(len(model.atoms()), 1828)
+
+
+
+
 
 class PdbFetchingTests(IntegratedTest):
 

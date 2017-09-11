@@ -10,7 +10,8 @@ class Pdb:
 
 
     def __repr__(self):
-        return "<Pdb>"
+        num = len(self._models)
+        return "<Pdb ({} model{})>".format(num, "" if num == 1 else "s")
 
 
     def models(self):

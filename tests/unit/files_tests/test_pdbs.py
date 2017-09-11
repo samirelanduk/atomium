@@ -13,9 +13,21 @@ class PdbCreationTests(TestCase):
 
 class PdbReprTests(TestCase):
 
-    def test_pdb_repr(self):
+    def test_pdb_repr_no_models(self):
         pdb = Pdb()
-        self.assertEqual(str(pdb), "<Pdb>")
+        self.assertEqual(str(pdb), "<Pdb (0 models)>")
+
+
+    def test_pdb_repr_one_model(self):
+        pdb = Pdb()
+        pdb._models = ["1"]
+        self.assertEqual(str(pdb), "<Pdb (1 model)>")
+
+
+    def test_pdb_repr_multiple_models(self):
+        pdb = Pdb()
+        pdb._models = ["1", "2", "3"]
+        self.assertEqual(str(pdb), "<Pdb (3 models)>")
 
 
 

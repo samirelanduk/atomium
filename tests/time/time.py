@@ -9,7 +9,7 @@ here = dir_path = os.path.dirname(os.path.realpath(__file__))
 version = atomium.__version__.replace(".", "-")
 today = datetime.datetime.now().date().strftime("%Y-%m-%d")
 
-pdbs = ["1LOL"]
+pdbs = ["1LOL", "5XME"]
 for pdb in pdbs:
     with open("{}/timescript.py".format(here)) as f:
         script = f.read().format(pdb)

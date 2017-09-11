@@ -43,7 +43,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(len(residue.atoms(element="O")), 2)
         for atom in residue.atoms():
             self.assertIs(atom.residue(), residue)
-            self.assertIs(atom.molecule(), chain)
+            self.assertIs(atom.molecule(), chaina)
             self.assertIs(atom.chain(), chain)
             self.assertIs(atom.model(), model)
 

@@ -21,10 +21,18 @@ def pack_structure(data_file, pdb_file):
     :param PdbDataFile data_file: The source PdbDataFile.
     :param PdbFile pdb_file: The PdbFile to update."""
 
+    models = {atom["model"]: [] for atom in data_file.atoms + data_file.heteroatoms}
     for atom in data_file.atoms:
-        pdb_file._records.append(atom_dict_to_record(atom))
+        models[atom["model"]].append(atom_dict_to_record(atom))
     for atom in data_file.heteroatoms:
-        pdb_file._records.append(atom_dict_to_record(atom, hetero=True))
+        models[atom["model"]].append(atom_dict_to_record(atom, hetero=True))
+    if len(models) == 1:
+        pdb_file._records = models[1]
+    else:
+        for number in sorted(models.keys()):
+            pdb_file._records.append(PdbRecord("MODEL        {}".format(number)))
+            pdb_file._records += models[number]
+            pdb_file._records.append(PdbRecord("ENDMDL"))
     pdb_file._records += conections_list_to_records(data_file.connections)
 
 
@@ -49,9 +57,9 @@ def atom_dict_to_record(d, hetero=False):
      d.get("chain_id", "") if d.get("chain_id") else "",
      d.get("residue_id", "") if d.get("residue_id") else "",
      d.get("insert_code", "") if d.get("insert_code") else "",
-     d.get("x", "") if d.get("x") else "",
-     d.get("y", "") if d.get("y") else "",
-     d.get("z", "") if d.get("z") else "",
+     d.get("x", "") if d.get("x") is not None else "",
+     d.get("y", "") if d.get("y") is not None else "",
+     d.get("z", "") if d.get("z") is not None else "",
      d.get("occupancy", 1) if d.get("occupancy") else 1,
      d.get("temperature_factor", "") if d.get("temperature_factor") else "",
      d.get("element", "") if d.get("element") else "",

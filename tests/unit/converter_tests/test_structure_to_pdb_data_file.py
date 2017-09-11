@@ -18,7 +18,7 @@ class StructureToPdbDataFileTests(TestCase):
             atom.residue.return_value = "residue"
         for atom in atoms[4:]:
             atom.residue.return_value = None
-        data_file = structure_to_pdb_data_file(structure)
+        data_file = structure_to_pdb_data_file(structure, model=3)
         self.assertIsInstance(data_file, PdbDataFile)
         self.assertEqual(data_file.atoms, [
          {"atom_id": "a1"}, {"atom_id": "a2"}, {"atom_id": "a3"}, {"atom_id": "a4"}
@@ -28,7 +28,7 @@ class StructureToPdbDataFileTests(TestCase):
         ])
         self.assertEqual(data_file.connections, ["c1", "c2", "c3"])
         for atom in atoms:
-            mock_atom.assert_any_call(atom)
+            mock_atom.assert_any_call(atom, model=3)
         mock_con.assert_called_with(atoms)
 
 
@@ -55,14 +55,14 @@ class AtomToAtomDictTests(TestCase):
 
 
     def test_can_convert_full_atom(self):
-        d = atom_to_atom_dict(self.atom)
+        d = atom_to_atom_dict(self.atom, model=2)
         self.assertEqual(d, {
          "atom_id": 107, "atom_name": "N1", "alt_loc": None,
          "residue_name": "GLY",
          "chain_id": "A", "residue_id": 13, "insert_code": "A",
          "x": 12.681, "y": 37.302, "z": -25.211,
          "occupancy": 1.0, "temperature_factor": 12.5,
-         "element": "N", "charge": -2
+         "element": "N", "charge": -2, "model": 2
         })
 
 
@@ -95,7 +95,7 @@ class AtomToAtomDictTests(TestCase):
          "chain_id": "A", "residue_id": 200, "insert_code": None,
          "x": 12.681, "y": 37.302, "z": -25.211,
          "occupancy": 1.0, "temperature_factor": 12.5,
-         "element": "N", "charge": -2
+         "element": "N", "charge": -2, "model": 1
         })
 
 

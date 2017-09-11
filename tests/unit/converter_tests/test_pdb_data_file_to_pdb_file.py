@@ -17,24 +17,52 @@ class PdbDataFileToPdbFileTests(TestCase):
 
 class StructurePackingTests(TestCase):
 
+    def setUp(self):
+        self.atoms = [Mock(), Mock(), Mock(), Mock()]
+        self.pdb_file = Mock(PdbFile)
+        self.pdb_file._records = []
+        self.data_file = Mock(PdbFile)
+        self.data_file.connections = "ccc"
+        self.data_file.atoms = [{"model": 1, "a": 1}, {"model": 1, "a": 2}]
+        self.data_file.heteroatoms = [{"model": 1, "a": 3}, {"model": 1, "a": 4}]
+
+
     @patch("atomium.converters.pdbdatafile2pdbfile.atom_dict_to_record")
     @patch("atomium.converters.pdbdatafile2pdbfile.conections_list_to_records")
-    def test_can_pack_structure(self, mock_connections, mock_atom):
+    def test_can_pack_structure_one_model(self, mock_connections, mock_atom):
         mock_connections.return_value = ["c1", "c2"]
-        mock_atom.side_effect = ["a1", "a2", "h1", "h2"]
-        pdb_file = Mock(PdbFile)
-        pdb_file._records = []
-        data_file = Mock(PdbDataFile)
-        data_file.connections = "ccc"
-        data_file.atoms = ["1", "2"]
-        data_file.heteroatoms = ["3", "4"]
-        pack_structure(data_file, pdb_file)
+        mock_atom.side_effect = self.atoms
+        pack_structure(self.data_file, self.pdb_file)
+        mock_atom.assert_any_call({"model": 1, "a": 1})
+        mock_atom.assert_any_call({"model": 1, "a": 2})
+        mock_atom.assert_any_call({"model": 1, "a": 3}, hetero=True)
+        mock_atom.assert_any_call({"model": 1, "a": 4}, hetero=True)
         mock_connections.assert_called_with("ccc")
-        mock_atom.assert_any_call("1")
-        mock_atom.assert_any_call("2")
-        mock_atom.assert_any_call("3", hetero=True)
-        mock_atom.assert_any_call("4", hetero=True)
-        self.assertEqual(pdb_file._records, ["a1", "a2", "h1", "h2", "c1", "c2"])
+        self.assertEqual(self.pdb_file._records, self.atoms + ["c1", "c2"])
+
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.atom_dict_to_record")
+    @patch("atomium.converters.pdbdatafile2pdbfile.conections_list_to_records")
+    @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
+    def test_can_pack_structure_two_models(self, mock_record, mock_connections, mock_atom):
+        self.data_file.atoms[1]["model"] = 2
+        self.data_file.heteroatoms[1]["model"] = 2
+        mock_record.side_effect = ["model", "end", "model", "end"]
+        mock_connections.return_value = ["c1", "c2"]
+        mock_atom.side_effect = self.atoms
+        pack_structure(self.data_file, self.pdb_file)
+        mock_atom.assert_any_call({"model": 1, "a": 1})
+        mock_atom.assert_any_call({"model": 2, "a": 2})
+        mock_atom.assert_any_call({"model": 1, "a": 3}, hetero=True)
+        mock_atom.assert_any_call({"model": 2, "a": 4}, hetero=True)
+        mock_connections.assert_called_with("ccc")
+        mock_record.assert_any_call("MODEL        1")
+        mock_record.assert_any_call("MODEL        2")
+        mock_record.assert_any_call("ENDMDL")
+        self.assertEqual(self.pdb_file._records, [
+         "model", self.atoms[0], self.atoms[2], "end",
+         "model", self.atoms[1], self.atoms[3], "end", "c1", "c2"
+        ])
 
 
 
@@ -47,7 +75,7 @@ class AtomDictToAtomRecordTests(TestCase):
          "chain_id": "A", "residue_id": 13, "insert_code": "A",
          "x": 12.681, "y": 37.302, "z": -25.211,
          "occupancy": 1.0, "temperature_factor": 15.56,
-         "element": "N", "charge": -2
+         "element": "N", "charge": -2, "model": 5
         }
 
 

@@ -20,9 +20,9 @@ class PdbToPdbDataFileTests(TestCase):
         pdb.models.return_value = ("model1", "model2", "model3")
         returned_data_file = pdb_to_pdb_data_file(pdb)
         self.assertIs(returned_data_file, data_file1)
-        mock_data.assert_any_call("model1")
-        mock_data.assert_any_call("model2")
-        mock_data.assert_any_call("model3")
+        mock_data.assert_any_call("model1", model=1)
+        mock_data.assert_any_call("model2", model=2)
+        mock_data.assert_any_call("model3", model=3)
         self.assertEqual(
          returned_data_file.atoms, ["a1", "a2", "a3", "a4", "a5", "a6"]
         )

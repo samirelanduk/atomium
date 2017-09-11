@@ -2,29 +2,31 @@
 
 from ..files.pdbdatafile import PdbDataFile
 
-def structure_to_pdb_data_file(structure):
+def structure_to_pdb_data_file(structure, model=1):
     """Converts an :py:class:`.AtomicStructure` to a :py:class:`.PdbDataFile`.
 
     :param AtomicStructure atom: The structure to convert.
+    :param int model: The model number of the structure.
     :rtype: ``PdbDataFile``"""
 
     data_file = PdbDataFile()
     data_file.atoms, data_file.heteroatoms = [], []
     for atom in structure.atoms():
         if atom.residue():
-            data_file.atoms.append(atom_to_atom_dict(atom))
+            data_file.atoms.append(atom_to_atom_dict(atom, model=model))
         else:
-            data_file.heteroatoms.append(atom_to_atom_dict(atom))
+            data_file.heteroatoms.append(atom_to_atom_dict(atom, model=model))
     data_file.atoms = sorted(data_file.atoms, key=lambda k: k["atom_id"])
     data_file.heteroatoms = sorted(data_file.heteroatoms, key=lambda k: k["atom_id"])
     data_file.connections = atoms_to_connections(structure.atoms())
     return data_file
 
 
-def atom_to_atom_dict(atom):
+def atom_to_atom_dict(atom, model=1):
     """Converts an :py:class:`.Atom` to an atom ``dict``.
 
     :param Atom atom: The atom to convert.
+    :param int model: The model number that the atom is in.
     :rtype: ``dict``"""
 
     residue_name, chain_id, residue_id, insert_code = None, None, None, None
@@ -46,7 +48,8 @@ def atom_to_atom_dict(atom):
      "x": atom.x(), "y": atom.y(), "z": atom.z(),
      "occupancy": 1.0,
      "element": atom.element(), "charge": atom.charge(),
-     "temperature_factor": atom.bfactor() if atom.bfactor() else None
+     "temperature_factor": atom.bfactor() if atom.bfactor() else None,
+     "model": model
     }
 
 

@@ -7,7 +7,7 @@ class PdbCreationTests(TestCase):
 
     def test_can_create_pdb(self):
         pdb = Pdb()
-        self.assertIsNone(pdb._model)
+        self.assertEqual(pdb._models, [])
 
 
 
@@ -19,27 +19,26 @@ class PdbReprTests(TestCase):
 
 
 
+class PdbModelsTests(TestCase):
+
+    def test_can_get_pdb_models(self):
+        pdb = Pdb()
+        pdb._models = ["1", "2", "3"]
+        self.assertEqual(pdb.models(), ("1", "2", "3"))
+
+
+
 class PdbModelTests(TestCase):
 
-    def test_model_property(self):
+    def test_model_gets_first_model(self):
         pdb = Pdb()
-        pdb._model = "snarglefargle"
-        self.assertIs(pdb._model, pdb.model())
+        pdb._models = ["1", "2", "3"]
+        self.assertEqual(pdb.model(), "1")
 
 
-    def test_can_change_model(self):
-        model = Mock(Model)
+    def test_can_get_no_model(self):
         pdb = Pdb()
-        pdb._model = "snarglefargle"
-        pdb.model(model)
-        self.assertIs(pdb._model, model)
-
-
-    def test_pdb_model_must_be_model(self):
-        pdb = Pdb()
-        pdb._model = "snarglefargle"
-        with self.assertRaises(TypeError):
-            pdb.model(100)
+        self.assertIsNone(pdb.model())
 
 
 

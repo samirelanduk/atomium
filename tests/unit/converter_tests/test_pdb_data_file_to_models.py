@@ -1,35 +1,50 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
-from atomium.converters.pdbdatafile2model import *
+from atomium.converters.pdbdatafile2models import *
 from atomium.files.pdbdatafile import PdbDataFile
 from atomium.structures.models import Model
 from atomium.structures.molecules import Residue, Molecule
 from atomium.structures.atoms import Atom
 from atomium.structures.reference import bonds
 
-class PdbDataFileToModelTests(TestCase):
+class PdbDataFileToModelsTests(TestCase):
 
-    @patch("atomium.converters.pdbdatafile2model.load_chains")
-    @patch("atomium.converters.pdbdatafile2model.load_molecules")
-    @patch("atomium.converters.pdbdatafile2model.bond_atoms")
-    def test_can_get_model_from_data_file(self, mock_bond, mock_mol, mock_chains):
+    @patch("atomium.converters.pdbdatafile2models.load_chains")
+    @patch("atomium.converters.pdbdatafile2models.load_molecules")
+    @patch("atomium.converters.pdbdatafile2models.bond_atoms")
+    def test_can_get_models_from_data_file(self, mock_bond, mock_mol, mock_chains):
         data_file = Mock(PdbDataFile)
-        data_file.atoms = "aaa"
+        data_file.atoms = [{"model": 1}, {"model": 2}, {"model": 3}]
         data_file.heteroatoms = "hhh"
         data_file.connections = "ccc"
-        model = pdb_data_file_to_model(data_file)
-        self.assertIsInstance(model, Model)
-        mock_chains.assert_called_with("aaa", model)
-        mock_mol.assert_called_with("hhh", model)
-        mock_bond.assert_called_with("ccc", model)
+        models = pdb_data_file_to_models(data_file)
+        self.assertEqual(len(models), 3)
+        self.assertIsInstance(models[0], Model)
+        self.assertIsInstance(models[1], Model)
+        self.assertIsInstance(models[2], Model)
+        mock_chains.assert_any_call(
+         [{"model": 1}, {"model": 2}, {"model": 3}], models[0], 1
+        )
+        mock_chains.assert_any_call(
+         [{"model": 1}, {"model": 2}, {"model": 3}], models[1], 2
+        )
+        mock_chains.assert_any_call(
+         [{"model": 1}, {"model": 2}, {"model": 3}], models[2], 3
+        )
+        mock_mol.assert_any_call("hhh", models[0], 1)
+        mock_mol.assert_any_call("hhh", models[1], 2)
+        mock_mol.assert_any_call("hhh", models[2], 3)
+        mock_bond.assert_any_call("ccc", models[0])
+        mock_bond.assert_any_call("ccc", models[1])
+        mock_bond.assert_any_call("ccc", models[2])
 
 
 
 class ChainLoadingTests(TestCase):
 
-    @patch("atomium.converters.pdbdatafile2model.residues_to_chains")
-    @patch("atomium.converters.pdbdatafile2model.atoms_to_residues")
-    @patch("atomium.converters.pdbdatafile2model.atom_dict_to_atom")
+    @patch("atomium.converters.pdbdatafile2models.residues_to_chains")
+    @patch("atomium.converters.pdbdatafile2models.atoms_to_residues")
+    @patch("atomium.converters.pdbdatafile2models.atom_dict_to_atom")
     def test_can_load_chains(self, mock_atom, mock_residues, mock_chains):
         atom1, atom2, atom3 = Mock(), Mock(), Mock()
         mock_atom.side_effect = [atom1, atom2, atom3]
@@ -37,14 +52,13 @@ class ChainLoadingTests(TestCase):
         mock_residues.return_value = [residue1, residue2]
         chain1, chain2 = Mock(), Mock()
         mock_chains.return_value = [chain1, chain2]
-        atomdict1, atomdict2, atomdict3 = Mock(), Mock(), Mock()
+        atomdict1, atomdict2, atomdict3 = [{"model": 2}, {"model": 2}, {"model": 3}]
         model = Mock()
         model.add_chain = MagicMock()
-        load_chains([atomdict1, atomdict2, atomdict3], model)
+        load_chains([atomdict1, atomdict2, atomdict3], model, 2)
         mock_atom.assert_any_call(atomdict1)
         mock_atom.assert_any_call(atomdict2)
-        mock_atom.assert_any_call(atomdict3)
-        mock_residues.assert_called_with([atom1, atom2, atom3])
+        mock_residues.assert_called_with([atom1, atom2])
         mock_chains.assert_called_with([residue1, residue2])
         model.add_chain.assert_any_call(chain1)
         model.add_chain.assert_any_call(chain2)
@@ -53,21 +67,20 @@ class ChainLoadingTests(TestCase):
 
 class MoleculeLoadingTests(TestCase):
 
-    @patch("atomium.converters.pdbdatafile2model.atoms_to_residues")
-    @patch("atomium.converters.pdbdatafile2model.atom_dict_to_atom")
+    @patch("atomium.converters.pdbdatafile2models.atoms_to_residues")
+    @patch("atomium.converters.pdbdatafile2models.atom_dict_to_atom")
     def test_can_load_molecules(self, mock_atom, mock_residues):
         atom1, atom2, atom3 = Mock(), Mock(), Mock()
         mock_atom.side_effect = [atom1, atom2, atom3]
         mol1, mol2 = Mock(), Mock()
         mock_residues.return_value = [mol1, mol2]
-        atomdict1, atomdict2, atomdict3 = Mock(), Mock(), Mock()
+        atomdict1, atomdict2, atomdict3 = [{"model": 2}, {"model": 2}, {"model": 3}]
         model = Mock()
         model.add_molecule = MagicMock()
-        load_molecules([atomdict1, atomdict2, atomdict3], model)
+        load_molecules([atomdict1, atomdict2, atomdict3], model, 2)
         mock_atom.assert_any_call(atomdict1)
         mock_atom.assert_any_call(atomdict2)
-        mock_atom.assert_any_call(atomdict3)
-        mock_residues.assert_called_with([atom1, atom2, atom3], molecule=True)
+        mock_residues.assert_called_with([atom1, atom2], molecule=True)
         model.add_molecule.assert_any_call(mol1)
         model.add_molecule.assert_any_call(mol2)
 
@@ -174,8 +187,8 @@ class AtomsToResiduesTests(TestCase):
 
 class ResiduesToChainsTests(TestCase):
 
-    @patch("atomium.converters.pdbdatafile2model.Chain")
-    def test_can_chains_from_residues(self, mock_chain):
+    @patch("atomium.converters.pdbdatafile2models.Chain")
+    def test_can_get_chains_from_residues(self, mock_chain):
         chain1, chain2 = Mock(), Mock()
         mock_chain.side_effect = [chain1, chain2]
         residues = []
@@ -199,9 +212,9 @@ class ResiduesToChainsTests(TestCase):
 
 class AtomBondingTests(TestCase):
 
-    @patch("atomium.converters.pdbdatafile2model.make_intra_residue_bonds")
-    @patch("atomium.converters.pdbdatafile2model.make_inter_residue_bonds")
-    @patch("atomium.converters.pdbdatafile2model.make_connections_bonds")
+    @patch("atomium.converters.pdbdatafile2models.make_intra_residue_bonds")
+    @patch("atomium.converters.pdbdatafile2models.make_inter_residue_bonds")
+    @patch("atomium.converters.pdbdatafile2models.make_connections_bonds")
     def test_can_bond_atoms(self, mock_con, mock_inter, mock_intra):
         residues = [Mock(), Mock()]
         model = Mock()

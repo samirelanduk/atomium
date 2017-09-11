@@ -41,13 +41,11 @@ def atom_record_to_dict(record, model_records):
     :rtype: ``dict``"""
 
     charge = record[78:80]
-    if isinstance(charge, str):
-        charge = int(charge[::-1])
+    if isinstance(charge, str): charge = int(charge[::-1])
     model_locations = [rec.number() for rec in model_records]
     model_number, this_number = 1, record.number()
     for index, loc in enumerate(model_locations, start=1):
-        if this_number > loc:
-            model_number = index
+        if this_number > loc: model_number = index
     return {
      "atom_id": record[6:11],
      "atom_name": record[12:16],

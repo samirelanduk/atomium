@@ -6,26 +6,25 @@ class Pdb:
     """A Pdb is used to represent a fully processed PDB file."""
 
     def __init__(self):
-        self._model = None
+        self._models = []
 
 
     def __repr__(self):
         return "<Pdb>"
 
 
+    def models(self):
+        """Returns the :py:class:`.Model` objects that the Pdb contains.
+
+        :rtype: ``tuple``"""
+
+        return tuple(self._models)
+
+
     def model(self, model=None):
-        """Returns the :py:class:`.Model` that the .pdb file contains. If a
-        model is given, the model will be changed to the new model.
+        """Returns the first :py:class:`.Model` that the Pdb file contains."""
 
-        :param Model model: If given, the model will be updated to this.
-        :raises TypeError: if the model given is not a :py:class:`.Model`."""
-
-        if model is None:
-            return self._model
-        else:
-            if not isinstance(model, Model):
-                raise TypeError("model must be Model, not '{}'".format(model))
-            self._model = model
+        return self._models[0] if self._models else None
 
 
     def to_file_string(self):

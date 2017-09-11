@@ -44,7 +44,7 @@ class AtomicStructure:
         return member in self._atoms or member in self._id_atoms.values()
 
 
-    def atoms(self, element=None, atom_id=None, name=None):
+    def atoms(self, atom_id=None, element=None, name=None):
         """Returns the :py:class:`.Atom` objects in the structure. You can
         filter these by element if you wish.
 

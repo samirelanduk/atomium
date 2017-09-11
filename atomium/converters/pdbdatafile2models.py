@@ -5,41 +5,54 @@ from ..structures.chains import Chain
 from ..structures.molecules import Residue, Molecule
 from ..structures.atoms import Atom
 
-def pdb_data_file_to_model(data_file):
-    """Converts a :py:class:`.PdbDataFile` to a :py:class:`.Model`
+def pdb_data_file_to_models(data_file):
+    """Converts a :py:class:`.PdbDataFile` to a list of :py:class:`.Model`
+    objects.
 
     :param PdbDataFile data_file: The PdbDataFile.
-    :rtype: ``Model``"""
+    :rtype: ``list``"""
 
-    model = Model()
-    load_chains(data_file.atoms, model)
-    load_molecules(data_file.heteroatoms, model)
-    bond_atoms(data_file.connections, model)
-    return model
+    model_numbers = sorted(set([a["model"] for a in data_file.atoms]))
+    models = []
+    for number in model_numbers:
+        model = Model()
+        load_chains(data_file.atoms, model, number)
+        load_molecules(data_file.heteroatoms, model, number)
+        bond_atoms(data_file.connections, model)
+        models.append(model)
+    return models
 
 
-def load_chains(atom_dicts, model):
+def load_chains(atom_dicts, model, model_number):
     """Adds :py:class:`.Chain` objects to a :py:class:`.Model` from a list of
-    atom ``dict`` objects.
+    atom ``dict`` objects, using only those relevant to the specific model
+    number.
 
     :param list atom_dicts: The atom ``dict`` objects.
-    :param Model model: The Model to update."""
+    :param Model model: The Model to update.
+    :param int model_number: The model number to use."""
 
-    atoms = [atom_dict_to_atom(d) for d in atom_dicts]
+    atoms = [
+     atom_dict_to_atom(d) for d in atom_dicts if d["model"] == model_number
+    ]
     residues = atoms_to_residues(atoms)
     chains = residues_to_chains(residues)
     for chain in chains:
         model.add_chain(chain)
 
 
-def load_molecules(atom_dicts, model):
+def load_molecules(atom_dicts, model, model_number):
     """Adds :py:class:`.Molecule` objects to a :py:class:`.Model` from a list of
-    atom ``dict`` objects.
+    atom ``dict`` objects, using only those relevant to the specific model
+    number.
 
     :param list atom_dicts: The atom ``dict`` objects.
-    :param Model model: The Model to update."""
+    :param Model model: The Model to update.
+    :param int model_number: The model number to use."""
 
-    atoms = [atom_dict_to_atom(d) for d in atom_dicts]
+    atoms = [
+     atom_dict_to_atom(d) for d in atom_dicts if d["model"] == model_number
+    ]
     molecules = atoms_to_residues(atoms, molecule=True)
     for mol in molecules:
         model.add_molecule(mol)

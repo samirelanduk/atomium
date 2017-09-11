@@ -119,12 +119,12 @@ class PdbReadingTests(IntegratedTest):
         ]
         all_atoms = set()
         for x, model in zip(x_values, models):
-            self.assertEqual(len(model.atoms()), 1828)
+            self.assertEqual(len(model.atoms()), 1827)
             all_atoms.update(model.atoms())
             atom = model.atom(1)
             self.assertEqual(atom.x(), x)
             self.assertEqual(len(atom.bonded_atoms()), 1)
-        self.assertEqual(len(all_atoms), 18280)
+        self.assertEqual(len(all_atoms), 18270)
 
         pdb.save("tests/integration/files/5XME2.pdb")
         with open("tests/integration/files/5XME2.pdb") as f:
@@ -136,7 +136,7 @@ class PdbReadingTests(IntegratedTest):
         models = new.models()
         self.assertEqual(len(models), 10)
         for x, model in zip(x_values, models):
-            self.assertEqual(len(model.atoms()), 1828)
+            self.assertEqual(len(model.atoms()), 1827)
 
 
 

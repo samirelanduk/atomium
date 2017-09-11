@@ -1,6 +1,6 @@
 """Contains the function for creating Pdbs from PdbDataFiles."""
 
-from .pdbdatafile2model import pdb_data_file_to_model
+from .pdbdatafile2models import pdb_data_file_to_models
 from ..files.pdb import Pdb
 
 def pdb_data_file_to_pdb(data_file):
@@ -10,5 +10,5 @@ def pdb_data_file_to_pdb(data_file):
     :rtype: ``Pdb``"""
 
     pdb = Pdb()
-    pdb._model = pdb_data_file_to_model(data_file)
+    pdb._models = pdb_data_file_to_models(data_file)
     return pdb

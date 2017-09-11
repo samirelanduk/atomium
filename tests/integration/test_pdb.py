@@ -44,7 +44,7 @@ class PdbReadingTests(IntegratedTest):
         for atom in residue.atoms():
             self.assertIs(atom.residue(), residue)
             self.assertIs(atom.molecule(), chaina)
-            self.assertIs(atom.chain(), chain)
+            self.assertIs(atom.chain(), chaina)
             self.assertIs(atom.model(), model)
 
         # Molecules are correct
@@ -69,7 +69,7 @@ class PdbReadingTests(IntegratedTest):
         cb = residue.atom(name="CB")
         cg1 = residue.atom(name="CG1")
         cg2 = residue.atom(name="CG2")
-        next_atom = chain[1].atom(name="N")
+        next_atom = chaina[1].atom(name="N")
         self.assertEqual(n.bonded_atoms(), set([ca]))
         self.assertEqual(len(n.bonds()), 1)
         self.assertEqual(ca.bonded_atoms(), set([n, c, cb]))

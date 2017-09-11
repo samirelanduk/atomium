@@ -8,5 +8,8 @@ def pdb_to_pdb_data_file(pdb):
     :param Pdb pdb: The Pdb.
     :rtype: ``PdbDataFile``"""
 
-    data_file = structure_to_pdb_data_file(pdb.model())
-    return data_file
+    data_files = [structure_to_pdb_data_file(m) for m in pdb.models()]
+    for data_file in data_files[1:]:
+        data_files[0].atoms += data_file.atoms
+        data_files[0].heteroatoms += data_file.heteroatoms
+    return data_files[0]

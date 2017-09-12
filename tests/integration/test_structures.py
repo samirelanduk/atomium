@@ -258,12 +258,6 @@ class StructureTests(IntegratedTest):
         self.assertIs(atom17.model(), model)
         self.assertIs(atom18.model(), model)
 
-        # Misc operations
-        chaina.chain_id("X")
-        self.assertEqual(chaina.chain_id(), "X")
-        self.assertEqual(chaina.molecule_id(), "X")
-        chaina.chain_id("A")
-
         # Add small molecule
         atom19 = Atom("F", 3, 0, 1.8, atom_id=19, name="F1")
         atom20 = Atom("F", 2.5, 1, 2.0, atom_id=20, name="F2")

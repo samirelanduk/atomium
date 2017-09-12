@@ -1,4 +1,4 @@
-"""Contains the classes for atoms and their bonds."""
+"""This module contains the classes for atoms and their bonds."""
 
 import weakref
 from math import sqrt, acos, degrees
@@ -14,7 +14,7 @@ class Atom:
     :param number y: The atom's y coordinate.
     :param number z: The atom's z coordinate.
     :param int atom_id: A unique integer ID for the atom. This is supposed to\
-    be unique but enforcing this is a bit of a hassle so they don't need to be.
+    be unique.
     :param str name: The atom's name.
     :param number charge: The charge of the atom.
     :raises TypeError: if the element is not str.
@@ -61,8 +61,9 @@ class Atom:
 
 
     def __repr__(self):
-        return "<{} Atom at ({}, {}, {})>".format(
-         self._element, self._x, self._y, self._z
+        return "<{} Atom {}{}at ({}, {}, {})>".format(
+         self._element, self._id if self._id else "", " " if self._id else "",
+         self._x, self._y, self._z
         )
 
 
@@ -139,22 +140,15 @@ class Atom:
 
         :rtype: ``tuple``"""
 
-        return (self.x(), self.y(), self.z())
+        return (self._x, self._y, self._z)
 
 
-    def atom_id(self, atom_id=None):
-        """Returns the atom's unique integer ID. If a value is given, the ID
-        will be updated.
+    def atom_id(self):
+        """Returns the atom's unique integer ID.
 
-        :param int atom_id: If given, the ID will be set to this.
-        :raises TypeError: if the ID given is not numeric."""
+        :rtype: ``int``"""
 
-        if atom_id is None:
-            return self._id
-        else:
-            if not isinstance(atom_id, int):
-                raise TypeError("Atom ID '{}' is not int".format(atom_id))
-            self._id = atom_id
+        return self._id
 
 
     def name(self, name=None):
@@ -334,7 +328,7 @@ class Atom:
             except:
                 raise TypeError("'{}' is not an Atom".format(other))
         else:
-            x, y, z = other._x, other._y, other._z
+            x, y, z = other.location()
         x_sum = pow((x - self._x), 2)
         y_sum = pow((y - self._y), 2)
         z_sum = pow((z - self._z), 2)

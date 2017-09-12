@@ -79,18 +79,6 @@ class ResidueIdTests(ResidueTest):
         self.assertIs(res._id, res.residue_id())
 
 
-    def test_can_update_residue_id(self):
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="C10D")
-        res.residue_id("A20")
-        self.assertEqual(res._id, "A20")
-
-
-    def test_residue_id_must_be_str(self):
-        res = Residue(self.atom1, self.atom2, self.atom3, residue_id="C10E")
-        with self.assertRaises(TypeError):
-            res.residue_id(10)
-
-
 
 class ResidueAtomAdditionTests(ResidueTest):
 

@@ -108,6 +108,11 @@ class AtomReprTests(TestCase):
         self.assertEqual(str(atom), "<C Atom at (2, 3, 5)>")
 
 
+    def test_atom_repr_with_id(self):
+        atom = Atom("C", 2, 3, 5, atom_id=15)
+        self.assertEqual(str(atom), "<C Atom 15 at (2, 3, 5)>")
+
+
 
 class AtomElementTests(TestCase):
 
@@ -203,16 +208,9 @@ class AtomZTests(TestCase):
 
 class AtomLocationTests(TestCase):
 
-    @patch("atomium.structures.atoms.Atom.x")
-    @patch("atomium.structures.atoms.Atom.y")
-    @patch("atomium.structures.atoms.Atom.z")
-    def test_atom_location(self, mock_z, mock_y, mock_x):
-        mock_x.return_value = 10
-        mock_y.return_value = 20
-        mock_z.return_value = 30
-        atom = Atom("C", 2, 3, 5)
-        self.assertEqual(atom.location(), (10, 20, 30))
-
+    def test_atom_location(self):
+        atom = Atom("C", 20, 30, 50)
+        self.assertEqual(atom.location(), (20, 30, 50))
 
 
 
@@ -221,18 +219,6 @@ class AtomIdTests(TestCase):
     def test_id_property(self):
         atom = Atom("C", 2, 3, 5, atom_id=100)
         self.assertIs(atom._id, atom.atom_id())
-
-
-    def test_can_update_id(self):
-        atom = Atom("C", 2, 3, 5, atom_id=101)
-        atom.atom_id(102)
-        self.assertEqual(atom._id, 102)
-
-
-    def test_atom_id_must_be_numeric(self):
-        atom = Atom("C", 2, 3, 5, atom_id=105)
-        with self.assertRaises(TypeError):
-            atom.atom_id("4")
 
 
 
@@ -371,23 +357,22 @@ class BondedAtomTests(TestCase):
 
 class AtomBondingTests(TestCase):
 
-    @patch("atomium.structures.atoms.Bond.__init__")
+    @patch("atomium.structures.atoms.Bond")
     def test_can_bond_other_atom(self, mock_bond):
         atom1 = Atom("C", 2, 3, 5)
         atom2 = Mock(Atom)
-        mock_bond.return_value = None
         atom1.bond(atom2)
         mock_bond.assert_called_with(atom1, atom2)
 
 
-    @patch("atomium.structures.atoms.Bond.__init__")
+    @patch("atomium.structures.atoms.Bond")
     @patch("atomium.structures.atoms.Atom.bonded_atoms")
-    def test_cant_make_second_bond(self, mock_atoms, mock_init):
+    def test_cant_make_second_bond(self, mock_atoms, mock_bond):
         atom1 = Atom("C", 2, 3, 5)
         atom2 = Mock(Atom)
         mock_atoms.return_value = set([atom2])
         atom1.bond(atom2)
-        self.assertFalse(mock_init.called)
+        self.assertFalse(mock_bond.called)
 
 
 
@@ -490,13 +475,15 @@ class AtomDistanceToTests(TestCase):
 
     def test_can_get_distance_between_atoms(self):
         atom1 = Atom("C", 4, 8, 3)
-        atom2 = Atom("H", 2, 3, 5)
+        atom2 = Mock(Atom)
+        atom2.location.return_value = (2, 3, 5)
         self.assertAlmostEqual(atom1.distance_to(atom2), 5.744, delta=0.001)
 
 
     def test_atom_distance_can_be_zero(self):
         atom1 = Atom("C", 4, 8, 3)
-        atom2 = Atom("H", 4, 8, 3)
+        atom2 = Mock(Atom)
+        atom2.location.return_value = (4, 8, 3)
         self.assertEqual(atom1.distance_to(atom2), 0)
 
 

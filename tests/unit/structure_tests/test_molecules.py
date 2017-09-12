@@ -85,18 +85,6 @@ class MoleculeIdTests(MoleculeTest):
         self.assertIs(mol._id, mol.molecule_id())
 
 
-    def test_can_update_molecule_id(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10D")
-        mol.molecule_id("A20")
-        self.assertEqual(mol._id, "A20")
-
-
-    def test_molecule_id_must_be_str(self):
-        mol = Molecule(self.atom1, self.atom2, self.atom3, molecule_id="B10E")
-        with self.assertRaises(TypeError):
-            mol.molecule_id(10)
-
-
 
 class MoleculeNameTests(MoleculeTest):
 

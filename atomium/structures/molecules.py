@@ -1,4 +1,4 @@
-"""Contains classes for structures made of atoms."""
+"""This module contains classes for structures made of atoms."""
 
 from collections import Counter
 import weakref
@@ -8,11 +8,12 @@ from .atoms import Atom
 
 class AtomicStructure:
     """Represents structures made of :py:class:`.Atom` objects, which tends to
-    be rather a lot of things in practice. This class would not generally be
+    be quite a lot of things in practice. This class would not generally be
     instantiated directly, and is here to be a parent class to other, more
     specific entities.
 
-    AtomicStructures are containers of their atoms.
+    AtomicStructures are containers of their atoms, and support the ``in``
+    keyword.
 
     :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
     These can also be AtomicStructures themsevles, in which case the atoms of\
@@ -30,8 +31,8 @@ class AtomicStructure:
                 raise TypeError(
                  "AtomicStructures need atoms, not '{}'".format(atom)
                 )
-        self._id_atoms = {atom.atom_id(): atom for atom in atoms_ if atom.atom_id()}
-        self._atoms = set([atom for atom in atoms_ if not atom.atom_id()])
+        self._id_atoms = {a.atom_id(): a for a in atoms_ if a.atom_id()}
+        self._atoms = set([a for a in atoms_ if not a.atom_id()])
 
 
     def __repr__(self):
@@ -272,18 +273,11 @@ class Molecule(AtomicStructure):
 
 
     def molecule_id(self, molecule_id=None):
-        """Returns the molecule's unique string ID. If a value is given, the ID
-        will be updated.
+        """Returns the molecule's unique string ID.
 
-        :param int molecule_id: If given, the ID will be set to this.
-        :raises TypeError: if the ID given is not str."""
+        :rtype: ``str``"""
 
-        if molecule_id is None:
-            return self._id
-        else:
-            if not isinstance(molecule_id, str):
-                raise TypeError("Molecule ID '{}' is not str".format(molecule_id))
-            self._id = molecule_id
+        return self._id
 
 
     def name(self, name=None):
@@ -302,11 +296,20 @@ class Molecule(AtomicStructure):
 
 
     def add_atom(self, atom, *args, **kwargs):
+        """Adds an :py:class:`.Atom` to the molecule.
+
+        :param Atom atom: The atom to add.
+        :raises TypeError: if the atom given is not an Atom."""
+
         AtomicStructure.add_atom(self, atom, *args, **kwargs)
         atom._molecule = self
 
 
     def remove_atom(self, atom, *args, **kwargs):
+        """Removes an :py:class:`.Atom` from the molecule.
+
+        :param Atom atom: The atom to remove."""
+
         AtomicStructure.remove_atom(self, atom, *args, **kwargs)
         atom._molecule = None
 
@@ -347,26 +350,28 @@ class Residue(Molecule):
 
 
     def residue_id(self, residue_id=None):
-        """Returns the residue's unique string ID. If a value is given, the ID
-        will be updated.
+        """Returns the residue's unique string ID.
 
-        :param int residue_id: If given, the ID will be set to this.
-        :raises TypeError: if the ID given is not str."""
+        :rtype: ``str``"""
 
-        if residue_id is None:
-            return self._id
-        else:
-            if not isinstance(residue_id, str):
-                raise TypeError("Residue ID '{}' is not str".format(residue_id))
-            self._id = residue_id
+        return self._id
 
 
     def add_atom(self, atom, *args, **kwargs):
+        """Adds an :py:class:`.Atom` to the residue.
+
+        :param Atom atom: The atom to add.
+        :raises TypeError: if the atom given is not an Atom."""
+
         Molecule.add_atom(self, atom, *args, **kwargs)
         atom._residue = self
 
 
     def remove_atom(self, atom, *args, **kwargs):
+        """Removes an :py:class:`.Atom` from the residue.
+
+        :param Atom atom: The atom to remove."""
+
         Molecule.remove_atom(self, atom, *args, **kwargs)
         atom._residue = None
 

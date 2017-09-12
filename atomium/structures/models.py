@@ -1,4 +1,4 @@
-"""Contains the Model class and its interfaces."""
+"""This module contains the Model class and its interfaces."""
 
 from .molecules import AtomicStructure, Molecule, Residue
 from .chains import ResidueStructure, Chain
@@ -173,12 +173,19 @@ class Model(AtomicStructure, ResidueStructure, ChainStructure, MoleculeStructure
             self._id_atoms[atom]._model = self
 
 
-
     def add_atom(self, atom, *args, **kwargs):
+        """Adds an :py:class:`.Atom` to the model.
+
+        :param Atom atom: The atom to add."""
+
         AtomicStructure.add_atom(self, atom, *args, **kwargs)
         atom._model = self
 
 
     def remove_atom(self, atom, *args, **kwargs):
+        """Removes an :py:class:`.Atom` from the model.
+
+        :param Atom atom: The atom to remove."""
+
         AtomicStructure.remove_atom(self, atom, *args, **kwargs)
         atom._model = None

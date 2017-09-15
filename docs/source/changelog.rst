@@ -1,6 +1,21 @@
 Changelog
 ---------
 
+Release 0.5.0
+~~~~~~~~~~~~~
+
+`16 September 2017`
+
+* Added atom temperature factors.
+* Added bond vector production.
+* Added parse time tests and reduced parse time by over a half.
+* Changed way atoms are stored in structures to make ID lookup orders of\
+magnitude faster.
+* Made IDs immutable.
+* Added multiple model parsing and saving.
+* Added option to fetch PDBs from PDBe rather than RCSB.
+
+
 Release 0.4.0
 ~~~~~~~~~~~~~
 

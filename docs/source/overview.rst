@@ -31,6 +31,9 @@ from the RCSB over the internet using the PDB code:
   >>> pdb2.model()
   <Model (2156 atoms)>
 
+If the PDB has multiple models, these can be accessed using the :py:meth:`
+~.Pdb.models` method.
+
 The Model
 ~~~~~~~~~
 

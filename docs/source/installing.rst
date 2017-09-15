@@ -29,5 +29,6 @@ Requirements
 ~~~~~~~~~~~~
 
 atomium requires the Python library
-`geometrica <https://geometrica.samireland.com/>`_ - pip will install this
+`points <https://points.samireland.com/>`_ and
+`requests <https://docs.python-requests.org/>`_ - pip will install these
 automatically when it installs atomium.

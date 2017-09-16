@@ -24,5 +24,5 @@ setup(
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules PDB XYZ",
  packages=["atomium", "atomium.files", "atomium.converters", "atomium.structures"],
- install_requires=["geometrica"]
+ install_requires=["geometrica", "points", "requests"]
 )

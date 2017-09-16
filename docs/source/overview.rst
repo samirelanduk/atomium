@@ -31,8 +31,8 @@ from the RCSB over the internet using the PDB code:
   >>> pdb2.model()
   <Model (2156 atoms)>
 
-If the PDB has multiple models, these can be accessed using the :py:meth:`
-~.Pdb.models` method.
+If the PDB has multiple models, these can be accessed using the
+:py:meth:`~.Pdb.models` method.
 
 The Model
 ~~~~~~~~~
@@ -188,7 +188,7 @@ Residues are also a kind of Molecule, and have other useful properties:
   <Residue A24 (ARG, 11 atoms)>
   >>> pdb.model().residue("A23").previous()
   <Residue A22 (MET, 8 atoms)>
-  
+
 
 Saving
 ~~~~~~

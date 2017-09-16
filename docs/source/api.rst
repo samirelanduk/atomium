@@ -31,7 +31,7 @@ Converters
     api/structure2xyzstring
     api/string2pdbfile
     api/pdbfile2pdbdatafile
-    api/pdbdatafile2model
+    api/pdbdatafile2models
     api/pdbdatafile2pdb
     api/pdb2pdbdatafile
     api/structure2pdbdatafile

@@ -48,7 +48,8 @@ Requirements
 ~~~~~~~~~~~~
 
 atomium requires the Python library
-`geometrica <https://geometrica.samireland.com/>`_ - pip will install this
+`points <https://points.samireland.com/>`_ and
+`requests <https://docs.python-requests.org/>`_ - pip will install these
 automatically when it installs atomium.
 
 
@@ -84,6 +85,9 @@ from the RCSB over the internet using the PDB code:
   >>> pdb2 = atomium.fetch("5HVD")
   >>> pdb2.model()
   <Model (2156 atoms)>
+
+If the PDB has multiple models, these can be accessed using the
+``Pdb.models`` method.
 
 The Model
 ~~~~~~~~~
@@ -239,7 +243,7 @@ Residues are also a kind of Molecule, and have other useful properties:
   <Residue A24 (ARG, 11 atoms)>
   >>> pdb.model().residue("A23").previous()
   <Residue A22 (MET, 8 atoms)>
-  
+
 
 Saving
 ~~~~~~
@@ -265,6 +269,21 @@ The ``Xyz`` or ``Pdb`` object itself can also be saved:
 
 Changelog
 ---------
+
+Release 0.5.0
+~~~~~~~~~~~~~
+
+`16 September 2017`
+
+* Added atom temperature factors.
+* Added bond vector production.
+* Added parse time tests and reduced parse time by over a half.
+* Changed way atoms are stored in structures to make ID lookup orders of \
+  magnitude faster.
+* Made IDs immutable.
+* Added multiple model parsing and saving.
+* Added option to fetch PDBs from PDBe rather than RCSB.
+
 
 Release 0.4.0
 ~~~~~~~~~~~~~

@@ -74,9 +74,9 @@ class AtomicStructure:
         atom matches the criteria you give, it might not be the same atom that
         is returned each time you call this method.
 
-        :param str element: If given, only atoms whose element matches this\
-        will be searched.
         :param int atom_id: If given, only atoms whose atom ID matches this\
+        will be searched.
+        :param str element: If given, only atoms whose element matches this\
         will be searched.
         :param str name: If given, only atoms whose name matches this will be\
         searched.

@@ -244,3 +244,30 @@ class PdbFile:
         record._number = None
         for index, record in enumerate(self._records, start=1):
             record._number = index
+
+
+
+def pdb_file_from_file(path):
+    """Opens a .pdb file at the specified path and creates a
+    :py:class:`.PdbFile` from it.
+
+    :param str path: The path to open.
+    :rtype: ``PdbFile``"""
+
+    from ..converters.strings import string_from_file
+    from ..converters.string2pdbfile import string_to_pdb_file
+    s = string_from_file(path)
+    return string_to_pdb_file(s)
+
+
+def fetch_file(code, **kwargs):
+    """Gets a :py:class:`.PdbFile` from the RCSB web services.
+
+    :param str code: The PDB code to fetch.
+    :param bool pdbe: If ``True``, the PDB will instead be fetched from PDBe.
+    :rtype: ``PdbFile``"""
+
+    from ..converters.strings import fetch_string
+    from ..converters.string2pdbfile import string_to_pdb_file
+    s = fetch_string(code, **kwargs)
+    return string_to_pdb_file(s)

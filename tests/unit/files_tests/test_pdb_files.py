@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from atomium.files.pdbfile import PdbRecord, PdbFile
+from atomium.files.pdbfile import PdbRecord, PdbFile, pdb_file_from_file, fetch_file
 
 class PdbFileTest(TestCase):
 
@@ -208,3 +208,33 @@ class PdbFileRecordRemovalTests(PdbFileTest):
         self.assertEqual(self.records[1]._number, None)
         self.assertEqual(self.records[2]._number, 2)
         self.assertEqual(self.records[3]._number, 3)
+
+
+
+class PdbFileFromFileTests(TestCase):
+
+    @patch("atomium.converters.strings.string_from_file")
+    @patch("atomium.converters.string2pdbfile.string_to_pdb_file")
+    def test_can_get_pdb_filefrom_file(self, mock_file, mock_string):
+        mock_string.return_value = "filestring"
+        pdb_file = Mock()
+        mock_file.return_value = pdb_file
+        returned_file = pdb_file_from_file("path")
+        mock_string.assert_called_with("path")
+        mock_file.assert_called_with("filestring")
+        self.assertIs(pdb_file, returned_file)
+
+
+
+class PdbFileFetchingTests(TestCase):
+
+    @patch("atomium.converters.strings.fetch_string")
+    @patch("atomium.converters.string2pdbfile.string_to_pdb_file")
+    def test_can_fetch_pdb_file(self, mock_file, mock_string):
+        mock_string.return_value = "filestring"
+        pdb_file = Mock()
+        mock_file.return_value = pdb_file
+        returned_file = fetch_file("1xxx", a="blorg")
+        mock_string.assert_called_with("1xxx", a="blorg")
+        mock_file.assert_called_with("filestring")
+        self.assertIs(pdb_file, returned_file)

@@ -139,12 +139,47 @@ class PdbReadingTests(IntegratedTest):
             self.assertEqual(len(model.atoms()), 1827)
 
 
+    def test_can_read_data_file(self):
+        data_file = atomium.pdb_data_file_from_file(
+         "tests/integration/files/1lol.pdb"
+        )
+
+        self.assertEqual(len(data_file.atoms), 3191)
+        self.assertEqual(data_file.atoms[0], {
+         "atom_id": 1, "atom_name": "N", "alt_loc": None,
+         "residue_name": "VAL",
+         "chain_id": "A", "residue_id": 11, "insert_code": None,
+         "x": 3.696, "y": 33.898, "z": 63.219,
+         "occupancy": 1.0, "temperature_factor": 21.50,
+         "element": "N", "charge": None, "model": 1
+        })
+
+        self.assertEqual(len(data_file.connections), 60)
+        self.assertEqual(data_file.connections[0], {
+         "atom": 3194, "bond_to": [3195, 3196]
+        })
+
+
+    def test_can_read_pdb_file(self):
+        pdb_file = atomium.pdb_file_from_file(
+         "tests/integration/files/1lol.pdb"
+        )
+
+        self.assertEqual(len(pdb_file.records()), 3983)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        )
+        self.assertEqual(
+         pdb_file.records()[-1].text(),
+         "END"
+        )
 
 
 
 class PdbFetchingTests(IntegratedTest):
 
-    def test_can_fetch_file(self):
+    def test_can_fetch_pdb(self):
         pdb = atomium.fetch("1h4W", pdbe=True)
         model = pdb.model()
 
@@ -152,3 +187,36 @@ class PdbFetchingTests(IntegratedTest):
         residue = model.residue(residue_id="A221A")
         self.assertEqual(residue.next().residue_id(), "A222")
         self.assertEqual(residue.previous().residue_id(), "A221")
+
+
+    def test_can_fetch_data_file(self):
+        data_file = atomium.fetch_data_file("1lol", pdbe=True)
+
+        self.assertEqual(len(data_file.atoms), 3191)
+        self.assertEqual(data_file.atoms[0], {
+         "atom_id": 1, "atom_name": "N", "alt_loc": None,
+         "residue_name": "VAL",
+         "chain_id": "A", "residue_id": 11, "insert_code": None,
+         "x": 3.696, "y": 33.898, "z": 63.219,
+         "occupancy": 1.0, "temperature_factor": 21.50,
+         "element": "N", "charge": None, "model": 1
+        })
+
+        self.assertEqual(len(data_file.connections), 60)
+        self.assertEqual(data_file.connections[0], {
+         "atom": 3194, "bond_to": [3195, 3196]
+        })
+
+
+    def test_can_fetch_pdb_file(self):
+        pdb_file = atomium.fetch_file("1lol", pdbe=True)
+
+        self.assertEqual(len(pdb_file.records()), 3983)
+        self.assertEqual(
+         pdb_file.records()[0].text(),
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        )
+        self.assertEqual(
+         pdb_file.records()[-1].text(),
+         "END"
+        )

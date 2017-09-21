@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.files.pdb import Pdb, pdb_from_file, fetch
@@ -8,6 +9,9 @@ class PdbCreationTests(TestCase):
     def test_can_create_pdb(self):
         pdb = Pdb()
         self.assertEqual(pdb._models, [])
+        self.assertEqual(pdb._code, None)
+        self.assertEqual(pdb._deposition_date, None)
+        self.assertEqual(pdb._title, None)
 
 
 
@@ -28,6 +32,13 @@ class PdbReprTests(TestCase):
         pdb = Pdb()
         pdb._models = ["1", "2", "3"]
         self.assertEqual(str(pdb), "<Pdb (3 models)>")
+
+
+    def test_pdb_repr_with_code(self):
+        pdb = Pdb()
+        pdb._code = "1XXX"
+        pdb._models = ["1", "2", "3"]
+        self.assertEqual(str(pdb), "<Pdb 1XXX (3 models)>")
 
 
 
@@ -51,6 +62,80 @@ class PdbModelTests(TestCase):
     def test_can_get_no_model(self):
         pdb = Pdb()
         self.assertIsNone(pdb.model())
+
+
+
+class PdbCodeTests(TestCase):
+
+    def test_can_get_pdb_code(self):
+        pdb = Pdb()
+        pdb._code = "1xxx"
+        self.assertIs(pdb._code, pdb.code())
+
+
+    def test_can_update_code(self):
+        pdb = Pdb()
+        pdb._code = "1xxx"
+        pdb.code("2yyy")
+        self.assertEqual(pdb._code, "2yyy")
+
+
+    def test_code_must_be_str(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.code(100)
+
+
+    def test_code_must_be_valid(self):
+        pdb = Pdb()
+        with self.assertRaises(ValueError):
+            pdb.code("1xxxx")
+        with self.assertRaises(ValueError):
+            pdb.code("1xx")
+
+
+
+class PdbDateTests(TestCase):
+
+    def test_can_get_pdb_date(self):
+        pdb = Pdb()
+        pdb._deposition_date = "date"
+        self.assertIs(pdb._deposition_date, pdb.deposition_date())
+
+
+    def test_can_update_date(self):
+        pdb = Pdb()
+        pdb._deposition_date = "date"
+        pdb.deposition_date(datetime(2017, 9, 21).date())
+        self.assertEqual(pdb._deposition_date, datetime(2017, 9, 21).date())
+
+
+    def test_date_must_be_date(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.code(datetime(2017, 9, 21))
+
+
+
+class PdbTitleTests(TestCase):
+
+    def test_can_get_pdb_title(self):
+        pdb = Pdb()
+        pdb._title = "TTT"
+        self.assertIs(pdb._title, pdb.title())
+
+
+    def test_can_update_title(self):
+        pdb = Pdb()
+        pdb._title = "TTT"
+        pdb.title("TTTTTTT")
+        self.assertEqual(pdb._title, "TTTTTTT")
+
+
+    def test_title_must_be_str(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.title(100)
 
 
 

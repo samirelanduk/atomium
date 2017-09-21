@@ -4,7 +4,7 @@ from tests.integration.base import IntegratedTest
 
 class PdbReadingTests(IntegratedTest):
 
-    def test_can_read_pdb_file(self):
+    def test_can_read_pdb(self):
         pdb = atomium.pdb_from_file("tests/integration/files/1lol.pdb")
         self.assertEqual(pdb.code(), "1LOL")
         self.assertEqual(

@@ -10,6 +10,9 @@ class PdbDataFileSlotsTests(TestCase):
         data_file.atoms = "aaa"
         data_file.heteroatoms = "aaa"
         data_file.connections = "aaa"
+        data_file.code = "aaa"
+        data_file.title = "aaa"
+        data_file.deposition_date = "aaa"
         with self.assertRaises(AttributeError):
             data_file.snorgleborgle = "aaa"
 
@@ -17,9 +20,15 @@ class PdbDataFileSlotsTests(TestCase):
 
 class PdbDataReprTests(TestCase):
 
-    def test_data_file_repr(self):
+    def test_data_file_repr_no_code(self):
         data_file = PdbDataFile()
         self.assertEqual(str(data_file), "<PdbDataFile>")
+
+
+    def test_data_file_repr_with_code(self):
+        data_file = PdbDataFile()
+        data_file.code = "1XXX"
+        self.assertEqual(str(data_file), "<PdbDataFile (1XXX)>")
 
 
 

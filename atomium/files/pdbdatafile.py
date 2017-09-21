@@ -4,9 +4,13 @@ class PdbDataFile:
     """A PdbDataFile is used to represent the parsed data from a
     :py:class:`.PdbFile`"""
 
-    __slots__ = ["atoms", "heteroatoms", "connections"]
+    __slots__ = [
+     "code", "title", "deposition_date", "atoms", "heteroatoms", "connections"
+    ]
 
     def __repr__(self):
+        if hasattr(self, "code"):
+            return "<PdbDataFile ({})>".format(self.code)
         return "<PdbDataFile>"
 
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 import atomium
 from tests.integration.base import IntegratedTest
 
@@ -5,6 +6,12 @@ class PdbReadingTests(IntegratedTest):
 
     def test_can_read_pdb_file(self):
         pdb = atomium.pdb_from_file("tests/integration/files/1lol.pdb")
+        self.assertEqual(pdb.code(), "1LOL")
+        self.assertEqual(
+         pdb.title(),
+         "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
+        )
+        self.assertEqual(pdb.deposition_date(), datetime(20002, 5, 6).date())
 
         # Atoms are correct
         model = pdb.model()

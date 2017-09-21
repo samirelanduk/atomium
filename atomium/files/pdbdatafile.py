@@ -9,7 +9,7 @@ class PdbDataFile:
     ]
 
     def __repr__(self):
-        if hasattr(self, "code"):
+        if hasattr(self, "code") and self.code:
             return "<PdbDataFile ({})>".format(self.code)
         return "<PdbDataFile>"
 

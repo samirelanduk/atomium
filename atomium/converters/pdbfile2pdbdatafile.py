@@ -1,5 +1,6 @@
 """Contains the function for creating PdbDataFiles from PdbFiles."""
 
+from datetime import datetime
 from atomium.files.pdbdatafile import PdbDataFile
 
 def pdb_file_to_pdb_data_file(pdb_file):
@@ -10,6 +11,7 @@ def pdb_file_to_pdb_data_file(pdb_file):
 
     data_file = PdbDataFile()
     extract_structure(pdb_file, data_file)
+    extract_header(pdb_file, data_file)
     return data_file
 
 
@@ -98,3 +100,21 @@ def merge_records(records, start, join=" ", dont_condense=""):
     for char in condense:
         string = string.replace(char + " ", char)
     return string
+
+
+def extract_header(pdb_file, data_file):
+    """Takes a :py:class:`.PdbFile` and a  :py:class:`.PdbDataFile`, and updates
+    the latter with HEADER and TITLE information from the former.
+
+    :param PdbFile pdb_file: The source PdbFile.
+    :param PdbDataFile data_file: The PdbDataFile to update."""
+
+    header = pdb_file.record("HEADER")
+    titles = pdb_file.records("TITLE")
+    data_file.code = header[62:66] if header else None
+    data_file.deposition_date = datetime.strptime(
+     header[49:59], "%d-%b-%y"
+    ).date() if header else None
+    data_file.title = merge_records(
+     titles, 10, dont_condense=",;:-"
+    ) if titles else None

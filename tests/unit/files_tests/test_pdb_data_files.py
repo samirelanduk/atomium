@@ -25,6 +25,12 @@ class PdbDataReprTests(TestCase):
         self.assertEqual(str(data_file), "<PdbDataFile>")
 
 
+    def test_data_file_repr_none_code(self):
+        data_file = PdbDataFile()
+        data_file.code = None
+        self.assertEqual(str(data_file), "<PdbDataFile>")
+
+
     def test_data_file_repr_with_code(self):
         data_file = PdbDataFile()
         data_file.code = "1XXX"

@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.converters.pdbfile2pdbdatafile import *
@@ -7,11 +8,13 @@ from atomium.files.pdbdatafile import PdbDataFile
 class PdbFileToPdbDataFileTests(TestCase):
 
     @patch("atomium.converters.pdbfile2pdbdatafile.extract_structure")
-    def test_can_create_data_file_from_pdb_file(self, mock_extract):
+    @patch("atomium.converters.pdbfile2pdbdatafile.extract_header")
+    def test_can_create_data_file_from_pdb_file(self, mock_head, mock_struc):
         pdb_file = Mock(PdbFile)
         data_file = pdb_file_to_pdb_data_file(pdb_file)
         self.assertIsInstance(data_file, PdbDataFile)
-        mock_extract.assert_called_with(pdb_file, data_file)
+        mock_struc.assert_called_with(pdb_file, data_file)
+        mock_head.assert_called_with(pdb_file, data_file)
 
 
 
@@ -167,3 +170,39 @@ class RecordMergingTests(TestCase):
          merge_records(self.punc_records, 2, dont_condense=";, "),
          "23, 456789 cd  efghij 23; 456789"
         )
+
+
+
+class HeaderExtractionTests(TestCase):
+
+    @patch("atomium.converters.pdbfile2pdbdatafile.merge_records")
+    def test_can_extract_header(self, mock_merge):
+        pdb_file = Mock(PdbFile)
+        data_file = Mock(PdbDataFile)
+        pdb_file.record.return_value = PdbRecord(
+         "HEADER    UNKNOWN FUNCTION                        21-AUG-17   6AR7"
+        )
+        title_records = [
+         PdbRecord("TITLE     CRYSTAL STRUCTURE OF A PUTATIVE UNCHARACTERIZED PROTEIN FROM"),
+         PdbRecord("TITLE    2 BURKHOLDERIA THAILANDENSIS")
+        ]
+        pdb_file.records.return_value = title_records
+        mock_merge.return_value = "TITLE"
+        extract_header(pdb_file, data_file)
+        pdb_file.record.assert_called_with("HEADER")
+        pdb_file.records.assert_called_with("TITLE")
+        mock_merge.assert_called_with(title_records, 10, dont_condense=",;:-")
+        self.assertEqual(data_file.deposition_date, datetime(2017, 8, 21).date())
+        self.assertEqual(data_file.code, "6AR7")
+        self.assertEqual(data_file.title, "TITLE")
+
+
+    def test_can_extract_empty_header(self):
+        pdb_file = Mock(PdbFile)
+        data_file = Mock(PdbDataFile)
+        pdb_file.record.return_value = None
+        pdb_file.records.return_value = []
+        extract_header(pdb_file, data_file)
+        self.assertIsNone(data_file.deposition_date)
+        self.assertIsNone(data_file.code)
+        self.assertIsNone(data_file.title)

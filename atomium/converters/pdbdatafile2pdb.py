@@ -11,4 +11,7 @@ def pdb_data_file_to_pdb(data_file):
 
     pdb = Pdb()
     pdb._models = pdb_data_file_to_models(data_file)
+    pdb._code = data_file.code
+    pdb._deposition_date = data_file.deposition_date
+    pdb._title= data_file.title
     return pdb

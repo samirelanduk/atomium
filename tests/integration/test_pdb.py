@@ -11,7 +11,7 @@ class PdbReadingTests(IntegratedTest):
          pdb.title(),
          "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
         )
-        self.assertEqual(pdb.deposition_date(), datetime(20002, 5, 6).date())
+        self.assertEqual(pdb.deposition_date(), datetime(2002, 5, 6).date())
 
         # Atoms are correct
         model = pdb.model()

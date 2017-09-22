@@ -10,6 +10,7 @@ def pdb_data_file_to_pdb_file(data_file):
     :rtype: ``PdbFile``"""
 
     pdb_file = PdbFile()
+    pack_header(data_file, pdb_file)
     pack_structure(data_file, pdb_file)
     return pdb_file
 
@@ -27,7 +28,7 @@ def pack_structure(data_file, pdb_file):
     for atom in data_file.heteroatoms:
         models[atom["model"]].append(atom_dict_to_record(atom, hetero=True))
     if len(models) == 1:
-        pdb_file._records = models[1]
+        pdb_file._records += models[1]
     else:
         for number in sorted(models.keys()):
             pdb_file._records.append(PdbRecord("MODEL        {}".format(number)))
@@ -83,3 +84,31 @@ def conections_list_to_records(l):
              connection["atom"], *bonded_ids
             )))
     return records
+
+
+def pack_header(data_file, pdb_file):
+    """Adds the :py:class:`.PdbRecord` objetcs to a :py:class:`.PdbFile`
+    pertaining to header information, from a :py:class:`.PdbDataFile`.
+
+    :param PdbDataFile data_file: The source PdbDataFile.
+    :param PdbFile pdb_file: The PdbFile to update."""
+
+    if data_file.deposition_date or data_file.code:
+        header = PdbRecord("HEADER{}{}   {}".format(
+         " " * 44,
+         data_file.deposition_date.strftime("%d-%b-%y").upper() if
+          data_file.deposition_date else " " * 9,
+         data_file.code if data_file.code else "    "
+        ).strip())
+        pdb_file._records.append(header)
+    if data_file.title:
+        title_chunks_needed = (len(data_file.title) - 1) // 70 + 1
+        title_chunks = [
+         data_file.title[i * 70:i * 70 + 70] for i in range(title_chunks_needed)
+        ]
+        title_records =[PdbRecord("TITLE    {}{}{}".format(
+         number if number > 1 else " ",
+         " " if number > 1 else "",
+         chunk
+        )) for number, chunk in enumerate(title_chunks, start=1)]
+        pdb_file._records += title_records

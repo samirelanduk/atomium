@@ -100,6 +100,12 @@ class PdbReadingTests(IntegratedTest):
         )
 
         # Can be saved
+        pdb.code("9SAM")
+        pdb.deposition_date(datetime(1990, 9, 1).date())
+        pdb.title(
+         "FOR IN THAT SLEEP OF DEATH WHAT DREAMS MAY COME WHEN WE HAVE " +
+         "SHUFFLED OFF THIS MORTAL COIL MUST GIVE US PAUSE"
+        )
         pdb.save("tests/integration/files/1LOL2.pdb")
         with open("tests/integration/files/1LOL2.pdb") as f:
             new = [l.strip() for l in f.readlines() if l.strip()]

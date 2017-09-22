@@ -1,3 +1,4 @@
+from datetime import datetime
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.converters.pdbdatafile2pdbfile import *
@@ -6,12 +7,14 @@ from atomium.files.pdbdatafile import PdbDataFile
 
 class PdbDataFileToPdbFileTests(TestCase):
 
+    @patch("atomium.converters.pdbdatafile2pdbfile.pack_header")
     @patch("atomium.converters.pdbdatafile2pdbfile.pack_structure")
-    def test_can_create_pdb_file_from_data_file(self, mock_pack):
+    def test_can_create_pdb_file_from_data_file(self, mock_struc, mock_head):
         data_file = Mock(PdbDataFile)
         pdb_file = pdb_data_file_to_pdb_file(data_file)
         self.assertIsInstance(pdb_file, PdbFile)
-        mock_pack.assert_called_with(data_file, pdb_file)
+        mock_head.assert_called_with(data_file, pdb_file)
+        mock_struc.assert_called_with(data_file, pdb_file)
 
 
 
@@ -21,7 +24,7 @@ class StructurePackingTests(TestCase):
         self.atoms = [Mock(), Mock(), Mock(), Mock()]
         self.pdb_file = Mock(PdbFile)
         self.pdb_file._records = []
-        self.data_file = Mock(PdbFile)
+        self.data_file = Mock(PdbDataFile)
         self.data_file.connections = "ccc"
         self.data_file.atoms = [{"model": 1, "a": 1}, {"model": 1, "a": 2}]
         self.data_file.heteroatoms = [{"model": 1, "a": 3}, {"model": 1, "a": 4}]
@@ -138,3 +141,72 @@ class ConectListToRecordsTests(TestCase):
         self.assertEqual(args2[0], "CONECT 1179 1211 1222")
         self.assertEqual(args3[0], "CONECT 1221  544 1017 1020 1022")
         self.assertEqual(converted_records, records)
+
+
+
+class HeaderPackingTests(TestCase):
+
+    def setUp(self):
+        self.data_file, self.pdb_file = Mock(PdbDataFile), Mock(PdbFile)
+        self.pdb_file._records = []
+
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
+    def test_can_pack_deposition_date(self, mock_record):
+        self.data_file.deposition_date = datetime(1990, 9, 1).date()
+        self.data_file.code = None
+        self.data_file.title = None
+        record = Mock(PdbRecord)
+        mock_record.return_value = record
+        pack_header(self.data_file, self.pdb_file)
+        mock_record.assert_called_with("HEADER" + " " * 44 + "01-SEP-90")
+        self.assertEqual(self.pdb_file._records, [record])
+
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
+    def test_can_pack_code(self, mock_record):
+        self.data_file.deposition_date = None
+        self.data_file.code = "1XYZ"
+        self.data_file.title = None
+        record = Mock(PdbRecord)
+        mock_record.return_value = record
+        pack_header(self.data_file, self.pdb_file)
+        mock_record.assert_called_with("HEADER" + " " * 56 + "1XYZ")
+        self.assertEqual(self.pdb_file._records, [record])
+
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
+    def test_can_pack_title(self, mock_record):
+        self.data_file.deposition_date = None
+        self.data_file.code = None
+        self.data_file.title = "ABC" * 40
+        record1, record2 = Mock(PdbRecord), Mock(PdbRecord)
+        mock_record.side_effect = [record1, record2]
+        pack_header(self.data_file, self.pdb_file)
+        mock_record.assert_any_call("TITLE     " + "ABC" * 23 + "A")
+        mock_record.assert_any_call("TITLE    2 " + "BC" + "ABC" * 16)
+        self.assertEqual(self.pdb_file._records, [record1, record2])
+
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
+    def test_can_pack_everything(self, mock_record):
+        self.data_file.deposition_date = datetime(1990, 9, 1).date()
+        self.data_file.code = "1XYZ"
+        self.data_file.title = "ABC" * 40
+        records = [Mock(PdbRecord), Mock(PdbRecord), Mock(PdbRecord)]
+        mock_record.side_effect = records
+        pack_header(self.data_file, self.pdb_file)
+        mock_record.assert_any_call("HEADER" + " " * 44 + "01-SEP-90   1XYZ")
+        mock_record.assert_any_call("TITLE     " + "ABC" * 23 + "A")
+        mock_record.assert_any_call("TITLE    2 " + "BC" + "ABC" * 16)
+        self.assertEqual(self.pdb_file._records, records)
+
+
+    @patch("atomium.converters.pdbdatafile2pdbfile.PdbRecord")
+    def test_can_pack_nothing(self, mock_record):
+        self.data_file.deposition_date = None
+        self.data_file.code = None
+        self.data_file.title = None
+        pack_header(self.data_file, self.pdb_file)
+        self.assertFalse(mock_record.called)
+        self.assertEqual(self.pdb_file._records, [])

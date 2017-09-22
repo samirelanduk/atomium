@@ -12,4 +12,7 @@ def pdb_to_pdb_data_file(pdb):
     for data_file in data_files[1:]:
         data_files[0].atoms += data_file.atoms
         data_files[0].heteroatoms += data_file.heteroatoms
+    data_files[0].code = pdb._code
+    data_files[0].deposition_date = pdb._deposition_date
+    data_files[0].title = pdb._title
     return data_files[0]

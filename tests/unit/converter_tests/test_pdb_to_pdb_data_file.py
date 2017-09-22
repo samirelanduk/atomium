@@ -18,6 +18,7 @@ class PdbToPdbDataFileTests(TestCase):
         mock_data.side_effect = [data_file1, data_file2, data_file3]
         pdb = Mock(Pdb)
         pdb.models.return_value = ("model1", "model2", "model3")
+        pdb._code, pdb._deposition_date, pdb._title = "1XXX", "DATE", "TITLE"
         returned_data_file = pdb_to_pdb_data_file(pdb)
         self.assertIs(returned_data_file, data_file1)
         mock_data.assert_any_call("model1", model=1)
@@ -29,3 +30,6 @@ class PdbToPdbDataFileTests(TestCase):
         self.assertEqual(
          returned_data_file.heteroatoms, ["h1", "h2", "h3", "h4", "h5", "h6"]
         )
+        self.assertEqual(returned_data_file.code, "1XXX")
+        self.assertEqual(returned_data_file.deposition_date, "DATE")
+        self.assertEqual(returned_data_file.title, "TITLE")

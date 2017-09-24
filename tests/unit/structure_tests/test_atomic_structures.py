@@ -97,6 +97,13 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
         self.assertEqual(structure.atoms(element="C"), set())
 
 
+    def test_can_exlcude_atoms_by_element(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.assertEqual(structure.atoms(exclude="A"), set(self.atoms[1:]))
+        self.assertEqual(structure.atoms(exclude="B"), set(self.atoms[:1]))
+        self.assertEqual(structure.atoms(exclude="C"), set(self.atoms))
+
+
     def test_can_get_atoms_by_id(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure.atoms(atom_id=500), set([self.atoms[0]]))

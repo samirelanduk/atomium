@@ -47,6 +47,7 @@ class PdbReadingTests(IntegratedTest):
         residue = chaina.residue(name="ASN")
         self.assertEqual(residue.residue_id(), "A13")
         self.assertEqual(len(residue.atoms()), 8)
+        self.assertEqual(len(residue.atoms(exclude="O")), 6)
         self.assertEqual(len(residue.atoms(element="O")), 2)
         for atom in residue.atoms():
             self.assertIs(atom.residue(), residue)

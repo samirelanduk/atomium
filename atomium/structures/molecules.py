@@ -45,12 +45,14 @@ class AtomicStructure:
         return member in self._atoms or member in self._id_atoms.values()
 
 
-    def atoms(self, atom_id=None, element=None, name=None):
+    def atoms(self, atom_id=None, element=None, exclude=None, name=None):
         """Returns the :py:class:`.Atom` objects in the structure. You can
         filter these by element if you wish.
 
         :param str element: If given, only atoms whose element matches this\
         will be returned.
+        :param str exclude: If given, only atoms whose element doesn't match\
+        this will be returned.
         :param int atom_id: If given, only atoms whose atom ID matches this\
         will be returned (this will only return one atom).
         :param str name: If given, only atoms whose name matches this will be\
@@ -60,6 +62,8 @@ class AtomicStructure:
         atoms = self._atoms.union(set(self._id_atoms.values()))
         if element:
             atoms = set(filter(lambda a: a.element() == element, atoms))
+        if exclude:
+            atoms = set(filter(lambda a: a.element() != exclude, atoms))
         if atom_id:
             atoms = set(filter(lambda a: a.atom_id() == atom_id, atoms))
         if name:
@@ -78,6 +82,8 @@ class AtomicStructure:
         will be searched.
         :param str element: If given, only atoms whose element matches this\
         will be searched.
+        :param str exclude: If given, only atoms whose element doesn't match\
+        this will be returned.
         :param str name: If given, only atoms whose name matches this will be\
         searched.
         :rtype: ``Atom``"""

@@ -100,6 +100,17 @@ class PdbReadingTests(IntegratedTest):
          bond1.angle_with(bond2, degrees=True), 109.474, delta=0.005
         )
 
+        # Can get atoms in cutoff distance
+        atom = model.atom(1587)
+        four_angstrom = atom.nearby(cutoff=4)
+        self.assertEqual(len(four_angstrom), 10)
+        self.assertEqual(
+         sorted([atom.atom_id() for atom in four_angstrom]),
+         [1576, 1582, 1583, 1584, 1586, 1588, 1589, 1590, 1591, 2957]
+        )
+        self.assertEqual(len(atom.nearby(cutoff=4, element="O")), 1)
+        self.assertEqual(len(atom.nearby(cutoff=4, exclude="C")), 4)
+
         # Can be saved
         pdb.code("9SAM")
         pdb.deposition_date(datetime(1990, 9, 1).date())

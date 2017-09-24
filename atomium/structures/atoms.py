@@ -335,6 +335,30 @@ class Atom:
         return sqrt(x_sum + y_sum + z_sum)
 
 
+    def nearby(self, cutoff, *args, **kwargs):
+        """Returns all atoms in the associated :py:class:`.Model` that are
+        within a given distance (in the units of the atom coordinates) of this
+        atom.
+
+        :param int cutoff: The distance cutoff to use.
+        :param str element: If given, only atoms whose element matches this\
+        will be returned.
+        :param str exclude: If given, only atoms whose element doesn't match\
+        this will be returned.
+        :param int atom_id: If given, only atoms whose atom ID matches this\
+        will be returned (this will only return one atom).
+        :param str name: If given, only atoms whose name matches this will be\
+        returned."""
+        
+        if self._model:
+            atoms = self._model.atoms(*args, **kwargs)
+            try:
+                atoms.remove(self)
+            except: pass
+            return set(filter(lambda a: a.distance_to(self) <= cutoff, atoms))
+        return set()
+
+
 
 class Bond:
     """Represents a chemical bond between an :py:class:`.Atom` and another. It

@@ -498,3 +498,24 @@ class AtomDistanceToTests(TestCase):
         atom1 = Atom("C", 4, 8, 3)
         atom2 = (2, 3, 5)
         self.assertAlmostEqual(atom1.distance_to(atom2), 5.744, delta=0.001)
+
+
+
+class NearbyAtomTests(TestCase):
+
+    def test_atom_with_no_model_has_no_nearby_atoms(self):
+        atom = Atom("C", 4, 8, 3)
+        self.assertEqual(atom.nearby(cutoff=1), set())
+        self.assertEqual(atom.nearby(cutoff=100), set())
+
+
+    def test_can_get_nearby_atoms(self):
+        model = Mock()
+        atoms = [Mock(), Mock(), Mock(), Mock(), Mock()]
+        for index, atom in enumerate(atoms):
+            atom.distance_to.return_value = index + 0.5
+        atom = Atom("C", 4, 8, 3)
+        model.atoms.return_value = set(atoms + [atom])
+        atom._model = model
+        self.assertEqual(atom.nearby(4, "d", a="4"), set(atoms[:-1]))
+        model.atoms.assert_called_with("d", a="4")

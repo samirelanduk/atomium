@@ -225,3 +225,27 @@ class Site(AtomicStructure, ResidueStructure):
             raise TypeError("ligand {} is not a Molecule".format(ligand))
         AtomicStructure.__init__(self, *atoms)
         self._ligand = ligand
+
+
+    def __repr__(self):
+        if self._ligand:
+            return "<'{}' Site ({} residues)>".format(
+             self._ligand._id, len(self.residues())
+            )
+        return "<Site ({} residues)>".format(len(self.residues()))
+
+
+    def ligand(self, ligand=None):
+        """Returns the ligand :py:class:`.Molecule` for this site. If a molecule
+        is given, the ligand will be updated to that.
+
+        :param Molecule ligand: If given, this will be set as the new ligand.
+        :raises TypeError: if the ligand is not a :py:class:`.Molecule`.
+        :rtype: ``Molecule``"""
+        
+        if ligand is None:
+            return self._ligand
+        else:
+            if not isinstance(ligand, Molecule):
+                raise TypeError("ligand {} is not a Molecule".format(ligand))
+            self._ligand = ligand

@@ -329,6 +329,16 @@ class Molecule(AtomicStructure):
             return atom.model()
 
 
+    def site(self):
+        from .chains import Site
+        atoms, nearby = self.atoms(exclude="H"), set()
+        for atom in atoms:
+            nearby.update(atom.nearby(4, exclude="H"))
+        residues = [atom.residue() for atom in nearby if atom not in atoms]
+        residues = [residue for residue in residues if residue]
+        return Site(*residues, ligand=self)
+
+
 
 class Residue(Molecule):
     """Base class: :py:class:`Molecule`

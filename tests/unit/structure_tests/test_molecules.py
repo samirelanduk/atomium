@@ -145,3 +145,39 @@ class MoleculeModelTests(MoleculeTest):
         self.atom3.model.return_value = None
         mol = Molecule(self.atom1, self.atom2, self.atom3)
         self.assertIs(mol.model(), None)
+
+
+
+class MoleculeSiteTests(MoleculeTest):
+
+    @patch("atomium.structures.Molecule.atoms")
+    @patch("atomium.structures.chains.Site")
+    def test_can_get_site(self, mock_site, mock_atoms):
+        residues = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        atoms = []
+        for residue in residues:
+            atoms += [Mock(), Mock(), Mock()]
+            atoms[-3].residue.return_value = residue
+            atoms[-2].residue.return_value = residue
+            atoms[-1].residue.return_value = residue
+        mock_atoms.return_value = set(self.atoms)
+        self.atom1.nearby.return_value = set([self.atom2, atoms[1], atoms[3]])
+        self.atom2.nearby.return_value = set([self.atom1, atoms[3], atoms[6]])
+        self.atom3.nearby.return_value = set([self.atom3, atoms[6], atoms[-1]])
+        self.atom1.residue.return_value = None
+        self.atom2.residue.return_value = None
+        self.atom3.residue.return_value = None
+        site = Mock()
+        mock_site.return_value = site
+        mol = Molecule(self.atom1, self.atom2, self.atom3)
+        returned_site = mol.site()
+        self.assertIs(site, returned_site)
+        mock_atoms.assert_called_with(exclude="H")
+        self.atom1.nearby.assert_called_with(4, exclude="H")
+        self.atom2.nearby.assert_called_with(4, exclude="H")
+        self.atom3.nearby.assert_called_with(4, exclude="H")
+        site_args, site_kwargs = mock_site.call_args_list[0]
+        self.assertEqual(set(site_args), set([
+         residues[0], residues[1], residues[2], residues[6]
+        ]))
+        self.assertEqual(site_kwargs, {"ligand": mol})

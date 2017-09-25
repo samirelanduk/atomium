@@ -72,8 +72,8 @@ class PdbReadingTests(IntegratedTest):
         site = model.molecule("A5001").site()
         self.assertIs(site.ligand(), model.molecule("A5001"))
         self.assertEqual(site.residues(), set([
-         model.residue("A70"), model.residue("A72"), model.residue("A123"),
-         model.residue("A155"), model.molecuke("A2001"), model.molecule("A3015")
+         model.residue("A42"), model.residue("A70"), model.residue("A72"),
+         model.residue("A96"), model.residue("A123"), model.residue("A155")
         ]))
 
         # Bonding is correct

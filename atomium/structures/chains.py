@@ -1,6 +1,6 @@
 """This module contains chains and related polymer classes."""
 
-from .molecules import Molecule, Residue
+from .molecules import Molecule, Residue, AtomicStructure
 from .exceptions import SequenceConnectivityError
 
 class ResidueStructure:
@@ -205,3 +205,23 @@ class Chain(Molecule, ResidueSequence):
 
         Molecule.remove_atom(self, atom, *args, **kwargs)
         atom._chain = None
+
+
+
+class Site(AtomicStructure, ResidueStructure):
+    """Base classes: :py:class:`.AtomicStructure` and :py:class:`ResidueStructure`
+
+    A Site is a set of residues which bind to a ligand molecule.
+
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
+    These can also be :py:class:`.AtomicStructure` objects, in which case the\
+    atoms of that structure will be used in its place.
+    :param Molecule ligand: the ligand molecule for this site.
+    :raises TypeError: if non-atoms or AtomicStructures are given.
+    :raises TypeError: if the ligand is not a :py:class:`.Molecule`."""
+
+    def __init__(self, *atoms, ligand=None):
+        if ligand is not None and not isinstance(ligand, Molecule):
+            raise TypeError("ligand {} is not a Molecule".format(ligand))
+        AtomicStructure.__init__(self, *atoms)
+        self._ligand = ligand

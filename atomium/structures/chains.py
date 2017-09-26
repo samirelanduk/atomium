@@ -242,7 +242,7 @@ class Site(AtomicStructure, ResidueStructure):
         :param Molecule ligand: If given, this will be set as the new ligand.
         :raises TypeError: if the ligand is not a :py:class:`.Molecule`.
         :rtype: ``Molecule``"""
-        
+
         if ligand is None:
             return self._ligand
         else:

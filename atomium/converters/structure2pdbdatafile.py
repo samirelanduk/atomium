@@ -33,7 +33,7 @@ def atom_to_atom_dict(atom, model=1):
     if atom.residue():
         id_ = atom.residue().residue_id()
         residue_name = atom.residue().name()
-        chain_id = atom.chain().chain_id() if atom.chain() else None
+        chain_id = atom.chain().chain_id() if atom.chain() is not None else None
         residue_id = int("".join([c for c in id_ if c.isdigit()]))
         insert_code = id_[-1] if id_ and id_[-1].isalpha() else None
     elif atom.molecule():

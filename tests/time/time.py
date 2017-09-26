@@ -23,3 +23,4 @@ for pdb in pdbs:
         )
     finally:
         os.remove("{}/{}.py".format(here, pdb))
+        os.remove("{}/temp.pdb".format(here))

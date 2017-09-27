@@ -5,6 +5,11 @@ from datetime import datetime
 from math import ceil
 
 def pdb_dict_to_pdb_string(pdb_dict):
+    """Converts a data ``dict`` to a .pdb filestring.
+
+    :param dict pdb_dict: The data dictionary to pack.
+    :rtype: ``str``"""
+
     lines = []
     pack_header(lines, pdb_dict)
     pack_structure(lines, pdb_dict)
@@ -12,6 +17,11 @@ def pdb_dict_to_pdb_string(pdb_dict):
 
 
 def pack_header(lines, pdb_dict):
+    """Adds HEADER and TITLE records to a list of lines.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
     if pdb_dict["deposition_date"] or pdb_dict["code"]:
         lines.append("HEADER{}{}   {}".format(
          " " * 44,
@@ -33,6 +43,11 @@ def pack_header(lines, pdb_dict):
 
 
 def pack_structure(lines, pdb_dict):
+    """Adds structure records to a list of lines.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
     if len(pdb_dict["models"]) == 1:
         pack_model(lines, pdb_dict["models"][0], sole=True)
     else:
@@ -42,6 +57,13 @@ def pack_structure(lines, pdb_dict):
 
 
 def pack_model(lines, model_dict, sole=False):
+    """Adds structure records for a single model to a list of lines.
+
+    :param list lines: The record lines to add to.
+    :param dict model_dict: The model dictionary to pack.
+    :param bool sole: If ``True`` the encompassing MODEL and ENDMDL lines will\
+    be omitted."""
+
     if not sole:
         lines.append("MODEL".ljust(80))
     for chain in model_dict["chains"]:
@@ -56,6 +78,12 @@ def pack_model(lines, model_dict, sole=False):
 
 
 def atom_dict_to_atom_line(d, hetero=False):
+    """Converts an atom ``dict`` to an ATOM or HETATM record.
+
+    :param dict d: The atom dictionary to pack.
+    :param bool hetero: if ``True`` a HETATM record will be made, not ATOM.
+    :rtypeL ``str``"""
+
     line = "{:6}{:5} {:4}{:1}{:3} {:1}{:4}{:1}   "
     line += "{:8}{:8}{:8}  {:5}{:6}         {:>2}{:2}"
     atom_name = d["atom_name"] if d["atom_name"] else ""
@@ -73,7 +101,8 @@ def atom_dict_to_atom_line(d, hetero=False):
      d["x"] if d["x"] else "",
      d["y"] if d["y"] else "",
      d["z"] if d["z"] else "",
-     "{:.2f}".format(d["occupancy"]) if d["occupancy"] and d["occupancy"] != 1 else "",
+     "{:.2f}".format(d["occupancy"])
+      if d["occupancy"] and d["occupancy"] != 1 else "",
      "{:.2f}".format(d["temp_factor"]) if d["temp_factor"] else "",
      d["element"] if d["element"] else "",
      str(d["charge"])[::-1] if d["charge"] else "",
@@ -82,6 +111,11 @@ def atom_dict_to_atom_line(d, hetero=False):
 
 
 def pack_connections(lines, pdb_dict):
+    """Adds CONECT records to a list of lines.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
     for connection in pdb_dict["connections"]:
         for line_num in range(ceil(len(connection["bond_to"]) / 4)):
             bonded_ids = connection["bond_to"][line_num * 4: (line_num + 1) * 4]
@@ -90,4 +124,9 @@ def pack_connections(lines, pdb_dict):
 
 
 def lines_to_string(lines):
+    """Creates a single string from a list of record strings.
+
+    :param list lines: The list of lines to join.
+    :rtype: ``str``"""
+    
     return "\n".join(lines)

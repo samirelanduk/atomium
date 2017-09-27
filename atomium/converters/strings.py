@@ -1,6 +1,8 @@
 """This module contains tools for processing strings into more manageable
 forms, and back into strings."""
 
+from requests import get
+
 def string2lines(s):
     """Takes a string and breaks it into lines on line breaks. It will first
     convert any windows line breaks to unix line breaks.
@@ -48,7 +50,6 @@ def fetch_string(code, pdbe=False):
         raise TypeError("PDB code {} is not string".format(code))
     if len(code) != 4:
         raise ValueError("PDB code {} is not of length 4".format(code))
-    from requests import get
     url = "https://files.rcsb.org/view/{}.pdb"
     if pdbe:
         url = "https://www.ebi.ac.uk/pdbe/entry-files/pdb{}.ent"

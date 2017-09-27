@@ -1,5 +1,7 @@
 """Contains the PdbDataFile class."""
 
+
+
 class PdbDataFile:
     """A PdbDataFile is used to represent the parsed data from a
     :py:class:`.PdbFile`"""

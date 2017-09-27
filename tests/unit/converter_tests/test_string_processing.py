@@ -58,7 +58,7 @@ class StringToFileTests(TestCase):
 
 class StringFromWebServicesTests(TestCase):
 
-    @patch("requests.get")
+    @patch("atomium.converters.strings.get")
     def test_can_fetch_string(self, mock_get):
         response = Mock()
         response.status_code = 200
@@ -69,7 +69,7 @@ class StringFromWebServicesTests(TestCase):
         self.assertEqual(returned_string, "filestring")
 
 
-    @patch("requests.get")
+    @patch("atomium.converters.strings.get")
     def test_can_fetch_pdbe_string(self, mock_get):
         response = Mock()
         response.status_code = 200
@@ -82,7 +82,7 @@ class StringFromWebServicesTests(TestCase):
         self.assertEqual(returned_string, "filestring")
 
 
-    @patch("requests.get")
+    @patch("atomium.converters.strings.get")
     def test_can_get_none_if_no_file_found(self, mock_get):
         response = Mock()
         response.status_code = 404

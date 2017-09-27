@@ -1,0 +1,209 @@
+"""This module handles the conversion of .pdb filestrings to PDB data
+dictionaries."""
+
+from datetime import datetime
+
+def pdb_string_to_pdb_dict(filestring):
+    """Converts the string of a .pdb file to a parsed data ``dict``.
+
+    :param str filestring: The filestring to parse.
+    :rtype: ``dict``"""
+
+    lines = pdb_string_to_lines(filestring)
+    pdb_dict = {}
+    extract_header(pdb_dict, lines)
+    extract_structure(pdb_dict, lines)
+    return pdb_dict
+
+
+def pdb_string_to_lines(s):
+    """Takes a .pdb filestring and turns it into a ``list`` of ``str`` lines, of
+    length 80.
+
+    :param str s: The filestring.
+    :rtype: ``list``"""
+
+    return [line.ljust(80).replace("\r", " ") for line in s.split("\n") if line]
+
+
+def extract_header(pdb_dict, lines):
+    """Takes a ``dict`` and adds header information to it by parsing file lines.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    head_line = get_line("HEADER", lines)
+    if head_line:
+        pdb_dict["deposition_date"] = datetime.strptime(
+         head_line[50:59], "%d-%b-%y"
+        ).date() if head_line[50:59].strip() else None
+        pdb_dict["code"] = head_line[62:66] if head_line[62:66].strip() else None
+    else:
+        pdb_dict["deposition_date"], pdb_dict["code"] = None, None
+    title_lines = get_lines("TITLE", lines)
+    pdb_dict["title"] = merge_lines(title_lines, 10) if title_lines else None
+
+
+def extract_structure(pdb_dict, lines):
+    """Takes a ``dict`` and adds structure information to it by parsing file
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    model_lines = get_lines("MODEL", lines)
+    atom_lines = get_lines("ATOM", lines)
+    hetatm_lines = get_lines("HETATM", lines)
+    conect_lines = get_lines("CONECT", lines)
+    pdb_dict["models"] = []
+    if model_lines:
+        for index, model_line in enumerate(model_lines):
+            line_number = lines.index(model_line)
+            next_model_number = lines.index(
+             model_lines[index + 1]
+            ) if index < len(model_lines) - 1 else len(lines)
+            model_atoms = [line for line in atom_lines
+             if line_number < lines.index(line) < next_model_number]
+            model_hetatms = [line for line in hetatm_lines
+             if line_number < lines.index(line) < next_model_number]
+            pdb_dict["models"].append(lines_to_model(model_atoms, model_hetatms))
+    else:
+        pdb_dict["models"].append(lines_to_model(atom_lines, hetatm_lines))
+    extract_connections(pdb_dict, conect_lines)
+
+
+def lines_to_model(atom_lines, hetatm_lines):
+    """Creates a model ``dict`` from ATOM lines and HETATM lines.
+
+    :param list atom_lines: the ATOM lines.
+    :param list hetatm_lines: the HETATM lines.
+    :rtype: ``dict``"""
+
+    atoms = [atom_line_to_atom_dict(line) for line in atom_lines]
+    heteroatoms = [atom_line_to_atom_dict(line) for line in hetatm_lines]
+    molecules = atoms_to_residues(heteroatoms)
+    chains = atoms_to_chains(atoms)
+    model = {"molecules": molecules, "chains": chains}
+    return model
+
+
+def atom_line_to_atom_dict(line):
+    """Takes an ATOM or HETATM line and converts it to an atom ``dict``.
+
+    :param str line: the atom record to parse.
+    :rtype: ``dict``"""
+
+    charge = line[78:80].strip() if line[78:80].strip() else 0
+    try:
+        charge = float(charge)
+    except:
+        charge = float(charge[::-1])
+    d = {
+     "atom_id": int(line[6:11].strip()) if line[6:11].strip() else None,
+     "atom_name": line[12:16].strip() if line[12:16].strip() else None,
+     "alt_loc": line[16] if line[16].strip() else None,
+     "residue_name": line[17:20].strip() if line[17:20].strip() else None,
+     "chain_id": line[21] if line[21].strip() else "",
+     "residue_id": int(line[22:26].strip()) if line[22:26].strip() else None,
+     "insert_code": line[26] if line[26].strip() else "",
+     "x": float(line[30:38].strip()) if line[30:38].strip() else None,
+     "y": float(line[38:46].strip()) if line[38:46].strip() else None,
+     "z": float(line[46:54].strip()) if line[46:54].strip() else None,
+     "occupancy": float(line[54:60].strip()) if line[54:60].strip() else 1,
+     "temp_factor": float(line[60:66].strip()) if line[60:66].strip() else None,
+     "element": line[76:78].strip() if line[76:78].strip() else None,
+     "charge": charge
+    }
+    d["full_id"] = d["chain_id"] + (
+     line[22:26].strip() if line[22:26].strip() else ""
+    ) + d["insert_code"]
+    return d
+
+
+def atoms_to_residues(atoms):
+    """Takes a list of atoms, clusters them into lists belonging to the
+    different residues, and makes residue ``dict`` objects out of them.
+
+    :param list atoms: The atom ``dict`` objects to collate.
+    :rtype: ``list``"""
+
+    residue_ids = sorted(set([atom["full_id"] for atom in atoms]))
+    residues = []
+    for res_id in residue_ids:
+        r_atoms = [atom for atom in atoms if atom["full_id"] == res_id]
+        residues.append({
+         "id": res_id, "name": r_atoms[0]["residue_name"], "atoms": r_atoms
+        })
+    return residues
+
+
+def atoms_to_chains(atoms):
+    """Takes a list of atoms, clusters them into lists belonging to the
+    different chains, and makes residue ``dict`` objects out of them.
+
+    :param list atoms: The atom ``dict`` objects to collate.
+    :rtype: ``list``"""
+
+    chain_ids = sorted(set([atom["chain_id"] for atom in atoms]))
+    chains = []
+    for chain_id in chain_ids:
+        c_atoms = [atom for atom in atoms if atom["chain_id"] == chain_id]
+        chains.append({"chain_id": chain_id, "residues": atoms_to_residues(c_atoms)})
+    return chains
+
+
+def extract_connections(pdb_dict, lines):
+    """Takes a ``dict`` and adds connection information to it by parsing conect
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the conect lines to read from."""
+
+    atom_ids = sorted(list(set([int(r[6:11].strip()) for r in lines])))
+    pdb_dict["connections"] = [{"atom": id_, "bond_to": []} for id_ in atom_ids]
+    for connection in pdb_dict["connections"]:
+        relevant_lines = [line[11:] for line in lines
+          if int(line[6:11].strip()) == connection["atom"]]
+        line_numbers = [[
+         line[n * 5:n * 5 + 5].strip() for n in range(4)
+        ] for line in relevant_lines]
+        for line in line_numbers:
+            for number in line:
+                if number:
+                    connection["bond_to"].append(int(number))
+
+
+def get_line(name, lines):
+    """Gets a single line by record name from a list of lines. If there are no
+    matches, ``None`` will be returned.
+
+    :param str name: The record name to search for.
+    :param list lines: The list of lines to search through.
+    :rtype: ``str``"""
+
+    for line in lines:
+        if line[:6].strip() == name:
+            return line
+
+
+def get_lines(name, lines):
+    """Searches a list of lines and returns those whose record name matches the
+    name given.
+
+    :param str name: The record name to search for.
+    :param list lines: The list of lines to search through.
+    :rtype: ``list``"""
+
+    return [line for line in lines if line[:6].strip() == name]
+
+
+def merge_lines(lines, start, join=" "):
+    """Gets a single continuous string from a sequence of lines.
+
+    :param list lines: The lines to merge.
+    :param int start: The start point in each record.
+    :param str join: The string to join on.
+    :rtype: ``str``"""
+    
+    string = join.join([line[start:].strip() for line in lines])
+    return string

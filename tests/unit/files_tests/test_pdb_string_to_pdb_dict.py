@@ -209,19 +209,19 @@ class AtomLineToAtomDictTests(TestCase):
 
 class AtomsToResiduesTests(TestCase):
 
-    def test_can_convert_heteroatoms_to_molecules(self):
-        heteroatoms = [
-         {"full_id": "A10", "residue_name": "GLY"},
-         {"full_id": "A10", "residue_name": "GLY"},
-         {"full_id": "B10", "residue_name": "VAL"},
-         {"full_id": "B10", "residue_name": "VAL"},
-         {"full_id": "B10", "residue_name": "VAL"},
+    def test_can_convert_atoms_to_residues(self):
+        atoms = [
+         {"full_id": "B10", "residue_name": "GLY"},
+         {"full_id": "B10", "residue_name": "GLY"},
+         {"full_id": "A10", "residue_name": "VAL"},
+         {"full_id": "A10", "residue_name": "VAL"},
+         {"full_id": "A10", "residue_name": "VAL"},
         ]
-        molecules = atoms_to_residues(heteroatoms)
-        self.assertEqual(molecules, [{
-         "id": "A10", "name": "GLY", "atoms": heteroatoms[:2]
+        residues = atoms_to_residues(atoms)
+        self.assertEqual(residues, [{
+         "id": "B10", "name": "GLY", "atoms": atoms[:2]
         }, {
-         "id": "B10", "name": "VAL", "atoms": heteroatoms[2:]
+         "id": "A10", "name": "VAL", "atoms": atoms[2:]
         }])
 
 

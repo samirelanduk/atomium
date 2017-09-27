@@ -122,12 +122,14 @@ def atom_line_to_atom_dict(line):
 
 def atoms_to_residues(atoms):
     """Takes a list of atoms, clusters them into lists belonging to the
-    different residues, and makes residue ``dict`` objects out of them.
+    different residues, and makes residue ``dict`` objects out of them. The
+    order of residues will be the order they appear in the atoms.
 
     :param list atoms: The atom ``dict`` objects to collate.
     :rtype: ``list``"""
 
-    residue_ids = sorted(set([atom["full_id"] for atom in atoms]))
+    residue_ids = [atom["full_id"] for atom in atoms]
+    residue_ids = sorted(set(residue_ids), key=lambda r: residue_ids.index(r))
     residues = []
     for res_id in residue_ids:
         r_atoms = [atom for atom in atoms if atom["full_id"] == res_id]
@@ -204,6 +206,6 @@ def merge_lines(lines, start, join=" "):
     :param int start: The start point in each record.
     :param str join: The string to join on.
     :rtype: ``str``"""
-    
+
     string = join.join([line[start:].strip() for line in lines])
     return string

@@ -26,7 +26,7 @@ class PdbRecord:
             raise TypeError("PdbRecord needs str, not '%s'" % str(text))
         if len(text) > 80:
             raise ValueError("'%s' is longer than 80 characters" % str(text))
-        self._text = text.rstrip()
+        self._text = text.ljust(80)
         self._number = None
 
 
@@ -39,7 +39,7 @@ class PdbRecord:
 
 
     def __len__(self):
-        return len(self._text)
+        return len(self._text.strip())
 
 
     def __contains__(self, member):
@@ -51,7 +51,7 @@ class PdbRecord:
 
 
     def __getitem__(self, index):
-        full_line = self._text + (" " * (80 - len(self._text)))
+        full_line = self._text
         chunk = full_line[index].strip()
         try:
             chunk = int(chunk)
@@ -103,7 +103,7 @@ class PdbRecord:
                 raise TypeError("PdbRecord needs str, not '%s'" % str(text))
             if len(text) > 80:
                 raise ValueError("'%s' is longer than 80 characters" % str(text))
-            self._text = text.rstrip()
+            self._text = text.ljust(80)
 
 
     def name(self, name=None):
@@ -122,24 +122,6 @@ class PdbRecord:
             if len(name) > 6:
                 raise ValueError("'%s' is longer than 6 characters" % str(name))
             self._text = name + (" " * (6 - len(name))) + self._text[6:]
-
-
-    def body(self, body=None):
-        """The body of the record - everything from column seven onwards (after
-        the name). If a string is passed as an argument, the body will be
-        updated, though any trailing whitespace will be removed.
-
-        :param str body: If given, the record's body will be updated to this.
-        :raises ValueError: if a string longer than 74 characters is supplied."""
-
-        if body is None:
-            return self._text[6:]
-        else:
-            if not isinstance(body, str):
-                raise TypeError("PdbRecord needs str, not '%s'" % str(body))
-            if len(body) > 74:
-                raise ValueError("'%s' is longer than 74 characters" % str(body))
-            self._text = self._text[:6] + body.rstrip()
 
 
 

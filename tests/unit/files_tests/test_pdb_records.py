@@ -6,13 +6,8 @@ class PdbRecordCreationTests(TestCase):
 
     def test_can_create_pdb_record(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        self.assertEqual(record._text, "RECORD XXX YYY ZZZ 01")
+        self.assertEqual(record._text, "RECORD XXX YYY ZZZ 01" + " " * 59)
         self.assertEqual(record._number, None)
-
-
-    def test_pdb_record_will_rstrip(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01   ")
-        self.assertEqual(record._text, "RECORD XXX YYY ZZZ 01")
 
 
     def test_pdb_record_needs_string(self):
@@ -63,7 +58,7 @@ class PdbRecordLengthTests(TestCase):
 
     def test_pdb_record_length(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        self.assertEqual(len(record), len(record._text))
+        self.assertEqual(len(record), len(record._text.strip()))
 
 
 
@@ -96,17 +91,6 @@ class PdbRecordIndexingTests(TestCase):
                 self.assertEqual(record[index], record._text[index])
 
 
-    def test_can_get_whitespace_characters_up_to_80(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        self.assertEqual(record[79], None)
-
-
-    def test_record_index_out_of_range_on_characters_above_80(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        with self.assertRaises(IndexError):
-            record[80]
-
-
     def test_record_negative_index(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         self.assertEqual(record[-1], None)
@@ -118,12 +102,7 @@ class PdbRecordIndexingTests(TestCase):
 
     def test_can_get_slice_of_record(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        for index in range(len(record._text) // 2):
-            if record._text[index * 2: index * 2 + 1].strip():
-                self.assertEqual(
-                 record[index * 2: index * 2 + 1],
-                 record._text[index * 2: index * 2 + 1]
-                )
+        self.assertEqual(record[2:8], "CORD X")
 
 
     def test_record_index_will_strip(self):
@@ -190,7 +169,7 @@ class PdbRecordTextTests(TestCase):
     def test_can_update_record_text(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         record.text("RECORD AAA BBB CCC 02")
-        self.assertEqual(record._text, "RECORD AAA BBB CCC 02")
+        self.assertEqual(record._text, "RECORD AAA BBB CCC 02" + " " * 59)
 
 
     def test_record_must_be_str(self):
@@ -204,12 +183,6 @@ class PdbRecordTextTests(TestCase):
         with self.assertRaises(ValueError):
             record.text("." * 81)
         record.text("." * 80)
-
-
-    def test_record_text_will_be_rstripped(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        record.text("RECORD AAA BBB CCC 02       ")
-        self.assertEqual(record._text, "RECORD AAA BBB CCC 02")
 
 
 
@@ -228,13 +201,13 @@ class PdbRecordNameTests(TestCase):
     def test_can_update_record_name(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         record.name("DROCER")
-        self.assertEqual(record._text, "DROCER XXX YYY ZZZ 01")
+        self.assertEqual(record._text, "DROCER XXX YYY ZZZ 01" + " " * 59)
 
 
     def test_record_name_update_will_pad(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         record.name("DRO")
-        self.assertEqual(record._text, "DRO    XXX YYY ZZZ 01")
+        self.assertEqual(record._text, "DRO    XXX YYY ZZZ 01" + " " * 59)
 
 
     def test_record_name_must_be_str(self):
@@ -243,40 +216,7 @@ class PdbRecordNameTests(TestCase):
             record.name(100)
 
 
-    def test_record_name_cannot_be_more_than_7_chars(self):
+    def test_record_name_cannot_be_more_than_6_chars(self):
         record = PdbRecord("RECORD XXX YYY ZZZ 01")
         with self.assertRaises(ValueError):
             record.name("DROCER.")
-
-
-
-class PdbRecordBodyTests(TestCase):
-
-    def test_can_get_record_body_from_text(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        self.assertEqual(record.body(), " XXX YYY ZZZ 01")
-
-
-    def test_can_update_record_body(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        record.body(" AAA BBB CCC 02")
-        self.assertEqual(record._text, "RECORD AAA BBB CCC 02")
-
-
-    def test_body_text_will_be_rstripped(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        record.body(" AAA BBB CCC 02     ")
-        self.assertEqual(record._text, "RECORD AAA BBB CCC 02")
-
-
-    def test_record_body_must_be_str(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        with self.assertRaises(TypeError) as e:
-            record.body(100)
-
-
-    def test_record_body_cannot_be_more_than_74_chars(self):
-        record = PdbRecord("RECORD XXX YYY ZZZ 01")
-        with self.assertRaises(ValueError):
-            record.body("." * 75)
-        record.body("." * 74)

@@ -200,11 +200,11 @@ class PdbReadingTests(IntegratedTest):
 
         self.assertEqual(len(pdb_file.records()), 3983)
         self.assertEqual(
-         pdb_file.records()[0].text(),
+         pdb_file.records()[0].text().strip(),
          "HEADER    LYASE                                   06-MAY-02   1LOL"
         )
         self.assertEqual(
-         pdb_file.records()[-1].text(),
+         pdb_file.records()[-1].text().strip(),
          "END"
         )
 
@@ -246,10 +246,10 @@ class PdbFetchingTests(IntegratedTest):
 
         self.assertEqual(len(pdb_file.records()), 3983)
         self.assertEqual(
-         pdb_file.records()[0].text(),
+         pdb_file.records()[0].text().strip(),
          "HEADER    LYASE                                   06-MAY-02   1LOL"
         )
         self.assertEqual(
-         pdb_file.records()[-1].text(),
+         pdb_file.records()[-1].text().strip(),
          "END"
         )

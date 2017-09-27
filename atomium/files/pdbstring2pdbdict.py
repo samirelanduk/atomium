@@ -32,12 +32,12 @@ def extract_header(pdb_dict, lines):
     :param dict pdb_dict: the ``dict`` to update.
     :param list lines: the file lines to read from."""
 
-    head_line = get_line("HEADER", lines)
-    if head_line:
+    headline = get_line("HEADER", lines)
+    if headline:
         pdb_dict["deposition_date"] = datetime.strptime(
-         head_line[50:59], "%d-%b-%y"
-        ).date() if head_line[50:59].strip() else None
-        pdb_dict["code"] = head_line[62:66] if head_line[62:66].strip() else None
+         headline[50:59], "%d-%b-%y"
+        ).date() if headline[50:59].strip() else None
+        pdb_dict["code"] = headline[62:66] if headline[62:66].strip() else None
     else:
         pdb_dict["deposition_date"], pdb_dict["code"] = None, None
     title_lines = get_lines("TITLE", lines)
@@ -64,9 +64,9 @@ def extract_structure(pdb_dict, lines):
             ) if index < len(model_lines) - 1 else len(lines)
             model_atoms = [line for line in atom_lines
              if line_number < lines.index(line) < next_model_number]
-            model_hetatms = [line for line in hetatm_lines
+            model_h_atms = [line for line in hetatm_lines
              if line_number < lines.index(line) < next_model_number]
-            pdb_dict["models"].append(lines_to_model(model_atoms, model_hetatms))
+            pdb_dict["models"].append(lines_to_model(model_atoms, model_h_atms))
     else:
         pdb_dict["models"].append(lines_to_model(atom_lines, hetatm_lines))
     extract_connections(pdb_dict, conect_lines)
@@ -148,9 +148,9 @@ def atoms_to_chains(atoms):
 
     chain_ids = sorted(set([atom["chain_id"] for atom in atoms]))
     chains = []
-    for chain_id in chain_ids:
-        c_atoms = [atom for atom in atoms if atom["chain_id"] == chain_id]
-        chains.append({"chain_id": chain_id, "residues": atoms_to_residues(c_atoms)})
+    for id_ in chain_ids:
+        c_atoms = [atom for atom in atoms if atom["chain_id"] == id_]
+        chains.append({"chain_id": id_, "residues": atoms_to_residues(c_atoms)})
     return chains
 
 

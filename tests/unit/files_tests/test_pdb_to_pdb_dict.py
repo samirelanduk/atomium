@@ -5,18 +5,22 @@ from atomium.files.pdb2pdbdict import *
 class PdbToPdbDictTests(TestCase):
 
     @patch("atomium.files.pdb2pdbdict.structure_to_model_dict")
-    def test_can_convert_pdb_to_pdb_dict(self, mock_model):
+    @patch("atomium.files.pdb2pdbdict.model_to_connections")
+    def test_can_convert_pdb_to_pdb_dict(self, mock_con, mock_model):
         pdb = Mock()
         pdb._deposition_date = "D"
         pdb._code = "C"
         pdb._title = "T"
         pdb._models = ["model1", "model2"]
         mock_model.side_effect = ["1", "2"]
+        mock_con.return_value = ["c1", "c2", "c3"]
         pdb_dict = pdb_to_pdb_dict(pdb)
         mock_model.assert_any_call("model1")
         mock_model.assert_any_call("model2")
+        mock_con.assert_called_with("model1")
         self.assertEqual(pdb_dict, {
-         "deposition_date": "D", "code": "C", "title": "T", "models": ["1", "2"]
+         "deposition_date": "D", "code": "C", "title": "T",
+         "models": ["1", "2"], "connections": ["c1", "c2", "c3"]
         })
 
 
@@ -43,7 +47,8 @@ class StructureToModelDictTests(TestCase):
         mock_chain.assert_called_with(["a1", "a2", "a3", "a4"])
         mock_res.assert_called_with(["a5", "a6"])
         self.assertEqual(model_dict, {
-         "chains": ["chain1", "chain2"], "molecules": ["mol1", "mol2"]
+         "chains": ["chain1", "chain2"],
+         "molecules": ["mol1", "mol2"]
         })
 
 
@@ -134,3 +139,26 @@ class AtomToAtomDictTests(TestCase):
         self.assertEqual(d["chain_id"], "A")
         self.assertEqual(d["insert_code"], "")
         self.assertEqual(d["full_id"], "13")
+
+
+
+class ModelToConnectionsTests(TestCase):
+
+    def test_can_convert_model_to_connections(self):
+        atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
+        for i, atom in enumerate(atoms):
+            atom.residue.return_value = "residue" if i < 4 else None
+            atom.atom_id.return_value = i + 1
+        atoms[4].bonded_atoms.return_value = set(atoms[5:])
+        atoms[5].bonded_atoms.return_value = set([atoms[4], atoms[6]])
+        atoms[6].bonded_atoms.return_value = set(atoms[4:6])
+        model = Mock()
+        model.atoms.return_value = set(atoms)
+        connections = model_to_connections(model)
+        self.assertEqual(connections, [{
+         "atom": 5, "bond_to": [6, 7]
+        }, {
+         "atom": 6, "bond_to": [5, 7]
+        }, {
+         "atom": 7, "bond_to": [5, 6]
+        }])

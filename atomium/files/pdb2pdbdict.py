@@ -13,7 +13,8 @@ def pdb_to_pdb_dict(pdb):
      "deposition_date": pdb._deposition_date,
      "code": pdb._code,
      "title": pdb._title,
-     "models": [structure_to_model_dict(model) for model in pdb._models]
+     "models": [structure_to_model_dict(model) for model in pdb._models],
+     "connections": model_to_connections(pdb._models[0])
     }
 
 
@@ -62,3 +63,20 @@ def atom_to_atom_dict(atom):
      "element": atom.element(), "charge": atom.charge(),
      "temp_factor": atom.bfactor() if atom.bfactor() else None,
     }
+
+
+def model_to_connections(model):
+    """Gets a connections ``list`` from a :py:class:`.Model`. Only atoms that
+    are not part of residues will have their bonds used.
+
+    :param atoms: The :py:class:`.Atom` objects to use.
+    :rtype: ``list``"""
+
+    connections = []
+    for atom in model.atoms():
+        if not atom.residue():
+            connections.append({
+             "atom": atom.atom_id(),
+             "bond_to": sorted([a.atom_id() for a in atom.bonded_atoms()])
+            })
+    return sorted(connections, key=lambda k: k["atom"])

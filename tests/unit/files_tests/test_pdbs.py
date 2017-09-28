@@ -141,19 +141,16 @@ class PdbTitleTests(TestCase):
 
 class PdbToStringTests(TestCase):
 
-    @patch("atomium.converters.pdb2pdbdatafile.pdb_to_pdb_data_file")
-    @patch("atomium.converters.pdbdatafile2pdbfile.pdb_data_file_to_pdb_file")
-    @patch("atomium.converters.pdbfile2pdbstring.pdb_file_to_pdb_string")
-    def test_can_get_string_from_pdb(self, mock_string, mock_file, mock_data):
+    @patch("atomium.files.pdb2pdbdict.pdb_to_pdb_dict")
+    @patch("atomium.files.pdbdict2pdbstring.pdb_dict_to_pdb_string")
+    def test_can_get_string_from_pdb(self, mock_string, mock_dict):
         pdb = Pdb()
-        data_file, pdb_file = Mock(), Mock()
+        pdb_dict = Mock()
         mock_string.return_value = "filecontents"
-        mock_file.return_value = pdb_file
-        mock_data.return_value = data_file
+        mock_dict.return_value = pdb_dict
         s = pdb.to_file_string()
-        mock_data.assert_called_with(pdb)
-        mock_file.assert_called_with(data_file)
-        mock_string.assert_called_with(pdb_file)
+        mock_dict.assert_called_with(pdb)
+        mock_string.assert_called_with(pdb_dict)
         self.assertEqual(s, "filecontents")
 
 

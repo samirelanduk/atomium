@@ -131,7 +131,8 @@ class PdbReadingTests(IntegratedTest):
             new = [l.strip() for l in f.readlines() if l.strip()]
         with open("tests/integration/files/1lol_output.pdb") as f:
             ref = [l.strip() for l in f.readlines() if l.strip()]
-        self.assertEqual(new, ref)
+        for new_line, ref_line in zip(new, ref):
+            self.assertEqual(new_line, ref_line)
         new = atomium.pdb_from_file("tests/integration/files/1LOL2.pdb")
         model = new.model()
         self.assertAlmostEqual(
@@ -221,8 +222,8 @@ class PdbFetchingTests(IntegratedTest):
           "residue_name": "VAL",
           "chain_id": "A", "residue_id": 11, "insert_code": None,
           "x": 3.696, "y": 33.898, "z": 63.219,
-          "occupancy": 1.0, "temperature_factor": 21.50,
-          "element": "N", "charge": None, "model": 1
+          "occupancy": 1.0, "temp_factor": 21.50,
+          "element": "N", "charge": None,
          }
         )
         self.assertEqual(len(data_file["connections"]), 60)

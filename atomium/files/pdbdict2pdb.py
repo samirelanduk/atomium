@@ -43,6 +43,8 @@ def chain_dict_to_chain(chain_dict):
     :rtype: :py:class:`.Chain`"""
 
     residues = [residue_dict_to_residue(res) for res in chain_dict["residues"]]
+    for index, residue in enumerate(residues[:-1]):
+        residue.next(residues[index + 1])
     return Chain(*residues, chain_id=chain_dict["chain_id"])
 
 

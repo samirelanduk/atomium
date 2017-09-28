@@ -65,13 +65,17 @@ class ChainDictToChainTests(TestCase):
     def test_can_convert_chain_dict_to_chain(self, mock_res, mock_chain):
         chain = Mock()
         mock_chain.return_value = chain
-        mock_res.side_effect = ["residue1", "residue2"]
-        chain_dict = {"chain_id": "A", "residues": ["r1", "r2"]}
+        residues = [Mock(), Mock(), Mock()]
+        mock_res.side_effect = residues
+        chain_dict = {"chain_id": "A", "residues": ["r1", "r2", "r3"]}
         returned_chain = chain_dict_to_chain(chain_dict)
         self.assertIs(returned_chain, chain)
         mock_res.assert_any_call("r1")
         mock_res.assert_any_call("r2")
-        mock_chain.assert_called_with("residue1", "residue2", chain_id="A")
+        mock_res.assert_any_call("r3")
+        residues[0].next.assert_called_with(residues[1])
+        residues[1].next.assert_called_with(residues[2])
+        mock_chain.assert_called_with(*residues, chain_id="A")
 
 
 

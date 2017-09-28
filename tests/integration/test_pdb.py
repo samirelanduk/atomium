@@ -179,7 +179,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(data_file["code"], "1LOL")
         self.assertEqual(len(data_file["models"][0]["chains"]), 2)
         self.assertEqual(
-         data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0]),
+         data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0],
          {
           "atom_id": 1, "atom_name": "N", "alt_loc": None,
           "residue_name": "VAL",
@@ -188,6 +188,7 @@ class PdbReadingTests(IntegratedTest):
           "occupancy": 1.0, "temperature_factor": 21.50,
           "element": "N", "charge": None, "model": 1
          }
+        )
         self.assertEqual(len(data_file["connections"]), 60)
         self.assertEqual(data_file["connections"], {
          "atom": 3194, "bond_to": [3195, 3196]
@@ -208,13 +209,13 @@ class PdbFetchingTests(IntegratedTest):
 
 
     def test_can_fetch_pdb_data(self):
-        data_file = atomium.pdb_data_from_file(
+        data_file = atomium.fetch_data(
          "tests/integration/files/1lol.pdb"
         )
         self.assertEqual(data_file["code"], "1LOL")
         self.assertEqual(len(data_file["models"][0]["chains"]), 2)
         self.assertEqual(
-         data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0]),
+         data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0],
          {
           "atom_id": 1, "atom_name": "N", "alt_loc": None,
           "residue_name": "VAL",
@@ -223,6 +224,7 @@ class PdbFetchingTests(IntegratedTest):
           "occupancy": 1.0, "temperature_factor": 21.50,
           "element": "N", "charge": None, "model": 1
          }
+        )
         self.assertEqual(len(data_file["connections"]), 60)
         self.assertEqual(data_file["connections"], {
          "atom": 3194, "bond_to": [3195, 3196]

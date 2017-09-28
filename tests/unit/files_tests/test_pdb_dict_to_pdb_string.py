@@ -7,7 +7,7 @@ class PdbDictToPdbStringTests(TestCase):
 
     @patch("atomium.files.pdbdict2pdbstring.pack_header")
     @patch("atomium.files.pdbdict2pdbstring.pack_structure")
-    @patch("atomium.files.pdbdict2pdbstring.lines_to_string")
+    @patch("atomium.files.utilities.lines_to_string")
     def test_can_convert_pdb_dict_to_string(self, mock_str, mock_struct, mock_head):
         pdb_dict = {"pdb": "dict"}
         mock_str.return_value = "filestring"
@@ -209,11 +209,3 @@ class ConnectionsPackingTests(TestCase):
          "CONECT 1179 1211 1222".ljust(80),
          "CONECT 1221  544 1017 1020 1022".ljust(80)
         ])
-
-
-
-class LinesToStringTests(TestCase):
-
-    def test_can_convert_lines_to_string(self):
-        lines = ["line1", "line2", "line3"]
-        self.assertEqual(lines_to_string(lines), "line1\nline2\nline3")

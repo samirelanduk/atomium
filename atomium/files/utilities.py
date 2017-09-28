@@ -33,21 +33,69 @@ def fetch_string(code, pdbe=False):
         return response.text
 
 
+def string_to_lines(s, width=None):
+    """Takes a filestring and turns it into a ``list`` of ``str`` lines. You can
+    pad these out to a fixed number of characters if you want.
+
+    :param str s: The filestring.
+    :param int width: if given, the lines will be padded out with spaces to\
+    this width.
+    :rtype: ``list``"""
+
+    lines = [line.replace("\r", "") for line in s.split("\n") if line]
+    if width:
+        lines = [line.ljust(width) for line in lines]
+    return lines
+
+
 def pdb_data_from_file(path):
+    """Opens a .pdb file at the specified path and creates a
+    data dictionary from it.
+
+    :param str path: The path to open.
+    :rtype: ``dict``"""
+
     filestring = string_from_file(path)
     return pdb_string_to_pdb_dict(filestring)
 
 
 def fetch_data(code, **kwargs):
+    """Gets a PDB data dictionary from the RCSB web services.
+
+    :param str code: The PDB code to fetch.
+    :param bool pdbe: If ``True``, the PDB will instead be fetched from PDBe.
+    :rtype: ``dict``"""
+
     filestring = fetch_string(code, **kwargs)
     return pdb_string_to_pdb_dict(filestring)
 
 
 def pdb_from_file(path):
+    """Opens a .pdb file at the specified path and creates a :py:class:`.Pdb`
+    from it.
+
+    :param str path: The path to open.
+    :rtype: ``Pdb``"""
+
     pdb_dict = pdb_data_from_file(path)
     return pdb_dict_to_pdb(pdb_dict)
 
 
 def fetch(code, **kwargs):
+    """Gets a :py:class:`.Pdb` from the RCSB web services.
+
+    :param str code: The PDB code to fetch.
+    :param bool pdbe: If ``True``, the PDB will instead be fetched from PDBe.
+    :rtype: ``PdbFile``"""
+
     pdb_dict = fetch_data(code, **kwargs)
     return pdb_dict_to_pdb(pdb_dict)
+
+
+def lines_to_string(lines):
+    """Creates a single string from a list of record strings.
+
+    :param list lines: The list of lines to join.
+    :rtype: ``str``"""
+
+    return "\n".join(lines)

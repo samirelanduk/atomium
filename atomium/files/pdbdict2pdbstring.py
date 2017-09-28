@@ -10,6 +10,7 @@ def pdb_dict_to_pdb_string(pdb_dict):
     :param dict pdb_dict: The data dictionary to pack.
     :rtype: ``str``"""
 
+    from .utilities import lines_to_string
     lines = []
     pack_header(lines, pdb_dict)
     pack_structure(lines, pdb_dict)
@@ -121,12 +122,3 @@ def pack_connections(lines, pdb_dict):
             bonded_ids = connection["bond_to"][line_num * 4: (line_num + 1) * 4]
             line = "CONECT" + "{:5}" * (len(bonded_ids) + 1)
             lines.append(line.format(connection["atom"], *bonded_ids).ljust(80))
-
-
-def lines_to_string(lines):
-    """Creates a single string from a list of record strings.
-
-    :param list lines: The list of lines to join.
-    :rtype: ``str``"""
-    
-    return "\n".join(lines)

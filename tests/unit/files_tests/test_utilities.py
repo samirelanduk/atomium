@@ -1,8 +1,6 @@
 from unittest import TestCase
 from unittest.mock import Mock, MagicMock, patch
-from atomium.files.loaders import string_from_file, fetch_string
-from atomium.files.loaders import pdb_data_from_file, fetch_data
-from atomium.files.loaders import pdb_from_file, fetch
+from atomium.files.utilities  import *
 
 class StringFromFileTests(TestCase):
 
@@ -19,9 +17,36 @@ class StringFromFileTests(TestCase):
 
 
 
+class StringToLinesTests(TestCase):
+
+    def test_can_convert_filestring_to_lines(self):
+        filestring = "line1\nline2"
+        lines = string_to_lines(filestring)
+        self.assertEqual(lines, ["line1", "line2"])
+
+
+    def test_can_handle_windows_line_endings(self):
+        filestring = "line1\r\nline2"
+        lines = string_to_lines(filestring)
+        self.assertEqual(lines, ["line1", "line2"])
+
+
+    def test_can_remove_empty_lines(self):
+        filestring = "line1\n\nline2\n"
+        lines = string_to_lines(filestring)
+        self.assertEqual(lines, ["line1", "line2"])
+
+
+    def test_can_make_lines_fixed_width(self):
+        filestring = "line1\nline2"
+        lines = string_to_lines(filestring, width=80)
+        self.assertEqual(lines, ["line1".ljust(80), "line2".ljust(80)])
+
+
+
 class StringFromWebServicesTests(TestCase):
 
-    @patch("atomium.files.loaders.get")
+    @patch("atomium.files.utilities.get")
     def test_can_fetch_string(self, mock_get):
         response = Mock()
         response.status_code = 200
@@ -32,7 +57,7 @@ class StringFromWebServicesTests(TestCase):
         self.assertEqual(returned_string, "filestring")
 
 
-    @patch("atomium.files.loaders.get")
+    @patch("atomium.files.utilities.get")
     def test_can_fetch_pdbe_string(self, mock_get):
         response = Mock()
         response.status_code = 200
@@ -45,7 +70,7 @@ class StringFromWebServicesTests(TestCase):
         self.assertEqual(returned_string, "filestring")
 
 
-    @patch("atomium.files.loaders.get")
+    @patch("atomium.files.utilities.get")
     def test_can_get_none_if_no_file_found(self, mock_get):
         response = Mock()
         response.status_code = 404
@@ -65,8 +90,8 @@ class StringFromWebServicesTests(TestCase):
 
 class PdbDictFromFileTests(TestCase):
 
-    @patch("atomium.files.loaders.string_from_file")
-    @patch("atomium.files.loaders.pdb_string_to_pdb_dict")
+    @patch("atomium.files.utilities.string_from_file")
+    @patch("atomium.files.utilities.pdb_string_to_pdb_dict")
     def test_can_get_data_file_from_file(self, mock_dict, mock_str):
         mock_str.return_value = "filestring"
         mock_dict.return_value = {"pdb": "dict"}
@@ -79,8 +104,8 @@ class PdbDictFromFileTests(TestCase):
 
 class PdbDictFetchingTests(TestCase):
 
-    @patch("atomium.files.loaders.fetch_string")
-    @patch("atomium.files.loaders.pdb_string_to_pdb_dict")
+    @patch("atomium.files.utilities.fetch_string")
+    @patch("atomium.files.utilities.pdb_string_to_pdb_dict")
     def test_can_get_data_file_from_file(self, mock_dict, mock_str):
         mock_str.return_value = "filestring"
         mock_dict.return_value = {"pdb": "dict"}
@@ -93,8 +118,8 @@ class PdbDictFetchingTests(TestCase):
 
 class PdbFromFileTests(TestCase):
 
-    @patch("atomium.files.loaders.pdb_data_from_file")
-    @patch("atomium.files.loaders.pdb_dict_to_pdb")
+    @patch("atomium.files.utilities.pdb_data_from_file")
+    @patch("atomium.files.utilities.pdb_dict_to_pdb")
     def test_can_get_data_file_from_file(self, mock_pdb, mock_dict):
         mock_dict.return_value = {"pdb": "dict"}
         mock_pdb.return_value = "PDB"
@@ -107,8 +132,8 @@ class PdbFromFileTests(TestCase):
 
 class PdbFetchingTests(TestCase):
 
-    @patch("atomium.files.loaders.fetch_data")
-    @patch("atomium.files.loaders.pdb_dict_to_pdb")
+    @patch("atomium.files.utilities.fetch_data")
+    @patch("atomium.files.utilities.pdb_dict_to_pdb")
     def test_can_get_data_file_from_file(self, mock_pdb, mock_dict):
         mock_dict.return_value = {"pdb": "dict"}
         mock_pdb.return_value = "PDB"
@@ -118,16 +143,9 @@ class PdbFetchingTests(TestCase):
         self.assertEqual(pdb, "PDB")
 
 
-'''
-class PdbDataFileFetchingTests(TestCase):
 
-    @patch("atomium.files.pdbfile.fetch_file")
-    @patch("atomium.converters.pdbfile2pdbdatafile.pdb_file_to_pdb_data_file")
-    def test_can_fetch_data_file(self, mock_data, mock_file):
-        pdb_file, data_file = Mock(), Mock()
-        mock_file.return_value = pdb_file
-        mock_data.return_value = data_file
-        returned_data_file = fetch_data_file("1xxx", a="blorg")
-        mock_file.assert_called_with("1xxx", a="blorg")
-        mock_data.assert_called_with(pdb_file)
-        self.assertIs(data_file, returned_data_file)'''
+class LinesToStringTests(TestCase):
+
+    def test_can_convert_lines_to_string(self):
+        lines = ["line1", "line2", "line3"]
+        self.assertEqual(lines_to_string(lines), "line1\nline2\nline3")

@@ -5,37 +5,16 @@ from atomium.files.pdbstring2pdbdict import *
 
 class PdbStringToPdbDictTests(TestCase):
 
-    @patch("atomium.files.pdbstring2pdbdict.pdb_string_to_lines")
+    @patch("atomium.files.utilities.string_to_lines")
     @patch("atomium.files.pdbstring2pdbdict.extract_header")
     @patch("atomium.files.pdbstring2pdbdict.extract_structure")
     def test_can_convert_pdb_string_to_dict(self, mock_struc, mock_head, mock_lines):
         mock_lines.return_value = ["line1", "line2"]
         pdb_dict = pdb_string_to_pdb_dict("filestring")
-        mock_lines.assert_called_with("filestring")
+        mock_lines.assert_called_with("filestring", width=80)
         mock_head.assert_called_with({}, ["line1", "line2"])
         mock_struc.assert_called_with({}, ["line1", "line2"])
         self.assertEqual(pdb_dict, {})
-
-
-
-class StringToLinesTests(TestCase):
-
-    def test_can_convert_filestring_to_lines(self):
-        filestring = "line1\nline2"
-        lines = pdb_string_to_lines(filestring)
-        self.assertEqual(lines, ["line1".ljust(80), "line2".ljust(80)])
-
-
-    def test_can_handle_windows_line_endings(self):
-        filestring = "line1\r\nline2"
-        lines = pdb_string_to_lines(filestring)
-        self.assertEqual(lines, ["line1".ljust(80), "line2".ljust(80)])
-
-
-    def test_can_remove_empty_lines(self):
-        filestring = "line1\n\nline2\n"
-        lines = pdb_string_to_lines(filestring)
-        self.assertEqual(lines, ["line1".ljust(80), "line2".ljust(80)])
 
 
 

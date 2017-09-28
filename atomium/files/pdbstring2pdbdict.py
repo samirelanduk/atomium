@@ -9,21 +9,12 @@ def pdb_string_to_pdb_dict(filestring):
     :param str filestring: The filestring to parse.
     :rtype: ``dict``"""
 
-    lines = pdb_string_to_lines(filestring)
+    from .utilities import string_to_lines
+    lines = string_to_lines(filestring, width=80)
     pdb_dict = {}
     extract_header(pdb_dict, lines)
     extract_structure(pdb_dict, lines)
     return pdb_dict
-
-
-def pdb_string_to_lines(s):
-    """Takes a .pdb filestring and turns it into a ``list`` of ``str`` lines, of
-    length 80.
-
-    :param str s: The filestring.
-    :rtype: ``list``"""
-
-    return [line.ljust(80).replace("\r", " ") for line in s.split("\n") if line]
 
 
 def extract_header(pdb_dict, lines):

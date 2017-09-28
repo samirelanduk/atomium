@@ -1,3 +1,5 @@
+"""This module contains various utility functions for dealing with files."""
+
 from requests import get
 from .pdbstring2pdbdict import pdb_string_to_pdb_dict
 from .pdbdict2pdb import pdb_dict_to_pdb

@@ -9,16 +9,17 @@ def pdb_to_pdb_dict(pdb):
     :param Pdb pdb: The Pdb to save..
     :rtype: ``dict``"""
 
-    return {
-     "deposition_date": pdb._deposition_date,
-     "code": pdb._code,
-     "title": pdb._title,
-     "models": [structure_to_model_dict(model) for model in pdb._models],
-     "connections": model_to_connections(pdb._models[0])
-    }
+    pdb_dicts = [structure_to_pdb_dict(model) for model in pdb._models]
+    pdb_dict = pdb_dicts[0]
+    for d in pdb_dicts[1:]:
+        pdb_dict["models"].append(d["models"][0])
+    pdb_dict["deposition_date"] = pdb._deposition_date
+    pdb_dict["code"] = pdb._code
+    pdb_dict["title"] = pdb._title
+    return pdb_dict
 
 
-def structure_to_model_dict(structure):
+def structure_to_pdb_dict(structure):
     """Converts an :py:class:`.AtomicStructure` to a model ``dict``
 
     :param AtomicStructure structure: the structure to convert.
@@ -33,7 +34,9 @@ def structure_to_model_dict(structure):
         list_.append(atom_to_atom_dict(atom))
     chains = atoms_to_chains(atoms)
     molecules = atoms_to_residues(heteroatoms)
-    return {"chains": chains, "molecules": molecules}
+    model = {"chains": chains, "molecules": molecules}
+    connections = structure_to_connections(structure)
+    return {"models": [model], "connections": connections}
 
 
 def atom_to_atom_dict(atom):
@@ -65,15 +68,15 @@ def atom_to_atom_dict(atom):
     }
 
 
-def model_to_connections(model):
-    """Gets a connections ``list`` from a :py:class:`.Model`. Only atoms that
-    are not part of residues will have their bonds used.
+def structure_to_connections(structure):
+    """Gets a connections ``list`` from an :py:class:`.AtomicStructure`. Only
+    atoms that are not part of residues will have their bonds used.
 
-    :param atoms: The :py:class:`.Atom` objects to use.
+    :param AtomicStructure structure: The structure to use.
     :rtype: ``list``"""
 
     connections = []
-    for atom in model.atoms():
+    for atom in structure.atoms():
         if not atom.residue():
             connections.append({
              "atom": atom.atom_id(),

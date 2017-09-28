@@ -4,33 +4,50 @@ from atomium.files.pdb2pdbdict import *
 
 class PdbToPdbDictTests(TestCase):
 
-    @patch("atomium.files.pdb2pdbdict.structure_to_model_dict")
-    @patch("atomium.files.pdb2pdbdict.model_to_connections")
-    def test_can_convert_pdb_to_pdb_dict(self, mock_con, mock_model):
+    @patch("atomium.files.pdb2pdbdict.structure_to_pdb_dict")
+    def test_can_convert_pdb_to_pdb_dict_one_model(self, mock_dict):
+        pdb = Mock()
+        pdb._deposition_date = "D"
+        pdb._code = "C"
+        pdb._title = "T"
+        pdb._models = ["model1"]
+        mock_dict.return_value = {"models": ["m1"], "connections": ["c1", "c2"]}
+        pdb_dict = pdb_to_pdb_dict(pdb)
+        mock_dict.assert_called_with("model1")
+        self.assertEqual(pdb_dict, {
+         "deposition_date": "D", "code": "C", "title": "T",
+         "models": ["m1"], "connections": ["c1", "c2"]
+        })
+
+
+    @patch("atomium.files.pdb2pdbdict.structure_to_pdb_dict")
+    def test_can_convert_pdb_to_pdb_dict_two_models(self, mock_dict):
         pdb = Mock()
         pdb._deposition_date = "D"
         pdb._code = "C"
         pdb._title = "T"
         pdb._models = ["model1", "model2"]
-        mock_model.side_effect = ["1", "2"]
-        mock_con.return_value = ["c1", "c2", "c3"]
+        mock_dict.side_effect = [
+         {"models": ["m1"], "connections": ["c1", "c2"]},
+         {"models": ["m2"], "connections": ["c1", "c2"]}
+        ]
         pdb_dict = pdb_to_pdb_dict(pdb)
-        mock_model.assert_any_call("model1")
-        mock_model.assert_any_call("model2")
-        mock_con.assert_called_with("model1")
+        mock_dict.assert_any_call("model1")
+        mock_dict.assert_any_call("model2")
         self.assertEqual(pdb_dict, {
          "deposition_date": "D", "code": "C", "title": "T",
-         "models": ["1", "2"], "connections": ["c1", "c2", "c3"]
+         "models": ["m1", "m2"], "connections": ["c1", "c2"]
         })
 
 
 
-class StructureToModelDictTests(TestCase):
+class StructureToPdbDictTests(TestCase):
 
     @patch("atomium.files.pdb2pdbdict.atom_to_atom_dict")
     @patch("atomium.files.pdb2pdbdict.atoms_to_chains")
     @patch("atomium.files.pdb2pdbdict.atoms_to_residues")
-    def test_can_convert_model_to_model_dict(self, mock_res, mock_chain, mock_atom):
+    @patch("atomium.files.pdb2pdbdict.structure_to_connections")
+    def test_can_convert_model_to_pdb_dict(self, mock_con, mock_res, mock_chain, mock_atom):
         structure = Mock()
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
         mock_atom.side_effect = lambda a: "a" + str(a.atom_id())
@@ -41,21 +58,27 @@ class StructureToModelDictTests(TestCase):
         mock_chain.return_value = ["chain1", "chain2"]
         mock_res.return_value = ["mol1", "mol2"]
         structure.atoms.return_value = set(atoms)
-        model_dict = structure_to_model_dict(structure)
+        mock_con.return_value = ["c1", "c2"]
+        pdb_dict = structure_to_pdb_dict(structure)
         for atom in atoms:
             mock_atom.assert_any_call(atom)
         mock_chain.assert_called_with(["a1", "a2", "a3", "a4"])
         mock_res.assert_called_with(["a5", "a6"])
-        self.assertEqual(model_dict, {
-         "chains": ["chain1", "chain2"],
-         "molecules": ["mol1", "mol2"]
+        mock_con.assert_called_with(structure)
+        self.assertEqual(pdb_dict, {
+         "models": [{
+          "chains": ["chain1", "chain2"],
+          "molecules": ["mol1", "mol2"]
+         }],
+         "connections": ["c1", "c2"]
         })
 
 
     @patch("atomium.files.pdb2pdbdict.atom_to_atom_dict")
     @patch("atomium.files.pdb2pdbdict.atoms_to_chains")
     @patch("atomium.files.pdb2pdbdict.atoms_to_residues")
-    def test_can_convert_model_to_model_dict_no_atom_id(self, mock_res, mock_chain, mock_atom):
+    @patch("atomium.files.pdb2pdbdict.structure_to_connections")
+    def test_can_convert_model_to_pdb_dict_no_atom_id(self, mcok_con,  mock_res, mock_chain, mock_atom):
         structure = Mock()
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
         mock_atom.side_effect = lambda a: "a" + str(a.atom_id()) if a.atom_id() else "N"
@@ -66,7 +89,7 @@ class StructureToModelDictTests(TestCase):
         mock_chain.return_value = ["chain1", "chain2"]
         mock_res.return_value = ["mol1", "mol2"]
         structure.atoms.return_value = set(atoms)
-        model_dict = structure_to_model_dict(structure)
+        pdb_dict = structure_to_pdb_dict(structure)
         for atom in atoms:
             mock_atom.assert_any_call(atom)
         mock_chain.assert_called_with(["a2", "a3", "a4", "N"])
@@ -142,9 +165,9 @@ class AtomToAtomDictTests(TestCase):
 
 
 
-class ModelToConnectionsTests(TestCase):
+class StructureToConnectionsTests(TestCase):
 
-    def test_can_convert_model_to_connections(self):
+    def test_can_convert_structure_to_connections(self):
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
         for i, atom in enumerate(atoms):
             atom.residue.return_value = "residue" if i < 4 else None
@@ -154,7 +177,7 @@ class ModelToConnectionsTests(TestCase):
         atoms[6].bonded_atoms.return_value = set(atoms[4:6])
         model = Mock()
         model.atoms.return_value = set(atoms)
-        connections = model_to_connections(model)
+        connections = structure_to_connections(model)
         self.assertEqual(connections, [{
          "atom": 5, "bond_to": [6, 7]
         }, {

@@ -5,33 +5,33 @@ from ..structures.models import Model
 class Xyz:
     """Represents .xyz files and the model they contain.
 
-    :pram str comment: The comment at the head of the file.
-    :raises TypeError: if a comment is given which is not a string."""
+    :pram str title: The title at the head of the file.
+    :raises TypeError: if a title is given which is not a string."""
 
-    def __init__(self, comment=""):
-        if not isinstance(comment, str):
-            raise TypeError("comment must be str, not '{}'".format(comment))
-        self._comment = comment
+    def __init__(self, title=""):
+        if not isinstance(title, str):
+            raise TypeError("title must be str, not '{}'".format(title))
+        self._title = title
         self._model = None
 
 
     def __repr__(self):
-        return "<Xyz ({})>".format(self._comment)
+        return "<Xyz ({})>".format(self._title)
 
 
-    def comment(self, comment=None):
-        """Returns the comment associated with the .xyz file. If a string is
-        given, the comment will be updated.
+    def title(self, title=None):
+        """Returns the title associated with the .xyz file. If a string is
+        given, the title will be updated.
 
-        :param str comment: If given, the commnent will be updated to this.
-        :raises TypeError: if the comment given is not a string."""
+        :param str title: If given, the commnent will be updated to this.
+        :raises TypeError: if the title given is not a string."""
 
-        if comment is None:
-            return self._comment
+        if title is None:
+            return self._title
         else:
-            if not isinstance(comment, str):
-                raise TypeError("comment must be str, not '{}'".format(comment))
-            self._comment = comment
+            if not isinstance(title, str):
+                raise TypeError("title must be str, not '{}'".format(title))
+            self._title = title
 
 
     def model(self, model=None):
@@ -55,7 +55,7 @@ class Xyz:
         :rtype: ``str``"""
 
         from ..converters.structure2xyzstring import structure_to_xyz_string
-        return structure_to_xyz_string(self._model, self._comment)
+        return structure_to_xyz_string(self._model, self._title)
 
 
     def save(self, path):

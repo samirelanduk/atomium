@@ -11,10 +11,10 @@ def string_to_xyz(s):
 
     lines = string2lines(s)
     remove_atom_num(lines)
-    comment = extract_comment(lines)
+    title = extract_title(lines)
     atoms = [parse_atom(line) for line in lines]
     atoms = filter(None, atoms)
-    xyz = Xyz(comment)
+    xyz = Xyz(title)
     xyz._model = Model(*atoms)
     return xyz
 
@@ -45,7 +45,7 @@ def parse_atom(line):
     except: pass
 
 
-def extract_comment(lines):
+def extract_title(lines):
     """Checks the first line in a list of lines, and if it isn't an atom line,
     removes and returns it. If it is an atom line, an empty string is returned.
 

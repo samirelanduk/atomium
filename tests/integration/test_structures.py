@@ -67,7 +67,7 @@ class StructureTests(IntegratedTest):
         # Model can be saved and reloaded
         model.save("tests/integration/files/model.xyz", description="Some atoms")
         new = atomium.xyz_from_file("tests/integration/files/model.xyz")
-        self.assertEqual(new.comment(), "Some atoms")
+        self.assertEqual(new.title(), "Some atoms")
         self.assertEqual(len(new.model().atoms()), 1)
         self.assertEqual(new.model().atom().x(), 0.5)
         self.assertEqual(new.model().atom().y(), 1.5)

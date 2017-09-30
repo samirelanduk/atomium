@@ -11,13 +11,13 @@ class StringToXyzTests(TestCase):
         self.patcher1 = patch("atomium.converters.string2xyz.string2lines")
         self.patcher2 = patch("atomium.converters.string2xyz.remove_atom_num")
         self.patcher3 = patch("atomium.converters.string2xyz.parse_atom")
-        self.patcher4 = patch("atomium.converters.string2xyz.extract_comment")
+        self.patcher4 = patch("atomium.converters.string2xyz.extract_title")
         self.mock_lines = self.patcher1.start()
         self.mock_remove = self.patcher2.start()
         self.mock_parse = self.patcher3.start()
         self.mock_extract = self.patcher4.start()
-        self.mock_lines.return_value = ["12", "comment", "...", "line1", "line2"]
-        self.mock_extract.return_value = "comment"
+        self.mock_lines.return_value = ["12", "title", "...", "line1", "line2"]
+        self.mock_extract.return_value = "title"
         self.atoms = [Mock(Atom) for _ in range(5)]
         for atom in self.atoms:
             atom.atom_id.return_value = None
@@ -41,9 +41,9 @@ class StringToXyzTests(TestCase):
         self.assertIsInstance(xyz._model, Model)
 
 
-    def test_xyz_has_correct_comment(self):
+    def test_xyz_has_correct_title(self):
         xyz = string_to_xyz("teststring")
-        self.assertEqual(xyz._comment, self.mock_extract.return_value)
+        self.assertEqual(xyz._title, self.mock_extract.return_value)
 
 
     def test_model_has_correct_atoms(self):
@@ -94,7 +94,7 @@ class AtomParserTests(TestCase):
 
 
     def test_unparseable_line_returns_none(self):
-        atom = parse_atom("A comment line")
+        atom = parse_atom("A title line")
         self.assertIs(atom, None)
 
 
@@ -102,10 +102,10 @@ class AtomParserTests(TestCase):
 class CommentExtractorTests(TestCase):
 
     @patch("atomium.converters.string2xyz.parse_atom")
-    def test_can_extract_comment(self, mock_parse):
+    def test_can_extract_title(self, mock_parse):
         mock_parse.return_value = None
-        lines = ["comment", "atom1", "atom2"]
-        self.assertEqual(extract_comment(lines), "comment")
+        lines = ["title", "atom1", "atom2"]
+        self.assertEqual(extract_title(lines), "title")
         self.assertEqual(lines, ["atom1", "atom2"])
 
 
@@ -113,7 +113,7 @@ class CommentExtractorTests(TestCase):
     def test_stops_at_parseable_line(self, mock_parse):
         mock_parse.return_value = Mock(Atom)
         lines = ["atom1", "atom2"]
-        self.assertEqual(extract_comment(lines), "")
+        self.assertEqual(extract_title(lines), "")
         self.assertEqual(lines, ["atom1", "atom2"])
 
 
@@ -121,5 +121,5 @@ class CommentExtractorTests(TestCase):
     def test_can_handle_empty_lines(self, mock_parse):
         mock_parse.return_value = None
         lines = []
-        self.assertEqual(extract_comment(lines), "")
+        self.assertEqual(extract_title(lines), "")
         self.assertEqual(lines, [])

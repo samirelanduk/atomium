@@ -8,16 +8,16 @@ class XyzCreationTests(TestCase):
     def test_can_create_xyz(self):
         xyz = Xyz()
         self.assertEqual(xyz._model, None)
-        self.assertEqual(xyz._comment, "")
+        self.assertEqual(xyz._title, "")
 
 
-    def test_can_create_xyz_with_comment(self):
+    def test_can_create_xyz_with_title(self):
         xyz = Xyz("Glucose molecule")
         self.assertEqual(xyz._model, None)
-        self.assertEqual(xyz._comment, "Glucose molecule")
+        self.assertEqual(xyz._title, "Glucose molecule")
 
 
-    def test_xyz_comment_must_be_str(self):
+    def test_xyz_title_must_be_str(self):
         with self.assertRaises(TypeError):
             Xyz(100)
 
@@ -31,23 +31,23 @@ class XyzReprTests(TestCase):
 
 
 
-class XyzCommentTests(TestCase):
+class XyzTitleTests(TestCase):
 
-    def test_comment_property(self):
+    def test_title_property(self):
         xyz = Xyz("Glucose molecule")
-        self.assertIs(xyz._comment, xyz.comment())
+        self.assertIs(xyz._title, xyz.title())
 
 
-    def test_can_change_comment(self):
+    def test_can_change_title(self):
         xyz = Xyz("Glucose molecule")
-        xyz.comment("Fructose molecule")
-        self.assertEqual(xyz._comment, "Fructose molecule")
+        xyz.title("Fructose molecule")
+        self.assertEqual(xyz._title, "Fructose molecule")
 
 
-    def test_xyz_comment_must_be_str(self):
+    def test_xyz_title_must_be_str(self):
         xyz = Xyz("Glucose molecule")
         with self.assertRaises(TypeError):
-            xyz.comment(100)
+            xyz.title(100)
 
 
 
@@ -95,7 +95,7 @@ class XyzToStringTests(TestCase):
         xyz._model = Model()
         mock_string.return_value = "filecontents"
         s = xyz.to_file_string()
-        mock_string.assert_called_with(xyz._model, xyz._comment)
+        mock_string.assert_called_with(xyz._model, xyz._title)
         self.assertEqual(s, "filecontents")
 
 

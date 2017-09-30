@@ -144,8 +144,52 @@ class PdbFetchingTests(TestCase):
 
 
 
+class XyzDictFromFileTests(TestCase):
+
+    @patch("atomium.files.utilities.string_from_file")
+    @patch("atomium.files.utilities.xyz_string_to_xyz_dict")
+    def test_can_get_data_file_from_file(self, mock_dict, mock_str):
+        mock_str.return_value = "filestring"
+        mock_dict.return_value = {"xyz": "dict"}
+        xyz_dict = xyz_data_from_file("path")
+        mock_str.assert_called_with("path")
+        mock_dict.assert_called_with("filestring")
+        self.assertEqual(xyz_dict, {"xyz": "dict"})
+
+
+
+class PdbFromFileTests(TestCase):
+
+    @patch("atomium.files.utilities.xyz_data_from_file")
+    @patch("atomium.files.utilities.xyz_dict_to_xyz")
+    def test_can_get_data_file_from_file(self, mock_xyz, mock_dict):
+        mock_dict.return_value = {"xyz": "dict"}
+        mock_xyz.return_value = "XYZ"
+        xyz = xyz_from_file("path")
+        mock_dict.assert_called_with("path")
+        mock_xyz.assert_called_with({"xyz": "dict"})
+        self.assertEqual(xyz, "XYZ")
+
+
+
 class LinesToStringTests(TestCase):
 
     def test_can_convert_lines_to_string(self):
         lines = ["line1", "line2", "line3"]
         self.assertEqual(lines_to_string(lines), "line1\nline2\nline3")
+
+
+
+class StringToFileTests(TestCase):
+
+    @patch("builtins.open")
+    def test_saves_string_to_file(self, mock_open):
+        open_return = MagicMock()
+        mock_file = Mock()
+        mock_write = MagicMock()
+        mock_file.write = mock_write
+        open_return.__enter__.return_value = mock_file
+        mock_open.return_value = open_return
+        string_to_file("filestring", "filename")
+        mock_open.assert_called_once_with("filename", "w")
+        mock_write.assert_called_once_with("filestring")

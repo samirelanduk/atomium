@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from atomium.files.xyz import Xyz, xyz_from_file
+from atomium.files.xyz import Xyz
 from atomium.structures.models import Model
 
 class XyzCreationTests(TestCase):
@@ -73,29 +73,18 @@ class XyzModelTests(TestCase):
 
 
 
-class XyzFromFileTests(TestCase):
-
-    @patch("atomium.converters.strings.string_from_file")
-    @patch("atomium.converters.string2xyz.string_to_xyz")
-    def test_can_get_xyz_from_file(self, mock_xyz, mock_string):
-        mock_string.return_value = "filestring"
-        mock_xyz.return_value = "xyz"
-        xyz = xyz_from_file("path")
-        mock_string.assert_called_with("path")
-        mock_xyz.assert_called_with("filestring")
-        self.assertEqual(xyz, "xyz")
-
-
-
 class XyzToStringTests(TestCase):
 
-    @patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
-    def test_can_get_string_from_xyz(self, mock_string):
-        xyz = Xyz("Glucose molecule")
-        xyz._model = Model()
+    @patch("atomium.files.xyz2xyzdict.xyz_to_xyz_dict")
+    @patch("atomium.files.xyzdict2xyzstring.xyz_dict_to_xyz_string")
+    def test_can_get_string_from_xyz(self, mock_string, mock_dict):
+        xyz = Xyz()
+        xyz_dict = Mock()
         mock_string.return_value = "filecontents"
+        mock_dict.return_value = xyz_dict
         s = xyz.to_file_string()
-        mock_string.assert_called_with(xyz._model, xyz._title)
+        mock_dict.assert_called_with(xyz)
+        mock_string.assert_called_with(xyz_dict)
         self.assertEqual(s, "filecontents")
 
 
@@ -105,8 +94,7 @@ class XyzToFileTests(TestCase):
     @patch("atomium.converters.strings.string_to_file")
     @patch("atomium.files.xyz.Xyz.to_file_string")
     def test_can_save_xyz_to_file(self, mock_string, mock_save):
-        xyz = Xyz("Glucose molecule")
-        xyz._model = Model()
+        xyz = Xyz()
         mock_string.return_value = "filestring"
-        xyz.save("glucose.xyz")
-        mock_save.assert_called_with("filestring", "glucose.xyz")
+        xyz.save("test.xyz")
+        mock_save.assert_called_with("filestring", "test.xyz")

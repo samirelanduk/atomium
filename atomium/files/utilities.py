@@ -3,6 +3,8 @@
 from requests import get
 from .pdbstring2pdbdict import pdb_string_to_pdb_dict
 from .pdbdict2pdb import pdb_dict_to_pdb
+from .xyzstring2xyzdict import xyz_string_to_xyz_dict
+from .xyzdict2xyz import xyz_dict_to_xyz
 
 def string_from_file(path):
     """Opens a file from the given path and returns the contents as a string.
@@ -94,6 +96,28 @@ def fetch(code, **kwargs):
     return pdb_dict_to_pdb(pdb_dict)
 
 
+def xyz_data_from_file(path):
+    """Opens a .xyz file at the specified path and creates a
+    data dictionary from it.
+
+    :param str path: The path to open.
+    :rtype: ``dict``"""
+
+    filestring = string_from_file(path)
+    return xyz_string_to_xyz_dict(filestring)
+
+
+def xyz_from_file(path):
+    """Opens a .xyz file at the specified path and creates a :py:class:`.Pdb`
+    from it.
+
+    :param str path: The path to open.
+    :rtype: ``Pdb``"""
+
+    xyz_dict = xyz_data_from_file(path)
+    return xyz_dict_to_xyz(xyz_dict)
+
+
 def lines_to_string(lines):
     """Creates a single string from a list of record strings.
 
@@ -101,3 +125,13 @@ def lines_to_string(lines):
     :rtype: ``str``"""
 
     return "\n".join(lines)
+
+
+def string_to_file(string, path):
+    """Saves a string to a given path as a file.
+
+    :param str string: The string to save.
+    :param str path: The file to save it in."""
+
+    with open(path, "w") as f:
+        f.write(string)

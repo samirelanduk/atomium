@@ -202,7 +202,7 @@ class AtomicStructure:
         return sqrt(mean_square_deviation)
 
 
-    def to_file_string(self, file_format, description=""):
+    def to_file_string(self, file_format, description=None):
         """Converts a structure to a filestring. Currently supported file formats
         are: .xyz and .pdb.
 
@@ -211,12 +211,16 @@ class AtomicStructure:
         :raises ValueError: if an unsupported file format is given."""
 
         if file_format == "xyz":
-            from ..converters.structure2xyzstring import structure_to_xyz_string
-            return structure_to_xyz_string(self, description)
+            from ..files.xyz2xyzdict import structure_to_xyz_dict
+            from ..files.xyzdict2xyzstring import xyz_dict_to_xyz_string
+            xyz_dict = structure_to_xyz_dict(self)
+            xyz_dict["title"] = description
+            return xyz_dict_to_xyz_string(xyz_dict)
         elif file_format == "pdb":
             from ..files.pdb2pdbdict import structure_to_pdb_dict
             from ..files.pdbdict2pdbstring import pdb_dict_to_pdb_string
             pdb_dict = structure_to_pdb_dict(self)
+            pdb_dict["title"] = description
             return pdb_dict_to_pdb_string(pdb_dict)
         else:
             raise ValueError("{} is not a valid file type".format(file_format))
@@ -234,7 +238,7 @@ class AtomicStructure:
 
         file_format = path.split(".")[-1].lower()
         s = self.to_file_string(file_format, *args, **kwargs)
-        from ..converters.strings import string_to_file
+        from ..files.utilities import string_to_file
         string_to_file(s, path)
 
 

@@ -36,3 +36,8 @@ class XyzReadingTests(IntegratedTest):
         new = atomium.xyz_from_file("tests/integration/files/glucose2.xyz")
         model = xyz.model()
         self.assertAlmostEqual(model.mass(), 168, delta=0.5)
+
+
+    def test_can_read_xyz_data(self):
+        xyz = atomium.xyz_data_from_file("tests/integration/files/glucose.xyz")
+        self.assertEqual(xyz["title"], "glucose from 2gbp")

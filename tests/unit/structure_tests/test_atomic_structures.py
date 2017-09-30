@@ -309,35 +309,39 @@ class AtomicStructureRadiusOfGyrationTests(AtomicStructureTest):
 
 class AtomicStructureToStringTests(AtomicStructureTest):
 
-    @patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
+    '''@patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
     def test_can_save_as_xyz_string(self, mock_convert):
         mock_convert.return_value = "filestring"
         structure = AtomicStructure(*self.atoms)
         s = structure.to_file_string("xyz")
         self.assertEqual(s, "filestring")
-        mock_convert.assert_called_with(structure, "")
+        mock_convert.assert_called_with(structure, "")'''
 
 
     @patch("atomium.files.pdb2pdbdict.structure_to_pdb_dict")
     @patch("atomium.files.pdbdict2pdbstring.pdb_dict_to_pdb_string")
-    def test_can_save_as_pdb_string(self, mock_string, mock_dict):
+    def test_can_save_as_pdb_string_with_description(self, mock_string, mock_dict):
         structure = AtomicStructure(*self.atoms)
-        pdb_dict = Mock()
+        pdb_dict = {}
         mock_string.return_value = "filecontents"
         mock_dict.return_value = pdb_dict
-        s = structure.to_file_string("pdb")
+        s = structure.to_file_string("pdb", description="TTT")
         mock_dict.assert_called_with(structure)
-        mock_string.assert_called_with(pdb_dict)
+        mock_string.assert_called_with({"title": "TTT"})
         self.assertEqual(s, "filecontents")
 
 
-    @patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
-    def test_can_save_as_xyz_string_with_comment(self, mock_convert):
-        mock_convert.return_value = "filestring"
+    @patch("atomium.files.xyz2xyzdict.structure_to_xyz_dict")
+    @patch("atomium.files.xyzdict2xyzstring.xyz_dict_to_xyz_string")
+    def test_can_save_as_xyz_string_with_description(self, mock_string, mock_dict):
         structure = AtomicStructure(*self.atoms)
-        s = structure.to_file_string("xyz", description="A description")
-        self.assertEqual(s, "filestring")
-        mock_convert.assert_called_with(structure, "A description")
+        xyz_dict = {}
+        mock_string.return_value = "filecontents"
+        mock_dict.return_value = xyz_dict
+        s = structure.to_file_string("xyz", description="DDD")
+        mock_dict.assert_called_with(structure)
+        mock_string.assert_called_with({"title": "DDD"})
+        self.assertEqual(s, "filecontents")
 
 
     def test_invalid_file_format_is_error(self):
@@ -350,7 +354,7 @@ class AtomicStructureToStringTests(AtomicStructureTest):
 class AtomicStructureSavingTests(AtomicStructureTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.to_file_string")
-    @patch("atomium.converters.strings.string_to_file")
+    @patch("atomium.files.utilities.string_to_file")
     def test_saving_uses_correct_functions(self, mock_save, mock_string):
         mock_string.return_value = "filestring"
         structure = AtomicStructure(*self.atoms)
@@ -360,7 +364,7 @@ class AtomicStructureSavingTests(AtomicStructureTest):
 
 
     @patch("atomium.structures.molecules.AtomicStructure.to_file_string")
-    @patch("atomium.converters.strings.string_to_file")
+    @patch("atomium.files.utilities.string_to_file")
     def test_file_format_extracted(self, mock_save, mock_string):
         mock_string.return_value = "filestring"
         structure = AtomicStructure(*self.atoms)

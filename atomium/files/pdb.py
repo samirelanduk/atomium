@@ -101,29 +101,3 @@ class Pdb:
 
         from ..converters.strings import string_to_file
         string_to_file(self.to_file_string(), path)
-
-
-def pdb_from_file(path):
-    """Opens a .pdb file at the specified path and creates a :py:class:`.Pdb`
-    from it.
-
-    :param str path: The path to open.
-    :rtype: ``Pdb``"""
-
-    from ..files.pdbdatafile import pdb_data_file_from_file
-    from ..converters.pdbdatafile2pdb import pdb_data_file_to_pdb
-    data_file = pdb_data_file_from_file(path)
-    return pdb_data_file_to_pdb(data_file)
-
-
-def fetch(code, **kwargs):
-    """Gets a :py:class:`.Pdb` from the RCSB web services.
-
-    :param str code: The PDB code to fetch.
-    :param bool pdbe: If ``True``, the PDB will instead be fetched from PDBe.
-    :rtype: ``PdbFile``"""
-
-    from ..files.pdbdatafile import fetch_data_file
-    from ..converters.pdbdatafile2pdb import pdb_data_file_to_pdb
-    data_file = fetch_data_file(code, **kwargs)
-    return pdb_data_file_to_pdb(data_file)

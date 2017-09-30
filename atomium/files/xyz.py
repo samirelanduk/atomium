@@ -50,12 +50,14 @@ class Xyz:
 
 
     def to_file_string(self):
-        """Returns the file text that represents this Xyx.
+        """Returns the file text that represents this Xyz.
 
         :rtype: ``str``"""
 
-        from ..converters.structure2xyzstring import structure_to_xyz_string
-        return structure_to_xyz_string(self._model, self._title)
+        from ..files.xyz2xyzdict import xyz_to_xyz_dict
+        from ..files.xyzdict2xyzstring import xyz_dict_to_xyz_string
+        xyz_dict = xyz_to_xyz_dict(self)
+        return xyz_dict_to_xyz_string(xyz_dict)
 
 
     def save(self, path):
@@ -65,16 +67,3 @@ class Xyz:
 
         from ..converters.strings import string_to_file
         string_to_file(self.to_file_string(), path)
-
-
-
-def xyz_from_file(path):
-    """Opens a .xyz file at the specified path and creates a :py:class:`.Xyz`
-    from it.
-
-    :param str path: The path to open."""
-
-    from ..converters.strings import string_from_file
-    from ..converters.string2xyz import string_to_xyz
-    s = string_from_file(path)
-    return string_to_xyz(s)

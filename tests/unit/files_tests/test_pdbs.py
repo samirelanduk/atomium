@@ -1,7 +1,7 @@
 from datetime import datetime
 from unittest import TestCase
 from unittest.mock import Mock, patch
-from atomium.files.pdb import Pdb, pdb_from_file, fetch
+from atomium.files.pdb import Pdb
 from atomium.structures.models import Model
 
 class PdbCreationTests(TestCase):
@@ -164,33 +164,3 @@ class PdbToFileTests(TestCase):
         mock_string.return_value = "filestring"
         pdb.save("test.pdb")
         mock_save.assert_called_with("filestring", "test.pdb")
-
-
-
-class PdbFromFileTests(TestCase):
-
-    @patch("atomium.files.pdbdatafile.pdb_data_file_from_file")
-    @patch("atomium.converters.pdbdatafile2pdb.pdb_data_file_to_pdb")
-    def test_can_get_pdb_from_file(self, mock_pdb, mock_data):
-        pdb, data_file = Mock(), Mock()
-        mock_pdb.return_value = pdb
-        mock_data.return_value = data_file
-        returned_pdb = pdb_from_file("path")
-        mock_data.assert_called_with("path")
-        mock_pdb.assert_called_with(data_file)
-        self.assertIs(pdb, returned_pdb)
-
-
-
-class PdbFetchingTests(TestCase):
-
-    @patch("atomium.files.pdbdatafile.fetch_data_file")
-    @patch("atomium.converters.pdbdatafile2pdb.pdb_data_file_to_pdb")
-    def test_can_fetch_pdb(self, mock_pdb, mock_data):
-        pdb, data_file = Mock(), Mock()
-        mock_pdb.return_value = pdb
-        mock_data.return_value = data_file
-        returned_pdb = fetch("1xxx", a="blorg")
-        mock_data.assert_called_with("1xxx", a="blorg")
-        mock_pdb.assert_called_with(data_file)
-        self.assertIs(pdb, returned_pdb)

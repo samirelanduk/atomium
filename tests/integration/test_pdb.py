@@ -222,6 +222,46 @@ class PdbSavingTests(IntegratedTest):
         )
 
 
+    def test_can_save_structures(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/1lol.pdb")
+
+        # Save chains
+        for chain in pdb.model().chains():
+            chain.save("tests/integration/files/chain{}.pdb".format(chain.chain_id()))
+
+        with open("tests/integration/files/chainA.pdb") as f:
+            new = [l.strip() for l in f.readlines() if l.strip()]
+        with open("tests/integration/files/chaina_output.pdb") as f:
+            ref = [l.strip() for l in f.readlines() if l.strip()]
+        for new_line, ref_line in zip(new, ref):
+            self.assertEqual(new_line, ref_line)
+        new = atomium.pdb_from_file("tests/integration/files/chainA.pdb")
+        model = new.model()
+        self.assertEqual(len(model.chains()), 1)
+
+        with open("tests/integration/files/chainB.pdb") as f:
+            new = [l.strip() for l in f.readlines() if l.strip()]
+        with open("tests/integration/files/chainb_output.pdb") as f:
+            ref = [l.strip() for l in f.readlines() if l.strip()]
+        for new_line, ref_line in zip(new, ref):
+            self.assertEqual(new_line, ref_line)
+        new = atomium.pdb_from_file("tests/integration/files/chainB.pdb")
+        model = new.model()
+        self.assertEqual(len(model.chains()), 1)
+
+        # Save molecules
+        pdb.model().molecule("A5001").save("tests/integration/files/5001.pdb")
+        with open("tests/integration/files/5001.pdb") as f:
+            new = [l.strip() for l in f.readlines() if l.strip()]
+        with open("tests/integration/files/5001_output.pdb") as f:
+            ref = [l.strip() for l in f.readlines() if l.strip()]
+        for new_line, ref_line in zip(new, ref):
+            self.assertEqual(new_line, ref_line)
+        new = atomium.pdb_from_file("tests/integration/files/5001.pdb")
+        model = new.model()
+        self.assertEqual(len(model.atoms()), 6)
+
+
     def test_can_save_multi_model_pdb(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
 

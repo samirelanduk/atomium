@@ -36,7 +36,10 @@ def structure_to_pdb_dict(structure):
     molecules = atoms_to_residues(heteroatoms)
     model = {"chains": chains, "molecules": molecules}
     connections = structure_to_connections(structure)
-    return {"models": [model], "connections": connections}
+    return {
+     "models": [model], "connections": connections,
+     "deposition_date": None, "code": None, "title": None
+    }
 
 
 def atom_to_atom_dict(atom):

@@ -66,6 +66,9 @@ class StructureToPdbDictTests(TestCase):
         mock_res.assert_called_with(["a5", "a6"])
         mock_con.assert_called_with(structure)
         self.assertEqual(pdb_dict, {
+         "deposition_date": None,
+         "code": None,
+         "title": None,
          "models": [{
           "chains": ["chain1", "chain2"],
           "molecules": ["mol1", "mol2"]

@@ -23,8 +23,7 @@ class Atom:
     :raises TypeError: if the atom_id is not int.
     :raises TypeError: if the name is not str.
     :raises TypeError: if the charge is not numeric.
-    :raises TypeError: if the bfactor is not numeric.
-    :raises ValueError: if the bfactor is negative."""
+    :raises TypeError: if the bfactor is not numeric."""
 
     def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0, bfactor=0):
         if not isinstance(element, str):
@@ -45,8 +44,6 @@ class Atom:
             raise TypeError("charge '{}' is not numeric".format(charge))
         if not is_numeric(bfactor):
             raise TypeError("bfactor '{}' is not numeric".format(bfactor))
-        if bfactor < 0:
-            raise ValueError("bfactor {} is negative".format(bfactor))
         self._element = element
         self._x = x
         self._y = y
@@ -220,12 +217,10 @@ class Atom:
 
     def bfactor(self, bfactor=None):
         """Returns the atom's B-factor - the uncertainty in its position. If a
-        value is given, the bfactor will be updated, but it must be numeric and
-        positive.
+        value is given, the bfactor will be updated, but it must be numeric.
 
         :param number bfactor: If given, the atom's bfactor will be set to this.
         :raises TypeError: if the bfactor given is not numeric.
-        :raises ValueError: if the bfactor given is negative.
         :rtype: ``int`` or ``float``"""
 
         if bfactor is None:
@@ -233,8 +228,6 @@ class Atom:
         else:
             if not is_numeric(bfactor):
                 raise TypeError("bfactor '{}' is not numeric".format(bfactor))
-            if bfactor < 0:
-                raise ValueError("bfactor {} is negative".format(bfactor))
             self._bfactor = bfactor
 
 
@@ -349,7 +342,7 @@ class Atom:
         will be returned (this will only return one atom).
         :param str name: If given, only atoms whose name matches this will be\
         returned."""
-        
+
         if self._model:
             atoms = self._model.atoms(*args, **kwargs)
             try:

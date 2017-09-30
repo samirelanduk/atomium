@@ -93,11 +93,7 @@ class AtomCreationTests(TestCase):
         with self.assertRaises(TypeError):
             Atom("C", 2, 3, 5, bfactor="20.5")
         Atom("C", 2, 3, 5, bfactor=10)
-
-
-    def test_atom_bfactor_must_be_positive(self):
-        with self.assertRaises(ValueError):
-            Atom("C", 2, 3, 5, bfactor=-3)
+        Atom("C", 2, 3, 5, bfactor=-3)
 
 
 
@@ -321,12 +317,7 @@ class AtomBfactorTests(TestCase):
         with self.assertRaises(TypeError):
             atom.bfactor("4")
         atom.bfactor(4.5)
-
-
-    def test_atom_bfactor_must_be_positive(self):
-        atom = Atom("C", 2, 3, 5)
-        with self.assertRaises(ValueError):
-            atom.bfactor(-9)
+        atom.bfactor(-9)
 
 
 

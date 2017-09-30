@@ -50,14 +50,14 @@ def pack_structure(lines, pdb_dict):
     :param dict pdb_dict: The data dictionary to pack."""
 
     if len(pdb_dict["models"]) == 1:
-        pack_model(lines, pdb_dict["models"][0], sole=True)
+        pack_model(lines, pdb_dict["models"][0], multi=0)
     else:
-        for model in pdb_dict["models"]:
-            pack_model(lines, model)
+        for index, model in enumerate(pdb_dict["models"], start=1):
+            pack_model(lines, model, multi=index)
     pack_connections(lines, pdb_dict)
 
 
-def pack_model(lines, model_dict, sole=False):
+def pack_model(lines, model_dict, multi=0):
     """Adds structure records for a single model to a list of lines.
 
     :param list lines: The record lines to add to.
@@ -65,8 +65,8 @@ def pack_model(lines, model_dict, sole=False):
     :param bool sole: If ``True`` the encompassing MODEL and ENDMDL lines will\
     be omitted."""
 
-    if not sole:
-        lines.append("MODEL".ljust(80))
+    if multi > 0:
+        lines.append("MODEL        {}".format(multi).ljust(80))
     for chain in model_dict["chains"]:
         for residue in chain["residues"]:
             for atom in residue["atoms"]:
@@ -74,7 +74,7 @@ def pack_model(lines, model_dict, sole=False):
     for molecule in model_dict["molecules"]:
         for atom in molecule["atoms"]:
             lines.append(atom_dict_to_atom_line(atom, hetero=True))
-    if not sole:
+    if multi > 0:
         lines.append("ENDMDL".ljust(80))
 
 
@@ -86,10 +86,12 @@ def atom_dict_to_atom_line(d, hetero=False):
     :rtypeL ``str``"""
 
     line = "{:6}{:5} {:4}{:1}{:3} {:1}{:4}{:1}   "
-    line += "{:8}{:8}{:8}  {:5}{:6}         {:>2}{:2}"
+    line += "{:8}{:8}{:8}{:6}{:6}          {:>2}{:2}"
     atom_name = d["atom_name"] if d["atom_name"] else ""
     atom_name = " " + atom_name if len(atom_name) < 4 else atom_name
-    temp_factor = "{:.2f}".format(d["temp_factor"]) if d["temp_factor"] else ""
+    occupancy = "  1.00" if (
+     d["occupancy"] == 1
+    ) else "{:.2f}".format(d["occupancy"]).rjust(6)
     line = line.format(
      "HETATM" if hetero else "ATOM",
      d["atom_id"] if d["atom_id"] else "",
@@ -99,12 +101,11 @@ def atom_dict_to_atom_line(d, hetero=False):
      d["chain_id"],
      d["residue_id"] if d["residue_id"] else "",
      d["insert_code"],
-     d["x"] if d["x"] else "",
-     d["y"] if d["y"] else "",
-     d["z"] if d["z"] else "",
-     "{:.2f}".format(d["occupancy"])
-      if d["occupancy"] and d["occupancy"] != 1 else "",
-     "{:.2f}".format(d["temp_factor"]) if d["temp_factor"] else "",
+     d["x"] if d["x"] is not None else "",
+     d["y"] if d["y"] is not None else "",
+     d["z"] if d["z"] is not None else "",
+     occupancy,
+     d["temp_factor"] if d["temp_factor"] is not None else "",
      d["element"] if d["element"] else "",
      str(d["charge"])[::-1] if d["charge"] else "",
     )

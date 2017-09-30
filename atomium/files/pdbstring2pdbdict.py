@@ -42,21 +42,20 @@ def extract_structure(pdb_dict, lines):
     :param dict pdb_dict: the ``dict`` to update.
     :param list lines: the file lines to read from."""
 
-    model_lines = get_lines("MODEL", lines)
-    atom_lines = get_lines("ATOM", lines)
-    hetatm_lines = get_lines("HETATM", lines)
+    model_lines = get_lines("MODEL", lines, number=True)
+    atom_lines = get_lines("ATOM", lines, number=bool(model_lines))
+    hetatm_lines = get_lines("HETATM", lines, number=bool(model_lines))
     conect_lines = get_lines("CONECT", lines)
     pdb_dict["models"] = []
     if model_lines:
-        for index, model_line in enumerate(model_lines):
-            line_number = lines.index(model_line)
-            next_model_number = lines.index(
-             model_lines[index + 1]
-            ) if index < len(model_lines) - 1 else len(lines)
-            model_atoms = [line for line in atom_lines
-             if line_number < lines.index(line) < next_model_number]
-            model_h_atms = [line for line in hetatm_lines
-             if line_number < lines.index(line) < next_model_number]
+        for index, (line, line_number) in enumerate(model_lines):
+            next_line_number = model_lines[index + 1][1] if (
+             index < len(model_lines) - 1
+            ) else len(lines)
+            model_atoms = [line for line, number in atom_lines
+             if line_number < number < next_line_number]
+            model_h_atms = [line for line, number in hetatm_lines
+             if line_number < number < next_line_number]
             pdb_dict["models"].append(lines_to_model(model_atoms, model_h_atms))
     else:
         pdb_dict["models"].append(lines_to_model(atom_lines, hetatm_lines))
@@ -166,7 +165,7 @@ def extract_connections(pdb_dict, lines):
                     connection["bond_to"].append(int(number))
 
 
-def get_line(name, lines):
+def get_line(name, lines, number=False):
     """Gets a single line by record name from a list of lines. If there are no
     matches, ``None`` will be returned.
 
@@ -174,12 +173,12 @@ def get_line(name, lines):
     :param list lines: The list of lines to search through.
     :rtype: ``str``"""
 
-    for line in lines:
+    for index, line in enumerate(lines):
         if line[:6].strip() == name:
-            return line
+            return [line, index] if number else line
 
 
-def get_lines(name, lines):
+def get_lines(name, lines, number=False):
     """Searches a list of lines and returns those whose record name matches the
     name given.
 
@@ -187,7 +186,8 @@ def get_lines(name, lines):
     :param list lines: The list of lines to search through.
     :rtype: ``list``"""
 
-    return [line for line in lines if line[:6].strip() == name]
+    return [[line, index] if number else line for
+     index, line in enumerate(lines) if line[:6].strip() == name]
 
 
 def merge_lines(lines, start, join=" "):

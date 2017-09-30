@@ -119,26 +119,6 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(len(atom.nearby(cutoff=4, element="O")), 1)
         self.assertEqual(len(atom.nearby(cutoff=4, exclude="C")), 4)
 
-        # Can be saved
-        pdb.code("9SAM")
-        pdb.deposition_date(datetime(1990, 9, 1).date())
-        pdb.title(
-         "FOR IN THAT SLEEP OF DEATH WHAT DREAMS MAY COME WHEN WE HAVE " +
-         "SHUFFLED OFF THIS MORTAL COIL MUST GIVE US PAUSE"
-        )
-        pdb.save("tests/integration/files/1LOL2.pdb")
-        with open("tests/integration/files/1LOL2.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/1lol_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
-            self.assertEqual(new_line, ref_line)
-        new = atomium.pdb_from_file("tests/integration/files/1LOL2.pdb")
-        model = new.model()
-        self.assertAlmostEqual(
-         model.mass(), 46018.5, delta=0.005
-        )
-
 
     def test_can_read_multi_model_pdbs(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
@@ -160,18 +140,6 @@ class PdbReadingTests(IntegratedTest):
             self.assertEqual(len(atom.bonded_atoms()), 1)
         self.assertEqual(len(all_atoms), 18270)
 
-        pdb.save("tests/integration/files/5XME2.pdb")
-        with open("tests/integration/files/5XME2.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/5xme_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        self.assertEqual(new, ref)
-        new = atomium.pdb_from_file("tests/integration/files/5XME2.pdb")
-        models = new.models()
-        self.assertEqual(len(models), 10)
-        for x, model in zip(x_values, models):
-            self.assertEqual(len(model.atoms()), 1827)
-
 
     def test_can_read_pdb_data(self):
         data_file = atomium.pdb_data_from_file(
@@ -183,21 +151,18 @@ class PdbReadingTests(IntegratedTest):
          data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0],
          {
           "atom_id": 1, "atom_name": "N", "alt_loc": None,
-          "residue_name": "VAL",
-          "chain_id": "A", "residue_id": 11, "insert_code": None,
+          "residue_name": "VAL", "full_id": "A11",
+          "chain_id": "A", "residue_id": 11, "insert_code": "",
           "x": 3.696, "y": 33.898, "z": 63.219,
-          "occupancy": 1.0, "temperature_factor": 21.50,
-          "element": "N", "charge": None, "model": 1
+          "occupancy": 1.0, "temp_factor": 21.50,
+          "element": "N", "charge": 0.0,
          }
         )
         self.assertEqual(len(data_file["connections"]), 60)
-        self.assertEqual(data_file["connections"], {
+        self.assertEqual(data_file["connections"][0], {
          "atom": 3194, "bond_to": [3195, 3196]
         })
 
-
-
-class PdbFetchingTests(IntegratedTest):
 
     def test_can_fetch_pdb(self):
         pdb = atomium.fetch("1h4W", pdbe=True)
@@ -210,23 +175,69 @@ class PdbFetchingTests(IntegratedTest):
 
 
     def test_can_fetch_pdb_data(self):
-        data_file = atomium.fetch_data(
-         "tests/integration/files/1lol.pdb"
-        )
+        data_file = atomium.fetch_data("1lol", pdbe=True)
         self.assertEqual(data_file["code"], "1LOL")
         self.assertEqual(len(data_file["models"][0]["chains"]), 2)
         self.assertEqual(
          data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0],
          {
           "atom_id": 1, "atom_name": "N", "alt_loc": None,
-          "residue_name": "VAL",
-          "chain_id": "A", "residue_id": 11, "insert_code": None,
+          "residue_name": "VAL", "full_id": "A11",
+          "chain_id": "A", "residue_id": 11, "insert_code": "",
           "x": 3.696, "y": 33.898, "z": 63.219,
           "occupancy": 1.0, "temp_factor": 21.50,
-          "element": "N", "charge": None,
+          "element": "N", "charge": 0.0,
          }
         )
         self.assertEqual(len(data_file["connections"]), 60)
-        self.assertEqual(data_file["connections"], {
+        self.assertEqual(data_file["connections"][0], {
          "atom": 3194, "bond_to": [3195, 3196]
         })
+
+
+
+class PdbSavingTests(IntegratedTest):
+
+    def test_can_save_single_model_pdb(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/1lol.pdb")
+
+        # Can be saved
+        pdb.code("9SAM")
+        pdb.deposition_date(datetime(1990, 9, 1).date())
+        pdb.title(
+         "FOR IN THAT SLEEP OF DEATH WHAT DREAMS MAY COME WHEN WE HAVE " +
+         "SHUFFLED OFF THIS MORTAL COIL MUST GIVE US PAUSE"
+        )
+        pdb.save("tests/integration/files/1LOL2.pdb")
+        with open("tests/integration/files/1LOL2.pdb") as f:
+            new = [l.strip() for l in f.readlines() if l.strip()]
+        with open("tests/integration/files/1lol_output.pdb") as f:
+            ref = [l.strip() for l in f.readlines() if l.strip()]
+        for new_line, ref_line in zip(new, ref):
+            self.assertEqual(new_line, ref_line)
+        new = atomium.pdb_from_file("tests/integration/files/1LOL2.pdb")
+        model = new.model()
+        self.assertAlmostEqual(
+         model.mass(), 46018.5, delta=0.005
+        )
+
+
+    def test_can_save_multi_model_pdb(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
+
+        pdb.save("tests/integration/files/5XME2.pdb")
+        with open("tests/integration/files/5XME2.pdb") as f:
+            new = [l.strip() for l in f.readlines() if l.strip()]
+        with open("tests/integration/files/5xme_output.pdb") as f:
+            ref = [l.strip() for l in f.readlines() if l.strip()]
+        for new_line, ref_line in zip(new, ref):
+            self.assertEqual(new_line, ref_line)
+        new = atomium.pdb_from_file("tests/integration/files/5XME2.pdb")
+        models = new.models()
+        self.assertEqual(len(models), 10)
+        x_values = [
+         33.969, 34.064, 37.369, 36.023, 35.245,
+         35.835, 37.525, 35.062, 36.244, 37.677
+        ]
+        for x, model in zip(x_values, models):
+            self.assertEqual(len(model.atoms()), 1827)

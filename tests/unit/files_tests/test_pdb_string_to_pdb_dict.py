@@ -102,9 +102,9 @@ class StructureExtractionTests(TestCase):
         ]
         mock_model.return_value = {"model": "1"}
         extract_structure(self.pdb_dict, self.lines)
-        mock_lines.assert_any_call("MODEL", self.lines)
-        mock_lines.assert_any_call("ATOM", self.lines)
-        mock_lines.assert_any_call("HETATM", self.lines)
+        mock_lines.assert_any_call("MODEL", self.lines, number=True)
+        mock_lines.assert_any_call("ATOM", self.lines, number=False)
+        mock_lines.assert_any_call("HETATM", self.lines, number=False)
         mock_lines.assert_any_call("CONECT", self.lines)
         mock_model.assert_called_with(["atom1", "atom2"], ["hetatm1", "hetatm2"])
         mock_con.assert_called_with(self.pdb_dict, ["con1", "con2"])
@@ -116,14 +116,14 @@ class StructureExtractionTests(TestCase):
     @patch("atomium.files.pdbstring2pdbdict.lines_to_model")
     def test_can_extract_structure_multiple_models(self, mock_model, mock_con, mock_lines):
         mock_lines.side_effect = [
-         [self.lines[0], self.lines[3]], [self.lines[1], self.lines[4]],
-         [self.lines[2], self.lines[5]], [self.lines[6], self.lines[7]],
+         [[self.lines[0], 0], [self.lines[3], 3]], [[self.lines[1], 1], [self.lines[4], 4]],
+         [[self.lines[2], 2], [self.lines[5], 5]], [self.lines[6], self.lines[7]],
         ]
         mock_model.side_effect = [{"model": "1"}, {"model": "2"}]
         extract_structure(self.pdb_dict, self.lines)
-        mock_lines.assert_any_call("MODEL", self.lines)
-        mock_lines.assert_any_call("ATOM", self.lines)
-        mock_lines.assert_any_call("HETATM", self.lines)
+        mock_lines.assert_any_call("MODEL", self.lines, number=True)
+        mock_lines.assert_any_call("ATOM", self.lines, number=True)
+        mock_lines.assert_any_call("HETATM", self.lines, number=True)
         mock_lines.assert_any_call("CONECT", self.lines)
         mock_model.assert_any_call([self.lines[1]], [self.lines[2]])
         mock_model.assert_any_call([self.lines[4]], [self.lines[5]])
@@ -260,6 +260,12 @@ class GetLineTests(TestCase):
         self.assertEqual(get_line("AAA", self.lines), "AAA   X")
 
 
+    def test_can_get_line_with_number(self):
+        self.assertEqual(
+         get_line("BBBBBB", self.lines, number=True), ["BBBBBBX", 2]
+        )
+
+
     def test_can_get_none(self):
         self.assertIsNone(get_line("AA", self.lines))
 
@@ -277,6 +283,13 @@ class GetLinesTests(TestCase):
 
     def test_can_get_stripped_lines(self):
         self.assertEqual(get_lines("AAA", self.lines), ["AAA   X", "AAA   Y"])
+
+
+    def test_can_get_lines_with_numbers(self):
+        self.assertEqual(
+         get_lines("AAA", self.lines, number=True),
+         [["AAA   X", 0], ["AAA   Y", 1]]
+        )
 
 
     def test_can_get_no_lines(self):

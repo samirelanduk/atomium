@@ -114,11 +114,8 @@ class MoleculeDictToMoleculeTests(TestCase):
 
 class AtomDictToAtomTests(TestCase):
 
-    @patch("atomium.files.pdbdict2pdb.Atom")
-    def test_can_convert_atom_dict_to_atom(self, mock_atom):
-        atom = Mock()
-        mock_atom.return_value = atom
-        atom_dict = {
+    def setUp(self):
+        self.atom_dict = {
          "atom_id": 107, "atom_name": "N1", "alt_loc": "A",
          "residue_name": "GLY",
          "chain_id": "B", "residue_id": 13, "insert_code": "C",
@@ -126,11 +123,28 @@ class AtomDictToAtomTests(TestCase):
          "occupancy": 0.5, "temp_factor": 15.56,
          "element": "N", "charge": -2
         }
-        returned_atom = atom_dict_to_atom(atom_dict)
+
+    @patch("atomium.files.pdbdict2pdb.Atom")
+    def test_can_convert_atom_dict_to_atom(self, mock_atom):
+        atom = Mock()
+        mock_atom.return_value = atom
+        returned_atom = atom_dict_to_atom(self.atom_dict)
         self.assertIs(returned_atom, atom)
         mock_atom.assert_called_with(
          "N", 12.681, 37.302, -25.211,
          atom_id=107, name="N1", charge=-2, bfactor=15.56
+        )
+
+
+    @patch("atomium.files.pdbdict2pdb.Atom")
+    def test_can_convert_atom_dict_to_atom_with_no_temp_factor(self, mock_atom):
+        atom = Mock()
+        mock_atom.return_value = atom
+        self.atom_dict["temp_factor"] = None
+        returned_atom = atom_dict_to_atom(self.atom_dict)
+        mock_atom.assert_called_with(
+         "N", 12.681, 37.302, -25.211,
+         atom_id=107, name="N1", charge=-2, bfactor=0
         )
 
 

@@ -78,7 +78,7 @@ class StructurePackingTests(TestCase):
     @patch("atomium.files.pdbdict2pdbstring.pack_connections")
     def test_can_pack_structure_one_model(self, mock_con, mock_model):
         pack_structure(self.lines, self.pdb_dict)
-        mock_model.assert_called_with([], {"model": 1}, sole=True)
+        mock_model.assert_called_with([], {"model": 1}, multi=0)
         mock_con.assert_called_with([], self.pdb_dict)
 
 
@@ -87,9 +87,9 @@ class StructurePackingTests(TestCase):
     def test_can_pack_structure_multiple_models(self, mock_con, mock_model):
         self.pdb_dict["models"] += [{"model": 2}, {"model": 3}]
         pack_structure(self.lines, self.pdb_dict)
-        mock_model.assert_any_call([], {"model": 1})
-        mock_model.assert_any_call([], {"model": 2})
-        mock_model.assert_any_call([], {"model": 3})
+        mock_model.assert_any_call([], {"model": 1}, multi=1)
+        mock_model.assert_any_call([], {"model": 2}, multi=2)
+        mock_model.assert_any_call([], {"model": 3}, multi=3)
         mock_con.assert_called_with([], self.pdb_dict)
 
 
@@ -113,7 +113,7 @@ class ModelPackingTests(TestCase):
     @patch("atomium.files.pdbdict2pdbstring.atom_dict_to_atom_line")
     def test_can_pack_sole_model(self, mock_line):
         mock_line.side_effect = ["a" + str(i) for i in range(16)]
-        pack_model(self.lines, self.model_dict, sole=True)
+        pack_model(self.lines, self.model_dict, multi=0)
         for char in ["r", "m"]:
             for num1 in ["1", "2", "3", "4"]:
                 for num2 in ["1", "2"]:
@@ -129,7 +129,7 @@ class ModelPackingTests(TestCase):
     @patch("atomium.files.pdbdict2pdbstring.atom_dict_to_atom_line")
     def test_can_pack_model_in_series(self, mock_line):
         mock_line.side_effect = ["a" + str(i) for i in range(16)]
-        pack_model(self.lines, self.model_dict)
+        pack_model(self.lines, self.model_dict, multi=5)
         for char in ["r", "m"]:
             for num1 in ["1", "2", "3", "4"]:
                 for num2 in ["1", "2"]:
@@ -137,7 +137,7 @@ class ModelPackingTests(TestCase):
                      char + num1 + num2, hetero=char == "m"
                     )
         self.assertEqual(self.lines, [
-         "MODEL".ljust(80), "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+         "MODEL        5".ljust(80), "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
          "a8", "a9", "a10", "a11", "a12", "a13", "a14", "a15", "ENDMDL".ljust(80)
         ])
 
@@ -150,8 +150,8 @@ class AtomDictToAtomLineTests(TestCase):
          "atom_id": 107, "atom_name": "N", "alt_loc": "A",
          "residue_name": "GLY",
          "chain_id": "B", "residue_id": 13, "insert_code": "C",
-         "x": 12.681, "y": 37.302, "z": -25.211,
-         "occupancy": 0.5, "temp_factor": 15.56,
+         "x": 12.681, "y": 7.302, "z": -25.211,
+         "occupancy": 0.5, "temp_factor": 15.5,
          "element": "N", "charge": -2
         }
 
@@ -161,17 +161,34 @@ class AtomDictToAtomLineTests(TestCase):
             self.atom_dict[key] = None
         self.atom_dict["chain_id"], self.atom_dict["insert_code"] = "", ""
         self.atom_dict["occupancy"], self.atom_dict["charge"] = 1, 0
-        self.assertEqual(
-         atom_dict_to_atom_line(self.atom_dict),
-         "ATOM".ljust(80)
-        )
+        line = atom_dict_to_atom_line(self.atom_dict)
+        self.assertEqual(line[:6], "ATOM  ")
+        self.assertEqual(line[6:54], " " * 48)
+        self.assertEqual(line[54:60], "  1.00")
+        self.assertEqual(line[60:], " " * 20)
 
 
     def test_can_convert_full_atom_dict_to_line(self):
         line = atom_dict_to_atom_line(self.atom_dict)
-        self.assertEqual(line[:30], "ATOM    107  N  AGLY B  13C   ")
-        self.assertEqual(line[30:54], "  12.681  37.302 -25.211")
-        self.assertEqual(line[54:80], "  0.50 15.56           N2-")
+        self.assertEqual(line[:6], "ATOM  ")
+        self.assertEqual(line[6:11], "  107")
+        self.assertEqual(line[11], " ")
+        self.assertEqual(line[12:16], " N  ")
+        self.assertEqual(line[16], "A")
+        self.assertEqual(line[17:20], "GLY")
+        self.assertEqual(line[20], " ")
+        self.assertEqual(line[21], "B")
+        self.assertEqual(line[22:26], "  13")
+        self.assertEqual(line[26], "C")
+        self.assertEqual(line[27:30], "   ")
+        self.assertEqual(line[30:38], "  12.681")
+        self.assertEqual(line[38:46], "   7.302")
+        self.assertEqual(line[46:54], " -25.211")
+        self.assertEqual(line[54:60], "  0.50")
+        self.assertEqual(line[60:66], "  15.5")
+        self.assertEqual(line[66:76], " " * 10)
+        self.assertEqual(line[76:78], " N")
+        self.assertEqual(line[78:], "2-")
 
 
     def test_can_handle_different_atom_name_sizes(self):
@@ -186,11 +203,19 @@ class AtomDictToAtomLineTests(TestCase):
         self.assertEqual(line[:30], "ATOM    107 HCG2AGLY B  13C   ")
 
 
+    def test_can_handle_zero_coordinates(self):
+        self.atom_dict["x"] = 0.0
+        self.atom_dict["y"] = 0.0
+        self.atom_dict["z"] = 0.0
+        line = atom_dict_to_atom_line(self.atom_dict)
+        self.assertEqual(line[30:38], "     0.0")
+        self.assertEqual(line[38:46], "     0.0")
+        self.assertEqual(line[46:54], "     0.0")
+
+
     def test_can_convert_heteroatom_dict_to_line(self):
         line = atom_dict_to_atom_line(self.atom_dict, hetero=True)
         self.assertEqual(line[:30], "HETATM  107  N  AGLY B  13C   ")
-        self.assertEqual(line[30:54], "  12.681  37.302 -25.211")
-        self.assertEqual(line[54:80], "  0.50 15.56           N2-")
 
 
 

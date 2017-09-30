@@ -185,6 +185,14 @@ class AtomLineToAtomDictTests(TestCase):
         })
 
 
+    def test_can_handle_numeric_residue_names(self):
+        atom = atom_line_to_atom_dict(
+         "ATOM    107  N1 A062 B  13C     " +
+         "12.681  37.302 -25.211 0.70  15.56           N2-"
+        )
+        self.assertEqual(atom["residue_name"], "062")
+
+
 
 class AtomsToResiduesTests(TestCase):
 

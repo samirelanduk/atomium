@@ -99,5 +99,5 @@ class Pdb:
 
         :param str path: The path to save to."""
 
-        from ..converters.strings import string_to_file
+        from ..files.utilities import string_to_file
         string_to_file(self.to_file_string(), path)

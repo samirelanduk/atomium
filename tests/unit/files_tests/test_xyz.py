@@ -91,7 +91,7 @@ class XyzToStringTests(TestCase):
 
 class XyzToFileTests(TestCase):
 
-    @patch("atomium.converters.strings.string_to_file")
+    @patch("atomium.files.utilities.string_to_file")
     @patch("atomium.files.xyz.Xyz.to_file_string")
     def test_can_save_xyz_to_file(self, mock_string, mock_save):
         xyz = Xyz()

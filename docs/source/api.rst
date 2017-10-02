@@ -27,5 +27,4 @@ Structures
 	api/exceptions
 	api/models
 	api/molecules
-	api/reference
 

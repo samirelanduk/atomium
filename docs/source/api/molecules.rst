@@ -1,6 +1,6 @@
-``atomium.structures.molecules`` (Molecules and Atomic Structures)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+atomium.structures.molecules
+----------------------------
 
 .. automodule:: atomium.structures.molecules
-    :members:
-    :inherited-members:
+	:members:
+	:inherited-members:

@@ -1,5 +1,6 @@
-``atomium.structures.exceptions`` (Custom Exceptions)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+atomium.structures.exceptions
+-----------------------------
 
 .. automodule:: atomium.structures.exceptions
-    :members:
+	:members:
+	:inherited-members:

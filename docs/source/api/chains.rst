@@ -1,6 +1,6 @@
-``atomium.structures.chains`` (Chains)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+atomium.structures.chains
+-------------------------
 
 .. automodule:: atomium.structures.chains
-    :members:
-    :inherited-members:
+	:members:
+	:inherited-members:

@@ -1,6 +1,23 @@
 Changelog
 ---------
 
+Release 0.6.0
+~~~~~~~~~~~~~
+
+`3 October 2017`
+
+* Now allows for fetching and opening of PDB data dictionaries.
+* Added parsing/saving of HEADER and TITLE records in PDB files.
+* Added ability to exlcude elements from atom search.
+* Added ability to get nearby atoms in a model.
+* Added bind site identification.
+* Fixed chain length bottleneck in PDB model saving.
+* Overhauled PDb parsing by replacing classes with built in Python types.
+* Fixed bug where numerical residue names were intepreted as integers.
+* Chaged atoms so that they can allow negative B factors.
+* Added loading of .xyz data dictionaries.
+* Miscellaneous speed increases.
+
 Release 0.5.0
 ~~~~~~~~~~~~~
 

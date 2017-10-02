@@ -332,6 +332,12 @@ class Molecule(AtomicStructure):
 
 
     def site(self):
+        """Returns the :py:class:`.Site` that encompasses this molecule. This is
+        all the residues with a non-hydrogen atom within 4 Angstroms of a
+        non-hydrogen atom in the molecule.
+
+        :rtype: :py:class:`.Site`"""
+
         from .chains import Site
         atoms, nearby = self.atoms(exclude="H"), set()
         for atom in atoms:

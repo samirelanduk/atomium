@@ -16,9 +16,10 @@ You can load a .xyz file as follows:
   >>> glucose.model()
   <Model (12 atoms)>
 
-The :py:class:`.Xyz` object you get has a :py:meth:`~.Xyz.comment` property,
+The :py:class:`.Xyz` object you get has a :py:meth:`~.Xyz.title` property,
 which describes the file, and a :py:meth:`~.Xyz.model` property, which returns
 the :py:class:`.Model` the file describes.
+
 
 From .pdb
 ~~~~~~~~~
@@ -32,7 +33,9 @@ from the RCSB over the internet using the PDB code:
   <Model (2156 atoms)>
 
 If the PDB has multiple models, these can be accessed using the
-:py:meth:`~.Pdb.models` method.
+:py:meth:`~.Pdb.models` method. They also have :py:meth:`~.Pdb.title`,
+:py:meth:`~.Pdb.code` and :py:meth:`~.Pdb.deposition_date` properties.
+
 
 The Model
 ~~~~~~~~~
@@ -143,6 +146,20 @@ Other criteria can be used:
 Here, all XMP molecules are returned, then the first matching XMP molecule, then
 the molecule with ID 'B5002'.
 
+Any molecule can try and determine its binding site with the
+:py:meth:`~.Molecule.site` method:
+
+  >>> pdb.model().molecule("B5002").site()
+  <'B5002' Site (8 residues)>
+  >>> pdb.model().molecule("B5002").site().residues()
+  {<Residue B1096 (ILE, 8 atoms)>, <Residue B1157 (PRO, 7 atoms)>, <Residue B1
+  123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9 
+  atoms)>, <Residue B1072 (LYS, 9 atoms)>, <Residue B1156 (GLY, 4 atoms)>, <Re
+  sidue B1155 (VAL, 7 atoms)>}
+
+These are all the residues with a non-hydrogen atom within 4 Angstroms of a
+non-hydrogen atom in the molecule.
+
 Chains
 ######
 
@@ -207,6 +224,7 @@ their own seperate files if you so wish.
 
 The ``Xyz`` or ``Pdb`` object itself can also be saved:
 
-  >>> glucose.comment("Modified glucose")
+  >>> glucose.title("Modified glucose")
   >>> glucose.save("new.xyz")
+  >>> pdb.title("Modified PDB")
   >>> pdb.save("new.pdb")

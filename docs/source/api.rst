@@ -1,39 +1,31 @@
 Full API
 --------
 
-Structures
-~~~~~~~~~~
-
-.. toctree ::
-    api/models
-    api/chains
-    api/molecules
-    api/atoms
-    api/exceptions
-
-
 Files
 ~~~~~
 
 .. toctree ::
-    api/xyz
-    api/pdbfile
-    api/pdbdatafile
-    api/pdb
+	api/pdb
+	api/pdb2pdbdict
+	api/pdbdict2pdb
+	api/pdbdict2pdbstring
+	api/pdbstring2pdbdict
+	api/utilities
+	api/xyz
+	api/xyz2xyzdict
+	api/xyzdict2xyz
+	api/xyzdict2xyzstring
+	api/xyzstring2xyzdict
 
 
-Converters
+Structures
 ~~~~~~~~~~
 
 .. toctree ::
-    api/strings
-    api/string2xyz
-    api/structure2xyzstring
-    api/string2pdbfile
-    api/pdbfile2pdbdatafile
-    api/pdbdatafile2models
-    api/pdbdatafile2pdb
-    api/pdb2pdbdatafile
-    api/structure2pdbdatafile
-    api/pdbdatafile2pdbfile
-    api/pdbfile2pdbstring
+	api/atoms
+	api/chains
+	api/exceptions
+	api/models
+	api/molecules
+	api/reference
+

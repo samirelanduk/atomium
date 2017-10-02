@@ -83,7 +83,7 @@ def atom_dict_to_atom_line(d, hetero=False):
 
     :param dict d: The atom dictionary to pack.
     :param bool hetero: if ``True`` a HETATM record will be made, not ATOM.
-    :rtypeL ``str``"""
+    :rtype: ``str``"""
 
     line = "{:6}{:5} {:4}{:1}{:3} {:1}{:4}{:1}   "
     line += "{:8}{:8}{:8}{:6}{:6}          {:>2}{:2}"

@@ -153,7 +153,8 @@ class MoleculeStructure:
 
 
 
-class Model(AtomicStructure, ResidueStructure, ChainStructure, MoleculeStructure):
+class Model(AtomicStructure, ResidueStructure, ChainStructure,
+            MoleculeStructure):
     """Base classes: :py:class:`.AtomicStructure` and
     :py:class:`.ResidueStructure` and :py:class:`.ChainStructure` and
     :py:class:`.MoleculeStructure`

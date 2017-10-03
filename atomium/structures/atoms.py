@@ -25,7 +25,8 @@ class Atom:
     :raises TypeError: if the charge is not numeric.
     :raises TypeError: if the bfactor is not numeric."""
 
-    def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0, bfactor=0):
+    def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0,
+                 bfactor=0):
         if not isinstance(element, str):
             raise TypeError("Element '{}' is not str".format(element))
         if not 0 < len(element) < 3:

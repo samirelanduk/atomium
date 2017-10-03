@@ -71,9 +71,10 @@ You can load a .xyz file as follows:
   >>> glucose.model()
   <Model (12 atoms)>
 
-The ``Xyz.comment`` property,
+The ``Xyz`` object you get has a ``Xyz.title`` property,
 which describes the file, and a ``Xyz.model`` property, which returns
 the ``Model`` the file describes.
+
 
 From .pdb
 ~~~~~~~~~
@@ -87,7 +88,9 @@ from the RCSB over the internet using the PDB code:
   <Model (2156 atoms)>
 
 If the PDB has multiple models, these can be accessed using the
-``Pdb.models`` method.
+``Pdb.models`` method. They also have ``Pdb.title``,
+``Pdb.code`` and ``Pdb.deposition_date`` properties.
+
 
 The Model
 ~~~~~~~~~
@@ -126,7 +129,7 @@ gyration:
   >>> model.radius_of_gyration()
   2.3076405766875925
 
-``AtomicStructure.atoms` returns all matching elements as a ``set```
+``AtomicStructure.atoms`` returns all matching elements as a ``set``
 while ``AtomicStructure.atom`` returns the first matching atom.
 
 The atoms themselves have properties for their coordinates and elements, and
@@ -198,6 +201,20 @@ Other criteria can be used:
 Here, all XMP molecules are returned, then the first matching XMP molecule, then
 the molecule with ID 'B5002'.
 
+Any molecule can try and determine its binding site with the
+``Molecule.site`` method:
+
+  >>> pdb.model().molecule("B5002").site()
+  <'B5002' Site (8 residues)>
+  >>> pdb.model().molecule("B5002").site().residues()
+  {<Residue B1096 (ILE, 8 atoms)>, <Residue B1157 (PRO, 7 atoms)>, <Residue B1
+  123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9 
+  atoms)>, <Residue B1072 (LYS, 9 atoms)>, <Residue B1156 (GLY, 4 atoms)>, <Re
+  sidue B1155 (VAL, 7 atoms)>}
+
+These are all the residues with a non-hydrogen atom within 4 Angstroms of a
+non-hydrogen atom in the molecule.
+
 Chains
 ######
 
@@ -262,13 +279,31 @@ their own seperate files if you so wish.
 
 The ``Xyz`` or ``Pdb`` object itself can also be saved:
 
-  >>> glucose.comment("Modified glucose")
+  >>> glucose.title("Modified glucose")
   >>> glucose.save("new.xyz")
+  >>> pdb.title("Modified PDB")
   >>> pdb.save("new.pdb")
 
 
 Changelog
 ---------
+
+Release 0.6.0
+~~~~~~~~~~~~~
+
+`3 October 2017`
+
+* Now allows for fetching and opening of PDB data dictionaries.
+* Added parsing/saving of HEADER and TITLE records in PDB files.
+* Added ability to exlcude elements from atom search.
+* Added ability to get nearby atoms in a model.
+* Added bind site identification.
+* Fixed chain length bottleneck in PDB model saving.
+* Overhauled PDb parsing by replacing classes with built in Python types.
+* Fixed bug where numerical residue names were intepreted as integers.
+* Chaged atoms so that they can allow negative B factors.
+* Added loading of .xyz data dictionaries.
+* Miscellaneous speed increases.
 
 Release 0.5.0
 ~~~~~~~~~~~~~

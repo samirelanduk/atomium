@@ -276,7 +276,8 @@ class Molecule(AtomicStructure):
         if self._id: id_ = self._id + " "
         if self._name: name = self._name + ", "
         return "<{} {}({}{} atoms)>".format(
-         self.__class__.__name__, id_, name, len(self._atoms) + len(self._id_atoms)
+         self.__class__.__name__, id_,
+         name, len(self._atoms) + len(self._id_atoms)
         )
 
 

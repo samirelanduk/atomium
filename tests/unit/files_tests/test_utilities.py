@@ -115,12 +115,20 @@ class PdbDictFetchingTests(TestCase):
         self.assertEqual(pdb_dict, {"pdb": "dict"})
 
 
+    @patch("atomium.files.utilities.fetch_string")
+    def test_can_fetch_none_data_file(self, mock_string):
+        mock_string.return_value = None
+        pdb_dict = fetch_data("1xxx", a="blorg")
+        mock_string.assert_called_with("1xxx", a="blorg")
+        self.assertIsNone(pdb_dict)
+
+
 
 class PdbFromFileTests(TestCase):
 
     @patch("atomium.files.utilities.pdb_data_from_file")
     @patch("atomium.files.utilities.pdb_dict_to_pdb")
-    def test_can_get_data_file_from_file(self, mock_pdb, mock_dict):
+    def test_can_get_pdb_from_file(self, mock_pdb, mock_dict):
         mock_dict.return_value = {"pdb": "dict"}
         mock_pdb.return_value = "PDB"
         pdb = pdb_from_file("path")
@@ -134,13 +142,21 @@ class PdbFetchingTests(TestCase):
 
     @patch("atomium.files.utilities.fetch_data")
     @patch("atomium.files.utilities.pdb_dict_to_pdb")
-    def test_can_get_data_file_from_file(self, mock_pdb, mock_dict):
+    def test_can_fetch_pdb(self, mock_pdb, mock_dict):
         mock_dict.return_value = {"pdb": "dict"}
         mock_pdb.return_value = "PDB"
         pdb = fetch("1xxx", a="blorg")
         mock_dict.assert_called_with("1xxx", a="blorg")
         mock_pdb.assert_called_with({"pdb": "dict"})
         self.assertEqual(pdb, "PDB")
+
+
+    @patch("atomium.files.utilities.fetch_data")
+    def test_can_fetch_none_pdb(self, mock_data):
+        mock_data.return_value = None
+        pdb = fetch("1xxx", a="blorg")
+        mock_data.assert_called_with("1xxx", a="blorg")
+        self.assertIsNone(pdb)
 
 
 

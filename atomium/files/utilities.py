@@ -71,7 +71,8 @@ def fetch_data(code, **kwargs):
     :rtype: ``dict``"""
 
     filestring = fetch_string(code, **kwargs)
-    return pdb_string_to_pdb_dict(filestring)
+    if filestring is not None:
+        return pdb_string_to_pdb_dict(filestring)
 
 
 def pdb_from_file(path):
@@ -93,7 +94,8 @@ def fetch(code, **kwargs):
     :rtype: ``PdbFile``"""
 
     pdb_dict = fetch_data(code, **kwargs)
-    return pdb_dict_to_pdb(pdb_dict)
+    if pdb_dict is not None:
+        return pdb_dict_to_pdb(pdb_dict)
 
 
 def xyz_data_from_file(path):

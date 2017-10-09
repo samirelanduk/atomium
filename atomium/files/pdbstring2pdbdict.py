@@ -120,9 +120,12 @@ def atoms_to_residues(atoms):
 
     residue_ids = [atom["full_id"] for atom in atoms]
     residue_ids = sorted(set(residue_ids), key=lambda r: residue_ids.index(r))
+    residue_ids = {res_id: [] for res_id in residue_ids}
     residues = []
+    for atom in atoms:
+        residue_ids[atom["full_id"]].append(atom)
     for res_id in residue_ids:
-        r_atoms = [atom for atom in atoms if atom["full_id"] == res_id]
+        r_atoms = residue_ids[res_id]
         residues.append({
          "id": res_id, "name": r_atoms[0]["residue_name"], "atoms": r_atoms
         })

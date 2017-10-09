@@ -11,7 +11,7 @@ You can load a .xyz file as follows:
 
   >>> import atomium
   >>> glucose = atomium.xyz_from_file("glucose.xyz")
-  >>> glucose.comment()
+  >>> glucose.title()
   'glucose from 2gbp'
   >>> glucose.model()
   <Model (12 atoms)>
@@ -153,7 +153,7 @@ Any molecule can try and determine its binding site with the
   <'B5002' Site (8 residues)>
   >>> pdb.model().molecule("B5002").site().residues()
   {<Residue B1096 (ILE, 8 atoms)>, <Residue B1157 (PRO, 7 atoms)>, <Residue B1
-  123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9 
+  123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9
   atoms)>, <Residue B1072 (LYS, 9 atoms)>, <Residue B1156 (GLY, 4 atoms)>, <Re
   sidue B1155 (VAL, 7 atoms)>}
 

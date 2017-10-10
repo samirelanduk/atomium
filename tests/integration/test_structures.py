@@ -283,3 +283,28 @@ class StructureTests(IntegratedTest):
         self.assertIn(atom20, model)
         model.remove_molecule(mol)
         self.assertIs(mol.model(), None)
+
+
+    def test_can_make_model_with_alt_locations(self):
+        model = Model()
+
+        atom1 = Atom("N", 0, 0, 0, atom_id=1, name="N", charge=0.8)
+        atom2 = Atom("C", 1, 0, 0.1, atom_id=2, name="C")
+        atom3 = Atom("C", 0.5, 1, 0, atom_id=3, name="CA")
+        atom4 = Atom("C", 2, 0, 0.1, atom_id=4, name="CB")
+        atom5 = Atom("O", 3, 0, 0.1, atom_id=5, name="O2")
+        atom11 = Atom("N", 2, 0, 0, atom_id=11, name="N")
+        atom12 = Atom("C", 3, 0, -0.2, atom_id=12, name="C")
+        atom13 = Atom("C", 2.5, 1, 0, atom_id=13, name="CA")
+        atom14 = Atom("C", 4, 0, 0.1, atom_id=14, name="CB")
+        atom15 = Atom("O", 5, 0, 0.1, atom_id=15, name="O2")
+
+        residue1 = Residue(
+         atom1, atom2, atom3, atom4, atom5, name="RES", residue_id="A1"
+        )
+        residue2 = Residue(
+         atom11, atom12, atom13, atom14, atom15, name="RES", residue_id="A2"
+        )
+        main_chain, side_chain = residue1.main_chain(), residue1.side_chain()
+        self.assertEqual(main_chain.atoms(), set([atom1, atom2, atom3]))
+        self.assertEqual(side_chain.atoms(), set([atom4, atom5]))

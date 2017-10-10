@@ -401,6 +401,31 @@ class Residue(Molecule):
         atom._residue = None
 
 
+    def main_chain(self):
+        """Returns the three atoms that make up the main chain of the residue.
+        This is done by atom name - it gets atoms by the name of 'N', 'C' and
+        'CA'.
+
+        :rtype: ``AtomicStructure``"""
+
+        atoms = self.atoms()
+        atoms = [atom for atom in atoms if atom.name() in ["N", "C", "CA"]]
+        if atoms:
+            return AtomicStructure(*atoms)
+
+
+    def side_chain(self):
+        """Returns the atoms that make up the side chain of the residue. This is
+        done by atom name - it gets all atoms that aren't 'N', 'C' or 'CA'.
+
+        :rtype: ``AtomicStructure``"""
+
+        atoms = self.atoms()
+        atoms = [atom for atom in atoms if atom.name() not in ["N", "C", "CA"]]
+        if atoms:
+            return AtomicStructure(*atoms)
+
+
     def next(self, residue=""):
         """Residues can be linked to each other in a linear chain. This method
         returns the :py:class:`.Residue` downstream of this one. Alternatively,

@@ -368,10 +368,17 @@ class Residue(Molecule):
         if residue_id: kwargs["molecule_id"] = residue_id
         Molecule.__init__(self, *atoms, **kwargs)
         self._next, self._previous = None, None
+        self._side_chains = set()
         for atom in self._atoms:
             atom._residue = self
         for atom in self._id_atoms:
             self._id_atoms[atom]._residue = self
+
+
+    def __contains__(self, member):
+        return Molecule.__contains__(self, member) or any([
+         member in sc for sc in self._side_chains
+        ])
 
 
     def residue_id(self, residue_id=None):
@@ -401,29 +408,38 @@ class Residue(Molecule):
         atom._residue = None
 
 
-    def main_chain(self):
-        """Returns the three atoms that make up the main chain of the residue.
-        This is done by atom name - it gets atoms by the name of 'N', 'C' and
-        'CA'.
+    def side_chains(self):
+        """Returns all the :py:class:`.SideChain` objects of the residue.
 
-        :rtype: ``AtomicStructure``"""
+        :rtype: ``set``"""
 
-        atoms = self.atoms()
-        atoms = [atom for atom in atoms if atom.name() in ["N", "C", "CA"]]
-        if atoms:
-            return AtomicStructure(*atoms)
+        return set(self._side_chains)
 
 
-    def side_chain(self):
-        """Returns the atoms that make up the side chain of the residue. This is
-        done by atom name - it gets all atoms that aren't 'N', 'C' or 'CA'.
+    def side_chain(self, occupancy=None):
+        """Returns the :py:class:`.SideChain` of the residue. If there is more
+        than one, the one with the highest occupancy will be used.
 
-        :rtype: ``AtomicStructure``"""
+        :param float occupancy: if given, all side chains with this occupancy\
+        will be returned.
+        :rtype: ``SideChain``"""
 
-        atoms = self.atoms()
-        atoms = [atom for atom in atoms if atom.name() not in ["N", "C", "CA"]]
-        if atoms:
-            return AtomicStructure(*atoms)
+        if occupancy is not None:
+            return set([
+             sc for sc in self._side_chains if sc.occupancy() == occupancy
+            ])
+        for side_chain in sorted(
+         self._side_chains, key=lambda s: s.occupancy(), reverse=True
+        ):
+            return side_chain
+
+
+    def add_side_chain(self, *atoms, occupancy=1):
+        """Adds a :py:class:`.SideChain` to a residue. This does not affect the
+        atoms already in the residue, it is just an extra level of
+        annotation."""
+
+        self._side_chains.add(SideChain(*atoms, occupancy=occupancy))
 
 
     def next(self, residue=""):

@@ -305,6 +305,28 @@ class StructureTests(IntegratedTest):
         residue2 = Residue(
          atom11, atom12, atom13, atom14, atom15, name="RES", residue_id="A2"
         )
+        self.assertIsNone(residue1.side_chain())
+        self.assertIsNone(residue2.side_chain())
+        residue1.add_side_chain(atom4, atom5)
+        residue2.add_side_chain(atom14, atom15)
         side_chain = residue1.side_chain()
         self.assertEqual(side_chain.atoms(), set([atom4, atom5]))
         self.assertEqual(side_chain.occupancy(), 1)
+
+        atoma4 = Atom("C", 2, 0.4, 0.1, atom_id=104, name="CB")
+        atoma5 = Atom("C", 2, 0.4, 0.17, atom_id=105, name="CB")
+        residue1.side_chain().occupancy(0.6)
+        residue1.add_side_chain(atoma4, atoma5, occupancy=0.4)
+
+        side_chain1 = residue1.side_chain()
+        self.assertEqual(side_chain1.atoms(), set([atom4, atom5]))
+        self.assertEqual(side_chain1.occupancy(), 0.6)
+        side_chain2 = residue1.side_chain(occupancy=0.4).pop()
+        self.assertEqual(side_chain2.atoms(), set([atoma4, atoma5]))
+        self.assertEqual(side_chain2.occupancy(), 0.4)
+        self.assertEqual(residue1.side_chains(), set([side_chain1, side_chain2]))
+
+        self.assertEqual(residue1.atoms(), set([atom1, atom2, atom3, atom4, atom5]))
+        self.assertIn(atom1, residue1)
+        self.assertIn(atom5, residue1)
+        self.assertIn(atoma5, residue1)

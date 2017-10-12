@@ -53,3 +53,33 @@ class SideChainReprTests(SideChainTest):
     def test_side_chain_repr(self):
         side_chain = SideChain(self.atom1, self.atom2, self.atom3)
         self.assertEqual(str(side_chain), "<SideChain (3 atoms)>")
+
+
+
+class SideChainOccupancyTests(SideChainTest):
+
+    def test_occupancy_property(self):
+        side_chain = SideChain(self.atom1, self.atom2, self.atom3, occupancy=0.5)
+        self.assertIs(side_chain._occupancy, side_chain.occupancy())
+
+
+    def test_can_update_occupancy(self):
+        side_chain = SideChain(self.atom1, self.atom2, self.atom3)
+        side_chain.occupancy(0.6)
+        self.assertEqual(side_chain._occupancy, 0.6)
+
+
+    def test_side_chain_occupancy_must_be_numeric(self):
+        side_chain = SideChain(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            side_chain.occupancy("4")
+        side_chain.occupancy(0.5)
+        side_chain.occupancy(1)
+
+
+    def test_occupancy_must_be_in_range(self):
+        side_chain = SideChain(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(ValueError):
+            side_chain.occupancy(0)
+        with self.assertRaises(ValueError):
+            side_chain.occupancy(1.001)

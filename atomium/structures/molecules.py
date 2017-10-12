@@ -497,11 +497,40 @@ class Residue(Molecule):
 
 
 class SideChain(AtomicStructure):
+    """A representation of a :py:class:`.Residue` side chain - the atoms that
+    aren't the three amino acid backbone atoms.
+
+    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
+    These can also be :py:class:`.AtomicStructure` objects, in which case the\
+    atoms of that structure will be used in its place.
+    :param str molecule_id: A unique str ID for the molecule. Uniqueness is not\
+    actually enforced.
+    :param str name: A name for the molecule.
+    :raises TypeError: if non-atoms are given.
+    :raises TypeError: if the molecule_id is not str."""
 
     def __init__(self, *args, occupancy=1, **kwargs):
         AtomicStructure.__init__(self, *args, **kwargs)
         if not isinstance(occupancy, (int, float)):
             raise TypeError("occupancy {} is not number".format(occupancy))
         if not 0 < occupancy <= 1:
-            raise ValueError("Occupancy {} is not 0 < n <= 1".format(occupancy))
+            raise ValueError("Occupancy {} is not 0 < n ≤ 1".format(occupancy))
         self._occupancy = occupancy
+
+
+    def occupancy(self, occupancy=None):
+        """Returns the Side Chain's occupancy - a measure of how often the
+        actual side chain is in this position. It must be between 0 and 1.
+        Providing a value will update the property.
+
+        :param float occupancy: If given, the occupancy will be updated to this.
+        :rtype: ``float``"""
+
+        if occupancy is None:
+            return self._occupancy
+        else:
+            if not isinstance(occupancy, (int, float)):
+                raise TypeError("occupancy {} is not number".format(occupancy))
+            if not 0 < occupancy <= 1:
+                raise ValueError("Occupancy {} not 0 < n ≤ 1".format(occupancy))
+            self._occupancy = occupancy

@@ -307,3 +307,4 @@ class StructureTests(IntegratedTest):
         )
         side_chain = residue1.side_chain()
         self.assertEqual(side_chain.atoms(), set([atom4, atom5]))
+        self.assertEqual(side_chain.occupancy(), 1)

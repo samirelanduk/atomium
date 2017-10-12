@@ -493,3 +493,15 @@ class Residue(Molecule):
 
         for atom in self.atoms():
             return atom.chain()
+
+
+
+class SideChain(AtomicStructure):
+
+    def __init__(self, *args, occupancy=1, **kwargs):
+        AtomicStructure.__init__(self, *args, **kwargs)
+        if not isinstance(occupancy, (int, float)):
+            raise TypeError("occupancy {} is not number".format(occupancy))
+        if not 0 < occupancy <= 1:
+            raise ValueError("Occupancy {} is not 0 < n <= 1".format(occupancy))
+        self._occupancy = occupancy

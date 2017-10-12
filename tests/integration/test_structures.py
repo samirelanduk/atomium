@@ -305,6 +305,5 @@ class StructureTests(IntegratedTest):
         residue2 = Residue(
          atom11, atom12, atom13, atom14, atom15, name="RES", residue_id="A2"
         )
-        main_chain, side_chain = residue1.main_chain(), residue1.side_chain()
-        self.assertEqual(main_chain.atoms(), set([atom1, atom2, atom3]))
+        side_chain = residue1.side_chain()
         self.assertEqual(side_chain.atoms(), set([atom4, atom5]))

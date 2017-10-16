@@ -81,34 +81,84 @@ class ChainDictToChainTests(TestCase):
 
 class MoleculeDictToMoleculeTests(TestCase):
 
+    def setUp(self):
+        self.atom_objects = [Mock(Atom), Mock(Atom), Mock(Atom), Mock(Atom)]
+        self.atom_objects[0].name.return_value = "C"
+        self.atom_objects[1].name.return_value = "N"
+        self.atom_objects[2].name.return_value = "CB"
+        self.atom_objects[3].name.return_value = "CC"
+        self.atom_objects[0].atom_id.return_value = 1
+        self.atom_objects[1].atom_id.return_value = 2
+        self.atom_objects[2].atom_id.return_value = 3
+        self.atom_objects[3].atom_id.return_value = 4
+        self.atom_dicts = [{
+         "alt_loc": None, "atom_id": n, "occupancy": 1
+        } for n in range(1, 5)]
+
+
     @patch("atomium.files.pdbdict2pdb.Residue")
     @patch("atomium.files.pdbdict2pdb.atom_dict_to_atom")
     def test_can_convert_residue_dict_to_residue(self, mock_atom, mock_res):
-        mock_atom.side_effect = ["atom1", "atom2"]
+        mock_atom.side_effect = self.atom_objects
         residue = Mock()
+        residue.add_side_chain = MagicMock()
         mock_res.return_value = residue
-        res_dict = {"id": "A12", "name": "VAL", "atoms": ["a1", "a2"]}
+        res_dict = {"id": "A12", "name": "VAL", "atoms": self.atom_dicts}
         returned_residue = residue_dict_to_residue(res_dict)
-        mock_atom.assert_any_call("a1")
-        mock_atom.assert_any_call("a2")
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 1, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 2, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 3, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 4, "occupancy": 1})
+        self.assertEqual(mock_atom.call_count, 4)
         self.assertIs(returned_residue, residue)
         self.assertEqual(residue._id, "A12")
-        mock_res.assert_called_with("atom1", "atom2", name="VAL")
+        mock_res.assert_called_with(*self.atom_objects, name="VAL")
+        residue.add_side_chain.assert_called_with(*self.atom_objects[2:])
+
+
+    @patch("atomium.files.pdbdict2pdb.Residue")
+    @patch("atomium.files.pdbdict2pdb.atom_dict_to_atom")
+    def test_can_convert_residue_dict_to_residue_alt_loc(self, mock_atom, mock_res):
+        self.atom_dicts[2]["alt_loc"] = "A"
+        self.atom_dicts[3]["alt_loc"] = "B"
+        self.atom_dicts[2]["occupancy"] = 0.6
+        self.atom_dicts[3]["occupancy"] = 0.4
+        mock_atom.side_effect = self.atom_objects
+        residue = Mock()
+        residue.add_side_chain = MagicMock()
+        mock_res.return_value = residue
+        res_dict = {"id": "A12", "name": "VAL", "atoms": self.atom_dicts}
+        returned_residue = residue_dict_to_residue(res_dict)
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 1, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 2, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": "A", "atom_id": 3, "occupancy": 0.6})
+        mock_atom.assert_any_call({"alt_loc": "B", "atom_id": 4, "occupancy": 0.4})
+        self.assertEqual(mock_atom.call_count, 4)
+        self.assertIs(returned_residue, residue)
+        self.assertEqual(residue._id, "A12")
+        mock_res.assert_called_with(*self.atom_objects[:3], name="VAL")
+        residue.add_side_chain.assert_any_call(self.atom_objects[2], occupancy=0.6)
+        residue.add_side_chain.assert_any_call(self.atom_objects[3], occupancy=0.4)
 
 
     @patch("atomium.files.pdbdict2pdb.Molecule")
     @patch("atomium.files.pdbdict2pdb.atom_dict_to_atom")
     def test_can_convert_molecule_dict_to_molecule(self, mock_atom, mock_mol):
-        mock_atom.side_effect = ["atom1", "atom2"]
+        mock_atom.side_effect = self.atom_objects
         molecule = Mock()
+        molecule.add_side_chain = MagicMock()
         mock_mol.return_value = molecule
-        mol_dict = {"id": "A500", "name": "XMP", "atoms": ["a1", "a2"]}
+        mol_dict = {"id": "A500", "name": "XMP", "atoms": self.atom_dicts}
         returned_molecule = residue_dict_to_residue(mol_dict, molecule=True)
-        mock_atom.assert_any_call("a1")
-        mock_atom.assert_any_call("a2")
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 1, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 2, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 3, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 4, "occupancy": 1})
+        self.assertEqual(mock_atom.call_count, 4)
         self.assertIs(returned_molecule, molecule)
         self.assertEqual(molecule._id, "A500")
-        mock_mol.assert_called_with("atom1", "atom2", name="XMP")
+        mock_mol.assert_called_with(*self.atom_objects, name="XMP")
+        self.assertFalse(molecule.add_side_chain.called)
 
 
 

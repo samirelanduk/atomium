@@ -35,6 +35,7 @@ class PdbReadingTests(IntegratedTest):
         # Residues are correct
         self.assertEqual(chaina[0].name(), "VAL")
         self.assertEqual(chaina[0].next().name(), "MET")
+        self.assertEqual(len(chaina[0].side_chain().atoms()), 4)
         self.assertEqual(chaina[-1].name(), "ILE")
         self.assertEqual(chaina[-1].previous().name(), "SER")
         self.assertEqual(len(chaina.residues(name="ASN")), 6)
@@ -154,21 +155,25 @@ class PdbReadingTests(IntegratedTest):
         # Residue 1 is correct
         side_chains = residue1.side_chains()
         self.assertEqual(len(side_chains), 2)
-        self.assertEqual(side_chains[0].occupancy(), 0.8)
-        self.assertEqual(side_chains[1].occupancy(), 0.2)
-        self.assertEqual(len(side_chains[0].atoms()), 13)
-        self.assertEqual(len(side_chains[1].atoms()), 5)
+        self.assertEqual(residue1.side_chain().occupancy(), 0.8)
+        other_side_chain = [sc for sc in residue1.side_chains()
+         if sc is not residue1.side_chain()][0]
+        self.assertEqual(other_side_chain.occupancy(), 0.2)
+        self.assertEqual(len(residue1.side_chain().atoms()), 13)
+        self.assertEqual(len(other_side_chain.atoms()), 4)
 
         # Residue 2 is correct
-        side_chains = residue1.side_chains()
+        side_chains = residue2.side_chains()
         self.assertEqual(len(side_chains), 2)
-        self.assertEqual(side_chains[0].occupancy(), 0.8)
-        self.assertEqual(side_chains[1].occupancy(), 0.2)
+        self.assertEqual(residue2.side_chain().occupancy(), 0.8)
+        other_side_chain = [sc for sc in residue2.side_chains()
+         if sc is not residue2.side_chain()][0]
+        self.assertEqual(other_side_chain.occupancy(), 0.2)
 
         # Residue 3 is correct
-        side_chains = residue1.side_chains()
+        side_chains = residue3.side_chains()
         self.assertEqual(len(side_chains), 1)
-        self.assertEqual(side_chains[0].occupancy(), 1)
+        self.assertEqual(residue3.side_chain().occupancy(), 1)
 
 
     def test_can_read_pdb_data(self):

@@ -141,6 +141,36 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(len(all_atoms), 18270)
 
 
+    def test_can_read_alt_loc_pdbs(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/1cbn.pdb")
+        chain = pdb.model().chain()
+        residue1, residue2, residue3 = chain[:3]
+
+        # Residues have the correct number of atoms
+        self.assertEqual(len(residue1.atoms()), 16)
+        self.assertEqual(len(residue2.atoms()), 14)
+        self.assertEqual(len(residue3.atoms()), 10)
+
+        # Residue 1 is correct
+        side_chains = residue1.side_chains()
+        self.assertEqual(len(side_chains), 2)
+        self.assertEqual(side_chains[0].occupancy(), 0.8)
+        self.assertEqual(side_chains[1].occupancy(), 0.2)
+        self.assertEqual(len(side_chains[0].atoms()), 13)
+        self.assertEqual(len(side_chains[1].atoms()), 5)
+
+        # Residue 2 is correct
+        side_chains = residue1.side_chains()
+        self.assertEqual(len(side_chains), 2)
+        self.assertEqual(side_chains[0].occupancy(), 0.8)
+        self.assertEqual(side_chains[1].occupancy(), 0.2)
+
+        # Residue 3 is correct
+        side_chains = residue1.side_chains()
+        self.assertEqual(len(side_chains), 1)
+        self.assertEqual(side_chains[0].occupancy(), 1)
+
+
     def test_can_read_pdb_data(self):
         data_file = atomium.pdb_data_from_file(
          "tests/integration/files/1lol.pdb"

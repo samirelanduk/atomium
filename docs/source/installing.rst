@@ -8,7 +8,8 @@ atomium can be installed using pip:
 
 ``$ pip3 install atomium``
 
-atomium is written for Python 3, and does not support Python 2.
+atomium is written for Python 3, and does not support Python 2. It is currently
+tested on Python 3.6 and above.
 
 If you get permission errors, try using ``sudo``:
 

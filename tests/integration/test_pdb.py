@@ -316,3 +316,22 @@ class PdbSavingTests(IntegratedTest):
         ]
         for x, model in zip(x_values, models):
             self.assertEqual(len(model.atoms()), 1827)
+
+
+    def test_can_save_alt_loc_pdbs(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/1cbn.pdb")
+
+        pdb.save("tests/integration/files/1CBN2.pdb")
+        with open("tests/integration/files/1CBN2.pdb") as f:
+            new = [l.strip() for l in f.readlines() if l.strip()]
+        with open("tests/integration/files/1cbn_output.pdb") as f:
+            ref = [l.strip() for l in f.readlines() if l.strip()]
+        for new_line, ref_line in zip(new, ref):
+            self.assertEqual(new_line, ref_line)
+
+        new = atomium.pdb_from_file("tests/integration/files/1CBN2.pdb")
+        chain = pdb.model().chain()
+        residue1, residue2, residue3 = chain[:3]
+        self.assertEqual(len(residue1.atoms()), 16)
+        self.assertEqual(len(residue2.atoms()), 14)
+        self.assertEqual(len(residue3.atoms()), 10)

@@ -98,6 +98,8 @@ def residue_dict_to_residue(residue_dict, molecule=False):
                 sc_atoms = [atom for atom in sc_atoms
                  if atom.name() not in ["C", "N", "CA"] ]
                 residue.add_side_chain(*sc_atoms, occupancy=occupancy)
+                for atom in sc_atoms:
+                    atom._residue = residue
     return residue
 
 

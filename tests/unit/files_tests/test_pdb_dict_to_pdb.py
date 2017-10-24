@@ -83,6 +83,8 @@ class MoleculeDictToMoleculeTests(TestCase):
 
     def setUp(self):
         self.atom_objects = [Mock(Atom), Mock(Atom), Mock(Atom), Mock(Atom)]
+        for atom in self.atom_objects:
+            atom._residue = None
         self.atom_objects[0].name.return_value = "C"
         self.atom_objects[1].name.return_value = "N"
         self.atom_objects[2].name.return_value = "CB"
@@ -139,6 +141,7 @@ class MoleculeDictToMoleculeTests(TestCase):
         mock_res.assert_called_with(*self.atom_objects[:3], name="VAL")
         residue.add_side_chain.assert_any_call(self.atom_objects[2], occupancy=0.6)
         residue.add_side_chain.assert_any_call(self.atom_objects[3], occupancy=0.4)
+        self.assertIs(self.atom_objects[3]._residue, residue)
 
 
     @patch("atomium.files.pdbdict2pdb.Molecule")

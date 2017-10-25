@@ -8,3 +8,6 @@ install:
 
 script:
     - python -m unittest discover tests
+
+after_success:
+  - coveralls

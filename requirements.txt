@@ -2,3 +2,4 @@ geometrica
 matrices
 points
 requests
+python-coveralls

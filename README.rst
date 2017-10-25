@@ -1,4 +1,4 @@
-https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
+.. image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
 
 atomium
 =======

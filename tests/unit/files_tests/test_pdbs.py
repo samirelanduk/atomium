@@ -113,7 +113,7 @@ class PdbDateTests(TestCase):
     def test_date_must_be_date(self):
         pdb = Pdb()
         with self.assertRaises(TypeError):
-            pdb.code(datetime(2017, 9, 21))
+            pdb.deposition_date("date")
 
 
 

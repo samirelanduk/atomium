@@ -45,6 +45,7 @@ class ResidueCreationTests(ResidueTest):
 
 
     def test_atoms_are_linked_to_residue(self):
+        self.atom1.atom_id.return_value = 100
         res = Residue(self.atom1, self.atom2, self.atom3)
         self.assertIs(self.atom1._residue, res)
         self.assertIs(self.atom2._residue, res)

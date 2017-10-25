@@ -55,6 +55,7 @@ class ChainCreationTests(ChainTest):
 
 
     def test_atoms_are_linked_to_chain(self):
+        self.atom1.atom_id.return_value = 100
         chain = Chain(self.atom1, self.atom2, self.atom3)
         self.assertIs(self.atom1._chain, chain)
         self.assertIs(self.atom2._chain, chain)

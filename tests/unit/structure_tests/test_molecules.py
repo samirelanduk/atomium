@@ -48,6 +48,7 @@ class MoleculeCreationTests(MoleculeTest):
 
 
     def test_atoms_are_linked_to_molecule(self):
+        self.atom1.atom_id.return_value = 100
         mol = Molecule(self.atom1, self.atom2, self.atom3)
         self.assertIs(self.atom1._molecule, mol)
         self.assertIs(self.atom2._molecule, mol)

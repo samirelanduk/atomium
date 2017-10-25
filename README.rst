@@ -1,3 +1,5 @@
+https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
+
 atomium
 =======
 
@@ -27,7 +29,8 @@ atomium can be installed using pip:
 
 ``$ pip3 install atomium``
 
-atomium is written for Python 3, and does not support Python 2.
+atomium is written for Python 3, and does not support Python 2. It is currently
+tested on Python 3.6 and above.
 
 If you get permission errors, try using ``sudo``:
 
@@ -66,7 +69,7 @@ You can load a .xyz file as follows:
 
   >>> import atomium
   >>> glucose = atomium.xyz_from_file("glucose.xyz")
-  >>> glucose.comment()
+  >>> glucose.title()
   'glucose from 2gbp'
   >>> glucose.model()
   <Model (12 atoms)>
@@ -208,7 +211,7 @@ Any molecule can try and determine its binding site with the
   <'B5002' Site (8 residues)>
   >>> pdb.model().molecule("B5002").site().residues()
   {<Residue B1096 (ILE, 8 atoms)>, <Residue B1157 (PRO, 7 atoms)>, <Residue B1
-  123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9 
+  123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9
   atoms)>, <Residue B1072 (LYS, 9 atoms)>, <Residue B1156 (GLY, 4 atoms)>, <Re
   sidue B1155 (VAL, 7 atoms)>}
 
@@ -295,13 +298,13 @@ Release 0.6.0
 
 * Now allows for fetching and opening of PDB data dictionaries.
 * Added parsing/saving of HEADER and TITLE records in PDB files.
-* Added ability to exlcude elements from atom search.
+* Added ability to exclude elements from atom search.
 * Added ability to get nearby atoms in a model.
 * Added bind site identification.
 * Fixed chain length bottleneck in PDB model saving.
-* Overhauled PDb parsing by replacing classes with built in Python types.
-* Fixed bug where numerical residue names were intepreted as integers.
-* Chaged atoms so that they can allow negative B factors.
+* Overhauled PDB parsing by replacing classes with built in Python types.
+* Fixed bug where numerical residue names were interpreted as integers.
+* Changed atoms so that they can allow negative B factors.
 * Added loading of .xyz data dictionaries.
 * Miscellaneous speed increases.
 

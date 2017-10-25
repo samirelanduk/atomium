@@ -84,20 +84,6 @@ class ResidueMembershipTests(ResidueTest):
         self.assertIn("object", res)
 
 
-    @patch("atomium.structures.molecules.Molecule.__contains__")
-    def test_in_molecule(self, mock_in):
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        res._side_chains = [Mock(), Mock()]
-        res._side_chains[0].__contains__ = MagicMock()
-        res._side_chains[1].__contains__ = MagicMock()
-        res._side_chains[0].__contains__.return_value = False
-        res._side_chains[1].__contains__.return_value = True
-        mock_in.return_value = False
-        self.assertIn("object", res)
-        res._side_chains[1].__contains__.return_value = False
-        self.assertNotIn("object", res)
-
-
 
 class ResidueIdTests(ResidueTest):
 
@@ -122,76 +108,6 @@ class ResidueAtomRemovalTests(ResidueTest):
         res = Residue(self.atom1, self.atom2, self.atom3)
         res.remove_atom(self.atom3)
         self.assertIs(self.atom3._residue, None)
-
-
-
-class ResidueSideChainTest(ResidueTest):
-
-    def test_side_chain_none_when_no_side_chains(self):
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        self.assertIsNone(res.side_chain())
-
-
-    def test_side_chain_returns_sole_side_chain(self):
-        side_chain = Mock()
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        res._side_chains = set([side_chain])
-        self.assertIs(res.side_chain(), side_chain)
-
-
-    def test_side_chain_returns_highest_occupancy_side_chain(self):
-        side_chain1, side_chain2, side_chain3 = Mock(), Mock(), Mock()
-        side_chain1.occupancy.return_value = 1
-        side_chain2.occupancy.return_value = 2
-        side_chain3.occupancy.return_value = 3
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        res._side_chains = set([side_chain1, side_chain2, side_chain3])
-        self.assertIs(res.side_chain(), side_chain3)
-
-
-    def test_can_get_specific_side_chains(self):
-        side_chain1, side_chain2, side_chain3 = Mock(), Mock(), Mock()
-        side_chain1.occupancy.return_value = 1
-        side_chain2.occupancy.return_value = 3
-        side_chain3.occupancy.return_value = 3
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        res._side_chains = set([side_chain1, side_chain2, side_chain3])
-        self.assertEqual(res.side_chain(occupancy=3), set([side_chain2, side_chain3]))
-
-
-
-class ResidueSideChainsTests(ResidueTest):
-
-    def test_can_get_side_chains(self):
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        res._side_chains = set([1, 2, 3])
-        self.assertEqual(res.side_chains(), res._side_chains)
-        self.assertIsNot(res.side_chains(), res._side_chains)
-
-
-
-class ResidueSideChainAdditionTests(ResidueTest):
-
-    @patch("atomium.structures.molecules.SideChain")
-    def test_can_add_side_chain(self, mock_sc):
-        side_chain = Mock()
-        mock_sc.return_value = side_chain
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(res._side_chains, set())
-        res.add_side_chain(self.atom2, self.atom3)
-        mock_sc.assert_called_with(self.atom2, self.atom3, occupancy=1)
-        self.assertEqual(res._side_chains, set([side_chain]))
-
-
-    @patch("atomium.structures.molecules.SideChain")
-    def test_can_add_side_chain_with_occupancy(self, mock_sc):
-        side_chain = Mock()
-        mock_sc.return_value = side_chain
-        res = Residue(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(res._side_chains, set())
-        res.add_side_chain(self.atom2, self.atom3, occupancy=5)
-        mock_sc.assert_called_with(self.atom2, self.atom3, occupancy=5)
-        self.assertEqual(res._side_chains, set([side_chain]))
 
 
 

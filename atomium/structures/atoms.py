@@ -304,24 +304,6 @@ class Atom:
         return PERIODIC_TABLE.get(self._element.upper(), 0)
 
 
-    def occupancy(self):
-        """Returns the occupancy of the atom - how frequently the atom with
-        these coordinates is actually there. This is derived from the
-        :py:class:`.Residue` the atom is part of.
-
-        It will usually be 1.0.
-
-        :rtypeL ``float``"""
-
-        if self._residue:
-            occupancy = 0
-            for side_chain in self._residue.side_chains():
-                if self in side_chain.atoms():
-                    occupancy += side_chain.occupancy()
-            if occupancy: return occupancy
-        return 1
-
-
     def distance_to(self, other):
         """Returns the distance (in whatever units the coordinates are defined
         in) between this atom and another. You can also give a (x, y, z) tuple

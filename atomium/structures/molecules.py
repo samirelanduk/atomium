@@ -376,9 +376,7 @@ class Residue(Molecule):
 
 
     def __contains__(self, member):
-        return Molecule.__contains__(self, member) or any([
-         member in sc for sc in self._side_chains
-        ])
+        return Molecule.__contains__(self, member)
 
 
     def residue_id(self, residue_id=None):
@@ -406,40 +404,6 @@ class Residue(Molecule):
 
         Molecule.remove_atom(self, atom, *args, **kwargs)
         atom._residue = None
-
-
-    def side_chains(self):
-        """Returns all the :py:class:`.SideChain` objects of the residue.
-
-        :rtype: ``set``"""
-
-        return set(self._side_chains)
-
-
-    def side_chain(self, occupancy=None):
-        """Returns the :py:class:`.SideChain` of the residue. If there is more
-        than one, the one with the highest occupancy will be used.
-
-        :param float occupancy: if given, all side chains with this occupancy\
-        will be returned.
-        :rtype: ``SideChain``"""
-
-        if occupancy is not None:
-            return set([
-             sc for sc in self._side_chains if sc.occupancy() == occupancy
-            ])
-        for side_chain in sorted(
-         self._side_chains, key=lambda s: s.occupancy(), reverse=True
-        ):
-            return side_chain
-
-
-    def add_side_chain(self, *atoms, occupancy=1):
-        """Adds a :py:class:`.SideChain` to a residue. This does not affect the
-        atoms already in the residue, it is just an extra level of
-        annotation."""
-
-        self._side_chains.add(SideChain(*atoms, occupancy=occupancy))
 
 
     def next(self, residue=""):
@@ -509,44 +473,3 @@ class Residue(Molecule):
 
         for atom in self.atoms():
             return atom.chain()
-
-
-
-class SideChain(AtomicStructure):
-    """A representation of a :py:class:`.Residue` side chain - the atoms that
-    aren't the three amino acid backbone atoms.
-
-    :param \*atoms: The :py:class:`.Atom` objects that make up the structure.\
-    These can also be :py:class:`.AtomicStructure` objects, in which case the\
-    atoms of that structure will be used in its place.
-    :param str molecule_id: A unique str ID for the molecule. Uniqueness is not\
-    actually enforced.
-    :param str name: A name for the molecule.
-    :raises TypeError: if non-atoms are given.
-    :raises TypeError: if the molecule_id is not str."""
-
-    def __init__(self, *args, occupancy=1, **kwargs):
-        AtomicStructure.__init__(self, *args, **kwargs)
-        if not isinstance(occupancy, (int, float)):
-            raise TypeError("occupancy {} is not number".format(occupancy))
-        if not 0 < occupancy <= 1:
-            raise ValueError("Occupancy {} is not 0 < n ≤ 1".format(occupancy))
-        self._occupancy = occupancy
-
-
-    def occupancy(self, occupancy=None):
-        """Returns the Side Chain's occupancy - a measure of how often the
-        actual side chain is in this position. It must be between 0 and 1.
-        Providing a value will update the property.
-
-        :param float occupancy: If given, the occupancy will be updated to this.
-        :rtype: ``float``"""
-
-        if occupancy is None:
-            return self._occupancy
-        else:
-            if not isinstance(occupancy, (int, float)):
-                raise TypeError("occupancy {} is not number".format(occupancy))
-            if not 0 < occupancy <= 1:
-                raise ValueError("Occupancy {} not 0 < n ≤ 1".format(occupancy))
-            self._occupancy = occupancy

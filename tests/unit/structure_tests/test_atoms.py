@@ -462,57 +462,6 @@ class AtomMassTests(TestCase):
 
 
 
-class AtomOccupancyTests(TestCase):
-
-    def setUp(self):
-        self.residue = Mock()
-        self.side_chain1, self.side_chain2 = Mock(), Mock()
-        self.residue.side_chains.return_value = set([self.side_chain1])
-        self.side_chain1.atoms.return_value = set()
-        self.side_chain2.atoms.return_value = set()
-
-
-    def test_lone_atom_occupancy_is_1(self):
-        atom = Atom("C", 2, 3, 5)
-        self.assertEqual(atom.occupancy(), 1)
-
-
-    def test_atom_with_residue_occupancy_is_1(self):
-        atom = Atom("C", 2, 3, 5)
-        atom._residue = self.residue
-        self.assertEqual(atom.occupancy(), 1)
-
-
-    def test_atom_with_two_side_chain_residue_is_1(self):
-        atom = Atom("C", 2, 3, 5)
-        self.residue.side_chains.return_value.add(self.side_chain2)
-        atom._residue = self.residue
-        self.assertEqual(atom.occupancy(), 1)
-
-
-    def test_atom_in_side_chain_has_side_chains_occupancy(self):
-        atom = Atom("C", 2, 3, 5)
-        atom._residue = self.residue
-        self.residue.side_chains.return_value.add(self.side_chain2)
-        self.side_chain1.occupancy.return_value = 0.8
-        self.side_chain2.occupancy.return_value = 0.2
-        self.side_chain1.atoms.return_value = set(["a1", "a2"])
-        self.side_chain2.atoms.return_value = set(["a3", atom])
-        self.assertEqual(atom.occupancy(), 0.2)
-
-
-    def test_atom_in_multiple_chain_has_side_chains_occupancy(self):
-        atom = Atom("C", 2, 3, 5)
-        atom._residue = self.residue
-        self.residue.side_chains.return_value.add(self.side_chain2)
-        self.side_chain1.occupancy.return_value = 0.8
-        self.side_chain2.occupancy.return_value = 0.2
-        self.side_chain1.atoms.return_value = set(["a1", atom])
-        self.side_chain2.atoms.return_value = set(["a3", atom])
-        self.assertEqual(atom.occupancy(), 1)
-
-
-
 class AtomDistanceToTests(TestCase):
 
     def test_can_get_distance_between_atoms(self):

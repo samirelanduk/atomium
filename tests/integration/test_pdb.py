@@ -24,8 +24,6 @@ class PdbReadingTests(IntegratedTest):
         self.assertAlmostEqual(
          model.mass(), 46018.5, delta=0.005
         )
-        for atom in model.atoms():
-            self.assertEqual(atom.occupancy(), 1)
 
         # Chains are correct
         self.assertEqual(len(model.chains()), 2)
@@ -37,7 +35,6 @@ class PdbReadingTests(IntegratedTest):
         # Residues are correct
         self.assertEqual(chaina[0].name(), "VAL")
         self.assertEqual(chaina[0].next().name(), "MET")
-        self.assertEqual(len(chaina[0].side_chain().atoms()), 4)
         self.assertEqual(chaina[-1].name(), "ILE")
         self.assertEqual(chaina[-1].previous().name(), "SER")
         self.assertEqual(len(chaina.residues(name="ASN")), 6)
@@ -154,35 +151,9 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(len(residue2.atoms()), 14)
         self.assertEqual(len(residue3.atoms()), 10)
 
-        # Residue 1 is correct
-        side_chains = residue1.side_chains()
-        self.assertEqual(len(side_chains), 2)
-        self.assertEqual(residue1.side_chain().occupancy(), 0.8)
-        self.assertEqual(residue1.atom(atom_id=6).occupancy(), 1)
-        self.assertEqual(residue1.atom(atom_id=11).occupancy(), 0.8)
-        other_side_chain = [sc for sc in residue1.side_chains()
-         if sc is not residue1.side_chain()][0]
-        for atom in other_side_chain.atoms():
-            self.assertIs(atom.residue(), residue1)
-        self.assertEqual(other_side_chain.occupancy(), 0.2)
-        self.assertEqual(other_side_chain.atom(atom_id=12).occupancy(), 0.2)
-        self.assertEqual(len(residue1.side_chain().atoms()), 13)
-        self.assertEqual(len(other_side_chain.atoms()), 4)
-
-        # Residue 2 is correct
-        side_chains = residue2.side_chains()
-        self.assertEqual(len(side_chains), 2)
-        self.assertEqual(residue2.side_chain().occupancy(), 0.8)
-        other_side_chain = [sc for sc in residue2.side_chains()
-         if sc is not residue2.side_chain()][0]
-        self.assertEqual(other_side_chain.occupancy(), 0.2)
-
-        # Residue 3 is correct
-        side_chains = residue3.side_chains()
-        self.assertEqual(len(side_chains), 1)
-        self.assertEqual(residue3.side_chain().occupancy(), 1)
-        for atom in residue3.atoms():
-            self.assertEqual(atom.occupancy(), 1)
+        for residue in chain[:3]:
+            for name in ["N", "C", "CA", "CB"]:
+                self.assertEqual(len(residue.atoms(name=name)), 1)
 
 
     def test_can_read_pdb_data(self):
@@ -257,8 +228,12 @@ class PdbSavingTests(IntegratedTest):
             new = [l.strip() for l in f.readlines() if l.strip()]
         with open("tests/integration/files/1lol_output.pdb") as f:
             ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
+        for new_line, ref_line in zip(new[3:], ref[3:]):
             self.assertEqual(new_line, ref_line)
+        self.assertIn("9SAM", new[0])
+        self.assertIn("90", new[0])
+        self.assertIn("DREAMS", new[1])
+        self.assertIn("PAUSE", new[2])
         new = atomium.pdb_from_file("tests/integration/files/1LOL2.pdb")
         model = new.model()
         self.assertAlmostEqual(

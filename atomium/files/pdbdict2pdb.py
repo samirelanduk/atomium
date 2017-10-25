@@ -50,56 +50,18 @@ def chain_dict_to_chain(chain_dict):
 
 def residue_dict_to_residue(residue_dict, molecule=False):
     """Converts a residue ``dict`` to a :py:class:`.Residue` or
-    :py:class:`.Molecule`. In the case of residues, side chains will be added
-    which take into account multiple occupancy.
+    :py:class:`.Molecule`.
 
     :param dict residue_dict: The residue dictionary to load.
     :param bool molecule: if ``True``, a :py:class:`.Molecule` will be returned\
     instead of a :py:class:`.Residue`.
     :rtype: :py:class:`.Residue` or :py:class:`.Molecule`"""
 
-    # Get all atoms in the main residue
     atoms = [atom_dict_to_atom(atom) for atom in residue_dict["atoms"]
-     if atom["alt_loc"] is None or atom["alt_loc"].upper() == "A"]
-
-    # Build the residue from these atoms
+     if atom["alt_loc"] is None or atom["alt_loc"] == "A"]
     MolClass = Molecule if molecule else Residue
     residue = MolClass(*atoms, name=residue_dict["name"])
     residue._id = residue_dict["id"]
-
-    # If it's an actual Residue, add the side chain
-    if not molecule:
-        # Are there any alt locations?
-        alt_locs = sorted(set([atom["alt_loc"] for atom in residue_dict["atoms"]
-         if atom["alt_loc"] is not None]))
-
-        # If not, just build one side chain
-        if not alt_locs:
-            residue.add_side_chain(*[
-             atom for atom in atoms if atom.name() not in ["C", "N", "CA"]
-            ])
-        else:
-            # But if there are, build multiple side chains
-            for alt_loc in alt_locs:
-                is_a = alt_loc.upper() == "A"
-                occupancy, sc_atoms = 1, []
-                for atom_dict in residue_dict["atoms"]:
-                    if atom_dict["alt_loc"] == alt_loc or (
-                     atom_dict["alt_loc"] is None
-                    ):
-                        if atom_dict["occupancy"] < occupancy:
-                            occupancy = atom_dict["occupancy"]
-                        try:
-                            atom_obj = [atom for atom in atoms
-                             if atom.atom_id() == atom_dict["atom_id"]][0]
-                        except IndexError:
-                            atom_obj = atom_dict_to_atom(atom_dict)
-                        sc_atoms.append(atom_obj)
-                sc_atoms = [atom for atom in sc_atoms
-                 if atom.name() not in ["C", "N", "CA"] ]
-                residue.add_side_chain(*sc_atoms, occupancy=occupancy)
-                for atom in sc_atoms:
-                    atom._residue = residue
     return residue
 
 

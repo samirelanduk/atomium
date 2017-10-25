@@ -86,7 +86,7 @@ def atom_dict_to_atom_line(d, hetero=False):
     :rtype: ``str``"""
 
     line = "{:6}{:5} {:4}{:1}{:3} {:1}{:4}{:1}   "
-    line += "{:8}{:8}{:8}{:6}{:6}          {:>2}{:2}"
+    line += "{:>8}{:>8}{:>8}{:6}{:6}          {:>2}{:2}"
     atom_name = d["atom_name"] if d["atom_name"] else ""
     atom_name = " " + atom_name if len(atom_name) < 4 else atom_name
     occupancy = "  1.00" if (
@@ -101,9 +101,9 @@ def atom_dict_to_atom_line(d, hetero=False):
      d["chain_id"],
      d["residue_id"] if d["residue_id"] else "",
      d["insert_code"],
-     d["x"] if d["x"] is not None else "",
-     d["y"] if d["y"] is not None else "",
-     d["z"] if d["z"] is not None else "",
+     "{:.3f}".format(d["x"]) if d["x"] is not None else "",
+     "{:.3f}".format(d["y"]) if d["y"] is not None else "",
+     "{:.3f}".format(d["z"]) if d["z"] is not None else "",
      occupancy,
      d["temp_factor"] if d["temp_factor"] is not None else "",
      d["element"] if d["element"] else "",

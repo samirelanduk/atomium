@@ -150,7 +150,7 @@ class AtomDictToAtomLineTests(TestCase):
          "atom_id": 107, "atom_name": "N", "alt_loc": "A",
          "residue_name": "GLY",
          "chain_id": "B", "residue_id": 13, "insert_code": "C",
-         "x": 12.681, "y": 7.302, "z": -25.211,
+         "x": 12.681, "y": 7.302, "z": -25.21,
          "occupancy": 0.5, "temp_factor": 15.5,
          "element": "N", "charge": -2
         }
@@ -183,7 +183,7 @@ class AtomDictToAtomLineTests(TestCase):
         self.assertEqual(line[27:30], "   ")
         self.assertEqual(line[30:38], "  12.681")
         self.assertEqual(line[38:46], "   7.302")
-        self.assertEqual(line[46:54], " -25.211")
+        self.assertEqual(line[46:54], " -25.210")
         self.assertEqual(line[54:60], "  0.50")
         self.assertEqual(line[60:66], "  15.5")
         self.assertEqual(line[66:76], " " * 10)
@@ -208,9 +208,9 @@ class AtomDictToAtomLineTests(TestCase):
         self.atom_dict["y"] = 0.0
         self.atom_dict["z"] = 0.0
         line = atom_dict_to_atom_line(self.atom_dict)
-        self.assertEqual(line[30:38], "     0.0")
-        self.assertEqual(line[38:46], "     0.0")
-        self.assertEqual(line[46:54], "     0.0")
+        self.assertEqual(line[30:38], "   0.000")
+        self.assertEqual(line[38:46], "   0.000")
+        self.assertEqual(line[46:54], "   0.000")
 
 
     def test_can_convert_heteroatom_dict_to_line(self):

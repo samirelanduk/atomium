@@ -1,6 +1,9 @@
-.. image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
-.. image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=master
-.. image:: https://img.shields.io/pypi/pyversions/atomium.svg
+
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=master
+.. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
+
+|travis| |coveralls| |pypi|
 
 atomium
 =======

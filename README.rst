@@ -1,7 +1,5 @@
 .. image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
-
 .. image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=master
-
 .. image:: https://img.shields.io/pypi/pyversions/atomium.svg
 
 atomium

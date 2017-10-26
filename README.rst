@@ -1,7 +1,9 @@
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.7
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=master
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.7
+
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
+
 
 |travis| |coveralls| |pypi|
 
@@ -35,7 +37,7 @@ atomium can be installed using pip:
 ``$ pip3 install atomium``
 
 atomium is written for Python 3, and does not support Python 2. It is currently
-tested on Python 3.6 and above.
+tested on Python 3.3 and above.
 
 If you get permission errors, try using ``sudo``:
 

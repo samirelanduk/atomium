@@ -12,7 +12,7 @@ class PdbDictToPdbTests(TestCase):
         mock_pdb.return_value = pdb
         mock_model.side_effect = ["model1", "model2", "model3"]
         pdb_dict = {
-         "deposition_date": "D", "code": "C", "title": "T",
+         "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.4,
          "models": ["1", "2", "3"],
          "connections": ["c1", "c2"]
         }
@@ -24,6 +24,7 @@ class PdbDictToPdbTests(TestCase):
         self.assertEqual(returned_pdb._deposition_date, "D")
         self.assertEqual(returned_pdb._code, "C")
         self.assertEqual(returned_pdb._title, "T")
+        self.assertEqual(returned_pdb._resolution, 1.4)
         self.assertEqual(returned_pdb._models, ["model1", "model2", "model3"])
 
 

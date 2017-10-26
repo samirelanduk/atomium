@@ -12,6 +12,7 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._code, None)
         self.assertEqual(pdb._deposition_date, None)
         self.assertEqual(pdb._title, None)
+        self.assertEqual(pdb._resolution, None)
 
 
 
@@ -136,6 +137,29 @@ class PdbTitleTests(TestCase):
         pdb = Pdb()
         with self.assertRaises(TypeError):
             pdb.title(100)
+
+
+
+class PdbResolutionTests(TestCase):
+
+    def test_can_get_pdb_resolution(self):
+        pdb = Pdb()
+        pdb._resolution = 1.2
+        self.assertIs(pdb._resolution, pdb.resolution())
+
+
+    def test_can_update_resolution(self):
+        pdb = Pdb()
+        pdb._resolution = 1.2
+        pdb.resolution(1.5)
+        self.assertEqual(pdb._resolution, 1.5)
+
+
+    def test_resolution_must_be_number(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.resolution("100")
+        pdb.resolution(3)
 
 
 

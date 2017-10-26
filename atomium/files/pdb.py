@@ -8,7 +8,9 @@ class Pdb:
 
     def __init__(self):
         self._models = []
-        self._code, self._deposition_date, self._title = None, None, None
+        self._code, self._deposition_date = None, None
+        self._title = None
+        self._resolution = None
 
 
     def __repr__(self):
@@ -81,6 +83,22 @@ class Pdb:
             self._title = title
         else:
             return self._title
+
+
+    def resolution(self, resolution=None):
+        """Returns or sets the Pdb's resolution. If a value is given, the
+        resolution will be updated.
+
+        :param str resolution: if given, the resolution will be updated.
+        :raises TypeError: if a non-numeric resolution is given.
+        :rtype: ``float``"""
+
+        if resolution:
+            if not isinstance(resolution, (int, float)):
+                raise TypeError("Resolution {} isn't numeric".format(resolution))
+            self._resolution = resolution
+        else:
+            return self._resolution
 
 
     def to_file_string(self):

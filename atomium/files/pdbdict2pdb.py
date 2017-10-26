@@ -15,6 +15,7 @@ def pdb_dict_to_pdb(pdb_dict):
     pdb._deposition_date = pdb_dict["deposition_date"]
     pdb._code = pdb_dict["code"]
     pdb._title = pdb_dict["title"]
+    pdb._resolution = pdb_dict["resolution"]
     pdb._models = [model_dict_to_model(
      d, pdb_dict["connections"]
     ) for d in pdb_dict["models"]]

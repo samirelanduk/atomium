@@ -33,6 +33,15 @@ def extract_header(pdb_dict, lines):
         pdb_dict["deposition_date"], pdb_dict["code"] = None, None
     title_lines = get_lines("TITLE", lines)
     pdb_dict["title"] = merge_lines(title_lines, 10) if title_lines else None
+    remark_lines = get_lines("REMARK", lines)
+    for remark in remark_lines:
+        if int(remark[7:10]) == 2 and remark[10:].strip():
+            try:
+                pdb_dict["resolution"] = float(remark[10:].strip().split()[1])
+            except ValueError: pdb_dict["resolution"] = None
+            break
+    else:
+        pdb_dict["resolution"] = None
 
 
 def extract_structure(pdb_dict, lines):

@@ -27,6 +27,14 @@ class HeaderExtractionTests(TestCase):
          "HEADER    UNKNOWN FUNCTION" + " " * 24 + "21-AUG-17   6AR7" + " " * 14
         )
         self.title_lines = ["TITLE     L1".ljust(80), "TITLE    2 L2".ljust(80)]
+        self.remark_lines = [
+         "REMARK   1",
+         "REMARK   1 BLAH BLAH.",
+         "REMARK   2",
+         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.",
+         "REMARK  24",
+         "REMARK  24 BLAH BLAH."
+        ]
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")
@@ -34,17 +42,19 @@ class HeaderExtractionTests(TestCase):
     @patch("atomium.files.pdbstring2pdbdict.merge_lines")
     def test_can_extract_header(self, mock_merge, mock_lines, mock_line):
         mock_line.return_value = self.header_line
-        mock_lines.return_value = self.title_lines
+        mock_lines.side_effect = [self.title_lines, self.remark_lines]
         mock_merge.return_value = "MERGED TEXT"
         extract_header(self.pdb_dict, self.lines)
         mock_line.assert_called_with("HEADER", self.lines)
-        mock_lines.assert_called_with("TITLE", self.lines)
+        mock_lines.assert_any_call("TITLE", self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
         mock_merge.assert_called_with(self.title_lines, 10)
         self.assertEqual(
          self.pdb_dict["deposition_date"], datetime(2017, 8, 21).date()
         )
         self.assertEqual(self.pdb_dict["code"], "6AR7")
         self.assertEqual(self.pdb_dict["title"], "MERGED TEXT")
+        self.assertEqual(self.pdb_dict["resolution"], 1.9)
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")
@@ -52,7 +62,7 @@ class HeaderExtractionTests(TestCase):
     @patch("atomium.files.pdbstring2pdbdict.merge_lines")
     def test_empty_header_extraction(self, mock_merge, mock_lines, mock_line):
         mock_line.return_value = "HEADER".ljust(80)
-        mock_lines.return_value = self.title_lines
+        mock_lines.side_effect = [self.title_lines, self.remark_lines]
         mock_merge.return_value = "MERGED TEXT"
         extract_header(self.pdb_dict, self.lines)
         mock_line.assert_called_with("HEADER", self.lines)
@@ -65,7 +75,7 @@ class HeaderExtractionTests(TestCase):
     @patch("atomium.files.pdbstring2pdbdict.merge_lines")
     def test_missing_header_extraction(self, mock_merge, mock_lines, mock_line):
         mock_line.return_value = None
-        mock_lines.return_value = self.title_lines
+        mock_lines.side_effect = [self.title_lines, self.remark_lines]
         mock_merge.return_value = "MERGED TEXT"
         extract_header(self.pdb_dict, self.lines)
         mock_line.assert_called_with("HEADER", self.lines)
@@ -77,10 +87,46 @@ class HeaderExtractionTests(TestCase):
     @patch("atomium.files.pdbstring2pdbdict.get_lines")
     def test_missing_title_extraction(self, mock_lines, mock_line):
         mock_line.return_value = self.header_line
-        mock_lines.return_value = []
+        mock_lines.side_effect = [[], self.remark_lines]
         extract_header(self.pdb_dict, self.lines)
-        mock_lines.assert_called_with("TITLE", self.lines)
+        mock_lines.assert_any_call("TITLE", self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
         self.assertEqual(self.pdb_dict["title"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_line")
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_empty_remark_extraction(self, mock_lines, mock_line):
+        self.remark_lines[1] = "REMARK   2 RESOLUTION. NOT APPLICABLE."
+        mock_line.return_value = self.header_line
+        mock_lines.side_effect = [self.title_lines, self.remark_lines]
+        extract_header(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("TITLE", self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["resolution"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_line")
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_missing_remarks_extraction(self, mock_lines, mock_line):
+        mock_line.return_value = self.header_line
+        mock_lines.side_effect = [self.title_lines, []]
+        extract_header(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("TITLE", self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["resolution"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_line")
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_missing_remark_extraction(self, mock_lines, mock_line):
+        self.remark_lines.pop(2), self.remark_lines.pop(2)
+        mock_line.return_value = self.header_line
+        mock_lines.side_effect = [self.title_lines, self.remark_lines]
+        extract_header(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("TITLE", self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["resolution"], None)
 
 
 

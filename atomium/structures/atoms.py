@@ -2,7 +2,7 @@
 
 import weakref
 from math import sqrt, acos, degrees
-from points import Vector, is_numeric
+from points import Vector
 
 class Atom:
     """Represents an atom in three dimensional space. Every atom has an element
@@ -31,19 +31,19 @@ class Atom:
             raise TypeError("Element '{}' is not str".format(element))
         if not 0 < len(element) < 3:
             raise ValueError("Element {} is not 1 or 2 chars".format(element))
-        if not is_numeric(x):
+        if not isinstance(x, (float, int)):
             raise TypeError("x coordinate '{}' is not numeric".format(x))
-        if not is_numeric(y):
+        if not isinstance(y, (float, int)):
             raise TypeError("y coordinate '{}' is not numeric".format(y))
-        if not is_numeric(z):
+        if not isinstance(z, (float, int)):
             raise TypeError("z coordinate '{}' is not numeric".format(z))
         if atom_id is not None and not isinstance(atom_id, int):
             raise TypeError("ID {} is not an integer".format(atom_id))
         if name is not None and not isinstance(name, str):
             raise TypeError("name {} is not a string".format(name))
-        if not is_numeric(charge):
+        if not isinstance(charge, (float, int)):
             raise TypeError("charge '{}' is not numeric".format(charge))
-        if not is_numeric(bfactor):
+        if not isinstance(bfactor, (float, int)):
             raise TypeError("bfactor '{}' is not numeric".format(bfactor))
         self._element = element
         self._x = x
@@ -96,7 +96,7 @@ class Atom:
         if x is None:
             return self._x
         else:
-            if not is_numeric(x):
+            if not isinstance(x, (float, int)):
                 raise TypeError("x coordinate '{}' is not numeric".format(x))
             self._x = x
 
@@ -112,7 +112,7 @@ class Atom:
         if y is None:
             return self._y
         else:
-            if not is_numeric(y):
+            if not isinstance(y, (float, int)):
                 raise TypeError("y coordinate '{}' is not numeric".format(y))
             self._y = y
 
@@ -128,7 +128,7 @@ class Atom:
         if z is None:
             return self._z
         else:
-            if not is_numeric(z):
+            if not isinstance(z, (float, int)):
                 raise TypeError("z coordinate '{}' is not numeric".format(z))
             self._z = z
 
@@ -211,7 +211,7 @@ class Atom:
         if charge is None:
             return self._charge
         else:
-            if not is_numeric(charge):
+            if not isinstance(charge, (float, int)):
                 raise TypeError("charge '{}' is not numeric".format(charge))
             self._charge = charge
 
@@ -227,7 +227,7 @@ class Atom:
         if bfactor is None:
             return self._bfactor
         else:
-            if not is_numeric(bfactor):
+            if not isinstance(bfactor, (float, int)):
                 raise TypeError("bfactor '{}' is not numeric".format(bfactor))
             self._bfactor = bfactor
 

@@ -9,8 +9,8 @@ class MoleculeTest(TestCase):
         self.atom1, self.atom2, self.atom3 = Mock(Atom), Mock(Atom), Mock(Atom)
         self.atoms = [self.atom1, self.atom2, self.atom3]
         def mock_init(obj, *args, **kwargs):
-            obj._atoms = set()
-            obj._id_atoms = {}
+            obj._atoms = set(args[:1])
+            obj._id_atoms = {i: arg for i, arg in enumerate(args[1:])}
         self.mock_init = mock_init
 
 

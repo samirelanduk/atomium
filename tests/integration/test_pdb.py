@@ -12,6 +12,7 @@ class PdbReadingTests(IntegratedTest):
          "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
         )
         self.assertEqual(pdb.deposition_date(), datetime(2002, 5, 6).date())
+        self.assertEqual(pdb.resolution(), 1.9)
 
         # Atoms are correct
         model = pdb.model()
@@ -122,6 +123,7 @@ class PdbReadingTests(IntegratedTest):
 
     def test_can_read_multi_model_pdbs(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
+        self.assertEqual(pdb.resolution(), None)
 
         models = pdb.models()
         self.assertEqual(len(models), 10)

@@ -103,7 +103,7 @@ class HeaderExtractionTests(TestCase):
         extract_header(self.pdb_dict, self.lines)
         mock_lines.assert_any_call("TITLE", self.lines)
         mock_lines.assert_any_call("REMARK", self.lines)
-        self.assertEqual(self.pdb_dict["resolution"], None)
+        self.assertEqual(self.pdb_dict["resolution"], 0)
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")

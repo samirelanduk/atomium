@@ -41,6 +41,14 @@ def pack_header(lines, pdb_dict):
          chunk
         ).ljust(80) for number, chunk in enumerate(title_chunks, start=1)]
         lines += title_records
+    if pdb_dict["resolution"] is not None:
+        lines.append("REMARK   2".ljust(80))
+        if pdb_dict["resolution"] == 0:
+            lines.append("REMARK   2 RESOLUTION. NOT APPLICABLE.".ljust(80))
+        else:
+            lines.append("REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(
+             pdb_dict["resolution"]
+            ).ljust(80))
 
 
 def pack_structure(lines, pdb_dict):

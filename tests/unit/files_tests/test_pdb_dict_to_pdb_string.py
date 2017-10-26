@@ -24,7 +24,7 @@ class HeaderPackingTests(TestCase):
     def setUp(self):
         self.pdb_dict = {
          "deposition_date": datetime(1990, 9, 1).date(),
-         "code": "1XYZ", "title": "ABC" * 40
+         "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9
         }
         self.lines = []
 
@@ -34,12 +34,15 @@ class HeaderPackingTests(TestCase):
         self.assertEqual(self.lines, [
          "HEADER" + " " * 44 + "01-SEP-90   1XYZ" + " " * 14,
          "TITLE     " + "ABC" * 23 + "A",
-         "TITLE    2 " + "BC" + "ABC" * 16 + " " * 19
+         "TITLE    2 " + "BC" + "ABC" * 16 + " " * 19,
+         "REMARK   2" + " " * 70,
+         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.".ljust(80)
         ])
 
 
     def test_can_pack_deposition_date(self):
         self.pdb_dict["code"], self.pdb_dict["title"] = None, None
+        self.pdb_dict["resolution"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "HEADER" + " " * 44 + "01-SEP-90       " + " " * 14,
@@ -48,6 +51,7 @@ class HeaderPackingTests(TestCase):
 
     def test_can_pack_code(self):
         self.pdb_dict["deposition_date"], self.pdb_dict["title"] = None, None
+        self.pdb_dict["resolution"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "HEADER" + " " * 44 + "            1XYZ" + " " * 14,
@@ -56,11 +60,29 @@ class HeaderPackingTests(TestCase):
 
     def test_can_pack_title(self):
         self.pdb_dict["deposition_date"], self.pdb_dict["code"] = None, None
+        self.pdb_dict["resolution"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "TITLE     " + "ABC" * 23 + "A",
          "TITLE    2 " + "BC" + "ABC" * 16 + " " * 19
         ])
+
+
+    def test_can_pack_resolution(self):
+        self.pdb_dict["deposition_date"], self.pdb_dict["title"] = None, None
+        self.pdb_dict["code"] = None
+        pack_header(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines[0], "REMARK   2" + " " * 70)
+        self.assertEqual(self.lines[1],  "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.".ljust(80))
+
+
+    def test_can_pack_zero_resolution(self):
+        self.pdb_dict["deposition_date"], self.pdb_dict["title"] = None, None
+        self.pdb_dict["code"] = None
+        self.pdb_dict["resolution"] = 0
+        pack_header(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines[0], "REMARK   2" + " " * 70)
+        self.assertEqual(self.lines[1],  "REMARK   2 RESOLUTION. NOT APPLICABLE.".ljust(80))
 
 
 

@@ -16,6 +16,7 @@ def pdb_to_pdb_dict(pdb):
     pdb_dict["deposition_date"] = pdb._deposition_date
     pdb_dict["code"] = pdb._code
     pdb_dict["title"] = pdb._title
+    pdb_dict["resolution"] = pdb._resolution
     return pdb_dict
 
 
@@ -38,7 +39,7 @@ def structure_to_pdb_dict(structure):
     connections = structure_to_connections(structure)
     return {
      "models": [model], "connections": connections,
-     "deposition_date": None, "code": None, "title": None
+     "deposition_date": None, "code": None, "title": None, "resolution": None
     }
 
 

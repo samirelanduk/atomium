@@ -10,12 +10,13 @@ class PdbToPdbDictTests(TestCase):
         pdb._deposition_date = "D"
         pdb._code = "C"
         pdb._title = "T"
+        pdb._resolution = 1.5
         pdb._models = ["model1"]
         mock_dict.return_value = {"models": ["m1"], "connections": ["c1", "c2"]}
         pdb_dict = pdb_to_pdb_dict(pdb)
         mock_dict.assert_called_with("model1")
         self.assertEqual(pdb_dict, {
-         "deposition_date": "D", "code": "C", "title": "T",
+         "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "models": ["m1"], "connections": ["c1", "c2"]
         })
 
@@ -26,6 +27,7 @@ class PdbToPdbDictTests(TestCase):
         pdb._deposition_date = "D"
         pdb._code = "C"
         pdb._title = "T"
+        pdb._resolution = 1.5
         pdb._models = ["model1", "model2"]
         mock_dict.side_effect = [
          {"models": ["m1"], "connections": ["c1", "c2"]},
@@ -35,7 +37,7 @@ class PdbToPdbDictTests(TestCase):
         mock_dict.assert_any_call("model1")
         mock_dict.assert_any_call("model2")
         self.assertEqual(pdb_dict, {
-         "deposition_date": "D", "code": "C", "title": "T",
+         "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "models": ["m1", "m2"], "connections": ["c1", "c2"]
         })
 
@@ -69,6 +71,7 @@ class StructureToPdbDictTests(TestCase):
          "deposition_date": None,
          "code": None,
          "title": None,
+         "resolution": None,
          "models": [{
           "chains": ["chain1", "chain2"],
           "molecules": ["mol1", "mol2"]

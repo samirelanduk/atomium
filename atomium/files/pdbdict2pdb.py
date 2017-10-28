@@ -58,8 +58,11 @@ def residue_dict_to_residue(residue_dict, molecule=False):
     instead of a :py:class:`.Residue`.
     :rtype: :py:class:`.Residue` or :py:class:`.Molecule`"""
 
-    atoms = [atom_dict_to_atom(atom) for atom in residue_dict["atoms"]
-     if atom["alt_loc"] is None or atom["alt_loc"] == "A"]
+    atoms = [
+     atom_dict_to_atom(atom) for atom in residue_dict["atoms"]
+      if atom["alt_loc"] is None or atom["alt_loc"] == "A"
+       or atom["alt_loc"] == "1"
+    ]
     MolClass = Molecule if molecule else Residue
     residue = MolClass(*atoms, name=residue_dict["name"])
     residue._id = residue_dict["id"]

@@ -120,7 +120,6 @@ class MoleculeDictToMoleculeTests(TestCase):
     @patch("atomium.files.pdbdict2pdb.Residue")
     @patch("atomium.files.pdbdict2pdb.atom_dict_to_atom")
     def test_can_convert_residue_dict_to_residue_alt_loc(self, mock_atom, mock_res):
-        self.atom_dicts[1]["alt_loc"] = "1"
         self.atom_dicts[2]["alt_loc"] = "A"
         self.atom_dicts[3]["alt_loc"] = "B"
         self.atom_dicts[2]["occupancy"] = 0.8
@@ -131,7 +130,7 @@ class MoleculeDictToMoleculeTests(TestCase):
         res_dict = {"id": "A12", "name": "VAL", "atoms": self.atom_dicts}
         returned_residue = residue_dict_to_residue(res_dict)
         mock_atom.assert_any_call({"alt_loc": None, "atom_id": 1, "occupancy": 1})
-        mock_atom.assert_any_call({"alt_loc": "1", "atom_id": 2, "occupancy": 1})
+        mock_atom.assert_any_call({"alt_loc": None, "atom_id": 2, "occupancy": 1})
         mock_atom.assert_any_call({"alt_loc": "A", "atom_id": 3, "occupancy": 0.8})
         self.assertEqual(mock_atom.call_count, 3)
         self.assertIs(returned_residue, residue)

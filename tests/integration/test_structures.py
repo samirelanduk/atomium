@@ -1,3 +1,4 @@
+import math
 from tests.integration.base import IntegratedTest
 from atomium.structures import Model, Atom, Residue, Chain, Molecule
 import atomium
@@ -56,7 +57,7 @@ class StructureTests(IntegratedTest):
         model.translate(-12, -11.5, -1.5)
         self.assertEqual((atom1.x(), atom1.y(), atom1.z()), (0, 0, 0))
         self.assertEqual((atom2.x(), atom2.y(), atom2.z()), (0.5, -1.5, 0.5))
-        model.rotate("x", 180)
+        model.rotate(math.pi, "x")
         self.assertEqual((atom1.x(), atom1.y(), atom1.z()), (0, 0, 0))
 
         # Atoms can be removed

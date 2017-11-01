@@ -3,7 +3,6 @@
 from collections import Counter
 import weakref
 from math import sqrt
-from geometrica import translate, rotate
 from .atoms import Atom
 
 class AtomicStructure:
@@ -125,7 +124,7 @@ class AtomicStructure:
         the number of returned pairs will be a triangle number.
 
         :rtype: ``list``"""
-        
+
         atoms = list(self.atoms())
         for a_index in range(len(atoms) - 1):
             for o_index in range(a_index + 1, len(atoms)):
@@ -166,23 +165,19 @@ class AtomicStructure:
         :param Number dy: The distance to move in the y direction.
         :param Number dz: The distance to move in the z direction."""
 
-        atoms = list(self.atoms())
-        points = translate(atoms, dx, dy, dz)
-        for index, atom in enumerate(atoms):
-            atom._x, atom._y, atom._z = points[index]
+        for atom in self.atoms():
+            atom.translate(dx, dy, dz)
 
 
-    def rotate(self, axis, angle):
+    def rotate(self, angle, axis):
         """Rotates the structure about an axis, updating all atom coordinates
         accordingly.
 
-        :param str axis: The axis to rotate around. Can only be 'x', 'y' or 'z'.
-        :param Number angle: The angle in degrees. Rotation is right handed."""
+        :param Number angle: The angle in radians.
+        :param str axis: The axis to rotate around. Can only be 'x', 'y' or 'z'."""
 
-        atoms = list(self.atoms())
-        points = rotate(atoms, axis, angle)
-        for index, atom in enumerate(atoms):
-            atom._x, atom._y, atom._z = points[index]
+        for atom in self.atoms():
+            atom.rotate(angle, axis)
 
 
     def center_of_mass(self):

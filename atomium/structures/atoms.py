@@ -141,6 +141,29 @@ class Atom:
         return (self._x, self._y, self._z)
 
 
+    def translate(self, dx, dy, dz):
+        """Translates an atom in 3D space.
+
+        :param float dx: The distance to move in the x direction.
+        :param float dy: The distance to move in the y direction.
+        :param float dz: The distance to move in the z direction."""
+
+        self._x += dx
+        self._y += dy
+        self._z += dz
+
+
+    def rotate(self, angle, axis):
+        """Rotates an atom in 3D space.
+
+        :param float angle: Angle in radians.
+        :param str axis: The axis to rotate around."""
+        
+        vector = Vector(self._x, self._y, self._z)
+        vector.rotate(angle, axis)
+        self._x, self._y, self._z = vector.values()
+
+
     def atom_id(self):
         """Returns the atom's unique integer ID.
 

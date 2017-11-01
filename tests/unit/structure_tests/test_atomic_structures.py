@@ -243,44 +243,24 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
 class AtomicStructureTranslationTests(AtomicStructureTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    @patch("atomium.structures.molecules.translate")
-    def test_translation_uses_geometrica(self, mock_translate, mock_atoms):
-        mock_atoms.return_value = [self.atoms[0]] + [self.atoms[-1]]
-        structure = AtomicStructure(self.atom1, self.atom3)
-        mock_translate.return_value = [(6, 6, 1), (9, 9, 4)]
-        self.atom1._x, self.atom1._y, self.atom1._z = 1, 2, 3
-        self.atom3._x, self.atom3._y, self.atom3._z = 4, 5, 6
+    def test_structure_translation(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         structure.translate(5, 4, -2)
-        mock_translate.assert_called_with([self.atoms[0]] + [self.atoms[-1]], 5, 4, -2)
-        self.assertEqual(
-         set([
-          (self.atom1._x, self.atom1._y, self.atom1._z),
-          (self.atom3._x, self.atom3._y, self.atom3._z)
-         ]),
-         set([(6, 6, 1), (9, 9, 4)])
-        )
+        for atom in self.atoms:
+            atom.translate.assert_called_with(5, 4, -2)
 
 
 
 class AtomicStructureRotationTests(AtomicStructureTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    @patch("atomium.structures.molecules.rotate")
-    def test_rotation_uses_geometrica(self, mock_rotate, mock_atoms):
-        mock_atoms.return_value = [self.atoms[0]] + [self.atoms[-1]]
-        structure = AtomicStructure(self.atom1, self.atom3)
-        mock_rotate.return_value = [(6, 6, 1), (9, 9, 4)]
-        self.atom1._x, self.atom1._y, self.atom1._z = 1, 2, 3
-        self.atom3._x, self.atom3._y, self.atom3._z = 4, 5, 6
-        structure.rotate("x", 90)
-        mock_rotate.assert_called_with([self.atoms[0]] + [self.atoms[-1]], "x", 90)
-        self.assertEqual(
-         set([
-          (self.atom1._x, self.atom1._y, self.atom1._z),
-          (self.atom3._x, self.atom3._y, self.atom3._z)
-         ]),
-         set([(6, 6, 1), (9, 9, 4)])
-        )
+    def test_structure_rotation(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.rotate(0.1, "z")
+        for atom in self.atoms:
+            atom.rotate.assert_called_with(0.1, "z")
 
 
 

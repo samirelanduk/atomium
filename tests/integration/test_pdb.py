@@ -55,6 +55,11 @@ class PdbReadingTests(IntegratedTest):
             self.assertIs(atom.molecule(), chaina)
             self.assertIs(atom.chain(), chaina)
             self.assertIs(atom.model(), model)
+        gly = chaina.residue(residue_id="A32")
+        pairs = list(gly.pairwise_atoms())
+        self.assertEqual(len(pairs), 6)
+        for pair in pairs:
+            self.assertTrue(0 < pair[0].distance_to(pair[1]), 5)
 
         # Molecules are correct
         self.assertEqual(len(model.molecules()), 186)

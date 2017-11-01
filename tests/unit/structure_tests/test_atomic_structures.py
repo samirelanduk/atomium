@@ -183,6 +183,30 @@ class AtomicStructureAtomRemovalTests(AtomicStructureTest):
 
 
 
+class AtomicStructurePairwiseAtomTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.atoms")
+    def test_can_get_pairwise_atoms(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        collected_atoms = []
+        for pair in structure.pairwise_atoms():
+            self.assertIsNot(pair[0], pair[1])
+            collected_atoms.append(pair[0])
+            collected_atoms.append(pair[1])
+        for atom in self.atoms:
+            self.assertEqual(collected_atoms.count(atom), 2)
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.atoms")
+    def test_can_get_pairwise_atoms_one(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms[:1])
+        structure = AtomicStructure(self.atom1)
+        self.assertEqual(len(list(structure.pairwise_atoms())), 0)
+
+
+
+
 class AtomicStructureMassTests(AtomicStructureTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.atoms")

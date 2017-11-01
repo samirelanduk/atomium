@@ -119,6 +119,19 @@ class AtomicStructure:
             self._atoms.remove(atom)
 
 
+    def pairwise_atoms(self):
+        """A generator which yeilds all the pairwise atom combinations of the
+        structure. There will be no duplicates in the returned generator, and
+        the number of returned pairs will be a triangle number.
+
+        :rtype: ``list``"""
+        
+        atoms = list(self.atoms())
+        for a_index in range(len(atoms) - 1):
+            for o_index in range(a_index + 1, len(atoms)):
+                yield [atoms[a_index], atoms[o_index]]
+
+
     def mass(self):
         """Returns the mass of the structure in Daltons, based on the masses of
         its atoms.

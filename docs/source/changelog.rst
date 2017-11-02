@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+Release 0.7.0
+~~~~~~~~~~~~~
+
+`2 November 2017`
+
+* PDBs with multiple occupancy can now be parsed correctly.
+* Added pairwise atom generator.
+* PDB parser now extracts resolution.
+* Further speed increased to PDB parser.
+* Miscellaneous bug fixes.
+* Implemented Continuous Integration.
+
+
 Release 0.6.0
 ~~~~~~~~~~~~~
 

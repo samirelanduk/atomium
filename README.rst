@@ -1,11 +1,15 @@
 .. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.7
 
+.. _travis: https://travis-ci.org/samirelanduk/atomium/
+
 .. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.7
+
+.. _coveralls: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
 
 
-|travis| |coveralls| |pypi|
+|travis|_ |coveralls|_ |pypi|
 
 atomium
 =======
@@ -36,8 +40,8 @@ atomium can be installed using pip:
 
 ``$ pip3 install atomium``
 
-atomium is written for Python 3, and does not support Python 2. It is currently
-tested on Python 3.3 and above.
+atomium is written for Python 3, and does not support Python 2. It currently
+requires Python 3.5 and above.
 
 If you get permission errors, try using ``sudo``:
 
@@ -66,8 +70,8 @@ automatically when it installs atomium.
 Overview
 --------
 
-atomium allows you to open .xyz files, manipulate the model within, and save
-them as new .xyz files.
+atomium allows you to open .pdb and .xyz files, manipulate the model within,
+and save them as new files.
 
 From .xyz
 ~~~~~~~~~
@@ -94,6 +98,10 @@ from the RCSB over the internet using the PDB code:
 
   >>> pdb = atomium.pdb_from_file("1LOL.pdb")
   >>> pdb2 = atomium.fetch("5HVD")
+  >>> pdb.deposition_date()
+  datetime.date(2002, 5, 6)
+  >>> pdb.resolution()
+  1.9
   >>> pdb2.model()
   <Model (2156 atoms)>
 
@@ -141,6 +149,11 @@ gyration:
 
 ``AtomicStructure.atoms`` returns all matching elements as a ``set``
 while ``AtomicStructure.atom`` returns the first matching atom.
+
+For pairwise comparisons, structures also have the
+``AtomicStructure.pairwise_atoms`` generator which will yield all
+unique atom pairs in the structure. These can obviously get very big indeed - a
+5000 atom PDB file would have about 12 million unique pairs.
 
 The atoms themselves have properties for their coordinates and elements, and
 also for finding the distance between them:
@@ -297,6 +310,19 @@ The ``Xyz`` or ``Pdb`` object itself can also be saved:
 
 Changelog
 ---------
+
+Release 0.7.0
+~~~~~~~~~~~~~
+
+`2 November 2017`
+
+* PDBs with multiple occupancy can now be parsed correctly.
+* Added pairwise atom generator.
+* PDB parser now extracts resolution.
+* Further speed increased to PDB parser.
+* Miscellaneous bug fixes.
+* Implemented Continuous Integration.
+
 
 Release 0.6.0
 ~~~~~~~~~~~~~

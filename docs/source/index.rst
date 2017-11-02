@@ -23,4 +23,5 @@ Table of Contents
     installing
     overview
     api
+    contributing
     changelog

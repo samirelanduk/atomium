@@ -1,8 +1,8 @@
 Overview
 --------
 
-atomium allows you to open .xyz files, manipulate the model within, and save
-them as new .xyz files.
+atomium allows you to open .pdb and .xyz files, manipulate the model within,
+and save them as new files.
 
 From .xyz
 ~~~~~~~~~
@@ -29,6 +29,10 @@ from the RCSB over the internet using the PDB code:
 
   >>> pdb = atomium.pdb_from_file("1LOL.pdb")
   >>> pdb2 = atomium.fetch("5HVD")
+  >>> pdb.deposition_date()
+  datetime.date(2002, 5, 6)
+  >>> pdb.resolution()
+  1.9
   >>> pdb2.model()
   <Model (2156 atoms)>
 
@@ -76,6 +80,11 @@ gyration:
 
 :py:meth:`~.AtomicStructure.atoms` returns all matching elements as a ``set``
 while :py:meth:`~.AtomicStructure.atom` returns the first matching atom.
+
+For pairwise comparisons, structures also have the
+:py:meth:`~.AtomicStructure.pairwise_atoms` generator which will yield all
+unique atom pairs in the structure. These can obviously get very big indeed - a
+5000 atom PDB file would have about 12 million unique pairs.
 
 The atoms themselves have properties for their coordinates and elements, and
 also for finding the distance between them:

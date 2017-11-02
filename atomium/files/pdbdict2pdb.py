@@ -141,6 +141,9 @@ def make_connections_bonds(model, connections):
     :param list connections: The connections list from a data dictionary"""
 
     for connection in connections:
+        try:
+            connection["bond_to"].remove(connection["atom"])
+        except: pass
         atom = model.atom(atom_id=connection["atom"])
         if atom:
             for other in connection["bond_to"]:

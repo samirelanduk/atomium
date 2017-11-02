@@ -342,3 +342,21 @@ class ConnectionBondsTests(TestCase):
         atoms[2].bond.assert_called_with(atoms[1])
         atoms[3].bond.assert_called_with(atoms[1])
         self.assertFalse(atoms[0].called)
+
+
+    def test_can_ignore_self_bonding(self):
+        model = Mock()
+        atoms = [Mock(), Mock(), Mock(), Mock()]
+        model.atom.side_effect = [
+         atoms[0], atoms[1], atoms[2], atoms[3]
+        ]
+        for index, atom in enumerate(atoms):
+            atom.atom_id.return_value = index + 1
+            atom.bond = MagicMock()
+        connections = [{
+         "atom": 1, "bond_to": [1, 2, 3, 4]
+        }]
+        make_connections_bonds(model, connections)
+        atoms[0].bond.assert_any_call(atoms[1])
+        atoms[0].bond.assert_any_call(atoms[2])
+        atoms[0].bond.assert_called_with(atoms[3])

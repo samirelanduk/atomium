@@ -12,13 +12,24 @@ def pdb_string_to_pdb_dict(filestring):
     from .utilities import string_to_lines
     lines = string_to_lines(filestring, width=80)
     pdb_dict = {}
-    extract_header(pdb_dict, lines)
+    extract_annotation(pdb_dict, lines)
     extract_structure(pdb_dict, lines)
     return pdb_dict
 
 
-def extract_header(pdb_dict, lines):
+def extract_annotation(pdb_dict, lines):
     """Takes a ``dict`` and adds header information to it by parsing file lines.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    extract_header(pdb_dict, lines)
+    extract_title(pdb_dict, lines)
+    extract_resolution(pdb_dict, lines)
+
+
+def extract_header(pdb_dict, lines):
+    """Takes a ``dict`` and adds header information to it by parsing the HEADER line.
 
     :param dict pdb_dict: the ``dict`` to update.
     :param list lines: the file lines to read from."""
@@ -31,8 +42,25 @@ def extract_header(pdb_dict, lines):
         pdb_dict["code"] = headline[62:66] if headline[62:66].strip() else None
     else:
         pdb_dict["deposition_date"], pdb_dict["code"] = None, None
+
+
+def extract_title(pdb_dict, lines):
+    """Takes a ``dict`` and adds title information to it by parsing the TITLE line.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
     title_lines = get_lines("TITLE", lines)
     pdb_dict["title"] = merge_lines(title_lines, 10) if title_lines else None
+
+
+def extract_resolution(pdb_dict, lines):
+    """Takes a ``dict`` and adds resolution information to it by parsing
+    REMARK 2.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
     remark_lines = get_lines("REMARK", lines)
     for remark in remark_lines:
         if int(remark[7:10]) == 2 and remark[10:].strip():

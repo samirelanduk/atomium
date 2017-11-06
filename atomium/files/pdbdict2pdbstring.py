@@ -12,13 +12,24 @@ def pdb_dict_to_pdb_string(pdb_dict):
 
     from .utilities import lines_to_string
     lines = []
-    pack_header(lines, pdb_dict)
+    pack_annotation(lines, pdb_dict)
     pack_structure(lines, pdb_dict)
     return lines_to_string(lines)
 
 
+def pack_annotation(lines, pdb_dict):
+    """Adds non-structural records to a list of lines.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
+    pack_header(lines, pdb_dict)
+    pack_title(lines, pdb_dict)
+    pack_resolution(lines, pdb_dict)
+
+
 def pack_header(lines, pdb_dict):
-    """Adds HEADER and TITLE records to a list of lines.
+    """Adds a HEADER record to a list of lines.
 
     :param list lines: The record lines to add to.
     :param dict pdb_dict: The data dictionary to pack."""
@@ -30,6 +41,14 @@ def pack_header(lines, pdb_dict):
           pdb_dict["deposition_date"] else " " * 9,
          pdb_dict["code"] if pdb_dict["code"] else "    "
         ).ljust(80))
+
+
+def pack_title(lines, pdb_dict):
+    """Adds TITLE records to a list of lines.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
     if pdb_dict["title"]:
         chunks_needed = (len(pdb_dict["title"]) - 1) // 70 + 1
         title_chunks = [
@@ -41,6 +60,14 @@ def pack_header(lines, pdb_dict):
          chunk
         ).ljust(80) for number, chunk in enumerate(title_chunks, start=1)]
         lines += title_records
+
+
+def pack_resolution(lines, pdb_dict):
+    """Adds REMARK records to a list of lines for resolution.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
     if pdb_dict["resolution"] is not None:
         lines.append("REMARK   2".ljust(80))
         if pdb_dict["resolution"] == 0:

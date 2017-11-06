@@ -3,23 +3,7 @@ from unittest import TestCase
 from unittest.mock import patch, Mock
 from atomium.files.pdbdict2pdbstring import *
 
-class PdbDictToPdbStringTests(TestCase):
-
-    @patch("atomium.files.pdbdict2pdbstring.pack_header")
-    @patch("atomium.files.pdbdict2pdbstring.pack_structure")
-    @patch("atomium.files.utilities.lines_to_string")
-    def test_can_convert_pdb_dict_to_string(self, mock_str, mock_struct, mock_head):
-        pdb_dict = {"pdb": "dict"}
-        mock_str.return_value = "filestring"
-        filestring = pdb_dict_to_pdb_string(pdb_dict)
-        mock_head.assert_called_with([], pdb_dict)
-        mock_struct.assert_called_with([], pdb_dict)
-        mock_str.assert_called_with([])
-        self.assertEqual(filestring, "filestring")
-
-
-
-class HeaderPackingTests(TestCase):
+class PdbStringCreationTest(TestCase):
 
     def setUp(self):
         self.pdb_dict = {
@@ -29,20 +13,47 @@ class HeaderPackingTests(TestCase):
         self.lines = []
 
 
+
+class PdbDictToPdbStringTests(TestCase):
+
+    @patch("atomium.files.pdbdict2pdbstring.pack_annotation")
+    @patch("atomium.files.pdbdict2pdbstring.pack_structure")
+    @patch("atomium.files.utilities.lines_to_string")
+    def test_can_convert_pdb_dict_to_string(self, mock_str, mock_struct, mock_ann):
+        pdb_dict = {"pdb": "dict"}
+        mock_str.return_value = "filestring"
+        filestring = pdb_dict_to_pdb_string(pdb_dict)
+        mock_ann.assert_called_with([], pdb_dict)
+        mock_struct.assert_called_with([], pdb_dict)
+        mock_str.assert_called_with([])
+        self.assertEqual(filestring, "filestring")
+
+
+
+class AnnotationPackingTests(PdbStringCreationTest):
+
+    @patch("atomium.files.pdbdict2pdbstring.pack_header")
+    @patch("atomium.files.pdbdict2pdbstring.pack_title")
+    @patch("atomium.files.pdbdict2pdbstring.pack_resolution")
+    def test_can_pack_annotation(self, mock_res, mock_title, mock_head):
+        pack_annotation(self.lines, self.pdb_dict)
+        mock_head.assert_called_with(self.lines, self.pdb_dict)
+        mock_title.assert_called_with(self.lines, self.pdb_dict)
+        mock_res.assert_called_with(self.lines, self.pdb_dict)
+
+
+
+class HeaderPackingTests(PdbStringCreationTest):
+
     def test_can_pack_full_header(self):
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
-         "HEADER" + " " * 44 + "01-SEP-90   1XYZ" + " " * 14,
-         "TITLE     " + "ABC" * 23 + "A",
-         "TITLE    2 " + "BC" + "ABC" * 16 + " " * 19,
-         "REMARK   2" + " " * 70,
-         "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.".ljust(80)
+         "HEADER" + " " * 44 + "01-SEP-90   1XYZ" + " " * 14
         ])
 
 
     def test_can_pack_deposition_date(self):
-        self.pdb_dict["code"], self.pdb_dict["title"] = None, None
-        self.pdb_dict["resolution"] = None
+        self.pdb_dict["code"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "HEADER" + " " * 44 + "01-SEP-90       " + " " * 14,
@@ -50,37 +61,42 @@ class HeaderPackingTests(TestCase):
 
 
     def test_can_pack_code(self):
-        self.pdb_dict["deposition_date"], self.pdb_dict["title"] = None, None
-        self.pdb_dict["resolution"] = None
+        self.pdb_dict["deposition_date"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "HEADER" + " " * 44 + "            1XYZ" + " " * 14,
         ])
 
 
-    def test_can_pack_title(self):
-        self.pdb_dict["deposition_date"], self.pdb_dict["code"] = None, None
-        self.pdb_dict["resolution"] = None
+    def test_can_pack_no_header(self):
+        self.pdb_dict["code"], self.pdb_dict["deposition_date"] = None, None
         pack_header(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [])
+
+
+
+class TitlePackingTests(PdbStringCreationTest):
+
+    def test_can_pack_title(self):
+        pack_title(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "TITLE     " + "ABC" * 23 + "A",
          "TITLE    2 " + "BC" + "ABC" * 16 + " " * 19
         ])
 
 
+
+class ResolutionPackingTests(PdbStringCreationTest):
+
     def test_can_pack_resolution(self):
-        self.pdb_dict["deposition_date"], self.pdb_dict["title"] = None, None
-        self.pdb_dict["code"] = None
-        pack_header(self.lines, self.pdb_dict)
+        pack_resolution(self.lines, self.pdb_dict)
         self.assertEqual(self.lines[0], "REMARK   2" + " " * 70)
         self.assertEqual(self.lines[1],  "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.".ljust(80))
 
 
     def test_can_pack_zero_resolution(self):
-        self.pdb_dict["deposition_date"], self.pdb_dict["title"] = None, None
-        self.pdb_dict["code"] = None
         self.pdb_dict["resolution"] = 0
-        pack_header(self.lines, self.pdb_dict)
+        pack_resolution(self.lines, self.pdb_dict)
         self.assertEqual(self.lines[0], "REMARK   2" + " " * 70)
         self.assertEqual(self.lines[1],  "REMARK   2 RESOLUTION. NOT APPLICABLE.".ljust(80))
 

@@ -313,15 +313,6 @@ class AtomicStructureRadiusOfGyrationTests(AtomicStructureTest):
 
 class AtomicStructureToStringTests(AtomicStructureTest):
 
-    '''@patch("atomium.converters.structure2xyzstring.structure_to_xyz_string")
-    def test_can_save_as_xyz_string(self, mock_convert):
-        mock_convert.return_value = "filestring"
-        structure = AtomicStructure(*self.atoms)
-        s = structure.to_file_string("xyz")
-        self.assertEqual(s, "filestring")
-        mock_convert.assert_called_with(structure, "")'''
-
-
     @patch("atomium.files.pdb2pdbdict.structure_to_pdb_dict")
     @patch("atomium.files.pdbdict2pdbstring.pdb_dict_to_pdb_string")
     def test_can_save_as_pdb_string_with_description(self, mock_string, mock_dict):

@@ -8,7 +8,8 @@ class PdbStringCreationTest(TestCase):
     def setUp(self):
         self.pdb_dict = {
          "deposition_date": datetime(1990, 9, 1).date(),
-         "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9
+         "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9,
+         "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS"
         }
         self.lines = []
 
@@ -35,11 +36,13 @@ class AnnotationPackingTests(PdbStringCreationTest):
     @patch("atomium.files.pdbdict2pdbstring.pack_header")
     @patch("atomium.files.pdbdict2pdbstring.pack_title")
     @patch("atomium.files.pdbdict2pdbstring.pack_resolution")
-    def test_can_pack_annotation(self, mock_res, mock_title, mock_head):
+    @patch("atomium.files.pdbdict2pdbstring.pack_source")
+    def test_can_pack_annotation(self, mock_source, mock_res, mock_title, mock_head):
         pack_annotation(self.lines, self.pdb_dict)
         mock_head.assert_called_with(self.lines, self.pdb_dict)
         mock_title.assert_called_with(self.lines, self.pdb_dict)
         mock_res.assert_called_with(self.lines, self.pdb_dict)
+        mock_source.assert_called_with(self.lines, self.pdb_dict)
 
 
 
@@ -100,6 +103,23 @@ class ResolutionPackingTests(PdbStringCreationTest):
         self.assertEqual(self.lines[0], "REMARK   2" + " " * 70)
         self.assertEqual(self.lines[1],  "REMARK   2 RESOLUTION. NOT APPLICABLE.".ljust(80))
 
+
+
+class SourcePackingTests(PdbStringCreationTest):
+
+    def test_can_pack_source(self):
+        pack_source(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [
+         "SOURCE    ORGANISM_SCIENTIFIC: HOMO SAPIENS;".ljust(80),
+         "SOURCE   2 EXPRESSION_SYSTEM: MUS MUSCULUS;".ljust(80)
+        ])
+
+
+    def test_can_pack_nothing(self):
+        self.pdb_dict["organism"], self.pdb_dict["expression_system"] = None, None
+        pack_source(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [])
+        
 
 
 class StructurePackingTests(TestCase):

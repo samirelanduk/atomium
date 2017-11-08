@@ -25,6 +25,7 @@ def pack_annotation(lines, pdb_dict):
 
     pack_header(lines, pdb_dict)
     pack_title(lines, pdb_dict)
+    pack_source(lines, pdb_dict)
     pack_resolution(lines, pdb_dict)
 
 
@@ -76,6 +77,57 @@ def pack_resolution(lines, pdb_dict):
             lines.append("REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(
              pdb_dict["resolution"]
             ).ljust(80))
+
+
+def pack_source(lines, pdb_dict):
+    """Adds SOURCE records to a list of lines for source organism and
+    expression system.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
+    source_records = []
+    if pdb_dict["organism"]:
+        organism = "ORGANISM_SCIENTIFIC: {};".format(pdb_dict["organism"])
+        chunks_needed = (len(organism) - 1) // 70 + 1
+        source_chunks = [
+         organism[i * 70:i * 70 + 70] for i in range(chunks_needed)
+        ]
+        source_records += ["SOURCE   {}{}{}".format(
+         number if number > 1 else " ",
+         " " if number > 1 else "",
+         chunk
+        ).ljust(80) for number, chunk in enumerate(source_chunks, start=1)]
+    if pdb_dict["expression_system"]:
+        system = "EXPRESSION_SYSTEM: {};".format(pdb_dict["expression_system"])
+        chunks_needed = (len(system) - 1) // 70 + 1
+        source_chunks = [
+         system[i * 70:i * 70 + 70] for i in range(chunks_needed)
+        ]
+        source_records += ["SOURCE   {}{}{}".format(
+         number if number > 1 else " ",
+         " " if number > 1 else "",
+         chunk
+        ).ljust(80) for number, chunk in enumerate(
+         source_chunks, start=len(source_records) + 1
+        )]
+    lines += source_records
+
+
+
+    '''source_lines = []
+    if pdb_dict["organism"]:
+        if len(pdb_dict["organism"]) <= 48:
+            source_lines.append("SOURCE    ORGANISM_SCIENTIFIC: {};".format(
+             pdb_dict["organism"]
+            ).ljust(80))
+
+    if pdb_dict["expression_system"]:
+        source_lines.append("SOURCE    EXPRESSION_SYSTEM: {};".format(pdb_dict["expression_system"]).ljust(80))
+    if source_lines: lines.append(source_lines[0])
+    for index, line in enumerate(source_lines[1:], start=2):
+        lines.append(line[:9] + str(index) + line[9:][:-1])
+    lines += source_lines'''
 
 
 def pack_structure(lines, pdb_dict):

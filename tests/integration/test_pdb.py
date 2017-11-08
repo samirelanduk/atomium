@@ -232,6 +232,8 @@ class PdbSavingTests(IntegratedTest):
          "FOR IN THAT SLEEP OF DEATH WHAT DREAMS MAY COME WHEN WE HAVE " +
          "SHUFFLED OFF THIS MORTAL COIL MUST GIVE US PAUSE"
         )
+        pdb.organism("HOMO SAPIENS")
+        pdb.expression_system("COOL NEW ORGANISM")
         pdb.save("tests/integration/files/1LOL2.pdb")
         with open("tests/integration/files/1LOL2.pdb") as f:
             new = [l.strip() for l in f.readlines() if l.strip()]

@@ -11,6 +11,8 @@ class Pdb:
         self._code, self._deposition_date = None, None
         self._title = None
         self._resolution = None
+        self._organism = None
+        self._expression_system = None
 
 
     def __repr__(self):
@@ -99,6 +101,40 @@ class Pdb:
             self._resolution = resolution
         else:
             return self._resolution
+
+
+    def organism(self, organism=None):
+        """Returns or sets the Pdb's source organism. If a value is given, the
+        organism will be updated.
+
+        :param str organism: if given, the organism will be updated.
+        :raises TypeError: if a non-str organism is given.
+        :rtype: ``str``"""
+
+        if organism:
+            if not isinstance(organism, str):
+                raise TypeError("PDB organism {} is not str".format(organism))
+            self._organism = organism
+        else:
+            return self._organism
+
+
+    def expression_system(self, expression_system=None):
+        """Returns or sets the Pdb's expression organism. If a value is given,
+        the expression system will be updated.
+
+        :param str expression_system: if given, the system will be updated.
+        :raises TypeError: if a non-str expression system is given.
+        :rtype: ``str``"""
+
+        if expression_system:
+            if not isinstance(expression_system, str):
+                raise TypeError(
+                 "PDB expression system {} is not str".format(expression_system)
+                )
+            self._expression_system = expression_system
+        else:
+            return self._expression_system
 
 
     def to_file_string(self):

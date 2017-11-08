@@ -2,6 +2,7 @@
 dictionaries."""
 
 from datetime import datetime
+import re
 
 def pdb_string_to_pdb_dict(filestring):
     """Converts the string of a .pdb file to a parsed data ``dict``.
@@ -26,6 +27,7 @@ def extract_annotation(pdb_dict, lines):
     extract_header(pdb_dict, lines)
     extract_title(pdb_dict, lines)
     extract_resolution(pdb_dict, lines)
+    extract_source(pdb_dict, lines)
 
 
 def extract_header(pdb_dict, lines):
@@ -70,6 +72,29 @@ def extract_resolution(pdb_dict, lines):
             break
     else:
         pdb_dict["resolution"] = None
+
+
+def extract_source(pdb_dict, lines):
+    """Takes a ``dict`` and adds source information to it by parsing
+    SOURCE.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    pdb_dict["organism"], pdb_dict["expression_system"] = None, None
+    source_lines = get_lines("SOURCE", lines)
+    if source_lines:
+        data = merge_lines(source_lines, 10)
+        pattern = r"ORGANISM_SCIENTIFIC\: (.+?);"
+        matches = re.findall(pattern, data)
+        if matches:
+            pdb_dict["organism"] = matches[0]
+        pattern = r"EXPRESSION_SYSTEM\: (.+?);"
+        matches = re.findall(pattern, data)
+        if matches:
+            pdb_dict["expression_system"] = matches[0]
+
+
 
 
 def extract_structure(pdb_dict, lines):

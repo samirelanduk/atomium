@@ -13,6 +13,8 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._deposition_date, None)
         self.assertEqual(pdb._title, None)
         self.assertEqual(pdb._resolution, None)
+        self.assertEqual(pdb._organism, None)
+        self.assertEqual(pdb._expression_system, None)
 
 
 
@@ -137,6 +139,50 @@ class PdbTitleTests(TestCase):
         pdb = Pdb()
         with self.assertRaises(TypeError):
             pdb.title(100)
+
+
+
+class PdbOrganismTests(TestCase):
+
+    def test_can_get_pdb_organism(self):
+        pdb = Pdb()
+        pdb._organism = "GGG SSS"
+        self.assertIs(pdb._organism, pdb.organism())
+
+
+    def test_can_update_organism(self):
+        pdb = Pdb()
+        pdb._organism = "GGG SSS"
+        pdb.organism("GG SSSSSS")
+        self.assertEqual(pdb._organism, "GG SSSSSS")
+
+
+    def test_organism_must_be_str(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.organism(100)
+
+
+
+class PdbOrganismTests(TestCase):
+
+    def test_can_get_pdb_expression_system(self):
+        pdb = Pdb()
+        pdb._expression_system= "GGG SSS"
+        self.assertIs(pdb._expression_system, pdb.expression_system())
+
+
+    def test_can_update_organism(self):
+        pdb = Pdb()
+        pdb._expression_system = "GGG SSS"
+        pdb.expression_system("GG SSSSSS")
+        self.assertEqual(pdb._expression_system, "GG SSSSSS")
+
+
+    def test_organism_must_be_str(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.expression_system(100)
 
 
 

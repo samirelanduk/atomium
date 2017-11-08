@@ -31,11 +31,13 @@ class AnnotationExtractionTests(PdbStringConversionTest):
     @patch("atomium.files.pdbstring2pdbdict.extract_header")
     @patch("atomium.files.pdbstring2pdbdict.extract_title")
     @patch("atomium.files.pdbstring2pdbdict.extract_resolution")
-    def test_can_extract_header(self, mock_res, mock_title, mock_header):
+    @patch("atomium.files.pdbstring2pdbdict.extract_source")
+    def test_can_extract_header(self, mock_source, mock_res, mock_title, mock_header):
         extract_annotation(self.pdb_dict, self.lines)
         mock_title.assert_called_with(self.pdb_dict, self.lines)
         mock_header.assert_called_with(self.pdb_dict, self.lines)
         mock_res.assert_called_with(self.pdb_dict, self.lines)
+        mock_source.assert_called_with(self.pdb_dict, self.lines)
 
 
 
@@ -136,6 +138,68 @@ class ResolutionExtractionTests(PdbStringConversionTest):
         extract_resolution(self.pdb_dict, self.lines)
         mock_lines.assert_any_call("REMARK", self.lines)
         self.assertEqual(self.pdb_dict["resolution"], 1.9)
+
+
+
+class SourceExtractionTests(PdbStringConversionTest):
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_no_source_extraction(self, mock_lines):
+        mock_lines.return_value = []
+        extract_source(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("SOURCE", self.lines)
+        self.assertEqual(self.pdb_dict["organism"], None)
+        self.assertEqual(self.pdb_dict["expression_system"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_missing_source_extraction(self, mock_lines):
+        mock_lines.return_value = self.lines
+        extract_source(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("SOURCE", self.lines)
+        self.assertEqual(self.pdb_dict["organism"], None)
+        self.assertEqual(self.pdb_dict["expression_system"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
+    def test_organism_source_extraction(self, mock_merge,  mock_lines):
+        mock_lines.return_value = self.lines
+        mock_merge.return_value = (
+         "MOL_ID: 1;"
+         " ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER"
+         " THERMAUTOTROPHICUS STR. DELTA H;"
+         " ORGANISM_TAXID: 187420;"
+         " STRAIN: DELTA H;"
+        )
+        extract_source(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("SOURCE", self.lines)
+        mock_merge.assert_called_with(self.lines, 10)
+        self.assertEqual(
+         self.pdb_dict["organism"],
+         "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H"
+        )
+        self.assertEqual(self.pdb_dict["expression_system"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
+    def test_expression_source_extraction(self, mock_merge,  mock_lines):
+        mock_lines.return_value = self.lines
+        mock_merge.return_value = (
+         " STRAIN: DELTA H;"
+         " EXPRESSION_SYSTEM: ESCHERICHIA COLI;"
+         " EXPRESSION_SYSTEM_TAXID: 562;"
+         " EXPRESSION_SYSTEM_PLASMID: PET15B"
+        )
+        extract_source(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("SOURCE", self.lines)
+        mock_merge.assert_called_with(self.lines, 10)
+        self.assertEqual(
+         self.pdb_dict["expression_system"],
+         "ESCHERICHIA COLI"
+        )
+        self.assertEqual(self.pdb_dict["organism"], None)
 
 
 

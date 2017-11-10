@@ -15,6 +15,7 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._resolution, None)
         self.assertEqual(pdb._organism, None)
         self.assertEqual(pdb._expression_system, None)
+        self.assertEqual(pdb._technique, None)
 
 
 
@@ -164,7 +165,7 @@ class PdbOrganismTests(TestCase):
 
 
 
-class PdbOrganismTests(TestCase):
+class PdbExpressionSystemTests(TestCase):
 
     def test_can_get_pdb_expression_system(self):
         pdb = Pdb()
@@ -172,17 +173,39 @@ class PdbOrganismTests(TestCase):
         self.assertIs(pdb._expression_system, pdb.expression_system())
 
 
-    def test_can_update_organism(self):
+    def test_can_update_expression_system(self):
         pdb = Pdb()
         pdb._expression_system = "GGG SSS"
         pdb.expression_system("GG SSSSSS")
         self.assertEqual(pdb._expression_system, "GG SSSSSS")
 
 
-    def test_organism_must_be_str(self):
+    def test_expression_system_must_be_str(self):
         pdb = Pdb()
         with self.assertRaises(TypeError):
             pdb.expression_system(100)
+
+
+
+class PdbTechniqueTests(TestCase):
+
+    def test_can_get_pdb_technique(self):
+        pdb = Pdb()
+        pdb._technique = "GGG SSS"
+        self.assertIs(pdb._technique, pdb.technique())
+
+
+    def test_can_update_technique(self):
+        pdb = Pdb()
+        pdb._technique = "GGG SSS"
+        pdb.technique("GG SSSSSS")
+        self.assertEqual(pdb._technique, "GG SSSSSS")
+
+
+    def test_technique_must_be_str(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.technique(100)
 
 
 

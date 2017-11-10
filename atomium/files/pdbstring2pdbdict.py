@@ -28,6 +28,7 @@ def extract_annotation(pdb_dict, lines):
     extract_title(pdb_dict, lines)
     extract_resolution(pdb_dict, lines)
     extract_source(pdb_dict, lines)
+    extract_technique(pdb_dict, lines)
 
 
 def extract_header(pdb_dict, lines):
@@ -95,8 +96,6 @@ def extract_source(pdb_dict, lines):
             pdb_dict["expression_system"] = matches[0]
 
 
-
-
 def extract_structure(pdb_dict, lines):
     """Takes a ``dict`` and adds structure information to it by parsing file
     lines.
@@ -122,6 +121,14 @@ def extract_structure(pdb_dict, lines):
     else:
         pdb_dict["models"].append(lines_to_model(atom_lines, hetatm_lines))
     extract_connections(pdb_dict, conect_lines)
+
+
+def extract_technique(pdb_dict, lines):
+    line = get_line("EXPDTA", lines)
+    if line:
+        pdb_dict["technique"] = line[6:].strip()
+        if pdb_dict["technique"]: return
+    pdb_dict["technique"] = None
 
 
 def lines_to_model(atom_lines, hetatm_lines):

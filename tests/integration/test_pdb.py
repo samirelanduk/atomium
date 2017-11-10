@@ -15,6 +15,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(pdb.resolution(), 1.9)
         self.assertEqual(pdb.organism(), "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H")
         self.assertEqual(pdb.expression_system(), "ESCHERICHIA COLI")
+        self.assertEqual(pdb.technique(), "X-RAY DIFFRACTION")
 
         # Atoms are correct
         model = pdb.model()

@@ -32,20 +32,21 @@ class AnnotationExtractionTests(PdbStringConversionTest):
     @patch("atomium.files.pdbstring2pdbdict.extract_title")
     @patch("atomium.files.pdbstring2pdbdict.extract_resolution")
     @patch("atomium.files.pdbstring2pdbdict.extract_source")
-    def test_can_extract_header(self, mock_source, mock_res, mock_title, mock_header):
+    @patch("atomium.files.pdbstring2pdbdict.extract_technique")
+    def test_can_extract_header(self, mock_tech, mock_source, mock_res, mock_title, mock_header):
         extract_annotation(self.pdb_dict, self.lines)
         mock_title.assert_called_with(self.pdb_dict, self.lines)
         mock_header.assert_called_with(self.pdb_dict, self.lines)
         mock_res.assert_called_with(self.pdb_dict, self.lines)
         mock_source.assert_called_with(self.pdb_dict, self.lines)
+        mock_tech.assert_called_with(self.pdb_dict, self.lines)
 
 
 
 class HeaderExtractionTests(PdbStringConversionTest):
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")
-    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
-    def test_empty_header_extraction(self, mock_merge, mock_line):
+    def test_empty_header_extraction(self, mock_line):
         mock_line.return_value = "HEADER".ljust(80)
         extract_header(self.pdb_dict, self.lines)
         mock_line.assert_called_with("HEADER", self.lines)
@@ -54,8 +55,7 @@ class HeaderExtractionTests(PdbStringConversionTest):
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")
-    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
-    def test_missing_header_extraction(self, mock_merge, mock_line):
+    def test_missing_header_extraction(self, mock_line):
         mock_line.return_value = None
         extract_header(self.pdb_dict, self.lines)
         mock_line.assert_called_with("HEADER", self.lines)
@@ -64,8 +64,7 @@ class HeaderExtractionTests(PdbStringConversionTest):
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")
-    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
-    def test_header_extraction(self, mock_merge, mock_line):
+    def test_header_extraction(self, mock_line):
         mock_line.return_value = (
          "HEADER    UNKNOWN FUNCTION" + " " * 24 + "21-AUG-17   6AR7" + " " * 14
         )
@@ -201,6 +200,33 @@ class SourceExtractionTests(PdbStringConversionTest):
         )
         self.assertEqual(self.pdb_dict["organism"], None)
 
+
+
+class TechniqueExtractionTests(PdbStringConversionTest):
+
+    @patch("atomium.files.pdbstring2pdbdict.get_line")
+    def test_empty_technique_extraction(self, mock_line):
+        mock_line.return_value = "EXPDTA".ljust(80)
+        extract_technique(self.pdb_dict, self.lines)
+        mock_line.assert_called_with("EXPDTA", self.lines)
+        self.assertEqual(self.pdb_dict["technique"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_line")
+    def test_missing_tecnhique_extraction(self, mock_line):
+        mock_line.return_value = None
+        extract_technique(self.pdb_dict, self.lines)
+        mock_line.assert_called_with("EXPDTA", self.lines)
+        self.assertEqual(self.pdb_dict["technique"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_line")
+    def test_technique_extraction(self, mock_line):
+        mock_line.return_value = "EXPDTA    X-RAY DIFFRACTION".ljust(80)
+        extract_technique(self.pdb_dict, self.lines)
+        mock_line.assert_called_with("EXPDTA", self.lines)
+        self.assertEqual(self.pdb_dict["technique"], "X-RAY DIFFRACTION")
+        
 
 
 class StructureExtractionTests(TestCase):

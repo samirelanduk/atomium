@@ -235,6 +235,7 @@ class PdbSavingTests(IntegratedTest):
         )
         pdb.organism("HOMO SAPIENS")
         pdb.expression_system("COOL NEW ORGANISM")
+        pdb.technique("MEME DIFFRACTION")
         pdb.save("tests/integration/files/1LOL2.pdb")
         with open("tests/integration/files/1LOL2.pdb") as f:
             new = [l.strip() for l in f.readlines() if l.strip()]

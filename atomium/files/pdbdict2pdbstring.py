@@ -26,6 +26,7 @@ def pack_annotation(lines, pdb_dict):
     pack_header(lines, pdb_dict)
     pack_title(lines, pdb_dict)
     pack_source(lines, pdb_dict)
+    pack_technique(lines, pdb_dict)
     pack_resolution(lines, pdb_dict)
 
 
@@ -114,20 +115,14 @@ def pack_source(lines, pdb_dict):
     lines += source_records
 
 
+def pack_technique(lines, pdb_dict):
+    """Adds a EXPDTA record to a list of lines for experimental technique.
 
-    '''source_lines = []
-    if pdb_dict["organism"]:
-        if len(pdb_dict["organism"]) <= 48:
-            source_lines.append("SOURCE    ORGANISM_SCIENTIFIC: {};".format(
-             pdb_dict["organism"]
-            ).ljust(80))
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
 
-    if pdb_dict["expression_system"]:
-        source_lines.append("SOURCE    EXPRESSION_SYSTEM: {};".format(pdb_dict["expression_system"]).ljust(80))
-    if source_lines: lines.append(source_lines[0])
-    for index, line in enumerate(source_lines[1:], start=2):
-        lines.append(line[:9] + str(index) + line[9:][:-1])
-    lines += source_lines'''
+    if pdb_dict["technique"] is not None:
+        lines.append("EXPDTA    {}".format(pdb_dict["technique"]).ljust(80))
 
 
 def pack_structure(lines, pdb_dict):

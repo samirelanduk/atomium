@@ -9,6 +9,7 @@ class PdbStringCreationTest(TestCase):
         self.pdb_dict = {
          "deposition_date": datetime(1990, 9, 1).date(),
          "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9,
+         "technique": "TECH",
          "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS"
         }
         self.lines = []
@@ -37,12 +38,14 @@ class AnnotationPackingTests(PdbStringCreationTest):
     @patch("atomium.files.pdbdict2pdbstring.pack_title")
     @patch("atomium.files.pdbdict2pdbstring.pack_resolution")
     @patch("atomium.files.pdbdict2pdbstring.pack_source")
-    def test_can_pack_annotation(self, mock_source, mock_res, mock_title, mock_head):
+    @patch("atomium.files.pdbdict2pdbstring.pack_technique")
+    def test_can_pack_annotation(self, mock_tech, mock_source, mock_res, mock_title, mock_head):
         pack_annotation(self.lines, self.pdb_dict)
         mock_head.assert_called_with(self.lines, self.pdb_dict)
         mock_title.assert_called_with(self.lines, self.pdb_dict)
         mock_res.assert_called_with(self.lines, self.pdb_dict)
         mock_source.assert_called_with(self.lines, self.pdb_dict)
+        mock_tech.assert_called_with(self.lines, self.pdb_dict)
 
 
 
@@ -118,6 +121,22 @@ class SourcePackingTests(PdbStringCreationTest):
     def test_can_pack_nothing(self):
         self.pdb_dict["organism"], self.pdb_dict["expression_system"] = None, None
         pack_source(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [])
+
+
+
+class TecnhniquePackingTests(PdbStringCreationTest):
+
+    def test_can_pack_tecnhnique(self):
+        pack_technique(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [
+         "EXPDTA    TECH".ljust(80)
+        ])
+
+
+    def test_can_pack_nothing(self):
+        self.pdb_dict["technique"] = None
+        pack_technique(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
         
 

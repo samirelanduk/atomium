@@ -16,6 +16,7 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._organism, None)
         self.assertEqual(pdb._expression_system, None)
         self.assertEqual(pdb._technique, None)
+        self.assertEqual(pdb._classification, None)
 
 
 
@@ -206,6 +207,28 @@ class PdbTechniqueTests(TestCase):
         pdb = Pdb()
         with self.assertRaises(TypeError):
             pdb.technique(100)
+
+
+
+class PdbClassificationTests(TestCase):
+
+    def test_can_get_pdb_classification(self):
+        pdb = Pdb()
+        pdb._classification = "GGG SSS"
+        self.assertIs(pdb._classification, pdb.classification())
+
+
+    def test_can_update_classification(self):
+        pdb = Pdb()
+        pdb._classification = "GGG SSS"
+        pdb.classification("GG SSSSSS")
+        self.assertEqual(pdb._classification, "GG SSSSSS")
+
+
+    def test_classification_must_be_str(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.classification(100)
 
 
 

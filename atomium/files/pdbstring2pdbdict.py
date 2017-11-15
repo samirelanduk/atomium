@@ -43,8 +43,13 @@ def extract_header(pdb_dict, lines):
          headline[50:59], "%d-%b-%y"
         ).date() if headline[50:59].strip() else None
         pdb_dict["code"] = headline[62:66] if headline[62:66].strip() else None
+        pdb_dict["classification"] = (
+         headline[10:50].strip() if headline[10:50].strip() else None
+        )
     else:
-        pdb_dict["deposition_date"], pdb_dict["code"] = None, None
+        pdb_dict["deposition_date"] = None
+        pdb_dict["code"] = None
+        pdb_dict["classification"] = None
 
 
 def extract_title(pdb_dict, lines):

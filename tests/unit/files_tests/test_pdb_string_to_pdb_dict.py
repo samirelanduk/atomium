@@ -52,6 +52,7 @@ class HeaderExtractionTests(PdbStringConversionTest):
         mock_line.assert_called_with("HEADER", self.lines)
         self.assertEqual(self.pdb_dict["deposition_date"], None)
         self.assertEqual(self.pdb_dict["code"], None)
+        self.assertEqual(self.pdb_dict["classification"], None)
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")
@@ -61,6 +62,7 @@ class HeaderExtractionTests(PdbStringConversionTest):
         mock_line.assert_called_with("HEADER", self.lines)
         self.assertEqual(self.pdb_dict["deposition_date"], None)
         self.assertEqual(self.pdb_dict["code"], None)
+        self.assertEqual(self.pdb_dict["classification"], None)
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_line")
@@ -74,6 +76,7 @@ class HeaderExtractionTests(PdbStringConversionTest):
          self.pdb_dict["deposition_date"], datetime(2017, 8, 21).date()
         )
         self.assertEqual(self.pdb_dict["code"], "6AR7")
+        self.assertEqual(self.pdb_dict["classification"], "UNKNOWN FUNCTION")
 
 
 

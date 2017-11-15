@@ -14,7 +14,7 @@ class PdbDictToPdbTests(TestCase):
         pdb_dict = {
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.4,
          "organism": "H. sap", "expression_system": "M. mus",
-         "technique": "TECHNIQUE",
+         "technique": "TECHNIQUE", "classification": "CLASS",
          "models": ["1", "2", "3"],
          "connections": ["c1", "c2"]
         }
@@ -30,6 +30,7 @@ class PdbDictToPdbTests(TestCase):
         self.assertEqual(returned_pdb._organism, "H. sap")
         self.assertEqual(returned_pdb._expression_system, "M. mus")
         self.assertEqual(returned_pdb._technique, "TECHNIQUE")
+        self.assertEqual(returned_pdb._classification, "CLASS")
         self.assertEqual(returned_pdb._models, ["model1", "model2", "model3"])
 
 

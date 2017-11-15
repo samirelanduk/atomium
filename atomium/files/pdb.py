@@ -14,6 +14,7 @@ class Pdb:
         self._organism = None
         self._expression_system = None
         self._technique = None
+        self._classification = None
 
 
     def __repr__(self):
@@ -139,7 +140,7 @@ class Pdb:
 
 
     def technique(self, technique=None):
-        """Returns or sets the Pdb's experimental tecnhque. If a value is given,
+        """Returns or sets the Pdb's experimental tecnhique. If a value is given,
         the technique will be updated.
 
         :param str technique: if given, the technique will be updated.
@@ -149,11 +150,29 @@ class Pdb:
         if technique:
             if not isinstance(technique, str):
                 raise TypeError(
-                 "PDB tecnhnique {} is not str".format(technique)
+                 "PDB technique {} is not str".format(technique)
                 )
             self._technique = technique
         else:
             return self._technique
+
+
+    def classification(self, classification=None):
+        """Returns or sets the Pdb's classification. If a value is given,
+        the classification will be updated.
+
+        :param str classification: if given, the classification will be updated.
+        :raises TypeError: if a non-str classification is given.
+        :rtype: ``str``"""
+
+        if classification:
+            if not isinstance(classification, str):
+                raise TypeError(
+                 "PDB classification {} is not str".format(classification)
+                )
+            self._classification = classification
+        else:
+            return self._classification
 
 
     def to_file_string(self):

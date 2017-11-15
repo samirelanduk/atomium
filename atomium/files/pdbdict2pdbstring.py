@@ -36,9 +36,11 @@ def pack_header(lines, pdb_dict):
     :param list lines: The record lines to add to.
     :param dict pdb_dict: The data dictionary to pack."""
 
-    if pdb_dict["deposition_date"] or pdb_dict["code"]:
-        lines.append("HEADER{}{}   {}".format(
-         " " * 44,
+    if (pdb_dict["deposition_date"] or pdb_dict["code"]
+     or pdb_dict["classification"]):
+        lines.append("HEADER    {}{}   {}".format(
+         pdb_dict["classification"].ljust(40) if
+          pdb_dict["classification"] else " " * 40,
          pdb_dict["deposition_date"].strftime("%d-%b-%y").upper() if
           pdb_dict["deposition_date"] else " " * 9,
          pdb_dict["code"] if pdb_dict["code"] else "    "

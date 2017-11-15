@@ -9,7 +9,7 @@ class PdbStringCreationTest(TestCase):
         self.pdb_dict = {
          "deposition_date": datetime(1990, 9, 1).date(),
          "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9,
-         "technique": "TECH",
+         "technique": "TECH", "classification": "CLASS",
          "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS"
         }
         self.lines = []
@@ -54,12 +54,13 @@ class HeaderPackingTests(PdbStringCreationTest):
     def test_can_pack_full_header(self):
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
-         "HEADER" + " " * 44 + "01-SEP-90   1XYZ" + " " * 14
+         "HEADER    CLASS" + " " * 35 + "01-SEP-90   1XYZ" + " " * 14
         ])
 
 
     def test_can_pack_deposition_date(self):
         self.pdb_dict["code"] = None
+        self.pdb_dict["classification"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "HEADER" + " " * 44 + "01-SEP-90       " + " " * 14,
@@ -68,14 +69,25 @@ class HeaderPackingTests(PdbStringCreationTest):
 
     def test_can_pack_code(self):
         self.pdb_dict["deposition_date"] = None
+        self.pdb_dict["classification"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [
          "HEADER" + " " * 44 + "            1XYZ" + " " * 14,
         ])
 
 
+    def test_can_pack_classification(self):
+        self.pdb_dict["deposition_date"] = None
+        self.pdb_dict["code"] = None
+        pack_header(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [
+         "HEADER    CLASS" + " " * 65,
+        ])
+
+
     def test_can_pack_no_header(self):
         self.pdb_dict["code"], self.pdb_dict["deposition_date"] = None, None
+        self.pdb_dict["classification"] = None
         pack_header(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
 

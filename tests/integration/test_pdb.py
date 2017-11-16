@@ -17,6 +17,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(pdb.expression_system(), "ESCHERICHIA COLI")
         self.assertEqual(pdb.technique(), "X-RAY DIFFRACTION")
         self.assertEqual(pdb.classification(), "LYASE")
+        self.assertEqual(pdb.rfactor(), 0.193)
 
         # Atoms are correct
         model = pdb.model()

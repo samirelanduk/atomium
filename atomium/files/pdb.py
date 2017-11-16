@@ -15,6 +15,7 @@ class Pdb:
         self._expression_system = None
         self._technique = None
         self._classification = None
+        self._rfactor = None
 
 
     def __repr__(self):
@@ -103,6 +104,22 @@ class Pdb:
             self._resolution = resolution
         else:
             return self._resolution
+
+
+    def rfactor(self, rfactor=None):
+        """Returns or sets the Pdb's r-factor. If a value is given, the
+        r-factor will be updated.
+
+        :param str rfactor: if given, the rfactor will be updated.
+        :raises TypeError: if a non-numeric rfactor is given.
+        :rtype: ``float``"""
+
+        if rfactor:
+            if not isinstance(rfactor, (int, float)):
+                raise TypeError("rfactor {} isn't numeric".format(rfactor))
+            self._rfactor = rfactor
+        else:
+            return self._rfactor
 
 
     def organism(self, organism=None):

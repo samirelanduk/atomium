@@ -31,13 +31,15 @@ class AnnotationExtractionTests(PdbStringConversionTest):
     @patch("atomium.files.pdbstring2pdbdict.extract_header")
     @patch("atomium.files.pdbstring2pdbdict.extract_title")
     @patch("atomium.files.pdbstring2pdbdict.extract_resolution")
+    @patch("atomium.files.pdbstring2pdbdict.extract_rfactor")
     @patch("atomium.files.pdbstring2pdbdict.extract_source")
     @patch("atomium.files.pdbstring2pdbdict.extract_technique")
-    def test_can_extract_header(self, mock_tech, mock_source, mock_res, mock_title, mock_header):
+    def test_can_extract_header(self, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_header):
         extract_annotation(self.pdb_dict, self.lines)
         mock_title.assert_called_with(self.pdb_dict, self.lines)
         mock_header.assert_called_with(self.pdb_dict, self.lines)
         mock_res.assert_called_with(self.pdb_dict, self.lines)
+        mock_rfac.assert_called_with(self.pdb_dict, self.lines)
         mock_source.assert_called_with(self.pdb_dict, self.lines)
         mock_tech.assert_called_with(self.pdb_dict, self.lines)
 
@@ -143,6 +145,50 @@ class ResolutionExtractionTests(PdbStringConversionTest):
 
 
 
+class RfactorExtractionTests(PdbStringConversionTest):
+
+    def setUp(self):
+        PdbStringConversionTest.setUp(self)
+        self.remark_lines = [
+         "REMARK   1",
+         "REMARK   1 BLAH BLAH.",
+         "REMARK   3   CROSS-VALIDATION METHOD          : THROUGHOUT",
+         "REMARK   3   FREE R VALUE TEST SET SELECTION  : RANDOM",
+         "REMARK   3   R VALUE            (WORKING SET) : 0.193",
+         "REMARK   3   FREE R VALUE                     : 0.229",
+         "REMARK   3   FREE R VALUE TEST SET SIZE   (%) : 4.900",
+         "REMARK   3   FREE R VALUE TEST SET COUNT      : 1583",
+         "REMARK  24",
+         "REMARK  24 BLAH BLAH."
+        ]
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_empty_rfactor_extraction(self, mock_lines):
+        self.remark_lines[4] = "REMARK   3   R VALUE             : 0.193"
+        mock_lines.return_value = self.remark_lines
+        extract_rfactor(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["rfactor"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_missing_remarks_extraction(self, mock_lines):
+        mock_lines.return_value = []
+        extract_rfactor(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["rfactor"], None)
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_rfactor_extraction(self, mock_lines):
+        mock_lines.return_value = self.remark_lines
+        extract_rfactor(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["rfactor"], 0.193)
+
+
+
 class SourceExtractionTests(PdbStringConversionTest):
 
     @patch("atomium.files.pdbstring2pdbdict.get_lines")
@@ -229,7 +275,7 @@ class TechniqueExtractionTests(PdbStringConversionTest):
         extract_technique(self.pdb_dict, self.lines)
         mock_line.assert_called_with("EXPDTA", self.lines)
         self.assertEqual(self.pdb_dict["technique"], "X-RAY DIFFRACTION")
-        
+
 
 
 class StructureExtractionTests(TestCase):

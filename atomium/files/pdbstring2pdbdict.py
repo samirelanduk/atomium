@@ -27,6 +27,7 @@ def extract_annotation(pdb_dict, lines):
     extract_header(pdb_dict, lines)
     extract_title(pdb_dict, lines)
     extract_resolution(pdb_dict, lines)
+    extract_rfactor(pdb_dict, lines)
     extract_source(pdb_dict, lines)
     extract_technique(pdb_dict, lines)
 
@@ -78,6 +79,27 @@ def extract_resolution(pdb_dict, lines):
             break
     else:
         pdb_dict["resolution"] = None
+
+
+def extract_rfactor(pdb_dict, lines):
+    """Takes a ``dict`` and adds rfactor information to it by parsing
+    REMARK 3.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    remark_lines = get_lines("REMARK", lines)
+    pattern = r"R VALUE[ ]{2,}\(WORKING SET\) : (.+)"
+    for remark in remark_lines:
+        if int(remark[7:10]) == 3 and remark[10:].strip():
+            matches = re.findall(pattern, remark)
+            if matches:
+                try:
+                    pdb_dict["rfactor"] = float(matches[0].strip())
+                    break
+                except: pass
+    else:
+        pdb_dict["rfactor"] = None
 
 
 def extract_source(pdb_dict, lines):

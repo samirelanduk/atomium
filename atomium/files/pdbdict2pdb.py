@@ -20,6 +20,7 @@ def pdb_dict_to_pdb(pdb_dict):
     pdb._expression_system = pdb_dict["expression_system"]
     pdb._technique = pdb_dict["technique"]
     pdb._classification = pdb_dict["classification"]
+    pdb._rfactor = pdb_dict["rfactor"]
     pdb._models = [model_dict_to_model(
      d, pdb_dict["connections"]
     ) for d in pdb_dict["models"]]

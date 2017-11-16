@@ -17,6 +17,7 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._expression_system, None)
         self.assertEqual(pdb._technique, None)
         self.assertEqual(pdb._classification, None)
+        self.assertEqual(pdb._rfactor, None)
 
 
 
@@ -252,6 +253,29 @@ class PdbResolutionTests(TestCase):
         with self.assertRaises(TypeError):
             pdb.resolution("100")
         pdb.resolution(3)
+
+
+
+class PdbRfactorTests(TestCase):
+
+    def test_can_get_pdb_rfactor(self):
+        pdb = Pdb()
+        pdb._rfactor = 1.2
+        self.assertIs(pdb._rfactor, pdb.rfactor())
+
+
+    def test_can_update_rfactor(self):
+        pdb = Pdb()
+        pdb._rfactor = 1.2
+        pdb.rfactor(1.5)
+        self.assertEqual(pdb._rfactor, 1.5)
+
+
+    def test_rfactor_must_be_number(self):
+        pdb = Pdb()
+        with self.assertRaises(TypeError):
+            pdb.rfactor("100")
+        pdb.rfactor(3)
 
 
 

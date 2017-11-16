@@ -28,6 +28,7 @@ def pack_annotation(lines, pdb_dict):
     pack_source(lines, pdb_dict)
     pack_technique(lines, pdb_dict)
     pack_resolution(lines, pdb_dict)
+    pack_rfactor(lines, pdb_dict)
 
 
 def pack_header(lines, pdb_dict):
@@ -80,6 +81,19 @@ def pack_resolution(lines, pdb_dict):
             lines.append("REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(
              pdb_dict["resolution"]
             ).ljust(80))
+
+
+def pack_rfactor(lines, pdb_dict):
+    """Adds REMARK records to a list of lines for rfactor.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
+    if pdb_dict["rfactor"] is not None:
+        lines.append("REMARK   3".ljust(80))
+        lines.append("REMARK   3   R VALUE            (WORKING SET) : {}".format(
+         pdb_dict["rfactor"]
+        ).ljust(80))
 
 
 def pack_source(lines, pdb_dict):

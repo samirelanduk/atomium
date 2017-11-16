@@ -9,7 +9,7 @@ class PdbStringCreationTest(TestCase):
         self.pdb_dict = {
          "deposition_date": datetime(1990, 9, 1).date(),
          "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9,
-         "technique": "TECH", "classification": "CLASS",
+         "technique": "TECH", "classification": "CLASS", "rfactor": 3.4,
          "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS"
         }
         self.lines = []
@@ -37,13 +37,15 @@ class AnnotationPackingTests(PdbStringCreationTest):
     @patch("atomium.files.pdbdict2pdbstring.pack_header")
     @patch("atomium.files.pdbdict2pdbstring.pack_title")
     @patch("atomium.files.pdbdict2pdbstring.pack_resolution")
+    @patch("atomium.files.pdbdict2pdbstring.pack_rfactor")
     @patch("atomium.files.pdbdict2pdbstring.pack_source")
     @patch("atomium.files.pdbdict2pdbstring.pack_technique")
-    def test_can_pack_annotation(self, mock_tech, mock_source, mock_res, mock_title, mock_head):
+    def test_can_pack_annotation(self, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_head):
         pack_annotation(self.lines, self.pdb_dict)
         mock_head.assert_called_with(self.lines, self.pdb_dict)
         mock_title.assert_called_with(self.lines, self.pdb_dict)
         mock_res.assert_called_with(self.lines, self.pdb_dict)
+        mock_rfac.assert_called_with(self.lines, self.pdb_dict)
         mock_source.assert_called_with(self.lines, self.pdb_dict)
         mock_tech.assert_called_with(self.lines, self.pdb_dict)
 
@@ -120,6 +122,23 @@ class ResolutionPackingTests(PdbStringCreationTest):
 
 
 
+class RfactorPackingTests(PdbStringCreationTest):
+
+    def test_can_pack_resolution(self):
+        pack_rfactor(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines[0], "REMARK   3" + " " * 70)
+        self.assertEqual(
+         self.lines[1],  "REMARK   3   R VALUE            (WORKING SET) : 3.4".ljust(80)
+        )
+
+
+    def test_can_pack_no_rfactor(self):
+        self.pdb_dict["resolution"] = None
+        pack_resolution(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [])
+
+
+
 class SourcePackingTests(PdbStringCreationTest):
 
     def test_can_pack_source(self):
@@ -150,7 +169,7 @@ class TecnhniquePackingTests(PdbStringCreationTest):
         self.pdb_dict["technique"] = None
         pack_technique(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
-        
+
 
 
 class StructurePackingTests(TestCase):

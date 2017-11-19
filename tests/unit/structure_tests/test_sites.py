@@ -79,3 +79,28 @@ class SiteLigandTests(SiteTest):
         site = Site(*self.residues, ligand=self.ligand)
         with self.assertRaises(TypeError):
             site.ligand("ligand")
+
+
+
+class SiteResiduesTests(SiteTest):
+
+    @patch("atomium.structures.chains.ResidueStructure.residues")
+    def test_can_get_normal_residues(self, mock_res):
+        mock_res.return_value = [1, 2, 3]
+        site = Site(*self.residues)
+        self.assertEqual(site.residues(), [1, 2, 3])
+
+
+    @patch("atomium.structures.chains.ResidueStructure.residues")
+    @patch("atomium.structures.chains.Site.atoms")
+    def test_can_get_water_residues(self, mock_atoms, mock_res):
+        mock_res.return_value = set([1, 2, 3])
+        site = Site(*self.residues)
+        atoms = [Mock(), Mock(), Mock()]
+        site.atoms.return_value = atoms
+        water = Mock()
+        water.residue_name.return_value = "HOH"
+        atoms[0].molecule.return_value = water
+        atoms[1].molecule.return_value = 1
+        atoms[2].molecule.return_value = 2
+        self.assertEqual(site.residues(), set([1, 2, 3, water]))

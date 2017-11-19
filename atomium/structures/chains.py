@@ -249,3 +249,19 @@ class Site(AtomicStructure, ResidueStructure):
             if not isinstance(ligand, Molecule):
                 raise TypeError("ligand {} is not a Molecule".format(ligand))
             self._ligand = ligand
+
+
+    def residues(self, *args, **kwargs):
+        """Returns the :py:class:`.Residue` objects in the structure, including
+        water molecules. It can be given search criteria if you wish. 
+
+        :param str residue_id: Filter by residue ID.
+        :param str name: Filter by name.
+        :rtype: ``set``"""
+
+        residues = ResidueStructure.residues(self, *args, **kwargs)
+        for atom in self.atoms():
+            molecule = atom.molecule()
+            if molecule and not isinstance(molecule, Chain):
+                residues.add(molecule)
+        return residues

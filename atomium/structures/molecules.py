@@ -340,7 +340,7 @@ class Molecule(AtomicStructure):
             return atom.model()
 
 
-    def site(self):
+    def site(self, include_water=False):
         """Returns the :py:class:`.Site` that encompasses this molecule. This is
         all the residues with a non-hydrogen atom within 4 Angstroms of a
         non-hydrogen atom in the molecule.
@@ -352,7 +352,12 @@ class Molecule(AtomicStructure):
         for atom in atoms:
             nearby.update(atom.nearby(4, exclude="H"))
         residues = [atom.residue() for atom in nearby if atom not in atoms]
-        residues = [residue for residue in residues if residue]
+        if include_water:
+            residues += [
+             atom.molecule() for atom in nearby if atom not in atoms
+              and atom.molecule() != None and atom.molecule().name() == "HOH"
+             ]
+        residues = set([residue for residue in residues if residue])
         return Site(*residues, ligand=self)
 
 

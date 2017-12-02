@@ -33,6 +33,12 @@ from the RCSB over the internet using the PDB code:
   datetime.date(2002, 5, 6)
   >>> pdb.resolution()
   1.9
+  >>> pdb.rfactor()
+  0.193
+  >>> pdb.classification()
+  'LYASE'
+  >>> pdb.technique()
+  'X-RAY DIFFRACTION'
   >>> pdb2.model()
   <Model (2156 atoms)>
 

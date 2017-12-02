@@ -1,6 +1,21 @@
 Changelog
 ---------
 
+Release 0.8.0
+~~~~~~~~~~~~~
+
+`2 December 2017`
+
+* Added option to get water residues in binding sites.
+* Added extra PDB meta information parsing, such as:
+
+	* Classification
+	* Experimental Technique
+	* Source Organism
+	* Expression Organism
+	* R-factor
+
+
 Release 0.7.0
 ~~~~~~~~~~~~~
 

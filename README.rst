@@ -1,10 +1,10 @@
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.7
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.8
 
-.. _travis: https://travis-ci.org/samirelanduk/atomium/
+.. _travis https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.7
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.8
 
-.. _coveralls: https://coveralls.io/github/samirelanduk/atomium/
+.. _coveralls https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
 
@@ -102,6 +102,12 @@ from the RCSB over the internet using the PDB code:
   datetime.date(2002, 5, 6)
   >>> pdb.resolution()
   1.9
+  >>> pdb.rfactor()
+  0.193
+  >>> pdb.classification()
+  'LYASE'
+  >>> pdb.technique()
+  'X-RAY DIFFRACTION'
   >>> pdb2.model()
   <Model (2156 atoms)>
 
@@ -310,6 +316,21 @@ The ``Xyz`` or ``Pdb`` object itself can also be saved:
 
 Changelog
 ---------
+
+Release 0.8.0
+~~~~~~~~~~~~~
+
+`2 December 2017`
+
+* Added option to get water residues in binding sites.
+* Added extra PDB meta information parsing, such as:
+
+	* Classification
+	* Experimental Technique
+	* Source Organism
+	* Expression Organism
+	* R-factor
+
 
 Release 0.7.0
 ~~~~~~~~~~~~~

@@ -345,6 +345,9 @@ class Molecule(AtomicStructure):
         all the residues with a non-hydrogen atom within 4 Angstroms of a
         non-hydrogen atom in the molecule.
 
+        :param bool include_water: If ``True``, water molecules will be\
+        obtained as well as residues.
+
         :rtype: :py:class:`.Site`"""
 
         from .chains import Site

@@ -176,6 +176,8 @@ class MoleculeSiteTests(MoleculeTest):
         other_atoms[3].residue.return_value = self.residues[1]
         other_atoms[4].residue.return_value = self.residues[2]
         other_atoms[5].residue.return_value = self.residues[2]
+        other_atoms[4].name.return_value = "C"
+        other_atoms[5].name.return_value = "N"
         other_atoms[6].residue.return_value = None
         other_atoms[6].molecule.return_value = self.waters[0]
 
@@ -190,7 +192,7 @@ class MoleculeSiteTests(MoleculeTest):
         self.atom2.nearby.assert_called_with(4, exclude="H")
         self.atom3.nearby.assert_called_with(4, exclude="H")
         residues_passed = mock_site.call_args_list[0][0]
-        self.assertEqual(set(residues_passed), set(self.residues[:3]))
+        self.assertEqual(set(residues_passed), set(self.residues[:2]))
         kwargs = mock_site.call_args_list[0][1]
         self.assertEqual(kwargs, {"ligand": self.molecule})
 
@@ -205,6 +207,21 @@ class MoleculeSiteTests(MoleculeTest):
         self.atom2.nearby.assert_called_with(4, exclude="H")
         self.atom3.nearby.assert_called_with(4, exclude="H")
         residues_passed = mock_site.call_args_list[0][0]
-        self.assertEqual(set(residues_passed), set(self.residues[:3] + self.waters[:1]))
+        self.assertEqual(set(residues_passed), set(self.residues[:2] + self.waters[:1]))
+        kwargs = mock_site.call_args_list[0][1]
+        self.assertEqual(kwargs, {"ligand": self.molecule})
+
+
+    @patch("atomium.structures.Molecule.atoms")
+    @patch("atomium.structures.chains.Site")
+    def test_can_get_site_with_main_chain(self, mock_site, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
+        returned_site = self.molecule.site(main_chain=True)
+        mock_atoms.assert_called_with(exclude="H")
+        self.atom1.nearby.assert_called_with(4, exclude="H")
+        self.atom2.nearby.assert_called_with(4, exclude="H")
+        self.atom3.nearby.assert_called_with(4, exclude="H")
+        residues_passed = mock_site.call_args_list[0][0]
+        self.assertEqual(set(residues_passed), set(self.residues[:3]))
         kwargs = mock_site.call_args_list[0][1]
         self.assertEqual(kwargs, {"ligand": self.molecule})

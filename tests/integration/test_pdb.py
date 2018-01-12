@@ -96,6 +96,10 @@ class PdbReadingTests(IntegratedTest):
          model.residue("A96"), model.residue("A123"), model.residue("A155"),
          model.molecule("A3015")
         ]))
+        site = model.molecule("A2001").site(main_chain=True)
+        self.assertIn("A202", [r.residue_id() for r in site.residues()])
+        site = model.molecule("A2001").site()
+        self.assertNotIn("A202", [r.residue_id() for r in site.residues()])
 
         # Bonding is correct
         residue = chaina[0]

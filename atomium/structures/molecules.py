@@ -297,15 +297,16 @@ class Molecule(AtomicStructure):
         return self._id
 
 
-    def name(self, name=None):
+    def name(self, name=None, full=False):
         """Returns the molecule's name. If a value is given, the name will be
         updated, provided it is a string.
 
         :param int name: If given, the name will be set to this.
+        :param bool full: If ``True`` the full English name will be returned.
         :raises TypeError: if the name given is not str."""
 
         if name is None:
-            return self._name
+            return RESIDUES.get(self._name, self._name) if full else self._name
         else:
             if not isinstance(name, str):
                 raise TypeError("Molecule name '{}' is not str".format(name))
@@ -489,3 +490,14 @@ class Residue(Molecule):
 
         for atom in self.atoms():
             return atom.chain()
+
+
+
+RESIDUES = {
+ "GLY": "glycine", "ALA": "alanine", "VAL": "valine", "LEU": "leucine",
+ "ILE": "isoleucine", "MET": "methionine", "PHE": "phenylalanine",
+ "TRP": "tryptophan", "PRO": "proline", "SER": "serine", "THR": "threonine",
+ "CYS": "cysteine", "TYR": "tyrosine", "ASN": "asparagine", "GLN": "glutamine",
+ "ASP": "aspartic acid", "GLU": "glutamic acid", "LYS": "lysine",
+ "ARG": "arginine", "HIS": "histidine", "HOH": "water"
+}

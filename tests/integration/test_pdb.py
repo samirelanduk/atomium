@@ -40,8 +40,11 @@ class PdbReadingTests(IntegratedTest):
 
         # Residues are correct
         self.assertEqual(chaina[0].name(), "VAL")
+        self.assertEqual(chaina[0].name(full=True), "valine")
         self.assertEqual(chaina[0].next().name(), "MET")
+        self.assertEqual(chaina[0].next().name(full=True), "methionine")
         self.assertEqual(chaina[-1].name(), "ILE")
+        self.assertEqual(chaina[-1].name(full=True), "isoleucine")
         self.assertEqual(chaina[-1].previous().name(), "SER")
         self.assertEqual(len(chaina.residues(name="ASN")), 6)
         for residue in chaina:
@@ -77,6 +80,7 @@ class PdbReadingTests(IntegratedTest):
         mol = model.molecule(molecule_id="A2001")
         self.assertIs(mol.model(), model)
         self.assertEqual(mol.name(), "XMP")
+        self.assertEqual(mol.name(full=True), "XMP")
         self.assertEqual(len(mol.atoms()), 24)
 
         # Bindsites are correct

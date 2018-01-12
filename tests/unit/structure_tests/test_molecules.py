@@ -94,6 +94,13 @@ class MoleculeNameTests(MoleculeTest):
         self.assertIs(mol._name, mol.name())
 
 
+    def test_molecule_name_property_full(self):
+        mol = Molecule(self.atom1, self.atom2, self.atom3, name="VAL")
+        self.assertEqual(mol.name(full=True), "valine")
+        mol = Molecule(self.atom1, self.atom2, self.atom3, name="VL")
+        self.assertEqual(mol.name(full=True), "VL")
+
+
     def test_can_update_molecule_name(self):
         mol = Molecule(self.atom1, self.atom2, self.atom3, name="VAL")
         mol.name("HIS")

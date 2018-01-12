@@ -352,12 +352,14 @@ class Atom:
         return sqrt(x_sum + y_sum + z_sum)
 
 
-    def nearby(self, cutoff, *args, **kwargs):
+    def nearby(self, cutoff, *args, atoms=None, **kwargs):
         """Returns all atoms in the associated :py:class:`.Model` that are
         within a given distance (in the units of the atom coordinates) of this
         atom.
 
         :param int cutoff: The distance cutoff to use.
+        :param atoms: A collection of atoms which the search will be\
+        restricted to if given.
         :param str element: If given, only atoms whose element matches this\
         will be returned.
         :param str exclude: If given, only atoms whose element doesn't match\
@@ -367,8 +369,9 @@ class Atom:
         :param str name: If given, only atoms whose name matches this will be\
         returned."""
 
-        if self._model:
-            atoms = self._model.atoms(*args, **kwargs)
+        if self._model or atoms:
+            if atoms is None:
+                atoms = self._model.atoms(*args, **kwargs)
             try:
                 atoms.remove(self)
             except: pass

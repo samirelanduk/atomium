@@ -140,6 +140,14 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(len(atom.nearby(cutoff=4, element="O")), 1)
         self.assertEqual(len(atom.nearby(cutoff=4, exclude="C")), 4)
 
+        # Can get atoms from predefined set
+        atom_set = [model.atom(1576), model.atom(1582), model.atom(1583)]
+        four_angstrom = atom.nearby(cutoff=4, atoms=atom_set)
+        self.assertEqual(len(four_angstrom), 3)
+        self.assertEqual(
+         sorted([atom.atom_id() for atom in four_angstrom]), [1576, 1582, 1583]
+        )
+
 
     def test_can_read_multi_model_pdbs(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")

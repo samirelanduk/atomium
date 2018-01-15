@@ -549,3 +549,29 @@ class NearbyAtomTests(TestCase):
         self.assertEqual(
          atom.nearby(4, "d", atoms=atoms, a="4"), set(atoms[:-1])
         )
+
+
+
+class NearbyAtomRingTests(TestCase):
+
+    @patch("atomium.structures.atoms.Atom.nearby")
+    def test_can_get_nearby_atom_rings(self, mock_nearby):
+        atoms = [Mock(name="0.4"), Mock(name="0.8"), Mock(name="1.2"), Mock(name="1.6"), Mock(name="2"), Mock(name="2.4"), Mock(name="2.8"), Mock(name="3.2")]
+        0.4, 0.8, 1.2, 1.6, 2, 2.4, 2.8, 3.2
+        mock_nearby.side_effect = [
+         set(atoms[:7]), set(atoms[:6]), set(atoms[:5]),
+         set(atoms[:3]), set(atoms[:2]), set(atoms[:1]), set()
+        ]
+        atom = Atom("C", 4, 8, 3)
+        rings = atom.nearby_rings(cutoff=3, step=0.5, a="b")
+        mock_nearby.assert_any_call(3, a="b")
+        mock_nearby.assert_any_call(2.5, a="b", atoms=set(atoms[:7]))
+        mock_nearby.assert_any_call(2, a="b", atoms=set(atoms[:6]))
+        mock_nearby.assert_any_call(1.5, a="b", atoms=set(atoms[:5]))
+        mock_nearby.assert_any_call(1, a="b", atoms=set(atoms[:3]))
+        mock_nearby.assert_any_call(0.5, a="b", atoms=set(atoms[:2]))
+        mock_nearby.assert_any_call(0, a="b", atoms=set(atoms[:1]))
+        self.assertEqual(rings, {
+         0.5: set(atoms[:1]), 1: set(atoms[1:2]), 1.5: set(atoms[2:3]),
+         2: set(atoms[3:5]), 2.5: set(atoms[5:6]), 3: set(atoms[6:7])
+        })

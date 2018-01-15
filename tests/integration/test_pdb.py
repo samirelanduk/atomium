@@ -152,6 +152,41 @@ class PdbReadingTests(IntegratedTest):
          sorted([atom.atom_id() for atom in four_angstrom]), [1576, 1582, 1583]
         )
 
+        # Can get atoms in rings
+        atom = model.atom(1542)
+        rings = atom.nearby_rings(cutoff=5, step=1)
+        self.assertEqual(
+         sorted([a.atom_id() for a in rings[1]]), []
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in rings[2]]), [1541]
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in rings[3]]), [1539, 1540, 1543]
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in rings[4]]), []
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in rings[5]]), [1536, 3329]
+        )
+        c_rings = atom.nearby_rings(cutoff=5, step=1, element="C")
+        self.assertEqual(
+         sorted([a.atom_id() for a in c_rings[1]]), []
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in c_rings[2]]), [1541]
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in c_rings[3]]), [1539, 1540]
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in c_rings[4]]), []
+        )
+        self.assertEqual(
+         sorted([a.atom_id() for a in c_rings[5]]), [1536]
+        )
+
 
     def test_can_read_multi_model_pdbs(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")

@@ -348,6 +348,8 @@ class Molecule(AtomicStructure):
 
         :param bool include_water: If ``True``, water molecules will be\
         obtained as well as residues.
+        :param bool main_chain: If ``True`` main chain atoms will be considered\
+        when determining binding residues.
 
         :rtype: :py:class:`.Site`"""
 

@@ -152,6 +152,18 @@ class MoleculeStructure:
             self.remove_atom(atom)
 
 
+    def remove_small_molecules(self, keep=None):
+        """Removes all molecules from the model which aren't chains. You can
+        pick one to keep if you like.
+
+        :param Molecule keep: if given, this small molecule will be spared from\
+        the purge."""
+        
+        for molecule in self.molecules():
+            if not isinstance(molecule, Chain) and molecule is not keep:
+                self.remove_molecule(molecule)
+
+
 
 class Model(AtomicStructure, ResidueStructure, ChainStructure,
             MoleculeStructure):

@@ -187,6 +187,13 @@ class PdbReadingTests(IntegratedTest):
          sorted([a.atom_id() for a in c_rings[5]]), [1536]
         )
 
+        model.remove_small_molecules(keep=mol)
+        self.assertEqual(len(model.molecules()), 3)
+        self.assertIn(mol, model.molecules())
+        model.remove_small_molecules()
+        self.assertEqual(len(model.molecules()), 2)
+        self.assertNotIn(mol, model.molecules())
+
 
     def test_can_read_multi_model_pdbs(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")

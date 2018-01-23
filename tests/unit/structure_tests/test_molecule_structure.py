@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 from atomium.structures.models import MoleculeStructure
 from atomium.structures.molecules import Molecule, Residue
+from atomium.structures.chains import Chain
 from atomium.structures.atoms import Atom
 
 class MoleculeStructureTest(TestCase):
@@ -26,6 +27,7 @@ class MoleculeStructureTest(TestCase):
         ])
         self.structure.add_atom = MagicMock()
         self.structure.remove_atom = MagicMock()
+
 
 
 class MoleculeStructureMoleculesTests(MoleculeStructureTest):
@@ -136,3 +138,37 @@ class MoleculeStructureMoleculeRemovalTests(MoleculeStructureTest):
     def test_can_only_remove_molecules(self):
         with self.assertRaises(TypeError):
             self.structure.remove_molecule("self.molecule4")
+
+
+
+class MoleculeStructureSmallMoleculeRemovalTests(MoleculeStructureTest):
+
+    @patch("atomium.structures.models.MoleculeStructure.molecules")
+    @patch("atomium.structures.models.MoleculeStructure.remove_molecule")
+    def test_can_remove_small_molecules(self, mock_remove, mock_mols):
+        mols = [Mock(), Mock(), Mock(Chain), Mock(), Mock(Chain)]
+        mock_mols.return_value = mols
+        self.structure.remove_small_molecules()
+        mock_remove.assert_any_call(mols[0])
+        mock_remove.assert_any_call(mols[1])
+        mock_remove.assert_any_call(mols[3])
+        with self.assertRaises(AssertionError):
+            mock_remove.assert_any_call(mols[2])
+        with self.assertRaises(AssertionError):
+            mock_remove.assert_any_call(mols[4]) 
+
+
+    @patch("atomium.structures.models.MoleculeStructure.molecules")
+    @patch("atomium.structures.models.MoleculeStructure.remove_molecule")
+    def test_can_keep_one_small_molecule(self, mock_remove, mock_mols):
+        mols = [Mock(), Mock(), Mock(Chain), Mock(), Mock(Chain)]
+        mock_mols.return_value = mols
+        self.structure.remove_small_molecules(keep=mols[1])
+        mock_remove.assert_any_call(mols[0])
+        mock_remove.assert_any_call(mols[3])
+        with self.assertRaises(AssertionError):
+            mock_remove.assert_any_call(mols[1])
+        with self.assertRaises(AssertionError):
+            mock_remove.assert_any_call(mols[2])
+        with self.assertRaises(AssertionError):
+            mock_remove.assert_any_call(mols[4])

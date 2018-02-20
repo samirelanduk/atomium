@@ -141,6 +141,17 @@ class Atom:
         return (self._x, self._y, self._z)
 
 
+    def round(self, places):
+        """Rounds the coordinate values to a given number of decimal places.
+        Useful for removing floating point rounding errors after rotation.
+
+        :param int places: The number of places to round the coordinates to."""
+
+        self._x = round(self._x, places)
+        self._y = round(self._y, places)
+        self._z = round(self._z, places)
+
+
     def translate(self, dx, dy, dz):
         """Translates an atom in 3D space.
 
@@ -378,41 +389,6 @@ class Atom:
             except: pass
             return set(filter(lambda a: a.distance_to(self) <= cutoff, atoms))
         return set()
-
-
-    def nearby_rings(self, cutoff, step, *args, **kwargs):
-        """Returns all atoms in the associated :py:class:`.Model` that are
-        within a given distance (in the units of the atom coordinates) of this
-        atom, divided into concentric spheres.
-
-        For example, providing a cutoff of 3 and a step of 0.5 will give you all
-        the atoms 0 - 0.5 Angstroms from the atom, then those 0.5 - 1 Angstroms,
-        and so on.
-
-        :param cutoff: The distance cutoff to use.
-        :param step: The interval to use.
-        :param atoms: A collection of atoms which the search will be\
-        restricted to if given.
-        :param str element: If given, only atoms whose element matches this\
-        will be returned.
-        :param str exclude: If given, only atoms whose element doesn't match\
-        this will be returned.
-        :param int atom_id: If given, only atoms whose atom ID matches this\
-        will be returned (this will only return one atom).
-        :param str name: If given, only atoms whose name matches this will be\
-        returned.
-        :rtype: ``dict``"""
-
-        steps = [0]
-        while steps[-1] < cutoff:
-            steps.append(steps[-1] + step)
-        steps.reverse()
-        spheres = [self.nearby(steps[0], *args, **kwargs)]
-        for index, step in enumerate(steps[1:], start=1):
-            spheres.append(self.nearby(step, atoms=spheres[-1], *args, **kwargs))
-        for cutoff1, cutoff2 in zip(steps[:-1], steps[1:]):
-            pass
-        return {step: spheres[index] - spheres[index + 1] for index, step in enumerate(steps[:-1])}
 
 
 

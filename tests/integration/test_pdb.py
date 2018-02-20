@@ -152,41 +152,6 @@ class PdbReadingTests(IntegratedTest):
          sorted([atom.atom_id() for atom in four_angstrom]), [1576, 1582, 1583]
         )
 
-        # Can get atoms in rings
-        atom = model.atom(1542)
-        rings = atom.nearby_rings(cutoff=5, step=1)
-        self.assertEqual(
-         sorted([a.atom_id() for a in rings[1]]), []
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in rings[2]]), [1541]
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in rings[3]]), [1539, 1540, 1543]
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in rings[4]]), []
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in rings[5]]), [1536, 3329]
-        )
-        c_rings = atom.nearby_rings(cutoff=5, step=1, element="C")
-        self.assertEqual(
-         sorted([a.atom_id() for a in c_rings[1]]), []
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in c_rings[2]]), [1541]
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in c_rings[3]]), [1539, 1540]
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in c_rings[4]]), []
-        )
-        self.assertEqual(
-         sorted([a.atom_id() for a in c_rings[5]]), [1536]
-        )
-
         model.remove_small_molecules(keep=mol)
         self.assertEqual(len(model.molecules()), 3)
         self.assertIn(mol, model.molecules())

@@ -11,3 +11,4 @@ dist
 *.html
 notes
 profiles
+*.pdb

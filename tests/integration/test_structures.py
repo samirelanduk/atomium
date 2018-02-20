@@ -5,282 +5,308 @@ import atomium
 
 class StructureTests(IntegratedTest):
 
-    def test_can_manipulate_model(self):
-        # Create a model
-        model = Model()
-        self.assertEqual(model.atoms(), set())
-        self.assertEqual(model.mass(), 0)
-
-        # Create some atoms
-        atom1 = Atom("N", 12.0, 11.5, 1.5, atom_id=101)
-        atom2 = Atom("C", 12.5, 10, 2, atom_id=102, bfactor=22.1)
-        self.assertEqual(atom2.bfactor(), 22.1)
-        atom2.bfactor(19.9)
-        self.assertEqual(atom2.bfactor(), 19.9)
-
-        # The atoms can work out their distance to each other
-        self.assertAlmostEqual(atom1.distance_to(atom2), 1.658312, delta=0.0005)
-
-        # Give the model some atoms
-        model.add_atom(atom1)
-        model.add_atom(atom2)
-
-        # The model can give a full account of itself
-        self.assertEqual(model.atoms(), set([atom1, atom2]))
-        self.assertAlmostEqual(model.mass(), 26, delta=0.1)
-        self.assertIn(atom1, model)
-        self.assertIn(atom2, model)
-
-        # Atom retrieval can pick by element and ID
-        self.assertIs(model.atom(element="N"), atom1)
-        self.assertIs(model.atom(element="C"), atom2)
-        self.assertIs(model.atom(atom_id=101), atom1)
-        self.assertIs(model.atom(atom_id=102), atom2)
-
-        # Atoms can be bonded to each other
-        self.assertEqual(atom1.bonded_atoms(), set())
-        self.assertEqual(atom2.bonded_atoms(), set())
-        atom1.bond(atom2)
-        self.assertEqual(atom1.bonded_atoms(), set([atom2]))
-        self.assertEqual(atom2.bonded_atoms(), set([atom1]))
-        atom2.unbond(atom1)
-        self.assertEqual(atom1.bonded_atoms(), set())
-        self.assertEqual(atom2.bonded_atoms(), set())
-
-        # The structure has a center of mass and radius of gyration
-        self.assertAlmostEqual(model.center_of_mass()[0], 12.23, delta=0.005)
-        self.assertAlmostEqual(model.center_of_mass()[1], 10.81, delta=0.005)
-        self.assertAlmostEqual(model.center_of_mass()[2], 1.73, delta=0.005)
-        self.assertAlmostEqual(model.radius_of_gyration(), 0.83, delta=0.005)
-
-        # The model is fully transformable
-        model.translate(-12, -11.5, -1.5)
-        self.assertEqual((atom1.x(), atom1.y(), atom1.z()), (0, 0, 0))
-        self.assertEqual((atom2.x(), atom2.y(), atom2.z()), (0.5, -1.5, 0.5))
-        model.rotate(math.pi, "x")
-        self.assertEqual((atom1.x(), atom1.y(), atom1.z()), (0, 0, 0))
-
-        # Atoms can be removed
-        model.remove_atom(atom1)
-        self.assertIn(atom2, model)
-        self.assertNotIn(atom1, model)
-
-        # Model can be saved and reloaded
-        model.save("tests/integration/files/model.xyz", description="Some atoms")
-        new = atomium.xyz_from_file("tests/integration/files/model.xyz")
-        self.assertEqual(new.title(), "Some atoms")
-        self.assertEqual(len(new.model().atoms()), 1)
-        self.assertEqual(new.model().atom().x(), 0.5)
-        self.assertEqual(new.model().atom().y(), 1.5)
-        self.assertEqual(new.model().atom().z(), -0.5)
-
-        model.save("tests/integration/files/model.pdb", description="Some atoms")
-        new = atomium.pdb_from_file("tests/integration/files/model.pdb")
-        self.assertEqual(new.title(), "Some atoms")
-        self.assertEqual(len(new.model().atoms()), 1)
-        self.assertEqual(new.model().atom().x(), 0.5)
-        self.assertEqual(new.model().atom().y(), 1.5)
-        self.assertEqual(new.model().atom().z(), -0.5)
-
-
-    def test_can_manipualte_advanced_model(self):
-        # Create 18 atoms
-        atom1 = Atom("C", 0, 0, 0, atom_id=1, name="CA", charge=0.8)
-        atom2 = Atom("C", 1, 0, 0.1, atom_id=2, name="CB")
-        atom3 = Atom("N", 0.5, 1, 0, atom_id=3, name="N1")
-        atom4 = Atom("C", 2, 0, 0, atom_id=4, name="CA")
-        atom5 = Atom("C", 3, 0, -0.2, atom_id=5, name="CB")
-        atom6 = Atom("N", 2.5, 1, 0, atom_id=6, name="N1")
-        atom7 = Atom("C", 4, 0, 0, atom_id=7, name="CA")
-        atom8 = Atom("C", 5, 0, 0, atom_id=8, name="CB")
-        atom9 = Atom("N", 4.5, 1, 0, atom_id=9, name="N1")
-        atom10 = Atom("C", 0, 0, 10, atom_id=10, name="CA")
-        atom11 = Atom("C", 1, 0, 10.1, atom_id=11, name="CB")
-        atom12 = Atom("N", 0.5, 1, 10, atom_id=12, name="N1")
-        atom13 = Atom("C", 2, 0, 10, atom_id=13, name="CA")
-        atom14 = Atom("C", 3, 0, 9.8, atom_id=14, name="CB")
-        atom15 = Atom("N", 2.5, 1, 10, atom_id=15, name="N1")
-        atom16 = Atom("C", 4, 0, 10, atom_id=16, name="CA")
-        atom17 = Atom("C", 5, 0, 10, atom_id=17, name="CB")
-        atom18 = Atom("N", 4.5, 1, 10, atom_id=18, name="N1", charge=-0.6)
+    def test_structures(self):
+        # Make atoms
         atoms = [
-         atom1, atom2, atom3, atom4, atom5, atom6, atom7, atom8, atom9,
-         atom10, atom11, atom12, atom13, atom14, atom15, atom16, atom17, atom18
+         Atom("N", 0, 0, 0, 1, "N", bfactor=1.5),
+         Atom("C", 1, 0, 0, 2, "CA", bfactor=1.5),
+         Atom("C", 2, 0, 0, 3, "C", bfactor=1.5),
+         Atom("O", 0, 1, 0, 4, "OA", bfactor=1.5),
+         Atom("C", 1, 1, 0, 5, "CB", charge=0.5, bfactor=1.5),
+         Atom("O", 2, 1, 0, 6, "OB", bfactor=1.5),
+         Atom("S", 0, 2, 0, 7, "S1", bfactor=1.5),
+         Atom("C", 1, 2, 0, 8, "CC", bfactor=1.5),
+         Atom("S", 2, 2, 0, 9, "S2", bfactor=1.5),
+         Atom("N", 0, 0, 1, 10, "N", bfactor=0.5),
+         Atom("C", 1, 0, 1, 11, "CA", charge=0.5, bfactor=0.5),
+         Atom("C", 2, 0, 1, 12, "C", bfactor=0.5),
+         Atom("O", 0, 1, 1, 13, "OA", bfactor=0.5),
+         Atom("C", 1, 1, 1, 14, "CB", charge=-2, bfactor=0.5),
+         Atom("O", 2, 1, 1, 15, "OB", bfactor=0.5),
+         Atom("P", 0, 2, 1, 16, "P1", bfactor=0.5),
+         Atom("C", 1, 2, 1, 17, "CC", charge=0.5, bfactor=0.5),
+         Atom("P", 2, 2, 1, 18, "P2", bfactor=0.5),
+         Atom("N", 0, 0, 2, 19, "N", bfactor=1.5),
+         Atom("C", 1, 0, 2, 20, "CA", bfactor=1.5),
+         Atom("C", 2, 0, 2, 21, "C", bfactor=1.5),
+         Atom("O", 0, 1, 2, 22, "OA", bfactor=1.5),
+         Atom("C", 1, 1, 2, 23, "CB", charge=0.5, bfactor=1.5),
+         Atom("O", 2, 1, 2, 24, "OB", bfactor=1.5),
+         Atom("Fe", 0, 2, 2, 25, "F1", bfactor=1.5),
+         Atom("C", 1, 2, 2, 26, "CC", bfactor=1.5),
+         Atom("Fe", 2, 2, 2, 27, "F2", bfactor=1.5),
         ]
-
-        # Bond atoms together
-        atom1.bond(atom2), atom1.bond(atom3)
-        atom4.bond(atom3), atom4.bond(atom5), atom4.bond(atom6)
-        atom7.bond(atom6), atom7.bond(atom8), atom7.bond(atom9)
-        atom10.bond(atom11), atom10.bond(atom12)
-        atom13.bond(atom12), atom13.bond(atom14), atom13.bond(atom15)
-        atom16.bond(atom15), atom16.bond(atom17), atom16.bond(atom18)
-
-        # Check atom awareness
+        self.assertEqual(atoms[-1].element(), "Fe")
+        self.assertEqual(atoms[-1].name(), "F2")
+        self.assertEqual(atoms[0].atom_id(), 1)
+        self.assertEqual(atoms[13].charge(), -2)
+        self.assertEqual(atoms[13].location(), (1, 1, 1))
+        self.assertEqual(atoms[13].bfactor(), 0.5)
         for atom in atoms:
-            self.assertIsNone(atom.residue())
             self.assertIsNone(atom.molecule())
+            self.assertIsNone(atom.residue())
             self.assertIsNone(atom.chain())
             self.assertIsNone(atom.model())
+            self.assertEqual(atom.bonds(), set())
+            self.assertEqual(atom.bonded_atoms(), set())
+        atoms[0].x(0.1)
+        self.assertEqual(atoms[0].x(), 0.1)
+        atoms[0].round(0)
+        self.assertEqual(atoms[0].x(), 0)
+        atoms[13].translate(10, 20, 30)
+        self.assertEqual(atoms[13].location(), (11, 21, 31))
+        atoms[13].translate(-10, -20, -30)
+        self.assertEqual(atoms[13].location(), (1, 1, 1))
+        atoms[13].rotate(math.pi / 2, "x")
+        atoms[13].round(8)
+        self.assertEqual(atoms[13].location(), (1, -1, 1))
+        atoms[13].rotate(math.pi / 2, "x")
+        atoms[13].round(8)
+        self.assertEqual(atoms[13].location(), (1, -1, -1))
+        atoms[13].rotate(math.pi, "x")
+        atoms[13].round(8)
+        self.assertEqual(atoms[13].location(), (1, 1, 1))
+        self.assertAlmostEqual(atoms[0].mass(), 14, delta=0.5)
+        self.assertAlmostEqual(atoms[-1].mass(), 56, delta=0.5)
+        self.assertEqual(atoms[0].distance_to(atoms[1]), 1)
+        self.assertEqual(atoms[0].distance_to(atoms[2]), 2)
+        self.assertEqual(atoms[0].distance_to(atoms[3]), 1)
+        self.assertEqual(atoms[0].distance_to(atoms[4]), 2 ** 0.5)
+        self.assertEqual(atoms[0].distance_to((10, 0, 0)), 10)
 
-        # Make model from atoms
+        # Bond atoms
+        atoms[2].bond(atoms[11])
+        atoms[11].bond(atoms[20])
+        self.assertEqual(atoms[2].bonded_atoms(), set([atoms[11]]))
+        self.assertEqual(atoms[20].bonded_atoms(), set([atoms[11]]))
+        self.assertEqual(atoms[11].bonded_atoms(), set([atoms[2], atoms[20]]))
+        self.assertEqual(atoms[2].bond_with(atoms[11]).length(), 1)
+        self.assertEqual(atoms[2].bond_with(atoms[11]).angle_with(
+         atoms[20].bond_with(atoms[11])
+        ), math.pi)
+        atoms[20].bond_with(atoms[11]).destroy()
+        atoms[2].unbond(atoms[11])
+        self.assertEqual(atoms[2].bonded_atoms(), set())
+        self.assertEqual(atoms[11].bonded_atoms(), set())
+        self.assertEqual(atoms[20].bonded_atoms(), set())
+
+        # Put atoms in model
         model = Model(*atoms)
         for atom in atoms:
-            self.assertIsNone(atom.residue())
-            self.assertIsNone(atom.molecule())
-            self.assertIsNone(atom.chain())
             self.assertIs(atom.model(), model)
-            self.assertIn(atom, model)
-        model.remove_atom(atom16)
-        self.assertIsNone(atom16.model())
-        self.assertNotIn(atom16, model)
-        model.add_atom(atom16)
-        self.assertIn(atom16, model)
-        self.assertAlmostEqual(model.charge(), 0.2, delta=0.0005)
-
-        # Make residues
-        residue1a = Residue(atom1, atom2, atom3, residue_id="A1", name="GLY")
-        residue2a = Residue(atom4, atom5, atom6, residue_id="A2", name="HIS")
-        residue3a = Residue(atom7, atom8, atom9, residue_id="A3", name="GLY")
-        residue1b = Residue(atom10, atom11, atom12, residue_id="B1", name="ASP")
-        residue2b = Residue(atom13, atom14, atom15, residue_id="B2", name="GLU")
-        residue3b = Residue(atom16, atom17, atom18, residue_id="B3", name="CYS")
-        residue1a.next(residue2a)
-        residue2a.next(residue3a)
-        residue1b.next(residue2b)
-        residue2b.next(residue3b)
-        residues = [
-         residue1a, residue2a, residue3a, residue1b, residue2b, residue3b
-        ]
-
-        # Check residues
-        self.assertEqual(residue1a.atoms(), set([atom1, atom2, atom3]))
-        self.assertEqual(residue1a.residue_id(), "A1")
-        self.assertEqual(residue1a.molecule_id(), "A1")
-        self.assertEqual(residue1a.name(), "GLY")
-        self.assertEqual(residue1a.charge(), 0.8)
-        residue1a.name("LYS")
-        self.assertEqual(residue1a.name(), "LYS")
-        residue1a.name("GLY")
-        self.assertEqual(residue2a.charge(), 0)
-        self.assertEqual(residue3b.charge(), -0.6)
-        self.assertIs(atom1.residue(), residue1a)
-        self.assertIs(atom14.residue(), residue2b)
-        self.assertIs(atom1.molecule(), residue1a)
-        self.assertIs(atom14.molecule(), residue2b)
-        residue1a.remove_atom(atom1)
-        self.assertIs(atom1.residue(), None)
-        self.assertIs(atom1.molecule(), None)
-        residue1a.add_atom(atom1)
-        self.assertIs(atom1.residue(), residue1a)
-        self.assertIs(atom1.molecule(), residue1a)
-        self.assertIs(residue1a.next(), residue2a)
-        self.assertIs(residue3b.previous(), residue2b)
-        residue2b.next(None)
-        self.assertIsNone(residue2b.next())
-        self.assertIsNone(residue3b.previous())
-        residue3b.previous(residue2b)
-        self.assertIs(residue2b.next(), residue3b)
-        self.assertIs(residue3b.previous(), residue2b)
-        for residue in residues:
-            self.assertIsNone(residue.chain())
-        self.assertEqual(residue1a.charge(), 0.8)
-        self.assertEqual(residue3b.charge(), -0.6)
-        self.assertEqual(residue1b.charge(), 0)
-
-        # Make model from residues
-        model = Model(*residues)
         self.assertEqual(model.atoms(), set(atoms))
-        self.assertEqual(model.residues(), set(residues))
-        for residue in model.residues():
-            self.assertIs(residue.model(), model)
-        self.assertIs(model.residue(residue_id="A1"), residue1a)
-        self.assertEqual(model.residues(name="GLY"), set([residue1a, residue3a]))
+        self.assertIn(atoms[-1], model)
+        model.remove_atom(atoms[-1])
+        self.assertNotIn(atoms[-1], model)
+        self.assertIsNone(atoms[-1].model())
+        self.assertEqual(model.atoms(), set(atoms[:-1]))
+        model.add_atom(atoms[-1])
+        self.assertIn(atoms[-1], model)
+        self.assertIs(atoms[-1].model(), model)
+        self.assertEqual(model.atoms(element="N"), set(atoms[::9]))
+        self.assertEqual(len(model.atoms(exclude="C")), 15)
+        self.assertEqual(model.atoms(element="fe"), set([atoms[-3]] + [atoms[-1]]))
+        self.assertEqual(model.atoms(name="CA"), set(atoms[1::9]))
+        self.assertIs(model.atom(1), atoms[0])
+        self.assertEqual(model.atom(name="CA").name(), "CA")
+        pairs = []
+        for pair in model.pairwise_atoms():
+            pairs.append(pair)
+        self.assertEqual(len(pairs), 351)
+        self.assertAlmostEqual(model.mass(), 520, delta=0.5)
+        self.assertEqual(model.charge(), 0)
+        atoms[13].charge(-3)
+        self.assertEqual(model.charge(), -1)
+        atoms[13].charge(-2)
+        self.assertEqual(model.charge(), 0)
+        self.assertEqual(
+         model.formula(), {"C": 12, "N": 3, "O": 6, "Fe": 2, "P": 2, "S": 2}
+        )
+        self.assertAlmostEqual(model.center_of_mass()[0], 0.9884, delta=0.005)
+        self.assertAlmostEqual(model.center_of_mass()[1], 1.3071, delta=0.005)
+        self.assertAlmostEqual(model.center_of_mass()[2], 1.0914, delta=0.005)
+        self.assertAlmostEqual(model.radius_of_gyration(), 1.45012, delta=0.005)
 
-        # Remove and add residues
-        model.remove_residue(residue3b)
-        self.assertEqual(model.residues(), set(residues[:-1]))
-        self.assertEqual(model.atoms(), set(atoms[:-3]))
-        self.assertIsNone(residue3b.model())
-        self.assertIsNone(atom16.model())
-        self.assertIsNone(atom17.model())
-        self.assertIsNone(atom18.model())
-        model.add_residue(residue3b)
-        self.assertEqual(model.residues(), set(residues))
-        self.assertEqual(model.atoms(), set(atoms))
-        self.assertIs(residue3b.model(), model)
-        self.assertIs(atom16.model(), model)
-        self.assertIs(atom17.model(), model)
-        self.assertIs(atom18.model(), model)
+        # The model can be transformed correctly
+        model.translate(10, 20, 30)
+        self.assertEqual(atoms[0].location(), (10, 20, 30))
+        self.assertEqual(atoms[13].location(), (11, 21, 31))
+        model.translate(-10, -20, -30)
+        self.assertEqual(atoms[0].location(), (0, 0, 0))
+        self.assertEqual(atoms[13].location(), (1, 1, 1))
+        model.rotate(math.pi / 2, "x"), model.round(8)
+        self.assertEqual(atoms[0].location(), (0, 0, 0))
+        self.assertEqual(atoms[13].location(), (1, -1, 1))
+        model.rotate(math.pi / 4, "y"), model.round(6)
+        self.assertEqual(atoms[0].location(), (0, 0, 0))
+        self.assertEqual(atoms[13].location(), (1.414214, -1, 0))
+        model.rotate(math.pi / 8, "z"), model.round(6)
+        self.assertEqual(atoms[0].location(), (0, 0, 0))
+        self.assertEqual(atoms[13].location(), (1.689247, -0.382683, 0))
+        model.orient(atoms[-1])
+        self.assertEqual(atoms[-1].location(), (0, 0, 0))
+        self.assertNotEqual(atoms[0].location(), (0, 0, 0))
+        model.orient(atoms[4], atom2=atoms[-1], axis="y"), model.round(8)
+        self.assertEqual(atoms[4].location(), (0, 0, 0))
+        self.assertEqual((atoms[-1].x(), atoms[-1].z()), (0, 0))
+        model.orient(atoms[8], atom2=atoms[9], axis="z"), model.round(8)
+        self.assertEqual(atoms[8].location(), (0, 0, 0))
+        self.assertEqual((atoms[9].x(), atoms[9].y()), (0, 0))
+        model.orient(atoms[19], atom2=atoms[1], axis="x"), model.round(8)
+        self.assertEqual(atoms[19].location(), (0, 0, 0))
+        self.assertEqual((atoms[1].y(), atoms[1].z()), (0, 0))
+        model.orient(atoms[1], atom2=atoms[19], axis="x"), model.round(8)
+        self.assertEqual(atoms[1].location(), (0, 0, 0))
+        self.assertEqual((atoms[19].y(), atoms[19].z()), (0, 0))
+        model.orient(atoms[25], atom2=atoms[19], axis="x", atom3=atoms[5], plane="xy")
+        model.round(8)
+        self.assertEqual(atoms[25].location(), (0, 0, 0))
+        self.assertEqual((atoms[19].y(), atoms[19].z()), (0, 0))
+        self.assertEqual(atoms[5].z(), 0)
+        model.orient(atoms[5], atom2=atoms[25], axis="x", atom3=atoms[19], plane="yx")
+        model.round(8)
+        self.assertEqual(atoms[5].location(), (0, 0, 0))
+        self.assertEqual((atoms[25].y(), atoms[25].z()), (0, 0))
+        self.assertEqual(atoms[19].z(), 0)
+        model.orient(atoms[5], atom2=atoms[25], axis="x", atom3=atoms[19], plane="xz")
+        model.round(8)
+        self.assertEqual(atoms[5].location(), (0, 0, 0))
+        self.assertEqual((atoms[25].y(), atoms[25].z()), (0, 0))
+        self.assertEqual(atoms[19].y(), 0)
+        model.orient(atoms[21], atom2=atoms[2], axis="x", atom3=atoms[13], plane="zx")
+        model.round(8)
+        self.assertEqual(atoms[21].location(), (0, 0, 0))
+        self.assertEqual((atoms[2].y(), atoms[2].z()), (0, 0))
+        self.assertEqual(atoms[13].y(), 0)
+        model.orient(atoms[21], atom2=atoms[2], axis="y", atom3=atoms[13], plane="xy")
+        model.round(8)
+        self.assertEqual(atoms[21].location(), (0, 0, 0))
+        self.assertEqual((atoms[2].x(), atoms[2].z()), (0, 0))
+        self.assertEqual(atoms[13].z(), 0)
+        model.orient(atoms[11], atom2=atoms[4], axis="y", atom3=atoms[10], plane="yx")
+        model.round(8)
+        self.assertEqual(atoms[11].location(), (0, 0, 0))
+        self.assertEqual((atoms[4].x(), atoms[4].z()), (0, 0))
+        self.assertEqual(atoms[10].z(), 0)
+        model.orient(atoms[11], atom2=atoms[4], axis="y", atom3=atoms[10], plane="yz")
+        model.round(8)
+        self.assertEqual(atoms[11].location(), (0, 0, 0))
+        self.assertEqual((atoms[4].x(), atoms[4].z()), (0, 0))
+        self.assertEqual(atoms[10].x(), 0)
+        model.orient(atoms[1], atom2=atoms[2], axis="y", atom3=atoms[17], plane="zy")
+        model.round(8)
+        self.assertEqual(atoms[1].location(), (0, 0, 0))
+        self.assertEqual((atoms[2].x(), atoms[2].z()), (0, 0))
+        self.assertEqual(atoms[17].x(), 0)
+        model.orient(atoms[1], atom2=atoms[2], axis="z", atom3=atoms[17], plane="xz")
+        model.round(8)
+        self.assertEqual(atoms[1].location(), (0, 0, 0))
+        self.assertEqual((atoms[2].x(), atoms[2].y()), (0, 0))
+        self.assertEqual(atoms[17].y(), 0)
+        model.orient(atoms[11], atom2=atoms[0], axis="z", atom3=atoms[16], plane="zx")
+        model.round(8)
+        self.assertEqual(atoms[11].location(), (0, 0, 0))
+        self.assertEqual((atoms[0].x(), atoms[0].y()), (0, 0))
+        self.assertEqual(atoms[16].y(), 0)
+        model.orient(atoms[11], atom2=atoms[0], axis="z", atom3=atoms[16], plane="yz")
+        model.round(8)
+        self.assertEqual(atoms[11].location(), (0, 0, 0))
+        self.assertEqual((atoms[0].x(), atoms[0].y()), (0, 0))
+        self.assertEqual(atoms[16].x(), 0)
+        model.orient(atoms[10], atom2=atoms[9], axis="z", atom3=atoms[11], plane="zy")
+        model.round(8)
+        self.assertEqual(atoms[10].location(), (0, 0, 0))
+        self.assertEqual((atoms[9].x(), atoms[9].y()), (0, 0))
+        self.assertEqual(atoms[11].x(), 0)
+        model.orient(atoms[0], atom2=atoms[1], axis="x", atom3=atoms[4], plane="xy")
+        model.round(4)
+        self.assertEqual(atoms[13].location(), (1, 1, 1))
 
-        # Make chains
-        chaina = Chain(residue1a, residue2a, residue3a, chain_id="A")
-        chainb = Chain(residue1b, residue2b, residue3b, chain_id="B")
+        # The atoms work in the model
+        self.assertEqual(atoms[0].nearby(0.5), set())
+        self.assertEqual(atoms[0].nearby(1), set([atoms[1], atoms[3], atoms[9]]))
+        self.assertEqual(atoms[0].nearby(1.5), set([
+         atoms[1], atoms[3], atoms[9], atoms[4], atoms[10], atoms[12]
+        ]))
+        self.assertEqual(
+         atoms[0].nearby(1.5, atoms=atoms[:8]), set([atoms[1], atoms[3], atoms[4]])
+        )
+        self.assertEqual(
+         atoms[0].nearby(1.5, element="C"), set([atoms[1], atoms[4], atoms[10]])
+        )
 
-        # Check chains
-        self.assertEqual(chaina.residues(), (residue1a, residue2a, residue3a))
-        self.assertEqual(chainb.residues(), (residue1b, residue2b, residue3b))
-        self.assertEqual(chaina.residues(name="GLY"), (residue1a, residue3a))
-        self.assertEqual(chaina.residues(residue_id="A2"), (residue2a,))
+        # Residues can be made
+        res1 = Residue(*atoms[:9], residue_id="A1", name="MET")
+        res2 = Residue(*atoms[9:18], residue_id="A2", name="VAL")
+        res3 = Residue(*atoms[18:], residue_id="A2A", name="MET")
         for atom in atoms[:9]:
-            self.assertIs(atom.chain(), chaina)
-            self.assertIs(atom.molecule(), chaina)
-        for atom in atoms[9:]:
-            self.assertIs(atom.chain(), chainb)
-            self.assertIs(atom.molecule(), chainb)
-        for residue in residues[:3]:
-            self.assertIs(residue.chain(), chaina)
-        for residue in residues[3:]:
-            self.assertIs(residue.chain(), chainb)
-        self.assertEqual(chaina.length(), 3)
-        self.assertEqual(len(chainb), 3)
-        for index, residue in enumerate(chaina):
-            self.assertIs(residue, residues[index])
-        self.assertIs(chaina[2], residue3a)
+            self.assertIs(atom.residue(), res1)
+            self.assertIs(atom.molecule(), res1)
+        for atom in atoms[9:18]:
+            self.assertIs(atom.residue(), res2)
+            self.assertIs(atom.molecule(), res2)
+        for atom in atoms[18:27]:
+            self.assertIs(atom.residue(), res3)
+            self.assertIs(atom.molecule(), res3)
+        self.assertIsNone(res1.chain())
+        self.assertIsNone(res2.chain())
+        self.assertIsNone(res3.chain())
+        self.assertIs(res1.model(), model)
+        self.assertIs(res2.model(), model)
+        self.assertIs(res3.model(), model)
+        res1.next(res2)
+        res3.previous(res2)
+        self.assertIs(res1.next(), res2)
+        self.assertIs(res2.next(), res3)
+        self.assertIs(res3.previous(), res2)
+        self.assertIs(res2.previous(), res1)
+        res1.next(None)
+        self.assertIsNone(res2.previous())
+        res1.next(res2)
 
-        # Make model
-        model = Model(chaina, chainb)
-        self.assertEqual(model.atoms(), set(atoms))
-        self.assertEqual(model.residues(), set(residues))
-        for chain in model.chains():
-            self.assertIs(chain.model(), model)
-            self.assertEqual(model.chains(), set([chaina, chainb]))
-        self.assertIs(model.chain(chain_id="A"), chaina)
+        # Chains can be made
+        chain = Chain(res1, res2, res3, chain_id="A")
+        for atom in atoms:
+            self.assertIs(atom.chain(), chain)
+            self.assertIs(atom.molecule(), chain)
+        self.assertIs(res1.chain(), chain)
+        self.assertIs(res2.chain(), chain)
+        self.assertIs(res3.chain(), chain)
+        self.assertEqual(chain.residues(), (res1, res2, res3))
+        self.assertEqual(chain.atoms(), set(atoms))
+        self.assertIsNone(chain.residue("A4"))
+        self.assertIs(chain.residue(name="VAL"), res2)
+        self.assertIs(chain.residue("A2A"), res3)
+        self.assertEqual(chain.residues(name="MET"), (res1, res3))
+        self.assertEqual(len(chain), chain.length(), 3)
+        for index, res in enumerate(chain):
+            self.assertIs(res, [res1, res2, res3][index])
+        chain.remove_residue(res3)
+        self.assertEqual(len(chain), chain.length(), 2)
+        self.assertIsNone(res3.chain())
+        chain.add_residue(res3)
+        self.assertEqual(len(chain), chain.length(), 3)
+        self.assertIs(res3.chain(), chain)
 
-        # Remove and add chains
-        model.remove_chain(chainb)
-        self.assertEqual(model.chains(), set([chaina]))
-        self.assertEqual(model.residues(), set(residues[:3]))
-        self.assertEqual(model.atoms(), set(atoms[:9]))
-        self.assertIsNone(chainb.model())
-        self.assertIsNone(residue3b.model())
-        self.assertIsNone(atom16.model())
-        self.assertIsNone(atom17.model())
-        self.assertIsNone(atom18.model())
-        model.add_chain(chainb)
-        self.assertEqual(model.chains(), set([chaina, chainb]))
-        self.assertEqual(model.residues(), set(residues))
-        self.assertEqual(model.atoms(), set(atoms))
-        self.assertIs(chainb.model(), model)
-        self.assertIs(residue3b.model(), model)
-        self.assertIs(atom16.model(), model)
-        self.assertIs(atom17.model(), model)
-        self.assertIs(atom18.model(), model)
-
-        # Add small molecule
-        atom19 = Atom("F", 3, 0, 1.8, atom_id=19, name="F1")
-        atom20 = Atom("F", 2.5, 1, 2.0, atom_id=20, name="F2")
-        mol = Molecule(atom19, atom20, molecule_id="FLU", name="FFF")
-        self.assertIs(atom19.molecule(), mol)
-        self.assertIs(atom20.molecule(), mol)
+        # Molecules can be made
+        molatom1 = Atom("N", 1, -4, 0, 100, "NA")
+        molatom2 = Atom("N", 1, -4, 1, 101, "NB")
+        molatom1.bond(molatom2)
+        mol = Molecule(molatom1, molatom2, molecule_id="A1000", name="XOP")
         model.add_molecule(mol)
-        self.assertEqual(model.molecules(), set([mol, chaina, chainb]))
-        self.assertEqual(model.molecules(generic=True), set([mol]))
-        self.assertEqual(model.molecules(name="FFF"), set([mol]))
-        self.assertEqual(model.molecule(molecule_id="FLU"), mol)
-        self.assertEqual(model.molecule(molecule_id="A"), chaina)
-        self.assertIs(mol.model(), model)
-        self.assertIn(atom19, model)
-        self.assertIn(atom20, model)
-        model.remove_molecule(mol)
-        self.assertIs(mol.model(), None)
+        self.assertEqual(mol.atoms(), set([molatom1, molatom2]))
+        self.assertIs(molatom1.molecule(), mol)
+        self.assertIs(molatom1.residue(), None)
+        self.assertIs(molatom1.chain(), None)
+        self.assertIs(molatom1.model(), model)
+        self.assertIs(molatom2.molecule(), mol)
+        self.assertIs(molatom2.residue(), None)
+        self.assertIs(molatom2.chain(), None)
+        self.assertIs(molatom2.model(), model)
+        self.assertEqual(model.molecules(), set([chain, mol]))
+        site = mol.site(main_chain=True)
+        self.assertEqual(site.residues(), set([res1, res2]))
+        self.assertEqual(site.atoms(), set(atoms[:18]))
+        self.assertIs(site.ligand(), mol)
+        site = mol.site()
+        self.assertEqual(site.residues(), set())

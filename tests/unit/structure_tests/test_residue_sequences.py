@@ -103,6 +103,13 @@ class ResidueSequenceResiduesTests(ResidueSequenceTest):
         mock_residues.assert_called_with(self.sequence, a="a", b="b")
 
 
+    @patch("atomium.structures.chains.ResidueStructure.residues")
+    def test_can_get_no_residues(self, mock_residues):
+        mock_residues.return_value = set()
+        self.assertEqual(self.sequence.residues(), ())
+
+
+
 
 class ResidueSequenceCorrectCheckingTests(ResidueSequenceTest):
 

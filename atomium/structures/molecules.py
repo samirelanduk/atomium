@@ -1,8 +1,9 @@
 """This module contains classes for structures made of atoms."""
 
 from collections import Counter
+from points import Vector
 import weakref
-from math import sqrt
+from math import sqrt, pi, degrees
 from .atoms import Atom
 
 class AtomicStructure:
@@ -60,9 +61,13 @@ class AtomicStructure:
 
         atoms = self._atoms.union(set(self._id_atoms.values()))
         if element:
-            atoms = set(filter(lambda a: a.element() == element, atoms))
+            atoms = set(filter(
+             lambda a: a.element().lower() == element.lower(), atoms
+            ))
         if exclude:
-            atoms = set(filter(lambda a: a.element() != exclude, atoms))
+            atoms = set(filter(
+             lambda a: a.element().lower() != exclude.lower(), atoms
+            ))
         if atom_id:
             atoms = set(filter(lambda a: a.atom_id() == atom_id, atoms))
         if name:
@@ -157,6 +162,17 @@ class AtomicStructure:
         return Counter([atom.element() for atom in self.atoms()])
 
 
+    def round(self, places):
+        """Rounds the coordinate values of all the atoms to a given number of
+        decimal places. Useful for removing floating point rounding errors after
+        rotation.
+
+        :param int places: The number of places to round the coordinates to."""
+
+        for atom in self.atoms():
+            atom.round(places)
+
+
     def translate(self, dx, dy, dz):
         """Translates the structure through space, updating all atom
         coordinates accordingly.
@@ -178,6 +194,67 @@ class AtomicStructure:
 
         for atom in self.atoms():
             atom.rotate(angle, axis)
+
+
+    def orient(self, atom1, atom2=None, axis="x", atom3=None, plane="xy"):
+        """Orients the structure so that a given atom is at the origin. It can
+        also then orient it further so that a given atom lies on a given axis,
+        and can orient it further still so that a given atom lies on a given
+        plane.
+
+        :param Atom atom1: The atom to move to the origin.
+        :param Atom atom2: The atom to move to an axis.
+        :param str axis: The axis to move atom2 to.
+        :param Atom atom3: The atom to move to a plane.
+        :param str plane: The plane to move atom3 to.
+        :raises TypeError: if any of the atoms are not atoms.
+        :raises ValueError: if the plane given is not recognised.
+        :raises ValueError: if the plane given does not include the axis\
+        given."""
+
+        if not isinstance(atom1, Atom):
+            raise TypeError("{} is not an atom - cannot orient".format(atom1))
+        if atom2 is not None and not isinstance(atom2, (Atom)):
+            raise TypeError("{} is not an atom - cannot orient".format(atom2))
+        if atom3 is not None and not isinstance(atom3, (Atom)):
+            raise TypeError("{} is not an atom - cannot orient".format(atom3))
+        self.translate(*[-n for n in atom1.location()])
+        if atom2:
+            xyz, next_ = ["x", "y", "z"], {"x": "y", "y": "z", "z": "x"}
+            if axis not in xyz:
+                raise ValueError("{} is not a valid axis".format(axis))
+            first_axis = (axis, xyz.index(axis))
+            second_axis = (next_[axis], xyz.index(next_[axis]))
+            third_axis = (next_[next_[axis]], xyz.index(next_[next_[axis]]))
+            axis_v = Vector(*[1 if n == first_axis[1] else 0 for n in range(3)])
+            atom_vector = Vector(*[0 if i == second_axis[1] else n
+             for i, n in enumerate(atom2.location())])
+            angle = atom_vector.angle_with(axis_v)
+            angle = -angle if atom_vector[third_axis[1]] < 0 else angle
+            self.rotate(angle, second_axis[0])
+            atom_vector = Vector(*atom2.location())
+            angle = atom_vector.angle_with(axis_v)
+            angle = -angle if atom_vector[second_axis[1]] > 0 else angle
+            self.rotate(angle, third_axis[0])
+            if atom3:
+                if len(plane) != 2 or not set(plane) < set(xyz):
+                    raise ValueError("{} is not a valid plane".format(plane))
+                if axis not in plane:
+                    raise ValueError(
+                     "Can't move to {} plane by rotating {}-axis".format(plane, axis)
+                    )
+                atom_vector = Vector(*[0 if i == first_axis[1] else n
+                 for i, n in enumerate(atom3.location())])
+                codimension = plane.replace(axis, "")
+                axis_vector = Vector(*[1 if n == xyz.index(codimension)
+                 else 0 for n in range(3)])
+                angle = atom_vector.angle_with(axis_vector)
+                check_dimension = (set("xyz") - set(plane)).pop()
+                component = atom_vector[xyz.index(check_dimension)]
+                neg = codimension != next_[axis]
+                if (component < 0 and neg) or (component > 0 and not neg):
+                    angle = -angle
+                self.rotate(angle, first_axis[0])
 
 
     def center_of_mass(self):
@@ -208,6 +285,88 @@ class AtomicStructure:
         )
         mean_square_deviation = square_deviation / len(atoms)
         return sqrt(mean_square_deviation)
+
+
+    def find_pattern(self, pattern):
+        if not isinstance(pattern, AtomicStructure):
+            raise TypeError("pattern {} is not AtomicStructure".format(pattern))
+
+        # Make copy of pattern
+        pattern_atoms = sorted(list(pattern.atoms()), key=lambda a: a.atom_id())
+        pattern = AtomicStructure(*[Atom(a.element(), a.x(), a.y(), a.z(), i * 15,
+         name=a.name()) for i, a in enumerate(pattern_atoms, start=1)])
+
+        # Define starting variables
+        pattern_atoms = sorted(list(pattern.atoms()), key=lambda a: a.atom_id())
+        r = [(atom.x(), atom.y(), atom.z()) for atom in pattern_atoms]
+        T = [atom.name() for atom in pattern_atoms]
+        structure_atoms = list(self.atoms())
+        s = [(atom.x(), atom.y(), atom.z()) for atom in structure_atoms]
+        S = [atom.name() for atom in structure_atoms]
+        er, eT = 1, 0
+
+        pattern.orient(pattern_atoms[0], atom2=pattern_atoms[1], axis="x", atom3=pattern_atoms[2], plane="xy")
+
+        '''# Put pattern in correct place
+        import points
+        # Rotate atom 1 to centre
+        pattern.translate(-pattern_atoms[0].x(), -pattern_atoms[0].y(), -pattern_atoms[0].z())
+        # Put atom 2 in xy plane
+        y_axis = points.Vector(0, 1, 0) if pattern_atoms[1].y() > 0 else points.Vector(0, -1, 0)
+        atom2 = points.Vector(0, pattern_atoms[1].y(), pattern_atoms[1].z())
+        pattern.rotate((y_axis.angle_with(atom2)), "x")
+        # Put atom 2 on x-axis
+        atom2 = points.Vector(*pattern_atoms[1].location())
+        x_axis = points.Vector(1, 0, 0) if pattern_atoms[1].x() > 0 else points.Vector(-1, 0, 0)
+        #print(pattern_atoms[1])
+        #print(x_axis, atom2)
+        #print(x_axis.angle_with(atom2))
+        pattern.rotate(-(x_axis.angle_with(atom2)), "z")
+        #print(pattern_atoms[1])'''
+
+        # Check
+        pattern_atoms[0].element("U")
+        pattern_atoms[1].element("U")
+        pattern_atoms[2].element("U")
+        x = Atom("F", 10, 0, 0, 1000, "x"), Atom("F", -10, 0, 0, 1001, "x")
+        x[0].bond(x[1])
+        pattern.add_atom(x[0]), pattern.add_atom(x[1])
+        y = Atom("Br", 0, 10, 0, 1002, "y"), Atom("Br", 0, -10, 0, 1003, "y")
+        y[0].bond(y[1])
+        pattern.add_atom(y[0]), pattern.add_atom(y[1])
+        z = Atom("Fe", 0, 0, 10, 1004, "z"), Atom("Fe", 0, 0, -10, 1005, "z")
+        z[0].bond(z[1])
+        pattern.add_atom(z[0]), pattern.add_atom(z[1])
+        pattern.save("temp.pdb")
+
+        '''# Start a dict of matches - each pattern atom will have a list of matching structure atoms
+        matches = {atom: [] for atom in pattern.atoms()}
+
+        # Get the inter-atomic distances within the pattern structure
+        nearby = {atom: [(a, atom.distance_to(a)) for a in atom.nearby(3) if a in pattern.atoms()] for atom in pattern.atoms()}
+
+        # Go through each pattern atom
+        for p_atom in list(pattern.atoms()):
+
+            # Go through each structure atom to see if it matches
+            for atom in self.atoms():
+                # First - do the names match?
+                if atom.name() == p_atom.name():
+                    # As they do, the structure atom could be a match.
+                    # Check that for each pattern atom near the pattern atom, the structure atom has a similar one
+                    for n_atom, n_distance in nearby[p_atom]:
+                        # Get all structure atoms in the tolerable distance
+                        nearby_ring = atom.nearby(n_distance + 1) - atom.nearby(n_distance - 1)
+                        # Are there any with the right name?
+                        match = [a for a in nearby_ring if a.name() == n_atom.name()]
+                        if not match:
+                            # If not, this structure atom is not usable
+                            break
+                    else:
+                        # Every nearby atom had an analogue, so fine
+                        matches[p_atom].append(atom)
+        from p#print import p#print
+        p#print(matches)'''
 
 
     def to_file_string(self, file_format, description=None):

@@ -1,4 +1,5 @@
 from collections import Counter
+from math import pi
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.structures.atoms import Atom
@@ -93,7 +94,7 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
     def test_can_get_atoms_by_element(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure.atoms(element="A"), set(self.atoms[:1]))
-        self.assertEqual(structure.atoms(element="B"), set(self.atoms[1:]))
+        self.assertEqual(structure.atoms(element="b"), set(self.atoms[1:]))
         self.assertEqual(structure.atoms(element="C"), set())
 
 
@@ -206,7 +207,6 @@ class AtomicStructurePairwiseAtomTests(AtomicStructureTest):
 
 
 
-
 class AtomicStructureMassTests(AtomicStructureTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.atoms")
@@ -237,6 +237,136 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
         mock_atoms.return_value = set(self.atoms)
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure.formula(), Counter({"A":1, "B":2}))
+
+
+
+class AtomicStructureRoundingTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.atoms")
+    def test_can_round_atom_locations(self, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.round(10)
+        self.atom1.round.assert_called_with(10)
+        self.atom2.round.assert_called_with(10)
+        self.atom3.round.assert_called_with(10)
+
+
+
+class AtomicStructureOrientationTests(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.translate")
+        self.patch2 = patch("atomium.structures.molecules.AtomicStructure.rotate")
+        self.mock_translate = self.patch1.start()
+        self.mock_rotate = self.patch2.start()
+        self.atom1.location.return_value = (1, 2, 3)
+        self.atom2.location.return_value = (1, 1, 1)
+        self.atom3.location.return_value = (7, 8, 9)
+
+
+    def tearDown(self):
+        self.patch1.stop()
+        self.patch2.stop()
+
+
+    def test_can_orient_to_origin(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.orient(self.atom1)
+        self.mock_translate.assert_called_with(-1, -2, -3)
+
+
+    def test_atom1_must_be_atom(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            structure.orient("atom")
+
+
+    def test_can_orient_onto_x_axis(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.orient(self.atom1, atom2=self.atom2, axis="x")
+        self.mock_translate.assert_called_with(-1, -2, -3)
+        first_rotation_call = self.mock_rotate.call_args_list[0][0]
+        self.assertAlmostEqual(first_rotation_call[0], pi / 4, delta=0.00005)
+        self.assertEqual(first_rotation_call[1], "y")
+        second_rotation_call = self.mock_rotate.call_args_list[1][0]
+        self.assertAlmostEqual(second_rotation_call[0], -0.9553166, delta=0.005)
+        self.assertEqual(second_rotation_call[1], "z")
+
+
+    def test_can_orient_onto_y_axis(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.orient(self.atom1, atom2=self.atom2, axis="y")
+        self.mock_translate.assert_called_with(-1, -2, -3)
+        first_rotation_call = self.mock_rotate.call_args_list[0][0]
+        self.assertAlmostEqual(first_rotation_call[0], pi / 4, delta=0.00005)
+        self.assertEqual(first_rotation_call[1], "z")
+        second_rotation_call = self.mock_rotate.call_args_list[1][0]
+        self.assertAlmostEqual(second_rotation_call[0], -0.9553166, delta=0.005)
+        self.assertEqual(second_rotation_call[1], "x")
+
+
+    def test_can_orient_onto_z_axis(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.orient(self.atom1, atom2=self.atom2, axis="z")
+        self.mock_translate.assert_called_with(-1, -2, -3)
+        first_rotation_call = self.mock_rotate.call_args_list[0][0]
+        self.assertAlmostEqual(first_rotation_call[0], pi / 4, delta=0.00005)
+        self.assertEqual(first_rotation_call[1], "x")
+        second_rotation_call = self.mock_rotate.call_args_list[1][0]
+        self.assertAlmostEqual(second_rotation_call[0], -0.9553166, delta=0.005)
+        self.assertEqual(second_rotation_call[1], "y")
+
+
+    def test_atom2_must_be_atom(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            structure.orient(self.atom2, atom2="atom")
+
+
+    def test_axis_must_be_valid(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(ValueError) as e:
+            structure.orient(self.atom1, atom2=self.atom2, axis="7")
+        self.assertIn("axis", str(e.exception))
+
+
+    def test_can_rotate_onto_plane(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure.orient(
+         self.atom1, atom2=self.atom2, axis="z", atom3=self.atom3, plane="xz"
+        )
+        self.mock_translate.assert_called_with(-1, -2, -3)
+        first_rotation_call = self.mock_rotate.call_args_list[0][0]
+        self.assertAlmostEqual(first_rotation_call[0], pi / 4, delta=0.00005)
+        self.assertEqual(first_rotation_call[1], "x")
+        second_rotation_call = self.mock_rotate.call_args_list[1][0]
+        self.assertAlmostEqual(second_rotation_call[0], -0.9553166, delta=0.005)
+        self.assertEqual(second_rotation_call[1], "y")
+        third_rotation_call = self.mock_rotate.call_args_list[2][0]
+        self.assertAlmostEqual(third_rotation_call[0], -0.8519663, delta=0.005)
+        self.assertEqual(third_rotation_call[1], "z")
+
+
+    def test_atom3_must_be_atom(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            structure.orient(self.atom1, atom2=self.atom2, atom3="atom3")
+
+
+    def test_plane_must_be_valid(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(ValueError) as e:
+            structure.orient(self.atom1, atom2=self.atom2, atom3=self.atom3, plane="dtg")
+        self.assertIn("plane", str(e.exception))
+        with self.assertRaises(ValueError) as e:
+            structure.orient(self.atom1, atom2=self.atom2, atom3=self.atom3, plane="xyz")
+        self.assertIn("plane", str(e.exception))
+        with self.assertRaises(ValueError) as e:
+            structure.orient(self.atom1, atom2=self.atom2, atom3=self.atom3, plane="yz")
+        self.assertIn("x-axis", str(e.exception))
+
 
 
 
@@ -308,6 +438,15 @@ class AtomicStructureRadiusOfGyrationTests(AtomicStructureTest):
         self.assertEqual(structure.radius_of_gyration(), 5)
         self.atom1.distance_to.assert_called_with((5, 0, 0))
         self.atom2.distance_to.assert_called_with((5, 0, 0))
+
+
+
+class AtomicStructurePatternMatchingTests(AtomicStructureTest):
+
+    def test_pattern_must_be_structure(self):
+        structure = AtomicStructure(self.atom1, self.atom2)
+        with self.assertRaises(TypeError):
+            structure.find_pattern("pattern")
 
 
 

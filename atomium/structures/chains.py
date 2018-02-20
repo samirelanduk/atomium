@@ -139,6 +139,7 @@ class ResidueSequence(ResidueStructure):
         :rtype: ``tuple``"""
 
         all_res = ResidueStructure.residues(self, *args, **kwargs)
+        if len(all_res) == 0: return tuple()
         initial_res = list(all_res)[0]
         full_sequence = [initial_res]
         while full_sequence[-1].next():
@@ -253,7 +254,7 @@ class Site(AtomicStructure, ResidueStructure):
 
     def residues(self, *args, **kwargs):
         """Returns the :py:class:`.Residue` objects in the structure, including
-        water molecules. It can be given search criteria if you wish. 
+        water molecules. It can be given search criteria if you wish.
 
         :param str residue_id: Filter by residue ID.
         :param str name: Filter by name.

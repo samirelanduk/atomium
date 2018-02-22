@@ -513,6 +513,29 @@ class AtomMassTests(TestCase):
 
 
 
+class AtomCopyingTests(TestCase):
+
+    def test_can_make_atom_copy(self):
+        atom = Atom("he", 2, 3, 5, 10, "H1", 0.5, 0.4)
+        copy = atom.copy()
+        self.assertIsInstance(atom, Atom)
+        self.assertIsNot(atom, copy)
+        self.assertEqual(copy._element, "he")
+        self.assertEqual(copy._x, 2)
+        self.assertEqual(copy._y, 3)
+        self.assertEqual(copy._z, 5)
+        self.assertEqual(copy._id, None)
+        self.assertEqual(copy._name, "H1")
+        self.assertEqual(copy._charge, 0.5)
+        self.assertEqual(copy._bfactor, 0.4)
+        self.assertEqual(copy._bonds, set())
+        self.assertEqual(copy._residue, None)
+        self.assertEqual(copy._chain, None)
+        self.assertEqual(copy._molecule, None)
+        self.assertEqual(copy._model, None)
+
+
+
 class AtomDistanceToTests(TestCase):
 
     def test_can_get_distance_between_atoms(self):

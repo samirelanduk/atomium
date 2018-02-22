@@ -450,6 +450,19 @@ class AtomicStructurePatternMatchingTests(AtomicStructureTest):
 
 
 
+class AtomicStructureCopyTests(AtomicStructureTest):
+
+    def test_can_create_copy_of_atomic_structure(self):
+        new_atoms = [Mock(Atom), Mock(Atom)]
+        self.atom1.copy.return_value, self.atom2.copy.return_value = new_atoms
+        new_atoms[0].atom_id.return_value = None
+        new_atoms[1].atom_id.return_value = None
+        structure = AtomicStructure(self.atom1, self.atom2)
+        copy = structure.copy()
+        self.assertEqual(copy._atoms, set(new_atoms))
+
+
+
 class AtomicStructureToStringTests(AtomicStructureTest):
 
     @patch("atomium.files.pdb2pdbdict.structure_to_pdb_dict")

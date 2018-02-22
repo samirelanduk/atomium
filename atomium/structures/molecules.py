@@ -1,6 +1,7 @@
 """This module contains classes for structures made of atoms."""
 
 from collections import Counter
+from itertools import combinations
 from points import Vector
 import weakref
 from math import sqrt, pi, degrees
@@ -288,85 +289,106 @@ class AtomicStructure:
 
 
     def find_pattern(self, pattern):
+        print("")
         if not isinstance(pattern, AtomicStructure):
             raise TypeError("pattern {} is not AtomicStructure".format(pattern))
 
-        # Make copy of pattern
-        pattern_atoms = sorted(list(pattern.atoms()), key=lambda a: a.atom_id())
-        pattern = AtomicStructure(*[Atom(a.element(), a.x(), a.y(), a.z(), i * 15,
-         name=a.name()) for i, a in enumerate(pattern_atoms, start=1)])
+        """Lesk has described an algorithm primarily for pattern
+        searching in proteins but which can also be used with
+        the smaller molecules present in the CCDB. The
+        algorithm assigns a structure atom, S,, as a candidate
+        match for a pattern atom, P,“, if S, has other structure
+        atoms of the appropriate atomic types at the same distances
+        from it as does P,. All of the structure atoms
+        which are not matched to any pattern atom are removed
+        from consideration and the candidate matches are
+        checked again to ensure that the deletions have not
+        affected any of the current structure atom-to-pattern
+        atom matches. This process is repeated until no more
+        eliminations can be made. """
 
-        # Define starting variables
-        pattern_atoms = sorted(list(pattern.atoms()), key=lambda a: a.atom_id())
-        r = [(atom.x(), atom.y(), atom.z()) for atom in pattern_atoms]
-        T = [atom.name() for atom in pattern_atoms]
-        structure_atoms = list(self.atoms())
-        s = [(atom.x(), atom.y(), atom.z()) for atom in structure_atoms]
-        S = [atom.name() for atom in structure_atoms]
-        er, eT = 1, 0
+        # Get respective atom sets
+        pattern_atoms, structure_atoms = list(pattern.atoms()), self.atoms()
 
-        pattern.orient(pattern_atoms[0], atom2=pattern_atoms[1], axis="x", atom3=pattern_atoms[2], plane="xy")
+        # Start dictionary of potential matches
+        matches = {p_atom: set() for p_atom in pattern_atoms}
 
-        '''# Put pattern in correct place
-        import points
-        # Rotate atom 1 to centre
-        pattern.translate(-pattern_atoms[0].x(), -pattern_atoms[0].y(), -pattern_atoms[0].z())
-        # Put atom 2 in xy plane
-        y_axis = points.Vector(0, 1, 0) if pattern_atoms[1].y() > 0 else points.Vector(0, -1, 0)
-        atom2 = points.Vector(0, pattern_atoms[1].y(), pattern_atoms[1].z())
-        pattern.rotate((y_axis.angle_with(atom2)), "x")
-        # Put atom 2 on x-axis
-        atom2 = points.Vector(*pattern_atoms[1].location())
-        x_axis = points.Vector(1, 0, 0) if pattern_atoms[1].x() > 0 else points.Vector(-1, 0, 0)
-        #print(pattern_atoms[1])
-        #print(x_axis, atom2)
-        #print(x_axis.angle_with(atom2))
-        pattern.rotate(-(x_axis.angle_with(atom2)), "z")
-        #print(pattern_atoms[1])'''
+        # For each atom in pattern, get distances to other pattern atoms
+        nearby = {atom: [(a, atom.distance_to(a)) for a in atom.nearby(3)
+         if a in pattern.atoms()] for atom in pattern_atoms}
 
-        # Check
-        pattern_atoms[0].element("U")
-        pattern_atoms[1].element("U")
-        pattern_atoms[2].element("U")
-        x = Atom("F", 10, 0, 0, 1000, "x"), Atom("F", -10, 0, 0, 1001, "x")
-        x[0].bond(x[1])
-        pattern.add_atom(x[0]), pattern.add_atom(x[1])
-        y = Atom("Br", 0, 10, 0, 1002, "y"), Atom("Br", 0, -10, 0, 1003, "y")
-        y[0].bond(y[1])
-        pattern.add_atom(y[0]), pattern.add_atom(y[1])
-        z = Atom("Fe", 0, 0, 10, 1004, "z"), Atom("Fe", 0, 0, -10, 1005, "z")
-        z[0].bond(z[1])
-        pattern.add_atom(z[0]), pattern.add_atom(z[1])
-        pattern.save("temp.pdb")
+        index = 1
+        while True:
+            print("Iteration", index)
+            print("There are {} structure atoms under consideration".format(len(structure_atoms)))
+            matches = {p_atom: set() for p_atom in pattern_atoms}
+            # Go through each pattern atom and try and find matches
+            for p_atom in list(pattern_atoms):
+                # What are the other atoms in this pattern?
+                neighbors = filter(lambda a: a is not p_atom, pattern_atoms)
 
-        '''# Start a dict of matches - each pattern atom will have a list of matching structure atoms
-        matches = {atom: [] for atom in pattern.atoms()}
+                # Go through each atom in the structure and see if it is a match
+                for atom in structure_atoms:
 
-        # Get the inter-atomic distances within the pattern structure
-        nearby = {atom: [(a, atom.distance_to(a)) for a in atom.nearby(3) if a in pattern.atoms()] for atom in pattern.atoms()}
+                    # First of all, does it have the same name as the pattern atom?
+                    if atom.name() == p_atom.name():
 
-        # Go through each pattern atom
-        for p_atom in list(pattern.atoms()):
+                        # If so, go through each pattern neighbor and see if there
+                        # is a corresponding structure atom
+                        for p_atom_neighbor in neighbors:
+                            # Get all structure atoms that are broadly at the same
+                            # distance from this structure atom as the pattern atom
+                            # neighbor is
+                            distance = p_atom_neighbor.distance_to(p_atom)
+                            atoms_at_distance = atom.nearby(
+                             distance + 1, atoms=set(structure_atoms)
+                            ) - atom.nearby(
+                             distance - 1, atoms=set(structure_atoms)
+                            )
+                            # Do any of them have the same name as this pattern
+                            # neighbor? If not, stop looking through the patterns as
+                            # this structure atom is not suitable
+                            if p_atom_neighbor.name() not in [a.name() for a in atoms_at_distance]:
+                                break
+                        else:
+                            # If all of the neighbor atoms were ok, this is a match
+                            matches[p_atom].add(atom)
 
-            # Go through each structure atom to see if it matches
-            for atom in self.atoms():
-                # First - do the names match?
-                if atom.name() == p_atom.name():
-                    # As they do, the structure atom could be a match.
-                    # Check that for each pattern atom near the pattern atom, the structure atom has a similar one
-                    for n_atom, n_distance in nearby[p_atom]:
-                        # Get all structure atoms in the tolerable distance
-                        nearby_ring = atom.nearby(n_distance + 1) - atom.nearby(n_distance - 1)
-                        # Are there any with the right name?
-                        match = [a for a in nearby_ring if a.name() == n_atom.name()]
-                        if not match:
-                            # If not, this structure atom is not usable
-                            break
-                    else:
-                        # Every nearby atom had an analogue, so fine
-                        matches[p_atom].append(atom)
-        from p#print import p#print
-        p#print(matches)'''
+            # Remove structure atoms which are not potential matches
+
+            reduced_structure_atoms = set([a for sublist in matches.values() for a in sublist])
+            for p_atom in matches:
+                print("Pattern atom:", p_atom)
+                for match in matches[p_atom]:
+                    print("\tMatch:", match)
+            if structure_atoms == reduced_structure_atoms:
+                break
+            structure_atoms = reduced_structure_atoms
+            index += 1
+
+        # Generate all possible combinations of the structure atoms
+        possibles = combinations(structure_atoms, len(pattern_atoms))
+        print(possibles)
+        print(len(list(possibles)), "possible combinations of these structure atoms")
+
+        for possible in possibles:
+            pass
+        print("")
+
+
+    def copy(self):
+        """Returns a copy of the structure, with its own distinct atoms.
+
+        Note that the returned structure will just be a plain
+        :py:class:`.AtomicStructure` and not a chain or model or whatever the
+        original structure was. Its atoms will have the same location, element,
+        charge, name and bfactor as their counterparts in the original, but will
+        have no IDs, no bonds, and be a member of no molecule or model - even if
+        their counterparts do and are.
+
+        :rtype: ``AtomicStructure``"""
+        
+        return AtomicStructure(*[a.copy() for a in self.atoms()])
 
 
     def to_file_string(self, file_format, description=None):

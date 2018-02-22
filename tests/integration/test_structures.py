@@ -310,3 +310,15 @@ class StructureTests(IntegratedTest):
         self.assertIs(site.ligand(), mol)
         site = mol.site()
         self.assertEqual(site.residues(), set())
+
+        # Copies can be made
+        copy = model.copy()
+        self.assertEqual(len(copy.atoms()), 29)
+        self.assertEqual(len(copy.atoms() | model.atoms()), 58)
+        for atom in atoms:
+            self.assertNotIn(atom, copy)
+        copy.translate(100, 100, 100)
+        self.assertEqual(copy.atom(name="F2").location(), (102, 102, 102))
+        self.assertEqual(model.atom(name="F2").location(), (2, 2, 2))
+        for atom in copy.atoms():
+            self.assertIsNone(atom.atom_id())

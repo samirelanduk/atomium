@@ -338,6 +338,17 @@ class Atom:
         return PERIODIC_TABLE.get(self._element.upper(), 0)
 
 
+    def copy(self):
+        """Returns a copy of the atom. The new atom will have the same element,
+        location, name, charge and bfactor as the original, but will have no ID,
+        and will not be part of any model or other molecule.
+
+        :rtype: ``Atom``"""
+        
+        return Atom(self._element, self._x, self._y, self._z,
+         name=self._name, charge=self._charge, bfactor=self._bfactor)
+
+
     def distance_to(self, other):
         """Returns the distance (in whatever units the coordinates are defined
         in) between this atom and another. You can also give a (x, y, z) tuple

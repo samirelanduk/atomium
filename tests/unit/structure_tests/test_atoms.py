@@ -1,6 +1,6 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from atomium.structures.atoms import Atom, Bond
+from atomium.structures.atoms import Atom, Bond, atom_query
 
 class AtomCreationTests(TestCase):
 
@@ -593,4 +593,52 @@ class NearbyAtomTests(TestCase):
         atom = Atom("C", 4, 8, 3)
         self.assertEqual(
          atom.nearby(4, "d", atoms=atoms, a="4"), set(atoms[:-1])
+        )
+
+
+
+class AtomSelectorTests(TestCase):
+
+    def setUp(self):
+        self.atoms = [
+         Atom("C", 2, 3, 5, name="CA", atom_id=15, charge=1),
+         Atom("C", 2, 3, 5, name="CA", atom_id=16, charge=1),
+         Atom("P", 2, 3, 5, name="PB", atom_id=17, charge=1),
+         Atom("H", 2, 3, 5, name="H1", atom_id=18, charge=1)
+        ]
+        self.atoms[0]._residue, self.atoms[1]._residue = "H", "H"
+        def func(a, b, c=20):
+            return self.atoms
+        self.func = atom_query(func)
+
+
+    def test_atoms_decorator_can_do_nothing(self):
+        self.assertEqual(self.func(1, 2, c=3), self.atoms)
+
+
+    def test_atom_query_can_search_ids(self):
+        self.assertEqual(self.func(1, 2, atom_id=16, c=3), set([self.atoms[1]]))
+
+
+    def test_atom_query_can_search_names(self):
+        self.assertEqual(self.func(1, 2, name="CA", c=3), set(self.atoms[:2]))
+        self.assertEqual(self.func(1, 2, name="PB", c=3), set(self.atoms[2:3]))
+
+
+    def test_atom_query_can_search_elements(self):
+        self.assertEqual(self.func(1, 2, element="C", c=3), set(self.atoms[:2]))
+        self.assertEqual(self.func(1, 2, element="c", c=3), set(self.atoms[:2]))
+
+
+    def test_can_exclude_hydrogen(self):
+        self.assertEqual(self.func(1, 2, hydrogen=False, c=3), set(self.atoms[:3]))
+
+
+    def test_can_exclude_heteroatoms(self):
+        self.assertEqual(self.func(1, 2, het=False, c=3), set(self.atoms[:2]))
+
+
+    def test_can_combine_queries(self):
+        self.assertEqual(
+         self.func(1, 2, hydrogen=False, element="C", c=3), set(self.atoms[:2])
         )

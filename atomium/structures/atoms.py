@@ -344,7 +344,7 @@ class Atom:
         and will not be part of any model or other molecule.
 
         :rtype: ``Atom``"""
-        
+
         return Atom(self._element, self._x, self._y, self._z,
          name=self._name, charge=self._charge, bfactor=self._bfactor)
 
@@ -500,6 +500,33 @@ class Bond:
         atom1, atom2 = self._atoms
         atom1._bonds.remove(self)
         atom2._bonds.remove(self)
+
+
+
+def atom_query(func):
+    """Decorator which can be applied to any function which returns atoms. It
+    lets you query the output.
+
+    :param function func: The function to enhance.
+    :rtype: ``function``"""
+    
+    def new(*args, atom_id=None, name=None,
+     element=None, hydrogen=True, het=True, **kwargs):
+        atoms = func(*args, **kwargs)
+        if atom_id:
+            atoms = set(filter(lambda a: a._id == atom_id, atoms))
+        if name:
+            atoms = set(filter(lambda a: a._name == name, atoms))
+        if element:
+            atoms = set(filter(
+             lambda a: a._element.lower() == element.lower(), atoms
+            ))
+        if not hydrogen:
+            atoms = set(filter(lambda a: a._element.lower() != "h", atoms))
+        if not het:
+            atoms = set(filter(lambda a: a._residue is not None, atoms))
+        return atoms
+    return new
 
 
 

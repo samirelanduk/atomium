@@ -234,6 +234,12 @@ class StructureTests(IntegratedTest):
         self.assertEqual(
          atoms[0].nearby(1.5, element="C"), set([atoms[1], atoms[4], atoms[10]])
         )
+        self.assertEqual(model.atoms_in_sphere(0, 0, 0, 0.5), set([atoms[0]]))
+        self.assertEqual(
+         model.atoms_in_sphere(0, 0, 0, 1),
+         set([atoms[0], atoms[1], atoms[3], atoms[9]])
+        )
+        self.assertEqual(model.atoms_in_sphere(2, 2, 2, 0.5), set([atoms[-1]]))
 
         # Residues can be made
         res1 = Residue(*atoms[:9], residue_id="A1", name="MET")

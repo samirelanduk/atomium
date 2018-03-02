@@ -1,5 +1,6 @@
 """This module contains the Model class and its interfaces."""
 
+from .atoms import Atom
 from .molecules import AtomicStructure, Molecule, Residue
 from .chains import ResidueStructure, Chain
 
@@ -158,7 +159,7 @@ class MoleculeStructure:
 
         :param Molecule keep: if given, this small molecule will be spared from\
         the purge."""
-        
+
         for molecule in self.molecules():
             if not isinstance(molecule, Chain) and molecule is not keep:
                 self.remove_molecule(molecule)
@@ -202,3 +203,10 @@ class Model(AtomicStructure, ResidueStructure, ChainStructure,
 
         AtomicStructure.remove_atom(self, atom, *args, **kwargs)
         atom._model = None
+
+
+    def atoms_in_sphere(self, x, y, z, radius):
+        """Returns all the atoms in a given sphere."""
+        atoms = self.atoms()
+        atoms = filter(lambda a: a.distance_to((x, y, z)) <= radius, atoms)
+        return set(atoms)

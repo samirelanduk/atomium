@@ -253,6 +253,32 @@ class AtomicStructureRoundingTests(AtomicStructureTest):
 
 
 
+class AtomicStructureEquivalenceTests(AtomicStructureTest):
+
+    def test_unequivalent_structures(self):
+        self.atom1.name.return_value = "A"
+        self.atom2.name.return_value = "B"
+        self.atom3.name.return_value = "C"
+        structure = AtomicStructure(self.atom1, self.atom2)
+        self.assertFalse(structure.equivalent_to("structure"))
+        other = Mock(AtomicStructure)
+        other.atoms.return_value = [self.atom1, self.atom2, self.atom3]
+        self.assertFalse(structure.equivalent_to(other))
+        other.atoms.return_value = [self.atom2, self.atom3]
+        self.assertFalse(structure.equivalent_to(other))
+
+
+    def test_equivalent_structures(self):
+        self.atom1.name.return_value = "A"
+        self.atom2.name.return_value = "B"
+        self.atom3.name.return_value = "A"
+        structure = AtomicStructure(self.atom1, self.atom2)
+        other = Mock(AtomicStructure)
+        other.atoms.return_value = [self.atom2, self.atom3]
+        self.assertTrue(structure.equivalent_to(other))
+
+
+
 class AtomicStructureOrientationTests(AtomicStructureTest):
 
     def setUp(self):
@@ -441,12 +467,12 @@ class AtomicStructureRadiusOfGyrationTests(AtomicStructureTest):
 
 
 
-class AtomicStructurePatternMatchingTests(AtomicStructureTest):
+'''class AtomicStructurePatternMatchingTests(AtomicStructureTest):
 
     def test_pattern_must_be_structure(self):
         structure = AtomicStructure(self.atom1, self.atom2)
         with self.assertRaises(TypeError):
-            structure.find_pattern("pattern")
+            structure.find_pattern("pattern")'''
 
 
 

@@ -4,6 +4,35 @@ import weakref
 from math import sqrt, acos, degrees
 from points import Vector
 
+def atom_query(func):
+    """Decorator which can be applied to any function which returns atoms. It
+    lets you query the output.
+
+    :param function func: The function to enhance.
+    :rtype: ``function``"""
+
+    def new(*args, atom_id=None, name=None,
+     element=None, hydrogen=True, het=True, **kwargs):
+        atoms = func(*args, **kwargs)
+        if atom_id:
+            atoms = set(filter(lambda a: a._id == atom_id, atoms))
+        if name:
+            atoms = set(filter(lambda a: a._name == name, atoms))
+        if element:
+            atoms = set(filter(
+             lambda a: a._element.lower() == element.lower(), atoms
+            ))
+        if not hydrogen:
+            atoms = set(filter(lambda a: a._element.lower() != "h", atoms))
+        if not het:
+            atoms = set(filter(lambda a: a._residue is not None, atoms))
+        return atoms
+    new.__name__ = func.__name__
+    new.__doc__ = func.__doc__
+    return new
+
+
+
 class Atom:
     """Represents an atom in three dimensional space. Every atom has an element
     and a set of Cartesian coordinates.
@@ -275,6 +304,7 @@ class Atom:
         return set(self._bonds)
 
 
+    @atom_query
     def bonded_atoms(self):
         """Returns all the atoms that are bonded to this atom.
 
@@ -374,14 +404,13 @@ class Atom:
         return sqrt(x_sum + y_sum + z_sum)
 
 
-    def nearby(self, cutoff, *args, atoms=None, **kwargs):
+    @atom_query
+    def nearby(self, cutoff):
         """Returns all atoms in the associated :py:class:`.Model` that are
         within a given distance (in the units of the atom coordinates) of this
         atom.
 
         :param cutoff: The distance cutoff to use.
-        :param atoms: A collection of atoms which the search will be\
-        restricted to if given.
         :param str element: If given, only atoms whose element matches this\
         will be returned.
         :param str exclude: If given, only atoms whose element doesn't match\
@@ -392,9 +421,8 @@ class Atom:
         returned.
         :rtype: ``set``"""
 
-        if self._model or atoms:
-            if atoms is None:
-                atoms = self._model.atoms(*args, **kwargs)
+        if self._model:
+            atoms = self._model.atoms()
             try:
                 atoms.remove(self)
             except: pass
@@ -500,33 +528,6 @@ class Bond:
         atom1, atom2 = self._atoms
         atom1._bonds.remove(self)
         atom2._bonds.remove(self)
-
-
-
-def atom_query(func):
-    """Decorator which can be applied to any function which returns atoms. It
-    lets you query the output.
-
-    :param function func: The function to enhance.
-    :rtype: ``function``"""
-    
-    def new(*args, atom_id=None, name=None,
-     element=None, hydrogen=True, het=True, **kwargs):
-        atoms = func(*args, **kwargs)
-        if atom_id:
-            atoms = set(filter(lambda a: a._id == atom_id, atoms))
-        if name:
-            atoms = set(filter(lambda a: a._name == name, atoms))
-        if element:
-            atoms = set(filter(
-             lambda a: a._element.lower() == element.lower(), atoms
-            ))
-        if not hydrogen:
-            atoms = set(filter(lambda a: a._element.lower() != "h", atoms))
-        if not het:
-            atoms = set(filter(lambda a: a._residue is not None, atoms))
-        return atoms
-    return new
 
 
 

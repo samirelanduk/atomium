@@ -187,10 +187,10 @@ class MoleculeSiteTests(MoleculeTest):
     def test_can_get_site(self, mock_site, mock_atoms):
         mock_atoms.return_value = set(self.atoms)
         returned_site = self.molecule.site()
-        mock_atoms.assert_called_with(exclude="H")
-        self.atom1.nearby.assert_called_with(4, exclude="H")
-        self.atom2.nearby.assert_called_with(4, exclude="H")
-        self.atom3.nearby.assert_called_with(4, exclude="H")
+        mock_atoms.assert_called_with(hydrogen=False)
+        self.atom1.nearby.assert_called_with(4, hydrogen=False)
+        self.atom2.nearby.assert_called_with(4, hydrogen=False)
+        self.atom3.nearby.assert_called_with(4, hydrogen=False)
         residues_passed = mock_site.call_args_list[0][0]
         self.assertEqual(set(residues_passed), set(self.residues[:2]))
         kwargs = mock_site.call_args_list[0][1]
@@ -202,10 +202,10 @@ class MoleculeSiteTests(MoleculeTest):
     def test_can_get_site_with_water(self, mock_site, mock_atoms):
         mock_atoms.return_value = set(self.atoms)
         returned_site = self.molecule.site(include_water=True)
-        mock_atoms.assert_called_with(exclude="H")
-        self.atom1.nearby.assert_called_with(4, exclude="H")
-        self.atom2.nearby.assert_called_with(4, exclude="H")
-        self.atom3.nearby.assert_called_with(4, exclude="H")
+        mock_atoms.assert_called_with(hydrogen=False)
+        self.atom1.nearby.assert_called_with(4, hydrogen=False)
+        self.atom2.nearby.assert_called_with(4, hydrogen=False)
+        self.atom3.nearby.assert_called_with(4, hydrogen=False)
         residues_passed = mock_site.call_args_list[0][0]
         self.assertEqual(set(residues_passed), set(self.residues[:2] + self.waters[:1]))
         kwargs = mock_site.call_args_list[0][1]
@@ -217,10 +217,10 @@ class MoleculeSiteTests(MoleculeTest):
     def test_can_get_site_with_main_chain(self, mock_site, mock_atoms):
         mock_atoms.return_value = set(self.atoms)
         returned_site = self.molecule.site(main_chain=True)
-        mock_atoms.assert_called_with(exclude="H")
-        self.atom1.nearby.assert_called_with(4, exclude="H")
-        self.atom2.nearby.assert_called_with(4, exclude="H")
-        self.atom3.nearby.assert_called_with(4, exclude="H")
+        mock_atoms.assert_called_with(hydrogen=False)
+        self.atom1.nearby.assert_called_with(4, hydrogen=False)
+        self.atom2.nearby.assert_called_with(4, hydrogen=False)
+        self.atom3.nearby.assert_called_with(4, hydrogen=False)
         residues_passed = mock_site.call_args_list[0][0]
         self.assertEqual(set(residues_passed), set(self.residues[:3]))
         kwargs = mock_site.call_args_list[0][1]

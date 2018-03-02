@@ -56,7 +56,6 @@ class PdbReadingTests(IntegratedTest):
         residue = chaina.residue(name="ASN")
         self.assertEqual(residue.residue_id(), "A13")
         self.assertEqual(len(residue.atoms()), 8)
-        self.assertEqual(len(residue.atoms(exclude="O")), 6)
         self.assertEqual(len(residue.atoms(element="O")), 2)
         for atom in residue.atoms():
             self.assertIs(atom.residue(), residue)
@@ -142,15 +141,6 @@ class PdbReadingTests(IntegratedTest):
          [1576, 1582, 1583, 1584, 1586, 1588, 1589, 1590, 1591, 2957]
         )
         self.assertEqual(len(atom.nearby(cutoff=4, element="O")), 1)
-        self.assertEqual(len(atom.nearby(cutoff=4, exclude="C")), 4)
-
-        # Can get atoms from predefined set
-        atom_set = [model.atom(1576), model.atom(1582), model.atom(1583)]
-        four_angstrom = atom.nearby(cutoff=4, atoms=atom_set)
-        self.assertEqual(len(four_angstrom), 3)
-        self.assertEqual(
-         sorted([atom.atom_id() for atom in four_angstrom]), [1576, 1582, 1583]
-        )
 
         model.remove_small_molecules(keep=mol)
         self.assertEqual(len(model.molecules()), 3)

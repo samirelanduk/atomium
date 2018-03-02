@@ -63,30 +63,3 @@ class ModelAtomRemovalTests(ModelTest):
         model = Model(self.atom1, self.atom2, self.atom3)
         model.remove_atom(self.atom3)
         self.assertIs(self.atom3._model, None)
-
-
-
-class AtomSphereTests(ModelTest):
-
-    def setUp(self):
-        ModelTest.setUp(self)
-        self.atom1.distance_to.return_value = 5
-        self.atom2.distance_to.return_value = 10
-        self.atom3.distance_to.return_value = 15
-        self.patch1 = patch("atomium.structures.models.Model.atoms")
-        self.mock_atoms = self.patch1.start()
-        self.mock_atoms.return_value = set([self.atom1, self.atom2, self.atom3])
-
-
-    def tearDown(self):
-        self.patch1.stop()
-
-        
-    def test_can_get_models_in_sphere(self):
-        model = Model(self.atom1, self.atom2, self.atom3)
-        atoms = model.atoms_in_sphere(1, 2, 3, 10)
-        self.assertEqual(atoms, set([self.atom1, self.atom2]))
-        self.mock_atoms.assert_called_with()
-        self.atom1.distance_to.assert_called_with((1, 2, 3))
-        self.atom2.distance_to.assert_called_with((1, 2, 3))
-        self.atom3.distance_to.assert_called_with((1, 2, 3))

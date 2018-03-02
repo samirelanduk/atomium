@@ -582,18 +582,8 @@ class NearbyAtomTests(TestCase):
         atom = Atom("C", 4, 8, 3)
         model.atoms.return_value = set(atoms + [atom])
         atom._model = model
-        self.assertEqual(atom.nearby(4, "d", a="4"), set(atoms[:-1]))
-        model.atoms.assert_called_with("d", a="4")
-
-
-    def test_can_get_nearby_atoms_from_preset(self):
-        atoms = [Mock(), Mock(), Mock(), Mock(), Mock()]
-        for index, atom in enumerate(atoms):
-            atom.distance_to.return_value = index + 0.5
-        atom = Atom("C", 4, 8, 3)
-        self.assertEqual(
-         atom.nearby(4, "d", atoms=atoms, a="4"), set(atoms[:-1])
-        )
+        self.assertEqual(atom.nearby(4), set(atoms[:-1]))
+        model.atoms.assert_called_with()
 
 
 

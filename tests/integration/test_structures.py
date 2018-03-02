@@ -24,11 +24,11 @@ class StructureTests(IntegratedTest):
          Atom("C", 1, 1, 1, 14, "CB", charge=-2, bfactor=0.5),
          Atom("O", 2, 1, 1, 15, "OB", bfactor=0.5),
          Atom("P", 0, 2, 1, 16, "P1", bfactor=0.5),
-         Atom("C", 1, 2, 1, 17, "CC", charge=0.5, bfactor=0.5),
-         Atom("P", 2, 2, 1, 18, "P2", bfactor=0.5),
+         Atom("H", 1, 2, 1, 17, "CC", charge=0.5, bfactor=0.5),
+         Atom("H", 2, 2, 1, 18, "P2", bfactor=0.5),
          Atom("N", 0, 0, 2, 19, "N", bfactor=1.5),
          Atom("C", 1, 0, 2, 20, "CA", bfactor=1.5),
-         Atom("C", 2, 0, 2, 21, "C", bfactor=1.5),
+         Atom("C", 2, 0, 2, 21, "CO", bfactor=1.5),
          Atom("O", 0, 1, 2, 22, "OA", bfactor=1.5),
          Atom("C", 1, 1, 2, 23, "CB", charge=0.5, bfactor=1.5),
          Atom("O", 2, 1, 2, 24, "OB", bfactor=1.5),
@@ -80,6 +80,7 @@ class StructureTests(IntegratedTest):
         self.assertEqual(atoms[2].bonded_atoms(), set([atoms[11]]))
         self.assertEqual(atoms[20].bonded_atoms(), set([atoms[11]]))
         self.assertEqual(atoms[11].bonded_atoms(), set([atoms[2], atoms[20]]))
+        self.assertEqual(atoms[11].bonded_atoms(name="C"), set([atoms[2]]))
         self.assertEqual(atoms[2].bond_with(atoms[11]).length(), 1)
         self.assertEqual(atoms[2].bond_with(atoms[11]).angle_with(
          atoms[20].bond_with(atoms[11])
@@ -104,7 +105,7 @@ class StructureTests(IntegratedTest):
         self.assertIn(atoms[-1], model)
         self.assertIs(atoms[-1].model(), model)
         self.assertEqual(model.atoms(element="N"), set(atoms[::9]))
-        self.assertEqual(len(model.atoms(exclude="C")), 15)
+        self.assertEqual(len(model.atoms(hydrogen=False)), 25)
         self.assertEqual(model.atoms(element="fe"), set([atoms[-3]] + [atoms[-1]]))
         self.assertEqual(model.atoms(name="CA"), set(atoms[1::9]))
         self.assertIs(model.atom(1), atoms[0])
@@ -113,19 +114,20 @@ class StructureTests(IntegratedTest):
         for pair in model.pairwise_atoms():
             pairs.append(pair)
         self.assertEqual(len(pairs), 351)
-        self.assertAlmostEqual(model.mass(), 520, delta=0.5)
+        self.assertAlmostEqual(model.mass(), 479, delta=0.5)
         self.assertEqual(model.charge(), 0)
         atoms[13].charge(-3)
         self.assertEqual(model.charge(), -1)
         atoms[13].charge(-2)
         self.assertEqual(model.charge(), 0)
         self.assertEqual(
-         model.formula(), {"C": 12, "N": 3, "O": 6, "Fe": 2, "P": 2, "S": 2}
+         model.formula(),
+         {"C": 11, "N": 3, "O": 6, "Fe": 2, "P": 1, "S": 2, "H": 2}
         )
-        self.assertAlmostEqual(model.center_of_mass()[0], 0.9884, delta=0.005)
-        self.assertAlmostEqual(model.center_of_mass()[1], 1.3071, delta=0.005)
-        self.assertAlmostEqual(model.center_of_mass()[2], 1.0914, delta=0.005)
-        self.assertAlmostEqual(model.radius_of_gyration(), 1.45012, delta=0.005)
+        self.assertAlmostEqual(model.center_of_mass()[0], 0.9249, delta=0.005)
+        self.assertAlmostEqual(model.center_of_mass()[1], 1.2479, delta=0.005)
+        self.assertAlmostEqual(model.center_of_mass()[2], 1.0993, delta=0.005)
+        self.assertAlmostEqual(model.radius_of_gyration(), 1.4412, delta=0.005)
 
         # The model can be transformed correctly
         model.translate(10, 20, 30)
@@ -225,14 +227,18 @@ class StructureTests(IntegratedTest):
         # The atoms work in the model
         self.assertEqual(atoms[0].nearby(0.5), set())
         self.assertEqual(atoms[0].nearby(1), set([atoms[1], atoms[3], atoms[9]]))
+        self.assertEqual(atoms[0].nearby(1, name="CA"), set([atoms[1]]))
         self.assertEqual(atoms[0].nearby(1.5), set([
          atoms[1], atoms[3], atoms[9], atoms[4], atoms[10], atoms[12]
         ]))
         self.assertEqual(
-         atoms[0].nearby(1.5, atoms=atoms[:8]), set([atoms[1], atoms[3], atoms[4]])
+         atoms[0].nearby(1.5), set([atoms[1], atoms[3], atoms[4], atoms[12], atoms[9], atoms[10]])
         )
         self.assertEqual(
          atoms[0].nearby(1.5, element="C"), set([atoms[1], atoms[4], atoms[10]])
+        )
+        self.assertEqual(
+         atoms[0].nearby(1.5, name="CA"), set([atoms[1], atoms[10]])
         )
         self.assertEqual(model.atoms_in_sphere(0, 0, 0, 0.5), set([atoms[0]]))
         self.assertEqual(
@@ -240,6 +246,8 @@ class StructureTests(IntegratedTest):
          set([atoms[0], atoms[1], atoms[3], atoms[9]])
         )
         self.assertEqual(model.atoms_in_sphere(2, 2, 2, 0.5), set([atoms[-1]]))
+        self.assertEqual(model.atoms_in_sphere(2, 2, 2, 5), set(atoms))
+        self.assertEqual(model.atoms_in_sphere(2, 2, 2, 5, hydrogen=False), set(atoms) - set(atoms[16:18]))
 
         # Residues can be made
         res1 = Residue(*atoms[:9], residue_id="A1", name="MET")
@@ -316,6 +324,9 @@ class StructureTests(IntegratedTest):
         self.assertIs(site.ligand(), mol)
         site = mol.site()
         self.assertEqual(site.residues(), set())
+        self.assertEqual(len(model.atoms()), 29)
+        self.assertEqual(len(model.atoms(het=False)), 27)
+        self.assertEqual(len(model.atoms(het=False, hydrogen=False)), 25)
 
         # Copies can be made
         copy = model.copy()

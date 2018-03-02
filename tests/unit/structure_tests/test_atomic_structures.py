@@ -91,34 +91,6 @@ class AtomicStructureAtomsTests(AtomicStructureTest):
         self.assertEqual(structure.atoms(), set(self.atoms))
 
 
-    def test_can_get_atoms_by_element(self):
-        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(structure.atoms(element="A"), set(self.atoms[:1]))
-        self.assertEqual(structure.atoms(element="b"), set(self.atoms[1:]))
-        self.assertEqual(structure.atoms(element="C"), set())
-
-
-    def test_can_exlcude_atoms_by_element(self):
-        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(structure.atoms(exclude="A"), set(self.atoms[1:]))
-        self.assertEqual(structure.atoms(exclude="B"), set(self.atoms[:1]))
-        self.assertEqual(structure.atoms(exclude="C"), set(self.atoms))
-
-
-    def test_can_get_atoms_by_id(self):
-        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(structure.atoms(atom_id=500), set([self.atoms[0]]))
-        self.assertEqual(structure.atoms(atom_id=700), set([self.atoms[2]]))
-        self.assertEqual(structure.atoms(atom_id=300), set())
-
-
-    def test_can_get_atoms_by_name(self):
-        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(structure.atoms(name="CA"), set(self.atoms[:2]))
-        self.assertEqual(structure.atoms(name="NY"), set([self.atoms[2]]))
-        self.assertEqual(structure.atoms(name="CB"), set())
-
-
 
 class AtomicStructureAtomTest(AtomicStructureTest):
 
@@ -143,6 +115,9 @@ class AtomicStructureAtomTest(AtomicStructureTest):
         mock_atoms.return_value = set([self.atoms[1]])
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         atom = structure.atom(atom_id=500)
+        self.assertFalse(mock_atoms.called)
+        self.assertIs(atom, self.atom1)
+        atom = structure.atom(500)
         self.assertFalse(mock_atoms.called)
         self.assertIs(atom, self.atom1)
 
@@ -191,12 +166,13 @@ class AtomicStructurePairwiseAtomTests(AtomicStructureTest):
         mock_atoms.return_value = set(self.atoms)
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         collected_atoms = []
-        for pair in structure.pairwise_atoms():
+        for pair in structure.pairwise_atoms(a=1, b=2):
             self.assertIsNot(pair[0], pair[1])
             collected_atoms.append(pair[0])
             collected_atoms.append(pair[1])
         for atom in self.atoms:
             self.assertEqual(collected_atoms.count(atom), 2)
+        mock_atoms.assert_called_with(a=1, b=2)
 
 
     @patch("atomium.structures.molecules.AtomicStructure.atoms")
@@ -250,6 +226,51 @@ class AtomicStructureRoundingTests(AtomicStructureTest):
         self.atom1.round.assert_called_with(10)
         self.atom2.round.assert_called_with(10)
         self.atom3.round.assert_called_with(10)
+
+
+
+class AtomSphereTests(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        self.atom1.distance_to.return_value = 5
+        self.atom2.distance_to.return_value = 10
+        self.atom3.distance_to.return_value = 15
+        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
+        self.mock_atoms = self.patch1.start()
+        self.mock_atoms.return_value = set([self.atom1, self.atom2, self.atom3])
+
+
+    def tearDown(self):
+        self.patch1.stop()
+
+
+    def test_coordinates_must_be_numbers(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            structure.atoms_in_sphere("0", 0, 0, 10)
+        with self.assertRaises(TypeError):
+            structure.atoms_in_sphere(0, "0", 0, 10)
+        with self.assertRaises(TypeError):
+            structure.atoms_in_sphere(0, 0, "0", 10)
+
+
+    def test_radius_must_be_positive_number(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        with self.assertRaises(TypeError):
+            structure.atoms_in_sphere(0, 0, 0, "10")
+        with self.assertRaises(ValueError):
+            structure.atoms_in_sphere(0, 0, 0, -10)
+
+
+    def test_can_get_atoms_in_sphere(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        atoms = structure.atoms_in_sphere(1, 2, 3, 10)
+        self.assertEqual(atoms, set([self.atom1, self.atom2]))
+        self.mock_atoms.assert_called_with()
+        self.atom1.distance_to.assert_called_with((1, 2, 3))
+        self.atom2.distance_to.assert_called_with((1, 2, 3))
+        self.atom3.distance_to.assert_called_with((1, 2, 3))
 
 
 

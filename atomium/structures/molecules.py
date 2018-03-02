@@ -5,7 +5,7 @@ from itertools import combinations
 from points import Vector
 import weakref
 from math import sqrt, pi, degrees
-from .atoms import Atom
+from .atoms import Atom, atom_query
 
 class AtomicStructure:
     """Represents structures made of :py:class:`.Atom` objects, which tends to
@@ -46,7 +46,8 @@ class AtomicStructure:
         return member in self._atoms or member in self._id_atoms.values()
 
 
-    def atoms(self, atom_id=None, element=None, exclude=None, name=None):
+    @atom_query
+    def atoms(self):
         """Returns the :py:class:`.Atom` objects in the structure. You can
         filter these by element if you wish.
 
@@ -61,18 +62,6 @@ class AtomicStructure:
         :rtype: ``set``"""
 
         atoms = self._atoms.union(set(self._id_atoms.values()))
-        if element:
-            atoms = set(filter(
-             lambda a: a.element().lower() == element.lower(), atoms
-            ))
-        if exclude:
-            atoms = set(filter(
-             lambda a: a.element().lower() != exclude.lower(), atoms
-            ))
-        if atom_id:
-            atoms = set(filter(lambda a: a.atom_id() == atom_id, atoms))
-        if name:
-            atoms = set(filter(lambda a: a.name() == name, atoms))
         return atoms
 
 
@@ -95,6 +84,8 @@ class AtomicStructure:
 
         if "atom_id" in kwargs:
             return self._id_atoms.get(kwargs["atom_id"])
+        if len(args) == 1:
+            return self._id_atoms.get(args[0])
         atoms = self.atoms(*args, **kwargs)
         for atom in atoms: return atom
 
@@ -124,14 +115,14 @@ class AtomicStructure:
             self._atoms.remove(atom)
 
 
-    def pairwise_atoms(self):
+    def pairwise_atoms(self, *args, **kwargs):
         """A generator which yeilds all the pairwise atom combinations of the
         structure. There will be no duplicates in the returned generator, and
         the number of returned pairs will be a triangle number.
 
         :rtype: ``list``"""
 
-        atoms = list(self.atoms())
+        atoms = list(self.atoms(*args, **kwargs))
         for a_index in range(len(atoms) - 1):
             for o_index in range(a_index + 1, len(atoms)):
                 yield [atoms[a_index], atoms[o_index]]
@@ -301,6 +292,32 @@ class AtomicStructure:
         )
         mean_square_deviation = square_deviation / len(atoms)
         return sqrt(mean_square_deviation)
+
+
+    @atom_query
+    def atoms_in_sphere(self, x, y, z, radius):
+        """Returns all the atoms in a given sphere within the structure.
+
+        :param x: The x-coordinate of the centre of the sphere.
+        :param y: The y-coordinate of the centre of the sphere.
+        :param z: The z-coordinate of the centre of the sphere.
+        :param radius: The radius of the sphere.
+        :raises TypeError: if the model is not an atomium model object.
+        :raises TypeError: if the coordinates are not numeric.
+        :raises TypeError: if the radius is not numeric.
+        :raises ValueError: if the radius is negative.
+        :rtype: ``set``"""
+        
+        if any(not isinstance(c, (int, float)) for c in (x, y, z)):
+            raise TypeError("({}, {}, {}) not valid coordinate".format(x, y, z))
+        if not isinstance(radius, (int, float)):
+            raise TypeError("{} is not a valid radius".format(radius))
+        if radius < 0:
+            raise ValueError("{} is not a valid radius".format(radius))
+        atoms = filter(
+         lambda a: a.distance_to((x, y, z)) <= radius, self.atoms()
+        )
+        return set(atoms)
 
 
     def find_pattern(self, pattern):
@@ -550,9 +567,9 @@ class Molecule(AtomicStructure):
         :rtype: :py:class:`.Site`"""
 
         from .chains import Site
-        atoms, nearby = self.atoms(exclude="H"), set()
+        atoms, nearby = self.atoms(hydrogen=False), set()
         for atom in atoms:
-            nearby.update(atom.nearby(4, exclude="H"))
+            nearby.update(atom.nearby(4, hydrogen=False))
         if not main_chain:
             nearby = [a for a in nearby if
              a.name() not in ["C", "CA", "O", "N"] or not a.residue()]

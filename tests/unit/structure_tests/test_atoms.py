@@ -594,7 +594,8 @@ class AtomSelectorTests(TestCase):
          Atom("C", 2, 3, 5, name="CA", atom_id=15, charge=1),
          Atom("C", 2, 3, 5, name="CA", atom_id=16, charge=1),
          Atom("P", 2, 3, 5, name="PB", atom_id=17, charge=1),
-         Atom("H", 2, 3, 5, name="H1", atom_id=18, charge=1)
+         Atom("H", 2, 3, 5, name="H1", atom_id=18, charge=1),
+         Atom("ZN", 2, 3, 5, name="ZN", atom_id=19, charge=1)
         ]
         self.atoms[0]._residue, self.atoms[1]._residue = "H", "H"
         def func(a, b, c=20):
@@ -621,11 +622,18 @@ class AtomSelectorTests(TestCase):
 
 
     def test_can_exclude_hydrogen(self):
-        self.assertEqual(self.func(1, 2, hydrogen=False, c=3), set(self.atoms[:3]))
+        self.assertEqual(
+         self.func(1, 2, hydrogen=False, c=3),
+         set(self.atoms) - set(self.atoms[3:4])
+        )
 
 
     def test_can_exclude_heteroatoms(self):
         self.assertEqual(self.func(1, 2, het=False, c=3), set(self.atoms[:2]))
+
+
+    def test_can_exclude_metals(self):
+        self.assertEqual(self.func(1, 2, metal=False, c=3), set(self.atoms[:4]))
 
 
     def test_can_combine_queries(self):

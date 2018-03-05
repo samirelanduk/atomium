@@ -108,6 +108,7 @@ class StructureTests(IntegratedTest):
         self.assertEqual(len(model.atoms(hydrogen=False)), 25)
         self.assertEqual(model.atoms(element="fe"), set([atoms[-3]] + [atoms[-1]]))
         self.assertEqual(model.atoms(name="CA"), set(atoms[1::9]))
+        self.assertEqual(model.atoms(metal=False), set(atoms) - set(atoms[-3::2]))
         self.assertIs(model.atom(1), atoms[0])
         self.assertEqual(model.atom(name="CA").name(), "CA")
         pairs = []
@@ -304,7 +305,7 @@ class StructureTests(IntegratedTest):
 
         # Molecules can be made
         molatom1 = Atom("N", 1, -4, 0, 100, "NA")
-        molatom2 = Atom("N", 1, -4, 1, 101, "NB")
+        molatom2 = Atom("FE", 1, -4, 1, 101, "NB")
         molatom1.bond(molatom2)
         mol = Molecule(molatom1, molatom2, molecule_id="A1000", name="XOP")
         model.add_molecule(mol)

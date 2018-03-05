@@ -12,7 +12,7 @@ def atom_query(func):
     :rtype: ``function``"""
 
     def new(*args, atom_id=None, name=None,
-     element=None, hydrogen=True, het=True, **kwargs):
+     element=None, hydrogen=True, het=True, metal=True, **kwargs):
         atoms = func(*args, **kwargs)
         if atom_id:
             atoms = set(filter(lambda a: a._id == atom_id, atoms))
@@ -26,6 +26,8 @@ def atom_query(func):
             atoms = set(filter(lambda a: a._element.lower() != "h", atoms))
         if not het:
             atoms = set(filter(lambda a: a._residue is not None, atoms))
+        if not metal:
+            atoms = set(filter(lambda a: a._element.upper() not in METALS, atoms))
         return atoms
     new.__name__ = func.__name__
     new.__doc__ = func.__doc__
@@ -554,3 +556,13 @@ PERIODIC_TABLE = {
  "ES": 252, "FM": 257, "MD": 258, "NO": 259, "RF": 261, "LR": 262, "DB": 262,
  "BH": 264, "SG": 266, "MT": 268, "RG": 272, "HS": 277
 }
+
+METALS = [
+ "LI", "BE", "NA", "MG", "AL", "K", "CA", "SC", "TI", "V", "CR", "MN", "FE",
+ "CO", "NI", "CU", "ZN", "HA", "RB", "SR", "Y", "ZR", "NB", "MO", "TC", "RU",
+ "RH", "PD", "AG", "CD", "IN", "SN", "CS", "BA", "LA", "CE", "PR", "ND", "PM",
+ "SM", "EU", "GD", "TB", "DY", "HO", "ER", "TM", "YB", "LU", "HF", "TA", "W",
+ "RE", "OS", "IR", "PT", "AU", "HG", "TL", "PB", "BI", "PO", "FR", "RA", "AC",
+ "TH", "PA", "U", "NP", "PU", "AM", "CM", "BK", "CF", "ES", "FM", "MD", "NO",
+ "LR", "RF", "DB", "SG", "BH", "HS", "MT", "DS", "RG", "CN", "UUT", "FL", "LV"
+]

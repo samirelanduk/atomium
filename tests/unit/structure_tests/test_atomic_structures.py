@@ -183,6 +183,47 @@ class AtomicStructurePairwiseAtomTests(AtomicStructureTest):
 
 
 
+class AtomicStructureGridTests(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
+        self.mock_atoms = self.patch1.start()
+        self.mock_atoms.return_value = set([self.atom1, self.atom2, self.atom3])
+        self.atom1.location.return_value = (1, 1.1, 3)
+        self.atom2.location.return_value = (-1, -2, -3)
+        self.atom3.location.return_value = (1.5, -2.4, 1)
+
+
+    def tearDown(self):
+        self.patch1.stop()
+
+
+    def test_can_get_grid(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        grid = structure.grid()
+        self.mock_atoms.assert_called_with()
+        self.atom1.location.assert_called_with()
+        self.atom2.location.assert_called_with()
+        self.atom3.location.assert_called_with()
+        self.assertEqual(grid, tuple([(x, y, z) for x in range(-1, 3)
+         for y in range(-3, 3) for z in range(-3, 4)]))
+
+
+    def test_can_vary_grid_size(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        grid = structure.grid(size=0.5)
+        self.mock_atoms.assert_called_with()
+        self.atom1.location.assert_called_with()
+        self.atom2.location.assert_called_with()
+        self.atom3.location.assert_called_with()
+        self.assertEqual(grid, tuple([(x, y, z)
+         for x in [-1, -0.5, 0, 0.5, 1, 1.5]
+         for y in [-2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5]
+         for z in [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]]))
+
+
+
 class AtomicStructureMassTests(AtomicStructureTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.atoms")

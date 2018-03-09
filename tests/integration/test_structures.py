@@ -267,6 +267,10 @@ class StructureTests(IntegratedTest):
          for x in [0, 0.5, 1, 1.5, 2]
          for y in [0, 0.5, 1, 1.5, 2]
          for z in [0, 0.5, 1, 1.5, 2]]))
+        self.assertEqual(model.grid(size=0.5, margin=1.5), tuple([(x, y, z)
+         for x in [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
+         for y in [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
+         for z in [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]]))
         atoms[0].translate(-0.1, -0.5, -0.6), model.round(6)
         atoms[-1].translate(0.1, 0.5, 0.6), model.round(6)
         self.assertEqual(model.grid(size=0.25), tuple([(x, y, z)

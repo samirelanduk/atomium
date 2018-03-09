@@ -223,6 +223,17 @@ class AtomicStructureGridTests(AtomicStructureTest):
          for z in [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3]]))
 
 
+    def test_can_get_grid_with_margin(self):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        grid = structure.grid(margin=5)
+        self.mock_atoms.assert_called_with()
+        self.atom1.location.assert_called_with()
+        self.atom2.location.assert_called_with()
+        self.atom3.location.assert_called_with()
+        self.assertEqual(grid, tuple([(x, y, z) for x in range(-6, 8)
+         for y in range(-8, 8) for z in range(-8, 9)]))
+
+
 
 class AtomicStructureMassTests(AtomicStructureTest):
 

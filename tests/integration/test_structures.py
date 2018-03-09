@@ -251,38 +251,38 @@ class StructureTests(IntegratedTest):
         self.assertEqual(model.atoms_in_sphere(2, 2, 2, 5, hydrogen=False), set(atoms) - set(atoms[16:18]))
 
         # Grid
-        self.assertEqual(model.grid(), tuple([(x, y, z)
-         for x in range(3) for y in range(3) for z in range(3)]))
+        self.assertEqual(list(model.grid()), [(x, y, z)
+         for x in range(3) for y in range(3) for z in range(3)])
         model.translate(-0.1, -0.1, -0.1), model.round(6)
-        self.assertEqual(model.grid(), tuple([(x, y, z)
-         for x in range(-1, 3) for y in range(-1, 3) for z in range(-1, 3)]))
+        self.assertEqual(list(model.grid()), [(x, y, z)
+         for x in range(-1, 3) for y in range(-1, 3) for z in range(-1, 3)])
         model.translate(-0.8, -0.8, -0.8), model.round(6)
-        self.assertEqual(model.grid(), tuple([(x, y, z)
-         for x in range(-1, 3) for y in range(-1, 3) for z in range(-1, 3)]))
+        self.assertEqual(list(model.grid()), [(x, y, z)
+         for x in range(-1, 3) for y in range(-1, 3) for z in range(-1, 3)])
         model.translate(1, 1, 1), model.round(6)
-        self.assertEqual(model.grid(), tuple([(x, y, z)
-         for x in range(4) for y in range(4) for z in range(4)]))
+        self.assertEqual(list(model.grid()), [(x, y, z)
+         for x in range(4) for y in range(4) for z in range(4)])
         model.translate(-0.1, -0.1, -0.1), model.round(6)
-        self.assertEqual(model.grid(size=0.5), tuple([(x, y, z)
+        self.assertEqual(list(model.grid(size=0.5)), [(x, y, z)
          for x in [0, 0.5, 1, 1.5, 2]
          for y in [0, 0.5, 1, 1.5, 2]
-         for z in [0, 0.5, 1, 1.5, 2]]))
-        self.assertEqual(model.grid(size=0.5, margin=1.5), tuple([(x, y, z)
+         for z in [0, 0.5, 1, 1.5, 2]])
+        self.assertEqual(list(model.grid(size=0.5, margin=1.5)), [(x, y, z)
          for x in [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
          for y in [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]
-         for z in [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]]))
+         for z in [-1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5]])
         atoms[0].translate(-0.1, -0.5, -0.6), model.round(6)
         atoms[-1].translate(0.1, 0.5, 0.6), model.round(6)
-        self.assertEqual(model.grid(size=0.25), tuple([(x, y, z)
+        self.assertEqual(list(model.grid(size=0.25)), [(x, y, z)
          for x in [-0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25]
          for y in [-0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5]
-         for z in [-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75]]))
+         for z in [-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75]])
         atoms[0].translate(0.1, 0.5, 0.6), model.round(6)
         atoms[-1].translate(-0.1, -0.5, -0.6), model.round(6)
-        self.assertEqual(model.grid(size=5), tuple([(x, y, z)
+        self.assertEqual(list(model.grid(size=5)), [(x, y, z)
          for x in [0, 5]
          for y in [0, 5]
-         for z in [0, 5]]))
+         for z in [0, 5]])
 
 
         # Residues can be made

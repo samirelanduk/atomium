@@ -190,6 +190,31 @@ class AtomicStructure:
             atom.round(places)
 
 
+    def pairing_with(self, structure):
+        """Takes another structure with the same number of atoms as this one,
+        and attempts to find the nearest equivalent of every atom in this
+        structure, in that structure.
+
+        Atoms will be aligned first by element, then by name, then by number of
+        bonds, and finally by memory address - this last metric is used to
+        ensure that even when allocation is essentially random, it is at least
+        the same every time two structures are aligned.
+
+        :param AtomicStructure structure: the structure to pair with.
+        :rtype: ``dict``"""
+
+        if not isinstance(structure, AtomicStructure):
+            raise TypeError("{} is not an AtomicStructure".format(structure))
+        atoms, other_atoms = list(self.atoms()), list(structure.atoms())
+        if len(atoms) != len(other_atoms):
+            raise ValueError("{} and {} have different numbers of atoms".format(
+             self, structure
+            ))
+        for l in atoms, other_atoms:
+            l.sort(key=lambda a: (a.element(), a.name(), len(a.bonds()), id(a)))
+        return {a1: a2 for a1, a2 in zip(atoms, other_atoms)}
+
+
     def equivalent_to(self, other):
         """Two stuctures are equal if (1) they have the same number of atoms and (2)
         the atom names are the same. Location, orientation, atom IDs etc. don't

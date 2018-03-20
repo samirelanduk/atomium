@@ -81,6 +81,15 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(mol.name(), "XMP")
         self.assertEqual(mol.name(full=True), "XMP")
         self.assertEqual(len(mol.atoms()), 24)
+        mol1, mol2 = model.molecule("A5001"), model.molecule("B5002")
+        self.assertEqual(mol1.pairing_with(mol2), {
+         model.atom(3194): model.atom(3224),
+         model.atom(3195): model.atom(3225),
+         model.atom(3196): model.atom(3226),
+         model.atom(3197): model.atom(3227),
+         model.atom(3198): model.atom(3228),
+         model.atom(3199): model.atom(3229),
+        })
 
         # Bindsites are correct
         site = model.molecule("A5001").site()

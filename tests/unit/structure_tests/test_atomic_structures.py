@@ -419,6 +419,31 @@ class AtomicStructurePairingTests(AtomicStructureTest):
         )})
 
 
+
+class AtomicStructureTestRmsdTests(AtomicStructureTest):
+
+    @patch("atomium.structures.molecules.AtomicStructure.pairing_with")
+    def test_can_get_rmsd(self, mock_pair):
+        structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        other = Mock(AtomicStructure)
+        other_atoms = [Mock(), Mock(), Mock()]
+        self.atom1.distance_to.return_value = 5
+        self.atom2.distance_to.return_value = 1
+        self.atom3.distance_to.return_value = -1
+        mock_pair.return_value = {
+         self.atom1: other_atoms[0],
+         self.atom2: other_atoms[1],
+         self.atom3: other_atoms[2]
+        }
+        rmsd = structure.rmsd_with(other)
+        mock_pair.assert_called_with(other)
+        self.atom1.distance_to.assert_called_with(other_atoms[0])
+        self.atom2.distance_to.assert_called_with(other_atoms[1])
+        self.atom3.distance_to.assert_called_with(other_atoms[2])
+        self.assertEqual(rmsd, 3)
+
+
+
 class AtomicStructureEquivalenceTests(AtomicStructureTest):
 
     def test_unequivalent_structures(self):

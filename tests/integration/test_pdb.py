@@ -90,6 +90,8 @@ class PdbReadingTests(IntegratedTest):
          model.atom(3198): model.atom(3228),
          model.atom(3199): model.atom(3229),
         })
+        self.assertEqual(mol1.rmsd_with(mol1), 0)
+        self.assertAlmostEqual(mol1.rmsd_with(mol2), 23.5, delta=0.5)
 
         # Bindsites are correct
         site = model.molecule("A5001").site()

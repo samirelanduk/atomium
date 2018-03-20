@@ -201,6 +201,10 @@ class AtomicStructure:
         the same every time two structures are aligned.
 
         :param AtomicStructure structure: the structure to pair with.
+        :raises TypeError: if the other structure is not an\
+        :py:class:`.AtomicStructure`.
+        :raises ValueError: if the other structure has a different number of\
+        atoms.
         :rtype: ``dict``"""
 
         if not isinstance(structure, AtomicStructure):
@@ -213,6 +217,25 @@ class AtomicStructure:
         for l in atoms, other_atoms:
             l.sort(key=lambda a: (a.element(), a.name(), len(a.bonds()), id(a)))
         return {a1: a2 for a1, a2 in zip(atoms, other_atoms)}
+
+
+    def rmsd_with(self, structure):
+        """Calculates the Root Mean Square Deviation between this structure and
+        another.
+
+        No translation or rotation is performed beforehand - atom coordinates
+        are compared as-is.
+
+        :raises TypeError: if the other structure is not an\
+        :py:class:`.AtomicStructure`.
+        :raises ValueError: if the other structure has a different number of\
+        atoms.
+        :rtype: ``float``"""
+
+        pairing = self.pairing_with(structure)
+        sd = sum(a1.distance_to(a2) ** 2 for a1, a2 in pairing.items())
+        msd = sd / len(pairing)
+        return sqrt(msd)
 
 
     def equivalent_to(self, other):

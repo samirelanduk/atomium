@@ -238,21 +238,6 @@ class AtomicStructure:
         return sqrt(msd)
 
 
-    def equivalent_to(self, other):
-        """Two stuctures are equal if (1) they have the same number of atoms and (2)
-        the atom names are the same. Location, orientation, atom IDs etc. don't
-        matter.
-
-        :param AtomicStructure other: The other entity to compare to.
-        :rtype: ``bool``"""
-
-        if isinstance(other, AtomicStructure) and Counter(
-         [a.name() for a in self.atoms()]
-        ) == Counter([a.name() for a in other.atoms()]):
-            return True
-        return False
-
-
     def translate(self, dx, dy, dz):
         """Translates the structure through space, updating all atom
         coordinates accordingly.

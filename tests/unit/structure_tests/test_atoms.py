@@ -524,7 +524,7 @@ class AtomCopyingTests(TestCase):
         self.assertEqual(copy._x, 2)
         self.assertEqual(copy._y, 3)
         self.assertEqual(copy._z, 5)
-        self.assertEqual(copy._id, None)
+        self.assertEqual(copy._id, 10)
         self.assertEqual(copy._name, "H1")
         self.assertEqual(copy._charge, 0.5)
         self.assertEqual(copy._bfactor, 0.4)

@@ -402,16 +402,39 @@ class AtomicStructurePairingTests(AtomicStructureTest):
         })
 
 
-    def test_can_pair_by_memory_address(self):
-        elements = ["A"] * 10
-        names = ["A"] * 10
-        bond_counts = [0] * 10
+    def test_can_pair_by_id(self):
+        elements = ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"]
+        names = ["A1", "A1", "A1", "A2", "A2", "B1", "B1", "B2", "B2", "B2"]
+        bond_counts = [1, 1, 3, 1, 2, 1, 2, 1, 2, 2]
+        ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         for i, atom1, atom2 in zip(range(10), self.atoms, self.other_atoms):
             atom1.element.return_value = atom2.element.return_value = elements[i]
             atom1.name.return_value = atom2.name.return_value = names[i]
             atom1.bonds.return_value = atom2.bonds.return_value = [
              "bond" for _ in range(bond_counts[i])
             ]
+            atom1.atom_id.return_value = atom2.atom_id.return_value = ids[i]
+        self.assertEqual(self.structure1.pairing_with(self.structure2), {
+         self.atoms[0]: self.other_atoms[0], self.atoms[1]: self.other_atoms[1],
+         self.atoms[2]: self.other_atoms[2], self.atoms[3]: self.other_atoms[3],
+         self.atoms[4]: self.other_atoms[4], self.atoms[5]: self.other_atoms[5],
+         self.atoms[6]: self.other_atoms[6], self.atoms[7]: self.other_atoms[7],
+         self.atoms[8]: self.other_atoms[8], self.atoms[9]: self.other_atoms[9]
+        })
+
+
+    def test_can_pair_by_memory_address(self):
+        elements = ["A"] * 10
+        names = ["A"] * 10
+        bond_counts = [0] * 10
+        ids = [1] * 10
+        for i, atom1, atom2 in zip(range(10), self.atoms, self.other_atoms):
+            atom1.element.return_value = atom2.element.return_value = elements[i]
+            atom1.name.return_value = atom2.name.return_value = names[i]
+            atom1.bonds.return_value = atom2.bonds.return_value = [
+             "bond" for _ in range(bond_counts[i])
+            ]
+            atom1.atom_id.return_value = atom2.atom_id.return_value = ids[i]
         self.assertEqual(
          self.structure1.pairing_with(self.structure2), {a1: a2 for a1, a2 in zip(
           sorted(self.atoms, key=lambda a: id(a)),

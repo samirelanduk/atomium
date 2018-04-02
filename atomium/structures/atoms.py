@@ -372,12 +372,12 @@ class Atom:
 
     def copy(self):
         """Returns a copy of the atom. The new atom will have the same element,
-        location, name, charge and bfactor as the original, but will have no ID,
-        and will not be part of any model or other molecule.
+        location, name, charge ID and bfactor as the original, but will not be
+        part of any model or other molecule.
 
         :rtype: ``Atom``"""
 
-        return Atom(self._element, self._x, self._y, self._z,
+        return Atom(self._element, self._x, self._y, self._z, atom_id=self._id,
          name=self._name, charge=self._charge, bfactor=self._bfactor)
 
 

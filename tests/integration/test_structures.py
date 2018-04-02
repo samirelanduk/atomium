@@ -373,5 +373,3 @@ class StructureTests(IntegratedTest):
         copy.translate(100, 100, 100)
         self.assertEqual(copy.atom(name="F2").location(), (102, 102, 102))
         self.assertEqual(model.atom(name="F2").location(), (2, 2, 2))
-        for atom in copy.atoms():
-            self.assertIsNone(atom.atom_id())

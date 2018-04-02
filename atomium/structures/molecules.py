@@ -3,6 +3,7 @@
 from collections import Counter
 from itertools import combinations
 from points import Vector
+from points import Matrix
 import weakref
 from math import sqrt, pi, degrees, floor, ceil
 from .atoms import Atom, atom_query
@@ -196,9 +197,9 @@ class AtomicStructure:
         structure, in that structure.
 
         Atoms will be aligned first by element, then by name, then by number of
-        bonds, and finally by memory address - this last metric is used to
-        ensure that even when allocation is essentially random, it is at least
-        the same every time two structures are aligned.
+        bonds, then IDs, and finally by memory address - this last metric is
+        used to ensure that even when allocation is essentially random, it is at
+        least the same every time two structures are aligned.
 
         :param AtomicStructure structure: the structure to pair with.
         :raises TypeError: if the other structure is not an\
@@ -215,7 +216,9 @@ class AtomicStructure:
              self, structure
             ))
         for l in atoms, other_atoms:
-            l.sort(key=lambda a: (a.element(), a.name(), len(a.bonds()), id(a)))
+            l.sort(key=lambda a: (
+             a.element(), a.name(), len(a.bonds()), a.atom_id(), id(a)
+            ))
         return {a1: a2 for a1, a2 in zip(atoms, other_atoms)}
 
 
@@ -471,10 +474,10 @@ class AtomicStructure:
 
         Note that the returned structure will just be a plain
         :py:class:`.AtomicStructure` and not a chain or model or whatever the
-        original structure was. Its atoms will have the same location, element,
-        charge, name and bfactor as their counterparts in the original, but will
-        have no IDs, no bonds, and be a member of no molecule or model - even if
-        their counterparts do and are.
+        original structure was. Its atoms will have the same ID, location,
+        element, charge, name and bfactor as their counterparts in the original,
+        but will have no bonds, and be a member of no molecule or model - even
+        if their counterparts do and are.
 
         :rtype: ``AtomicStructure``"""
 

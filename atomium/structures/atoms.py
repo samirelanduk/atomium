@@ -2,7 +2,7 @@
 
 import weakref
 from math import sqrt, acos, degrees
-from points import Vector
+from points import Vector, rotate_3d_vectors
 
 def atom_query(func):
     """Decorator which can be applied to any function which returns atoms. It
@@ -202,7 +202,7 @@ class Atom:
         :param str axis: The axis to rotate around."""
 
         vector = Vector(self._x, self._y, self._z)
-        vector.rotate(angle, axis)
+        rotate_3d_vectors(angle, ["x", "y", "z"].index(axis), vector)
         self._x, self._y, self._z = vector.values()
 
 

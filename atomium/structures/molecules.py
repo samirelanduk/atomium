@@ -4,6 +4,7 @@ from collections import Counter
 from itertools import combinations
 from points import Vector
 from points import Matrix
+import points
 import weakref
 from math import sqrt, pi, degrees, floor, ceil
 from .atoms import Atom, atom_query
@@ -262,67 +263,6 @@ class AtomicStructure:
 
         for atom in self.atoms():
             atom.rotate(angle, axis)
-
-
-    def orient(self, atom1, atom2=None, axis="x", atom3=None, plane="xy"):
-        """Orients the structure so that a given atom is at the origin. It can
-        also then orient it further so that a given atom lies on a given axis,
-        and can orient it further still so that a given atom lies on a given
-        plane.
-
-        :param Atom atom1: The atom to move to the origin.
-        :param Atom atom2: The atom to move to an axis.
-        :param str axis: The axis to move atom2 to.
-        :param Atom atom3: The atom to move to a plane.
-        :param str plane: The plane to move atom3 to.
-        :raises TypeError: if any of the atoms are not atoms.
-        :raises ValueError: if the plane given is not recognised.
-        :raises ValueError: if the plane given does not include the axis\
-        given."""
-
-        if not isinstance(atom1, Atom):
-            raise TypeError("{} is not an atom - cannot orient".format(atom1))
-        if atom2 is not None and not isinstance(atom2, (Atom)):
-            raise TypeError("{} is not an atom - cannot orient".format(atom2))
-        if atom3 is not None and not isinstance(atom3, (Atom)):
-            raise TypeError("{} is not an atom - cannot orient".format(atom3))
-        self.translate(*[-n for n in atom1.location()])
-        if atom2:
-            xyz, next_ = ["x", "y", "z"], {"x": "y", "y": "z", "z": "x"}
-            if axis not in xyz:
-                raise ValueError("{} is not a valid axis".format(axis))
-            first_axis = (axis, xyz.index(axis))
-            second_axis = (next_[axis], xyz.index(next_[axis]))
-            third_axis = (next_[next_[axis]], xyz.index(next_[next_[axis]]))
-            axis_v = Vector(*[1 if n == first_axis[1] else 0 for n in range(3)])
-            atom_vector = Vector(*[0 if i == second_axis[1] else n
-             for i, n in enumerate(atom2.location())])
-            angle = atom_vector.angle_with(axis_v)
-            angle = -angle if atom_vector[third_axis[1]] < 0 else angle
-            self.rotate(angle, second_axis[0])
-            atom_vector = Vector(*atom2.location())
-            angle = atom_vector.angle_with(axis_v)
-            angle = -angle if atom_vector[second_axis[1]] > 0 else angle
-            self.rotate(angle, third_axis[0])
-            if atom3:
-                if len(plane) != 2 or not set(plane) < set(xyz):
-                    raise ValueError("{} is not a valid plane".format(plane))
-                if axis not in plane:
-                    raise ValueError(
-                     "Can't move to {} plane by rotating {}-axis".format(plane, axis)
-                    )
-                atom_vector = Vector(*[0 if i == first_axis[1] else n
-                 for i, n in enumerate(atom3.location())])
-                codimension = plane.replace(axis, "")
-                axis_vector = Vector(*[1 if n == xyz.index(codimension)
-                 else 0 for n in range(3)])
-                angle = atom_vector.angle_with(axis_vector)
-                check_dimension = (set("xyz") - set(plane)).pop()
-                component = atom_vector[xyz.index(check_dimension)]
-                neg = codimension != next_[axis]
-                if (component < 0 and neg) or (component > 0 and not neg):
-                    angle = -angle
-                self.rotate(angle, first_axis[0])
 
 
     def center_of_mass(self):

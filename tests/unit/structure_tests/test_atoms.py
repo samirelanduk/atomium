@@ -247,17 +247,18 @@ class AtomTranslationTests(TestCase):
 class AtomRotationTEsts(TestCase):
 
     @patch("atomium.structures.atoms.Vector")
-    def test_can_rotate_atoms(self, mock_vector):
+    @patch("atomium.structures.atoms.rotate_3d_vectors")
+    def test_can_rotate_atoms(self, mock_rot, mock_vector):
         v = Mock()
         mock_vector.return_value = v
-        v.values.return_value = (10, 20, 30)
+        v.values.return_value = (11, 21, 31)
         atom = Atom("C", 20, 30, 50)
         atom.rotate(0.5, "y")
         mock_vector.assert_called_with(20, 30, 50)
-        v.rotate.assert_called_with(0.5, "y")
-        self.assertEqual(atom._x, 10)
-        self.assertEqual(atom._y, 20)
-        self.assertEqual(atom._z, 30)
+        mock_rot.assert_called_with(0.5, 1, v)
+        self.assertEqual(atom._x, 11)
+        self.assertEqual(atom._y, 21)
+        self.assertEqual(atom._z, 31)
 
 
 

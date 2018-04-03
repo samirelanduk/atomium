@@ -1,5 +1,6 @@
 points==0.4
 requests
+rmsd
 python-coveralls
 sphinx
 sphinx_rtd_theme

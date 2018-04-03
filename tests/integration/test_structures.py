@@ -209,7 +209,6 @@ class StructureTests(IntegratedTest):
          for y in [0, 5]
          for z in [0, 5]])
 
-
         # Residues can be made
         res1 = Residue(*atoms[:9], residue_id="A1", name="MET")
         res2 = Residue(*atoms[9:18], residue_id="A2", name="VAL")
@@ -298,3 +297,13 @@ class StructureTests(IntegratedTest):
         copy.translate(100, 100, 100)
         self.assertEqual(copy.atom(name="F2").location(), (102, 102, 102))
         self.assertEqual(model.atom(name="F2").location(), (2, 2, 2))
+
+        # Superposition can be performed
+        self.assertEqual(atoms[0].location(), (0, 0, 0))
+        copy.rotate(math.pi / 3, "x")
+        copy.rotate(math.pi / 1.8, "y")
+        copy.rotate(-math.pi / 4.9, "z")
+        self.assertGreater(copy.rmsd_with(model), 0)
+        copy.superimpose_onto(model), copy.round(8)
+        self.assertEqual(copy.rmsd_with(model), 0)
+        self.assertEqual(atoms[0].location(), (0, 0, 0))

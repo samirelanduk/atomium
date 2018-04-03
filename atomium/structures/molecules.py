@@ -4,6 +4,8 @@ from collections import Counter
 from itertools import combinations
 from points import Vector
 from points import Matrix
+import numpy as np
+import rmsd
 import points
 import weakref
 from math import sqrt, pi, degrees, floor, ceil
@@ -263,6 +265,20 @@ class AtomicStructure:
 
         for atom in self.atoms():
             atom.rotate(angle, axis)
+
+
+    def superimpose_onto(self, structure):
+        this_center, other_center = self.center_of_mass(), structure.center_of_mass()
+        self.translate(-this_center[0], -this_center[1], -this_center[2])
+        structure.translate(-other_center[0], -other_center[1], -other_center[2])
+        atoms, other_atoms = zip(*self.pairing_with(structure).items())
+        P = np.array([[*atom.location()] for atom in atoms])
+        Q = np.array([[*atom.location()] for atom in other_atoms])
+        P = rmsd.kabsch_rotate(P, Q)
+        for atom, row in zip(atoms, P):
+            atom._x, atom._y, atom._z = row
+        structure.translate(other_center[0], other_center[1], other_center[2])
+        self.translate(other_center[0], other_center[1], other_center[2])
 
 
     def center_of_mass(self):

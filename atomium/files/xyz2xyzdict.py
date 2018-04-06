@@ -31,5 +31,5 @@ def atom_to_atom_dict(atom):
     :rtype: ``dict``"""
 
     return {
-     "element": atom.element(), "x": atom.x(), "y": atom.y(), "z": atom.z(),
+     "element": atom.element, "x": atom.x, "y": atom.y, "z": atom.z,
     }

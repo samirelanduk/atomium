@@ -33,10 +33,10 @@ def structure_to_pdb_dict(structure):
 
     atoms, heteroatoms = [], []
     structure_atoms = sorted(
-     structure.atoms(), key=lambda a: a.atom_id() if a.atom_id() else 10000000
+     structure.atoms(), key=lambda a: a.id
     )
     for atom in structure_atoms:
-        list_ = heteroatoms if atom.chain() is None else atoms
+        list_ = heteroatoms if atom.chain is None else atoms
         list_.append(atom_to_atom_dict(atom))
     chains = atoms_to_chains(atoms)
     molecules = atoms_to_residues(heteroatoms)
@@ -57,25 +57,25 @@ def atom_to_atom_dict(atom):
     :rtype: ``dict``"""
 
     id_, residue_name, chain_id, residue_id, insert_code = "", "", "", "", ""
-    if atom.residue():
-        id_ = atom.residue().residue_id()
-        residue_name = atom.residue().name()
-        chain_id = atom.chain().chain_id() if atom.chain() is not None else ""
+    if atom.residue:
+        id_ = atom.residue.id
+        residue_name = atom.residue.name
+        chain_id = atom.chain.id if atom.chain is not None else ""
         residue_id = int("".join([c for c in id_ if c.isdigit()]))
         insert_code = id_[-1] if id_ and id_[-1].isalpha() else ""
-    elif atom.molecule():
-        id_ = atom.molecule().molecule_id()
-        residue_name = atom.molecule().name()
+    elif atom.molecule:
+        id_ = atom.molecule.id
+        residue_name = atom.molecule.name
         chain_id = id_[0] if id_ and id_[0].isalpha() else None
         residue_id = int("".join([c for c in id_ if c.isdigit()]))
     return {
-     "atom_id": atom.atom_id(), "atom_name": atom.name(), "alt_loc": None,
+     "atom_id": atom.id, "atom_name": atom.name, "alt_loc": None,
      "residue_name": residue_name, "full_id": id_,
      "chain_id": chain_id, "residue_id": residue_id, "insert_code": insert_code,
-     "x": atom.x(), "y": atom.y(), "z": atom.z(),
+     "x": atom.x, "y": atom.y, "z": atom.z,
      "occupancy": 1.0,
-     "element": atom.element(), "charge": atom.charge(),
-     "temp_factor": atom.bfactor() if atom.bfactor() else None,
+     "element": atom.element, "charge": atom.charge,
+     "temp_factor": atom.bfactor if atom.bfactor else None,
     }
 
 
@@ -88,9 +88,9 @@ def structure_to_connections(structure):
 
     connections = []
     for atom in structure.atoms():
-        if not atom.residue():
+        if not atom.residue:
             connections.append({
-             "atom": atom.atom_id(),
-             "bond_to": sorted([a.atom_id() for a in atom.bonded_atoms()])
+             "atom": atom.id,
+             "bond_to": sorted([a.id for a in atom.bonded_atoms()])
             })
     return sorted(connections, key=lambda k: k["atom"])

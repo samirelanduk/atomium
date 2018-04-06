@@ -25,6 +25,7 @@ class Pdb:
         )
 
 
+    @property
     def models(self):
         """Returns the :py:class:`.Model` objects that the Pdb contains.
 
@@ -33,163 +34,173 @@ class Pdb:
         return tuple(self._models)
 
 
-    def model(self, model=None):
+    @property
+    def model(self):
         """Returns the first :py:class:`.Model` that the Pdb file contains."""
 
         return self._models[0] if self._models else None
 
 
-    def code(self, code=None):
-        """Returns or sets the Pdb's 4-letter code. If a value is given, the
-        code will be updated.
+    @property
+    def code(self):
+        """The Pdb's 4-letter code.
 
-        :param str code: if given, the code will be updated.
-        :raises TypeError: if a non-str code is given.
+        :raises TypeError: if a non-str code is set.
         :raises ValueError: if the PDB code given is invalid.
         :rtype: ``str``"""
 
-        if code:
-            if not isinstance(code, str):
-                raise TypeError("PDB code {} is not str".format(code))
-            if len(code) != 4:
-                raise ValueError("PDB code {} is not valid".format(code))
-            self._code = code
-        else:
-            return self._code
+        return self._code
 
 
-    def deposition_date(self, deposition_date=None):
-        """Returns or sets the Pdb's desposition date. If a value is given, the
-        date will be updated.
+    @code.setter
+    def code(self, code):
+        if not isinstance(code, str):
+            raise TypeError("PDB code {} is not str".format(code))
+        if len(code) != 4:
+            raise ValueError("PDB code {} is not valid".format(code))
+        self._code = code
 
-        :param date deposition_date: if given, the date will be updated.
+
+    @property
+    def deposition_date(self):
+        """The Pdb's desposition date.
+
         :raises TypeError: if a non-date is given.
         :rtype: ``datetime.date``"""
 
-        if deposition_date:
-            if not isinstance(deposition_date, datetime.date):
-                raise TypeError("{} is not a Date".format(deposition_date))
-            self._deposition_date = deposition_date
-        else:
-            return self._deposition_date
+        return self._deposition_date
 
 
-    def title(self, title=None):
-        """Returns or sets the Pdb's title. If a value is given, the title will
-        be updated.
+    @deposition_date.setter
+    def deposition_date(self, deposition_date):
+        if not isinstance(deposition_date, datetime.date):
+            raise TypeError("{} is not a Date".format(deposition_date))
+        self._deposition_date = deposition_date
 
-        :param str title: if given, the title will be updated.
+
+    @property
+    def title(self):
+        """The Pdb's title.
+
         :raises TypeError: if a non-str title is given.
         :rtype: ``str``"""
 
-        if title:
-            if not isinstance(title, str):
-                raise TypeError("PDB title {} is not str".format(title))
-            self._title = title
-        else:
-            return self._title
+        return self._title
 
 
-    def resolution(self, resolution=None):
-        """Returns or sets the Pdb's resolution. If a value is given, the
-        resolution will be updated.
+    @title.setter
+    def title(self, title):
+        if not isinstance(title, str):
+            raise TypeError("PDB title {} is not str".format(title))
+        self._title = title
 
-        :param str resolution: if given, the resolution will be updated.
+
+
+    @property
+    def resolution(self):
+        """The Pdb's resolution.
+
         :raises TypeError: if a non-numeric resolution is given.
         :rtype: ``float``"""
 
-        if resolution:
-            if not isinstance(resolution, (int, float)):
-                raise TypeError("Resolution {} isn't numeric".format(resolution))
-            self._resolution = resolution
-        else:
-            return self._resolution
+        return self._resolution
 
 
-    def rfactor(self, rfactor=None):
-        """Returns or sets the Pdb's r-factor. If a value is given, the
-        r-factor will be updated.
+    @resolution.setter
+    def resolution(self, resolution):
+        if not isinstance(resolution, (int, float)):
+            raise TypeError("Resolution {} isn't numeric".format(resolution))
+        self._resolution = resolution
 
-        :param str rfactor: if given, the rfactor will be updated.
+
+
+    @property
+    def rfactor(self):
+        """The Pdb's R-factor.
+
         :raises TypeError: if a non-numeric rfactor is given.
         :rtype: ``float``"""
 
-        if rfactor:
-            if not isinstance(rfactor, (int, float)):
-                raise TypeError("rfactor {} isn't numeric".format(rfactor))
-            self._rfactor = rfactor
-        else:
-            return self._rfactor
+        return self._rfactor
 
 
-    def organism(self, organism=None):
-        """Returns or sets the Pdb's source organism. If a value is given, the
-        organism will be updated.
+    @rfactor.setter
+    def rfactor(self, rfactor):
+        if not isinstance(rfactor, (int, float)):
+            raise TypeError("R-factor {} isn't numeric".format(rfactor))
+        self._rfactor = rfactor
 
-        :param str organism: if given, the organism will be updated.
+
+    @property
+    def organism(self):
+        """The Pdb's source organism.
+
         :raises TypeError: if a non-str organism is given.
         :rtype: ``str``"""
 
-        if organism:
-            if not isinstance(organism, str):
-                raise TypeError("PDB organism {} is not str".format(organism))
-            self._organism = organism
-        else:
-            return self._organism
+        return self._organism
 
 
-    def expression_system(self, expression_system=None):
-        """Returns or sets the Pdb's expression organism. If a value is given,
-        the expression system will be updated.
+    @organism.setter
+    def organism(self, organism):
+        if not isinstance(organism, str):
+            raise TypeError("PDB organism {} is not str".format(organism))
+        self._organism = organism
 
-        :param str expression_system: if given, the system will be updated.
-        :raises TypeError: if a non-str expression system is given.
+
+    @property
+    def expression_system(self):
+        """The Pdb's expression organism.
+
+        :raises TypeError: if a non-str organism is given.
         :rtype: ``str``"""
 
-        if expression_system:
-            if not isinstance(expression_system, str):
-                raise TypeError(
-                 "PDB expression system {} is not str".format(expression_system)
-                )
-            self._expression_system = expression_system
-        else:
-            return self._expression_system
+        return self._expression_system
 
 
-    def technique(self, technique=None):
-        """Returns or sets the Pdb's experimental tecnhique. If a value is given,
-        the technique will be updated.
+    @expression_system.setter
+    def expression_system(self, expression_system):
+        if not isinstance(expression_system, str):
+            raise TypeError(
+             "PDB expression organism {} is not str".format(expression_system)
+            )
+        self._expression_system = expression_system
 
-        :param str technique: if given, the technique will be updated.
+
+    @property
+    def technique(self):
+        """The Pdb's experimental technique.
+
         :raises TypeError: if a non-str technique is given.
         :rtype: ``str``"""
 
-        if technique:
-            if not isinstance(technique, str):
-                raise TypeError(
-                 "PDB technique {} is not str".format(technique)
-                )
-            self._technique = technique
-        else:
-            return self._technique
+        return self._technique
 
 
-    def classification(self, classification=None):
-        """Returns or sets the Pdb's classification. If a value is given,
-        the classification will be updated.
+    @technique.setter
+    def technique(self, technique):
+        if not isinstance(technique, str):
+            raise TypeError("Technique {} is not str".format(technique))
+        self._technique = technique
 
-        :param str classification: if given, the classification will be updated.
+
+    @property
+    def classification(self):
+        """The Pdb's classification.
+
         :raises TypeError: if a non-str classification is given.
         :rtype: ``str``"""
 
-        if classification:
-            if not isinstance(classification, str):
-                raise TypeError(
-                 "PDB classification {} is not str".format(classification)
-                )
-            self._classification = classification
-        else:
-            return self._classification
+        return self._classification
+
+
+    @classification.setter
+    def classification(self, classification):
+        if not isinstance(classification, str):
+            raise TypeError(
+             "Classification {} is not str".format(classification)
+            )
+        self._classification = classification
 
 
     def to_file_string(self):

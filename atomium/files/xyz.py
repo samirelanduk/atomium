@@ -19,34 +19,29 @@ class Xyz:
         return "<Xyz ({})>".format(self._title)
 
 
-    def title(self, title=None):
-        """Returns the title associated with the .xyz file. If a string is
-        given, the title will be updated.
+    @property
+    def title(self):
+        """Returns the title associated with the .xyz file.
 
-        :param str title: If given, the commnent will be updated to this.
         :raises TypeError: if the title given is not a string."""
 
-        if title is None:
-            return self._title
-        else:
-            if not isinstance(title, str):
-                raise TypeError("title must be str, not '{}'".format(title))
-            self._title = title
+        return self._title
 
 
-    def model(self, model=None):
-        """Returns the :py:class:`.Model` that the .xyz file contains. If a
-        model is given, the model will be changed to the new model.
+    @title.setter
+    def title(self, title):
+        if not isinstance(title, str):
+            raise TypeError("title must be str, not '{}'".format(title))
+        self._title = title
 
-        :param Model model: If given, the model will be updated to this.
+
+    @property
+    def model(self):
+        """Returns the :py:class:`.Model` that the .xyz file contains.
+
         :raises TypeError: if the model given is not a :py:class:`.Model`."""
 
-        if model is None:
-            return self._model
-        else:
-            if not isinstance(model, Model):
-                raise TypeError("model must be Model, not '{}'".format(model))
-            self._model = model
+        return self._model
 
 
     def to_file_string(self):

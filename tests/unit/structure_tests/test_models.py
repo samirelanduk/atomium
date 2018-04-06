@@ -1,21 +1,19 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
-from atomium.structures.models import Model, ChainStructure, MoleculeStructure
+from atomium.structures.models import Model
 from atomium.structures.molecules import AtomicStructure
-from atomium.structures.chains import ResidueStructure
 from atomium.structures.atoms import Atom
 
 class ModelTest(TestCase):
 
     def setUp(self):
-        self.atom1 = Mock(Atom)
-        self.atom2 = Mock(Atom)
-        self.atom3 = Mock(Atom)
+        self.atom1, self.atom2, self.atom3 = Mock(Atom), Mock(Atom), Mock(Atom)
         self.atoms = [self.atom1, self.atom2, self.atom3]
         def mock_init(obj, *args, **kwargs):
-            obj._atoms = set()
-            obj._id_atoms = {}
-        self.mock_init = mock_init
+            obj._atoms = {i: {arg} for i, arg in enumerate(args)}
+        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.__init__")
+        self.mock_init = self.patch1.start()
+        self.mock_init.side_effect = mock_init
 
 
 
@@ -26,9 +24,6 @@ class ModelCreationTests(ModelTest):
         mock_init.side_effect = self.mock_init
         model = Model(*self.atoms)
         self.assertIsInstance(model, AtomicStructure)
-        self.assertIsInstance(model, ResidueStructure)
-        self.assertIsInstance(model, ChainStructure)
-        self.assertIsInstance(model, MoleculeStructure)
         self.assertTrue(mock_init.called)
 
 
@@ -45,21 +40,3 @@ class ModelReprTests(ModelTest):
     def test_model_repr(self):
         model = Model(self.atom1, self.atom2, self.atom3)
         self.assertEqual(str(model), "<Model (3 atoms)>")
-
-
-
-class ModelAtomAdditionTests(ModelTest):
-
-    def test_adding_atom_updates_atom(self):
-        model = Model(self.atom1, self.atom2)
-        model.add_atom(self.atom3)
-        self.assertIs(self.atom3._model, model)
-
-
-
-class ModelAtomRemovalTests(ModelTest):
-
-    def test_removing_atom_updates_atom(self):
-        model = Model(self.atom1, self.atom2, self.atom3)
-        model.remove_atom(self.atom3)
-        self.assertIs(self.atom3._model, None)

@@ -192,7 +192,7 @@ def atom_dict_to_atom_line(d, hetero=False):
     ) else "{:.2f}".format(d["occupancy"]).rjust(6)
     line = line.format(
      "HETATM" if hetero else "ATOM",
-     d["atom_id"] if d["atom_id"] else "",
+     d["atom_id"],
      atom_name,
      d["alt_loc"] if d["alt_loc"] else "",
      d["residue_name"] if d["residue_name"] else "",

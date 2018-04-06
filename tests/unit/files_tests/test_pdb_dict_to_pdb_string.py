@@ -267,11 +267,13 @@ class AtomDictToAtomLineTests(TestCase):
     def test_can_convert_empty_atom_dict_to_line(self):
         for key in self.atom_dict:
             self.atom_dict[key] = None
+        self.atom_dict["atom_id"] = 0
         self.atom_dict["chain_id"], self.atom_dict["insert_code"] = "", ""
         self.atom_dict["occupancy"], self.atom_dict["charge"] = 1, 0
         line = atom_dict_to_atom_line(self.atom_dict)
         self.assertEqual(line[:6], "ATOM  ")
-        self.assertEqual(line[6:54], " " * 48)
+        self.assertEqual(line[6:11], "    0")
+        self.assertEqual(line[11:54], " " * 43)
         self.assertEqual(line[54:60], "  1.00")
         self.assertEqual(line[60:], " " * 20)
 

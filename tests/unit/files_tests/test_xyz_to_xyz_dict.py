@@ -35,10 +35,10 @@ class AtomToAtomDictTests(TestCase):
 
     def test_can_convert_atom_to_atom_dict(self):
         atom = Mock()
-        atom.element.return_value = "E"
-        atom.x.return_value = "X"
-        atom.y.return_value = "Y"
-        atom.z.return_value = "Z"
+        atom.element = "E"
+        atom.x = "X"
+        atom.y = "Y"
+        atom.z = "Z"
         self.assertEqual(
          atom_to_atom_dict(atom), {"element": "E", "x": "X", "y": "Y", "z": "Z"}
         )

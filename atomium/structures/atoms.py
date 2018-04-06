@@ -1,8 +1,7 @@
 """This module contains the classes for atoms and their bonds."""
 
-import weakref
-from math import sqrt, acos, degrees
-from points import Vector, rotate_3d_vectors
+import math
+import numpy as np
 
 def atom_query(func):
     """Decorator which can be applied to any function which returns atoms. It
@@ -11,11 +10,11 @@ def atom_query(func):
     :param function func: The function to enhance.
     :rtype: ``function``"""
 
-    def new(*args, atom_id=None, name=None,
+    def new(*args, id=None, name=None,
      element=None, hydrogen=True, het=True, metal=True, **kwargs):
         atoms = func(*args, **kwargs)
-        if atom_id:
-            atoms = set(filter(lambda a: a._id == atom_id, atoms))
+        if id:
+            atoms = set(filter(lambda a: a._id == id, atoms))
         if name:
             atoms = set(filter(lambda a: a._name == name, atoms))
         if element:
@@ -40,36 +39,30 @@ class Atom:
     and a set of Cartesian coordinates.
 
     :param str element: The atom's element symbol. It doesn't need to be on the\
-    Periodic Table, but it does need to be 1 or 2 characters.
+    Periodic Table.
     :param number x: The atom's x coordinate.
     :param number y: The atom's y coordinate.
     :param number z: The atom's z coordinate.
-    :param int atom_id: A unique integer ID for the atom. This is supposed to\
-    be unique.
+    :param int id: A unique integer ID for the atom. This is supposed to\
+    be unique. If you do not assign one, one will be generated.
     :param str name: The atom's name.
     :param number charge: The charge of the atom.
+    :param number bfactor: The B-factor of the atom (its uncertainty).
     :raises TypeError: if the element is not str.
-    :raises ValueError: if the element is not 1 or 2 characters.
     :raises TypeError: if the coordinates are not numeric.
-    :raises TypeError: if the atom_id is not int.
+    :raises TypeError: if the id is not int.
     :raises TypeError: if the name is not str.
     :raises TypeError: if the charge is not numeric.
     :raises TypeError: if the bfactor is not numeric."""
 
-    def __init__(self, element, x, y, z, atom_id=None, name=None, charge=0,
+    def __init__(self, element, x=0, y=0, z=0, id=0, name=None, charge=0,
                  bfactor=0):
         if not isinstance(element, str):
             raise TypeError("Element '{}' is not str".format(element))
-        if not 0 < len(element) < 3:
-            raise ValueError("Element {} is not 1 or 2 chars".format(element))
-        if not isinstance(x, (float, int)):
-            raise TypeError("x coordinate '{}' is not numeric".format(x))
-        if not isinstance(y, (float, int)):
-            raise TypeError("y coordinate '{}' is not numeric".format(y))
-        if not isinstance(z, (float, int)):
-            raise TypeError("z coordinate '{}' is not numeric".format(z))
-        if atom_id is not None and not isinstance(atom_id, int):
-            raise TypeError("ID {} is not an integer".format(atom_id))
+        if any(not isinstance(coord, (int, float)) for coord in (x, y, z)):
+            raise TypeError("Coordinates {} not numeric".format((x, y, z)))
+        if not isinstance(id, int):
+            raise TypeError("ID {} is not an integer".format(id))
         if name is not None and not isinstance(name, str):
             raise TypeError("name {} is not a string".format(name))
         if not isinstance(charge, (float, int)):
@@ -80,7 +73,7 @@ class Atom:
         self._x = x
         self._y = y
         self._z = z
-        self._id = atom_id
+        self._id = id
         self._name = name
         self._charge = charge
         self._bfactor = bfactor
@@ -90,276 +83,241 @@ class Atom:
 
 
     def __repr__(self):
-        return "<{} Atom {}{}at ({}, {}, {})>".format(
-         self._element, self._id if self._id else "", " " if self._id else "",
+        return "<{} Atom {} at ({}, {}, {})>".format(
+         self._element, self._id ,
          self._x, self._y, self._z
         )
 
 
-    def element(self, element=None):
-        """Returns the atom's element symbol. If a value is given, the element
-        symbol will be updated, but it must be ``str`` and it must be 1 or 2
-        characters.
+    @property
+    def element(self):
+        """The atom's element symbol. This is used to calculate its mass using a
+        Periodic Table.
 
-        :param str element: If given, the atom's element will be set to this.
-        :raises TypeError: if the element is not str.
-        :raises ValueError: if the element given is not 1 or 2 characters.
+        :raises TypeError: if the element is set to non-str.
         :rtype: ``str``"""
 
-        if element is None:
-            return self._element
-        else:
-            if not isinstance(element, str):
-                raise TypeError("Element '{}' is not str".format(element))
-            if not 0 < len(element) < 3:
-                raise ValueError("Element {} isn't 1 - 2 chars".format(element))
-            self._element = element
+        return self._element
 
 
-    def x(self, x=None):
-        """Returns the atom's x coordinate. If a value is given, the x
-        coordinate will be updated, but it must be numeric.
+    @element.setter
+    def element(self, element):
+        if not isinstance(element, str):
+            raise TypeError("Element '{}' is not str".format(element))
+        self._element = element
 
-        :param number x: If given, the atom's x coordinate will be set to this.
+
+    @property
+    def x(self):
+        """The atom's x-coordinate.
+
         :raises TypeError: if the x coordinate given is not numeric.
-        :rtype: ``int`` or ``float``"""
+        :rtype: ``float``"""
 
-        if x is None:
-            return self._x
-        else:
-            if not isinstance(x, (float, int)):
-                raise TypeError("x coordinate '{}' is not numeric".format(x))
-            self._x = x
+        return self._x
 
 
-    def y(self, y=None):
-        """Returns the atom's y coordinate. If a value is given, the y
-        coordinate will be updated, but it must be numeric.
+    @x.setter
+    def x(self, x):
+        if not isinstance(x, (float, int)):
+            raise TypeError("x coordinate '{}' is not numeric".format(x))
+        self._x = x
 
-        :param number y: If given, the atom's y coordinate will be set to this.
+
+    @property
+    def y(self):
+        """The atom's y-coordinate.
+
         :raises TypeError: if the y coordinate given is not numeric.
-        :rtype: ``int`` or ``float``"""
+        :rtype: ``float``"""
 
-        if y is None:
-            return self._y
-        else:
-            if not isinstance(y, (float, int)):
-                raise TypeError("y coordinate '{}' is not numeric".format(y))
-            self._y = y
+        return self._y
 
 
-    def z(self, z=None):
-        """Returns the atom's z coordinate. If a value is given, the z
-        coordinate will be updated, but it must be numeric.
+    @y.setter
+    def y(self, y):
+        if not isinstance(y, (float, int)):
+            raise TypeError("y coordinate '{}' is not numeric".format(y))
+        self._y = y
 
-        :param number z: If given, the atom's z coordinate will be set to this.
+
+    @property
+    def z(self):
+        """The atom's z-coordinate.
+
         :raises TypeError: if the z coordinate given is not numeric.
-        :rtype: ``int`` or ``float``"""
+        :rtype: ``float``"""
 
-        if z is None:
-            return self._z
-        else:
-            if not isinstance(z, (float, int)):
-                raise TypeError("z coordinate '{}' is not numeric".format(z))
-            self._z = z
+        return self._z
 
 
+    @z.setter
+    def z(self, z):
+        if not isinstance(z, (float, int)):
+            raise TypeError("z coordinate '{}' is not numeric".format(z))
+        self._z = z
+
+
+    @property
+    def id(self):
+        """Yhe atom's unique integer ID.
+
+        :raises TypeError: if the ID given is not an integer.
+        :rtype: ``int``"""
+
+        return self._id
+
+
+    @property
+    def name(self):
+        """The atom's name. This is often used to determine what 'kind' of atom
+        it is.
+
+        :raises TypeError: if the name is set to non-str.
+        :rtype: ``str``"""
+
+        return self._name
+
+
+    @name.setter
+    def name(self, name):
+        if not isinstance(name, str):
+            raise TypeError("Name '{}' is not str".format(name))
+        self._name = name
+
+
+    @property
+    def bfactor(self):
+        """The atom's B-factor - the uncertainty in its position.
+
+        :raises TypeError: if the bfactor is set to be non-numeric.
+        :rtype: ``float``"""
+
+        return self._bfactor
+
+
+    @bfactor.setter
+    def bfactor(self, bfactor=None):
+        if not isinstance(bfactor, (float, int)):
+            raise TypeError("bfactor '{}' is not numeric".format(bfactor))
+        self._bfactor = bfactor
+
+
+    @property
+    def charge(self):
+        """The atom's charge.
+
+        :raises TypeError: if the charge is set to be non-numeric.
+        :rtype: ``float``"""
+
+        return self._charge
+
+
+    @charge.setter
+    def charge(self, charge=None):
+        if not isinstance(charge, (float, int)):
+            raise TypeError("charge '{}' is not numeric".format(charge))
+        self._charge = charge
+
+
+    @property
     def location(self):
-        """Returns the atom's Cartesian coordinates.
+        """The atom's Cartesian coordinates.
 
         :rtype: ``tuple``"""
 
         return (self._x, self._y, self._z)
 
 
-    def round(self, places):
+    def trim(self, places):
         """Rounds the coordinate values to a given number of decimal places.
-        Useful for removing floating point rounding errors after rotation.
+        Useful for removing floating point rounding errors after transformation.
 
-        :param int places: The number of places to round the coordinates to."""
+        :param int places: The number of places to round the coordinates to. If\
+        ``None``, no rounding will be done."""
 
-        self._x = round(self._x, places)
-        self._y = round(self._y, places)
-        self._z = round(self._z, places)
+        if places is not None:
+            self._x = round(self._x, places)
+            self._y = round(self._y, places)
+            self._z = round(self._z, places)
 
 
-    def translate(self, dx, dy, dz):
+    def translate(self, dx=0, dy=0, dz=0, trim=12):
         """Translates an atom in 3D space.
 
         :param float dx: The distance to move in the x direction.
         :param float dy: The distance to move in the y direction.
-        :param float dz: The distance to move in the z direction."""
+        :param float dz: The distance to move in the z direction.
+        :param int trim: The amount of rounding to do to the atom's coordinates\
+        after translating - the default is 12 decimal places but this can be\
+        set to ``None`` if no rounding is to be done."""
 
+        try:
+            dx, dy, dz = dx
+        except TypeError: pass
         self._x += dx
         self._y += dy
         self._z += dz
+        self.trim(trim)
 
 
-    def rotate(self, angle, axis):
+    def move_to(self, x, y, z):
+        """Moves the atom to the coordinates given.
+
+        :param number x: The atom's new x coordinate.
+        :param number y: The atom's new y coordinate.
+        :param number z: The atom's new z coordinate.
+        :raises TypeError: if non-numeric coordinates are given."""
+
+        if any(not isinstance(coord, (int, float)) for coord in (x, y, z)):
+            raise TypeError("Coordinates {} not numeric".format((x, y, z)))
+        self._x, self._y, self._z = x, y, z
+
+
+    def generate_rotation_matrix(self, angle, axis):
+        """Generates a rotation matrix that would rotate this atom by a given
+        angle around a given axis.
+
+        :param float angle: Angle in radians.
+        :param str axis: The axis to rotate around. Can be `x`, `y` or `z`."""
+
+        axis = [1 if i == ["x", "y", "z"].index(axis) else 0 for i in range(3)]
+        axis = np.asarray(axis)
+        axis = axis / math.sqrt(np.dot(axis, axis))
+        a = math.cos(angle / 2)
+        b, c, d = -axis * math.sin(angle / 2)
+        aa, bb, cc, dd = a * a, b * b, c * c, d * d
+        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+        return np.array([
+         [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+         [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+         [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
+        ])
+
+
+    def rotate(self, angle, axis, degrees=False, trim=12):
         """Rotates an atom in 3D space.
 
         :param float angle: Angle in radians.
-        :param str axis: The axis to rotate around."""
+        :param str axis: The axis to rotate around. Can be `x`, `y` or `z`.
+        :param bool degrees: if ``True`` the angle will be interpreted as\
+        degrees.
+        :param int trim: The amount of rounding to do to the atom's coordinates\
+        after translating - the default is 12 decimal places but this can be\
+        set to ``None`` if no rounding is to be done."""
 
-        vector = Vector(self._x, self._y, self._z)
-        rotate_3d_vectors(angle, ["x", "y", "z"].index(axis), vector)
-        self._x, self._y, self._z = vector.values()
-
-
-    def atom_id(self):
-        """Returns the atom's unique integer ID.
-
-        :rtype: ``int``"""
-
-        return self._id
-
-
-    def name(self, name=None):
-        """Returns the atom's name. If a value is given, the name will be
-        updated, provided it is a string.
-
-        :param str name: If given, the name will be set to this.
-        :raises TypeError: if the name given is not str."""
-
-        if name is None:
-            return self._name
-        else:
-            if not isinstance(name, str):
-                raise TypeError("Atom name '{}' is not str".format(name))
-            self._name = name
+        if axis not in ("x", "y", "z"):
+            raise ValueError("{} is not a valid axis".format(axis))
+        angle = math.radians(angle) if degrees else angle
+        matrix = self.generate_rotation_matrix(angle, axis)
+        vector = matrix.dot(self.location)
+        self._x, self._y, self._z = vector
+        self.trim(trim)
 
 
-    def residue(self):
-        """Returns the :py:class:`.Residue` the atom is part of, or ``None`` if
-        it is not part of one.
-
-        :rtype: ``Residue``"""
-
-        return self._residue
-
-
-    def chain(self):
-        """Returns the :py:class:`.Chain` the atom is part of, or ``None`` if
-        it is not part of one.
-
-        :rtype: ``Chain``"""
-
-        return self._chain
-
-
-    def molecule(self):
-        """Returns the :py:class:`.Molecule` the atom is part of, or ``None`` if
-        it is not part of one.
-
-        :rtype: ``Molecule``"""
-
-        return self._molecule
-
-
-    def model(self):
-        """Returns the :py:class:`.Model` the atom is part of, or ``None`` if
-        it is not part of one.
-
-        :rtype: ``Model``"""
-
-        return self._model
-
-
-    def charge(self, charge=None):
-        """Returns the atom's charge. If a value is given, the charge will be
-        updated, but it must be numeric.
-
-        :param number charge: If given, the atom's charge will be set to this.
-        :raises TypeError: if the charge given is not numeric.
-        :rtype: ``int`` or ``float``"""
-
-        if charge is None:
-            return self._charge
-        else:
-            if not isinstance(charge, (float, int)):
-                raise TypeError("charge '{}' is not numeric".format(charge))
-            self._charge = charge
-
-
-    def bfactor(self, bfactor=None):
-        """Returns the atom's B-factor - the uncertainty in its position. If a
-        value is given, the bfactor will be updated, but it must be numeric.
-
-        :param number bfactor: If given, the atom's bfactor will be set to this.
-        :raises TypeError: if the bfactor given is not numeric.
-        :rtype: ``int`` or ``float``"""
-
-        if bfactor is None:
-            return self._bfactor
-        else:
-            if not isinstance(bfactor, (float, int)):
-                raise TypeError("bfactor '{}' is not numeric".format(bfactor))
-            self._bfactor = bfactor
-
-
-    def bonds(self):
-        """Returns the :py:class:`.Bond` objects that the atom is associated
-        with.
-
-        :rtype: ``set``"""
-
-        return set(self._bonds)
-
-
-    @atom_query
-    def bonded_atoms(self):
-        """Returns all the atoms that are bonded to this atom.
-
-        :rtype: ``set``"""
-
-        atoms = set()
-        [atoms.update(bond.atoms()) for bond in self.bonds()]
-        if atoms: atoms.remove(self)
-        return atoms
-
-
-    def bond(self, other):
-        """Bonds the atom to some other atom by creating a :py:class:`.Bond`
-        between them."""
-
-        if other not in self.bonded_atoms():
-            Bond(self, other)
-
-
-    def unbond(self, other):
-        """Breaks the bond between this atom and another.
-
-        :param Atom other: The atom to unbond from.
-        :raises TypeError: if something other than an :py:class:`Atom` is given.
-        :raises ValueError: if the atom given isn't bonded to begin with."""
-
-        if not isinstance(other, Atom):
-            raise TypeError("Cannot unbond non-atom {}".format(other))
-        for bond in self.bonds():
-            if other in bond.atoms() and other is not self:
-                bond.destroy()
-                return
-        raise ValueError("{} cannot unbond non-bonded {}".format(self, other))
-
-
-    def bond_with(self, other):
-        """Returns the :py:class:`.Bond` between this atom and another.
-
-        :param Atom other: The atom to get the bond with.
-        :raises TypeError: if something other than an :py:class:`Atom` is given.
-        :rtype: ``Bond`` (or ``None`` if no bond exists)."""
-
-        if not isinstance(other, Atom):
-            raise TypeError("Cannot get bond with non-atom {}".format(other))
-        if other is self:
-            return None
-        for bond in self.bonds():
-            if other in bond.atoms():
-                return bond
-
-
+    @property
     def mass(self):
-        """Returns the atom's mass according to the Periodic Table, based on the
+        """The atom's molar mass according to the Periodic Table, based on the
         atom's :py:meth:`element`. If the element doesn't match any symbol on
         the Periodic Table, a mass of 0 will be returned.
 
@@ -368,17 +326,6 @@ class Atom:
         :rtype: ``float``"""
 
         return PERIODIC_TABLE.get(self._element.upper(), 0)
-
-
-    def copy(self):
-        """Returns a copy of the atom. The new atom will have the same element,
-        location, name, charge ID and bfactor as the original, but will not be
-        part of any model or other molecule.
-
-        :rtype: ``Atom``"""
-
-        return Atom(self._element, self._x, self._y, self._z, atom_id=self._id,
-         name=self._name, charge=self._charge, bfactor=self._bfactor)
 
 
     def distance_to(self, other):
@@ -391,44 +338,166 @@ class Atom:
         given and that object isn't in the form (x, y, z).
         :rtype: ``float``"""
 
-        x, y, z = None, None, None
-        if not isinstance(other, Atom):
-            try:
-                assert len(other) == 3
-                x, y, z = other
-            except:
+        try:
+            x, y, z = other
+        except:
+            if not isinstance(other, Atom):
                 raise TypeError("'{}' is not an Atom".format(other))
-        else:
-            x, y, z = other.location()
+            x, y, z = other.location
         x_sum = pow((x - self._x), 2)
         y_sum = pow((y - self._y), 2)
         z_sum = pow((z - self._z), 2)
-        return sqrt(x_sum + y_sum + z_sum)
+        return math.sqrt(x_sum + y_sum + z_sum)
+
+
+    @property
+    def residue(self):
+        """Returns the :py:class:`.Residue` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Residue``"""
+
+        return self._residue
+
+
+    @property
+    def chain(self):
+        """Returns the :py:class:`.Chain` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Chain``"""
+
+        return self._chain
+
+
+    @property
+    def molecule(self):
+        """Returns the :py:class:`.Molecule` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Molecule``"""
+
+        return self._molecule
+
+
+    @property
+    def model(self):
+        """Returns the :py:class:`.Model` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Model``"""
+
+        return self._model
+
+
+    @property
+    def bonds(self):
+        """The atomic :py:class:`.Bond` objects that the atom is associated
+        with.
+
+        :rtype: ``set``"""
+
+        return set(self._bonds)
 
 
     @atom_query
-    def nearby(self, cutoff):
+    def bonded_atoms(self):
+        """Returns all the atoms that are bonded to this atom.
+
+        :param int id: if given, only atoms whose ID matches this will be\
+        returned.
+        :param str name: if given, only atoms whose name matches this will be\
+        returned.
+        :param str element: if given, only atoms whose element matches this\
+        will be returned.
+        :param bool hydrogen: If ``False``, hydrogen atoms will be excluded.
+        :param bool het: If ``False``, non-chain atoms will be excluded.
+        :param bool metal: If ``False``, metal atoms will be excluded.
+        :rtype: ``set``"""
+
+        atoms = set()
+        [atoms.update(bond.atoms()) for bond in self.bonds]
+        if atoms: atoms.remove(self)
+        return atoms
+
+
+    def bond_to(self, other):
+        """Bonds the atom to some other atom by creating a :py:class:`.Bond`
+        between them."""
+
+        if other not in self.bonded_atoms():
+            Bond(self, other)
+
+
+    def unbond_from(self, other):
+        """Breaks the bond between this atom and another.
+
+        :param Atom other: The atom to unbond from.
+        :raises TypeError: if something other than an :py:class:`Atom` is given.
+        :raises ValueError: if the atom given isn't bonded to begin with."""
+
+        if not isinstance(other, Atom):
+            raise TypeError("Cannot unbond non-atom {}".format(other))
+        for bond in self.bonds:
+            if other in bond.atoms() and other is not self:
+                bond.destroy()
+                return
+        raise ValueError("{} cannot unbond non-bonded {}".format(self, other))
+
+
+    def bond_with(self, other):
+        """Returns the :py:class:`.Bond` between this atom and another.
+
+        :param Atom other: The atom to get the bond with.
+        :raises TypeError: if something other than an :py:class:`Atom` is given.
+        :rtype: ``Bond``"""
+
+        if not isinstance(other, Atom):
+            raise TypeError("Cannot get bond with non-atom {}".format(other))
+        if other is self:
+            return None
+        for bond in self.bonds:
+            if other in bond.atoms():
+                return bond
+
+
+    def copy(self):
+        """Returns a copy of the atom. The new atom will have the same element,
+        location, name, charge, ID and bfactor as the original, but will not be
+        part of any model or other molecule, and will not have the any bonds.
+
+        :rtype: ``Atom``"""
+
+        return Atom(self._element, self._x, self._y, self._z, id=self._id,
+         name=self._name, charge=self._charge, bfactor=self._bfactor)
+
+
+    @atom_query
+    def nearby_atoms(self, cutoff, *args, **kwargs):
         """Returns all atoms in the associated :py:class:`.Model` that are
         within a given distance (in the units of the atom coordinates) of this
         atom.
 
         :param cutoff: The distance cutoff to use.
-        :param str element: If given, only atoms whose element matches this\
-        will be returned.
-        :param str exclude: If given, only atoms whose element doesn't match\
-        this will be returned.
-        :param int atom_id: If given, only atoms whose atom ID matches this\
-        will be returned (this will only return one atom).
-        :param str name: If given, only atoms whose name matches this will be\
+        :param int id: if given, only atoms whose ID matches this will be\
         returned.
+        :param str name: if given, only atoms whose name matches this will be\
+        returned.
+        :param str element: if given, only atoms whose element matches this\
+        will be returned.
+        :param bool hydrogen: If ``False``, hydrogen atoms will be excluded.
+        :param bool het: If ``False``, non-chain atoms will be excluded.
+        :param bool metal: If ``False``, metal atoms will be excluded.
         :rtype: ``set``"""
 
         if self._model:
-            atoms = self._model.atoms()
+            atoms =  self._model.atoms_in_sphere(
+             *self.location, cutoff, *args, **kwargs
+            )
             try:
                 atoms.remove(self)
             except: pass
-            return set(filter(lambda a: a.distance_to(self) <= cutoff, atoms))
+            return atoms
         return set()
 
 
@@ -456,18 +525,29 @@ class Bond:
 
     def __repr__(self):
         atom1, atom2 = self._atoms
-        return "<{}-{} Bond>".format(atom1.element(), atom2.element())
+        return "<{}-{} Bond>".format(atom1.element, atom2.element)
 
 
+    @atom_query
     def atoms(self):
         """Returns the two :py:class:`.Atom` objects that the bond connects.
         They are given as an unordered set.
 
+        :param int id: if given, only atoms whose ID matches this will be\
+        returned.
+        :param str name: if given, only atoms whose name matches this will be\
+        returned.
+        :param str element: if given, only atoms whose element matches this\
+        will be returned.
+        :param bool hydrogen: If ``False``, hydrogen atoms will be excluded.
+        :param bool het: If ``False``, non-chain atoms will be excluded.
+        :param bool metal: If ``False``, metal atoms will be excluded.
         :rtype: ``set``"""
 
         return set(self._atoms)
 
 
+    @property
     def length(self):
         """Returns the length of the bond, defined as the distance between its
         two atoms.
@@ -476,47 +556,6 @@ class Bond:
 
         atom1, atom2 = self._atoms
         return atom1.distance_to(atom2)
-
-
-    def vector(self, target):
-        """Returns the ``Vector`` which represents the bond. You must specify
-        which atom you want the Vector to point towards.
-
-        The Vector comes from the ``points`` library.
-
-        :param Atom target: The atom the Vector will point towards.
-        :raises TypeError: if a non-atom is given.
-        :raises ValueError: if the atom given isn't in the Bond.
-        :rtype: ``Vector``"""
-
-        if not isinstance(target, Atom):
-            raise TypeError("bond atom {} is not an atom".format(target))
-        if target not in self._atoms:
-            raise ValueError("{} is not in bond {}".format(target, self))
-        base = [atom for atom in self._atoms if atom is not target][0]
-        values = [c1 - c2 for c1, c2 in zip(target.location(), base.location())]
-        return Vector(*values)
-
-
-    def angle_with(self, other, degrees=False):
-        """Returns the angle between this Bond and another. If the Bonds share
-        an atom, the atom will be used as the source of the two vectors. If
-        they don't, the closest atoms will be used as the base.
-
-        :param Bond other: The other Bond.
-        :param bool degrees: If ``True``, the angle will be returned in degrees.
-        :raises TypeError: if a non-Bond is given.
-        :rtype: ``float``"""
-
-        if not isinstance(other, Bond):
-            raise TypeError("{} is not a Bond".format(other))
-        pairs = [
-         [set([a1, a2]), a1.distance_to(a2)]
-        for a1 in self._atoms for a2 in other._atoms]
-        pair = min(pairs, key=lambda k: k[1])[0]
-        v1 = self.vector([a for a in self._atoms if a not in pair][0])
-        v2 = other.vector([a for a in other._atoms if a not in pair][0])
-        return v1.angle_with(v2, degrees=degrees)
 
 
     def destroy(self):

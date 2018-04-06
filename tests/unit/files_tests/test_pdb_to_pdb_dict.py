@@ -66,11 +66,11 @@ class StructureToPdbDictTests(TestCase):
     def test_can_convert_model_to_pdb_dict(self, mock_con, mock_res, mock_chain, mock_atom):
         structure = Mock()
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
-        mock_atom.side_effect = lambda a: "a" + str(a.atom_id())
+        mock_atom.side_effect = lambda a: "a" + str(a.id)
         chains = [Mock(), Mock()]
         for index, atom in enumerate(atoms):
-            atom.atom_id.return_value = index + 1
-            atom.chain.return_value = chains[index // 2] if index < 4 else None
+            atom.id = index + 1
+            atom.chain = chains[index // 2] if index < 4 else None
         mock_chain.return_value = ["chain1", "chain2"]
         mock_res.return_value = ["mol1", "mol2"]
         structure.atoms.return_value = set(atoms)
@@ -99,47 +99,26 @@ class StructureToPdbDictTests(TestCase):
         })
 
 
-    @patch("atomium.files.pdb2pdbdict.atom_to_atom_dict")
-    @patch("atomium.files.pdb2pdbdict.atoms_to_chains")
-    @patch("atomium.files.pdb2pdbdict.atoms_to_residues")
-    @patch("atomium.files.pdb2pdbdict.structure_to_connections")
-    def test_can_convert_model_to_pdb_dict_no_atom_id(self, mcok_con,  mock_res, mock_chain, mock_atom):
-        structure = Mock()
-        atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
-        mock_atom.side_effect = lambda a: "a" + str(a.atom_id()) if a.atom_id() else "N"
-        chains = [Mock(), Mock()]
-        for index, atom in enumerate(atoms):
-            atom.atom_id.return_value = index + 1 if index else None
-            atom.chain.return_value = chains[index // 2] if index < 4 else None
-        mock_chain.return_value = ["chain1", "chain2"]
-        mock_res.return_value = ["mol1", "mol2"]
-        structure.atoms.return_value = set(atoms)
-        pdb_dict = structure_to_pdb_dict(structure)
-        for atom in atoms:
-            mock_atom.assert_any_call(atom)
-        mock_chain.assert_called_with(["a2", "a3", "a4", "N"])
-
-
 
 class AtomToAtomDictTests(TestCase):
 
     def setUp(self):
         self.atom = Mock()
-        self.atom.atom_id.return_value = 107
-        self.atom.name.return_value = "N1"
-        self.atom.x.return_value = 12.681
-        self.atom.y.return_value = 37.302
-        self.atom.z.return_value = -25.211
-        self.atom.element.return_value = "N"
-        self.atom.charge.return_value = -2
-        self.atom.bfactor.return_value = 12.5
+        self.atom.id = 107
+        self.atom.name = "N1"
+        self.atom.x = 12.681
+        self.atom.y = 37.302
+        self.atom.z = -25.211
+        self.atom.element = "N"
+        self.atom.charge = -2
+        self.atom.bfactor = 12.5
         self.residue = Mock()
-        self.residue.name.return_value = "GLY"
-        self.residue.residue_id.return_value = "A13B"
+        self.residue.name = "GLY"
+        self.residue.id = "A13B"
         self.chain = Mock()
-        self.chain.chain_id.return_value = "A"
-        self.atom.residue.return_value = self.residue
-        self.atom.chain.return_value = self.chain
+        self.chain.id = "A"
+        self.atom.residue = self.residue
+        self.atom.chain = self.chain
 
 
     def test_can_convert_full_atom_to_dict(self):
@@ -155,12 +134,12 @@ class AtomToAtomDictTests(TestCase):
 
 
     def test_can_convert_full_heteroatom_to_dict(self):
-        self.atom.residue.return_value = None
-        self.atom.chain.return_value = None
+        self.atom.residue = None
+        self.atom.chain = None
         mol = Mock()
-        mol.molecule_id.return_value = "A200"
-        mol.name.return_value = "SUC"
-        self.atom.molecule.return_value = mol
+        mol.id = "A200"
+        mol.name = "SUC"
+        self.atom.molecule = mol
         d = atom_to_atom_dict(self.atom)
         self.assertEqual(d, {
          "atom_id": 107, "atom_name": "N1", "alt_loc": None,
@@ -173,7 +152,7 @@ class AtomToAtomDictTests(TestCase):
 
 
     def test_can_convert_atom_with_no_insert_code(self):
-        self.residue.residue_id.return_value = "A13"
+        self.residue.id = "A13"
         d = atom_to_atom_dict(self.atom)
         self.assertEqual(d["residue_id"], 13)
         self.assertEqual(d["insert_code"], "")
@@ -181,7 +160,7 @@ class AtomToAtomDictTests(TestCase):
 
 
     def test_can_convert_atom_with_no_chain_in_residue_id(self):
-        self.residue.residue_id.return_value = "13"
+        self.residue.id = "13"
         d = atom_to_atom_dict(self.atom)
         self.assertEqual(d["residue_id"], 13)
         self.assertEqual(d["chain_id"], "A")
@@ -195,8 +174,8 @@ class StructureToConnectionsTests(TestCase):
     def test_can_convert_structure_to_connections(self):
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
         for i, atom in enumerate(atoms):
-            atom.residue.return_value = "residue" if i < 4 else None
-            atom.atom_id.return_value = i + 1
+            atom.residue = "residue" if i < 4 else None
+            atom.id = i + 1
         atoms[4].bonded_atoms.return_value = set(atoms[5:])
         atoms[5].bonded_atoms.return_value = set([atoms[4], atoms[6]])
         atoms[6].bonded_atoms.return_value = set(atoms[4:6])

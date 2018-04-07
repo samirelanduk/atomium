@@ -18,6 +18,5 @@ class Model(AtomicStructure):
 
     def __init__(self, *atoms):
         AtomicStructure.__init__(self, *atoms)
-        for cluster in self._atoms.values():
-            for atom in cluster:
-                atom._model = self
+        for atom in self._atoms:
+            atom._model = self

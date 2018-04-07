@@ -9,7 +9,7 @@ class MoleculeTest(TestCase):
         self.atom1, self.atom2, self.atom3 = Mock(Atom), Mock(Atom), Mock(Atom)
         self.atoms = [self.atom1, self.atom2, self.atom3]
         def mock_init(obj, *args, **kwargs):
-            obj._atoms = {i: {arg} for i, arg in enumerate(args)}
+            obj._atoms = set(args)
         self.patch1 = patch("atomium.structures.molecules.AtomicStructure.__init__")
         self.mock_init = self.patch1.start()
         self.mock_init.side_effect = mock_init

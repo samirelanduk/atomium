@@ -21,7 +21,8 @@ class AtomicStructureCreationTests(AtomicStructureTest):
 
     def test_can_create_atomic_structure_with_id_atoms(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(structure._atoms, {
+        self.assertEqual(structure._atoms, set(self.atoms))
+        self.assertEqual(structure._id_atoms, {
          500: {self.atom1, self.atom2}, 700: {self.atom3}
         })
 
@@ -33,19 +34,18 @@ class AtomicStructureCreationTests(AtomicStructureTest):
 
     def test_atomic_structure_will_accept_atomic_structures(self):
         structure = Mock(AtomicStructure)
-        structure.atoms.return_value = set(self.atoms[1:])
+        structure._atoms = set(self.atoms[1:])
         structure2 = AtomicStructure(self.atom1, structure)
-        self.assertEqual(structure2._atoms, {
+        self.assertEqual(structure2._id_atoms, {
          500: {self.atom1, self.atom2}, 700: {self.atom3}
         })
+        self.assertEqual(structure2._atoms, set(self.atoms))
 
 
 
 class AtomicStructureReprTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    def test_atomic_structure_repr(self, mock_atoms):
-        mock_atoms.return_value = set(self.atoms)
+    def test_atomic_structure_repr(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(str(structure), "<AtomicStructure (3 atoms)>")
 
@@ -53,9 +53,7 @@ class AtomicStructureReprTests(AtomicStructureTest):
 
 class AtomicStructureContainerTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    def test_atomic_structure_is_container_of_its_atoms(self, mock_atoms):
-        mock_atoms.return_value = set(self.atoms[:-1])
+    def test_atomic_structure_is_container_of_its_atoms(self):
         structure = AtomicStructure(self.atom1, self.atom2)
         self.assertIn(self.atom1, structure)
         self.assertIn(self.atom2, structure)
@@ -107,13 +105,16 @@ class AtomicStructureAtomAdditionTests(AtomicStructureTest):
 
     def test_can_add_atoms_to_structure(self):
         structure = AtomicStructure(self.atom1)
-        self.assertEqual(structure._atoms, {500: {self.atom1}})
+        self.assertEqual(structure._id_atoms, {500: {self.atom1}})
+        self.assertEqual(structure._atoms, {self.atom1})
         structure.add_atom(self.atom2)
-        self.assertEqual(structure._atoms, {500: {self.atom1, self.atom2}})
+        self.assertEqual(structure._id_atoms, {500: {self.atom1, self.atom2}})
+        self.assertEqual(structure._atoms, {self.atom1, self.atom2})
         structure.add_atom(self.atom3)
-        self.assertEqual(structure._atoms, {
+        self.assertEqual(structure._id_atoms, {
          500: {self.atom1, self.atom2}, 700: {self.atom3}
         })
+        self.assertEqual(structure._atoms, set(self.atoms))
 
 
     def test_can_only_add_atoms(self):
@@ -147,20 +148,24 @@ class AtomicStructureAtomRemovalTests(AtomicStructureTest):
 
     def test_can_remove_atoms_from_structure(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
-        self.assertEqual(structure._atoms, {
+        self.assertEqual(structure._id_atoms, {
          500: {self.atom1, self.atom2}, 700: {self.atom3}
         })
+        self.assertEqual(structure._atoms, set(self.atoms))
         structure.remove_atom(self.atom1)
-        self.assertEqual(structure._atoms, {
+        self.assertEqual(structure._id_atoms, {
          500: {self.atom2}, 700: {self.atom3}
         })
+        self.assertEqual(structure._atoms, set(self.atoms[1:]))
         mock_atom = Mock(Atom)
         mock_atom.id = 300
         structure.remove_atom(mock_atom)
         structure.remove_atom(self.atom2)
-        self.assertEqual(structure._atoms, {700: {self.atom3}})
+        self.assertEqual(structure._id_atoms, {700: {self.atom3}})
+        self.assertEqual(structure._atoms, {self.atom3})
         structure.remove_atom(self.atom3)
-        self.assertEqual(structure._atoms, {})
+        self.assertEqual(structure._id_atoms, {})
+        self.assertEqual(structure._atoms, set())
 
 
     def test_can_update_atom_awareness(self):
@@ -203,7 +208,7 @@ class StructureAdditionTests(AtomicStructureTest):
     def test_can_add_structure(self, mock_add):
         structure = AtomicStructure(self.atom1, self.atom2)
         other = Mock(AtomicStructure)
-        other.atoms.return_value = {self.atom3}
+        other._atoms = {self.atom3}
         structure.add(other)
         mock_add.assert_called_with(self.atom3)
 
@@ -221,7 +226,7 @@ class StructureRemovalTests(AtomicStructureTest):
     def test_can_remove_structure(self, mock_remove):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         other = Mock(AtomicStructure)
-        other.atoms.return_value = {self.atom3}
+        other._atoms = {self.atom3}
         structure.remove(other)
         mock_remove.assert_called_with(self.atom3)
 
@@ -239,18 +244,11 @@ class StructureResiduesTests(AtomicStructureTest):
         AtomicStructureTest.setUp(self)
         self.structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.res1, self.res2, self.res3 = Mock(), Mock(), Mock()
-        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
-        self.mock_atoms = self.patch1.start()
-        self.mock_atoms.return_value = set(self.atoms)
         self.atom1.residue, self.atom2.residue, self.atom3.residue = (
          self.res1, self.res2, self.res3
         )
         self.res1.id, self.res2.id, self.res3.id = "A1", "A2", "A3"
         self.res1.name, self.res2.name, self.res3.name = "VAL", "TYR", "TYR"
-
-
-    def tearDown(self):
-        self.patch1.stop()
 
 
     def test_can_get_residues(self):
@@ -317,18 +315,11 @@ class StructureMoleculesTests(AtomicStructureTest):
         AtomicStructureTest.setUp(self)
         self.structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.mol1, self.mol2, self.mol3 = Mock(), Mock(Residue), Mock(Chain)
-        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
-        self.mock_atoms = self.patch1.start()
-        self.mock_atoms.return_value = set(self.atoms)
         self.atom1.molecule, self.atom2.molecule, self.atom3.molecule = (
          self.mol1, self.mol2, self.mol3
         )
         self.mol1.id, self.mol2.id, self.mol3.id = "A1", "A2", "A3"
         self.mol1.name, self.mol2.name, self.mol3.name = "VAL", "TYR", "TYR"
-
-
-    def tearDown(self):
-        self.patch1.stop()
 
 
     def test_can_get_molecules(self):
@@ -412,18 +403,11 @@ class StructureChainsTests(AtomicStructureTest):
         AtomicStructureTest.setUp(self)
         self.structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.chain1, self.chain2, self.chain3 = Mock(), Mock(), Mock()
-        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
-        self.mock_atoms = self.patch1.start()
-        self.mock_atoms.return_value = set(self.atoms)
         self.atom1.chain, self.atom2.chain, self.atom3.chain = (
          self.chain1, self.chain2, self.chain3
         )
         self.chain1.id, self.chain2.id, self.chain3.id = "A1", "A2", "A3"
         self.chain1.name, self.chain2.name, self.chain3.name = "VAL", "TYR", "TYR"
-
-
-    def tearDown(self):
-        self.patch1.stop()
 
 
     def test_can_get_chains(self):
@@ -500,9 +484,7 @@ class AtomicStructureTrimmingTests(AtomicStructureTest):
 
 class AtomicStructureTranslationTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    def test_structure_translation(self, mock_atoms):
-        mock_atoms.return_value = set(self.atoms)
+    def test_structure_translation(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         structure.translate(5, 4, -2, a=1, b=2)
         for atom in self.atoms:
@@ -512,15 +494,14 @@ class AtomicStructureTranslationTests(AtomicStructureTest):
 
 class AtomicStructureRotationTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
     @patch("atomium.structures.molecules.Atom.generate_rotation_matrix")
     @patch("atomium.structures.molecules.AtomicStructure.trim")
-    def test_structure_rotation(self, mock_trim, mock_matrix, mock_atoms):
+    def test_structure_rotation(self, mock_trim, mock_matrix):
         matrix = Mock()
         mock_matrix.return_value = matrix
         matrix.dot.side_effect = ([10, 20, 30], [40, 50, 60], [70, 80, 90])
-        mock_atoms.return_value = self.atoms
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure._atoms = self.atoms
         structure.rotate(0.1, "z")
         mock_matrix.assert_called_with(None, 0.1, "z")
         for i, atom in enumerate(self.atoms):
@@ -529,28 +510,26 @@ class AtomicStructureRotationTests(AtomicStructureTest):
         mock_trim.assert_called_with(12)
 
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
     @patch("atomium.structures.molecules.Atom.generate_rotation_matrix")
     @patch("atomium.structures.molecules.AtomicStructure.trim")
-    def test_structure_rotation_varied_trim(self, mock_trim, mock_matrix, mock_atoms):
+    def test_structure_rotation_varied_trim(self, mock_trim, mock_matrix):
         matrix = Mock()
         mock_matrix.return_value = matrix
         matrix.dot.side_effect = ([10, 20, 30], [40, 50, 60], [70, 80, 90])
-        mock_atoms.return_value = self.atoms
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure._atoms = self.atoms
         structure.rotate(0.1, "z", trim=9)
         mock_trim.assert_called_with(9)
 
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
     @patch("atomium.structures.molecules.Atom.generate_rotation_matrix")
     @patch("atomium.structures.molecules.AtomicStructure.trim")
-    def test_structure_rotation_in_degrees(self, mock_trim, mock_matrix, mock_atoms):
+    def test_structure_rotation_in_degrees(self, mock_trim, mock_matrix):
         matrix = Mock()
         mock_matrix.return_value = matrix
         matrix.dot.side_effect = ([10, 20, 30], [40, 50, 60], [70, 80, 90])
-        mock_atoms.return_value = self.atoms
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        structure._atoms = self.atoms
         structure.rotate(0.1, "z", degrees=True)
         mock_matrix.assert_called_with(None, math.radians(0.1), "z")
 
@@ -564,9 +543,7 @@ class AtomicStructureRotationTests(AtomicStructureTest):
 
 class AtomicStructureMassTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    def test_structure_mass_is_sum_of_atom_masses(self, mock_atoms):
-        mock_atoms.return_value = set(self.atoms)
+    def test_structure_mass_is_sum_of_atom_masses(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure.mass, 17.1)
 
@@ -574,9 +551,7 @@ class AtomicStructureMassTests(AtomicStructureTest):
 
 class AtomicStructureChargeTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    def test_structure_charge_is_sum_of_atom_charges(self, mock_atoms):
-        mock_atoms.return_value = set(self.atoms)
+    def test_structure_charge_is_sum_of_atom_charges(self):
         self.atom1.charge = 0.2
         self.atom2.charge = -1.4
         self.atom3.charge = 0.6
@@ -587,9 +562,7 @@ class AtomicStructureChargeTests(AtomicStructureTest):
 
 class AtomicStructureFormulaTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
-    def test_can_get_formula(self, mock_atoms):
-        mock_atoms.return_value = set(self.atoms)
+    def test_can_get_formula(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         self.assertEqual(structure.formula, {"A":1, "B":2})
 
@@ -597,10 +570,8 @@ class AtomicStructureFormulaTests(AtomicStructureTest):
 
 class AtomicStructureCenterOfMassTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
     @patch("atomium.structures.molecules.AtomicStructure.mass", new_callable=PropertyMock)
-    def test_can_get_center_of_mass_when_equal_mass(self, mock_mass, mock_atoms):
-        mock_atoms.return_value = set(self.atoms[:2])
+    def test_can_get_center_of_mass_when_equal_mass(self, mock_mass):
         mock_mass.return_value = 20
         self.atom1.x, self.atom1.y, self.atom1.z = 0, 0, 0
         self.atom2.x, self.atom2.y, self.atom2.z = 1, 1, 1
@@ -610,10 +581,8 @@ class AtomicStructureCenterOfMassTests(AtomicStructureTest):
         self.assertEqual(structure.center_of_mass, (0.5, 0.5, 0.5))
 
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
     @patch("atomium.structures.molecules.AtomicStructure.mass", new_callable=PropertyMock)
-    def test_can_get_center_of_mass_when_unequal_mass(self, mock_mass, mock_atoms):
-        mock_atoms.return_value = set(self.atoms[:2])
+    def test_can_get_center_of_mass_when_unequal_mass(self, mock_mass):
         mock_mass.return_value = 40
         self.atom1.x, self.atom1.y, self.atom1.z = 0, 0, 0
         self.atom2.x, self.atom2.y, self.atom2.z = 1, 1, 1
@@ -626,10 +595,8 @@ class AtomicStructureCenterOfMassTests(AtomicStructureTest):
 
 class AtomicStructureRadiusOfGyrationTests(AtomicStructureTest):
 
-    @patch("atomium.structures.molecules.AtomicStructure.atoms")
     @patch("atomium.structures.molecules.AtomicStructure.center_of_mass", new_callable=PropertyMock)
-    def test_can_get_radius_of_gyration(self, mock_center, mock_atoms):
-        mock_atoms.return_value = set(self.atoms[:2])
+    def test_can_get_radius_of_gyration(self, mock_center):
         mock_center.return_value = (5, 0, 0)
         self.atom1.distance_to.return_value = 5
         self.atom2.distance_to.return_value = 5
@@ -649,18 +616,11 @@ class AtomicStructurePairingTests(AtomicStructureTest):
         self.atoms = [Mock(Atom) for _ in range(10)]
         self.other_atoms = [Mock(Atom) for _ in range(10)]
         self.structure1 = AtomicStructure(*self.atoms)
-        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
-        self.mock_atoms = self.patch1.start()
-        self.mock_atoms.return_value = set(self.atoms)
         self.structure2 = Mock(AtomicStructure)
-        self.structure2.atoms.return_value = set(self.other_atoms)
+        self.structure2._atoms = set(self.other_atoms)
         for i, atom1, atom2 in zip(range(10), self.atoms, self.other_atoms):
             atom1.element = atom2.element = chr(i + 65)
             atom1.bonds = atom2.bonds = []
-
-
-    def tearDown(self):
-        self.patch1.stop()
 
 
     def test_pairing_needs_structure(self):
@@ -669,7 +629,7 @@ class AtomicStructurePairingTests(AtomicStructureTest):
 
 
     def test_paired_structure_must_be_equal_length(self):
-        self.structure2.atoms.return_value = set(self.other_atoms[:-1])
+        self.structure2._atoms = set(self.other_atoms[:-1])
         with self.assertRaises(ValueError):
             self.structure1.pairing_with(self.structure2)
 
@@ -848,7 +808,8 @@ class AtomicStructureCopyTests(AtomicStructureTest):
         structure = AtomicStructure(self.atom1, self.atom2)
         structure._id, structure._name = 10, 20
         copy = structure.copy()
-        self.assertEqual(copy._atoms, {0: set(new_atoms)})
+        self.assertEqual(copy._id_atoms, {0: set(new_atoms)})
+        self.assertEqual(copy._atoms, set(new_atoms))
         self.assertEqual(copy._id, 10)
         self.assertEqual(copy._name, 20)
 
@@ -858,22 +819,14 @@ class AtomicStructureGridTests(AtomicStructureTest):
 
     def setUp(self):
         AtomicStructureTest.setUp(self)
-        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
-        self.mock_atoms = self.patch1.start()
-        self.mock_atoms.return_value = set([self.atom1, self.atom2, self.atom3])
         self.atom1.location = (1, 1.1, 3)
         self.atom2.location = (-1, -2, -3)
         self.atom3.location = (1.5, -2.4, 1)
 
 
-    def tearDown(self):
-        self.patch1.stop()
-
-
     def test_can_get_grid(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         grid = list(structure.grid())
-        self.mock_atoms.assert_called_with()
         self.assertEqual(grid, [(x, y, z) for x in range(-1, 3)
          for y in range(-3, 3) for z in range(-3, 4)])
 
@@ -881,7 +834,6 @@ class AtomicStructureGridTests(AtomicStructureTest):
     def test_can_vary_grid_size(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         grid = list(structure.grid(size=0.5))
-        self.mock_atoms.assert_called_with()
         self.assertEqual(grid, [(x, y, z)
          for x in [-1, -0.5, 0, 0.5, 1, 1.5]
          for y in [-2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5]
@@ -891,7 +843,6 @@ class AtomicStructureGridTests(AtomicStructureTest):
     def test_can_get_grid_with_margin(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         grid = list(structure.grid(margin=5))
-        self.mock_atoms.assert_called_with()
         self.assertEqual(grid, [(x, y, z) for x in range(-6, 8)
          for y in range(-8, 8) for z in range(-8, 9)])
 
@@ -904,13 +855,6 @@ class AtomSphereTests(AtomicStructureTest):
         self.atom1.distance_to.return_value = 5
         self.atom2.distance_to.return_value = 10
         self.atom3.distance_to.return_value = 15
-        self.patch1 = patch("atomium.structures.molecules.AtomicStructure.atoms")
-        self.mock_atoms = self.patch1.start()
-        self.mock_atoms.return_value = set([self.atom1, self.atom2, self.atom3])
-
-
-    def tearDown(self):
-        self.patch1.stop()
 
 
     def test_coordinates_must_be_numbers(self):
@@ -934,8 +878,7 @@ class AtomSphereTests(AtomicStructureTest):
     def test_can_get_atoms_in_sphere(self):
         structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
         atoms = structure.atoms_in_sphere(1, 2, 3, 10)
-        self.assertEqual(atoms, set([self.atom1, self.atom2]))
-        self.mock_atoms.assert_called_with()
+        self.assertEqual(atoms, {self.atom1, self.atom2})
         self.atom1.distance_to.assert_called_with((1, 2, 3))
         self.atom2.distance_to.assert_called_with((1, 2, 3))
         self.atom3.distance_to.assert_called_with((1, 2, 3))

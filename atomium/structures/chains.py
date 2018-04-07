@@ -26,7 +26,7 @@ class ResidueSequence:
         :returns: ``True`` if the test passes."""
 
         residues = set()
-        for atom in sequence.atoms():
+        for atom in sequence._atoms:
             residues.add(atom.residue)
         if residues:
             seq = [list(residues)[0]]
@@ -102,9 +102,8 @@ class Chain(ResidueSequence, Molecule):
     def __init__(self, *atoms, **kwargs):
         Molecule.__init__(self, *atoms, **kwargs)
         ResidueSequence.verify(self)
-        for cluster in self._atoms.values():
-            for atom in cluster:
-                atom._chain = self
+        for atom in self._atoms:
+            atom._chain = self
 
 
     def __repr__(self):

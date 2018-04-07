@@ -17,8 +17,7 @@ class ChainTest(TestCase):
         self.mock_residues = self.patch2.start()
         self.mock_residues.return_value = (self.residue1, self.residue2)
         def mock_init(obj, *args, **kwargs):
-            obj._atoms = {i: {arg} for i, arg in enumerate(args)}
-            obj._id, obj._name = None, None
+            obj._atoms = set(args)
         self.patch3 = patch("atomium.structures.molecules.Molecule.__init__")
         self.mock_init = self.patch3.start()
         self.mock_init.side_effect = mock_init

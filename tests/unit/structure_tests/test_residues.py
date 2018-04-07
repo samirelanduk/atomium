@@ -9,7 +9,7 @@ class ResidueTest(TestCase):
         self.atom1, self.atom2, self.atom3 = Mock(Atom), Mock(Atom), Mock(Atom)
         self.atoms = [self.atom1, self.atom2, self.atom3]
         def mock_init(obj, *args, **kwargs):
-            obj._atoms = {i: {arg} for i, arg in enumerate(args)}
+            obj._atoms = set(args)
             obj._id, obj._name = None, None
         self.patch1 = patch("atomium.structures.molecules.Molecule.__init__")
         self.mock_init = self.patch1.start()

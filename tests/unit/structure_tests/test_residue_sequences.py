@@ -39,7 +39,7 @@ class ResidueSequenceTest(TestCase):
         self.atom6.residue = self.residue3
         self.atom7.residue = self.residue4
         self.atom8.residue = self.residue4
-        self.sequence.atoms = lambda: set([
+        self.sequence._atoms = set([
          self.atom1, self.atom2, self.atom3, self.atom4,
          self.atom5, self.atom6, self.atom7, self.atom8
         ])
@@ -113,30 +113,30 @@ class ResidueSequenceResiduesTests(ResidueSequenceTest):
 class ResidueSequenceCorrectCheckingTests(ResidueSequenceTest):
 
     def test_can_verify_conected_residues(self):
-        self.sequence.atoms = lambda: set([self.atom1, self.atom2])
+        self.sequence._atoms = set([self.atom1, self.atom2])
         self.assertTrue(ResidueSequence.verify(self.sequence))
-        self.sequence.atoms = lambda: set([self.atom3, self.atom4])
+        self.sequence._atoms = set([self.atom3, self.atom4])
         self.assertTrue(ResidueSequence.verify(self.sequence))
-        self.sequence.atoms = lambda: set([self.atom5, self.atom6])
+        self.sequence._atoms = set([self.atom5, self.atom6])
         self.assertTrue(ResidueSequence.verify(self.sequence))
-        self.sequence.atoms = lambda: set([self.atom7, self.atom8])
+        self.sequence._atoms = set([self.atom7, self.atom8])
         self.assertTrue(ResidueSequence.verify(self.sequence))
-        self.sequence.atoms = lambda: set([
+        self.sequence._atoms = set([
          self.atom1, self.atom2, self.atom3, self.atom4
         ])
         self.assertTrue(ResidueSequence.verify(self.sequence))
-        self.sequence.atoms = lambda: set([
+        self.sequence._atoms = set([
          self.atom3, self.atom4, self.atom5, self.atom6
         ])
         self.assertTrue(ResidueSequence.verify(self.sequence))
-        self.sequence.atoms = lambda: set([
+        self.sequence._atoms = set([
          self.atom5, self.atom6, self.atom7, self.atom8
         ])
         self.assertTrue(ResidueSequence.verify(self.sequence))
 
 
     def test_can_reject_unconnected_residues(self):
-        self.sequence.atoms = lambda: set([
+        self.sequence._atoms = set([
          self.atom3, self.atom4, self.atom7, self.atom8
         ])
         with self.assertRaises(SequenceConnectivityError):
@@ -144,7 +144,7 @@ class ResidueSequenceCorrectCheckingTests(ResidueSequenceTest):
 
 
     def test_empty_sequences_pass(self):
-        self.sequence.atoms = lambda: set()
+        self.sequence._atoms = set()
         self.assertTrue(ResidueSequence.verify(self.sequence))
 
 

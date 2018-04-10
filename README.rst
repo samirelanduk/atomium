@@ -19,9 +19,9 @@ Example
 
   >>> import atomium
   >>> pdb = atomium.fetch("5HVD")
-  >>> pdb.model()
+  >>> pdb.model
   <Model (2156 atoms)>
-  >>> pdb.model().chain("A")
+  >>> pdb.model.chain("A")
   <Chain (204 residues)>
 
 
@@ -322,6 +322,23 @@ The ``Xyz`` or ``Pdb`` object itself can also be saved:
 
 Changelog
 ---------
+
+Release 0.9.0
+~~~~~~~~~~~~~
+
+`10 April 2018`
+
+* Turned many methods into properties.
+* Added full residue name generation.
+* Made bind site detection more picky.
+* Added coordinate rounding to deal with floating point rounding errors.
+* Atomic structures now 'copy'able.
+* Refactored atom querying.
+* Added grid generation.
+* Implemented Kabsch superposition/rotation.
+* Implemented RMSD comparison.
+* Created Complex class (for later).
+
 
 Release 0.8.0
 ~~~~~~~~~~~~~

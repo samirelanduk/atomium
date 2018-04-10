@@ -8,9 +8,9 @@ Example
 
   >>> import atomium
   >>> pdb = atomium.fetch("5HVD")
-  >>> pdb.model()
+  >>> pdb.model
   <Model (2156 atoms)>
-  >>> pdb.model().chain("A")
+  >>> pdb.model.chain("A")
   <Chain (204 residues)>
 
 

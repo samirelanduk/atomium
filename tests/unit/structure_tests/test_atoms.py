@@ -20,6 +20,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._chain, None)
         self.assertEqual(atom._molecule, None)
         self.assertEqual(atom._model, None)
+        self.assertEqual(atom._complex, None)
 
 
     def test_atom_element_must_be_str(self):
@@ -538,6 +539,16 @@ class AtomModelTests(TestCase):
         atom = Atom("C", 2, 3, 5)
         atom._model = model
         self.assertIs(atom.model, model)
+
+
+
+class AtomComplexTests(TestCase):
+
+    def test_complex_property(self):
+        complex = Mock()
+        atom = Atom("C", 2, 3, 5)
+        atom._complex = complex
+        self.assertIs(atom.complex, complex)
 
 
 class AtomBondsTests(TestCase):

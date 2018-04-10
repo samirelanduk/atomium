@@ -266,6 +266,39 @@ class AtomicStructure:
         for chain in chains: return chain
 
 
+    def complexes(self, id=None, name=None):
+        """Returns all the :py:class:`.Complex` objects in the structure which
+        match the given criteria.
+
+        :param str id: Filter by complex ID.
+        :param str name: Filter by name.
+        :rtype: ``Complex``"""
+
+        complexes = set()
+        for atom in self._atoms:
+            complexes.add(atom.complex)
+        try:
+            complexes.remove(None)
+        except KeyError: pass
+        if id:
+            complexes = set(filter(lambda r: r.id == id, complexes))
+        if name:
+            complexes = set(filter(lambda r: r.name == name, complexes))
+        return complexes
+
+
+    def complex(self, *args, **kwargs):
+        """Returns the first :py:class:`.Complex` object in the structure which
+        matches the given criteria.
+
+        :param str id: Filter by complex ID.
+        :param str name: Filter by name.
+        :rtype: ``Complex``"""
+
+        complexes = self.complexes(*args, **kwargs)
+        for complex in complexes: return complex
+
+
     def trim(self, places):
         """Rounds the coordinate values to a given number of decimal places.
         Useful for removing floating point rounding errors after transformation.

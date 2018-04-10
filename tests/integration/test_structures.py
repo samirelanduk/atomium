@@ -1,6 +1,6 @@
 import math
 from tests.integration.base import IntegratedTest
-from atomium.structures import Model, Atom, Residue, Chain, Molecule
+from atomium.structures import Model, Atom, Residue, Chain, Molecule, Complex
 import atomium
 
 class CreationTests(IntegratedTest):
@@ -322,6 +322,12 @@ class CreationTests(IntegratedTest):
         self.assertIs(self.atoms[-1].chain, chainb)
         self.assertIs(res6.chain, chainb)
 
+        # Complexes
+        complex = Complex(chaina, chainb, id="1", name="HEAVY")
+        self.assertEqual(complex.chains(), {chaina, chainb})
+        for atom in self.atoms[:9] + self.atoms[18:]:
+            self.assertIs(atom.complex, complex)
+
 
     def test_atoms_in_models(self):
         """Full model processing"""
@@ -339,7 +345,8 @@ class CreationTests(IntegratedTest):
         mol1 = Molecule(*self.atoms[18:21], id="A1000", name="XMP")
         mol2 = Molecule(*self.atoms[21:24], id="A1001", name="BIS")
         mol3 = Molecule(*self.atoms[24:27], id="A1002", name="BIS")
-        model = Model(chaina, chainb, mol1, mol2, mol3)
+        complex = Complex(chaina, chainb, id="1", name="HEAVY")
+        model = Model(complex, mol1, mol2, mol3)
 
         # Atoms in model
         for atom in self.atoms:
@@ -382,6 +389,10 @@ class CreationTests(IntegratedTest):
         # Chains in model
         self.assertEqual(model.chains(), {chaina, chainb})
         self.assertIs(model.chain("B"), chainb)
+
+        # Complexes in model
+        self.assertEqual(model.complexes(name="HEAVY"), {complex})
+        self.assertEqual(model.complex("1"), complex)
 
         # Model grid
         self.assertEqual(list(model.grid()), [(x, y, z)

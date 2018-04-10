@@ -79,7 +79,7 @@ class Atom:
         self._bfactor = bfactor
         self._bonds = set()
         self._residue, self._chain, self._molecule = None, None, None
-        self._model = None
+        self._model, self._complex = None, None
 
 
     def __repr__(self):
@@ -388,6 +388,16 @@ class Atom:
         :rtype: ``Model``"""
 
         return self._model
+
+
+    @property
+    def complex(self):
+        """Returns the :py:class:`.Complex` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Complex``"""
+
+        return self._complex
 
 
     @property

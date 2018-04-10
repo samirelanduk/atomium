@@ -468,6 +468,77 @@ class StructureChainTest(AtomicStructureTest):
 
 
 
+class StructureComplexesTests(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        self.structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.complex1, self.complex2, self.complex3 = Mock(), Mock(), Mock()
+        self.atom1.complex, self.atom2.complex, self.atom3.complex = (
+         self.complex1, self.complex2, self.complex3
+        )
+        self.complex1.id, self.complex2.id, self.complex3.id = "1", "2", "3"
+        self.complex1.name, self.complex2.name, self.complex3.name = "AA", "CC", "CC"
+
+
+    def test_can_get_complexes(self):
+        self.assertEqual(
+         self.structure.complexes(),
+         set([self.complex1, self.complex2, self.complex3])
+        )
+
+
+    def test_can_filter_none_from_complexes(self):
+        self.atom3.complex = None
+        self.assertEqual(self.structure.complexes(), {self.complex1, self.complex2})
+
+
+    def test_can_get_complexes_by_id(self):
+        self.assertEqual(
+         self.structure.complexes(id="1"), {self.complex1}
+        )
+        self.assertEqual(
+         self.structure.complexes(id="2"), {self.complex2}
+        )
+        self.assertEqual(self.structure.complexes(id="4"), set())
+
+
+    def test_can_get_complexes_by_name(self):
+        self.assertEqual(
+         self.structure.complexes(name="AA"), set([self.complex1])
+        )
+        self.assertEqual(
+         self.structure.complexes(name="CC"), set([self.complex2, self.complex3])
+        )
+        self.assertEqual(self.structure.complexes(name="DD"), set())
+
+
+
+class StructureComplexTest(AtomicStructureTest):
+
+    def setUp(self):
+        AtomicStructureTest.setUp(self)
+        self.structure = AtomicStructure(self.atom1, self.atom2, self.atom3)
+        self.complex1, self.complex2, self.complex3 = Mock(), Mock(), Mock()
+        self.complex1.id, self.complex2.id, self.complex3.id = "1", "2", "3"
+        self.complex1.name, self.complex2.name, self.complex3.name = "AA", "BB", "CC"
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.complexes")
+    def test_complex_calls_complexes(self, mock_complexes):
+        mock_complexes.return_value = set([self.complex3])
+        complex = self.structure.complex(name="1")
+        mock_complexes.assert_called_with(name="1")
+        self.assertIs(complex, self.complex3)
+
+
+    @patch("atomium.structures.molecules.AtomicStructure.complexes")
+    def test_complex_can_return_none(self, mock_complexes):
+        mock_complexes.return_value = set()
+        self.assertIs(self.structure.complex(name="AA"), None)
+
+
+
 class AtomicStructureTrimmingTests(AtomicStructureTest):
 
     @patch("atomium.structures.molecules.AtomicStructure.atoms")

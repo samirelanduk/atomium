@@ -6,25 +6,25 @@ Structures
 
 .. toctree ::
 	api/atoms
-	api/chains
-	api/exceptions
-	api/molecules
 	api/models
+	api/exceptions
+	api/chains
+	api/molecules
 
 
 Files
 ~~~~~
 
 .. toctree ::
-	api/xyzdict2xyz
-	api/pdbdict2pdbstring
-	api/pdbstring2pdbdict
-	api/xyzstring2xyzdict
 	api/xyzdict2xyzstring
-	api/pdb2pdbdict
 	api/xyz2xyzdict
-	api/utilities
-	api/pdbdict2pdb
+	api/pdbstring2pdbdict
 	api/pdb
+	api/xyzdict2xyz
+	api/utilities
 	api/xyz
+	api/pdb2pdbdict
+	api/pdbdict2pdb
+	api/xyzstring2xyzdict
+	api/pdbdict2pdbstring
 

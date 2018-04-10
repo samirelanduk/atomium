@@ -444,7 +444,7 @@ class AtomicStructure:
 
         The other structure must have the same number of atoms.
 
-        :param AtomicStructure other: The structure to superimpose onto.\ This
+        :param AtomicStructure other: The structure to superimpose onto. This\
         structure does not move."""
 
         center, other_center = self.center_of_mass, other.center_of_mass

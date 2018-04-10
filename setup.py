@@ -19,5 +19,5 @@ setup(
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules PDB XYZ",
  packages=["atomium", "atomium.files", "atomium.structures"],
- install_requires=["points", "requests", "rmsd"]
+ install_requires=["numpy", "requests", "rmsd"]
 )

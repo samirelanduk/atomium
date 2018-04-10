@@ -100,7 +100,7 @@ class PdbReadingTests(IntegratedTest):
          model.residue("A42"), model.residue("A70"), model.residue("A72"),
          model.residue("A96"), model.residue("A123"), model.residue("A155")
         ]))
-        full_site = model.molecule("A5001").site(include_water=True)
+        full_site = model.molecule("A5001").site(water=True)
         self.assertEqual(full_site.residues(), set([
          model.residue("A42"), model.residue("A70"), model.residue("A72"),
          model.residue("A96"), model.residue("A123"), model.residue("A155"),

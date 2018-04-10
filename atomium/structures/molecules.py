@@ -643,27 +643,32 @@ class Molecule(AtomicStructure):
             return atom.model
 
 
-    def site(self, include_water=False, main_chain=False):
+    def site(self, cutoff=4, water=False, main_chain=False, carbon=True):
         """Returns the :py:class:`.Site` that encompasses this molecule. This is
         all the residues with a non-hydrogen atom within 4 Angstroms of a
         non-hydrogen atom in the molecule.
 
-        :param bool include_water: If ``True``, water molecules will be\
+        :param float cutoff: determines the distance cutoff to use. The efault\
+        is 4.
+        :param bool water: If ``True``, water molecules will be\
         obtained as well as residues.
         :param bool main_chain: If ``True`` main chain atoms will be considered\
         when determining binding residues.
+        :param bool carbon: If ``False`` carbon atoms will not be considered.
 
         :rtype: :py:class:`.Site`"""
 
         from .chains import Site
         atoms, nearby = self.atoms(hydrogen=False), set()
         for atom in atoms:
-            nearby.update(atom.nearby_atoms(4, hydrogen=False))
+            nearby.update(atom.nearby_atoms(cutoff, hydrogen=False))
         if not main_chain:
             nearby = [a for a in nearby if
              a.name not in ["C", "CA", "O", "N"] or not a.residue]
+        if not carbon:
+            nearby = [a for a in nearby if a.element != "C"]
         residues = [atom.residue for atom in nearby if atom not in atoms]
-        if include_water:
+        if water:
             residues += [
              atom.molecule for atom in nearby if atom not in atoms
               and atom.molecule != None and atom.molecule.name == "HOH"

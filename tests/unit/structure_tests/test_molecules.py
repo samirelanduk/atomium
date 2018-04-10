@@ -153,6 +153,10 @@ class MoleculeSiteTests(MoleculeTest):
         other_atoms[5].residue = self.residues[2]
         other_atoms[4].name = "C"
         other_atoms[5].name = "N"
+        other_atoms[3].element = "C"
+        other_atoms[4].element = "C"
+        other_atoms[5].element = "C"
+        other_atoms[2].element = "C"
         other_atoms[6].residue = None
         other_atoms[6].molecule = self.waters[0]
 
@@ -176,7 +180,7 @@ class MoleculeSiteTests(MoleculeTest):
     @patch("atomium.structures.chains.Site")
     def test_can_get_site_with_water(self, mock_site, mock_atoms):
         mock_atoms.return_value = set(self.atoms)
-        returned_site = self.molecule.site(include_water=True)
+        returned_site = self.molecule.site(water=True)
         mock_atoms.assert_called_with(hydrogen=False)
         self.atom1.nearby_atoms.assert_called_with(4, hydrogen=False)
         self.atom2.nearby_atoms.assert_called_with(4, hydrogen=False)
@@ -198,5 +202,35 @@ class MoleculeSiteTests(MoleculeTest):
         self.atom3.nearby_atoms.assert_called_with(4, hydrogen=False)
         residues_passed = mock_site.call_args_list[0][0]
         self.assertEqual(set(residues_passed), set(self.residues[:3]))
+        kwargs = mock_site.call_args_list[0][1]
+        self.assertEqual(kwargs, {"ligand": self.molecule})
+
+
+    @patch("atomium.structures.Molecule.atoms")
+    @patch("atomium.structures.chains.Site")
+    def test_can_get_site_with_cutoff(self, mock_site, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
+        returned_site = self.molecule.site(cutoff=1)
+        mock_atoms.assert_called_with(hydrogen=False)
+        self.atom1.nearby_atoms.assert_called_with(1, hydrogen=False)
+        self.atom2.nearby_atoms.assert_called_with(1, hydrogen=False)
+        self.atom3.nearby_atoms.assert_called_with(1, hydrogen=False)
+        residues_passed = mock_site.call_args_list[0][0]
+        self.assertEqual(set(residues_passed), set(self.residues[:2]))
+        kwargs = mock_site.call_args_list[0][1]
+        self.assertEqual(kwargs, {"ligand": self.molecule})
+
+
+    @patch("atomium.structures.Molecule.atoms")
+    @patch("atomium.structures.chains.Site")
+    def test_can_get_site_without_carbon(self, mock_site, mock_atoms):
+        mock_atoms.return_value = set(self.atoms)
+        returned_site = self.molecule.site(carbon=False)
+        mock_atoms.assert_called_with(hydrogen=False)
+        self.atom1.nearby_atoms.assert_called_with(4, hydrogen=False)
+        self.atom2.nearby_atoms.assert_called_with(4, hydrogen=False)
+        self.atom3.nearby_atoms.assert_called_with(4, hydrogen=False)
+        residues_passed = mock_site.call_args_list[0][0]
+        self.assertEqual(set(residues_passed), set(self.residues[:1]))
         kwargs = mock_site.call_args_list[0][1]
         self.assertEqual(kwargs, {"ligand": self.molecule})

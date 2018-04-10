@@ -417,6 +417,20 @@ class CreationTests(IntegratedTest):
          for y in [0, 5]
          for z in [0, 5]])
 
+        # Molecule sites
+        site = mol2.site()
+        self.assertEqual(site.residues(), {res3, res6, res5, res2})
+        site = mol2.site(water=True)
+        self.assertEqual(site.residues(), {res3, res6, res5, res2, mol1})
+        site = mol2.site(cutoff=1)
+        self.assertEqual(site.residues(), {res5})
+        site = mol2.site(cutoff=1, water=True)
+        self.assertEqual(site.residues(), {res5, mol1})
+        for atom in mol1.atoms():
+            atom.element = "C"
+        site = mol2.site(cutoff=1, water=True, carbon=False)
+        self.assertEqual(site.residues(), {res5})
+
 
 
 class SavingTests(IntegratedTest):

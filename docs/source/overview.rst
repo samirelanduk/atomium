@@ -11,13 +11,13 @@ You can load a .xyz file as follows:
 
   >>> import atomium
   >>> glucose = atomium.xyz_from_file("glucose.xyz")
-  >>> glucose.title()
+  >>> glucose.title
   'glucose from 2gbp'
-  >>> glucose.model()
+  >>> glucose.model
   <Model (12 atoms)>
 
-The :py:class:`.Xyz` object you get has a :py:meth:`~.Xyz.title` property,
-which describes the file, and a :py:meth:`~.Xyz.model` property, which returns
+The :py:class:`.Xyz` object you get has a :py:attr:`~.Xyz.title` property,
+which describes the file, and a :py:attr:`~.Xyz.model` property, which returns
 the :py:class:`.Model` the file describes.
 
 
@@ -29,22 +29,23 @@ from the RCSB over the internet using the PDB code:
 
   >>> pdb = atomium.pdb_from_file("1LOL.pdb")
   >>> pdb2 = atomium.fetch("5HVD")
-  >>> pdb.deposition_date()
+  >>> pdb.deposition_date
   datetime.date(2002, 5, 6)
-  >>> pdb.resolution()
+  >>> pdb.resolution
   1.9
-  >>> pdb.rfactor()
+  >>> pdb.rfactor
   0.193
-  >>> pdb.classification()
+  >>> pdb.classification
   'LYASE'
-  >>> pdb.technique()
+  >>> pdb.technique
   'X-RAY DIFFRACTION'
-  >>> pdb2.model()
+  >>> pdb2.model
   <Model (2156 atoms)>
 
 If the PDB has multiple models, these can be accessed using the
-:py:meth:`~.Pdb.models` method. They also have :py:meth:`~.Pdb.title`,
-:py:meth:`~.Pdb.code` and :py:meth:`~.Pdb.deposition_date` properties.
+:py:attr:`~.Pdb.models` property. They also have :py:attr:`~.Pdb.title`,
+:py:attr:`~.Pdb.code` and :py:attr:`~.Pdb.deposition_date` properties, as well
+as other parsed properties - see the full documentation for details.
 
 
 The Model
@@ -57,7 +58,7 @@ As an :py:class:`.AtomicStructure` you can query its atoms, transform it in
 space, get its mass or formula, and get its centre of mass and radius of
 gyration:
 
-  >>> model = glucose.model()
+  >>> model = glucose.model
   >>> model.atoms()
   {<C Atom at (38.553, 30.4, 50.259)>, <C Atom at (35.884, 30.895, 49.12)>, <C A
   tom at (36.177, 29.853, 50.124)>, <C Atom at (37.296, 30.296, 51.074)>, <O Ato
@@ -71,17 +72,17 @@ gyration:
   om at (34.923, 29.775, 50.91)>, <O Atom at (39.572, 30.954, 51.086)>}
   >>> model.atom(element="O")
   <O Atom at (37.441, 29.265, 52.113)>
-  >>> model.mass()
+  >>> model.mass
   168.0606
-  >>> model.formula()
+  >>> model.formula
   Counter({'C': 6, 'O': 6})
   >>> model.translate(34, -12, 3.5)
   >>> model.rotate("x", 45)
   >>> model.atom(element="O")
   <O Atom at (71.441, -27.11613084494172, 51.53252799931321)>
-  >>> model.center_of_mass()
+  >>> model.center_of_mass
   (71.39909500620611, -24.411126748628675, 50.69765860848817)
-  >>> model.radius_of_gyration()
+  >>> model.radius_of_gyration
   2.3076405766875925
 
 :py:meth:`~.AtomicStructure.atoms` returns all matching elements as a ``set``
@@ -96,7 +97,9 @@ The atoms themselves have properties for their coordinates and elements, and
 also for finding the distance between them:
 
   >>> atom = model.atom(element="C")
-  >>> atom.x(), atom.y(), atom.z()
+  >>> atom.x, atom.y, atom.z
+  (72.553, -25.00258867597513, 51.02411822364008)
+  >>> atom.location
   (72.553, -25.00258867597513, 51.02411822364008)
   >>> atom.element()
   'C'
@@ -106,21 +109,21 @@ also for finding the distance between them:
 Instead of an atom, you can also provide a coordinate and get the atom's
 distance to that:
 
-  >>> atom.distance_to(model.center_of_mass())
+  >>> atom.distance_to(model.center_of_mass)
   1.3371237139950765
 
-Atoms can be bonded to one another using the :py:meth:`~.Atom.bond` method:
+Atoms can be bonded to one another using the :py:meth:`~.Atom.bond_to` method:
 
   >>> other_atom = model.atom(element="O")
-  >>> atom.bond(other_atom)
+  >>> atom.bond_to(other_atom)
   >>> atom.bonds()
   {"<C-O Bond>"}
   >>> atom.bonded_atoms()
   {<O Atom at (37.441, 29.265, 52.113)>}
   >>> atom.bond_with(other_atom)
   <C-O Bond>
-  >>> atom.unbond(other_atom)
-  >>> atom.bonds()
+  >>> atom.unbond_from(other_atom)
+  >>> atom.bonds
   {}
   >>> atom.bonded_atoms()
   {}
@@ -136,11 +139,11 @@ PDB files contain descriptions of the various molecular units within the model.
 The simplest way to access these is to get the :py:class:`.Molecule` objects in
 the model:
 
-  >>> pdb.model().molecules(water=False)
+  >>> pdb.model.molecules(water=False)
   {<Molecule A2001 (XMP, 24 atoms)>, <Molecule B5002 (BU2, 6 atoms)>, <Molecule A5
   001 (BU2, 6 atoms)>, <Chain (204 residues)>, <Molecule B2002 (XMP, 24 atoms)>, <
   Chain (214 residues)>}
-  >>> pdb.model().molecules(water=False, generic=True)
+  >>> pdb.model.molecules(water=False, generic=True)
   {<Molecule B2002 (XMP, 24 atoms)>, <Molecule B5002 (BU2, 6 atoms)>, <Molecule A2
   001 (XMP, 24 atoms)>, <Molecule A5001 (BU2, 6 atoms)>}
 
@@ -151,11 +154,11 @@ macromolecular unit of the PDB.
 
 Other criteria can be used:
 
-  >>> pdb.model().molecules(name="XMP")
+  >>> pdb.model.molecules(name="XMP")
   {<Molecule B2002 (XMP, 24 atoms)>, <Molecule A2001 (XMP, 24 atoms)>}
-  >>> pdb.model().molecule(name="XMP")
+  >>> pdb.model.molecule(name="XMP")
   <Molecule B2002 (XMP, 24 atoms)>
-  >>> pdb.model().molecule("B5002")
+  >>> pdb.model.molecule("B5002")
   <Molecule B5002 (BU2, 6 atoms)>
 
 Here, all XMP molecules are returned, then the first matching XMP molecule, then
@@ -164,41 +167,46 @@ the molecule with ID 'B5002'.
 Any molecule can try and determine its binding site with the
 :py:meth:`~.Molecule.site` method:
 
-  >>> pdb.model().molecule("B5002").site()
+  >>> pdb.model.molecule("B5002").site()
   <'B5002' Site (8 residues)>
-  >>> pdb.model().molecule("B5002").site().residues()
+  >>> pdb.model.molecule("B5002").site().residues()
   {<Residue B1096 (ILE, 8 atoms)>, <Residue B1157 (PRO, 7 atoms)>, <Residue B1
   123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9
   atoms)>, <Residue B1072 (LYS, 9 atoms)>, <Residue B1156 (GLY, 4 atoms)>, <Re
   sidue B1155 (VAL, 7 atoms)>}
 
 These are all the residues with a non-hydrogen atom within 4 Angstroms of a
-non-hydrogen atom in the molecule.
+non-hydrogen atom in the molecule. The crirteria - cutoff distance, whether to
+include main chain atoms etc., can be modified using arguments. See the full
+docs for details.
+
+You can also get RMSD with, and superimpose onto, other molecules. Again the
+details are in the full docs.
 
 Chains
 ######
 
 You can specifically get chains in much the same way:
 
-  >>> pdb.model().chains()
+  >>> pdb.model.chains()
   {<Chain (214 residues)>, <Chain (204 residues)>}
-  >>> pdb.model().chain("A")
+  >>> pdb.model.chain("A")
   <Chain (204 residues)>
-  >>> pdb.model().chain("B")
+  >>> pdb.model.chain("B")
   <Chain (214 residues)>
 
 A :py:class:`.Chain` is a useful object in its own right:
 
-  >>> pdb.model().chain("A").length()
+  >>> pdb.model.chain("A").length()
   204
 
 Residues
 ########
 
-Both models and chains are :py:class:`.ResidueStructure` objects, which allows
+Both models and chains are made of residues objects, which allows
 you to access their :py:class:`.Residue` objects:
 
-  >>> pdb.model().residues(name="SER")
+  >>> pdb.model.residues(name="SER")
   {<Residue B1221 (SER, 6 atoms)>, <Residue B1204 (SER, 6 atoms)>, <Residue B112
   7 (SER, 6 atoms)>, <Residue A221 (SER, 6 atoms)>, <Residue A204 (SER, 6 atoms)
   >, <Residue A179 (SER, 6 atoms)>, <Residue B1165 (SER, 6 atoms)>, <Residue B11
@@ -207,18 +215,18 @@ you to access their :py:class:`.Residue` objects:
   1105 (SER, 6 atoms)>, <Residue A165 (SER, 6 atoms)>, <Residue A175 (SER, 6 ato
   ms)>, <Residue A50 (SER, 6 atoms)>, <Residue B1179 (SER, 6 atoms)>, <Residue A
   105 (SER, 6 atoms)>}
-  >>> pdb.model().residue("A23")
+  >>> pdb.model.residue("A23")
   <Residue A23 (ASN, 8 atoms)>
 
 Residues are also a kind of Molecule, and have other useful properties:
 
-  >>> pdb.model().residue("A23").name()
+  >>> pdb.model.residue("A23").name()
   'ASN'
-  >>> pdb.model().residue("A23").chain()
+  >>> pdb.model.residue("A23").chain()
   <Chain (204 residues)>
-  >>> pdb.model().residue("A23").next()
+  >>> pdb.model.residue("A23").next
   <Residue A24 (ARG, 11 atoms)>
-  >>> pdb.model().residue("A23").previous()
+  >>> pdb.model.residue("A23").previous
   <Residue A22 (MET, 8 atoms)>
 
 

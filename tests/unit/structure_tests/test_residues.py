@@ -79,6 +79,22 @@ class ResidueFullNameTests(ResidueTest):
 
 
 
+class ResidueCodeTests(ResidueTest):
+
+    def test_can_get_generic_code(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        self.assertIsNone(res.code)
+        res._name = "XMP"
+        self.assertEqual(res.code, "X")
+
+
+    def test_can_lookup_code(self):
+        res = Residue(self.atom1, self.atom2, self.atom3)
+        res._name = "met"
+        self.assertEqual(res.code, "M")
+
+
+
 class ResidueNextTests(ResidueTest):
 
     def test_next_gets_next(self):

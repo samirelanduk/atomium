@@ -746,6 +746,17 @@ class Residue(Molecule):
 
 
     @property
+    def code(self):
+        """Returns the amino acid code of the reside if it is one of the 20
+        canonical amino acids - otherwise it just returns 'X'.
+
+        :rtype: ``str``"""
+
+        if self._name:
+            return CODES.get(self._name.upper(), "X")
+
+
+    @property
     def next(self):
         """Residues can be linked to each other in a linear chain. This property
         returns the :py:class:`.Residue` downstream of this one. Alternatively,
@@ -831,4 +842,10 @@ RESIDUES = {
  "CYS": "cysteine", "TYR": "tyrosine", "ASN": "asparagine", "GLN": "glutamine",
  "ASP": "aspartic acid", "GLU": "glutamic acid", "LYS": "lysine",
  "ARG": "arginine", "HIS": "histidine", "HOH": "water"
+}
+
+CODES = {
+ "VAL":"V", "ILE":"I", "LEU":"L", "GLU":"E", "GLN":"Q", "ASP":"D", "ASN":"N",
+ "HIS":"H", "TRP":"W", "PHE":"F", "TYR":"Y", "ARG":"R", "LYS":"K", "SER":"S",
+ "THR":"T", "MET":"M", "ALA":"A", "GLY":"G", "PRO":"P", "CYS":"C"
 }

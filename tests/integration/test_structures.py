@@ -264,8 +264,12 @@ class CreationTests(IntegratedTest):
         self.assertEqual(res1.full_name, "valine")
         self.assertEqual(res2.full_name, "glutamic acid")
         self.assertEqual(res3.full_name, "tryptophan")
+        self.assertEqual(res1.code, "V")
+        self.assertEqual(res2.code, "E")
+        self.assertEqual(res3.code, "W")
         res3.name = "XYZ"
         self.assertEqual(res3.full_name, "XYZ")
+        self.assertEqual(res3.code, "X")
 
         # Copies
         copy = molecule.copy()

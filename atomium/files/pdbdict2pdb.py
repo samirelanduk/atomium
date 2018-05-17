@@ -74,7 +74,6 @@ def residue_dict_to_residue(residue_dict, molecule=False):
       if atom["occupancy"] ==1 or atom["alt_loc"] is None
        or atom["alt_loc"] == alt_loc
     ]
-    if not atoms: print(residue_dict["id"])
     MolClass = Molecule if molecule else Residue
     residue = MolClass(*atoms, name=residue_dict["name"])
     residue._id = residue_dict["id"]

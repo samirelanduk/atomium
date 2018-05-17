@@ -1,9 +1,9 @@
 |travis| |coveralls| |pypi|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.9
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.9.1
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.9
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.9.1
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -322,6 +322,15 @@ The ``Xyz`` or ``Pdb`` object itself can also be saved:
 
 Changelog
 ---------
+
+Release 0.9.1
+~~~~~~~~~~~~~
+
+`17 May 2018`
+
+* Added Residue one-letter codes.
+* Fixed stray print statement.
+
 
 Release 0.9.0
 ~~~~~~~~~~~~~

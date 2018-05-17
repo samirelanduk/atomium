@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 0.9.1
+~~~~~~~~~~~~~
+
+`17 May 2018`
+
+* Added Residue one-letter codes.
+* Fixed stray print statement.
+
+
 Release 0.9.0
 ~~~~~~~~~~~~~
 

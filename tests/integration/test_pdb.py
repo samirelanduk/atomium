@@ -259,6 +259,8 @@ class PdbSavingTests(IntegratedTest):
         pdb.organism = "HOMO SAPIENS"
         pdb.expression_system = "COOL NEW ORGANISM"
         pdb.technique = "MEME DIFFRACTION"
+        while pdb.keywords: pdb.keywords.pop()
+        for k in ["AMAZING", "SUPERB", "WOW"]: pdb.keywords.append(k)
         pdb.save("tests/integration/files/1LOL2.pdb")
         with open("tests/integration/files/1LOL2.pdb") as f:
             new = [l.strip() for l in f.readlines() if l.strip()]
@@ -319,6 +321,8 @@ class PdbSavingTests(IntegratedTest):
 
     def test_can_save_multi_model_pdb(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
+        while pdb.keywords: pdb.keywords.pop()
+        for k in ["INTEGRAL"] * 10: pdb.keywords.append(k)
 
         pdb.save("tests/integration/files/5XME2.pdb")
         with open("tests/integration/files/5XME2.pdb") as f:

@@ -16,6 +16,7 @@ class PdbToPdbDictTests(TestCase):
         pdb._expression_system = "E"
         pdb._technique = "T"
         pdb._classification = "CLASS"
+        pdb._keywords = ["a", "b"]
         pdb._models = ["model1"]
         mock_dict.return_value = {"models": ["m1"], "connections": ["c1", "c2"]}
         pdb_dict = pdb_to_pdb_dict(pdb)
@@ -23,7 +24,7 @@ class PdbToPdbDictTests(TestCase):
         self.assertEqual(pdb_dict, {
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
-         "classification": "CLASS", "rfactor": 1.8,
+         "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
          "models": ["m1"], "connections": ["c1", "c2"]
         })
 
@@ -40,6 +41,7 @@ class PdbToPdbDictTests(TestCase):
         pdb._expression_system = "E"
         pdb._technique = "T"
         pdb._classification = "CLASS"
+        pdb._keywords = ["a", "b"]
         pdb._models = ["model1", "model2"]
         mock_dict.side_effect = [
          {"models": ["m1"], "connections": ["c1", "c2"]},
@@ -51,7 +53,7 @@ class PdbToPdbDictTests(TestCase):
         self.assertEqual(pdb_dict, {
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
-         "classification": "CLASS", "rfactor": 1.8,
+         "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
          "models": ["m1", "m2"], "connections": ["c1", "c2"]
         })
 
@@ -91,6 +93,7 @@ class StructureToPdbDictTests(TestCase):
          "expression_system": None,
          "technique": None,
          "classification": None,
+         "keywords": [],
          "models": [{
           "chains": ["chain1", "chain2"],
           "molecules": ["mol1", "mol2"]

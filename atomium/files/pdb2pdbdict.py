@@ -22,6 +22,7 @@ def pdb_to_pdb_dict(pdb):
     pdb_dict["expression_system"] = pdb._expression_system
     pdb_dict["technique"] = pdb._technique
     pdb_dict["classification"] = pdb._classification
+    pdb_dict["keywords"] = pdb._keywords
     return pdb_dict
 
 
@@ -46,7 +47,7 @@ def structure_to_pdb_dict(structure):
      "models": [model], "connections": connections,
      "deposition_date": None, "code": None, "title": None, "resolution": None,
      "organism": None, "expression_system": None, "technique": None,
-     "classification": None, "rfactor": None
+     "classification": None, "rfactor": None, "keywords": []
     }
 
 

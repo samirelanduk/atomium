@@ -26,6 +26,7 @@ def pack_annotation(lines, pdb_dict):
     pack_header(lines, pdb_dict)
     pack_title(lines, pdb_dict)
     pack_source(lines, pdb_dict)
+    pack_keywords(lines, pdb_dict)
     pack_technique(lines, pdb_dict)
     pack_resolution(lines, pdb_dict)
     pack_rfactor(lines, pdb_dict)
@@ -111,6 +112,11 @@ def pack_technique(lines, pdb_dict):
 
     if pdb_dict["technique"] is not None:
         lines.append("EXPDTA    {}".format(pdb_dict["technique"]).ljust(80))
+
+
+def pack_keywords(lines, pdb_dict):
+    if pdb_dict["keywords"]:
+        lines += split_string(", ".join(pdb_dict["keywords"]), "KEYWDS", 11)
 
 
 def pack_structure(lines, pdb_dict):
@@ -211,7 +217,7 @@ def split_string(string, record, start):
         words = string.split(" ")
         lines, line = [], record.ljust(start - 1)
         while words:
-            if len(line) + len(words[0]) > 80:
+            if len(line) + len(words[0]) > 79:
                 lines.append(line[:80].ljust(80))
                 line = "{}{:<2}{} ".format(
                  record.ljust(start - 2), len(lines) + 1, words.pop(0).lstrip()

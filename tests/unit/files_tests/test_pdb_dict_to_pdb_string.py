@@ -10,6 +10,7 @@ class PdbStringCreationTest(TestCase):
          "deposition_date": datetime(1990, 9, 1).date(),
          "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9,
          "technique": "TECH", "classification": "CLASS", "rfactor": 3.4,
+         "keywords": ["AA", "BBB", "CCCCC"],
          "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS"
         }
         self.lines = []
@@ -40,7 +41,8 @@ class AnnotationPackingTests(PdbStringCreationTest):
     @patch("atomium.files.pdbdict2pdbstring.pack_rfactor")
     @patch("atomium.files.pdbdict2pdbstring.pack_source")
     @patch("atomium.files.pdbdict2pdbstring.pack_technique")
-    def test_can_pack_annotation(self, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_head):
+    @patch("atomium.files.pdbdict2pdbstring.pack_keywords")
+    def test_can_pack_annotation(self, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_head):
         pack_annotation(self.lines, self.pdb_dict)
         mock_head.assert_called_with(self.lines, self.pdb_dict)
         mock_title.assert_called_with(self.lines, self.pdb_dict)
@@ -48,6 +50,7 @@ class AnnotationPackingTests(PdbStringCreationTest):
         mock_rfac.assert_called_with(self.lines, self.pdb_dict)
         mock_source.assert_called_with(self.lines, self.pdb_dict)
         mock_tech.assert_called_with(self.lines, self.pdb_dict)
+        mock_key.assert_called_with(self.lines, self.pdb_dict)
 
 
 
@@ -169,6 +172,23 @@ class TecnhniquePackingTests(PdbStringCreationTest):
     def test_can_pack_nothing(self):
         self.pdb_dict["technique"] = None
         pack_technique(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [])
+
+
+
+class KeywordPackingTests(PdbStringCreationTest):
+
+    @patch("atomium.files.pdbdict2pdbstring.split_string")
+    def test_can_pack_keywords(self, mock_split):
+        mock_split.return_value = ["aaa", "bbb"]
+        pack_keywords(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, ["aaa", "bbb"])
+        mock_split.assert_called_with("AA, BBB, CCCCC", "KEYWDS", 11)
+
+
+    def test_can_pack_nothing(self):
+        self.pdb_dict["keywords"] = None
+        pack_keywords(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
 
 

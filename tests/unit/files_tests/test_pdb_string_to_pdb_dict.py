@@ -308,7 +308,7 @@ class StructureExtractionTests(TestCase):
     def setUp(self):
         self.pdb_dict = {}
         self.lines = [
-         "model1", "atom1", "hetam1", "model2", "atom2", "hetam2", "con1", "con2"
+         "model1", "atom1", "an1", "hetam1", "model2", "atom2", "an2", "hetam2", "con1", "con2"
         ]
 
 
@@ -317,15 +317,16 @@ class StructureExtractionTests(TestCase):
     @patch("atomium.files.pdbstring2pdbdict.lines_to_model")
     def test_can_extract_structure_one_model(self, mock_model, mock_con, mock_lines):
         mock_lines.side_effect = [
-         [], ["atom1", "atom2"], ["hetatm1", "hetatm2"], ["con1", "con2"]
+         [], ["atom1", "atom2"], ["hetatm1", "hetatm2"], ["an1", "an2"], ["con1", "con2"]
         ]
         mock_model.return_value = {"model": "1"}
         extract_structure(self.pdb_dict, self.lines)
         mock_lines.assert_any_call("MODEL", self.lines, number=True)
         mock_lines.assert_any_call("ATOM", self.lines, number=False)
         mock_lines.assert_any_call("HETATM", self.lines, number=False)
+        mock_lines.assert_any_call("ANISOU", self.lines, number=False)
         mock_lines.assert_any_call("CONECT", self.lines)
-        mock_model.assert_called_with(["atom1", "atom2"], ["hetatm1", "hetatm2"])
+        mock_model.assert_called_with(["atom1", "atom2"], ["hetatm1", "hetatm2"], ["an1", "an2"])
         mock_con.assert_called_with(self.pdb_dict, ["con1", "con2"])
         self.assertEqual(self.pdb_dict["models"], [{"model": "1"}])
 
@@ -335,8 +336,9 @@ class StructureExtractionTests(TestCase):
     @patch("atomium.files.pdbstring2pdbdict.lines_to_model")
     def test_can_extract_structure_multiple_models(self, mock_model, mock_con, mock_lines):
         mock_lines.side_effect = [
-         [[self.lines[0], 0], [self.lines[3], 3]], [[self.lines[1], 1], [self.lines[4], 4]],
-         [[self.lines[2], 2], [self.lines[5], 5]], [self.lines[6], self.lines[7]],
+         [[self.lines[0], 0], [self.lines[4], 4]], [[self.lines[1], 1], [self.lines[5], 5]],
+         [[self.lines[3], 3], [self.lines[7], 7]], [[self.lines[2], 2], [self.lines[6], 6]],
+         [self.lines[8], self.lines[9]],
         ]
         mock_model.side_effect = [{"model": "1"}, {"model": "2"}]
         extract_structure(self.pdb_dict, self.lines)
@@ -344,9 +346,9 @@ class StructureExtractionTests(TestCase):
         mock_lines.assert_any_call("ATOM", self.lines, number=True)
         mock_lines.assert_any_call("HETATM", self.lines, number=True)
         mock_lines.assert_any_call("CONECT", self.lines)
-        mock_model.assert_any_call([self.lines[1]], [self.lines[2]])
-        mock_model.assert_any_call([self.lines[4]], [self.lines[5]])
-        mock_con.assert_called_with(self.pdb_dict, self.lines[6:8])
+        mock_model.assert_any_call([self.lines[1]], [self.lines[3]], [self.lines[2]])
+        mock_model.assert_any_call([self.lines[5]], [self.lines[7]], [self.lines[6]])
+        mock_con.assert_called_with(self.pdb_dict, self.lines[8:10])
         self.assertEqual(self.pdb_dict["models"], [{"model": "1"}, {"model": "2"}])
 
 
@@ -354,19 +356,25 @@ class StructureExtractionTests(TestCase):
 class LinesToModelTests(TestCase):
 
     @patch("atomium.files.pdbstring2pdbdict.atom_line_to_atom_dict")
+    @patch("atomium.files.pdbstring2pdbdict.assign_anisou")
     @patch("atomium.files.pdbstring2pdbdict.atoms_to_residues")
     @patch("atomium.files.pdbstring2pdbdict.atoms_to_chains")
-    def test_can_convert_lines_to_model(self, mock_chain, mock_res, mock_dict):
+    def test_can_convert_lines_to_model(self, mock_chain, mock_res, mock_an, mock_dict):
         mock_dict.side_effect = [
          {"a": 1}, {"a": 2}, {"a": 3}, {"a": 4},
          {"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}
         ]
         mock_res.return_value = [{"m": 1}, {"m": 2}]
         mock_chain.return_value = [{"c": 1}, {"c": 2}]
-        model = lines_to_model(["a1", "a2", "a3", "a4"], ["h1", "h2", "h3", "h4"])
+        model = lines_to_model(["a1", "a2", "a3", "a4"], ["h1", "h2", "h3", "h4"], ["an1", "an2"])
         for char in ["a", "h"]:
             for num in ["1", "2", "3", "4"]:
                 mock_dict.assert_any_call(char + num)
+        mock_an.assert_called_with(
+         ["an1", "an2"],
+         [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}],
+         [{"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}]
+        )
         mock_res.assert_called_with([{"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}])
         mock_chain.assert_called_with([{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}])
         self.assertEqual(model, {
@@ -452,6 +460,26 @@ class AtomsToChainsTests(TestCase):
         }, {
          "chain_id": "B", "residues": [{"r": 3}, {"r": 4}]
         }])
+
+
+
+class AnisouAssingingTests(TestCase):
+
+    def test_can_assign_anisou(self):
+        atoms = [{"atom_id": 107}, {"atom_id": 108}]
+        heteroatoms = [{"atom_id": 109}, {"atom_id": 110}]
+        assign_anisou([
+         "ANISOU  107  N   GLY A  13     2406   1892   1614    198    519   -328",
+         "ANISOU  110  O   GLY A  13     3837   2505   1611    164   -121    189"
+        ], atoms, heteroatoms)
+        self.assertEqual(atoms, [
+         {"atom_id": 107, "anisotropy": [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328]},
+         {"atom_id": 108, "anisotropy": [0, 0, 0, 0, 0, 0]}
+        ])
+        self.assertEqual(heteroatoms, [
+         {"atom_id": 109, "anisotropy": [0, 0, 0, 0, 0, 0]},
+         {"atom_id": 110, "anisotropy": [0.3837, 0.2505, 0.1611, 0.0164, -0.0121, 0.0189]}
+        ])
 
 
 

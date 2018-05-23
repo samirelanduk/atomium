@@ -90,7 +90,7 @@ def atom_dict_to_atom(atom_dict):
     return Atom(
      atom_dict["element"], atom_dict["x"], atom_dict["y"], atom_dict["z"],
      id=atom_dict["atom_id"], name=atom_dict["atom_name"],
-     charge=atom_dict["charge"],
+     charge=atom_dict["charge"], anisotropy=atom_dict["anisotropy"],
      bfactor=atom_dict["temp_factor"] if atom_dict["temp_factor"] else 0
     )
 

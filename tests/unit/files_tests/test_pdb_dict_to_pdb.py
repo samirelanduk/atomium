@@ -175,7 +175,7 @@ class AtomDictToAtomTests(TestCase):
          "chain_id": "B", "residue_id": 13, "insert_code": "C",
          "x": 12.681, "y": 37.302, "z": -25.211,
          "occupancy": 0.5, "temp_factor": 15.56,
-         "element": "N", "charge": -2
+         "element": "N", "charge": -2, "anisotropy": [1, 2, 3, 4, 5, 6]
         }
 
     @patch("atomium.files.pdbdict2pdb.Atom")
@@ -185,7 +185,7 @@ class AtomDictToAtomTests(TestCase):
         returned_atom = atom_dict_to_atom(self.atom_dict)
         self.assertIs(returned_atom, atom)
         mock_atom.assert_called_with(
-         "N", 12.681, 37.302, -25.211,
+         "N", 12.681, 37.302, -25.211, anisotropy=[1, 2, 3, 4, 5, 6],
          id=107, name="N1", charge=-2, bfactor=15.56
         )
 
@@ -197,7 +197,7 @@ class AtomDictToAtomTests(TestCase):
         self.atom_dict["temp_factor"] = None
         returned_atom = atom_dict_to_atom(self.atom_dict)
         mock_atom.assert_called_with(
-         "N", 12.681, 37.302, -25.211,
+         "N", 12.681, 37.302, -25.211, anisotropy=[1, 2, 3, 4, 5, 6],
          id=107, name="N1", charge=-2, bfactor=0
         )
 

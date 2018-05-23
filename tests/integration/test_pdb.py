@@ -24,6 +24,11 @@ class PdbReadingTests(IntegratedTest):
         model = pdb.model
         self.assertEqual(len(model.atoms()), 3431)
         atom = model.atom(2934)
+        self.assertEqual(atom.anisotropy, [0, 0, 0, 0, 0, 0])
+        self.assertEqual(
+         model.atom(1).anisotropy,
+         [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328]
+        )
         self.assertEqual(atom.element, "N")
         self.assertEqual(atom.name, "NE")
         self.assertEqual(atom.location, (-20.082, 79.647, 41.645))
@@ -204,6 +209,7 @@ class PdbReadingTests(IntegratedTest):
           "x": 3.696, "y": 33.898, "z": 63.219,
           "occupancy": 1.0, "temp_factor": 21.50,
           "element": "N", "charge": 0.0,
+          "anisotropy": [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328]
          }
         )
         self.assertEqual(len(data_file["connections"]), 60)
@@ -234,7 +240,7 @@ class PdbReadingTests(IntegratedTest):
           "chain_id": "A", "residue_id": 11, "insert_code": "",
           "x": 3.696, "y": 33.898, "z": 63.219,
           "occupancy": 1.0, "temp_factor": 21.50,
-          "element": "N", "charge": 0.0,
+          "element": "N", "charge": 0.0, "anisotropy": [0, 0, 0, 0, 0, 0]
          }
         )
         self.assertEqual(len(data_file["connections"]), 60)

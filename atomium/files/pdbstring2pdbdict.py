@@ -162,6 +162,7 @@ def extract_structure(pdb_dict, lines):
     model_lines = get_lines("MODEL", lines, number=True)
     atom_lines = get_lines("ATOM", lines, number=bool(model_lines))
     hetatm_lines = get_lines("HETATM", lines, number=bool(model_lines))
+    anisou_lines = get_lines("ANISOU", lines, number=bool(model_lines))
     conect_lines = get_lines("CONECT", lines)
     pdb_dict["models"] = []
     if model_lines:
@@ -169,18 +170,22 @@ def extract_structure(pdb_dict, lines):
             next_line_number = model_lines[index + 1][1] if (
              index < len(model_lines) - 1
             ) else len(lines)
-            model_atoms = [line for line, number in atom_lines
+            m_atoms = [line for line, number in atom_lines
              if line_number < number < next_line_number]
-            model_h_atms = [line for line, number in hetatm_lines
+            m_het = [line for line, number in hetatm_lines
              if line_number < number < next_line_number]
-            pdb_dict["models"].append(lines_to_model(model_atoms, model_h_atms))
+            m_anisou = [line for line, number in anisou_lines
+             if line_number < number < next_line_number]
+            pdb_dict["models"].append(lines_to_model(m_atoms, m_het, m_anisou))
     else:
-        pdb_dict["models"].append(lines_to_model(atom_lines, hetatm_lines))
+        pdb_dict["models"].append(
+         lines_to_model(atom_lines, hetatm_lines, anisou_lines)
+        )
     extract_connections(pdb_dict, conect_lines)
 
 
-def lines_to_model(atom_lines, hetatm_lines):
-    """Creates a model ``dict`` from ATOM lines and HETATM lines.
+def lines_to_model(atom_lines, hetatm_lines, anisou_lines):
+    """Creates a model ``dict`` from ATOM, ANISOU and HETATM lines.
 
     :param list atom_lines: the ATOM lines.
     :param list hetatm_lines: the HETATM lines.
@@ -188,6 +193,7 @@ def lines_to_model(atom_lines, hetatm_lines):
 
     atoms = [atom_line_to_atom_dict(line) for line in atom_lines]
     heteroatoms = [atom_line_to_atom_dict(line) for line in hetatm_lines]
+    assign_anisou(anisou_lines, atoms, heteroatoms)
     molecules = atoms_to_residues(heteroatoms)
     chains = atoms_to_chains(atoms)
     model = {"molecules": molecules, "chains": chains}
@@ -262,6 +268,21 @@ def atoms_to_chains(atoms):
         c_atoms = [atom for atom in atoms if atom["chain_id"] == id_]
         chains.append({"chain_id": id_, "residues": atoms_to_residues(c_atoms)})
     return chains
+
+
+def assign_anisou(anisou_lines, atoms, heteroatoms):
+    """Takes a list of ANISOU records, and atom and heteroatom lists, and
+    assigns anisotropy information the atoms and heteroatoms.
+
+    :param list anisou_lines: The ANISOU records.
+    :param list atoms: The atom ``dict`` objects to update.
+    :param list heteroatoms: The heteroatom ``dict`` objects to update."""
+
+    anisotropy = {int(line[6:11].strip()): [
+     int(line[n * 7 + 28:n * 7 + 35]) / 10000 for n in range(6)
+    ] for line in anisou_lines}
+    for atom in atoms + heteroatoms:
+        atom["anisotropy"] = anisotropy.get(atom["atom_id"], [0, 0, 0, 0, 0, 0])
 
 
 def extract_connections(pdb_dict, lines):

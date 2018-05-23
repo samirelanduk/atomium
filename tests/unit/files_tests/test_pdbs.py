@@ -18,6 +18,7 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._technique, None)
         self.assertEqual(pdb._classification, None)
         self.assertEqual(pdb._rfactor, None)
+        self.assertEqual(pdb._keywords, [])
 
 
 
@@ -276,6 +277,15 @@ class PdbRfactorTests(TestCase):
         with self.assertRaises(TypeError):
             pdb.rfactor = "100"
         pdb.rfactor = 3
+
+
+
+class PdbTechniqueTests(TestCase):
+
+    def test_can_get_pdb_keywords(self):
+        pdb = Pdb()
+        pdb._keywords = ["a", "b"]
+        self.assertIs(pdb._keywords, pdb.keywords)
 
 
 

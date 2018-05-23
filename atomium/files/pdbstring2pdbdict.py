@@ -30,6 +30,7 @@ def extract_annotation(pdb_dict, lines):
     extract_rfactor(pdb_dict, lines)
     extract_source(pdb_dict, lines)
     extract_technique(pdb_dict, lines)
+    extract_keywords(pdb_dict, lines)
 
 
 def extract_header(pdb_dict, lines):
@@ -135,6 +136,20 @@ def extract_technique(pdb_dict, lines):
         pdb_dict["technique"] = line[6:].strip()
         if pdb_dict["technique"]: return
     pdb_dict["technique"] = None
+
+
+def extract_keywords(pdb_dict, lines):
+    """Takes a ``dict`` and adds keyword information to it by parsing file
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    lines = get_lines("KEYWDS", lines)
+    pdb_dict["keywords"] = []
+    if lines:
+        text = merge_lines(lines, 10)
+        pdb_dict["keywords"] = [word.strip() for word in text.split(",")]
 
 
 def extract_structure(pdb_dict, lines):

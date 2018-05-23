@@ -18,6 +18,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(pdb.classification, "LYASE")
         self.assertEqual(pdb.resolution, 1.9)
         self.assertEqual(pdb.rfactor, 0.193)
+        self.assertEqual(pdb.keywords, ["TIM BARREL", "LYASE"])
 
         # Atoms are correct
         model = pdb.model

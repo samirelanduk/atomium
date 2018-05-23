@@ -16,6 +16,7 @@ class Pdb:
         self._technique = None
         self._classification = None
         self._rfactor = None
+        self._keywords = []
 
 
     def __repr__(self):
@@ -201,6 +202,15 @@ class Pdb:
              "Classification {} is not str".format(classification)
             )
         self._classification = classification
+
+
+    @property
+    def keywords(self):
+        """The Pdb's keywords.
+
+        :rtype: ``list``"""
+
+        return self._keywords
 
 
     def to_file_string(self):

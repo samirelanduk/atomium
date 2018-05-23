@@ -34,7 +34,8 @@ class AnnotationExtractionTests(PdbStringConversionTest):
     @patch("atomium.files.pdbstring2pdbdict.extract_rfactor")
     @patch("atomium.files.pdbstring2pdbdict.extract_source")
     @patch("atomium.files.pdbstring2pdbdict.extract_technique")
-    def test_can_extract_header(self, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_header):
+    @patch("atomium.files.pdbstring2pdbdict.extract_keywords")
+    def test_can_extract_header(self, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_header):
         extract_annotation(self.pdb_dict, self.lines)
         mock_title.assert_called_with(self.pdb_dict, self.lines)
         mock_header.assert_called_with(self.pdb_dict, self.lines)
@@ -42,6 +43,7 @@ class AnnotationExtractionTests(PdbStringConversionTest):
         mock_rfac.assert_called_with(self.pdb_dict, self.lines)
         mock_source.assert_called_with(self.pdb_dict, self.lines)
         mock_tech.assert_called_with(self.pdb_dict, self.lines)
+        mock_key.assert_called_with(self.pdb_dict, self.lines)
 
 
 
@@ -275,6 +277,29 @@ class TechniqueExtractionTests(PdbStringConversionTest):
         extract_technique(self.pdb_dict, self.lines)
         mock_line.assert_called_with("EXPDTA", self.lines)
         self.assertEqual(self.pdb_dict["technique"], "X-RAY DIFFRACTION")
+
+
+
+class KeywordExtractionTests(PdbStringConversionTest):
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
+    def test_empty_keyword_extraction(self, mock_merge, mock_lines):
+        mock_lines.return_value = []
+        extract_keywords(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("KEYWDS", self.lines)
+        self.assertEqual(self.pdb_dict["keywords"], [])
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
+    def test_one_line_keyword_extraction(self, mock_merge, mock_lines):
+        mock_lines.return_value = ["KEYWDS    TIM BARREL, LYASE"]
+        mock_merge.return_value = "TIM BARREL, LYASE"
+        extract_keywords(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("KEYWDS", self.lines)
+        mock_merge.assert_any_call(["KEYWDS    TIM BARREL, LYASE"], 10)
+        self.assertEqual(self.pdb_dict["keywords"], ["TIM BARREL", "LYASE"])
 
 
 

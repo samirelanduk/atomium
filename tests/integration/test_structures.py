@@ -17,7 +17,7 @@ class CreationTests(IntegratedTest):
          Atom("O", 2, 1, 0, id=6, name="OB", bfactor=1.5),
          Atom("S", 0, 2, 0, id=7, name="S1", bfactor=1.5),
          Atom("C", 1, 2, 0, id=8, name="CC", bfactor=1.5),
-         Atom("S", 2, 2, 0, id=9, name="S2", bfactor=1.5),
+         Atom("S", 2, 2, 0, id=9, name="S2", bfactor=1.5, anisotropy=[0.03, 0.4, 1.01, 0.2, 0.3, 1]),
          Atom("N", 0, 0, 1, id=10, name="N", bfactor=0.5),
          Atom("C", 1, 0, 1, id=11, name="CA", charge=0.5, bfactor=0.5),
          Atom("C", 2, 0, 1, id=12, name="C", bfactor=0.5),
@@ -53,6 +53,8 @@ class CreationTests(IntegratedTest):
         self.assertEqual(self.atoms[13].location, (1, 1, 1))
         self.assertEqual(self.atoms[0].location, (0, 0, 0))
         self.assertEqual(self.atoms[13].bfactor, 0.5)
+        self.assertEqual(self.atoms[13].anisotropy, [0] * 6)
+        self.assertEqual(self.atoms[8].anisotropy, [0.03, 0.4, 1.01, 0.2, 0.3, 1])
         self.atoms[0].x = 4
         self.assertEqual(self.atoms[0].location, (4, 0, 0))
         self.atoms[0].x -= 4

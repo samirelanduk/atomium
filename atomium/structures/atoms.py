@@ -48,15 +48,18 @@ class Atom:
     :param str name: The atom's name.
     :param number charge: The charge of the atom.
     :param number bfactor: The B-factor of the atom (its uncertainty).
+    :param tuple anisotropy: The directional uncertainty of the atom.
     :raises TypeError: if the element is not str.
     :raises TypeError: if the coordinates are not numeric.
     :raises TypeError: if the id is not int.
     :raises TypeError: if the name is not str.
     :raises TypeError: if the charge is not numeric.
-    :raises TypeError: if the bfactor is not numeric."""
+    :raises TypeError: if the bfactor is not numeric.
+    :raises ValueError: if the anisotropy don't have six values.
+    :raises TypeError: if the anisotropy are not numeric."""
 
     def __init__(self, element, x=0, y=0, z=0, id=0, name=None, charge=0,
-                 bfactor=0):
+                 bfactor=0, anisotropy=(0, 0, 0, 0, 0, 0)):
         if not isinstance(element, str):
             raise TypeError("Element '{}' is not str".format(element))
         if any(not isinstance(coord, (int, float)) for coord in (x, y, z)):
@@ -69,6 +72,10 @@ class Atom:
             raise TypeError("charge '{}' is not numeric".format(charge))
         if not isinstance(bfactor, (float, int)):
             raise TypeError("bfactor '{}' is not numeric".format(bfactor))
+        if hasattr(anisotropy, "__len__") and len(anisotropy) != 6:
+            raise ValueError("anisotropy needs 6 values: {}".format(anisotropy))
+        if any(not isinstance(val, (int, float)) for val in anisotropy):
+            raise TypeError("anisotropy needs numbers: {}".format(anisotropy))
         self._element = element
         self._x = x
         self._y = y
@@ -77,6 +84,7 @@ class Atom:
         self._name = name
         self._charge = charge
         self._bfactor = bfactor
+        self._anisotropy = list(anisotropy)
         self._bonds = set()
         self._residue, self._chain, self._molecule = None, None, None
         self._model, self._complex = None, None
@@ -218,6 +226,15 @@ class Atom:
         if not isinstance(charge, (float, int)):
             raise TypeError("charge '{}' is not numeric".format(charge))
         self._charge = charge
+
+
+    @property
+    def anisotropy(self):
+        """The atom's directional uncertainty.
+
+        :rtype: ``list``"""
+
+        return self._anisotropy
 
 
     @property

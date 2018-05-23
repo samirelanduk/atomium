@@ -15,6 +15,7 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._name, None)
         self.assertEqual(atom._charge, 0)
         self.assertEqual(atom._bfactor, 0)
+        self.assertEqual(atom._anisotropy, [0, 0, 0, 0, 0, 0])
         self.assertEqual(atom._bonds, set())
         self.assertEqual(atom._residue, None)
         self.assertEqual(atom._chain, None)
@@ -94,6 +95,23 @@ class AtomCreationTests(TestCase):
             Atom("C", 2, 3, 5, bfactor="20.5")
         Atom("C", 2, 3, 5, bfactor=10)
         Atom("C", 2, 3, 5, bfactor=-3)
+
+
+    def test_can_create_atom_with_anisotropy(self):
+        atom = Atom("C", 2, 3, 5, anisotropy=(0.1, 0.2, 0.3, 0.4, 0.5, 0.6))
+        self.assertEqual(atom._anisotropy, [0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
+
+
+    def test_anisotropy_must_be_len_6(self):
+        with self.assertRaises(ValueError):
+            Atom("C", 2, 3, 5, anisotropy=[0.1, 0.2, 0.3, 0.4, 0.5])
+        with self.assertRaises(ValueError):
+            Atom("C", 2, 3, 5, anisotropy=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
+
+
+    def test_anisotropy_must_numerical(self):
+        with self.assertRaises(TypeError):
+            Atom("C", 2, 3, 5, anisotropy=[1, "0.2", 0.3, 0.4, 0.5, 0.6])
 
 
 
@@ -257,6 +275,14 @@ class AtomBfactorTests(TestCase):
             atom.bfactor = "4"
         atom.bfactor = 4.5
         atom.bfactor = -9
+
+
+
+class AtomAnisotropyTests(TestCase):
+
+    def test_anisotropy_property(self):
+        atom = Atom("C", anisotropy=(1, 2, 3, 4, 5, 6))
+        self.assertIs(atom._anisotropy, atom.anisotropy)
 
 
 

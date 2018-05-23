@@ -12,11 +12,11 @@ class PdbReadingTests(IntegratedTest):
          "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
         )
         self.assertEqual(pdb.deposition_date, datetime(2002, 5, 6).date())
-        self.assertEqual(pdb.resolution, 1.9)
         self.assertEqual(pdb.organism, "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H")
         self.assertEqual(pdb.expression_system, "ESCHERICHIA COLI")
         self.assertEqual(pdb.technique, "X-RAY DIFFRACTION")
         self.assertEqual(pdb.classification, "LYASE")
+        self.assertEqual(pdb.resolution, 1.9)
         self.assertEqual(pdb.rfactor, 0.193)
 
         # Atoms are correct
@@ -252,7 +252,7 @@ class PdbSavingTests(IntegratedTest):
         pdb.code = "9SAM"
         pdb.deposition_date = datetime(1990, 9, 1).date()
         pdb.title = (
-         "FOR IN THAT SLEEP OF DEATH WHAT DREAMS MAY COME WHEN WE HAVE " +
+         "FOR IN THAT SLEEP OF DEATH, WHAT DREAMS MAY COME, WHEN WE HAVE " +
          "SHUFFLED OFF THIS MORTAL COIL MUST GIVE US PAUSE"
         )
         pdb.organism = "HOMO SAPIENS"
@@ -263,12 +263,12 @@ class PdbSavingTests(IntegratedTest):
             new = [l.strip() for l in f.readlines() if l.strip()]
         with open("tests/integration/files/1lol_output.pdb") as f:
             ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new[3:], ref[3:]):
+        for new_line, ref_line in zip(new, ref):
             self.assertEqual(new_line, ref_line)
         self.assertIn("9SAM", new[0])
         self.assertIn("90", new[0])
-        self.assertIn("DREAMS", new[1])
-        self.assertIn("PAUSE", new[2])
+        self.assertIn("HAVE", new[1])
+        self.assertIn("SHUFFLED", new[2])
         new = atomium.pdb_from_file("tests/integration/files/1LOL2.pdb")
         model = new.model
         self.assertAlmostEqual(

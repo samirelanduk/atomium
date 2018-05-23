@@ -55,16 +55,7 @@ def pack_title(lines, pdb_dict):
     :param dict pdb_dict: The data dictionary to pack."""
 
     if pdb_dict["title"]:
-        chunks_needed = (len(pdb_dict["title"]) - 1) // 70 + 1
-        title_chunks = [
-         pdb_dict["title"][i * 70:i * 70 + 70] for i in range(chunks_needed)
-        ]
-        title_records = ["TITLE    {}{}{}".format(
-         number if number > 1 else " ",
-         " " if number > 1 else "",
-         chunk
-        ).ljust(80) for number, chunk in enumerate(title_chunks, start=1)]
-        lines += title_records
+        lines += split_string(pdb_dict["title"], "TITLE", 11)
 
 
 def pack_resolution(lines, pdb_dict):
@@ -100,32 +91,16 @@ def pack_source(lines, pdb_dict):
     :param list lines: The record lines to add to.
     :param dict pdb_dict: The data dictionary to pack."""
 
-    source_records = []
+    source = ""
     if pdb_dict["organism"]:
-        organism = "ORGANISM_SCIENTIFIC: {};".format(pdb_dict["organism"])
-        chunks_needed = (len(organism) - 1) // 70 + 1
-        source_chunks = [
-         organism[i * 70:i * 70 + 70] for i in range(chunks_needed)
-        ]
-        source_records += ["SOURCE   {}{}{}".format(
-         number if number > 1 else " ",
-         " " if number > 1 else "",
-         chunk
-        ).ljust(80) for number, chunk in enumerate(source_chunks, start=1)]
+        source += "ORGANISM_SCIENTIFIC: {};".format(
+         pdb_dict["organism"]
+        ).ljust(70)
     if pdb_dict["expression_system"]:
-        system = "EXPRESSION_SYSTEM: {};".format(pdb_dict["expression_system"])
-        chunks_needed = (len(system) - 1) // 70 + 1
-        source_chunks = [
-         system[i * 70:i * 70 + 70] for i in range(chunks_needed)
-        ]
-        source_records += ["SOURCE   {}{}{}".format(
-         number if number > 1 else " ",
-         " " if number > 1 else "",
-         chunk
-        ).ljust(80) for number, chunk in enumerate(
-         source_chunks, start=len(source_records) + 1
-        )]
-    lines += source_records
+        source += "EXPRESSION_SYSTEM: {};".format(
+         pdb_dict["expression_system"]
+        ).ljust(70)
+    if source: lines += split_string(source, "SOURCE", 11)
 
 
 def pack_technique(lines, pdb_dict):
@@ -218,3 +193,30 @@ def pack_connections(lines, pdb_dict):
             bonded_ids = connection["bond_to"][line_num * 4: (line_num + 1) * 4]
             line = "CONECT" + "{:5}" * (len(bonded_ids) + 1)
             lines.append(line.format(connection["atom"], *bonded_ids).ljust(80))
+
+
+
+def split_string(string, record, start):
+    """Takes a string and splits it into multple PDB records, with number
+    continuation lines,
+
+    :param str string: The string to split.
+    :param str record: The record name.
+    :param int start: The position to start the string at on each line."""
+
+    space = 81 - start
+    if len(string) <= space:
+        return ["{}{}".format(record.ljust(start - 1), string).ljust(80)]
+    else:
+        words = string.split(" ")
+        lines, line = [], record.ljust(start - 1)
+        while words:
+            if len(line) + len(words[0]) > 80:
+                lines.append(line[:80].ljust(80))
+                line = "{}{:<2}{} ".format(
+                 record.ljust(start - 2), len(lines) + 1, words.pop(0).lstrip()
+                )
+            else:
+                line += words.pop(0).lstrip() + " "
+    if len(line.rstrip()) > 10: lines.append(line[:80].ljust(80))
+    return lines

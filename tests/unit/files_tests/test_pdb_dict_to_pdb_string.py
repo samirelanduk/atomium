@@ -97,12 +97,12 @@ class HeaderPackingTests(PdbStringCreationTest):
 
 class TitlePackingTests(PdbStringCreationTest):
 
-    def test_can_pack_title(self):
+    @patch("atomium.files.pdbdict2pdbstring.split_string")
+    def test_can_pack_title(self, mock_split):
+        mock_split.return_value = ["aaa", "bbb"]
         pack_title(self.lines, self.pdb_dict)
-        self.assertEqual(self.lines, [
-         "TITLE     " + "ABC" * 23 + "A",
-         "TITLE    2 " + "BC" + "ABC" * 16 + " " * 19
-        ])
+        self.assertEqual(self.lines, ["aaa", "bbb"])
+        mock_split.assert_called_with("ABC" * 40, "TITLE", 11)
 
 
 
@@ -139,12 +139,15 @@ class RfactorPackingTests(PdbStringCreationTest):
 
 class SourcePackingTests(PdbStringCreationTest):
 
-    def test_can_pack_source(self):
+    @patch("atomium.files.pdbdict2pdbstring.split_string")
+    def test_can_pack_source(self, mock_split):
+        mock_split.return_value = ["aaa", "bbb"]
         pack_source(self.lines, self.pdb_dict)
-        self.assertEqual(self.lines, [
-         "SOURCE    ORGANISM_SCIENTIFIC: HOMO SAPIENS;".ljust(80),
-         "SOURCE   2 EXPRESSION_SYSTEM: MUS MUSCULUS;".ljust(80)
-        ])
+        self.assertEqual(self.lines, ["aaa", "bbb"])
+        mock_split.assert_called_with(
+         "ORGANISM_SCIENTIFIC: HOMO SAPIENS;" + (" " * 36) +
+         "EXPRESSION_SYSTEM: MUS MUSCULUS;" + (" " * 38), "SOURCE", 11
+        )
 
 
     def test_can_pack_nothing(self):
@@ -342,3 +345,26 @@ class ConnectionsPackingTests(TestCase):
          "CONECT 1179 1211 1222".ljust(80),
          "CONECT 1221  544 1017 1020 1022".ljust(80)
         ])
+
+
+
+class LineSplittingTests(TestCase):
+
+    def test_can_split_short_string(self):
+        self.assertEqual(
+         split_string("THE REPUBLIC OF HEAVEN", "LIN12", 10),
+         ["LIN12    THE REPUBLIC OF HEAVEN".ljust(80)]
+        )
+        self.assertEqual(
+         split_string("*" * 70, "LIN12", 11),
+         ["LIN12     " + ("*" * 70)]
+        )
+
+
+    def test_can_split_long_string(self):
+        self.assertEqual(
+         split_string("BIGLY " * 30, "LIN12", 11), [
+          "LIN12     BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY     ",
+          "LIN12    2 BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY    ",
+          "LIN12    3 BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY                      "
+         ])

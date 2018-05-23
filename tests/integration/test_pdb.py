@@ -153,7 +153,7 @@ class PdbReadingTests(IntegratedTest):
 
     def test_can_read_multi_model_pdbs(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
-        self.assertEqual(pdb.resolution, 0)
+        self.assertEqual(pdb.resolution, None)
 
         models = pdb.models
         self.assertEqual(len(models), 10)

@@ -125,7 +125,7 @@ class ResolutionExtractionTests(PdbStringConversionTest):
         mock_lines.return_value = self.remark_lines
         extract_resolution(self.pdb_dict, self.lines)
         mock_lines.assert_any_call("REMARK", self.lines)
-        self.assertEqual(self.pdb_dict["resolution"], 0)
+        self.assertEqual(self.pdb_dict["resolution"], None)
 
 
     @patch("atomium.files.pdbstring2pdbdict.get_lines")

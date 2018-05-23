@@ -75,7 +75,7 @@ def extract_resolution(pdb_dict, lines):
         if int(remark[7:10]) == 2 and remark[10:].strip():
             try:
                 pdb_dict["resolution"] = float(remark[10:].strip().split()[1])
-            except ValueError: pdb_dict["resolution"] = 0
+            except ValueError: pdb_dict["resolution"] = None
             break
     else:
         pdb_dict["resolution"] = None

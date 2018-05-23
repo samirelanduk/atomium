@@ -114,12 +114,10 @@ class ResolutionPackingTests(PdbStringCreationTest):
         self.assertEqual(self.lines[1],  "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.".ljust(80))
 
 
-    def test_can_pack_zero_resolution(self):
-        self.pdb_dict["resolution"] = 0
+    def test_can_pack_no_resolution(self):
+        self.pdb_dict["resolution"] = None
         pack_resolution(self.lines, self.pdb_dict)
-        self.assertEqual(self.lines[0], "REMARK   2" + " " * 70)
-        self.assertEqual(self.lines[1],  "REMARK   2 RESOLUTION. NOT APPLICABLE.".ljust(80))
-
+        self.assertEqual(self.lines, [])
 
 
 class RfactorPackingTests(PdbStringCreationTest):
@@ -133,8 +131,8 @@ class RfactorPackingTests(PdbStringCreationTest):
 
 
     def test_can_pack_no_rfactor(self):
-        self.pdb_dict["resolution"] = None
-        pack_resolution(self.lines, self.pdb_dict)
+        self.pdb_dict["rfactor"] = None
+        pack_rfactor(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
 
 

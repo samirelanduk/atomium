@@ -74,7 +74,7 @@ def atom_to_atom_dict(atom):
      "residue_name": residue_name, "full_id": id_,
      "chain_id": chain_id, "residue_id": residue_id, "insert_code": insert_code,
      "x": atom.x, "y": atom.y, "z": atom.z,
-     "occupancy": 1.0,
+     "occupancy": 1.0, "anisotropy": atom.anisotropy,
      "element": atom.element, "charge": atom.charge,
      "temp_factor": atom.bfactor if atom.bfactor else None,
     }

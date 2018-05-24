@@ -226,48 +226,57 @@ class StructurePackingTests(TestCase):
 class ModelPackingTests(TestCase):
 
     def setUp(self):
+        self.atoms =  [{"id": c + i + n, "anisotropy": [0] * 6}
+         for c in "rm" for i in "1234" for n in "12"]
+        self.atoms[1]["anisotropy"][0] = 1
+        self.atoms[-2]["anisotropy"][0] = 1
+        self.lines = []
         self.model_dict = {
          "chains": [
-          {"residues": [{"atoms": ["r11", "r12"]}, {"atoms": ["r21", "r22"]}]},
-          {"residues": [{"atoms": ["r31", "r32"]}, {"atoms": ["r41", "r42"]}]},
+          {"residues": [{"atoms": self.atoms[:2]}, {"atoms": self.atoms[2:4]}]},
+          {"residues": [{"atoms": self.atoms[4:6]}, {"atoms": self.atoms[6:8]}]},
          ],
          "molecules": [
-          {"atoms": ["m11", "m12"]}, {"atoms": ["m21", "m22"]},
-          {"atoms": ["m31", "m32"]}, {"atoms": ["m41", "m42"]}
+          {"atoms": self.atoms[8:10]}, {"atoms": self.atoms[10:12]},
+          {"atoms": self.atoms[12:14]}, {"atoms": self.atoms[14:16]}
          ]
         }
-        self.lines = []
+
 
 
     @patch("atomium.files.pdbdict2pdbstring.atom_dict_to_atom_line")
-    def test_can_pack_sole_model(self, mock_line):
+    @patch("atomium.files.pdbdict2pdbstring.atom_dict_to_anisou_line")
+    def test_can_pack_sole_model(self, mock_an, mock_line):
         mock_line.side_effect = ["a" + str(i) for i in range(16)]
+        mock_an.return_value = "AN"
         pack_model(self.lines, self.model_dict, multi=0)
-        for char in ["r", "m"]:
-            for num1 in ["1", "2", "3", "4"]:
-                for num2 in ["1", "2"]:
-                    mock_line.assert_any_call(
-                     char + num1 + num2, hetero=char == "m"
-                    )
+        for atom in self.atoms:
+            mock_line.assert_any_call(
+             atom, hetero=atom["id"].startswith("m")
+            )
+        mock_an.assert_any_call(self.atoms[1])
+        mock_an.assert_any_call(self.atoms[-2])
         self.assertEqual(self.lines, [
-         "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
-         "a8", "a9", "a10", "a11", "a12", "a13", "a14", "a15"
+         "a0", "a1", "AN", "a2", "a3", "a4", "a5", "a6", "a7",
+         "a8", "a9", "a10", "a11", "a12", "a13", "a14", "AN", "a15"
         ])
 
 
     @patch("atomium.files.pdbdict2pdbstring.atom_dict_to_atom_line")
-    def test_can_pack_model_in_series(self, mock_line):
+    @patch("atomium.files.pdbdict2pdbstring.atom_dict_to_anisou_line")
+    def test_can_pack_model_in_series(self, mock_an, mock_line):
         mock_line.side_effect = ["a" + str(i) for i in range(16)]
+        mock_an.return_value = "AN"
         pack_model(self.lines, self.model_dict, multi=5)
-        for char in ["r", "m"]:
-            for num1 in ["1", "2", "3", "4"]:
-                for num2 in ["1", "2"]:
-                    mock_line.assert_any_call(
-                     char + num1 + num2, hetero=char == "m"
-                    )
+        for atom in self.atoms:
+            mock_line.assert_any_call(
+             atom, hetero=atom["id"].startswith("m")
+            )
+        mock_an.assert_any_call(self.atoms[1])
+        mock_an.assert_any_call(self.atoms[-2])
         self.assertEqual(self.lines, [
-         "MODEL        5".ljust(80), "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
-         "a8", "a9", "a10", "a11", "a12", "a13", "a14", "a15", "ENDMDL".ljust(80)
+         "MODEL        5".ljust(80), "a0", "a1", "AN", "a2", "a3", "a4", "a5", "a6", "a7",
+         "a8", "a9", "a10", "a11", "a12", "a13", "a14", "AN", "a15", "ENDMDL".ljust(80)
         ])
 
 
@@ -347,6 +356,55 @@ class AtomDictToAtomLineTests(TestCase):
     def test_can_convert_heteroatom_dict_to_line(self):
         line = atom_dict_to_atom_line(self.atom_dict, hetero=True)
         self.assertEqual(line[:30], "HETATM  107  N  AGLY B  13C   ")
+
+
+
+class AtomDictToAnisouLineTests(TestCase):
+
+    def setUp(self):
+        self.atom_dict = {
+         "atom_id": 107, "atom_name": "N", "alt_loc": "A",
+         "residue_name": "GLY", "anisotropy": [0.34, -0.3456, 0.098, 0, -0.1231343, 0.9],
+         "chain_id": "B", "residue_id": 13, "insert_code": "C",
+         "x": 12.681, "y": 7.302, "z": -25.21,
+         "occupancy": 0.5, "temp_factor": 15.5,
+         "element": "N", "charge": -2,
+        }
+
+
+    def test_can_convert_empty_atom_dict_to_line(self):
+        for key in self.atom_dict:
+            self.atom_dict[key] = None
+        self.atom_dict["atom_id"] = 0
+        self.atom_dict["chain_id"], self.atom_dict["insert_code"] = "", ""
+        self.atom_dict["occupancy"], self.atom_dict["charge"] = 1, 0
+        self.atom_dict["anisotropy"] = [0, 0, 0, 0, 0, 0]
+        line = atom_dict_to_anisou_line(self.atom_dict)
+        self.assertEqual(line[:6], "ANISOU")
+        self.assertEqual(line[6:11], "    0")
+        self.assertEqual(line[11:].strip(), "")
+
+
+    def test_can_convert_full_atom_dict_to_line(self):
+        line = atom_dict_to_anisou_line(self.atom_dict)
+        self.assertEqual(line[:6], "ANISOU")
+        self.assertEqual(line[6:11], "  107")
+        self.assertEqual(line[11], " ")
+        self.assertEqual(line[12:16], " N  ")
+        self.assertEqual(line[16], "A")
+        self.assertEqual(line[17:20], "GLY")
+        self.assertEqual(line[20], " ")
+        self.assertEqual(line[21], "B")
+        self.assertEqual(line[22:26], "  13")
+        self.assertEqual(line[26], "C")
+        self.assertEqual(line[28:35], "   3400")
+        self.assertEqual(line[35:42], "  -3456")
+        self.assertEqual(line[42:49], "    980")
+        self.assertEqual(line[49:56], "       ")
+        self.assertEqual(line[56:63], "  -1231")
+        self.assertEqual(line[63:70], "   9000")
+        self.assertEqual(line[76:78], " N")
+        self.assertEqual(line[78:], "2-")
 
 
 

@@ -147,9 +147,13 @@ def pack_model(lines, model_dict, multi=0):
         for residue in chain["residues"]:
             for atom in residue["atoms"]:
                 lines.append(atom_dict_to_atom_line(atom, hetero=False))
+                if atom["anisotropy"] != [0] * 6:
+                    lines.append(atom_dict_to_anisou_line(atom))
     for molecule in model_dict["molecules"]:
         for atom in molecule["atoms"]:
             lines.append(atom_dict_to_atom_line(atom, hetero=True))
+            if atom["anisotropy"] != [0] * 6:
+                lines.append(atom_dict_to_anisou_line(atom))
     if multi > 0:
         lines.append("ENDMDL".ljust(80))
 
@@ -182,6 +186,37 @@ def atom_dict_to_atom_line(d, hetero=False):
      "{:.3f}".format(d["z"]) if d["z"] is not None else "",
      occupancy,
      d["temp_factor"] if d["temp_factor"] is not None else "",
+     d["element"] if d["element"] else "",
+     str(d["charge"])[::-1] if d["charge"] else "",
+    )
+    return line
+
+
+def atom_dict_to_anisou_line(d):
+    """Converts an atom ``dict`` to an ANISOU record.
+
+    :param dict d: The atom dictionary to pack."""
+
+    line = "{:6}{:5} {:4}{:1}{:3} {:1}{:4}{:1} "
+    line += "{:>7}{:>7}{:>7}{:>7}{:>7}{:>7}      {:>2}{:2}"
+    atom_name = d["atom_name"] if d["atom_name"] else ""
+    atom_name = " " + atom_name if len(atom_name) < 4 else atom_name
+    anisotropy = [round(x * 10000 )for x in d["anisotropy"]]
+    line = line.format(
+     "ANISOU",
+     d["atom_id"],
+     atom_name,
+     d["alt_loc"] if d["alt_loc"] else "",
+     d["residue_name"] if d["residue_name"] else "",
+     d["chain_id"],
+     d["residue_id"] if d["residue_id"] else "",
+     d["insert_code"],
+     anisotropy[0] if anisotropy[0] is not 0 else "",
+     anisotropy[1] if anisotropy[1] is not 0 else "",
+     anisotropy[2] if anisotropy[2] is not 0 else "",
+     anisotropy[3] if anisotropy[3] is not 0 else "",
+     anisotropy[4] if anisotropy[4] is not 0 else "",
+     anisotropy[5] if anisotropy[5] is not 0 else "",
      d["element"] if d["element"] else "",
      str(d["charge"])[::-1] if d["charge"] else "",
     )

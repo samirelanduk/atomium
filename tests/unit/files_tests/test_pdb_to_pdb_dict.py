@@ -115,6 +115,7 @@ class AtomToAtomDictTests(TestCase):
         self.atom.element = "N"
         self.atom.charge = -2
         self.atom.bfactor = 12.5
+        self.atom.anisotropy = [1, 2, 0, 3, 3, 4]
         self.residue = Mock()
         self.residue.name = "GLY"
         self.residue.id = "A13B"
@@ -131,7 +132,7 @@ class AtomToAtomDictTests(TestCase):
          "residue_name": "GLY",
          "chain_id": "A", "residue_id": 13, "insert_code": "B", "full_id": "A13B",
          "x": 12.681, "y": 37.302, "z": -25.211,
-         "occupancy": 1.0, "temp_factor": 12.5,
+         "occupancy": 1.0, "temp_factor": 12.5, "anisotropy": [1, 2, 0, 3, 3, 4],
          "element": "N", "charge": -2,
         })
 
@@ -149,7 +150,7 @@ class AtomToAtomDictTests(TestCase):
          "residue_name": "SUC",
          "chain_id": "A", "residue_id": 200, "insert_code": "", "full_id": "A200",
          "x": 12.681, "y": 37.302, "z": -25.211,
-         "occupancy": 1.0, "temp_factor": 12.5,
+         "occupancy": 1.0, "temp_factor": 12.5, "anisotropy": [1, 2, 0, 3, 3, 4],
          "element": "N", "charge": -2,
         })
 

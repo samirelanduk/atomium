@@ -110,6 +110,16 @@ class ResidueSequenceResiduesTests(ResidueSequenceTest):
 
 
 
+class ResidueSequenceSequence(ResidueSequenceTest):
+
+    @patch("atomium.structures.chains.ResidueSequence.residues")
+    def test_can_get_sequence(self, mock_residues):
+        mock_residues.return_value = (self.residue1, self.residue2)
+        self.residue1.code, self.residue2.code = "YT"
+        self.assertEqual(self.sequence.sequence, "YT")
+
+
+
 class ResidueSequenceCorrectCheckingTests(ResidueSequenceTest):
 
     def test_can_verify_conected_residues(self):

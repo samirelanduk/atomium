@@ -327,6 +327,8 @@ class CreationTests(IntegratedTest):
         self.assertEqual(chainb.length, 3)
         self.assertIs(self.atoms[-1].chain, chainb)
         self.assertIs(res6.chain, chainb)
+        self.assertEqual(chaina.sequence, "MMC")
+        self.assertEqual(chainb.sequence, "MHI")
 
         # Complexes
         complex = Complex(chaina, chainb, id="1", name="HEAVY")

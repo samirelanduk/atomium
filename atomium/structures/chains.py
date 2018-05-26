@@ -83,6 +83,16 @@ class ResidueSequence:
         return tuple(sorted(all_res, key=lambda k: full_sequence.index(k)))
 
 
+    @property
+    def sequence(self):
+        """Returns the sequence of amino acids as represented in the residues
+        contained.
+
+        :rtype: ``str``"""
+        
+        return "".join(residue.code for residue in self.residues())
+
+
 
 class Chain(ResidueSequence, Molecule):
     """Base classes: :py:class:`.Molecule` and :py:class:`ResidueSequence`

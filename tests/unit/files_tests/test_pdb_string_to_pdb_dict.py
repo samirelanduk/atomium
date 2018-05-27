@@ -27,7 +27,6 @@ class PdbStringToPdbDictTests(TestCase):
 
 
 class AnnotationExtractionTests(PdbStringConversionTest):
-
     @patch("atomium.files.pdbstring2pdbdict.extract_header")
     @patch("atomium.files.pdbstring2pdbdict.extract_title")
     @patch("atomium.files.pdbstring2pdbdict.extract_resolution")
@@ -35,7 +34,8 @@ class AnnotationExtractionTests(PdbStringConversionTest):
     @patch("atomium.files.pdbstring2pdbdict.extract_source")
     @patch("atomium.files.pdbstring2pdbdict.extract_technique")
     @patch("atomium.files.pdbstring2pdbdict.extract_keywords")
-    def test_can_extract_header(self, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_header):
+    @patch("atomium.files.pdbstring2pdbdict.extract_sequence")
+    def test_can_extract_header(self, mock_seq, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_header):
         extract_annotation(self.pdb_dict, self.lines)
         mock_title.assert_called_with(self.pdb_dict, self.lines)
         mock_header.assert_called_with(self.pdb_dict, self.lines)
@@ -44,6 +44,7 @@ class AnnotationExtractionTests(PdbStringConversionTest):
         mock_source.assert_called_with(self.pdb_dict, self.lines)
         mock_tech.assert_called_with(self.pdb_dict, self.lines)
         mock_key.assert_called_with(self.pdb_dict, self.lines)
+        mock_seq.assert_called_with(self.pdb_dict, self.lines)
 
 
 
@@ -300,6 +301,39 @@ class KeywordExtractionTests(PdbStringConversionTest):
         mock_lines.assert_any_call("KEYWDS", self.lines)
         mock_merge.assert_any_call(["KEYWDS    TIM BARREL, LYASE"], 10)
         self.assertEqual(self.pdb_dict["keywords"], ["TIM BARREL", "LYASE"])
+
+
+
+class SequenceExtractionTests(PdbStringConversionTest):
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
+    def test_empty_sequence_extraction(self, mock_merge, mock_lines):
+        mock_lines.return_value = []
+        extract_sequence(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("SEQRES", self.lines)
+        self.assertEqual(self.pdb_dict["sequences"], {})
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    @patch("atomium.files.pdbstring2pdbdict.merge_lines")
+    def test_sequence_extraction(self, mock_merge, mock_lines):
+        mock_lines.return_value = ["line1", "line2"]
+        mock_merge.return_value = "C 15 JHY FRT C 15 FDR D YTR"
+        extract_sequence(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("SEQRES", self.lines)
+        mock_merge.assert_called_with(["line1", "line2"], 10)
+        self.assertEqual(self.pdb_dict["sequences"], {"C": ["JHY", "FRT", "FDR"], "D": ["YTR"]})
+
+
+
+        mock_merge.return_value = (
+         "MOL_ID: 1;"
+         " ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER"
+         " THERMAUTOTROPHICUS STR. DELTA H;"
+         " ORGANISM_TAXID: 187420;"
+         " STRAIN: DELTA H;"
+        )
 
 
 

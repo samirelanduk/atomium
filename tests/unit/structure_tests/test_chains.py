@@ -38,6 +38,7 @@ class ChainCreationTests(ChainTest):
         self.assertIsInstance(chain, ResidueSequence)
         self.mock_init.assert_called_with(chain, self.atom1, self.atom2, self.atom3, a=1, b=2)
         self.mock_verify.assert_called_with(chain)
+        self.assertEqual(chain._rep_sequence, "")
 
 
     def test_atoms_are_linked_to_chain(self):
@@ -46,6 +47,16 @@ class ChainCreationTests(ChainTest):
         self.assertIs(self.atom1._chain, chain)
         self.assertIs(self.atom2._chain, chain)
         self.assertIs(self.atom3._chain, chain)
+
+
+    def test_can_create_chain_with_rep_sequence(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3, a=1, b=2, rep="OIU")
+        self.assertEqual(chain._rep_sequence, "OIU")
+
+
+    def test_rep_sequence_must_be_str(self):
+        with self.assertRaises(TypeError):
+            Chain(self.atom1, self.atom2, self.atom3, a=1, b=2, rep=123)
 
 
 
@@ -65,3 +76,23 @@ class ChainReprTests(ChainTest):
         chain = Chain(self.atom1, self.atom2, self.atom3)
         chain._name = "A"
         self.assertEqual(str(chain), "<Chain A (2 residues)>")
+
+
+
+class ChainRepSequenceTests(ChainTest):
+
+    def test_chain_rep_sequence_property(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3, rep="ABC")
+        self.assertIs(chain._rep_sequence, chain.rep_sequence)
+
+
+    def test_can_update_chain_rep_sequence(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3, rep="ABC")
+        chain.rep_sequence = "DEF"
+        self.assertEqual(chain._rep_sequence, "DEF")
+
+
+    def test_chain_rep_sequence_must_be_str(self):
+        chain = Chain(self.atom1, self.atom2, self.atom3, rep="ABC")
+        with self.assertRaises(TypeError):
+            chain.rep_sequence = 10

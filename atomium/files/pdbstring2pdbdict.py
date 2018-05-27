@@ -31,6 +31,7 @@ def extract_annotation(pdb_dict, lines):
     extract_source(pdb_dict, lines)
     extract_technique(pdb_dict, lines)
     extract_keywords(pdb_dict, lines)
+    extract_sequence(pdb_dict, lines)
 
 
 def extract_header(pdb_dict, lines):
@@ -150,6 +151,26 @@ def extract_keywords(pdb_dict, lines):
     if lines:
         text = merge_lines(lines, 10)
         pdb_dict["keywords"] = [word.strip() for word in text.split(",")]
+
+
+def extract_sequence(pdb_dict, lines):
+    """Takes a ``dict`` and adds sequence information to it by parsing file
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    lines = get_lines("SEQRES", lines)
+    pdb_dict["sequences"] = {}
+    if lines:
+        text = merge_lines(lines, 10)
+        blocks, code = text.split(), None
+        blocks = [b for b in blocks if not b.isdigit()]
+        for block in blocks:
+            if len(block) == 1 and block not in pdb_dict["sequences"]:
+                pdb_dict["sequences"][block], code = [], block
+            elif code and not len(block) == 1:
+                pdb_dict["sequences"][code].append(block)
 
 
 def extract_structure(pdb_dict, lines):

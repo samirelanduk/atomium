@@ -89,7 +89,7 @@ class ResidueSequence:
         contained.
 
         :rtype: ``str``"""
-        
+
         return "".join(residue.code for residue in self.residues())
 
 
@@ -106,14 +106,18 @@ class Chain(ResidueSequence, Molecule):
     :param str id: A unique str ID for the chain. Uniqueness is not\
     actually enforced.
     :param str name: A name for the chain.
+    :param str rep: The sequence the chain represents.
     :raises TypeError: if non-atoms or AtomicStructures are given.
     :raises TypeError: if the chain_id is not str."""
 
-    def __init__(self, *atoms, **kwargs):
+    def __init__(self, *atoms, rep="", **kwargs):
         Molecule.__init__(self, *atoms, **kwargs)
         ResidueSequence.verify(self)
         for atom in self._atoms:
             atom._chain = self
+        if not isinstance(rep, str):
+            raise TypeError("Sequence {} is not str".format(rep))
+        self._rep_sequence = rep
 
 
     def __repr__(self):
@@ -121,6 +125,25 @@ class Chain(ResidueSequence, Molecule):
          self._name + " " if self._name else "",
          len(self.residues())
         )
+
+
+    @property
+    def rep_sequence(self):
+        """The sequence the chain represents, *not* the actual sequence of the
+        residues present. A model can often have residues missing that the
+        experiment it was created from didn't capture. This is the true sequence
+        as it should be, not the sequence as it is in the model.
+
+        :raises TypeError: if the sequence given is not str."""
+
+        return self._rep_sequence
+
+
+    @rep_sequence.setter
+    def rep_sequence(self, rep):
+        if not isinstance(rep, str):
+            raise TypeError("Sequence {} is not str".format(rep))
+        self._rep_sequence = rep
 
 
 

@@ -17,12 +17,13 @@ class PdbDictToPdbTests(TestCase):
          "technique": "TECHNIQUE", "classification": "CLASS", "rfactor": 4.5,
          "keywords": ["A", "B"],
          "models": ["1", "2", "3"],
-         "connections": ["c1", "c2"]
+         "connections": ["c1", "c2"],
+         "sequences": {"A": "SEQUENCE"}
         }
         returned_pdb = pdb_dict_to_pdb(pdb_dict)
-        mock_model.assert_any_call("1", ["c1", "c2"])
-        mock_model.assert_any_call("2", ["c1", "c2"])
-        mock_model.assert_any_call("3", ["c1", "c2"])
+        mock_model.assert_any_call("1", ["c1", "c2"], {"A": "SEQUENCE"})
+        mock_model.assert_any_call("2", ["c1", "c2"], {"A": "SEQUENCE"})
+        mock_model.assert_any_call("3", ["c1", "c2"], {"A": "SEQUENCE"})
         self.assertIs(returned_pdb, pdb)
         self.assertEqual(returned_pdb._deposition_date, "D")
         self.assertEqual(returned_pdb._code, "C")
@@ -52,9 +53,9 @@ class ModelDictToModelTests(TestCase):
         model_dict = {
          "molecules": ["m1", "m2", "m3"], "chains": ["c1", "c2"]
         }
-        returned_model = model_dict_to_model(model_dict, ["c1", "c2"])
-        mock_chain.assert_any_call("c1")
-        mock_chain.assert_any_call("c2")
+        returned_model = model_dict_to_model(model_dict, ["c1", "c2"], "SEQ")
+        mock_chain.assert_any_call("c1", "SEQ")
+        mock_chain.assert_any_call("c2", "SEQ")
         mock_res.assert_any_call("m1", molecule=True)
         mock_res.assert_any_call("m2", molecule=True)
         mock_res.assert_any_call("m3", molecule=True)
@@ -78,14 +79,14 @@ class ChainDictToChainTests(TestCase):
         residues = [Mock(), Mock(), Mock()]
         mock_res.side_effect = residues
         chain_dict = {"chain_id": "A", "residues": ["r1", "r2", "r3"]}
-        returned_chain = chain_dict_to_chain(chain_dict)
+        returned_chain = chain_dict_to_chain(chain_dict, {"A": ["MET", "PLO"], "B": ["O"]})
         self.assertIs(returned_chain, chain)
         mock_res.assert_any_call("r1")
         mock_res.assert_any_call("r2")
         mock_res.assert_any_call("r3")
         self.assertIs(residues[0].next, residues[1])
         self.assertIs(residues[1].next, residues[2])
-        mock_chain.assert_called_with(*residues, id="A")
+        mock_chain.assert_called_with(*residues, id="A", rep="MX")
 
 
 

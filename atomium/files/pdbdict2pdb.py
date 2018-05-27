@@ -3,6 +3,7 @@ objects."""
 
 from .pdb import Pdb
 from ..structures import Model, Chain, Residue, Molecule, Atom
+from ..structures.molecules import CODES
 from ..structures.reference import bonds
 
 def pdb_dict_to_pdb(pdb_dict):
@@ -23,36 +24,40 @@ def pdb_dict_to_pdb(pdb_dict):
     pdb._rfactor = pdb_dict["rfactor"]
     pdb._keywords = pdb_dict["keywords"]
     pdb._models = [model_dict_to_model(
-     d, pdb_dict["connections"]
+     d, pdb_dict["connections"], pdb_dict["sequences"]
     ) for d in pdb_dict["models"]]
     return pdb
 
 
-def model_dict_to_model(model_dict, connections):
+def model_dict_to_model(model_dict, connections, sequences):
     """Converts a model ``dict`` to a :py:class:`.Model`
 
     :param dict model_dict: The model dictionary to load.
+    :param dict connections: The connections dictionary to use.
+    :param dict sequences: The sequences dictionary to load.
     :rtype: :py:class:`.Model`"""
 
     model = Model()
     for chain in model_dict["chains"]:
-        model.add(chain_dict_to_chain(chain))
+        model.add(chain_dict_to_chain(chain, sequences))
     for molecule in model_dict["molecules"]:
         model.add(residue_dict_to_residue(molecule, molecule=True))
     bond_atoms(model, connections)
     return model
 
 
-def chain_dict_to_chain(chain_dict):
+def chain_dict_to_chain(chain_dict, sequences):
     """Converts a chain ``dict`` to a :py:class:`.Chain`
 
     :param dict chain_dict: The chain dictionary to load.
+    :param dict sequences: The sequences dictionary to use.
     :rtype: :py:class:`.Chain`"""
 
     residues = [residue_dict_to_residue(res) for res in chain_dict["residues"]]
     for index, residue in enumerate(residues[:-1]):
         residue.next = residues[index + 1]
-    return Chain(*residues, id=chain_dict["chain_id"])
+    rep = "".join(CODES.get(res, "X") for res in sequences.get(chain_dict["chain_id"], []))
+    return Chain(*residues, id=chain_dict["chain_id"], rep=rep)
 
 
 def residue_dict_to_residue(residue_dict, molecule=False):

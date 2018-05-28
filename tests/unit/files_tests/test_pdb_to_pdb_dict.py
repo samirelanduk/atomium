@@ -5,7 +5,9 @@ from atomium.files.pdb2pdbdict import *
 class PdbToPdbDictTests(TestCase):
 
     @patch("atomium.files.pdb2pdbdict.structure_to_pdb_dict")
-    def test_can_convert_pdb_to_pdb_dict_one_model(self, mock_dict):
+    @patch("atomium.files.pdb2pdbdict.sequences_from_model")
+    def test_can_convert_pdb_to_pdb_dict_one_model(self, mock_seq, mock_dict):
+        mock_seq.return_value = "SEQ"
         pdb = Mock()
         pdb._deposition_date = "D"
         pdb._code = "C"
@@ -21,16 +23,19 @@ class PdbToPdbDictTests(TestCase):
         mock_dict.return_value = {"models": ["m1"], "connections": ["c1", "c2"]}
         pdb_dict = pdb_to_pdb_dict(pdb)
         mock_dict.assert_called_with("model1")
+        mock_seq.assert_called_with("model1")
         self.assertEqual(pdb_dict, {
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
          "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
-         "models": ["m1"], "connections": ["c1", "c2"]
+         "models": ["m1"], "connections": ["c1", "c2"], "sequences": "SEQ"
         })
 
 
     @patch("atomium.files.pdb2pdbdict.structure_to_pdb_dict")
-    def test_can_convert_pdb_to_pdb_dict_two_models(self, mock_dict):
+    @patch("atomium.files.pdb2pdbdict.sequences_from_model")
+    def test_can_convert_pdb_to_pdb_dict_two_models(self, mock_seq, mock_dict):
+        mock_seq.return_value = "SEQ"
         pdb = Mock()
         pdb._deposition_date = "D"
         pdb._code = "C"
@@ -50,11 +55,12 @@ class PdbToPdbDictTests(TestCase):
         pdb_dict = pdb_to_pdb_dict(pdb)
         mock_dict.assert_any_call("model1")
         mock_dict.assert_any_call("model2")
+        mock_seq.assert_called_with("model1")
         self.assertEqual(pdb_dict, {
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
          "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
-         "models": ["m1", "m2"], "connections": ["c1", "c2"]
+         "models": ["m1", "m2"], "connections": ["c1", "c2"], "sequences": "SEQ"
         })
 
 
@@ -94,6 +100,7 @@ class StructureToPdbDictTests(TestCase):
          "technique": None,
          "classification": None,
          "keywords": [],
+         "sequences": {},
          "models": [{
           "chains": ["chain1", "chain2"],
           "molecules": ["mol1", "mol2"]
@@ -193,3 +200,16 @@ class StructureToConnectionsTests(TestCase):
         }, {
          "atom": 7, "bond_to": [5, 6]
         }])
+
+
+
+class SequencesFromModelTests(TestCase):
+
+    def test_can_get_sequences_from_model(self):
+        chaina, chainb = Mock(id="A", rep_sequence="TXV"), Mock(id="B", rep_sequence="UM")
+        model = Mock()
+        model.chains.return_value = [chaina, Mock(rep_sequence=""), chainb]
+        sequences = sequences_from_model(model)
+        self.assertEqual(sequences, {
+         "A": ["THR", "???", "VAL"], "B": ["???", "MET"]
+        })

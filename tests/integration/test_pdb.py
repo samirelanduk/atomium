@@ -273,6 +273,7 @@ class PdbSavingTests(IntegratedTest):
         pdb.organism = "HOMO SAPIENS"
         pdb.expression_system = "COOL NEW ORGANISM"
         pdb.technique = "MEME DIFFRACTION"
+        pdb.model.chain("B").rep_sequence = ""
         while pdb.keywords: pdb.keywords.pop()
         for k in ["AMAZING", "SUPERB", "WOW"]: pdb.keywords.append(k)
         pdb.save("tests/integration/files/1LOL2.pdb")

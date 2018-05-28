@@ -30,6 +30,7 @@ def pack_annotation(lines, pdb_dict):
     pack_technique(lines, pdb_dict)
     pack_resolution(lines, pdb_dict)
     pack_rfactor(lines, pdb_dict)
+    pack_sequences(lines, pdb_dict)
 
 
 def pack_header(lines, pdb_dict):
@@ -115,8 +116,31 @@ def pack_technique(lines, pdb_dict):
 
 
 def pack_keywords(lines, pdb_dict):
+    """Adds a KEYWDS record to a list of lines for PDB keyword tags.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
     if pdb_dict["keywords"]:
         lines += split_string(", ".join(pdb_dict["keywords"]), "KEYWDS", 11)
+
+
+def pack_sequences(lines, pdb_dict):
+    """Adds SEQRES records to a list of lines for sequence annotation.
+
+    :param list lines: The record lines to add to.
+    :param dict pdb_dict: The data dictionary to pack."""
+
+    if pdb_dict["sequences"]:
+        for chain in sorted(pdb_dict["sequences"].keys()):
+            residues = pdb_dict["sequences"][chain]
+            length = len(residues)
+            line_count = ceil(length / 13)
+            for line_num in range(line_count):
+                lines += ["SEQRES {:>3} {} {:>4}  {}".format(
+                 line_num + 1, chain, length,
+                 " ".join(residues[line_num * 13: (line_num + 1) * 13])
+                ).ljust(80)]
 
 
 def pack_structure(lines, pdb_dict):

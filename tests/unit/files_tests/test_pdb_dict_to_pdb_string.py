@@ -11,7 +11,8 @@ class PdbStringCreationTest(TestCase):
          "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9,
          "technique": "TECH", "classification": "CLASS", "rfactor": 3.4,
          "keywords": ["AA", "BBB", "CCCCC"],
-         "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS"
+         "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS",
+         "sequences": {"A": ["AAA", "BBB"], "C": ["CCC"]}
         }
         self.lines = []
 
@@ -42,7 +43,8 @@ class AnnotationPackingTests(PdbStringCreationTest):
     @patch("atomium.files.pdbdict2pdbstring.pack_source")
     @patch("atomium.files.pdbdict2pdbstring.pack_technique")
     @patch("atomium.files.pdbdict2pdbstring.pack_keywords")
-    def test_can_pack_annotation(self, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_head):
+    @patch("atomium.files.pdbdict2pdbstring.pack_sequences")
+    def test_can_pack_annotation(self, mock_seq, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_head):
         pack_annotation(self.lines, self.pdb_dict)
         mock_head.assert_called_with(self.lines, self.pdb_dict)
         mock_title.assert_called_with(self.lines, self.pdb_dict)
@@ -51,6 +53,7 @@ class AnnotationPackingTests(PdbStringCreationTest):
         mock_source.assert_called_with(self.lines, self.pdb_dict)
         mock_tech.assert_called_with(self.lines, self.pdb_dict)
         mock_key.assert_called_with(self.lines, self.pdb_dict)
+        mock_seq.assert_called_with(self.lines, self.pdb_dict)
 
 
 
@@ -189,6 +192,32 @@ class KeywordPackingTests(PdbStringCreationTest):
     def test_can_pack_nothing(self):
         self.pdb_dict["keywords"] = None
         pack_keywords(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [])
+
+
+
+class SequencePackingTests(PdbStringCreationTest):
+
+    def test_can_pack_sequences(self):
+        pack_sequences(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [
+         "SEQRES   1 A    2  AAA BBB".ljust(80),
+         "SEQRES   1 C    1  CCC".ljust(80)
+        ])
+
+
+    def test_can_pack_sequences_multiple_lines(self):
+        self.pdb_dict["sequences"] = {"A": ["AAA"] * 20}
+        pack_sequences(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [
+         ("SEQRES   1 A   20  " + " ".join(["AAA"] * 13)).ljust(80),
+         ("SEQRES   2 A   20  " + " ".join(["AAA"] * 7)).ljust(80)
+        ])
+
+
+    def test_can_pack_nothing(self):
+        self.pdb_dict["sequences"] = {}
+        pack_sequences(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
 
 

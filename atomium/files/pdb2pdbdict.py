@@ -2,6 +2,7 @@
 dictionaries."""
 
 from .pdbstring2pdbdict import atoms_to_chains, atoms_to_residues
+from ..structures.molecules import CODES
 
 def pdb_to_pdb_dict(pdb):
     """Converts a :py:class:`.Pdb` to a data ``dict``
@@ -13,6 +14,7 @@ def pdb_to_pdb_dict(pdb):
     pdb_dict = pdb_dicts[0]
     for d in pdb_dicts[1:]:
         pdb_dict["models"].append(d["models"][0])
+    pdb_dict["sequences"] = sequences_from_model(pdb._models[0])
     pdb_dict["deposition_date"] = pdb._deposition_date
     pdb_dict["code"] = pdb._code
     pdb_dict["title"] = pdb._title
@@ -47,7 +49,7 @@ def structure_to_pdb_dict(structure):
      "models": [model], "connections": connections,
      "deposition_date": None, "code": None, "title": None, "resolution": None,
      "organism": None, "expression_system": None, "technique": None,
-     "classification": None, "rfactor": None, "keywords": []
+     "classification": None, "rfactor": None, "keywords": [], "sequences": {}
     }
 
 
@@ -95,3 +97,17 @@ def structure_to_connections(structure):
              "bond_to": sorted([a.id for a in atom.bonded_atoms()])
             })
     return sorted(connections, key=lambda k: k["atom"])
+
+
+def sequences_from_model(model):
+    """Takes a model and creates a sequences ``dict`` from its chains.
+
+    :param Model model: the model to parse.
+    :rtype: ``dict``"""
+    
+    sequences = {}
+    lookup = {v: k for k, v in CODES.items()}
+    for chain in model.chains():
+        if chain.rep_sequence:
+            sequences[chain.id] = [lookup.get(c, "???") for c in chain.rep_sequence]
+    return sequences

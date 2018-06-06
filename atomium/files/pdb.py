@@ -1,7 +1,7 @@
 """Contains the Pdb class and functions for opening them."""
 
 import datetime
-from ..structures.models import Model
+from ..models.molecules import Model
 
 class Pdb:
     """A Pdb is used to represent a fully processed PDB file."""
@@ -46,8 +46,6 @@ class Pdb:
     def code(self):
         """The Pdb's 4-letter code.
 
-        :raises TypeError: if a non-str code is set.
-        :raises ValueError: if the PDB code given is invalid.
         :rtype: ``str``"""
 
         return self._code
@@ -55,10 +53,6 @@ class Pdb:
 
     @code.setter
     def code(self, code):
-        if not isinstance(code, str):
-            raise TypeError("PDB code {} is not str".format(code))
-        if len(code) != 4:
-            raise ValueError("PDB code {} is not valid".format(code))
         self._code = code
 
 
@@ -66,7 +60,6 @@ class Pdb:
     def deposition_date(self):
         """The Pdb's desposition date.
 
-        :raises TypeError: if a non-date is given.
         :rtype: ``datetime.date``"""
 
         return self._deposition_date
@@ -74,8 +67,6 @@ class Pdb:
 
     @deposition_date.setter
     def deposition_date(self, deposition_date):
-        if not isinstance(deposition_date, datetime.date):
-            raise TypeError("{} is not a Date".format(deposition_date))
         self._deposition_date = deposition_date
 
 
@@ -83,7 +74,6 @@ class Pdb:
     def title(self):
         """The Pdb's title.
 
-        :raises TypeError: if a non-str title is given.
         :rtype: ``str``"""
 
         return self._title
@@ -91,8 +81,6 @@ class Pdb:
 
     @title.setter
     def title(self, title):
-        if not isinstance(title, str):
-            raise TypeError("PDB title {} is not str".format(title))
         self._title = title
 
 
@@ -101,7 +89,6 @@ class Pdb:
     def resolution(self):
         """The Pdb's resolution.
 
-        :raises TypeError: if a non-numeric resolution is given.
         :rtype: ``float``"""
 
         return self._resolution
@@ -109,8 +96,6 @@ class Pdb:
 
     @resolution.setter
     def resolution(self, resolution):
-        if not isinstance(resolution, (int, float)):
-            raise TypeError("Resolution {} isn't numeric".format(resolution))
         self._resolution = resolution
 
 
@@ -119,7 +104,6 @@ class Pdb:
     def rfactor(self):
         """The Pdb's R-factor.
 
-        :raises TypeError: if a non-numeric rfactor is given.
         :rtype: ``float``"""
 
         return self._rfactor
@@ -127,8 +111,6 @@ class Pdb:
 
     @rfactor.setter
     def rfactor(self, rfactor):
-        if not isinstance(rfactor, (int, float)):
-            raise TypeError("R-factor {} isn't numeric".format(rfactor))
         self._rfactor = rfactor
 
 
@@ -136,7 +118,6 @@ class Pdb:
     def organism(self):
         """The Pdb's source organism.
 
-        :raises TypeError: if a non-str organism is given.
         :rtype: ``str``"""
 
         return self._organism
@@ -144,8 +125,6 @@ class Pdb:
 
     @organism.setter
     def organism(self, organism):
-        if not isinstance(organism, str):
-            raise TypeError("PDB organism {} is not str".format(organism))
         self._organism = organism
 
 
@@ -153,7 +132,6 @@ class Pdb:
     def expression_system(self):
         """The Pdb's expression organism.
 
-        :raises TypeError: if a non-str organism is given.
         :rtype: ``str``"""
 
         return self._expression_system
@@ -161,10 +139,6 @@ class Pdb:
 
     @expression_system.setter
     def expression_system(self, expression_system):
-        if not isinstance(expression_system, str):
-            raise TypeError(
-             "PDB expression organism {} is not str".format(expression_system)
-            )
         self._expression_system = expression_system
 
 
@@ -172,7 +146,6 @@ class Pdb:
     def technique(self):
         """The Pdb's experimental technique.
 
-        :raises TypeError: if a non-str technique is given.
         :rtype: ``str``"""
 
         return self._technique
@@ -180,8 +153,6 @@ class Pdb:
 
     @technique.setter
     def technique(self, technique):
-        if not isinstance(technique, str):
-            raise TypeError("Technique {} is not str".format(technique))
         self._technique = technique
 
 
@@ -189,7 +160,6 @@ class Pdb:
     def classification(self):
         """The Pdb's classification.
 
-        :raises TypeError: if a non-str classification is given.
         :rtype: ``str``"""
 
         return self._classification
@@ -197,10 +167,6 @@ class Pdb:
 
     @classification.setter
     def classification(self, classification):
-        if not isinstance(classification, str):
-            raise TypeError(
-             "Classification {} is not str".format(classification)
-            )
         self._classification = classification
 
 

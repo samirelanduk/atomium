@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock
 from atomium.files.xyz import Xyz
-from atomium.structures.models import Model
+from atomium.models.molecules import Model
 
 class XyzCreationTests(TestCase):
 
@@ -17,17 +17,17 @@ class XyzCreationTests(TestCase):
         self.assertEqual(xyz._title, "Glucose molecule")
 
 
-    def test_xyz_title_must_be_str(self):
-        with self.assertRaises(TypeError):
-            Xyz(100)
-
-
 
 class XyzReprTests(TestCase):
 
     def test_xyz_repr(self):
         xyz = Xyz("Glucose molecule")
         self.assertEqual(str(xyz), "<Xyz (Glucose molecule)>")
+
+
+    def test_xyz_repr_no_title(self):
+        xyz = Xyz()
+        self.assertEqual(str(xyz), "<Xyz>")
 
 
 
@@ -42,12 +42,6 @@ class XyzTitleTests(TestCase):
         xyz = Xyz("Glucose molecule")
         xyz.title = "Fructose molecule"
         self.assertEqual(xyz._title, "Fructose molecule")
-
-
-    def test_xyz_title_must_be_str(self):
-        xyz = Xyz("Glucose molecule")
-        with self.assertRaises(TypeError):
-            xyz.title = 100
 
 
 

@@ -77,16 +77,6 @@ class StringFromWebServicesTests(TestCase):
         self.assertIsNone(fetch_string("1XXX"))
 
 
-    def test_pdb_code_must_be_string(self):
-        with self.assertRaises(TypeError):
-            fetch_string(4000)
-
-
-    def test_pdb_code_must_be_len_4(self):
-        with self.assertRaises(ValueError):
-            fetch_string("1xx")
-
-
 
 class PdbDictFromFileTests(TestCase):
 

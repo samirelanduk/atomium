@@ -13,9 +13,9 @@ def xyz_to_xyz_dict(xyz):
 
 
 def structure_to_xyz_dict(structure):
-    """Converts an :py:class:`.AtomicStructure` to a model ``dict``
+    """Converts an :py:class:`.AtomStructure` to a model ``dict``.
 
-    :param AtomicStructure structure: the structure to convert.
+    :param AtomStructure structure: the structure to convert.
     :rtype: ``dict``"""
 
     return {
@@ -25,7 +25,7 @@ def structure_to_xyz_dict(structure):
 
 
 def atom_to_atom_dict(atom):
-    """Converts an :py:class:`.Atom` to an atom ``dict``
+    """Converts an :py:class:`.Atom` to an atom ``dict``.
 
     :param Atom atom: the atom to convert.
     :rtype: ``dict``"""

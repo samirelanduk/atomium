@@ -35,7 +35,8 @@ def extract_annotation(pdb_dict, lines):
 
 
 def extract_header(pdb_dict, lines):
-    """Takes a ``dict`` and adds header information to it by parsing the HEADER line.
+    """Takes a ``dict`` and adds header information to it by parsing the HEADER
+    line.
 
     :param dict pdb_dict: the ``dict`` to update.
     :param list lines: the file lines to read from."""
@@ -56,7 +57,8 @@ def extract_header(pdb_dict, lines):
 
 
 def extract_title(pdb_dict, lines):
-    """Takes a ``dict`` and adds title information to it by parsing the TITLE line.
+    """Takes a ``dict`` and adds title information to it by parsing the TITLE
+    line.
 
     :param dict pdb_dict: the ``dict`` to update.
     :param list lines: the file lines to read from."""
@@ -188,15 +190,15 @@ def extract_structure(pdb_dict, lines):
     pdb_dict["models"] = []
     if model_lines:
         for index, (line, line_number) in enumerate(model_lines):
-            next_line_number = model_lines[index + 1][1] if (
+            next_ = model_lines[index + 1][1] if (
              index < len(model_lines) - 1
             ) else len(lines)
             m_atoms = [line for line, number in atom_lines
-             if line_number < number < next_line_number]
+             if line_number < number < next_]
             m_het = [line for line, number in hetatm_lines
-             if line_number < number < next_line_number]
+             if line_number < number < next_]
             m_anisou = [line for line, number in anisou_lines
-             if line_number < number < next_line_number]
+             if line_number < number < next_]
             pdb_dict["models"].append(lines_to_model(m_atoms, m_het, m_anisou))
     else:
         pdb_dict["models"].append(
@@ -210,14 +212,14 @@ def lines_to_model(atom_lines, hetatm_lines, anisou_lines):
 
     :param list atom_lines: the ATOM lines.
     :param list hetatm_lines: the HETATM lines.
+    :param list anisou_lines: the ANISOU lines.
     :rtype: ``dict``"""
 
     atoms = [atom_line_to_atom_dict(line) for line in atom_lines]
     heteroatoms = [atom_line_to_atom_dict(line) for line in hetatm_lines]
     assign_anisou(anisou_lines, atoms, heteroatoms)
-    molecules = atoms_to_residues(heteroatoms)
-    chains = atoms_to_chains(atoms)
-    model = {"molecules": molecules, "chains": chains}
+    chains = atoms_to_chains(atoms, heteroatoms)
+    model = {"chains": chains}
     return model
 
 
@@ -276,18 +278,23 @@ def atoms_to_residues(atoms):
     return residues
 
 
-def atoms_to_chains(atoms):
+def atoms_to_chains(atoms, heteroatoms):
     """Takes a list of atoms, clusters them into lists belonging to the
     different chains, and makes residue ``dict`` objects out of them.
 
     :param list atoms: The atom ``dict`` objects to collate.
     :rtype: ``list``"""
 
-    chain_ids = sorted(set([atom["chain_id"] for atom in atoms]))
+    chain_ids = sorted(set([atom["chain_id"] for atom in atoms + heteroatoms]))
     chains = []
     for id_ in chain_ids:
         c_atoms = [atom for atom in atoms if atom["chain_id"] == id_]
-        chains.append({"chain_id": id_, "residues": atoms_to_residues(c_atoms)})
+        c_heteroatoms = [atom for atom in heteroatoms if atom["chain_id"] == id_]
+        chains.append({
+         "chain_id": id_,
+         "residues": atoms_to_residues(c_atoms),
+         "ligands": atoms_to_residues(c_heteroatoms)
+        })
     return chains
 
 

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 from atomium.files.pdbdict2pdb import *
-from atomium.structures.reference import bonds
+from atomium.models.data import BONDS
 
 class PdbDictToPdbTests(TestCase):
 
@@ -43,28 +43,18 @@ class ModelDictToModelTests(TestCase):
 
     @patch("atomium.files.pdbdict2pdb.Model")
     @patch("atomium.files.pdbdict2pdb.chain_dict_to_chain")
-    @patch("atomium.files.pdbdict2pdb.residue_dict_to_residue")
     @patch("atomium.files.pdbdict2pdb.bond_atoms")
-    def test_can_convert_model_dict_to_model(self, mock_bond, mock_res, mock_chain, mock_model):
+    def test_can_convert_model_dict_to_model(self, mock_bond, mock_chain, mock_model):
         model = Mock()
         mock_model.return_value = model
         mock_chain.side_effect = ["chain1", "chain2"]
-        mock_res.side_effect = ["mol1", "mol2", "mol3"]
-        model_dict = {
-         "molecules": ["m1", "m2", "m3"], "chains": ["c1", "c2"]
-        }
+        model_dict = {"chains": ["c1", "c2"]}
         returned_model = model_dict_to_model(model_dict, ["c1", "c2"], "SEQ")
         mock_chain.assert_any_call("c1", "SEQ")
         mock_chain.assert_any_call("c2", "SEQ")
-        mock_res.assert_any_call("m1", molecule=True)
-        mock_res.assert_any_call("m2", molecule=True)
-        mock_res.assert_any_call("m3", molecule=True)
         self.assertIs(returned_model, model)
         model.add.assert_any_call("chain1")
         model.add.assert_any_call("chain2")
-        model.add.assert_any_call("mol1")
-        model.add.assert_any_call("mol2")
-        model.add.assert_any_call("mol3")
         mock_bond.assert_called_with(model, ["c1", "c2"])
 
 
@@ -78,19 +68,18 @@ class ChainDictToChainTests(TestCase):
         mock_chain.return_value = chain
         residues = [Mock(), Mock(), Mock()]
         mock_res.side_effect = residues
-        chain_dict = {"chain_id": "A", "residues": ["r1", "r2", "r3"]}
+        chain_dict = {"chain_id": "A", "residues": ["r1", "r2"], "ligands": ["r3"]}
         returned_chain = chain_dict_to_chain(chain_dict, {"A": ["MET", "PLO"], "B": ["O"]})
         self.assertIs(returned_chain, chain)
         mock_res.assert_any_call("r1")
         mock_res.assert_any_call("r2")
-        mock_res.assert_any_call("r3")
+        mock_res.assert_any_call("r3", ligand=True)
         self.assertIs(residues[0].next, residues[1])
-        self.assertIs(residues[1].next, residues[2])
         mock_chain.assert_called_with(*residues, id="A", rep="MX")
 
 
 
-class MoleculeDictToMoleculeTests(TestCase):
+class ResidueDictToResidueTests(TestCase):
 
     def setUp(self):
         self.atom_objects = [Mock(Atom), Mock(Atom), Mock(Atom), Mock(Atom)]
@@ -123,8 +112,7 @@ class MoleculeDictToMoleculeTests(TestCase):
         mock_atom.assert_any_call({"alt_loc": None, "atom_id": 4, "occupancy": 1})
         self.assertEqual(mock_atom.call_count, 4)
         self.assertIs(returned_residue, residue)
-        self.assertEqual(residue._id, "A12")
-        mock_res.assert_called_with(*self.atom_objects, name="VAL")
+        mock_res.assert_called_with(*self.atom_objects, name="VAL", id="A12")
 
 
     @patch("atomium.files.pdbdict2pdb.Residue")
@@ -144,26 +132,24 @@ class MoleculeDictToMoleculeTests(TestCase):
         mock_atom.assert_any_call({"alt_loc": "A", "atom_id": 3, "occupancy": 0.8})
         self.assertEqual(mock_atom.call_count, 3)
         self.assertIs(returned_residue, residue)
-        self.assertEqual(residue._id, "A12")
-        mock_res.assert_called_with(*self.atom_objects[:-1], name="VAL")
+        mock_res.assert_called_with(*self.atom_objects[:-1], name="VAL", id="A12")
 
 
-    @patch("atomium.files.pdbdict2pdb.Molecule")
+    @patch("atomium.files.pdbdict2pdb.Ligand")
     @patch("atomium.files.pdbdict2pdb.atom_dict_to_atom")
     def test_can_convert_molecule_dict_to_molecule(self, mock_atom, mock_mol):
         mock_atom.side_effect = self.atom_objects
         molecule = Mock()
         mock_mol.return_value = molecule
         mol_dict = {"id": "A500", "name": "XMP", "atoms": self.atom_dicts}
-        returned_molecule = residue_dict_to_residue(mol_dict, molecule=True)
+        returned_molecule = residue_dict_to_residue(mol_dict, ligand=True)
         mock_atom.assert_any_call({"alt_loc": None, "atom_id": 1, "occupancy": 1})
         mock_atom.assert_any_call({"alt_loc": None, "atom_id": 2, "occupancy": 1})
         mock_atom.assert_any_call({"alt_loc": None, "atom_id": 3, "occupancy": 1})
         mock_atom.assert_any_call({"alt_loc": None, "atom_id": 4, "occupancy": 1})
         self.assertEqual(mock_atom.call_count, 4)
         self.assertIs(returned_molecule, molecule)
-        self.assertEqual(molecule._id, "A500")
-        mock_mol.assert_called_with(*self.atom_objects, name="XMP")
+        mock_mol.assert_called_with(*self.atom_objects, name="XMP", id="A500")
 
 
 
@@ -215,7 +201,7 @@ class AtomBondingTests(TestCase):
         model.residues.return_value = set(residues)
         connections = "ccc"
         bond_atoms(model, connections)
-        mock_intra.assert_called_with(set(residues), bonds)
+        mock_intra.assert_called_with(set(residues), BONDS)
         mock_inter.assert_called_with(set(residues))
         mock_con.assert_called_with(model, "ccc")
 

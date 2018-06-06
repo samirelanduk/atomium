@@ -391,16 +391,16 @@ class LinesToModelTests(TestCase):
 
     @patch("atomium.files.pdbstring2pdbdict.atom_line_to_atom_dict")
     @patch("atomium.files.pdbstring2pdbdict.assign_anisou")
-    @patch("atomium.files.pdbstring2pdbdict.atoms_to_residues")
     @patch("atomium.files.pdbstring2pdbdict.atoms_to_chains")
-    def test_can_convert_lines_to_model(self, mock_chain, mock_res, mock_an, mock_dict):
+    def test_can_convert_lines_to_model(self, mock_chain, mock_an, mock_dict):
         mock_dict.side_effect = [
          {"a": 1}, {"a": 2}, {"a": 3}, {"a": 4},
          {"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}
         ]
-        mock_res.return_value = [{"m": 1}, {"m": 2}]
         mock_chain.return_value = [{"c": 1}, {"c": 2}]
-        model = lines_to_model(["a1", "a2", "a3", "a4"], ["h1", "h2", "h3", "h4"], ["an1", "an2"])
+        model = lines_to_model(
+         ["a1", "a2", "a3", "a4"], ["h1", "h2", "h3", "h4"], ["an1", "an2"]
+        )
         for char in ["a", "h"]:
             for num in ["1", "2", "3", "4"]:
                 mock_dict.assert_any_call(char + num)
@@ -409,11 +409,11 @@ class LinesToModelTests(TestCase):
          [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}],
          [{"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}]
         )
-        mock_res.assert_called_with([{"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}])
-        mock_chain.assert_called_with([{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}])
-        self.assertEqual(model, {
-         "molecules": [{"m": 1}, {"m": 2}], "chains": [{"c": 1}, {"c": 2}]
-        })
+        mock_chain.assert_called_with(
+         [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}],
+         [{"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}]
+        )
+        self.assertEqual(model, {"chains": [{"c": 1}, {"c": 2}]})
 
 
 
@@ -485,14 +485,20 @@ class AtomsToChainsTests(TestCase):
          {"full_id": "B10", "residue_name": "VAL", "chain_id": "B"},
          {"full_id": "B11", "residue_name": "LYS", "chain_id": "B"},
         ]
-        mock_res.side_effect = [[{"r": 1}, {"r": 2}], [{"r": 3}, {"r": 4}]]
-        chains = atoms_to_chains(atoms)
+        heteroatoms = [
+         {"full_id": "A1000", "residue_name": "AAA", "chain_id": "A"},
+         {"full_id": "A1100", "residue_name": "AAA", "chain_id": "A"},
+         {"full_id": "B1000", "residue_name": "XXX", "chain_id": "B"},
+         {"full_id": "B1100", "residue_name": "XXX", "chain_id": "B"},
+        ]
+        mock_res.side_effect = [[{"r": 1}], [{"r": 2}], [{"r": 3}], [{"r": 4}]]
+        chains = atoms_to_chains(atoms, heteroatoms)
         mock_res.assert_any_call(atoms[:2])
         mock_res.assert_any_call(atoms[2:])
         self.assertEqual(chains, [{
-         "chain_id": "A", "residues": [{"r": 1}, {"r": 2}]
+         "chain_id": "A", "residues": [{"r": 1}], "ligands": [{"r": 2}]
         }, {
-         "chain_id": "B", "residues": [{"r": 3}, {"r": 4}]
+         "chain_id": "B", "residues": [{"r": 3}], "ligands": [{"r": 4}]
         }])
 
 

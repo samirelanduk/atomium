@@ -2,12 +2,12 @@
 dictionaries."""
 
 from .pdbstring2pdbdict import atoms_to_chains, atoms_to_residues
-from ..structures.molecules import CODES
+from ..models.data import CODES
 
 def pdb_to_pdb_dict(pdb):
-    """Converts a :py:class:`.Pdb` to a data ``dict``
+    """Converts a :py:class:`.Pdb` to a data ``dict``.
 
-    :param Pdb pdb: The Pdb to save..
+    :param Pdb pdb: The Pdb to save.
     :rtype: ``dict``"""
 
     pdb_dicts = [structure_to_pdb_dict(model) for model in pdb._models]
@@ -29,9 +29,9 @@ def pdb_to_pdb_dict(pdb):
 
 
 def structure_to_pdb_dict(structure):
-    """Converts an :py:class:`.AtomicStructure` to a model ``dict``
+    """Converts an :py:class:`.AtomStructure` to a model ``dict``.
 
-    :param AtomicStructure structure: the structure to convert.
+    :param AtomStructure structure: the structure to convert.
     :rtype: ``dict``"""
 
     atoms, heteroatoms = [], []
@@ -39,11 +39,10 @@ def structure_to_pdb_dict(structure):
      structure.atoms(), key=lambda a: a.id
     )
     for atom in structure_atoms:
-        list_ = heteroatoms if atom.chain is None else atoms
+        list_ = heteroatoms if atom.residue is None else atoms
         list_.append(atom_to_atom_dict(atom))
-    chains = atoms_to_chains(atoms)
-    molecules = atoms_to_residues(heteroatoms)
-    model = {"chains": chains, "molecules": molecules}
+    chains = atoms_to_chains(atoms, heteroatoms)
+    model = {"chains": chains}
     connections = structure_to_connections(structure)
     return {
      "models": [model], "connections": connections,
@@ -54,7 +53,7 @@ def structure_to_pdb_dict(structure):
 
 
 def atom_to_atom_dict(atom):
-    """Converts an :py:class:`.Atom` to an atom ``dict``
+    """Converts an :py:class:`.Atom` to an atom ``dict``.
 
     :param Atom atom: the atom to convert.
     :rtype: ``dict``"""
@@ -66,10 +65,10 @@ def atom_to_atom_dict(atom):
         chain_id = atom.chain.id if atom.chain is not None else ""
         residue_id = int("".join([c for c in id_ if c.isdigit()]))
         insert_code = id_[-1] if id_ and id_[-1].isalpha() else ""
-    elif atom.molecule:
-        id_ = atom.molecule.id
-        residue_name = atom.molecule.name
-        chain_id = id_[0] if id_ and id_[0].isalpha() else None
+    elif atom.ligand:
+        id_ = atom.ligand.id
+        residue_name = atom.ligand.name
+        chain_id = atom.chain.id if atom.chain is not None else ""
         residue_id = int("".join([c for c in id_ if c.isdigit()]))
     return {
      "atom_id": atom.id, "atom_name": atom.name, "alt_loc": None,
@@ -83,10 +82,10 @@ def atom_to_atom_dict(atom):
 
 
 def structure_to_connections(structure):
-    """Gets a connections ``list`` from an :py:class:`.AtomicStructure`. Only
+    """Gets a connections ``list`` from an :py:class:`.AtomStructure`. Only
     atoms that are not part of residues will have their bonds used.
 
-    :param AtomicStructure structure: The structure to use.
+    :param AtomStructure structure: The structure to use.
     :rtype: ``list``"""
 
     connections = []
@@ -94,7 +93,7 @@ def structure_to_connections(structure):
         if not atom.residue:
             connections.append({
              "atom": atom.id,
-             "bond_to": sorted([a.id for a in atom.bonded_atoms()])
+             "bond_to": sorted([a.id for a in atom.bonded_atoms])
             })
     return sorted(connections, key=lambda k: k["atom"])
 
@@ -104,10 +103,12 @@ def sequences_from_model(model):
 
     :param Model model: the model to parse.
     :rtype: ``dict``"""
-    
+
     sequences = {}
-    lookup = {v: k for k, v in CODES.items()}
+    lookup = {v: k for k, v in CODES.items() if k not in ["HIP", "HIE"]}
     for chain in model.chains():
         if chain.rep_sequence:
-            sequences[chain.id] = [lookup.get(c, "???") for c in chain.rep_sequence]
+            sequences[chain.id] = [
+             lookup.get(c, "???") for c in chain.rep_sequence
+            ]
     return sequences

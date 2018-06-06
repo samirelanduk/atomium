@@ -69,25 +69,22 @@ class StructureToPdbDictTests(TestCase):
 
     @patch("atomium.files.pdb2pdbdict.atom_to_atom_dict")
     @patch("atomium.files.pdb2pdbdict.atoms_to_chains")
-    @patch("atomium.files.pdb2pdbdict.atoms_to_residues")
     @patch("atomium.files.pdb2pdbdict.structure_to_connections")
-    def test_can_convert_model_to_pdb_dict(self, mock_con, mock_res, mock_chain, mock_atom):
+    def test_can_convert_model_to_pdb_dict(self, mock_con, mock_chain, mock_atom):
         structure = Mock()
         atoms = [Mock(), Mock(), Mock(), Mock(), Mock(), Mock()]
         mock_atom.side_effect = lambda a: "a" + str(a.id)
         chains = [Mock(), Mock()]
         for index, atom in enumerate(atoms):
             atom.id = index + 1
-            atom.chain = chains[index // 2] if index < 4 else None
+            atom.residue = "res" if index < 4 else None
         mock_chain.return_value = ["chain1", "chain2"]
-        mock_res.return_value = ["mol1", "mol2"]
         structure.atoms.return_value = set(atoms)
         mock_con.return_value = ["c1", "c2"]
         pdb_dict = structure_to_pdb_dict(structure)
         for atom in atoms:
             mock_atom.assert_any_call(atom)
-        mock_chain.assert_called_with(["a1", "a2", "a3", "a4"])
-        mock_res.assert_called_with(["a5", "a6"])
+        mock_chain.assert_called_with(["a1", "a2", "a3", "a4"], ["a5", "a6"])
         mock_con.assert_called_with(structure)
         self.assertEqual(pdb_dict, {
          "deposition_date": None,
@@ -102,8 +99,7 @@ class StructureToPdbDictTests(TestCase):
          "keywords": [],
          "sequences": {},
          "models": [{
-          "chains": ["chain1", "chain2"],
-          "molecules": ["mol1", "mol2"]
+          "chains": ["chain1", "chain2"]
          }],
          "connections": ["c1", "c2"]
         })
@@ -146,11 +142,10 @@ class AtomToAtomDictTests(TestCase):
 
     def test_can_convert_full_heteroatom_to_dict(self):
         self.atom.residue = None
-        self.atom.chain = None
         mol = Mock()
         mol.id = "A200"
         mol.name = "SUC"
-        self.atom.molecule = mol
+        self.atom.ligand = mol
         d = atom_to_atom_dict(self.atom)
         self.assertEqual(d, {
          "atom_id": 107, "atom_name": "N1", "alt_loc": None,
@@ -187,9 +182,9 @@ class StructureToConnectionsTests(TestCase):
         for i, atom in enumerate(atoms):
             atom.residue = "residue" if i < 4 else None
             atom.id = i + 1
-        atoms[4].bonded_atoms.return_value = set(atoms[5:])
-        atoms[5].bonded_atoms.return_value = set([atoms[4], atoms[6]])
-        atoms[6].bonded_atoms.return_value = set(atoms[4:6])
+        atoms[4].bonded_atoms = set(atoms[5:])
+        atoms[5].bonded_atoms = set([atoms[4], atoms[6]])
+        atoms[6].bonded_atoms = set(atoms[4:6])
         model = Mock()
         model.atoms.return_value = set(atoms)
         connections = structure_to_connections(model)

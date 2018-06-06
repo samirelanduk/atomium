@@ -21,14 +21,8 @@ def fetch_string(code, pdbe=False):
 
     :param str code: The PDB code to fetch.
     :param bool pdbe: If ``True``, the PDB will instead be fetched from PDBe.
-    :raises TypeError: if the code is not a string.
-    :raises ValueError: if the code is not four caracters long.
     :rtype: ``str``"""
 
-    if not isinstance(code, str):
-        raise TypeError("PDB code {} is not string".format(code))
-    if len(code) != 4:
-        raise ValueError("PDB code {} is not of length 4".format(code))
     url = "https://files.rcsb.org/view/{}.pdb"
     if pdbe:
         url = "https://www.ebi.ac.uk/pdbe/entry-files/pdb{}.ent"
@@ -99,8 +93,8 @@ def fetch(code, **kwargs):
 
 
 def xyz_data_from_file(path):
-    """Opens a .xyz file at the specified path and creates a
-    data dictionary from it.
+    """Opens a .xyz file at the specified path and creates a data dictionary
+    from it.
 
     :param str path: The path to open.
     :rtype: ``dict``"""

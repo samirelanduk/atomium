@@ -8,13 +8,12 @@ class XyzReadingTests(IntegratedTest):
         xyz = atomium.xyz_from_file("tests/integration/files/glucose.xyz")
         self.assertEqual(xyz.title, "glucose from 2gbp")
 
-        # XYZ has model
+        # The model is correct
         model = xyz.model
-
-        # The atoms are all there
         self.assertEqual(len(model.atoms()), 12)
         self.assertEqual(len(model.atoms(element="C")), 6)
         self.assertEqual(len(model.atoms(element="O")), 6)
+        self.assertEqual(len(model.atoms(element_regex="[CO]")), 12)
 
         # It has the correct mass
         self.assertAlmostEqual(model.mass, 168, delta=0.5)
@@ -24,9 +23,23 @@ class XyzReadingTests(IntegratedTest):
             self.assertAlmostEqual(
              atom.mass, {"C": 12, "O": 16}[atom.element], delta=0.2
             )
+            self.assertIs(atom.model, model)
 
-        # The xyz can be saved and reloaded
+
+    def test_can_read_xyz_data(self):
+        xyz = atomium.xyz_data_from_file("tests/integration/files/glucose.xyz")
+        self.assertEqual(xyz["title"], "glucose from 2gbp")
+
+
+
+class XyzSavingTests(IntegratedTest):
+
+    def test_can_save_xyz_file(self):
+        # Open and save file
+        xyz = atomium.xyz_from_file("tests/integration/files/glucose.xyz")
         xyz.save("tests/integration/files/glucose2.xyz")
+
+        # The saved xyz is correct
         with open("tests/integration/files/glucose2.xyz") as f:
             new = [l.strip() for l in f.readlines()]
         with open("tests/integration/files/glucose.xyz") as f:
@@ -36,8 +49,3 @@ class XyzReadingTests(IntegratedTest):
         new = atomium.xyz_from_file("tests/integration/files/glucose2.xyz")
         model = xyz.model
         self.assertAlmostEqual(model.mass, 168, delta=0.5)
-
-
-    def test_can_read_xyz_data(self):
-        xyz = atomium.xyz_data_from_file("tests/integration/files/glucose.xyz")
-        self.assertEqual(xyz["title"], "glucose from 2gbp")

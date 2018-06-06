@@ -33,16 +33,20 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(atom.name, "NE")
         self.assertEqual(atom.location, (-20.082, 79.647, 41.645))
         self.assertEqual(atom.bfactor, 35.46)
+        self.assertEqual(atom.charge, 0)
         self.assertAlmostEqual(
          model.mass, 46018.5, delta=0.005
         )
+        self.assertEqual(atom.model, model)
 
         # Chains are correct
         self.assertEqual(len(model.chains()), 2)
         for chain in model.chains():
             self.assertIs(chain.model, model)
             self.assertIsNone(chain.name)
+            self.assertIn(chain, model)
         chaina, chainb = model.chain(id="A"), model.chain(id="B")
+        self.assertIs(atom.chain, chainb)
 
         # Residues are correct
         self.assertEqual(chaina[0].name, "VAL")
@@ -56,9 +60,13 @@ class PdbReadingTests(IntegratedTest):
         for residue in chaina:
             self.assertIs(residue.model, model)
             self.assertIs(residue.chain, chaina)
+            self.assertIn(residue, chaina)
+            self.assertIn(residue, model)
         for residue in chainb:
             self.assertIs(residue.model, model)
             self.assertIs(residue.chain, chainb)
+            self.assertIn(residue, chainb)
+            self.assertIn(residue, model)
         self.assertTrue(chaina.sequence.startswith("VMNRLILAMDLMNRDDALRVTGEVR"))
         self.assertTrue(chaina.sequence.endswith("ADAIIVGRSIYLADNPAAAAAGIIESI"))
         self.assertTrue(chainb.sequence.startswith("VMNRLILAMDLMNRDDALRVTGEVR"))
@@ -67,13 +75,12 @@ class PdbReadingTests(IntegratedTest):
         self.assertTrue(chaina.rep_sequence.endswith("LADNPAAAAAGIIESIKDLLIPE"))
         self.assertTrue(chainb.rep_sequence.startswith("LRSRRVDVMDVMNRLILAMDL"))
         self.assertTrue(chainb.rep_sequence.endswith("LADNPAAAAAGIIESIKDLLIPE"))
-        residue = chaina.residue(name="ASN")
-        self.assertEqual(residue.id, "A13")
+        residue = chaina.residue("A13")
+        self.assertEqual(residue.name, "ASN")
         self.assertEqual(len(residue.atoms()), 8)
         self.assertEqual(len(residue.atoms(element="O")), 2)
         for atom in residue.atoms():
             self.assertIs(atom.residue, residue)
-            self.assertIs(atom.molecule, chaina)
             self.assertIs(atom.chain, chaina)
             self.assertIs(atom.model, model)
         gly = chaina.residue(id="A32")
@@ -83,19 +90,18 @@ class PdbReadingTests(IntegratedTest):
             pair = list(pair)
             self.assertTrue(0 < pair[0].distance_to(pair[1]), 5)
 
-        # Molecules are correct
-        self.assertEqual(len(model.molecules()), 186)
-        self.assertEqual(len(model.molecules(generic=True)), 184)
-        self.assertEqual(len(model.molecules(water=False)), 6)
-        self.assertEqual(len(model.molecules(water=False, generic=True)), 4)
-        self.assertEqual(len(model.molecules(name="XMP")), 2)
-        self.assertEqual(len(model.molecules(name="BU2")), 2)
-        self.assertEqual(len(model.molecules(name="HOH")), 180)
-        mol = model.molecule(id="A2001")
+        # Ligands are correct
+        self.assertEqual(len(model.ligands()), 184)
+        self.assertEqual(len(model.ligands(water=False)), 4)
+        self.assertEqual(len(model.ligands(name="XMP")), 2)
+        self.assertEqual(len(model.ligands(name="BU2")), 2)
+        self.assertEqual(len(model.ligands(name="HOH")), 180)
+        mol = model.ligand(id="A2001")
         self.assertIs(mol.model, model)
         self.assertEqual(mol.name, "XMP")
         self.assertEqual(len(mol.atoms()), 24)
-        mol1, mol2 = model.molecule("A5001"), model.molecule("B5002")
+        self.assertEqual(mol.formula, {"C": 10, "O": 9, "N": 4, "P": 1})
+        mol1, mol2 = model.ligand("A5001"), model.ligand("B5002")
         self.assertEqual(mol1.pairing_with(mol2), {
          model.atom(3194): model.atom(3224),
          model.atom(3195): model.atom(3225),
@@ -104,26 +110,10 @@ class PdbReadingTests(IntegratedTest):
          model.atom(3198): model.atom(3228),
          model.atom(3199): model.atom(3229),
         })
+        self.assertIn(mol1, chaina)
+        self.assertIn(mol2, chainb)
         self.assertEqual(mol1.rmsd_with(mol1), 0)
         self.assertAlmostEqual(mol1.rmsd_with(mol2), 23.5, delta=0.5)
-
-        # Bindsites are correct
-        site = model.molecule("A5001").site()
-        self.assertIs(site.ligand, model.molecule("A5001"))
-        self.assertEqual(site.residues(), set([
-         model.residue("A42"), model.residue("A70"), model.residue("A72"),
-         model.residue("A96"), model.residue("A123"), model.residue("A155")
-        ]))
-        full_site = model.molecule("A5001").site(water=True)
-        self.assertEqual(full_site.residues(), set([
-         model.residue("A42"), model.residue("A70"), model.residue("A72"),
-         model.residue("A96"), model.residue("A123"), model.residue("A155"),
-         model.molecule("A3015")
-        ]))
-        site = model.molecule("A2001").site(main_chain=True)
-        self.assertIn("A202", [r.id for r in site.residues()])
-        site = model.molecule("A2001").site()
-        self.assertNotIn("A202", [r.id for r in site.residues()])
 
         # Bonding is correct
         residue = chaina[0]
@@ -135,24 +125,21 @@ class PdbReadingTests(IntegratedTest):
         cg1 = residue.atom(name="CG1")
         cg2 = residue.atom(name="CG2")
         next_atom = chaina[1].atom(name="N")
-        self.assertEqual(n.bonded_atoms(), set([ca]))
-        self.assertEqual(len(n.bonds), 1)
-        self.assertEqual(ca.bonded_atoms(), set([n, c, cb]))
-        self.assertEqual(c.bonded_atoms(), set([ca, o, next_atom]))
-        self.assertEqual(o.bonded_atoms(), set([c]))
-        self.assertEqual(cb.bonded_atoms(), set([ca, cg1, cg2]))
-        self.assertEqual(cg1.bonded_atoms(), set([cb]))
-        self.assertEqual(cg2.bonded_atoms(), set([cb]))
+        self.assertEqual(n.bonded_atoms, set([ca]))
+        self.assertEqual(ca.bonded_atoms, set([n, c, cb]))
+        self.assertEqual(c.bonded_atoms, set([ca, o, next_atom]))
+        self.assertEqual(o.bonded_atoms, set([c]))
+        self.assertEqual(cb.bonded_atoms, set([ca, cg1, cg2]))
+        self.assertEqual(cg1.bonded_atoms, set([cb]))
+        self.assertEqual(cg2.bonded_atoms, set([cb]))
         res181 = chaina.residue("A181")
         res190 = chaina.residue("A190")
         c2, n2 = res181.atom(name="C"), res190.atom(name="N")
-        self.assertNotIn(c2, n2.bonded_atoms())
-        self.assertNotIn(n2, c2.bonded_atoms())
+        self.assertNotIn(c2, n2.bonded_atoms)
+        self.assertNotIn(n2, c2.bonded_atoms)
         self.assertIn(
-         model.atom(3194), model.atom(3195).bonded_atoms()
+         model.atom(3194), model.atom(3195).bonded_atoms
         )
-        bond1 = n.bond_with(ca)
-        bond2 = ca.bond_with(c)
 
         # Can get atoms in cutoff distance
         atom = model.atom(1587)
@@ -163,6 +150,26 @@ class PdbReadingTests(IntegratedTest):
          [1576, 1582, 1583, 1584, 1586, 1588, 1589, 1590, 1591, 2957]
         )
         self.assertEqual(len(atom.nearby_atoms(cutoff=4, element="O")), 1)
+        four_angstrom = model.atoms_in_sphere(*atom.location, radius=4)
+        self.assertEqual(len(four_angstrom), 11)
+        self.assertEqual(
+         sorted([atom.id for atom in four_angstrom]),
+         [1576, 1582, 1583, 1584, 1586, 1587, 1588, 1589, 1590, 1591, 2957]
+        )
+        self.assertEqual(len(model.atoms_in_sphere(*atom.location, radius=4, element="O")), 1)
+
+        # 'Bindsites' are correct
+        nearby = model.ligand("A5001").nearby_residues(4)
+        self.assertEqual(nearby, set([
+         model.residue("A42"), model.residue("A70"), model.residue("A72"),
+         model.residue("A96"), model.residue("A123"), model.residue("A155")
+        ]))
+        nearby = model.ligand("A5001").nearby_residues(4, ligands=True)
+        self.assertEqual(nearby, set([
+         model.residue("A42"), model.residue("A70"), model.residue("A72"),
+         model.residue("A96"), model.residue("A123"), model.residue("A155"),
+         model.ligand("A3015"), model.ligand("A2001")
+        ]))
 
 
     def test_can_read_multi_model_pdbs(self):
@@ -183,7 +190,7 @@ class PdbReadingTests(IntegratedTest):
             all_atoms.update(model.atoms())
             atom = model.atom(1)
             self.assertEqual(atom.x, x)
-            self.assertEqual(len(atom.bonded_atoms()), 1)
+            self.assertEqual(len(atom.bonded_atoms), 1)
         self.assertEqual(len(all_atoms), 18270)
 
 
@@ -240,17 +247,6 @@ class PdbReadingTests(IntegratedTest):
         data_file = atomium.fetch_data("1lol", pdbe=True)
         self.assertEqual(data_file["code"], "1LOL")
         self.assertEqual(len(data_file["models"][0]["chains"]), 2)
-        self.assertEqual(
-         data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0],
-         {
-          "atom_id": 1, "atom_name": "N", "alt_loc": None,
-          "residue_name": "VAL", "full_id": "A11",
-          "chain_id": "A", "residue_id": 11, "insert_code": "",
-          "x": 3.696, "y": 33.898, "z": 63.219,
-          "occupancy": 1.0, "temp_factor": 21.50,
-          "element": "N", "charge": 0.0, "anisotropy": [0, 0, 0, 0, 0, 0]
-         }
-        )
         self.assertEqual(len(data_file["connections"]), 60)
         self.assertEqual(data_file["connections"][0], {
          "atom": 3194, "bond_to": [3195, 3196]
@@ -277,16 +273,8 @@ class PdbSavingTests(IntegratedTest):
         while pdb.keywords: pdb.keywords.pop()
         for k in ["AMAZING", "SUPERB", "WOW"]: pdb.keywords.append(k)
         pdb.save("tests/integration/files/1LOL2.pdb")
-        with open("tests/integration/files/1LOL2.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/1lol_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
-            self.assertEqual(new_line, ref_line)
-        self.assertIn("9SAM", new[0])
-        self.assertIn("90", new[0])
-        self.assertIn("HAVE", new[1])
-        self.assertIn("SHUFFLED", new[2])
+        self.check_files_the_same("1LOL2.pdb", "1lol_output.pdb")
+
         new = atomium.pdb_from_file("tests/integration/files/1LOL2.pdb")
         model = new.model
         self.assertAlmostEqual(
@@ -301,34 +289,15 @@ class PdbSavingTests(IntegratedTest):
         for chain in pdb.model.chains():
             chain.save("tests/integration/files/chain{}.pdb".format(chain.id))
 
-        with open("tests/integration/files/chainA.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/chaina_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
-            self.assertEqual(new_line, ref_line)
+        self.check_files_the_same("chainA.pdb", "chaina_output.pdb")
+        self.check_files_the_same("chainB.pdb", "chainb_output.pdb")
         new = atomium.pdb_from_file("tests/integration/files/chainA.pdb")
         model = new.model
         self.assertEqual(len(model.chains()), 1)
 
-        with open("tests/integration/files/chainB.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/chainb_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
-            self.assertEqual(new_line, ref_line)
-        new = atomium.pdb_from_file("tests/integration/files/chainB.pdb")
-        model = new.model
-        self.assertEqual(len(model.chains()), 1)
-
         # Save molecules
-        pdb.model.molecule("A5001").save("tests/integration/files/5001.pdb")
-        with open("tests/integration/files/5001.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/5001_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
-            self.assertEqual(new_line, ref_line)
+        pdb.model.ligand("A5001").save("tests/integration/files/5001.pdb")
+        self.check_files_the_same("5001.pdb", "5001_output.pdb")
         new = atomium.pdb_from_file("tests/integration/files/5001.pdb")
         model = new.model
         self.assertEqual(len(model.atoms()), 6)
@@ -340,12 +309,7 @@ class PdbSavingTests(IntegratedTest):
         for k in ["INTEGRAL"] * 10: pdb.keywords.append(k)
 
         pdb.save("tests/integration/files/5XME2.pdb")
-        with open("tests/integration/files/5XME2.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/5xme_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
-            self.assertEqual(new_line, ref_line)
+        self.check_files_the_same("5XME2.pdb", "5xme_output.pdb")
         new = atomium.pdb_from_file("tests/integration/files/5XME2.pdb")
         models = new.models
         self.assertEqual(len(models), 10)
@@ -361,12 +325,7 @@ class PdbSavingTests(IntegratedTest):
         pdb = atomium.pdb_from_file("tests/integration/files/1cbn.pdb")
 
         pdb.save("tests/integration/files/1CBN2.pdb")
-        with open("tests/integration/files/1CBN2.pdb") as f:
-            new = [l.strip() for l in f.readlines() if l.strip()]
-        with open("tests/integration/files/1cbn_output.pdb") as f:
-            ref = [l.strip() for l in f.readlines() if l.strip()]
-        for new_line, ref_line in zip(new, ref):
-            self.assertEqual(new_line, ref_line)
+        self.check_files_the_same("1CBN2.pdb", "1cbn_output.pdb")
 
         new = atomium.pdb_from_file("tests/integration/files/1CBN2.pdb")
         chain = pdb.model.chain()

@@ -255,21 +255,18 @@ class StructurePackingTests(TestCase):
 class ModelPackingTests(TestCase):
 
     def setUp(self):
-        self.atoms =  [{"id": c + i + n, "anisotropy": [0] * 6}
+        self.atoms =  [{"atom_id": c + i + n, "anisotropy": [0] * 6}
          for c in "rm" for i in "1234" for n in "12"]
         self.atoms[1]["anisotropy"][0] = 1
         self.atoms[-2]["anisotropy"][0] = 1
         self.lines = []
         self.model_dict = {
          "chains": [
-          {"residues": [{"atoms": self.atoms[:2]}, {"atoms": self.atoms[2:4]}]},
-          {"residues": [{"atoms": self.atoms[4:6]}, {"atoms": self.atoms[6:8]}]},
-         ],
-         "molecules": [
-          {"atoms": self.atoms[8:10]}, {"atoms": self.atoms[10:12]},
-          {"atoms": self.atoms[12:14]}, {"atoms": self.atoms[14:16]}
-         ]
-        }
+          {"residues": [{"atoms": self.atoms[:2]}, {"atoms": self.atoms[2:4]}],
+          "ligands": [{"atoms": self.atoms[8:10]}, {"atoms": self.atoms[10:12]}]},
+          {"residues": [{"atoms": self.atoms[4:6]}, {"atoms": self.atoms[6:8]}],
+          "ligands": [{"atoms": self.atoms[12:14]}, {"atoms": self.atoms[14:16]}]},
+         ]}
 
 
 
@@ -281,7 +278,7 @@ class ModelPackingTests(TestCase):
         pack_model(self.lines, self.model_dict, multi=0)
         for atom in self.atoms:
             mock_line.assert_any_call(
-             atom, hetero=atom["id"].startswith("m")
+             atom, hetero=atom["atom_id"].startswith("m")
             )
         mock_an.assert_any_call(self.atoms[1])
         mock_an.assert_any_call(self.atoms[-2])
@@ -299,7 +296,7 @@ class ModelPackingTests(TestCase):
         pack_model(self.lines, self.model_dict, multi=5)
         for atom in self.atoms:
             mock_line.assert_any_call(
-             atom, hetero=atom["id"].startswith("m")
+             atom, hetero=atom["atom_id"].startswith("m")
             )
         mock_an.assert_any_call(self.atoms[1])
         mock_an.assert_any_call(self.atoms[-2])

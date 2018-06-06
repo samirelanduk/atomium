@@ -167,17 +167,20 @@ def pack_model(lines, model_dict, multi=0):
 
     if multi > 0:
         lines.append("MODEL        {}".format(multi).ljust(80))
+    atom_dicts, heteroatom_dicts = [], []
     for chain in model_dict["chains"]:
         for residue in chain["residues"]:
-            for atom in residue["atoms"]:
-                lines.append(atom_dict_to_atom_line(atom, hetero=False))
-                if atom["anisotropy"] != [0] * 6:
-                    lines.append(atom_dict_to_anisou_line(atom))
-    for molecule in model_dict["molecules"]:
-        for atom in molecule["atoms"]:
-            lines.append(atom_dict_to_atom_line(atom, hetero=True))
-            if atom["anisotropy"] != [0] * 6:
-                lines.append(atom_dict_to_anisou_line(atom))
+            atom_dicts += residue["atoms"]
+        for ligand in chain["ligands"]:
+            heteroatom_dicts += ligand["atoms"]
+    for atom in sorted(atom_dicts, key=lambda a: a["atom_id"]):
+        lines.append(atom_dict_to_atom_line(atom, hetero=False))
+        if atom["anisotropy"] != [0] * 6:
+            lines.append(atom_dict_to_anisou_line(atom))
+    for atom in sorted(heteroatom_dicts, key=lambda a: a["atom_id"]):
+        lines.append(atom_dict_to_atom_line(atom, hetero=True))
+        if atom["anisotropy"] != [0] * 6:
+            lines.append(atom_dict_to_anisou_line(atom))
     if multi > 0:
         lines.append("ENDMDL".ljust(80))
 
@@ -263,7 +266,7 @@ def pack_connections(lines, pdb_dict):
 
 def split_string(string, record, start):
     """Takes a string and splits it into multple PDB records, with number
-    continuation lines,
+    continuation lines.
 
     :param str string: The string to split.
     :param str record: The record name.

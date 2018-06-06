@@ -2,7 +2,7 @@ from datetime import datetime
 from unittest import TestCase
 from unittest.mock import Mock, patch
 from atomium.files.pdb import Pdb
-from atomium.structures.models import Model
+from atomium.models.molecules import Model
 
 class PdbCreationTests(TestCase):
 
@@ -87,20 +87,6 @@ class PdbCodeTests(TestCase):
         self.assertEqual(pdb._code, "2yyy")
 
 
-    def test_code_must_be_str(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.code = 100
-
-
-    def test_code_must_be_valid(self):
-        pdb = Pdb()
-        with self.assertRaises(ValueError):
-            pdb.code = "1xxxx"
-        with self.assertRaises(ValueError):
-            pdb.code = "1xx"
-
-
 
 class PdbDateTests(TestCase):
 
@@ -115,12 +101,6 @@ class PdbDateTests(TestCase):
         pdb._deposition_date = "date"
         pdb.deposition_date = datetime(2017, 9, 21).date()
         self.assertEqual(pdb._deposition_date, datetime(2017, 9, 21).date())
-
-
-    def test_date_must_be_date(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.deposition_date = "date"
 
 
 
@@ -139,12 +119,6 @@ class PdbTitleTests(TestCase):
         self.assertEqual(pdb._title, "TTTTTTT")
 
 
-    def test_title_must_be_str(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.title = 100
-
-
 
 class PdbOrganismTests(TestCase):
 
@@ -159,12 +133,6 @@ class PdbOrganismTests(TestCase):
         pdb._organism = "GGG SSS"
         pdb.organism = "GG SSSSSS"
         self.assertEqual(pdb._organism, "GG SSSSSS")
-
-
-    def test_organism_must_be_str(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.organism = 100
 
 
 
@@ -183,12 +151,6 @@ class PdbExpressionSystemTests(TestCase):
         self.assertEqual(pdb._expression_system, "GG SSSSSS")
 
 
-    def test_expression_system_must_be_str(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.expression_system = 100
-
-
 
 class PdbTechniqueTests(TestCase):
 
@@ -203,12 +165,6 @@ class PdbTechniqueTests(TestCase):
         pdb._technique = "GGG SSS"
         pdb.technique = "GG SSSSSS"
         self.assertEqual(pdb._technique, "GG SSSSSS")
-
-
-    def test_technique_must_be_str(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.technique = 100
 
 
 
@@ -227,12 +183,6 @@ class PdbClassificationTests(TestCase):
         self.assertEqual(pdb._classification, "GG SSSSSS")
 
 
-    def test_classification_must_be_str(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.classification = 100
-
-
 
 class PdbResolutionTests(TestCase):
 
@@ -249,13 +199,6 @@ class PdbResolutionTests(TestCase):
         self.assertEqual(pdb._resolution, 1.5)
 
 
-    def test_resolution_must_be_number(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.resolution = "100"
-        pdb.resolution = 3
-
-
 
 class PdbRfactorTests(TestCase):
 
@@ -270,13 +213,6 @@ class PdbRfactorTests(TestCase):
         pdb._rfactor = 1.2
         pdb.rfactor = 1.5
         self.assertEqual(pdb._rfactor, 1.5)
-
-
-    def test_rfactor_must_be_number(self):
-        pdb = Pdb()
-        with self.assertRaises(TypeError):
-            pdb.rfactor = "100"
-        pdb.rfactor = 3
 
 
 

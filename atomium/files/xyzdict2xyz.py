@@ -2,13 +2,13 @@
 objects."""
 
 from .xyz import Xyz
-from ..structures import Model, Atom
+from ..models import Model, Atom
 
 def xyz_dict_to_xyz(xyz_dict):
-    """Converts a data ``dict`` to a :py:class:`.Pdb`
+    """Converts a data ``dict`` to a :py:class:`.Xyz`
 
-    :param dict pdb_dict: The data dictionary to load.
-    :rtype: :py:class:`.Pdb`"""
+    :param dict xyz_dict: The data dictionary to load.
+    :rtype: :py:class:`.Xiz`"""
 
     model = xyz_dict_to_model(xyz_dict)
     xyz = Xyz()

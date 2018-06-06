@@ -1,37 +1,32 @@
 """Contains the Xyz class."""
 
-from ..structures.models import Model
+from ..models.molecules import Model
 
 class Xyz:
     """Represents .xyz files and the model they contain.
 
-    :pram str title: The title at the head of the file.
-    :raises TypeError: if a title is given which is not a string."""
+    :param str title: The title at the head of the file."""
 
     def __init__(self, title=""):
-        if not isinstance(title, str):
-            raise TypeError("title must be str, not '{}'".format(title))
         self._title = title
         self._model = None
 
 
     def __repr__(self):
-        return "<Xyz ({})>".format(self._title)
+        return "<Xyz{}>".format(" (" + self._title + ")" if self._title else "")
 
 
     @property
     def title(self):
         """Returns the title associated with the .xyz file.
 
-        :raises TypeError: if the title given is not a string."""
+        :rtype: ``str``"""
 
         return self._title
 
 
     @title.setter
     def title(self, title):
-        if not isinstance(title, str):
-            raise TypeError("title must be str, not '{}'".format(title))
         self._title = title
 
 
@@ -39,7 +34,7 @@ class Xyz:
     def model(self):
         """Returns the :py:class:`.Model` that the .xyz file contains.
 
-        :raises TypeError: if the model given is not a :py:class:`.Model`."""
+        :rtype: ``Model``"""
 
         return self._model
 

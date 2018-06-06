@@ -2,12 +2,11 @@
 objects."""
 
 from .pdb import Pdb
-from ..structures import Model, Chain, Residue, Molecule, Atom
-from ..structures.molecules import CODES
-from ..structures.reference import bonds
+from ..models import Model, Chain, Residue, Ligand, Atom
+from ..models.data import CODES, BONDS
 
 def pdb_dict_to_pdb(pdb_dict):
-    """Converts a data ``dict`` to a :py:class:`.Pdb`
+    """Converts a data ``dict`` to a :py:class:`.Pdb`.
 
     :param dict pdb_dict: The data dictionary to load.
     :rtype: :py:class:`.Pdb`"""
@@ -30,7 +29,7 @@ def pdb_dict_to_pdb(pdb_dict):
 
 
 def model_dict_to_model(model_dict, connections, sequences):
-    """Converts a model ``dict`` to a :py:class:`.Model`
+    """Converts a model ``dict`` to a :py:class:`.Model`.
 
     :param dict model_dict: The model dictionary to load.
     :param dict connections: The connections dictionary to use.
@@ -40,54 +39,54 @@ def model_dict_to_model(model_dict, connections, sequences):
     model = Model()
     for chain in model_dict["chains"]:
         model.add(chain_dict_to_chain(chain, sequences))
-    for molecule in model_dict["molecules"]:
-        model.add(residue_dict_to_residue(molecule, molecule=True))
     bond_atoms(model, connections)
     return model
 
 
 def chain_dict_to_chain(chain_dict, sequences):
-    """Converts a chain ``dict`` to a :py:class:`.Chain`
+    """Converts a chain ``dict`` to a :py:class:`.Chain`.
 
     :param dict chain_dict: The chain dictionary to load.
     :param dict sequences: The sequences dictionary to use.
     :rtype: :py:class:`.Chain`"""
 
     residues = [residue_dict_to_residue(res) for res in chain_dict["residues"]]
+    ligands = [residue_dict_to_residue(lig, ligand=True)
+     for lig in chain_dict["ligands"]]
+    hets = residues + ligands
     for index, residue in enumerate(residues[:-1]):
         residue.next = residues[index + 1]
-    rep = "".join(CODES.get(res, "X") for res in sequences.get(chain_dict["chain_id"], []))
-    return Chain(*residues, id=chain_dict["chain_id"], rep=rep)
+    rep = "".join(CODES.get(res, "X")
+     for res in sequences.get(chain_dict["chain_id"], []))
+    return Chain(*hets, id=chain_dict["chain_id"], rep=rep)
 
 
-def residue_dict_to_residue(residue_dict, molecule=False):
+def residue_dict_to_residue(residue_dict, ligand=False):
     """Converts a residue ``dict`` to a :py:class:`.Residue` or
-    :py:class:`.Molecule`.
+    :py:class:`.Ligand`.
 
     :param dict residue_dict: The residue dictionary to load.
-    :param bool molecule: if ``True``, a :py:class:`.Molecule` will be returned\
+    :param bool ligand: if ``True``, a :py:class:`.Ligand` will be returned\
     instead of a :py:class:`.Residue`.
-    :rtype: :py:class:`.Residue` or :py:class:`.Molecule`"""
+    :rtype: :py:class:`.Residue` or :py:class:`.Ligand`"""
 
     alt_loc = None
     if any([atom["occupancy"] < 1 for atom in residue_dict["atoms"]]):
         if any([atom["alt_loc"] for atom in residue_dict["atoms"]]):
-            alt_loc = sorted([
-             atom["alt_loc"] for atom in residue_dict["atoms"] if atom["alt_loc"]
-            ])[0]
+            alt_loc = sorted([atom["alt_loc"]
+             for atom in residue_dict["atoms"] if atom["alt_loc"]])[0]
     atoms = [
      atom_dict_to_atom(atom) for atom in residue_dict["atoms"]
       if atom["occupancy"] ==1 or atom["alt_loc"] is None
        or atom["alt_loc"] == alt_loc
     ]
-    MolClass = Molecule if molecule else Residue
-    residue = MolClass(*atoms, name=residue_dict["name"])
-    residue._id = residue_dict["id"]
+    MolClass = Ligand if ligand else Residue
+    residue = MolClass(*atoms, name=residue_dict["name"], id=residue_dict["id"])
     return residue
 
 
 def atom_dict_to_atom(atom_dict):
-    """Converts an atom ``dict`` to a :py:class:`.Atom`
+    """Converts an atom ``dict`` to a :py:class:`.Atom`.
 
     :param dict atom_dict: The atom dictionary to load.
     :rtype: :py:class:`.Atom`"""
@@ -105,7 +104,7 @@ def bond_atoms(model, connections):
 
     :param Model model: The ``Model`` to be connected up."""
 
-    make_intra_residue_bonds(model.residues(), bonds)
+    make_intra_residue_bonds(model.residues(), BONDS)
     make_inter_residue_bonds(model.residues())
     make_connections_bonds(model, connections)
 

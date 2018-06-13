@@ -77,7 +77,7 @@ gyration:
   >>> model.formula
   Counter({'C': 6, 'O': 6})
   >>> model.translate(34, -12, 3.5)
-  >>> model.rotate("x", 45)
+  >>> model.rotate(45, "x")
   >>> model.atom(element="O")
   <O Atom at (71.441, -27.11613084494172, 51.53252799931321)>
   >>> model.center_of_mass

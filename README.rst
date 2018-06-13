@@ -1,9 +1,9 @@
 |travis| |coveralls| |pypi|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.9.1
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.10
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.9.1
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.10
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -144,7 +144,7 @@ gyration:
   >>> model.formula
   Counter({'C': 6, 'O': 6})
   >>> model.translate(34, -12, 3.5)
-  >>> model.rotate("x", 45)
+  >>> model.rotate(45, "x")
   >>> model.atom(element="O")
   <O Atom at (71.441, -27.11613084494172, 51.53252799931321)>
   >>> model.center_of_mass

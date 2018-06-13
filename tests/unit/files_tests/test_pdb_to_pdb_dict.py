@@ -14,6 +14,8 @@ class PdbToPdbDictTests(TestCase):
         pdb._title = "T"
         pdb._resolution = 1.5
         pdb._rfactor = 1.8
+        pdb._rfree = 2.4
+        pdb._rcount = 18
         pdb._organism = "O"
         pdb._expression_system = "E"
         pdb._technique = "T"
@@ -28,6 +30,7 @@ class PdbToPdbDictTests(TestCase):
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
          "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
+         "rfree": 2.4, "rcount": 18,
          "models": ["m1"], "connections": ["c1", "c2"], "sequences": "SEQ"
         })
 
@@ -42,6 +45,8 @@ class PdbToPdbDictTests(TestCase):
         pdb._title = "T"
         pdb._resolution = 1.5
         pdb._rfactor = 1.8
+        pdb._rfree = 2.4
+        pdb._rcount = 18
         pdb._organism = "O"
         pdb._expression_system = "E"
         pdb._technique = "T"
@@ -60,6 +65,7 @@ class PdbToPdbDictTests(TestCase):
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
          "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
+         "rfree": 2.4, "rcount": 18,
          "models": ["m1", "m2"], "connections": ["c1", "c2"], "sequences": "SEQ"
         })
 
@@ -92,6 +98,8 @@ class StructureToPdbDictTests(TestCase):
          "title": None,
          "resolution": None,
          "rfactor": None,
+         "rfree": None,
+         "rcount": None,
          "organism": None,
          "expression_system": None,
          "technique": None,

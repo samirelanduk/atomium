@@ -189,6 +189,8 @@ class RfactorExtractionTests(PdbStringConversionTest):
         extract_rfactor(self.pdb_dict, self.lines)
         mock_lines.assert_any_call("REMARK", self.lines)
         self.assertEqual(self.pdb_dict["rfactor"], 0.193)
+        self.assertEqual(self.pdb_dict["rfree"], 0.229)
+        self.assertEqual(self.pdb_dict["rcount"], 1583)
 
 
 

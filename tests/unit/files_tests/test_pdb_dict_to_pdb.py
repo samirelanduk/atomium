@@ -15,7 +15,7 @@ class PdbDictToPdbTests(TestCase):
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.4,
          "organism": "H. sap", "expression_system": "M. mus",
          "technique": "TECHNIQUE", "classification": "CLASS", "rfactor": 4.5,
-         "keywords": ["A", "B"],
+         "keywords": ["A", "B"], "rfree": 0.3, "rcount": 50,
          "models": ["1", "2", "3"],
          "connections": ["c1", "c2"],
          "sequences": {"A": "SEQUENCE"}
@@ -34,6 +34,8 @@ class PdbDictToPdbTests(TestCase):
         self.assertEqual(returned_pdb._technique, "TECHNIQUE")
         self.assertEqual(returned_pdb._classification, "CLASS")
         self.assertEqual(returned_pdb._rfactor, 4.5)
+        self.assertEqual(returned_pdb._rfree, 0.3)
+        self.assertEqual(returned_pdb._rcount, 50)
         self.assertEqual(returned_pdb._keywords, ["A", "B"])
         self.assertEqual(returned_pdb._models, ["model1", "model2", "model3"])
 

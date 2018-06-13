@@ -21,6 +21,8 @@ def pdb_dict_to_pdb(pdb_dict):
     pdb._technique = pdb_dict["technique"]
     pdb._classification = pdb_dict["classification"]
     pdb._rfactor = pdb_dict["rfactor"]
+    pdb._rfree = pdb_dict["rfree"]
+    pdb._rcount = pdb_dict["rcount"]
     pdb._keywords = pdb_dict["keywords"]
     pdb._models = [model_dict_to_model(
      d, pdb_dict["connections"], pdb_dict["sequences"]

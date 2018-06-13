@@ -10,7 +10,7 @@ class PdbStringCreationTest(TestCase):
          "deposition_date": datetime(1990, 9, 1).date(),
          "code": "1XYZ", "title": "ABC" * 40, "resolution": 1.9,
          "technique": "TECH", "classification": "CLASS", "rfactor": 3.4,
-         "keywords": ["AA", "BBB", "CCCCC"],
+         "keywords": ["AA", "BBB", "CCCCC"], "rfree": 2.3, "rcount": 19,
          "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS",
          "sequences": {"A": ["AAA", "BBB"], "C": ["CCC"]}
         }
@@ -128,16 +128,36 @@ class ResolutionPackingTests(PdbStringCreationTest):
 
 class RfactorPackingTests(PdbStringCreationTest):
 
-    def test_can_pack_resolution(self):
+    def test_can_pack_rfactor(self):
         pack_rfactor(self.lines, self.pdb_dict)
         self.assertEqual(self.lines[0], "REMARK   3" + " " * 70)
         self.assertEqual(
          self.lines[1],  "REMARK   3   R VALUE            (WORKING SET) : 3.4".ljust(80)
         )
+        self.assertEqual(
+         self.lines[2],  "REMARK   3   FREE R VALUE                     : 2.3".ljust(80)
+        )
+        self.assertEqual(
+         self.lines[3],  "REMARK   3   FREE R VALUE TEST SET COUNT      : 19".ljust(80)
+        )
+
+
+    def test_can_pack_partial_rfactor(self):
+        self.pdb_dict["rfree"] = None
+        self.pdb_dict["rcount"] = None
+        pack_rfactor(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines[0], "REMARK   3" + " " * 70)
+        self.assertEqual(
+         self.lines[1],  "REMARK   3   R VALUE            (WORKING SET) : 3.4".ljust(80)
+        )
+        self.assertEqual(len(self.lines), 2)
+
 
 
     def test_can_pack_no_rfactor(self):
         self.pdb_dict["rfactor"] = None
+        self.pdb_dict["rfree"] = None
+        self.pdb_dict["rcount"] = None
         pack_rfactor(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
 

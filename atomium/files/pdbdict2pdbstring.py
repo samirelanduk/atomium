@@ -79,10 +79,19 @@ def pack_rfactor(lines, pdb_dict):
     :param list lines: The record lines to add to.
     :param dict pdb_dict: The data dictionary to pack."""
 
-    if pdb_dict["rfactor"] is not None:
+    if any([pdb_dict["rfactor"], pdb_dict["rfree"], pdb_dict["rcount"]]):
         lines.append("REMARK   3".ljust(80))
+    if pdb_dict["rfactor"] is not None:
         lines.append("REMARK   3   R VALUE            (WORKING SET) : {}".format(
          pdb_dict["rfactor"]
+        ).ljust(80))
+    if pdb_dict["rfree"] is not None:
+        lines.append("REMARK   3   FREE R VALUE                     : {}".format(
+         pdb_dict["rfree"]
+        ).ljust(80))
+    if pdb_dict["rcount"] is not None:
+        lines.append("REMARK   3   FREE R VALUE TEST SET COUNT      : {}".format(
+         int(pdb_dict["rcount"])
         ).ljust(80))
 
 

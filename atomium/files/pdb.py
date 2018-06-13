@@ -16,6 +16,8 @@ class Pdb:
         self._technique = None
         self._classification = None
         self._rfactor = None
+        self._rfree = None
+        self._rcount = None
         self._keywords = []
 
 
@@ -112,6 +114,34 @@ class Pdb:
     @rfactor.setter
     def rfactor(self, rfactor):
         self._rfactor = rfactor
+
+
+    @property
+    def rfree(self):
+        """The Pdb's Free R-factor.
+
+        :rtype: ``float``"""
+
+        return self._rfree
+
+
+    @rfree.setter
+    def rfree(self, rfree):
+        self._rfree = rfree
+
+
+    @property
+    def rcount(self):
+        """The Pdb's R-factor test set count.
+
+        :rtype: ``float``"""
+
+        return self._rcount
+
+
+    @rcount.setter
+    def rcount(self, rcount):
+        self._rcount = rcount
 
 
     @property

@@ -18,6 +18,8 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._technique, None)
         self.assertEqual(pdb._classification, None)
         self.assertEqual(pdb._rfactor, None)
+        self.assertEqual(pdb._rfree, None)
+        self.assertEqual(pdb._rcount, None)
         self.assertEqual(pdb._keywords, [])
 
 
@@ -213,6 +215,38 @@ class PdbRfactorTests(TestCase):
         pdb._rfactor = 1.2
         pdb.rfactor = 1.5
         self.assertEqual(pdb._rfactor, 1.5)
+
+
+
+class PdbFreeRfactorTests(TestCase):
+
+    def test_can_get_pdb_rfree(self):
+        pdb = Pdb()
+        pdb._rfree = 1.2
+        self.assertIs(pdb._rfree, pdb.rfree)
+
+
+    def test_can_update_rfactor(self):
+        pdb = Pdb()
+        pdb._rfree = 1.2
+        pdb.rfree = 1.5
+        self.assertEqual(pdb._rfree, 1.5)
+
+
+
+class PdbRfactorCountTests(TestCase):
+
+    def test_can_get_pdb_rcount(self):
+        pdb = Pdb()
+        pdb._rcount = 1.2
+        self.assertIs(pdb._rcount, pdb.rcount)
+
+
+    def test_can_update_rcount(self):
+        pdb = Pdb()
+        pdb._rcount = 1.2
+        pdb.rcount = 1.5
+        self.assertEqual(pdb._rcount, 1.5)
 
 
 

@@ -93,17 +93,23 @@ def extract_rfactor(pdb_dict, lines):
     :param list lines: the file lines to read from."""
 
     remark_lines = get_lines("REMARK", lines)
-    pattern = r"R VALUE[ ]{2,}\(WORKING SET\) : (.+)"
-    for remark in remark_lines:
-        if int(remark[7:10]) == 3 and remark[10:].strip():
-            matches = re.findall(pattern, remark)
-            if matches:
-                try:
-                    pdb_dict["rfactor"] = float(matches[0].strip())
-                    break
-                except: pass
-    else:
-        pdb_dict["rfactor"] = None
+    patterns = {
+     "rfactor": r"R VALUE[ ]{2,}\(WORKING SET\) : (.+)",
+     "rfree": r"FREE R VALUE[ ]{2,}: (.+)",
+     "rcount": r"FREE R VALUE TEST SET COUNT[ ]{2,}: (.+)"
+    }
+    for attribute, pattern in patterns.items():
+        for remark in remark_lines:
+            if int(remark[7:10]) == 3 and remark[10:].strip():
+                matches = re.findall(pattern, remark[10:].strip())
+                if matches:
+                    try:
+                        pdb_dict[attribute] = float(matches[0].strip())
+                        break
+                    except: pass
+    for attr in patterns:
+        if attr not in pdb_dict:
+            pdb_dict[attr] = None
 
 
 def extract_source(pdb_dict, lines):

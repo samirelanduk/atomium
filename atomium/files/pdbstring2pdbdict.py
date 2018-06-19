@@ -225,8 +225,7 @@ def lines_to_model(atom_lines, hetatm_lines, anisou_lines):
     heteroatoms = [atom_line_to_atom_dict(line) for line in hetatm_lines]
     assign_anisou(anisou_lines, atoms, heteroatoms)
     chains = atoms_to_chains(atoms, heteroatoms)
-    model = {"chains": chains}
-    return model
+    return chains
 
 
 def atom_line_to_atom_dict(line):

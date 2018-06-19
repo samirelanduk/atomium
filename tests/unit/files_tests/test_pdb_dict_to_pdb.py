@@ -6,7 +6,7 @@ from atomium.models.data import BONDS
 class PdbDictToPdbTests(TestCase):
 
     @patch("atomium.files.pdbdict2pdb.Pdb")
-    @patch("atomium.files.pdbdict2pdb.model_dict_to_model")
+    @patch("atomium.files.pdbdict2pdb.model_list_to_model")
     def test_can_convert_pdb_dict_to_pdb(self, mock_model, mock_pdb):
         pdb = Mock()
         mock_pdb.return_value = pdb
@@ -41,17 +41,17 @@ class PdbDictToPdbTests(TestCase):
 
 
 
-class ModelDictToModelTests(TestCase):
+class ModelListToModelTests(TestCase):
 
     @patch("atomium.files.pdbdict2pdb.Model")
     @patch("atomium.files.pdbdict2pdb.chain_dict_to_chain")
     @patch("atomium.files.pdbdict2pdb.bond_atoms")
-    def test_can_convert_model_dict_to_model(self, mock_bond, mock_chain, mock_model):
+    def test_can_convert_model_list_to_model(self, mock_bond, mock_chain, mock_model):
         model = Mock()
         mock_model.return_value = model
         mock_chain.side_effect = ["chain1", "chain2"]
-        model_dict = {"chains": ["c1", "c2"]}
-        returned_model = model_dict_to_model(model_dict, ["c1", "c2"], "SEQ")
+        model_list = ["c1", "c2"]
+        returned_model = model_list_to_model(model_list, ["c1", "c2"], "SEQ")
         mock_chain.assert_any_call("c1", "SEQ")
         mock_chain.assert_any_call("c2", "SEQ")
         self.assertIs(returned_model, model)

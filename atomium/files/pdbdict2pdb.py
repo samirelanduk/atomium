@@ -24,22 +24,22 @@ def pdb_dict_to_pdb(pdb_dict):
     pdb._rfree = pdb_dict["rfree"]
     pdb._rcount = pdb_dict["rcount"]
     pdb._keywords = pdb_dict["keywords"]
-    pdb._models = [model_dict_to_model(
+    pdb._models = [model_list_to_model(
      d, pdb_dict["connections"], pdb_dict["sequences"]
     ) for d in pdb_dict["models"]]
     return pdb
 
 
-def model_dict_to_model(model_dict, connections, sequences):
-    """Converts a model ``dict`` to a :py:class:`.Model`.
+def model_list_to_model(model_list, connections, sequences):
+    """Converts a model ``list`` to a :py:class:`.Model`.
 
-    :param dict model_dict: The model dictionary to load.
+    :param dict model_list: The model list to load.
     :param dict connections: The connections dictionary to use.
     :param dict sequences: The sequences dictionary to load.
     :rtype: :py:class:`.Model`"""
 
     model = Model()
-    for chain in model_dict["chains"]:
+    for chain in model_list:
         model.add(chain_dict_to_chain(chain, sequences))
     bond_atoms(model, connections)
     return model

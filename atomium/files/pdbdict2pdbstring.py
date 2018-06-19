@@ -166,18 +166,17 @@ def pack_structure(lines, pdb_dict):
     pack_connections(lines, pdb_dict)
 
 
-def pack_model(lines, model_dict, multi=0):
+def pack_model(lines, model_list, multi=0):
     """Adds structure records for a single model to a list of lines.
 
     :param list lines: The record lines to add to.
-    :param dict model_dict: The model dictionary to pack.
-    :param bool sole: If ``True`` the encompassing MODEL and ENDMDL lines will\
-    be omitted."""
+    :param dict model_list: The model list to pack.
+    :param int multi: The model number, if applicable"""
 
     if multi > 0:
         lines.append("MODEL        {}".format(multi).ljust(80))
     atom_dicts, heteroatom_dicts = [], []
-    for chain in model_dict["chains"]:
+    for chain in model_list:
         for residue in chain["residues"]:
             atom_dicts += residue["atoms"]
         for ligand in chain["ligands"]:

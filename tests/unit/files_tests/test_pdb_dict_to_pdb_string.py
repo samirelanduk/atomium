@@ -280,13 +280,12 @@ class ModelPackingTests(TestCase):
         self.atoms[1]["anisotropy"][0] = 1
         self.atoms[-2]["anisotropy"][0] = 1
         self.lines = []
-        self.model_dict = {
-         "chains": [
+        self.model_dict = [
           {"residues": [{"atoms": self.atoms[:2]}, {"atoms": self.atoms[2:4]}],
           "ligands": [{"atoms": self.atoms[8:10]}, {"atoms": self.atoms[10:12]}]},
           {"residues": [{"atoms": self.atoms[4:6]}, {"atoms": self.atoms[6:8]}],
           "ligands": [{"atoms": self.atoms[12:14]}, {"atoms": self.atoms[14:16]}]},
-         ]}
+         ]
 
 
 

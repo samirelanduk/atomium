@@ -216,9 +216,9 @@ class PdbReadingTests(IntegratedTest):
          "tests/integration/files/1lol.pdb"
         )
         self.assertEqual(data_file["code"], "1LOL")
-        self.assertEqual(len(data_file["models"][0]["chains"]), 2)
+        self.assertEqual(len(data_file["models"][0]), 2)
         self.assertEqual(
-         data_file["models"][0]["chains"][0]["residues"][0]["atoms"][0],
+         data_file["models"][0][0]["residues"][0]["atoms"][0],
          {
           "atom_id": 1, "atom_name": "N", "alt_loc": None,
           "residue_name": "VAL", "full_id": "A11",
@@ -248,7 +248,7 @@ class PdbReadingTests(IntegratedTest):
     def test_can_fetch_pdb_data(self):
         data_file = atomium.fetch_data("1lol", pdbe=True)
         self.assertEqual(data_file["code"], "1LOL")
-        self.assertEqual(len(data_file["models"][0]["chains"]), 2)
+        self.assertEqual(len(data_file["models"][0]), 2)
         self.assertEqual(len(data_file["connections"]), 60)
         self.assertEqual(data_file["connections"][0], {
          "atom": 3194, "bond_to": [3195, 3196]

@@ -44,10 +44,9 @@ def structure_to_pdb_dict(structure):
         list_ = heteroatoms if atom.residue is None else atoms
         list_.append(atom_to_atom_dict(atom))
     chains = atoms_to_chains(atoms, heteroatoms)
-    model = {"chains": chains}
     connections = structure_to_connections(structure)
     return {
-     "models": [model], "connections": connections,
+     "models": [chains], "connections": connections,
      "deposition_date": None, "code": None, "title": None, "resolution": None,
      "organism": None, "expression_system": None, "technique": None,
      "classification": None, "rfactor": None, "rfree": None, "rcount": None,

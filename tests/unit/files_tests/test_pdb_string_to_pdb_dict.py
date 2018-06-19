@@ -329,16 +329,6 @@ class SequenceExtractionTests(PdbStringConversionTest):
 
 
 
-        mock_merge.return_value = (
-         "MOL_ID: 1;"
-         " ORGANISM_SCIENTIFIC: METHANOTHERMOBACTER"
-         " THERMAUTOTROPHICUS STR. DELTA H;"
-         " ORGANISM_TAXID: 187420;"
-         " STRAIN: DELTA H;"
-        )
-
-
-
 class StructureExtractionTests(TestCase):
 
     def setUp(self):
@@ -415,7 +405,7 @@ class LinesToModelTests(TestCase):
          [{"a": 1}, {"a": 2}, {"a": 3}, {"a": 4}],
          [{"h": 1}, {"h": 2}, {"h": 3}, {"h": 4}]
         )
-        self.assertEqual(model, {"chains": [{"c": 1}, {"c": 2}]})
+        self.assertEqual(model, [{"c": 1}, {"c": 2}])
 
 
 

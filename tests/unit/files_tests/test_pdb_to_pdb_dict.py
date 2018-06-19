@@ -106,9 +106,7 @@ class StructureToPdbDictTests(TestCase):
          "classification": None,
          "keywords": [],
          "sequences": {},
-         "models": [{
-          "chains": ["chain1", "chain2"]
-         }],
+         "models": [["chain1", "chain2"]],
          "connections": ["c1", "c2"]
         })
 

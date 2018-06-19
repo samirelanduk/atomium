@@ -67,7 +67,6 @@ class CreationTests(IntegratedTest):
             self.assertIsNone(atom.residue)
             self.assertIsNone(atom.chain)
             self.assertIsNone(atom.model)
-            self.assertIsNone(atom.complex)
             self.assertEqual(atom.bonded_atoms, set())
 
         # Atom bonding
@@ -204,17 +203,14 @@ class CreationTests(IntegratedTest):
         res8 = atomium.Residue(*self.atoms[14:16], id="C2", name="ILE")
         res9 = atomium.Residue(*self.atoms[16:18], id="C3", name="SER")
 
-        # Make chains
+        # Make chains and put in model
         res1.next, res2.next = res2, res3
         res4.next, res5.next = res5, res6
         res7.next, res8.next = res8, res9
         chaina = atomium.Chain(res1, res2, res3, ligand1, id="A")
         chainb = atomium.Chain(res4, res5, res6, ligand2, id="B")
         chainc = atomium.Chain(res7, res8, res9, ligand3, id="C", rep="AALIH")
-
-        # Make complex and put in model
-        complex = atomium.Complex(chaina, chainb, id="1", name="omnitron")
-        model = atomium.Model(complex, chainc)
+        model = atomium.Model(chaina, chainb, chainc)
 
         # The model is fine
         self.assertEqual(model.atoms(), set(self.atoms))
@@ -234,23 +230,10 @@ class CreationTests(IntegratedTest):
         self.assertEqual(model.chain("A"), chaina)
         self.assertEqual(model.chain("B"), chainb)
         self.assertEqual(model.chains(id_regex="A|B"), {chaina, chainb})
-        self.assertEqual(model.complexes(), {complex})
         for atom in self.atoms: self.assertIs(atom.model, model)
         self.assertIs(ligand1.model, model)
         self.assertIs(res6.model, model)
         self.assertIs(chainc.model, model)
-        self.assertIs(complex.model, model)
-
-        # The complex is fine
-        self.assertEqual(complex.atoms(), set(self.atoms[:12] + self.atoms[-9:-3]))
-        self.assertEqual(complex.ligands(), {ligand1, ligand2})
-        self.assertEqual(complex.residues(), {res1, res2, res3, res4, res5, res6})
-        self.assertEqual(complex.chains(), {chaina, chainb})
-        for atom in self.atoms[:12] + self.atoms[-9:-3]:
-            self.assertIs(atom.complex, complex)
-        self.assertIs(ligand1.complex, complex)
-        self.assertIs(res6.complex, complex)
-        self.assertIs(chainb.complex, complex)
 
         # The chains are fine
         self.assertEqual(chaina.atoms(), set(self.atoms[:6] + self.atoms[-9:-6]))
@@ -287,17 +270,17 @@ class CreationTests(IntegratedTest):
         self.assertEqual(chaina.residues(name="HIS"), ())
 
         # Membership is fine
-        self.assertIn(complex, model)
-        self.assertIn(chaina, complex)
-        self.assertIn(ligand2, complex)
+        self.assertIn(chaina, model)
+        self.assertIn(ligand2, chainb)
         self.assertIn(res1, model)
         self.assertNotIn(res1, chainb)
-        self.assertNotIn(res9, complex)
+        self.assertNotIn(res9, chaina)
+        self.assertNotIn(res9, chainb)
 
         # Stuff can be added and removed
-        complex.remove(res2)
-        self.assertIsNone(res2.complex)
-        self.assertEqual(complex.residues(), {res1, res3, res4, res5, res6})
+        chaina.remove(res2)
+        self.assertIsNone(res2.chain)
+        self.assertEqual(chaina.residues(), (res1, res3))
         chainb.add(ligand3)
         self.assertEqual(chainb.ligands(), {ligand3, ligand2})
         self.assertIs(ligand3.chain, chainb)
@@ -408,8 +391,6 @@ class CreationTests(IntegratedTest):
         self.assertEqual(self.atoms[26].location, (2, 2, 2))
         self.assertEqual(self.atoms[17].location, (2, 2, 1))
         self.assertEqual(self.atoms[8].location, (2, 2, 0))
-
-
 
 
 

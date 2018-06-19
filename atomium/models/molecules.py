@@ -34,17 +34,6 @@ def upper(name):
 class Model(AtomStructure):
     """The universe in which all over molecules live."""
 
-    complexes, complex = lower("complex")
-    chains, chain = lower("chain")
-    residues, residue = lower("residue")
-    ligands, ligand = lower("ligand")
-
-
-
-class Complex(AtomStructure):
-    """An amalgamation of chains which form a functional unit."""
-
-    model = property(upper("model"))
     chains, chain = lower("chain")
     residues, residue = lower("residue")
     ligands, ligand = lower("ligand")
@@ -150,7 +139,6 @@ class Chain(AtomStructure):
 
 
     model = property(upper("model"))
-    complex = property(upper("complex"))
     residue = lower("residue")[1]
     ligands, ligand = lower("ligand")
 
@@ -159,7 +147,6 @@ class Chain(AtomStructure):
 class Het(AtomStructure):
 
     model = property(upper("model"))
-    complex = property(upper("complex"))
     chain = property(upper("chain"))
 
 

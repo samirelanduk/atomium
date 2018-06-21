@@ -21,6 +21,18 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(pdb.rfree, 0.229)
         self.assertEqual(pdb.rcount, 1583)
         self.assertEqual(pdb.keywords, ["TIM BARREL", "LYASE"])
+        self.assertEqual(pdb.biomolecules, [{
+         "id": 1,
+         "software": "PISA",
+         "delta_energy": -31.0,
+         "buried_surface_area": 5230,
+         "surface_area": 16550,
+         "transformations": [{
+          "chains": ["A", "B"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        }])
 
         # Atoms are correct
         model = pdb.model
@@ -177,6 +189,18 @@ class PdbReadingTests(IntegratedTest):
     def test_can_read_multi_model_pdbs(self):
         pdb = atomium.pdb_from_file("tests/integration/files/5xme.pdb")
         self.assertEqual(pdb.resolution, None)
+        self.assertEqual(pdb.biomolecules, [{
+         "id": 1,
+         "software": None,
+         "delta_energy": None,
+         "buried_surface_area": None,
+         "surface_area": None,
+         "transformations": [{
+          "chains": ["A"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        }])
 
         models = pdb.models
         self.assertEqual(len(models), 10)
@@ -209,6 +233,81 @@ class PdbReadingTests(IntegratedTest):
         for residue in chain[:3]:
             for name in ["N", "C", "CA", "CB"]:
                 self.assertEqual(len(residue.atoms(name=name)), 1)
+
+
+    def test_can_create_biological_assemblies(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/1xda.pdb")
+
+        # The PDB has the correct instructions for creating assemblies
+        data = [
+         [1, 1720, 3980, -7, [["A,B", 0, 0]]],
+         [2, 1870, 4400, -2, [["C,D", 0, 0]]],
+         [3, 1160, 4110, -11, [["E,F", 0, 0]]],
+         [4, 1650, 4240, -7, [["G,H", 0, 0]]],
+         [5, 21680, 12240, -332, [
+          ["E,F,G,H", 0, 0],
+          ["E,F,G,H", [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]], 0],
+          ["E,F,G,H", [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0, 0, 1]], 0]]
+         ],
+         [6, 23900, 12440, -287, [
+          ["A,B,C,D", 0, 0],
+          ["A,B,C,D", [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]], 0],
+          ["A,B,C,D", [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0, 0, 1]], 0]]
+         ],
+         [7, 7540, 9770, -137, [
+          ["A,B", 0, 0],
+          ["A,B", [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]], 0],
+          ["A,B", [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0, 0, 1]], 0]]
+         ],
+         [8, 5500, 10530, -156, [
+          ["E,F", 0, 0],
+          ["E,F", [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]], 0],
+          ["E,F", [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0, 0, 1]], 0]]
+         ],
+         [9, 7450, 10440, -149, [
+          ["G,H", 0, 0],
+          ["G,H", [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]], 0],
+          ["G,H", [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0, 0, 1]], 0]]
+         ],
+         [10, 8150, 10880, -129, [
+          ["C,D", 0, 0],
+          ["C,D", [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]], 0],
+          ["C,D", [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0, 0, 1]], 0]]
+         ],
+         [11, 4530, 6630, -25, [["E,F,G,H", 0, 0]]],
+         [12, 5190, 6770, -14, [["A,B,C,D", 0, 0]]],
+        ]
+        self.assertEqual(pdb.biomolecules, [{
+         "id": d[0],
+         "software": "PISA",
+         "buried_surface_area": d[1],
+         "surface_area": d[2],
+         "delta_energy": d[3],
+         "transformations": [{
+          "chains": t[0].split(","),
+          "matrix": t[1] if t[1] else [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         } for t in d[4]]
+        } for d in data])
+
+        # Different assemblies can be generated
+        self.assertEqual(len(pdb.model.chains()), 8)
+
+        model = pdb.generate_assembly(1)
+        self.assertEqual(len(model.chains()), 2)
+        self.assertEqual(len(model.residues()), 50)
+        self.assertEqual(len(model.ligands()), 44)
+        self.assertFalse(model.chains() & pdb.model.chains())
+        self.assertFalse(model.residues() & pdb.model.residues())
+        self.assertFalse(model.ligands() & pdb.model.ligands())
+
+        model = pdb.generate_assembly(5)
+        self.assertEqual(len(model.chains()), 12)
+        self.assertEqual(len(model.residues()), 300)
+        self.assertEqual(len(model.ligands()), 267)
+        self.assertFalse(model.chains() & pdb.model.chains())
+        self.assertFalse(model.residues() & pdb.model.residues())
+        self.assertFalse(model.ligands() & pdb.model.ligands())
 
 
     def test_can_read_pdb_data(self):
@@ -335,3 +434,12 @@ class PdbSavingTests(IntegratedTest):
         self.assertEqual(len(residue1.atoms()), 16)
         self.assertEqual(len(residue2.atoms()), 14)
         self.assertEqual(len(residue3.atoms()), 10)
+
+
+    def test_can_save_multi_assembly_pdbs(self):
+        pdb = atomium.pdb_from_file("tests/integration/files/1xda.pdb")
+
+        pdb.save("tests/integration/files/1XDA2.pdb")
+        self.check_files_the_same("1XDA2.pdb", "1xda_output.pdb")
+
+        new = atomium.pdb_from_file("tests/integration/files/1XDA2.pdb")

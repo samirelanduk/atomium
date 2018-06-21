@@ -32,6 +32,7 @@ def extract_annotation(pdb_dict, lines):
     extract_technique(pdb_dict, lines)
     extract_keywords(pdb_dict, lines)
     extract_sequence(pdb_dict, lines)
+    extract_biomolecules(pdb_dict, lines)
 
 
 def extract_header(pdb_dict, lines):
@@ -179,6 +180,49 @@ def extract_sequence(pdb_dict, lines):
                 pdb_dict["sequences"][block], code = [], block
             elif code and not len(block) == 1:
                 pdb_dict["sequences"][code].append(block)
+
+
+def extract_biomolecules(pdb_dict, lines):
+    """Takes a ``dict`` and adds sequence information to it by parsing file
+    lines - specifically REMARK 350.
+
+    :param dict pdb_dict: the ``dict`` to update.
+    :param list lines: the file lines to read from."""
+
+    lines = [l for l in get_lines("REMARK", lines) if int(l[7:10]) == 350]
+    biomolecules = break_lines_on_regex(lines, r"REMARK 350 BIOMOLECULE: (\d+)")
+    pdb_dict["biomolecules"] = []
+    for biomolecule_lines in biomolecules:
+        biomolecule = {
+         "transformations": [], "software": None, "buried_surface_area": None,
+         "surface_area": None, "delta_energy": None
+        }
+        patterns = [
+         [r"(.+)SOFTWARE USED: (.+)", "software", lambda x: x],
+         [r"(.+)BIOMOLECULE: (.+)", "id", int],
+         [r"(.+)BURIED SURFACE AREA: (.+) [A-Z]", "buried_surface_area", float],
+         [r"(.+)AREA OF THE COMPLEX: (.+) [A-Z]", "surface_area", float],
+         [r"(.+)FREE ENERGY: (.+) [A-Z]", "delta_energy", float],
+        ]
+        for line in biomolecule_lines:
+            for pattern in patterns:
+                matches = re.findall(pattern[0], line)
+                if matches:
+                    biomolecule[pattern[1]] = pattern[2](matches[0][1].strip())
+        operations = break_lines_on_regex(
+         biomolecule_lines, r"(.+)APPLY THE FOLLOWING TO CHAINS"
+        )
+        for operation_lines in operations:
+            chains = operation_lines[0].strip().split(": ")[-1].split(", ")
+            for matrix in break_lines_on_regex(operation_lines, r"(.+)BIOMT1"):
+                matrix = [l for l in matrix if "BIOMT" in l]
+                vector = [float(line.strip().split()[-1]) for line in matrix]
+                matrix = [[float(x) for x in line.split()[-4:-1]] for line in matrix]
+                biomolecule["transformations"].append({
+                 "chains": chains, "vector": vector, "matrix": matrix
+                })
+        pdb_dict["biomolecules"].append(biomolecule)
+
 
 
 def extract_structure(pdb_dict, lines):
@@ -374,3 +418,14 @@ def merge_lines(lines, start, join=" "):
 
     string = join.join([line[start:].strip() for line in lines])
     return string
+
+
+def break_lines_on_regex(lines, regex):
+    groups, group = [], []
+    for line in lines:
+        if re.match(regex, line):
+            groups.append(group)
+            group = []
+        group.append(line)
+    groups.append(group)
+    return filter(lambda g: bool(g) and re.match(regex, g[0]), groups)

@@ -32,11 +32,19 @@ def upper(name):
 
 
 class Model(AtomStructure):
-    """The universe in which all over molecules live."""
+    """The universe in which all other molecules live."""
 
     chains, chain = lower("chain")
     residues, residue = lower("residue")
     ligands, ligand = lower("ligand")
+
+    def copy(self):
+        model = Model(*[chain.copy() for chain in self.chains()])
+        atoms = self._atoms - model._atoms
+        atom_copies = [atom.copy() for atom in atoms]
+        model._atoms.update(atom_copies)
+        model._id, model._name = self._id, self._name
+        return model
 
 
 
@@ -55,6 +63,19 @@ class Chain(AtomStructure):
 
     def __getitem__(self, index):
         return self.residues()[index]
+
+
+    def copy(self):
+        ligands = [ligand.copy() for ligand in self.ligands()]
+        residues = [residue.copy() for residue in self.residues()]
+        for res1, res2 in zip(residues[:-1], residues[1:]): res1.next = res2
+        substructures = ligands + residues
+        chain = Chain(*substructures)
+        atoms = self._atoms - chain._atoms
+        atom_copies = [atom.copy() for atom in atoms]
+        chain._atoms.update(atom_copies)
+        chain._id, chain._name = self._id, self._name
+        return chain
 
 
     def verify(self):

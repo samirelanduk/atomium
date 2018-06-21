@@ -14,6 +14,8 @@ shuffle(codes)
 for code in codes:
     print("\tParsing {}...".format(code))
     pdb = atomium.fetch(code)
-    print("\tSuccess ({} model{}).\n".format(
-     len(pdb.models()), "" if len(pdb.models()) == 1 else "s"
+    print("\tSuccess ({} model{}).".format(
+     len(pdb.models), "" if len(pdb.models) == 1 else "s"
     ))
+    print("\t", *[b["software"] for b in pdb.biomolecules])
+    print()

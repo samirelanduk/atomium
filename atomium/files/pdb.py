@@ -19,6 +19,7 @@ class Pdb:
         self._rfree = None
         self._rcount = None
         self._keywords = []
+        self._biomolecules = []
 
 
     def __repr__(self):
@@ -207,6 +208,33 @@ class Pdb:
         :rtype: ``list``"""
 
         return self._keywords
+
+
+    @property
+    def biomolecules(self):
+        """The Pdb's biomolecules.
+
+        :rtype: ``list``"""
+
+        return self._biomolecules
+
+
+    def generate_assembly(self, id):
+        model = self._models[0]
+        for biomolecule in self._biomolecules:
+            if biomolecule["id"] == id:
+                break
+        else:
+            raise ValueError("No biomolecule with ID {}".format(id))
+        new_chains = []
+        for transformation in biomolecule["transformations"]:
+            chains = [model.chain(chain_id) for chain_id in transformation["chains"]]
+            for chain in chains:
+                new_chain = chain.copy()
+                new_chain.rotate(transformation["matrix"])
+                new_chain.translate(transformation["vector"])
+                new_chains.append(new_chain)
+        return Model(*new_chains)
 
 
     def to_file_string(self):

@@ -6,6 +6,12 @@ KEYWDS    PLANT SEED PROTEIN
 EXPDTA    X-RAY DIFFRACTION
 REMARK   2
 REMARK   2 RESOLUTION.    0.83 ANGSTROMS.
+REMARK 350                                                                      
+REMARK 350 BIOMOLECULE: 1                                                         
+REMARK 350 APPLY THE FOLLOWING TO CHAINS: A                                     
+REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000            
+REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000            
+REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000 
 SEQRES   1 A   46  THR THR CYS CYS PRO SER ILE VAL ALA ARG SER ASN PHE          
 SEQRES   2 A   46  ASN VAL CYS ARG LEU PRO GLY THR SER GLU ALA ILE CYS          
 SEQRES   3 A   46  ALA THR TYR THR GLY CYS ILE ILE ILE PRO GLY ALA THR          

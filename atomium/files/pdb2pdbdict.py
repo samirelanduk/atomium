@@ -27,6 +27,7 @@ def pdb_to_pdb_dict(pdb):
     pdb_dict["technique"] = pdb._technique
     pdb_dict["classification"] = pdb._classification
     pdb_dict["keywords"] = pdb._keywords
+    pdb_dict["biomolecules"] = pdb._biomolecules
     return pdb_dict
 
 
@@ -50,7 +51,7 @@ def structure_to_pdb_dict(structure):
      "deposition_date": None, "code": None, "title": None, "resolution": None,
      "organism": None, "expression_system": None, "technique": None,
      "classification": None, "rfactor": None, "rfree": None, "rcount": None,
-     "keywords": [], "sequences": {}
+     "keywords": [], "biomolecules": [], "sequences": {}
     }
 
 

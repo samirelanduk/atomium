@@ -24,6 +24,7 @@ def pdb_dict_to_pdb(pdb_dict):
     pdb._rfree = pdb_dict["rfree"]
     pdb._rcount = pdb_dict["rcount"]
     pdb._keywords = pdb_dict["keywords"]
+    pdb._biomolecules = pdb_dict["biomolecules"]
     pdb._models = [model_list_to_model(
      d, pdb_dict["connections"], pdb_dict["sequences"]
     ) for d in pdb_dict["models"]]

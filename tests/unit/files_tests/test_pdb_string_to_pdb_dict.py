@@ -35,7 +35,8 @@ class AnnotationExtractionTests(PdbStringConversionTest):
     @patch("atomium.files.pdbstring2pdbdict.extract_technique")
     @patch("atomium.files.pdbstring2pdbdict.extract_keywords")
     @patch("atomium.files.pdbstring2pdbdict.extract_sequence")
-    def test_can_extract_header(self, mock_seq, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_header):
+    @patch("atomium.files.pdbstring2pdbdict.extract_biomolecules")
+    def test_can_extract_header(self, mock_bm, mock_seq, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_header):
         extract_annotation(self.pdb_dict, self.lines)
         mock_title.assert_called_with(self.pdb_dict, self.lines)
         mock_header.assert_called_with(self.pdb_dict, self.lines)
@@ -45,6 +46,7 @@ class AnnotationExtractionTests(PdbStringConversionTest):
         mock_tech.assert_called_with(self.pdb_dict, self.lines)
         mock_key.assert_called_with(self.pdb_dict, self.lines)
         mock_seq.assert_called_with(self.pdb_dict, self.lines)
+        mock_bm.assert_called_with(self.pdb_dict, self.lines)
 
 
 
@@ -326,6 +328,106 @@ class SequenceExtractionTests(PdbStringConversionTest):
         mock_lines.assert_any_call("SEQRES", self.lines)
         mock_merge.assert_called_with(["line1", "line2"], 10)
         self.assertEqual(self.pdb_dict["sequences"], {"C": ["JHY", "FRT", "FDR"], "D": ["YTR"]})
+
+
+
+class BiomoleculeExtractionTests(PdbStringConversionTest):
+
+    def setUp(self):
+        PdbStringConversionTest.setUp(self)
+        self.remark_lines = [
+         "REMARK   1 BLAH BLAH.",
+         "REMARK 350",
+         "REMARK 350 BIOMOLECULE: 1",
+         "REMARK 350 SOFTWARE DETERMINED QUATERNARY STRUCTURE: DIMERIC",
+         "REMARK 350 SOFTWARE USED: PISA",
+         "REMARK 350 TOTAL BURIED SURFACE AREA: 1650 ANGSTROM**2",
+         "REMARK 350 SURFACE AREA OF THE COMPLEX: 4240 ANGSTROM**2",
+         "REMARK 350 CHANGE IN SOLVENT FREE ENERGY: -7.0 KCAL/MOL",
+         "REMARK 350 APPLY THE FOLLOWING TO CHAINS: G, H",
+         "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
+         "REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
+         "REMARK 350",
+         "REMARK 350 BIOMOLECULE: 5",
+         "REMARK 350 SOFTWARE DETERMINED QUATERNARY STRUCTURE: DODECAMERIC",
+         "REMARK 350 SOFTWARE USED: PISA",
+         "REMARK 350 TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
+         "REMARK 350 SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
+         "REMARK 350 CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
+         "REMARK 350 APPLY THE FOLLOWING TO CHAINS: E, F, G, H",
+         "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
+         "REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
+         "REMARK 350   BIOMT1   2 -0.500000 -0.866025  0.000000        0.00000",
+         "REMARK 350   BIOMT2   2  0.866025 -0.500000  0.000000        0.00000",
+         "REMARK 350   BIOMT3   2  0.000000  0.000000  1.000000        0.00000",
+         "REMARK  24",
+         "REMARK  24 BLAH BLAH."
+        ]
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_missing_biomolecules_extraction(self, mock_lines):
+        self.remark_lines = self.remark_lines[:2]
+        mock_lines.return_value = self.remark_lines
+        extract_biomolecules(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["biomolecules"], [])
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_biomolecules_extraction(self, mock_lines):
+        mock_lines.return_value = self.remark_lines
+        extract_biomolecules(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["biomolecules"], [{
+         "id": 1,
+         "software": "PISA",
+         "delta_energy": -7.0,
+         "buried_surface_area": 1650,
+         "surface_area": 4240,
+         "transformations": [{
+          "chains": ["G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 2.0, -6.0]
+         }]
+        }, {
+         "id": 5,
+         "software": "PISA",
+         "delta_energy": -332,
+         "buried_surface_area": 21680,
+         "surface_area": 12240,
+         "transformations": [{
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        }])
+
+
+    @patch("atomium.files.pdbstring2pdbdict.get_lines")
+    def test_sparse_biomolecules_extraction(self, mock_lines):
+        self.remark_lines = self.remark_lines[:4] + self.remark_lines[8:13]
+        mock_lines.return_value = self.remark_lines
+        extract_biomolecules(self.pdb_dict, self.lines)
+        mock_lines.assert_any_call("REMARK", self.lines)
+        self.assertEqual(self.pdb_dict["biomolecules"], [{
+         "id": 1,
+         "software": None,
+         "delta_energy": None,
+         "buried_surface_area": None,
+         "surface_area": None,
+         "transformations": [{
+          "chains": ["G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 2.0, -6.0]
+         }]
+        }])
 
 
 
@@ -611,3 +713,12 @@ class LineMergingTests(TestCase):
          merge_lines(self.lines, 8, join="."),
          "89.ij.89"
         )
+
+
+
+class RegexSplittingTests(TestCase):
+
+    def test_can_split_on_regex(self):
+        self.assertEqual(list(break_lines_on_regex(
+         ["aa", "bb", "11", "cc", "11", "sddf", "ds", "11", "A"], "11"
+        )), [["11", "cc"], ["11", "sddf", "ds"], ["11", "A"]])

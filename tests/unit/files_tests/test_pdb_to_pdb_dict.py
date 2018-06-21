@@ -21,6 +21,7 @@ class PdbToPdbDictTests(TestCase):
         pdb._technique = "T"
         pdb._classification = "CLASS"
         pdb._keywords = ["a", "b"]
+        pdb._biomolecules = ["1", "2"]
         pdb._models = ["model1"]
         mock_dict.return_value = {"models": ["m1"], "connections": ["c1", "c2"]}
         pdb_dict = pdb_to_pdb_dict(pdb)
@@ -30,7 +31,7 @@ class PdbToPdbDictTests(TestCase):
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
          "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
-         "rfree": 2.4, "rcount": 18,
+         "rfree": 2.4, "rcount": 18, "biomolecules": ["1", "2"],
          "models": ["m1"], "connections": ["c1", "c2"], "sequences": "SEQ"
         })
 
@@ -52,6 +53,7 @@ class PdbToPdbDictTests(TestCase):
         pdb._technique = "T"
         pdb._classification = "CLASS"
         pdb._keywords = ["a", "b"]
+        pdb._biomolecules = ["1", "2"]
         pdb._models = ["model1", "model2"]
         mock_dict.side_effect = [
          {"models": ["m1"], "connections": ["c1", "c2"]},
@@ -65,7 +67,7 @@ class PdbToPdbDictTests(TestCase):
          "deposition_date": "D", "code": "C", "title": "T", "resolution": 1.5,
          "organism": "O", "expression_system": "E", "technique": "T",
          "classification": "CLASS", "rfactor": 1.8, "keywords": ["a", "b"],
-         "rfree": 2.4, "rcount": 18,
+         "rfree": 2.4, "rcount": 18, "biomolecules": ["1", "2"],
          "models": ["m1", "m2"], "connections": ["c1", "c2"], "sequences": "SEQ"
         })
 
@@ -105,6 +107,7 @@ class StructureToPdbDictTests(TestCase):
          "technique": None,
          "classification": None,
          "keywords": [],
+         "biomolecules": [],
          "sequences": {},
          "models": [["chain1", "chain2"]],
          "connections": ["c1", "c2"]

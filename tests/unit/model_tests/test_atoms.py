@@ -18,7 +18,6 @@ class AtomCreationTests(TestCase):
         self.assertEqual(atom._residue, None)
         self.assertEqual(atom._ligand, None)
         self.assertEqual(atom._chain, None)
-        self.assertEqual(atom._complex, None)
         self.assertEqual(atom._model, None)
 
 
@@ -57,7 +56,7 @@ class AtomReprTests(TestCase):
 
     def test_atom_repr(self):
         atom = Atom("C", 2, 3, 5, id=15, name="CA")
-        self.assertEqual(repr(atom), "<C(CA) Atom 15 at (2, 3, 5)>")
+        self.assertEqual(repr(atom), "<C (CA) Atom 15 at (2, 3, 5)>")
 
 
     def test_basic_atom_repr(self):
@@ -265,12 +264,12 @@ class AtomMovingTests(TestCase):
 
 
 
-class AtomRotationTests(TestCase):
+class AtomTransformationTests(TestCase):
 
     @patch("atomium.models.atoms.Atom.trim")
-    def test_can_rotate_atoms(self, mock_trim):
+    def test_can_transform_atoms(self, mock_trim):
         atom = Atom("C", 20, 30, 50)
-        atom.rotate([[1, 0, 0], [0, 0.7071, -0.7071], [0, 0.7071, 0.7071]], trim=12)
+        atom.transform([[1, 0, 0], [0, 0.7071, -0.7071], [0, 0.7071, 0.7071]], trim=12)
         self.assertEqual(atom._x, 20)
         self.assertAlmostEqual(atom._y, -14.142, delta=3)
         self.assertAlmostEqual(atom._z, 56.569, delta=3)
@@ -278,10 +277,44 @@ class AtomRotationTests(TestCase):
 
 
     @patch("atomium.models.atoms.Atom.trim")
-    def test_can_rotate_atoms_and_specify_trim(self, mock_trim):
+    def test_can_transform_atoms_and_specify_trim(self, mock_trim):
         atom = Atom("C", 20, 30, 50)
-        atom.rotate([[1, 0, 0], [0, 0.7, -0.7], [0, 0.7, 0.7]], trim=1)
+        atom.transform([[1, 0, 0], [0, 0.7, -0.7], [0, 0.7, 0.7]], trim=1)
         mock_trim.assert_called_with(1)
+
+
+
+class AtomRotationTests(TestCase):
+
+    @patch("atomium.models.atoms.Atom.transform")
+    def test_can_rotate_atoms(self, mock_transform):
+        atom = Atom("C", 20, 30, 50)
+        atom.rotate(math.pi / 2, "x", 10, a=20)
+        self.assertEqual(mock_transform.call_args_list[0][0][1], 10)
+        self.assertEqual(mock_transform.call_args_list[0][1], {"a": 20})
+        matrix_used = mock_transform.call_args_list[0][0][0]
+        self.assertEqual(
+         [[round(val, 12) for val in row] for row in matrix_used],
+         [[1, 0, 0], [0, 0, -1], [0, 1, 0]]
+        )
+        atom.rotate(math.pi / 18, "y")
+        matrix_used = mock_transform.call_args_list[1][0][0]
+        self.assertEqual(
+         [[round(val, 3) for val in row] for row in matrix_used],
+         [[0.985, 0, 0.174], [0, 1, 0], [-0.174, 0, 0.985]]
+        )
+        atom.rotate(math.pi / -36, "z")
+        matrix_used = mock_transform.call_args_list[2][0][0]
+        self.assertEqual(
+         [[round(val, 3) for val in row] for row in matrix_used],
+         [[0.996, 0.087, 0], [-0.087, 0.996, 0], [0, 0, 1]]
+        )
+
+
+    def test_rotation_axis_must_be_valid(self):
+        atom = Atom("C", 20, 30, 50)
+        with self.assertRaises(ValueError):
+            atom.rotate(math.pi / 2, "w")
 
 
 
@@ -371,16 +404,6 @@ class AtomChainTests(TestCase):
         atom = Atom("C", 2, 3, 5)
         atom._chain = chain
         self.assertIs(atom.chain, chain)
-
-
-
-class AtomComplexTests(TestCase):
-
-    def test_complex_property(self):
-        complex = Mock()
-        atom = Atom("C", 2, 3, 5)
-        atom._complex = complex
-        self.assertIs(atom.complex, complex)
 
 
 

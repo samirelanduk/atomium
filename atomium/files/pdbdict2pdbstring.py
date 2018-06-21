@@ -159,27 +159,38 @@ def pack_biomolecules(lines, pdb_dict):
     :param list lines: The record lines to add to.
     :param dict pdb_dict: The data dictionary to pack."""
 
-    for biomolecule in pdb_dict["biomolecules"]:
+    for bm in pdb_dict["biomolecules"]:
         lines.append("REMARK 350")
-        lines.append("REMARK 350 BIOMOLECULE: {}".format(biomolecule["id"]))
-        if biomolecule["software"]: lines.append("REMARK 350 SOFTWARE USED: {}".format(biomolecule["software"]))
-        if biomolecule["buried_surface_area"]: lines.append("REMARK 350 TOTAL BURIED SURFACE AREA: {} ANGSTROM**2".format(int(biomolecule["buried_surface_area"])))
-        if biomolecule["surface_area"]: lines.append("REMARK 350 SURFACE AREA OF THE COMPLEX: {} ANGSTROM**2".format(int(biomolecule["surface_area"])))
-        if biomolecule["delta_energy"]: lines.append("REMARK 350 CHANGE IN SOLVENT FREE ENERGY: {} KCAL/MOL".format(biomolecule["delta_energy"]))
+        lines.append("REMARK 350 BIOMOLECULE: {}".format(bm["id"]))
+        if bm["software"]:
+            lines.append("REMARK 350 SOFTWARE USED: {}".format(bm["software"]))
+        if bm["buried_surface_area"]:
+            lines.append("REMARK 350 TOTAL BURIED SURFACE AREA:" +
+             " {} ANGSTROM**2".format(int(bm["buried_surface_area"])))
+        if bm["surface_area"]:
+            lines.append("REMARK 350 SURFACE AREA OF THE COMPLEX:" +
+             " {} ANGSTROM**2".format(int(bm["surface_area"])))
+        if bm["delta_energy"]:
+            lines.append("REMARK 350 CHANGE IN SOLVENT FREE ENERGY:" +
+             " {} KCAL/MOL".format(bm["delta_energy"]))
         current_chains = ""
-        for index, transformation in enumerate(biomolecule["transformations"]):
+        for index, transformation in enumerate(bm["transformations"]):
             if transformation["chains"] != current_chains:
-                lines.append("REMARK 350 APPLY THE FOLLOWING TO CHAINS: " + ", ".join(transformation["chains"]))
+                lines.append("REMARK 350 APPLY THE FOLLOWING TO CHAINS: "
+                 + ", ".join(transformation["chains"]))
                 current_chains = transformation["chains"]
             for line in (1, 2, 3):
                 matrix_line = transformation["matrix"][line - 1]
-                lines.append("REMARK 350   BIOMT{}   {} {}{:.6f} {}{:.6f} {}{:.6f}       {}{:.5f}".format(
-                 line, index + 1,
-                 " " if matrix_line[0] >= 0 else "", matrix_line[0],
-                 " " if matrix_line[1] >= 0 else "", matrix_line[1],
-                 " " if matrix_line[2] >= 0 else "", matrix_line[2],
-                 " " if transformation["vector"][line - 1] >= 0 else "", transformation["vector"][line - 1],
-                ))
+                lines.append("REMARK 350   BIOMT" +
+                 "{}   {} {}{:.6f} {}{:.6f} {}{:.6f}       {}{:.5f}".format(
+                  line, index + 1,
+                  " " if matrix_line[0] >= 0 else "", matrix_line[0],
+                  " " if matrix_line[1] >= 0 else "", matrix_line[1],
+                  " " if matrix_line[2] >= 0 else "", matrix_line[2],
+                  " " if transformation["vector"][line - 1] >= 0 else "",
+                  transformation["vector"][line - 1],
+                 )
+                )
 
 
 def pack_structure(lines, pdb_dict):

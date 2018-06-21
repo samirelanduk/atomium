@@ -9,7 +9,6 @@ class AtomStructureTest(TestCase):
         self.atom1 = Mock(Atom, mass=8, element="A", name="CA")
         self.atom2 = Mock(Atom, mass=5.1, element="B", name="CA")
         self.atom3 = Mock(Atom, mass=4, element="C", name="NY")
-        self.atom1, self.atom2, self.atom3 = Mock(Atom), Mock(Atom), Mock(Atom)
         self.atom1.id, self.atom2.id, self.atom3.id = 500, 500, 700
         self.atoms = [self.atom1, self.atom2, self.atom3]
 
@@ -17,7 +16,7 @@ class AtomStructureTest(TestCase):
 
 class AtomStructureCreationTests(AtomStructureTest):
 
-    def test_can_create_atom_structure(self):
+    def test_can_create_empty_atom_structure(self):
         structure = AtomStructure()
         self.assertEqual(structure._atoms, set())
         self.assertEqual(structure._id_atoms, {})
@@ -60,9 +59,6 @@ class AtomStructureCreationTests(AtomStructureTest):
             AtomStructure.__name__ = "Chain"
             structure = AtomStructure(self.atom1)
             self.assertIs(self.atom1._chain, structure)
-            AtomStructure.__name__ = "Complex"
-            structure = AtomStructure(self.atom1)
-            self.assertIs(self.atom1._complex, structure)
         finally: AtomStructure.__name__ = "AtomStructure"
 
 
@@ -211,9 +207,6 @@ class AtomStructureAdditionTests(AtomStructureTest):
             AtomStructure.__name__ = "Chain"
             structure.add(self.atom1)
             self.assertIs(self.atom1._chain, structure)
-            AtomStructure.__name__ = "Complex"
-            structure.add(self.atom1)
-            self.assertIs(self.atom1._complex, structure)
         finally: AtomStructure.__name__ = "AtomStructure"
 
 
@@ -353,6 +346,16 @@ class AtomStructureTranslationTests(AtomStructureTest):
         structure.translate(5, 4, -2, a=1, b=2)
         for atom in self.atoms:
             atom.translate.assert_called_with(5, 4, -2, a=1, b=2)
+
+
+
+class AtomStructureTransformationTests(AtomStructureTest):
+
+    def test_structure_transformation(self):
+        structure = AtomStructure(self.atom1, self.atom2, self.atom3)
+        structure.transform(5, 4, -2, a=1, b=2)
+        for atom in self.atoms:
+            atom.transform.assert_called_with(5, 4, -2, a=1, b=2)
 
 
 

@@ -12,6 +12,7 @@ class PdbStringCreationTest(TestCase):
          "technique": "TECH", "classification": "CLASS", "rfactor": 3.4,
          "keywords": ["AA", "BBB", "CCCCC"], "rfree": 2.3, "rcount": 19,
          "organism": "HOMO SAPIENS", "expression_system": "MUS MUSCULUS",
+         "biomolecules": ["1", "2"],
          "sequences": {"A": ["AAA", "BBB"], "C": ["CCC"]}
         }
         self.lines = []
@@ -40,16 +41,18 @@ class AnnotationPackingTests(PdbStringCreationTest):
     @patch("atomium.files.pdbdict2pdbstring.pack_title")
     @patch("atomium.files.pdbdict2pdbstring.pack_resolution")
     @patch("atomium.files.pdbdict2pdbstring.pack_rfactor")
+    @patch("atomium.files.pdbdict2pdbstring.pack_biomolecules")
     @patch("atomium.files.pdbdict2pdbstring.pack_source")
     @patch("atomium.files.pdbdict2pdbstring.pack_technique")
     @patch("atomium.files.pdbdict2pdbstring.pack_keywords")
     @patch("atomium.files.pdbdict2pdbstring.pack_sequences")
-    def test_can_pack_annotation(self, mock_seq, mock_key, mock_tech, mock_source, mock_rfac, mock_res, mock_title, mock_head):
+    def test_can_pack_annotation(self, mock_seq, mock_key, mock_tech, mock_source, mock_bm, mock_rfac, mock_res, mock_title, mock_head):
         pack_annotation(self.lines, self.pdb_dict)
         mock_head.assert_called_with(self.lines, self.pdb_dict)
         mock_title.assert_called_with(self.lines, self.pdb_dict)
         mock_res.assert_called_with(self.lines, self.pdb_dict)
         mock_rfac.assert_called_with(self.lines, self.pdb_dict)
+        mock_bm.assert_called_with(self.lines, self.pdb_dict)
         mock_source.assert_called_with(self.lines, self.pdb_dict)
         mock_tech.assert_called_with(self.lines, self.pdb_dict)
         mock_key.assert_called_with(self.lines, self.pdb_dict)
@@ -160,6 +163,83 @@ class RfactorPackingTests(PdbStringCreationTest):
         self.pdb_dict["rcount"] = None
         pack_rfactor(self.lines, self.pdb_dict)
         self.assertEqual(self.lines, [])
+
+
+
+class BiomoleculePackingTests(PdbStringCreationTest):
+
+    def test_can_pack_no_biomolecules(self):
+        self.pdb_dict["biomolecules"] = []
+        pack_biomolecules(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines, [])
+
+
+    def test_can_pack_simple_biomolecule(self):
+        self.pdb_dict["biomolecules"] = [{
+         "id": 1, "software": None, "delta_energy": None, "surface_area": None,
+         "buried_surface_area": None, "transformations": [{
+          "chains": ["E", "F"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 7.0, 4.4]
+         }]
+        }]
+        pack_biomolecules(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines[0].rstrip(), "REMARK 350")
+        self.assertEqual(self.lines[1].rstrip(), "REMARK 350 BIOMOLECULE: 1")
+        self.assertEqual(self.lines[2].rstrip(), "REMARK 350 APPLY THE FOLLOWING TO CHAINS: E, F")
+        self.assertEqual(self.lines[3].rstrip(), "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000")
+        self.assertEqual(self.lines[4].rstrip(), "REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        7.00000")
+        self.assertEqual(self.lines[5].rstrip(), "REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        4.40000")
+
+
+    def test_can_pack_complex_biomolecule(self):
+        self.pdb_dict["biomolecules"] = [{
+         "id": 1, "software": None, "delta_energy": None, "surface_area": None,
+         "buried_surface_area": None, "transformations": [{
+          "chains": ["E", "F"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 7.0, 4.4]
+         }]}, {
+          "id": 2, "software": "PISA", "delta_energy": -8.0, "surface_area": 12,
+          "buried_surface_area": 14, "transformations": [{
+           "chains": ["E", "F"],
+           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+           "vector": [0.0, 7.0, 4.4]
+          }, {
+           "chains": ["E", "F"],
+           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.6, 0.0], [0.0, 0.0, 1.0]],
+           "vector": [0.0, 2.0, 4.4]
+          }, {
+           "chains": ["A", "B"],
+           "matrix": [[1.0, 1.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+           "vector": [0.0, 7.0, 4.4]
+          }]
+        }]
+        pack_biomolecules(self.lines, self.pdb_dict)
+        self.assertEqual(self.lines[0].rstrip(), "REMARK 350")
+        self.assertEqual(self.lines[1].rstrip(), "REMARK 350 BIOMOLECULE: 1")
+        self.assertEqual(self.lines[2].rstrip(), "REMARK 350 APPLY THE FOLLOWING TO CHAINS: E, F")
+        self.assertEqual(self.lines[3].rstrip(), "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000")
+        self.assertEqual(self.lines[4].rstrip(), "REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        7.00000")
+        self.assertEqual(self.lines[5].rstrip(), "REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        4.40000")
+        self.assertEqual(self.lines[6].rstrip(), "REMARK 350")
+        self.assertEqual(self.lines[7].rstrip(), "REMARK 350 BIOMOLECULE: 2")
+        self.assertEqual(self.lines[8].rstrip(), "REMARK 350 SOFTWARE USED: PISA")
+        self.assertEqual(self.lines[9].rstrip(), "REMARK 350 TOTAL BURIED SURFACE AREA: 14 ANGSTROM**2")
+        self.assertEqual(self.lines[10].rstrip(), "REMARK 350 SURFACE AREA OF THE COMPLEX: 12 ANGSTROM**2")
+        self.assertEqual(self.lines[11].rstrip(), "REMARK 350 CHANGE IN SOLVENT FREE ENERGY: -8.0 KCAL/MOL")
+        self.assertEqual(self.lines[12].rstrip(), "REMARK 350 APPLY THE FOLLOWING TO CHAINS: E, F")
+        self.assertEqual(self.lines[13].rstrip(), "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000")
+        self.assertEqual(self.lines[14].rstrip(), "REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        7.00000")
+        self.assertEqual(self.lines[15].rstrip(), "REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        4.40000")
+        self.assertEqual(self.lines[16].rstrip(), "REMARK 350   BIOMT1   2  1.000000  0.000000  0.000000        0.00000")
+        self.assertEqual(self.lines[17].rstrip(), "REMARK 350   BIOMT2   2  0.000000  1.600000  0.000000        2.00000")
+        self.assertEqual(self.lines[18].rstrip(), "REMARK 350   BIOMT3   2  0.000000  0.000000  1.000000        4.40000")
+        self.assertEqual(self.lines[19].rstrip(), "REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B")
+        self.assertEqual(self.lines[20].rstrip(), "REMARK 350   BIOMT1   3  1.000000  1.000000  0.000000        0.00000")
+        self.assertEqual(self.lines[21].rstrip(), "REMARK 350   BIOMT2   3  0.000000  1.000000  0.000000        7.00000")
+        self.assertEqual(self.lines[22].rstrip(), "REMARK 350   BIOMT3   3  0.000000  0.000000  1.000000        4.40000")
+
 
 
 

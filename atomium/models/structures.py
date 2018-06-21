@@ -1,12 +1,28 @@
+"""Contains the base Atom Structure class."""
+
 import re
 import numpy as np
 import rmsd
 from collections import Counter
-from .atoms import atom_query
+from .atoms import atom_query, QUERY_DOCSTRING
 
 class AtomStructure:
+    """A structure made of atoms. In practice this class usually acts as a base
+    class to things with more recognisable names, but it can also be used as a
+    generic container of :py:class:`.Atom` objects, or as a base class for some
+    user defined custom class.
 
-    CLASS_NAMES = ("ligand", "residue", "chain", "complex", "model")
+    All atom structures are containers of their atoms, and of any
+    sub-structures they might contain.
+
+    :param \*atoms: The atoms the structure is to be made of. The atoms will\
+    be updated with awareness of the new structure they are part of if a\
+    sub-class is used. You can also pass in other atom structures here, and\
+    their atoms will be used.
+    :param str id: The structure's ID.
+    :param str name: The structure's name."""
+
+    CLASS_NAMES = ("ligand", "residue", "chain", "model")
 
     def __init__(self, *atoms, id=None, name=None):
         self._atoms = set()
@@ -47,6 +63,7 @@ class AtomStructure:
         """Returns the :py:class:`.Atom` objects in the structure.
 
         {}
+
         :rtype: ``set``"""
 
         return set(self._atoms)
@@ -58,6 +75,8 @@ class AtomStructure:
         Note that atoms are stored unordered in a ``set`` so if more than one
         atom matches the criteria you give, it might not be the same atom that
         is returned each time you call this method.
+
+        {}
 
         :rtype: ``Atom``"""
 
@@ -85,7 +104,7 @@ class AtomStructure:
 
 
     def add(self, obj):
-        """Adds an atom or other structure to this structure.
+        """Adds an atom or other :py:class:`.AtomStructure` to this structure.
 
         :param obj: The atom or structure to add."""
 
@@ -104,7 +123,8 @@ class AtomStructure:
 
 
     def remove(self, obj):
-        """Removes an atom or other structure from this structure.
+        """Removes an atom or other :py:class:`.AtomStructure` from this
+        structure.
 
         :param obj: The atom or structure to remove."""
 
@@ -144,7 +164,7 @@ class AtomStructure:
 
     @property
     def id(self):
-        """The structure's identifier.
+        """The structure's identifier. Once created it is not modifiable.
 
         :rtype: ``str``"""
 
@@ -178,17 +198,33 @@ class AtomStructure:
 
     def translate(self, *args, **kwargs):
         """Translates the structure through space, updating all atom
-        coordinates accordingly.
+        coordinates accordingly. You can provide three values, or a single
+        vector.
 
         :param Number dx: The distance to move in the x direction.
         :param Number dy: The distance to move in the y direction.
         :param Number dz: The distance to move in the z direction.
-        :param int trim: The amount of rounding to do to the atom's coordinates\
+        :param int trim: The amount of rounding to do to the atoms' coordinates\
         after translating - the default is 12 decimal places but this can be\
         set to ``None`` if no rounding is to be done."""
 
         for atom in self._atoms:
             atom.translate(*args, **kwargs)
+
+
+    def transform(self, *args, **kwargs):
+        """Transforms the structure using a 3x3 matrix supplied. This is useful
+        if the :py:meth:`.rotate` method isn't powerful enough for your needs.
+
+        :param array matrix: A NumPy matrix representing the transformation.\
+        You can supply a list of lists if you like and it will be converted to\
+        a NumPy matrix.
+        :param int trim: The amount of rounding to do to the atoms' coordinates\
+        after transforming - the default is 12 decimal places but this can be\
+        set to ``None`` if no rounding is to be done."""
+
+        for atom in self._atoms:
+            atom.transform(*args, **kwargs)
 
 
     def rotate(self, *args, **kwargs):
@@ -199,7 +235,7 @@ class AtomStructure:
         :param str axis: The axis to rotate around. Can only be 'x', 'y' or 'z'.
         :param bool degrees: if ``True`` the angle will be interpreted as\
         degrees.
-        :param int trim: The amount of rounding to do to the atom's coordinates\
+        :param int trim: The amount of rounding to do to the atoms' coordinates\
         after translating - the default is 12 decimal places but this can be\
         set to ``None`` if no rounding is to be done."""
 
@@ -209,7 +245,9 @@ class AtomStructure:
 
     @property
     def mass(self):
-        """The mass of the structure in Daltons.
+        """The mass of the structure in Daltons - just the sum of its atoms'
+        masses.
+
         :rtype: ``float``"""
 
         return round(sum([atom.mass for atom in self._atoms]), 12)
@@ -219,6 +257,7 @@ class AtomStructure:
     def charge(self):
         """Returns the charge of the structure, based on the charges of its
         atoms.
+
         :rtype: ``float``"""
 
         return round(sum([atom.charge for atom in self._atoms]), 12)
@@ -227,6 +266,7 @@ class AtomStructure:
     @property
     def formula(self):
         """Returns the formula (count of each atom) of the structure.
+
         :rtype: ``Counter``"""
 
         return Counter([atom.element for atom in self._atoms])
@@ -236,6 +276,7 @@ class AtomStructure:
     def center_of_mass(self):
         """Returns the center of mass of the structure. This is the average of
         all the atom coordinates, weighted by the mass of each atom.
+
         :returns: (x, y, z) ``tuple``"""
 
         mass = self.mass
@@ -250,6 +291,7 @@ class AtomStructure:
         """The radius of gyration of a structure is a measure of how extended it
         is. It is the root mean square deviation of the atoms' distance from the
         structure's :py:meth:`.center_of_mass`.
+
         :rtype: ``float``"""
 
         center_of_mass = self.center_of_mass
@@ -343,7 +385,7 @@ class AtomStructure:
     def grid(self, size=1, margin=0):
         """A generator which models a grid around the structure and returns the
         coordinates of all the points in that grid. The origin is always one of
-        those points.
+        those points, and the grid will be a box.
 
         :param int size: The spacing between grid points. The default is 1.
         :param int margin: How far to extend the grid beyond the structure\
@@ -369,14 +411,10 @@ class AtomStructure:
     def atoms_in_sphere(self, x, y, z, radius):
         """Returns all the atoms in a given sphere within the structure.
 
+        {}
+
         :rtype: ``set``"""
 
-        if any(not isinstance(c, (int, float)) for c in (x, y, z)):
-            raise TypeError("({}, {}, {}) not valid coordinate".format(x, y, z))
-        if not isinstance(radius, (int, float)):
-            raise TypeError("{} is not a valid radius".format(radius))
-        if radius < 0:
-            raise ValueError("{} is not a valid radius".format(radius))
         atoms = filter(
          lambda a: a.distance_to((x, y, z)) <= radius, self._atoms
         )
@@ -385,6 +423,8 @@ class AtomStructure:
 
     def nearby_atoms(self, *args, **kwargs):
         """Gets all atoms within a given cutoff of this structure's atoms.
+
+        {}
 
         :param float cutoff: the distance cutoff to use.
         :rtype: ``set``"""
@@ -401,6 +441,8 @@ class AtomStructure:
 
     def nearby_residues(self, *args, **kwargs):
         """Gets all atoms within a given cutoff of this structure's atoms.
+
+        {}
 
         :param float cutoff: the distance cutoff to use.
         :param bool ligands: if ``True``, ligands will be returned too.
@@ -430,8 +472,8 @@ class AtomStructure:
 
 
     def to_file_string(self, file_format, description=None):
-        """Converts a structure to a filestring. Currently supported file formats
-        are: .xyz and .pdb.
+        """Converts a structure to a filestring. Currently supported file
+        formats are: .xyz and .pdb.
 
         :param str file_format: The file format to use, in lowercase.
         :param str description: A structure description to put in the file.
@@ -457,7 +499,7 @@ class AtomStructure:
         """Saves the structure to file, in the format implied by the extension
         of the path you provide (i.e. giving a path ``/path/to/file.xyz`` will
         save as .xyz etc.).
-        
+
         :param str path: The path to save to. The extension you provide here is\
         important as atomium will use that to determine what file format to\
         save as.
@@ -467,3 +509,11 @@ class AtomStructure:
         s = self.to_file_string(file_format, *args, **kwargs)
         from ..files.utilities import string_to_file
         string_to_file(s, path)
+
+
+AtomStructure.atom.__doc__ =\
+ AtomStructure.atom.__doc__.format(QUERY_DOCSTRING)
+AtomStructure.nearby_atoms.__doc__ =\
+ AtomStructure.nearby_atoms.__doc__.format(QUERY_DOCSTRING)
+AtomStructure.nearby_residues.__doc__ =\
+ AtomStructure.nearby_residues.__doc__.format(QUERY_DOCSTRING)

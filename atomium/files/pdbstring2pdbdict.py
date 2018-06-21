@@ -421,6 +421,13 @@ def merge_lines(lines, start, join=" "):
 
 
 def break_lines_on_regex(lines, regex):
+    """Takes a list of strings, and divides them into smaller lists based on
+    which lines match a regex pattern.
+
+    :param list lines: The list of lines.
+    :param str regex: The pattern to use.
+    :rtype: ``list``"""
+    
     groups, group = [], []
     for line in lines:
         if re.match(regex, line):

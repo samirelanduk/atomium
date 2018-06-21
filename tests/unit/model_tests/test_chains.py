@@ -27,6 +27,16 @@ class ChainCreationTests(TestCase):
 
 
 
+class ChainMembershipPropertiesTests(TestCase):
+
+    def test_chains_have_correct_properties(self):
+        for attr in ["ligand", "residue"]:
+            self.assertIn(attr, Chain.__dict__)
+            self.assertIn(attr + "s", Chain.__dict__)
+        self.assertIn("model", Chain.__dict__)
+
+
+
 class ChainLenTests(TestCase):
 
     @patch("atomium.models.molecules.Chain.residues")
@@ -149,3 +159,57 @@ class ChainRepSequenceTests(TestCase):
         chain = Chain(rep="ABC")
         chain.rep_sequence = "DEF"
         self.assertEqual(chain._rep_sequence, "DEF")
+
+
+
+class ChainCopyingTests(TestCase):
+
+    @patch("atomium.models.molecules.Chain.residues")
+    @patch("atomium.models.molecules.Chain.ligands")
+    def test_can_copy_chain(self, mock_ligands, mock_residues):
+        residues = [Mock(), Mock()]
+        mock_residues.return_value = residues
+        ligands = [Mock(), Mock()]
+        mock_ligands.return_value = ligands
+        residues[0].copy.return_value, residues[1].copy.return_value = Mock(), Mock()
+        ligands[0].copy.return_value, ligands[1].copy.return_value = Mock(), Mock()
+        chain = Chain()
+        patcher = patch("atomium.models.molecules.Chain")
+        mock_chain = patcher.start()
+        try:
+            new_chain = chain.copy()
+            mock_chain.assert_called_with(
+             ligands[0].copy.return_value, ligands[1].copy.return_value,
+             residues[0].copy.return_value, residues[1].copy.return_value
+            )
+        finally:
+            patcher.stop()
+
+
+    @patch("atomium.models.molecules.Chain.residues")
+    @patch("atomium.models.molecules.Chain.ligands")
+    def test_can_copy_chain_with_atoms(self, mock_ligands, mock_residues):
+        residues = [Mock(), Mock()]
+        mock_residues.return_value = residues
+        ligands = [Mock(), Mock()]
+        mock_ligands.return_value = ligands
+        residues[0].copy.return_value, residues[1].copy.return_value = Mock(), Mock()
+        ligands[0].copy.return_value, ligands[1].copy.return_value = Mock(), Mock()
+        chain = Chain()
+        atoms = [Mock(), Mock(), Mock()]
+        chain._atoms = set(atoms)
+        patcher = patch("atomium.models.molecules.Chain")
+        mock_chain = patcher.start()
+        mock_chain.return_value = Mock(_atoms=set(atoms[:-1]))
+        try:
+            new_chain = chain.copy()
+            mock_chain.assert_called_with(
+             ligands[0].copy.return_value, ligands[1].copy.return_value,
+             residues[0].copy.return_value, residues[1].copy.return_value
+            )
+            atoms[-1].copy.assert_called_with()
+            self.assertFalse(atoms[0].called)
+            self.assertFalse(atoms[0].called)
+            self.assertEqual(new_chain._atoms, set(atoms[:-1] + [atoms[-1].copy.return_value]))
+        finally:
+            patcher.stop()

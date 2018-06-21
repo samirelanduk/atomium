@@ -14,6 +14,8 @@ def lower(name):
     def single_func(self, *args, **kwargs):
         results = self._get(name, *args, **kwargs)
         for result in results: return result
+    multi_func.__name__ = name + "s"
+    single_func.__name__ = name
     return multi_func, single_func
 
 
@@ -32,13 +34,26 @@ def upper(name):
 
 
 class Model(AtomStructure):
-    """The universe in which all other molecules live."""
+    """The universe in which all other molecules live, interact, and generally
+    exist.
+
+    :param \*atoms: The atoms the structure is to be made of. The atoms will\
+    be updated with awareness of the new structure they are part of if a\
+    sub-class is used. You can also pass in other atom structures here, and\
+    their atoms will be used.
+    :param str id: The structure's ID.
+    :param str name: The structure's name."""
 
     chains, chain = lower("chain")
     residues, residue = lower("residue")
     ligands, ligand = lower("ligand")
 
     def copy(self):
+        """Creates a copy of the Model, as well as copies of its substructures
+        such as chains etc.
+
+        :rtype: ``Model``"""
+
         model = Model(*[chain.copy() for chain in self.chains()])
         atoms = self._atoms - model._atoms
         atom_copies = [atom.copy() for atom in atoms]
@@ -49,7 +64,25 @@ class Model(AtomStructure):
 
 
 class Chain(AtomStructure):
-    """A sequence of residues."""
+    """A sequence of residues Unlike other structures, they are iterables, and
+    have a length.
+
+    Residues can also be accessed using indexing.
+
+    Residues *must* be connected in series when a chain is created from them.
+    This is necessary because otherwise it won't know how to return a series of
+    residues in order when you ask for them.
+
+    :param \*atoms: The atoms the structure is to be made of. The atoms will\
+    be updated with awareness of the new structure they are part of if a\
+    sub-class is used. You can also pass in other atom structures here, and\
+    their atoms will be used.
+    :param str id: The structure's ID.
+    :param str name: The structure's name."""
+
+    model = property(upper("model"))
+    residue = lower("residue")[1]
+    ligands, ligand = lower("ligand")
 
     def __init__(self, *args, rep="", **kwargs):
         AtomStructure.__init__(self, *args, **kwargs)
@@ -66,6 +99,11 @@ class Chain(AtomStructure):
 
 
     def copy(self):
+        """Creates a copy of the Chain, as well as copies of its substructures
+        such as ligands etc.
+
+        :rtype: ``Chain``"""
+
         ligands = [ligand.copy() for ligand in self.ligands()]
         residues = [residue.copy() for residue in self.residues()]
         for res1, res2 in zip(residues[:-1], residues[1:]): res1.next = res2
@@ -105,6 +143,10 @@ class Chain(AtomStructure):
 
     @property
     def length(self):
+        """The number of :py:class:`.Residue` objects the chain has.
+
+        :rtype: ``int``"""
+
         return len(self)
 
 
@@ -159,13 +201,8 @@ class Chain(AtomStructure):
 
 
 
-    model = property(upper("model"))
-    residue = lower("residue")[1]
-    ligands, ligand = lower("ligand")
-
-
-
 class Het(AtomStructure):
+    """A component of a chain."""
 
     model = property(upper("model"))
     chain = property(upper("chain"))
@@ -173,12 +210,26 @@ class Het(AtomStructure):
 
 
 class Ligand(Het):
-    """A small molecule associated with a chain but not connected to it."""
+    """A small molecule associated with a chain but not connected to it.
+
+    :param \*atoms: The atoms the structure is to be made of. The atoms will\
+    be updated with awareness of the new structure they are part of if a\
+    sub-class is used. You can also pass in other atom structures here, and\
+    their atoms will be used.
+    :param str id: The structure's ID.
+    :param str name: The structure's name."""
 
 
 
 class Residue(Het):
-    """A small subunit within a chain."""
+    """A small subunit within a chain.
+
+    :param \*atoms: The atoms the structure is to be made of. The atoms will\
+    be updated with awareness of the new structure they are part of if a\
+    sub-class is used. You can also pass in other atom structures here, and\
+    their atoms will be used.
+    :param str id: The structure's ID.
+    :param str name: The structure's name."""
 
     def __init__(self, *atoms, **kwargs):
         Het.__init__(self, *atoms, **kwargs)

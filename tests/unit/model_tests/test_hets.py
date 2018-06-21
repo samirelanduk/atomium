@@ -8,3 +8,11 @@ class HetCreationTests(TestCase):
     def test_can_create_het(self):
         het = Het()
         self.assertIsInstance(het, AtomStructure)
+
+
+
+class HetMembershipPropertiesTests(TestCase):
+
+    def test_hets_have_correct_properties(self):
+        self.assertIn("model", Het.__dict__)
+        self.assertIn("chain", Het.__dict__)

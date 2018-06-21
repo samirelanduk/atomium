@@ -1,9 +1,13 @@
+"""Contains the atom class."""
+
 import re
 import numpy as np
 from .data import PERIODIC_TABLE, METALS
 
 class Atom:
     """An atom in space - a point particle with a location, element, charge etc.
+
+    Atoms are the building blocks of all structures in atomium.
 
     :param str element: The atom's elemental symbol.
     :param number x: The atom's x coordinate.
@@ -13,7 +17,7 @@ class Atom:
     :param str name: The atom's name.
     :param number charge: The charge of the atom.
     :param number bfactor: The B-factor of the atom (its uncertainty).
-    :param tuple anisotropy: The directional uncertainty of the atom."""
+    :param list anisotropy: The directional uncertainty of the atom."""
 
     def __init__(self, element, x=0, y=0, z=0, id=0, name=None, charge=0,
                  bfactor=0, anisotropy=(0, 0, 0, 0, 0, 0)):
@@ -24,14 +28,14 @@ class Atom:
         self._bfactor = float(bfactor)
         self._anisotropy = list(anisotropy)
         self._bonded_atoms = set()
-        for attr in ("ligand", "residue", "chain", "complex", "model"):
+        for attr in ("ligand", "residue", "chain", "model"):
             self.__dict__["_" + attr] = None
 
 
     def __repr__(self):
         return "<{}{} Atom{} at ({}, {}, {})>".format(
          self._element,
-         "({})".format(self._name) if self._name else "",
+         " ({})".format(self._name) if self._name else "",
          " {}".format(self._id) if self._id else "",
          self._x, self._y, self._z
         )
@@ -62,6 +66,7 @@ class Atom:
     @property
     def x(self):
         """The atom's x-coordinate.
+
         :rtype: ``float``"""
 
         return self._x
@@ -75,6 +80,7 @@ class Atom:
     @property
     def y(self):
         """The atom's y-coordinate.
+
         :rtype: ``float``"""
 
         return self._y
@@ -88,6 +94,7 @@ class Atom:
     @property
     def z(self):
         """The atom's z-coordinate.
+
         :rtype: ``float``"""
 
         return self._z
@@ -100,7 +107,8 @@ class Atom:
 
     @property
     def id(self):
-        """Yhe atom's unique integer ID.
+        """The atom's unique integer ID. It cannot be updated - the ID the atom
+        is created with is its ID forever.
 
         :rtype: ``int``"""
 
@@ -123,22 +131,8 @@ class Atom:
 
 
     @property
-    def bfactor(self):
-        """The atom's B-factor - the uncertainty in its position.
-
-        :rtype: ``float``"""
-
-        return self._bfactor
-
-
-    @bfactor.setter
-    def bfactor(self, bfactor):
-        self._bfactor = float(bfactor)
-
-
-    @property
     def charge(self):
-        """The atom's charge.
+        """The atom's charge - usually just zero, or 'neutral'.
 
         :rtype: ``float``"""
 
@@ -151,8 +145,24 @@ class Atom:
 
 
     @property
+    def bfactor(self):
+        """The atom's B-factor - the uncertainty in its position in all
+        directions.
+
+        :rtype: ``float``"""
+
+        return self._bfactor
+
+
+    @bfactor.setter
+    def bfactor(self, bfactor):
+        self._bfactor = float(bfactor)
+
+
+    @property
     def anisotropy(self):
-        """The atom's directional uncertainty.
+        """The atom's directional uncertainty, represented by a list of six
+        numbers.
 
         :rtype: ``list``"""
 
@@ -161,7 +171,7 @@ class Atom:
 
     @property
     def location(self):
-        """The atom's Cartesian coordinates.
+        """The atom's Cartesian coordinates in ``(x, y, z)`` format.
 
         :rtype: ``tuple``"""
 
@@ -182,7 +192,8 @@ class Atom:
 
 
     def translate(self, dx=0, dy=0, dz=0, trim=12):
-        """Translates an atom in 3D space.
+        """Translates an atom in 3D space. You can provide three values, or a
+        single vector.
 
         :param float dx: The distance to move in the x direction.
         :param float dy: The distance to move in the y direction.
@@ -210,16 +221,47 @@ class Atom:
         self._x, self._y, self._z = x, y, z
 
 
-    def rotate(self, matrix, trim=12):
-        """Rotates the atom using a rotation matric supplied.
+    def transform(self, matrix, trim=12):
+        """Transforms the atom using a 3x3 matrix supplied. This is useful if
+        the :py:meth:`.rotate` method isn't powerful enough for your needs.
 
-        :param array matrix: A numPy matrix representing the rotation. You can\
-        supply a list of lists if you like and it will be converted to a numPy\
-        matrix."""
+        :param array matrix: A NumPy matrix representing the transformation.\
+        You can supply a list of lists if you like and it will be converted to\
+        a NumPy matrix.
+        :param int trim: The amount of rounding to do to the atom's coordinates\
+        after transforming - the default is 12 decimal places but this can be\
+        set to ``None`` if no rounding is to be done."""
 
         vector = np.array(matrix).dot(self.location)
         self._x, self._y, self._z = vector
         self.trim(trim)
+
+
+    def rotate(self, angle, axis, *args, **kwargs):
+        """Rotates the atom by an angle in radians, around one of the the three
+        axes.
+
+        :param float angle: The angle to rotate by in radians.
+        :param str axis: the axis to rotate around.
+        :param int trim: The amount of rounding to do to the atom's coordinates\
+        after rotating - the default is 12 decimal places but this can be\
+        set to ``None`` if no rounding is to be done."""
+
+        try:
+            axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]
+        except ValueError:
+            raise ValueError("'{}' is not a valid axis".format(axis))
+        axis = np.asarray(axis)
+        axis = axis / np.sqrt(np.dot(axis, axis))
+        a = np.cos(angle / 2)
+        b, c, d = -axis * np.sin(angle / 2)
+        aa, bb, cc, dd = a * a, b * b, c * c, d * d
+        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+        self.transform(np.array([
+         [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+         [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+         [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
+        ]), *args, **kwargs)
 
 
     @property
@@ -251,7 +293,7 @@ class Atom:
         in) between this atom and another. You can also give a (x, y, z) tuple
         instead of another atom if you so wish.
 
-        :param Atom other: The other atom (or tuple).
+        :param Atom other: The other atom (or location tuple).
         :rtype: ``float``"""
 
         try:
@@ -295,16 +337,6 @@ class Atom:
 
 
     @property
-    def complex(self):
-        """Returns the :py:class:`.Complex` the atom is part of, or ``None`` if
-        it is not part of one.
-
-        :rtype: ``Complex``"""
-
-        return self._complex
-
-
-    @property
     def model(self):
         """Returns the :py:class:`.Model` the atom is part of, or ``None`` if
         it is not part of one.
@@ -324,7 +356,8 @@ class Atom:
 
 
     def bond_to(self, other):
-        """Bonds the atom to some other atom.
+        """Bonds the atom to some other atom. The two atoms will be placed
+        inside each other's :py:meth:`.bonded_atoms`.
 
         :param Atom other: The atom to bond to."""
 
@@ -333,7 +366,8 @@ class Atom:
 
 
     def unbond_from(self, other):
-        """Unbonds the atom from some other atom.
+        """Unbonds the atom from some other atom. If they aren't bonded to
+        begin with, nothing bad will happen.
 
         :param Atom other: The atom to unbond from."""
 
@@ -348,7 +382,9 @@ class Atom:
     def nearby_atoms(self, cutoff, *args, **kwargs):
         """Returns all atoms in the associated :py:class:`.Model` that are
         within a given distance (in the units of the atom coordinates) of this
-        atom.
+        atom. If the atom is not part of a model, no atoms will be returned.
+
+        {}
 
         :param float cutoff: The radius to search within.
         :rtype: ``set``"""
@@ -367,7 +403,9 @@ class Atom:
     def nearby_residues(self, *args, ligands=False, **kwargs):
         """Returns all residues in the associated :py:class:`.Model` that are
         within a given distance (in the units of the atom coordinates) of this
-        atom.
+        atom. If the atom is not part of a model, no residues will be returned.
+
+        {}
 
         :param float cutoff: the distance cutoff to use.
         :param bool ligands: if ``True``, ligands will be returned too.
@@ -386,8 +424,8 @@ class Atom:
 
     def copy(self):
         """Returns a copy of the atom. The new atom will have the same element,
-        location, name, charge, ID and bfactor as the original, but will not be
-        part of any model or other molecule, and will not have the any bonds.
+        location, name, charge, ID, bfactor etc. as the original, but will not
+        be part of any model or other molecule, and will not have any bonds.
 
         :rtype: ``Atom``"""
 
@@ -399,9 +437,23 @@ class Atom:
 
 
 
+QUERY_DOCSTRING = """You can specify which atoms should be searched in this
+function. Any atom property can be specified such as ``name='CA'``. String
+properties can be searched by regex, as in ``element='[^C]'. Numeric properties
+can be searched by threshold, as in``mass__gt=20``."""
+
+
 def atom_query(func):
     """Decorator which can be applied to any function which returns atoms. It
     lets you query the output.
+
+    The new function looks for keyword arguments which match atom attributes, or
+    which are atom attributes with ``_regex`` or ``__`` in them. It then gets
+    the atoms that the unmodified function would return, with the remaining
+    arguments, and then filters them with each specification in the query.
+
+    It will also update the new function's docstring with the explanatory text
+    above.
 
     :param function func: The function to enhance.
     :rtype: ``function``"""
@@ -421,26 +473,17 @@ def atom_query(func):
                 if k.endswith("_regex"):
                     atom_filter = lambda a: re.match(v, a.__dict__[attr])
                 else:
-                    comparator = "__eq__"
+                    comp = "__eq__"
                     if "__" in k:
-                        comparator = "__{}__".format(k.split("__")[1])
+                        comp = "__{}__".format(k.split("__")[1])
                     def atom_filter(a):
-                        return a.__getattribute__(attr).__getattribute__(comparator)(v)
+                        return a.__getattribute__(attr).__getattribute__(comp)(v)
                 atoms = [a for a in atoms if atom_filter(a)]
             return set(atoms)
         return set()
     new.__name__ = func.__name__
-    new.__doc__ = func.__doc__.format(
-     """:param int id: only atoms whose ID matches this will be returned.
-        :param str name: only atoms whose name matches this will be returned.
-        :param str element: only atoms whose element matches this will be\
-        returned.
-        :param str name_regex: only atoms whose name matches this pattern will\
-        be returned.
-        :param str element_regex: only atoms whose element matches this pattern\
-        will be returned.
-        :param bool hydrogen: If ``False``, hydrogen atoms will be excluded.
-        :param bool het: If ``False``, non-chain atoms will be excluded.
-        :param bool metal: If ``False``, metal atoms will be excluded."""
-    )
+    new.__doc__ = func.__doc__.format(QUERY_DOCSTRING)
     return new
+
+Atom.nearby_atoms.__doc__ = Atom.nearby_atoms.__doc__.format(QUERY_DOCSTRING)
+Atom.nearby_residues.__doc__ = Atom.nearby_residues.__doc__.format(QUERY_DOCSTRING)

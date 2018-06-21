@@ -3,7 +3,7 @@ from unittest.mock import patch, Mock, PropertyMock
 from atomium.models.atoms import atom_query
 from atomium.models.molecules import lower, upper
 
-class AtomSelectorTests(TestCase):
+class AtomQueryTests(TestCase):
 
     def setUp(self):
         self.atoms = [

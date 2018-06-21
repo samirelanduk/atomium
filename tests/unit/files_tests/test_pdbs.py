@@ -21,6 +21,7 @@ class PdbCreationTests(TestCase):
         self.assertEqual(pdb._rfree, None)
         self.assertEqual(pdb._rcount, None)
         self.assertEqual(pdb._keywords, [])
+        self.assertEqual(pdb._biomolecules, [])
 
 
 
@@ -250,12 +251,93 @@ class PdbRfactorCountTests(TestCase):
 
 
 
-class PdbTechniqueTests(TestCase):
+class PdbKeywordsTests(TestCase):
 
     def test_can_get_pdb_keywords(self):
         pdb = Pdb()
         pdb._keywords = ["a", "b"]
         self.assertIs(pdb._keywords, pdb.keywords)
+
+
+
+class PdbBiomoleculesTests(TestCase):
+
+    def test_can_get_pdb_biomolecules(self):
+        pdb = Pdb()
+        pdb._biomolecules = ["a", "b"]
+        self.assertIs(pdb._keywords, pdb.keywords)
+
+
+
+class PdbAssemblyTests(TestCase):
+
+    def setUp(self):
+        self.pdb = Pdb()
+        self.pdb._biomolecules = [{
+         "delta_energy": -20, "id": 1, "transformations": [{
+          "matrix": 1, "vector": 2, "chains": ["A", "B"]
+         }, {
+          "matrix": 3, "vector": 4, "chains": ["A", "C"]
+         }]
+        }, {
+         "delta_energy": -60, "id": 2
+        }, {
+         "delta_energy": -7, "id": 3
+        }]
+        model = Mock()
+        chains = [Mock(), Mock(), Mock()]
+        new_chains = [Mock(), Mock(), Mock()]
+        for chain, new_ in zip(chains, new_chains):
+            chain.copy.return_value = new_
+        model.chain.side_effect = [chains[0], chains[1], chains[0], chains[2]]
+        self.pdb._models = [model, "MODEL"]
+        self.chains, self.new_chains = chains, new_chains
+
+
+    @patch("atomium.files.pdb.Model")
+    def test_can_generate_assembly(self, mock_model):
+        model = self.pdb.generate_assembly(1)
+        for chain in self.chains: chain.copy.assert_any_call()
+        self.new_chains[0].transform.assert_any_call(1)
+        self.new_chains[0].transform.assert_any_call(3)
+        self.new_chains[1].transform.assert_called_with(1)
+        self.new_chains[2].transform.assert_called_with(3)
+        self.new_chains[0].translate.assert_any_call(2)
+        self.new_chains[0].translate.assert_any_call(4)
+        self.new_chains[1].translate.assert_called_with(2)
+        self.new_chains[2].translate.assert_called_with(4)
+        mock_model.assert_called_with(
+         self.new_chains[0], self.new_chains[1], self.new_chains[0], self.new_chains[2]
+        )
+        self.assertIs(model, mock_model.return_value)
+
+
+    def test_id_must_be_valid(self):
+        with self.assertRaises(ValueError):
+            self.pdb.generate_assembly(4)
+
+
+
+class BestAssemblyGeneration(TestCase):
+
+    @patch("atomium.files.pdb.Pdb.generate_assembly")
+    def test_can_generate_best_assembly(self, mock_model):
+        pdb = Pdb()
+        pdb._biomolecules = [
+         {"delta_energy": -20, "id": 1,},
+         {"delta_energy": -60, "id": 2},
+         {"delta_energy": -7, "id": 3}
+        ]
+        model = pdb.generate_best_assembly()
+        self.assertIs(model, mock_model.return_value)
+        mock_model.assert_called_with(2)
+
+
+    def test_can_return_model_as_best_assembly(self):
+        pdb = Pdb()
+        pdb._models = "ABCDEF"
+        model = pdb.generate_best_assembly()
+        self.assertEqual(model, "A")
 
 
 

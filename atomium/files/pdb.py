@@ -4,7 +4,8 @@ import datetime
 from ..models.molecules import Model
 
 class Pdb:
-    """A Pdb is used to represent a fully processed PDB file."""
+    """A Pdb is used to represent a fully processed PDB file. It contains the
+    :py:class:`.Model` and annotation information."""
 
     def __init__(self):
         self._models = []
@@ -47,7 +48,8 @@ class Pdb:
 
     @property
     def code(self):
-        """The Pdb's 4-letter code.
+        """The Pdb's 4-letter code - its unique identifier in the Protein Data
+        Bank.
 
         :rtype: ``str``"""
 
@@ -61,7 +63,8 @@ class Pdb:
 
     @property
     def deposition_date(self):
-        """The Pdb's desposition date.
+        """The Pdb's desposition date - when it was submitted to the Protein
+        Data Bank.
 
         :rtype: ``datetime.date``"""
 
@@ -75,7 +78,7 @@ class Pdb:
 
     @property
     def title(self):
-        """The Pdb's title.
+        """The Pdb's title - a plain text description of its contents.
 
         :rtype: ``str``"""
 
@@ -90,7 +93,8 @@ class Pdb:
 
     @property
     def resolution(self):
-        """The Pdb's resolution.
+        """The Pdb's resolution - a measure of the quality of the model(s)
+        contained.
 
         :rtype: ``float``"""
 
@@ -105,7 +109,9 @@ class Pdb:
 
     @property
     def rfactor(self):
-        """The Pdb's R-factor.
+        """The Pdb's R-factor - a quality indicator which expresses the
+        difference between the theoretical scattering pattern the model
+        contained would produce, and the actual experimental data.
 
         :rtype: ``float``"""
 
@@ -119,7 +125,9 @@ class Pdb:
 
     @property
     def rfree(self):
-        """The Pdb's Free R-factor.
+        """The Pdb's Free R-factor - a less biased version of the R-factor.
+
+        See `this explanation <https://bit.ly/2IaQ4ho>`_ for details.
 
         :rtype: ``float``"""
 
@@ -133,7 +141,10 @@ class Pdb:
 
     @property
     def rcount(self):
-        """The Pdb's R-factor test set count.
+        """The Pdb's R-factor test set count - the number of observations used
+        to calculate the free Rfactor.
+
+        See `this explanation <https://bit.ly/2IaQ4ho>`_ for details.
 
         :rtype: ``float``"""
 
@@ -147,7 +158,8 @@ class Pdb:
 
     @property
     def organism(self):
-        """The Pdb's source organism.
+        """The Pdb's source organism - where the molecule(s) contained come
+        from.
 
         :rtype: ``str``"""
 
@@ -161,7 +173,8 @@ class Pdb:
 
     @property
     def expression_system(self):
-        """The Pdb's expression organism.
+        """The Pdb's expression organism - the organism the molecule(s)
+        contained were actually expressed in for this experiment.
 
         :rtype: ``str``"""
 
@@ -175,7 +188,7 @@ class Pdb:
 
     @property
     def technique(self):
-        """The Pdb's experimental technique.
+        """The Pdb's experimental technique, used to generate the model.
 
         :rtype: ``str``"""
 
@@ -203,7 +216,7 @@ class Pdb:
 
     @property
     def keywords(self):
-        """The Pdb's keywords.
+        """The Pdb's keywords - helpful descriptive tags.
 
         :rtype: ``list``"""
 
@@ -212,7 +225,8 @@ class Pdb:
 
     @property
     def biomolecules(self):
-        """The Pdb's biomolecules.
+        """The Pdb's biomolecules - instructions for creating different
+        biological assemblies using the Pdb's various chains.
 
         :rtype: ``list``"""
 
@@ -220,6 +234,15 @@ class Pdb:
 
 
     def generate_assembly(self, id):
+        """Creates a :py:class:`.Model` from the current model and the
+        instructions contained in one of the Pdb's biomolecules, which you
+        specify.
+
+        :param int id: The biomolecule to use to generate the assembly.
+        :raises ValueError: if you give an ID which doesn't correspond to a\
+        biomolecule.
+        :rtype: ``Model``"""
+
         model = self._models[0]
         for biomolecule in self._biomolecules:
             if biomolecule["id"] == id:
@@ -228,16 +251,23 @@ class Pdb:
             raise ValueError("No biomolecule with ID {}".format(id))
         new_chains = []
         for transformation in biomolecule["transformations"]:
-            chains = [model.chain(chain_id) for chain_id in transformation["chains"]]
+            chains = [model.chain(id_) for id_ in transformation["chains"]]
             for chain in chains:
                 new_chain = chain.copy()
-                new_chain.rotate(transformation["matrix"])
+                new_chain.transform(transformation["matrix"])
                 new_chain.translate(transformation["vector"])
                 new_chains.append(new_chain)
         return Model(*new_chains)
 
 
     def generate_best_assembly(self):
+        """Generates the 'best' biological assembly for this Pdb - the one with
+        the lowest (most negative) delta energy.
+
+        If there are no assemblies, the original model will be returned.
+
+        :rtype: ``Model``"""
+        
         sorted_mol = sorted(self._biomolecules, key=lambda b: b["delta_energy"])
         if sorted_mol:
             return self.generate_assembly(sorted_mol[0]["id"])

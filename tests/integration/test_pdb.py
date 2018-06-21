@@ -301,7 +301,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertFalse(model.residues() & pdb.model.residues())
         self.assertFalse(model.ligands() & pdb.model.ligands())
 
-        model = pdb.generate_assembly(5)
+        model = pdb.generate_best_assembly()
         self.assertEqual(len(model.chains()), 12)
         self.assertEqual(len(model.residues()), 300)
         self.assertEqual(len(model.ligands()), 267)

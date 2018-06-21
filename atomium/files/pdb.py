@@ -237,6 +237,14 @@ class Pdb:
         return Model(*new_chains)
 
 
+    def generate_best_assembly(self):
+        sorted_mol = sorted(self._biomolecules, key=lambda b: b["delta_energy"])
+        if sorted_mol:
+            return self.generate_assembly(sorted_mol[0]["id"])
+        else:
+            return self._models[0]
+
+
     def to_file_string(self):
         """Returns the file text that represents this Pdb.
 

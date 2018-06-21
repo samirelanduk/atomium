@@ -1,3 +1,5 @@
+"""Contains the useful sub-classes of AtomStructure."""
+
 from .structures import AtomStructure
 from .data import CODES, FULL_NAMES
 from .exceptions import SequenceConnectivityError
@@ -9,6 +11,15 @@ def lower(name):
 
     :param name: The kind of structure to look for."""
 
+    doc = """Returns the {} in this structure.
+
+    :param str id: filter by ID.
+    :param str id_regex: filter by ID regex.
+    :param str name: filter by name.
+    :param str name_regex: filter by name regex.
+
+    :rtype: ``{}``"""
+
     def multi_func(self, *args, **kwargs):
         return self._get(name, *args, **kwargs)
     def single_func(self, *args, **kwargs):
@@ -16,6 +27,8 @@ def lower(name):
         for result in results: return result
     multi_func.__name__ = name + "s"
     single_func.__name__ = name
+    multi_func.__doc__ = doc.format(name + "s", "set")
+    single_func.__doc__ = doc.format("first matching " + name, name.title())
     return multi_func, single_func
 
 
@@ -26,9 +39,15 @@ def upper(name):
 
     :param name: The kind of structure to look for."""
 
+    doc = """Returns the {} the structure is part of.
+
+    :rtype: ``{}``"""
+
     def func(self):
         objects = self._get(name)
         if len(objects) == 1: return list(objects)[0]
+    func.__name__ = name
+    func.__doc__ = doc.format(name, name.title())
     return func
 
 
@@ -64,7 +83,7 @@ class Model(AtomStructure):
 
 
 class Chain(AtomStructure):
-    """A sequence of residues Unlike other structures, they are iterables, and
+    """A sequence of residues. Unlike other structures, they are iterables, and
     have a length.
 
     Residues can also be accessed using indexing.

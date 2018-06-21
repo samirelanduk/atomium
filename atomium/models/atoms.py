@@ -438,9 +438,10 @@ class Atom:
 
 
 QUERY_DOCSTRING = """You can specify which atoms should be searched in this
-function. Any atom property can be specified such as ``name='CA'``. String
-properties can be searched by regex, as in ``element='[^C]'. Numeric properties
-can be searched by threshold, as in``mass__gt=20``."""
+        function. Any atom property can be specified such as ``name='CA'``.
+        String properties can be searched by regex, as in ``element='[^C]'``.
+        Numeric properties can be searched by threshold, as in
+        ``mass__gt=20``."""
 
 
 def atom_query(func):

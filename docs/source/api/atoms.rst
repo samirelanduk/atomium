@@ -1,6 +1,6 @@
-atomium.structures.atoms
-------------------------
+atomium.models.atoms
+--------------------
 
-.. automodule:: atomium.structures.atoms
+.. automodule:: atomium.models.atoms
 	:members:
 	:inherited-members:

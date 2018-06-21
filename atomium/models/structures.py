@@ -233,8 +233,6 @@ class AtomStructure:
 
         :param Number angle: The angle in radians.
         :param str axis: The axis to rotate around. Can only be 'x', 'y' or 'z'.
-        :param bool degrees: if ``True`` the angle will be interpreted as\
-        degrees.
         :param int trim: The amount of rounding to do to the atoms' coordinates\
         after translating - the default is 12 decimal places but this can be\
         set to ``None`` if no rounding is to be done."""

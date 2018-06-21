@@ -1,6 +1,6 @@
-atomium.structures.exceptions
------------------------------
+atomium.models.exceptions
+-------------------------
 
-.. automodule:: atomium.structures.exceptions
+.. automodule:: atomium.models.exceptions
 	:members:
 	:inherited-members:

@@ -68,237 +68,273 @@ automatically when it installs atomium.
 Overview
 --------
 
-atomium allows you to open .pdb and .xyz files, manipulate the model within,
-and save them as new files.
+atomium is a Python library for opening and saving .pdb and .xyz files, and
+presenting and manipulating the information contained within.
 
-From .xyz
-~~~~~~~~~
+Loading Data
+~~~~~~~~~~~~
 
-You can load a .xyz file as follows:
+Whist you can use atomium to create models from scratch to build an entirely
+*de novo* structure, in practice you would generally use it to load molecular
+data from an existing file...
 
-  >>> import atomium
-  >>> glucose = atomium.xyz_from_file("glucose.xyz")
-  >>> glucose.title
-  'glucose from 2gbp'
-  >>> glucose.model
-  <Model (12 atoms)>
+	>>> import atomium
+	>>> pdb1 = atomium.pdb_from_file('../1LOL.pdb')
+	>>> xyz1 = atomium.xyz_from_file('/structures/glucose.xyz')
+	>>> pdb2 = atomium.fetch('5HVD')
 
-The ``Xyz`` object you get has a ``Xyz.title`` property,
-which describes the file, and a ``Xyz.model`` property, which returns
-the ``Model`` the file describes.
+In that latter case, you don't need the file to be saved locally - it will just
+go and grab the PDB with that code from the RCSB.
 
+The rest of this guide will focus on .pdb files. .xyz files are very simple
+structures, and the only annotation they really contain is a ``.title``.
 
-From .pdb
-~~~~~~~~~
+Using Data
+~~~~~~~~~~
 
-A .pdb can also be loaded from a file, but they can also be fetched directly
-from the RCSB over the internet using the PDB code:
+Once you've got your ``Pdb`` object, what can you do with it?
 
-  >>> pdb = atomium.pdb_from_file("1LOL.pdb")
-  >>> pdb2 = atomium.fetch("5HVD")
-  >>> pdb.deposition_date
-  datetime.date(2002, 5, 6)
-  >>> pdb.resolution
-  1.9
-  >>> pdb.rfactor
-  0.193
-  >>> pdb.classification
-  'LYASE'
-  >>> pdb.technique
-  'X-RAY DIFFRACTION'
-  >>> pdb2.model
-  <Model (2156 atoms)>
+Annotation
+##########
 
-If the PDB has multiple models, these can be accessed using the
-``Pdb.models`` property. They also have ``Pdb.title``,
-``Pdb.code`` and ``Pdb.deposition_date`` properties, as well
-as other parsed properties - see the full documentation for details.
+There is various meta information contained within the ``Pdb`` object.
 
+    >>> pdb1.title
+    'CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP'
+    >>> pdb1.deposition_date
+    datetime.date(2002, 5, 6)
+    >>> pdb1.keywords
+    ['TIM BARREL', 'LYASE']
+    >>> pdb1.classification
+    'LYASE'
+    >>> pdb1.organism
+    'METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H'
+    >>> pdb1.resolution
+    1.9
+    >>> pdb1.rfactor
+    0.193
+    >>> pdb1.rfree
+    0.229
 
-The Model
-~~~~~~~~~
+atomium doesn't currently parse *every* bit of information from .pdb files, but
+there is more than those shown above. See `the full API docs <api/pdb.html>`_
+for more details.
 
-A ``Model`` is a representation of some molecular system and every
-``Atom`` within it, as described by a file.
+Models and Assembly
+###################
 
-As an ``AtomicStructure`` you can query its atoms, transform it in
-space, get its mass or formula, and get its centre of mass and radius of
-gyration:
+All .pdb files contain one or more models - little universes containing a
+molecular scene.
 
-  >>> model = glucose.model
-  >>> model.atoms()
-  {<C Atom at (38.553, 30.4, 50.259)>, <C Atom at (35.884, 30.895, 49.12)>, <C A
-  tom at (36.177, 29.853, 50.124)>, <C Atom at (37.296, 30.296, 51.074)>, <O Ato
-  m at (39.261, 32.018, 46.92)>, <C Atom at (38.357, 31.29, 49.044)>, <C Atom at
-   (39.559, 31.209, 48.082)>, <O Atom at (37.441, 29.265, 52.113)>, <O Atom at (
-  34.923, 29.775, 50.91)>, <O Atom at (34.968, 30.34, 48.234)>, <O Atom at (37.1
-  55, 30.858, 48.364)>, <O Atom at (39.572, 30.954, 51.086)>}
-  >>> model.atoms(element="O")
-  {<O Atom at (37.441, 29.265, 52.113)>, <O Atom at (39.261, 32.018, 46.92)>, <O
-   Atom at (37.155, 30.858, 48.364)>, <O Atom at (34.968, 30.34, 48.234)>, <O At
-  om at (34.923, 29.775, 50.91)>, <O Atom at (39.572, 30.954, 51.086)>}
-  >>> model.atom(element="O")
-  <O Atom at (37.441, 29.265, 52.113)>
-  >>> model.mass
-  168.0606
-  >>> model.formula
-  Counter({'C': 6, 'O': 6})
-  >>> model.translate(34, -12, 3.5)
-  >>> model.rotate(45, "x")
-  >>> model.atom(element="O")
-  <O Atom at (71.441, -27.11613084494172, 51.53252799931321)>
-  >>> model.center_of_mass
-  (71.39909500620611, -24.411126748628675, 50.69765860848817)
-  >>> model.radius_of_gyration
-  2.3076405766875925
+    >>> pdb1.model
+    <Model (3431 atoms)>
+    >>> pdb1.models
+    (<Model (3431 atoms)>,)
 
-``AtomicStructure.atoms`` returns all matching elements as a ``set``
-while ``AtomicStructure.atom`` returns the first matching atom.
+Most just contain one - it's generally those that come from NMR experiments
+which contain multiple models.
+
+This model contains the 'asymmetric unit' - this is one or more protein
+(usually) chains arranged in space, which may not be how the molecule arranges
+itself in real life. It might just be how they arranged themselves in the
+experiment. To create the 'real thing' from the asymmetric unit, you use
+**biological assemblies.**
+
+Most .pdb files contain one or more biological assemblies - instructions for how
+to create a more realistic structure from the chains present, which in atomium
+are accessed using ``Pdb.biomolecules``.
+
+In practice, what you need to know is that you can create a new model - not the
+one already there containing the asymmetric unit - as follows...
+
+    >>> pdb3 = atomium.fetch('1XDA')
+    >>> pdb3.model
+    <Model (1842 atoms)>
+    >>> pdb3.generate_assembly(1)
+    <Model (924 atoms)>
+    >>> pdb3.generate_assembly(10)
+    <Model (2730 atoms)>
+    >>> pdb3.generate_best_assembly()
+    <Model (5550 atoms)>
+
+Here you load a .pdb with multiple possible assemblies, have a quick look at
+the asymmetric unit with 1,842 atoms, generate two of its possible biological
+assemblies by passing in their IDs, and then generate the 'best' of the
+assemblies, which is the one with the lowest (that is, most negative) delta
+free energy change as described in the .pdb file. In this case it is a hexameric
+formation.
+
+Model Contents
+##############
+
+The basic structures within a model are chains, residues, ligands, and atoms.
+
+    >>> pdb1.model.chains()
+    {<Chain (B, 1748 atoms)>, <Chain (A, 1683 atoms)>}
+    >>> pdb1.model.chain('B')
+    <Chain (B, 1748 atoms)>
+    >>> pdb1.model.residues(name='TYR')
+    {<Residue TYR (A206, 12 atoms)>, <Residue TYR (A45, 12 atoms)>, <Residue TYR
+     (A37, 12 atoms)>, <Residue TYR (B1154, 12 atoms)>, <Residue TYR (B1206, 12
+    atoms)>, <Residue TYR (A154, 12 atoms)>, <Residue TYR (B1045, 12 atoms)>, <R
+    esidue TYR (B1037, 12 atoms)>}
+    >>> pdb1.model.residues(name_regex='TYR|PRO')
+    {<Residue PRO (B1046, 7 atoms)>, <Residue TYR (A37, 12 atoms)>, <Residue PRO
+     (A157, 7 atoms)>, <Residue TYR (B1206, 12 atoms)>, <Residue PRO (B1228, 7 a
+    toms)>, <Residue PRO (A211, 7 atoms)>, <Residue PRO (B1077, 7 atoms)>, <Resi
+    due PRO (B1129, 7 atoms)>, <Residue TYR (A45, 12 atoms)>, <Residue TYR (A154
+    , 12 atoms)>, <Residue PRO (A180, 7 atoms)>, <Residue PRO (B1157, 7 atoms)>,
+    <Residue TYR (B1037, 12 atoms)>, <Residue TYR (A206, 12 atoms)>, <Residue PR
+    O (B1189, 7 atoms)>, <Residue PRO (A161, 7 atoms)>, <Residue PRO (A101, 7 at
+    oms)>, <Residue PRO (A46, 7 atoms)>, <Residue TYR (B1045, 12 atoms)>, <Resid
+    ue PRO (A77, 7 atoms)>, <Residue PRO (A129, 7 atoms)>, <Residue PRO (B1211,
+    7 atoms)>, <Residue TYR (B1154, 12 atoms)>, <Residue PRO (B1180, 7 atoms)>,
+    <Residue PRO (B1101, 7 atoms)>, <Residue PRO (B1161, 7 atoms)>}
+    >>> pdb1.model.chain('B').residue('B1206')
+    <Residue TYR (B1206, 12 atoms)>
+    >>> pdb1.model.ligands(water=False)
+    {<Ligand XMP (B2002, 24 atoms)>, <Ligand BU2 (A5001, 6 atoms)>, <Ligand XMP
+    (A2001, 24 atoms)>, <Ligand BU2 (B5002, 6 atoms)>}
+    >>> pdb1.model.ligand(name='BU2').atoms()
+    {<C (C1) Atom 3194 at (2.646, 45.112, 48.995)>, <C (C4) Atom 3199 at (-0.456
+    , 44.629, 51.162)>, <C (C3) Atom 3197 at (0.706, 44.197, 50.309)>, <O (O3) A
+    tom 3198 at (1.101, 42.889, 50.701)>, <O (O1) Atom 3195 at (1.781, 45.484, 4
+    7.929)>, <C (C2) Atom 3196 at (1.922, 45.088, 50.288)>}
+    >>> pdb1.model.ligand(name='BU2').atoms(mass__gt=12)
+    {<C (C4) Atom 3199 at (-0.456, 44.629, 51.162)>, <O (O3) Atom 3198 at (1.101
+    , 42.889, 50.701)>, <C (C2) Atom 3196 at (1.922, 45.088, 50.288)>, <C (C1) A
+    tom 3194 at (2.646, 45.112, 48.995)>, <C (C3) Atom 3197 at (0.706, 44.197, 5
+    0.309)>, <O (O1) Atom 3195 at (1.781, 45.484, 47.929)>}
+    >>> pdb1.model.ligand(name='BU2').atoms(mass__gt=14)
+    {<O (O3) Atom 3198 at (1.101, 42.889, 50.701)>, <O (O1) Atom 3195 at (1.781,
+     45.484, 47.929)>}
+
+The examples above demonstrate atomium's selection language. In the case of the
+molecules - ``Model``, ``Chain``, ``Residue`` and
+``Ligand`` - you can pass in an ``id`` or ``name``, or search by regex
+pattern with ``id_regex`` or ``name_regex``.
+
+Atoms have an even more powerful syntax. You can pass in *any* property of atoms
+such as ``charge=1``, any comparitor of a property such as ``mass__lt=100``, or
+any regex of a property such as ``name_regex='[^C]'``.
 
 For pairwise comparisons, structures also have the
-``AtomicStructure.pairwise_atoms`` generator which will yield all
+``AtomStructure.pairwise_atoms`` generator which will yield all
 unique atom pairs in the structure. These can obviously get very big indeed - a
 5000 atom PDB file would have about 12 million unique pairs.
 
-The atoms themselves have properties for their coordinates and elements, and
-also for finding the distance between them:
+Structures can be moved around and otherwise compared with each other...
 
-  >>> atom = model.atom(element="C")
-  >>> atom.x, atom.y, atom.z
-  (72.553, -25.00258867597513, 51.02411822364008)
-  >>> atom.location
-  (72.553, -25.00258867597513, 51.02411822364008)
-  >>> atom.element()
-  'C'
-  >>> atom.distance_to(model.atom(element="O"))
-  2.4417381104450953
+    >>> pdb1.model.ligand(id='B2002').mass
+    351.1022
+    >>> pdb1.model.ligand(id='B2002').formula
+    Counter({'C': 10, 'O': 9, 'N': 4, 'P': 1})
+    >>> pdb1.model.ligand(id='B2002').nearby_atoms(2.8)
+    {<O (O) Atom 3377 at (-24.077, 59.423, 53.919)>, <O (O) Atom 3418 at (-14.53
+    5, 62.938, 57.757)>, <O (OD1) Atom 1636 at (-22.92, 57.72, 52.315)>}
+    >>> pdb1.model.ligand(id='B2002').nearby_atoms(2.8, name='OD1')
+    {<O (OD1) Atom 1636 at (-22.92, 57.72, 52.315)>}
+    >>> pdb1.model.ligand(id='B2002').nearby_residues(2.8)
+    {<Residue ASP (B1020, 8 atoms)>}
+    >>> pdb1.model.ligand(id='B2002').nearby_residues(2.8, ligands=True)
+    {<Ligand HOH (B3155, 1 atom)>, <Ligand HOH (B3059, 1 atom)>, <Residue ASP (B
+    1020, 8 atoms)>}
+    >>> import math
+    >>> pdb1.model.ligand(id='B2002').rotate(math.pi / 2, 'x')
+    >>> pdb1.model.ligand(id='B2002').translate(10, 10, 15)
+    >>> pdb1.model.ligand(id='B2002').center_of_mass
+    (-9.886734282781484, -42.558415679537184, 77.33400578435568)
+    >>> pdb1.model.ligand(id='B2002').radius_of_gyration
+    3.6633506511540825
+    >>> pdb1.model.ligand(id='B2002').rmsd_with(pdb1.model.ligand(id='A2001'))
+    90.55588214099254
+    >>> other_ligand = pdb1.model.ligand(id='A2001')
+    >>> pdb1.model.ligand(id='B2002').rmsd_with(other_ligand)
+    90.55588214099254
+    >>> pdb1.model.ligand(id='B2002').rmsd_with(other_ligand, superimpose=True)
+    0.13325557235580035
 
-Instead of an atom, you can also provide a coordinate and get the atom's
-distance to that:
+Here we look at one of the ligands, identify its mass and molecular formula,
+look at what atoms are within 2.8 Angstroms of it, and what residues are within
+that same distance, rotate it and translate it through space, see where its new
+center of mass is, and then finally get its RMSD with the other similar ligand
+in the model - first using their locations 'as is', and then by seeing what the
+RMSD would be if they were superimposed in such a way as to minimise RMSD.
 
-  >>> atom.distance_to(model.center_of_mass)
-  1.3371237139950765
+The ``Atom`` objects themselves have their own useful properties.
 
-Atoms can be bonded to one another using the ``Atom.bond_to`` method:
+    >>> pdb1.model.atom(97)
+    <C (CA) Atom 97 at (-12.739, 31.201, 43.016)>
+    >>> pdb1.model.atom(97).mass
+    12.0107
+    >>> pdb1.model.atom(97).anisotropy
+    [0, 0, 0, 0, 0, 0]
+    >>> pdb1.model.atom(97).bfactor
+    24.87
+    >>> pdb1.model.atom(97).location
+    (-12.739, 31.201, 43.016)
+    >>> pdb1.model.atom(97).distance_to(pdb1.model.atom(1))
+    26.18289982030257
+    >>> pdb1.model.atom(97).bonded_atoms
+    {<N (N) Atom 96 at (-11.649, 32.148, 42.889)>, <C (C) Atom 98 at (-12.515, 3
+    0.319, 44.247)>, <C (CB) Atom 100 at (-12.897, 30.387, 41.732)>}
+    >>> pdb1.model.atom(97).nearby_atoms(2)
+    {<N (N) Atom 96 at (-11.649, 32.148, 42.889)>, <C (C) Atom 98 at (-12.515, 3
+    0.319, 44.247)>, <C (CB) Atom 100 at (-12.897, 30.387, 41.732)>}
+    >>> pdb1.model.atom(97).is_metal
+    False
+    >>> pdb1.model.atom(97).residue
+    <Residue ASN (A23, 8 atoms)>
+    >>> pdb1.model.atom(97).chain
+    <Chain (A, 1683 atoms)>
 
-  >>> other_atom = model.atom(element="O")
-  >>> atom.bond_to(other_atom)
-  >>> atom.bonds()
-  {"<C-O Bond>"}
-  >>> atom.bonded_atoms()
-  {<O Atom at (37.441, 29.265, 52.113)>}
-  >>> atom.bond_with(other_atom)
-  <C-O Bond>
-  >>> atom.unbond_from(other_atom)
-  >>> atom.bonds
-  {}
-  >>> atom.bonded_atoms()
-  {}
+Chains are a bit different from other structures in that they are iterable,
+indexable, and return their residues as a tuple, not a set...
 
+    >>> pdb1.model.atom(97).chain
+    <Chain (A, 1683 atoms)>
+    >>> pdb1.model.chain('A')
+    <Chain (A, 1683 atoms)>
+    >>> len(pdb1.model.chain('A'))
+    204
+    >>> pdb1.model.chain('A')[10]
+    <Residue LEU (A21, 8 atoms)>
+    >>> pdb1.model.chain('A').residues()[:5]
+    (<Residue VAL (A11, 7 atoms)>, <Residue MET (A12, 8 atoms)>, <Residue ASN (A
+    13, 8 atoms)>, <Residue ARG (A14, 11 atoms)>, <Residue LEU (A15, 8 atoms)>)
+    >>> pdb1.model.chain('A').sequence
+    'VMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICR
+    ATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRP
+    ERLSRLREIIGQDSFLISPGGETLRFADAIIVGRSIYLADNPAAAAAGIIESI'
+    >>> pdb1.model.chain('A').rep_sequence
+    'LRSRRVDVMDVMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVAD
+    IPETNEKICRATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGV
+    KNYVGPSTRPERLSRLREIIGQDSFLISPGVGAQGGDPGETLRFADAIIVGRSIYLADNPAAAAAGIIESIKDLLI
+    PE'
 
-Sub-Structures
-~~~~~~~~~~~~~~
+In those latter two cases, two different sequences are returned. The first just
+returns the sequence of residues actually present in the model, whereas the
+second is the 'real' sequence that exists in nature. Some of them will be
+missing from the model for practical reasons.
 
-Molecules
-#########
+Residues can generate name information based on their three letter code, and are
+aware of their immediate neighbors.
 
-PDB files contain descriptions of the various molecular units within the model.
-The simplest way to access these is to get the ``Molecule`` objects in
-the model:
+    >>> pdb1.model.residue('A100')
+    <Residue PHE (A100, 11 atoms)>
+    >>> pdb1.model.residue('A100').name
+    'PHE'
+    >>> pdb1.model.residue('A100').code
+    'F'
+    >>> pdb1.model.residue('A100').full_name
+    'phenylalanine'
+    >>> pdb1.model.residue('A100').next
+    <Residue PRO (A101, 7 atoms)>
+    >>> pdb1.model.residue('A100').previous
+    <Residue GLY (A99, 4 atoms)>
 
-  >>> pdb.model.molecules(water=False)
-  {<Molecule A2001 (XMP, 24 atoms)>, <Molecule B5002 (BU2, 6 atoms)>, <Molecule A5
-  001 (BU2, 6 atoms)>, <Chain (204 residues)>, <Molecule B2002 (XMP, 24 atoms)>, <
-  Chain (214 residues)>}
-  >>> pdb.model.molecules(water=False, generic=True)
-  {<Molecule B2002 (XMP, 24 atoms)>, <Molecule B5002 (BU2, 6 atoms)>, <Molecule A2
-  001 (XMP, 24 atoms)>, <Molecule A5001 (BU2, 6 atoms)>}
-
-In the first case all molecules (excluding water molecules) are returned - these
-include generic ``Molecule`` objects, used to represent the small
-molecules in the PDB, and also ``Chain`` objects, which are the main
-macromolecular unit of the PDB.
-
-Other criteria can be used:
-
-  >>> pdb.model.molecules(name="XMP")
-  {<Molecule B2002 (XMP, 24 atoms)>, <Molecule A2001 (XMP, 24 atoms)>}
-  >>> pdb.model.molecule(name="XMP")
-  <Molecule B2002 (XMP, 24 atoms)>
-  >>> pdb.model.molecule("B5002")
-  <Molecule B5002 (BU2, 6 atoms)>
-
-Here, all XMP molecules are returned, then the first matching XMP molecule, then
-the molecule with ID 'B5002'.
-
-Any molecule can try and determine its binding site with the
-``Molecule.site`` method:
-
-  >>> pdb.model.molecule("B5002").site()
-  <'B5002' Site (8 residues)>
-  >>> pdb.model.molecule("B5002").site().residues()
-  {<Residue B1096 (ILE, 8 atoms)>, <Residue B1157 (PRO, 7 atoms)>, <Residue B1
-  123 (LEU, 8 atoms)>, <Residue B1070 (ASP, 8 atoms)>, <Residue B1042 (LYS, 9
-  atoms)>, <Residue B1072 (LYS, 9 atoms)>, <Residue B1156 (GLY, 4 atoms)>, <Re
-  sidue B1155 (VAL, 7 atoms)>}
-
-These are all the residues with a non-hydrogen atom within 4 Angstroms of a
-non-hydrogen atom in the molecule. The crirteria - cutoff distance, whether to
-include main chain atoms etc., can be modified using arguments. See the full
-docs for details.
-
-You can also get RMSD with, and superimpose onto, other molecules. Again the
-details are in the full docs.
-
-Chains
-######
-
-You can specifically get chains in much the same way:
-
-  >>> pdb.model.chains()
-  {<Chain (214 residues)>, <Chain (204 residues)>}
-  >>> pdb.model.chain("A")
-  <Chain (204 residues)>
-  >>> pdb.model.chain("B")
-  <Chain (214 residues)>
-
-A ``Chain`` is a useful object in its own right:
-
-  >>> pdb.model.chain("A").length()
-  204
-
-Residues
-########
-
-Both models and chains are made of residues objects, which allows
-you to access their ``Residue`` objects:
-
-  >>> pdb.model.residues(name="SER")
-  {<Residue B1221 (SER, 6 atoms)>, <Residue B1204 (SER, 6 atoms)>, <Residue B112
-  7 (SER, 6 atoms)>, <Residue A221 (SER, 6 atoms)>, <Residue A204 (SER, 6 atoms)
-  >, <Residue A179 (SER, 6 atoms)>, <Residue B1165 (SER, 6 atoms)>, <Residue B11
-  75 (SER, 6 atoms)>, <Residue A127 (SER, 6 atoms)>, <Residue B1050 (SER, 6 atom
-  s)>, <Residue B1158 (SER, 6 atoms)>, <Residue A158 (SER, 6 atoms)>, <Residue B
-  1105 (SER, 6 atoms)>, <Residue A165 (SER, 6 atoms)>, <Residue A175 (SER, 6 ato
-  ms)>, <Residue A50 (SER, 6 atoms)>, <Residue B1179 (SER, 6 atoms)>, <Residue A
-  105 (SER, 6 atoms)>}
-  >>> pdb.model.residue("A23")
-  <Residue A23 (ASN, 8 atoms)>
-
-Residues are also a kind of Molecule, and have other useful properties:
-
-  >>> pdb.model.residue("A23").name()
-  'ASN'
-  >>> pdb.model.residue("A23").chain()
-  <Chain (204 residues)>
-  >>> pdb.model.residue("A23").next
-  <Residue A24 (ARG, 11 atoms)>
-  >>> pdb.model.residue("A23").previous
-  <Residue A22 (MET, 8 atoms)>
-
-
-Saving
-~~~~~~
+Saving Data
+~~~~~~~~~~~
 
 A model can be saved to file using:
 
@@ -310,18 +346,35 @@ their own seperate files if you so wish.
 
   >>> model.chain("A").save("chainA.pdb")
   >>> model.chain("B").save("chainB.pdb")
-  >>> model.molecule(name="XMP").save("ligand.xyz")
+  >>> model.ligand(name="XMP").save("ligand.xyz")
 
-The ``Xyz`` or ``Pdb`` object itself can also be saved:
+The ``Pdb`` or ``Xyz`` object itself can also be saved:
 
-  >>> glucose.title("Modified glucose")
-  >>> glucose.save("new.xyz")
-  >>> pdb.title("Modified PDB")
+  >>> pdb.title = "Modified PDB"
   >>> pdb.save("new.pdb")
+
+Note that if the model you are saving is one from a biological assembly, it will
+likely have many duplicated IDs, so saving to file may create unexpected
+results.
 
 
 Changelog
 ---------
+
+Release 0.10.0
+~~~~~~~~~~~~~
+
+`22 June 2018`
+
+* Parsing of .pdb keywords.
+* Parsing of atom anisotropy.
+* Parsing of .pdb sequence information.
+* More R-factor information.
+* Biological assembly parsing and generation.
+* More powerful transformations rather than just simple rotation.
+* Backend simplifications.
+* Powerful new atom querying syntax.
+
 
 Release 0.9.1
 ~~~~~~~~~~~~~

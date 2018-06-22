@@ -1,6 +1,21 @@
 Changelog
 ---------
 
+Release 0.10.0
+~~~~~~~~~~~~~
+
+`22 June 2018`
+
+* Parsing of .pdb keywords.
+* Parsing of atom anisotropy.
+* Parsing of .pdb sequence information.
+* More R-factor information.
+* Biological assembly parsing and generation.
+* More powerful transformations rather than just simple rotation.
+* Backend simplifications.
+* Powerful new atom querying syntax.
+
+
 Release 0.9.1
 ~~~~~~~~~~~~~
 

@@ -325,7 +325,8 @@ class BestAssemblyTests(TestCase):
         pdb._biomolecules = [
          {"delta_energy": -20, "id": 1,},
          {"delta_energy": -60, "id": 2},
-         {"delta_energy": -7, "id": 3}
+         {"delta_energy": -7, "id": 3},
+         {"delta_energy": None, "id": 4}
         ]
         model = pdb.best_assembly
         self.assertEqual(model, {"delta_energy": -60, "id": 2})

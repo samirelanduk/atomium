@@ -1,6 +1,7 @@
 """Contains the Pdb class and functions for opening them."""
 
 import datetime
+from math import inf
 from ..models.molecules import Model
 
 class Pdb:
@@ -268,8 +269,11 @@ class Pdb:
         If there are no assemblies, ``None`` is returned.
 
         :rtype: ``Model``"""
-        
-        sorted_mol = sorted(self._biomolecules, key=lambda b: b["delta_energy"])
+
+        sorted_mol = sorted(
+         self._biomolecules,
+         key=lambda b: inf if b["delta_energy"] is None else b["delta_energy"]
+        )
         if sorted_mol:
             return sorted_mol[0]
 

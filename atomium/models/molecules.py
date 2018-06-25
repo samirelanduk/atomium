@@ -74,7 +74,7 @@ class Model(AtomStructure):
         :rtype: ``Model``"""
 
         model = Model(*[chain.copy() for chain in self.chains()])
-        atoms = self._atoms - model._atoms
+        atoms = [a for a in self._atoms if a._chain is None]
         atom_copies = [atom.copy() for atom in atoms]
         model._atoms.update(atom_copies)
         model._id, model._name = self._id, self._name
@@ -128,7 +128,8 @@ class Chain(AtomStructure):
         for res1, res2 in zip(residues[:-1], residues[1:]): res1.next = res2
         substructures = ligands + residues
         chain = Chain(*substructures)
-        atoms = self._atoms - chain._atoms
+        atoms = [a for a in self._atoms
+         if a._residue is None and a._ligand is None]
         atom_copies = [atom.copy() for atom in atoms]
         chain._atoms.update(atom_copies)
         chain._id, chain._name = self._id, self._name

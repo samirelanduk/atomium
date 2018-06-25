@@ -196,7 +196,7 @@ class ChainCopyingTests(TestCase):
         residues[0].copy.return_value, residues[1].copy.return_value = Mock(), Mock()
         ligands[0].copy.return_value, ligands[1].copy.return_value = Mock(), Mock()
         chain = Chain()
-        atoms = [Mock(), Mock(), Mock()]
+        atoms = [Mock(_residue=None), Mock(_ligand=None), Mock(_ligand=None, _residue=None)]
         chain._atoms = set(atoms)
         patcher = patch("atomium.models.molecules.Chain")
         mock_chain = patcher.start()

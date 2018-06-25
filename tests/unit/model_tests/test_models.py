@@ -43,7 +43,7 @@ class ModelCopyingTests(TestCase):
         mock_chains.return_value = chains
         chains[0].copy.return_value, chains[1].copy.return_value = "AB"
         model = Model()
-        atoms = [Mock(), Mock(), Mock()]
+        atoms = [Mock(), Mock(), Mock(_chain=None)]
         model._atoms = set(atoms)
         patcher = patch("atomium.models.molecules.Model")
         mock_model = patcher.start()

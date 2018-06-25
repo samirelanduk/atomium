@@ -297,6 +297,8 @@ class PdbReadingTests(IntegratedTest):
         self.assertEqual(len(model.chains()), 2)
         self.assertEqual(len(model.residues()), 50)
         self.assertEqual(len(model.ligands()), 44)
+        for atom in model.atoms():
+            self.assertIn(atom.chain, model.chains())
         self.assertFalse(model.chains() & pdb.model.chains())
         self.assertFalse(model.residues() & pdb.model.residues())
         self.assertFalse(model.ligands() & pdb.model.ligands())

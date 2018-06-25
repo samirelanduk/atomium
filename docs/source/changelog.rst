@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+Release 0.10.1
+~~~~~~~~~~~~~~
+
+`25 June 2018`
+
+* Added function for returning best biological assembly.
+* Fixed bug with sorting None energy assemblies.
+* Fixed bug pertaining to excessive atom duplication when creating assembly.
+
+
 Release 0.10.0
 ~~~~~~~~~~~~~~
 

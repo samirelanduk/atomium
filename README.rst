@@ -1,9 +1,9 @@
 |travis| |coveralls| |pypi|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.10
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.10.1
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.10
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.10.1
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -361,8 +361,18 @@ results.
 Changelog
 ---------
 
+Release 0.10.1
+~~~~~~~~~~~~~~
+
+`25 June 2018`
+
+* Added function for returning best biological assembly.
+* Fixed bug with sorting None energy assemblies.
+* Fixed bug pertaining to excessive atom duplication when creating assembly.
+
+
 Release 0.10.0
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 `22 June 2018`
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, patch, PropertyMock
 from atomium.files.pdb import Pdb
 from atomium.models.molecules import Model
 
@@ -318,22 +318,40 @@ class PdbAssemblyTests(TestCase):
 
 
 
-class BestAssemblyGeneration(TestCase):
+class BestAssemblyTests(TestCase):
 
-    @patch("atomium.files.pdb.Pdb.generate_assembly")
-    def test_can_generate_best_assembly(self, mock_model):
+    def test_can_get_best_assembly(self):
         pdb = Pdb()
         pdb._biomolecules = [
          {"delta_energy": -20, "id": 1,},
          {"delta_energy": -60, "id": 2},
          {"delta_energy": -7, "id": 3}
         ]
+        model = pdb.best_assembly
+        self.assertEqual(model, {"delta_energy": -60, "id": 2})
+
+
+    def test_can_return_none_as_best_assembly(self):
+        pdb = Pdb()
+        model = pdb.best_assembly
+        self.assertEqual(model, None)
+
+
+
+class BestAssemblyGenerationTests(TestCase):
+
+    @patch("atomium.files.pdb.Pdb.generate_assembly")
+    @patch("atomium.files.pdb.Pdb.best_assembly", new_callable=PropertyMock)
+    def test_can_generate_best_assembly(self, mock_best, mock_model):
+        pdb = Pdb()
+        mock_best.return_value = {"delta_energy": -60, "id": 2}
         model = pdb.generate_best_assembly()
         self.assertIs(model, mock_model.return_value)
         mock_model.assert_called_with(2)
 
-
-    def test_can_return_model_as_best_assembly(self):
+    @patch("atomium.files.pdb.Pdb.best_assembly", new_callable=PropertyMock)
+    def test_can_return_model_as_best_assembly(self, mock_best):
+        mock_best.return_value = None
         pdb = Pdb()
         pdb._models = "ABCDEF"
         model = pdb.generate_best_assembly()

@@ -260,6 +260,20 @@ class Pdb:
         return Model(*new_chains)
 
 
+    @property
+    def best_assembly(self):
+        """Returms the 'best' biological assembly for this Pdb - the one with
+        the lowest (most negative) delta energy.
+
+        If there are no assemblies, ``None`` is returned.
+
+        :rtype: ``Model``"""
+        
+        sorted_mol = sorted(self._biomolecules, key=lambda b: b["delta_energy"])
+        if sorted_mol:
+            return sorted_mol[0]
+
+
     def generate_best_assembly(self):
         """Generates the 'best' biological assembly for this Pdb - the one with
         the lowest (most negative) delta energy.
@@ -267,10 +281,10 @@ class Pdb:
         If there are no assemblies, the original model will be returned.
 
         :rtype: ``Model``"""
-        
-        sorted_mol = sorted(self._biomolecules, key=lambda b: b["delta_energy"])
-        if sorted_mol:
-            return self.generate_assembly(sorted_mol[0]["id"])
+
+        best = self.best_assembly
+        if best:
+            return self.generate_assembly(best["id"])
         else:
             return self._models[0]
 

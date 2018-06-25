@@ -308,6 +308,7 @@ class PdbReadingTests(IntegratedTest):
         self.assertFalse(model.chains() & pdb.model.chains())
         self.assertFalse(model.residues() & pdb.model.residues())
         self.assertFalse(model.ligands() & pdb.model.ligands())
+        self.assertEqual(pdb.best_assembly["id"], 5)
 
 
     def test_can_read_pdb_data(self):

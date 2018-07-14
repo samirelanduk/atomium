@@ -30,6 +30,7 @@ Requirements
 ~~~~~~~~~~~~
 
 atomium requires the Python library
-`NumPy <http://www.numpy.org/>`_ (for now) and
+`NumPy <http://www.numpy.org/>`_ (for now),
+`paramiko <http://www.paramiko.org/>`_ and
 `requests <https://docs.python-requests.org/>`_ - pip will install these
 automatically when it installs atomium.

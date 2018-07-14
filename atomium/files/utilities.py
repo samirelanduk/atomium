@@ -1,6 +1,7 @@
 """This module contains various utility functions for dealing with files."""
 
 from requests import get
+import paramiko
 from .pdbstring2pdbdict import pdb_string_to_pdb_dict
 from .pdbdict2pdb import pdb_dict_to_pdb
 from .xyzstring2xyzdict import xyz_string_to_xyz_dict
@@ -29,6 +30,32 @@ def fetch_string(code, pdbe=False):
     response = get(url.format(code.lower()))
     if response.status_code == 200:
         return response.text
+
+
+def string_over_ssh(hostname, username, path, password=None):
+    """Gets a filestring via SSH. You can either provide a password or, if no
+    password is given, a connection will be made using your local private key.
+
+    :param str hostname: The hostname of the machine to connect to.
+    :param str username: The username to connect with.
+    :param str path: The location of the file to read on the remote machine.
+    :param str password: If given, this will be used for authenticating into\
+    the remote machine. If not given, your private key will be used.
+    :rtype: ``str``"""
+
+    client = paramiko.SSHClient()
+    try:
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        if not password:
+            client.load_system_host_keys()
+            client.connect(hostname=hostname, username=username)
+        else:
+            client.connect(hostname=hostname, username=username, password=password)
+        stdin, stdout, stderr = client.exec_command("less " + path)
+        pdb_string = stdout.read().decode()
+    finally:
+        client.close()
+    return pdb_string
 
 
 def string_to_lines(s, width=None):
@@ -69,6 +96,23 @@ def fetch_data(code, **kwargs):
         return pdb_string_to_pdb_dict(filestring)
 
 
+def pdb_data_over_ssh(*args, **kwargs):
+    """Gets a PDB data dictionary via SSH. You can either provide a password or,
+    if no password is given, a connection will be made using your local private
+    key.
+
+    :param str hostname: The hostname of the machine to connect to.
+    :param str username: The username to connect with.
+    :param str path: The location of the file to read on the remote machine.
+    :param str password: If given, this will be used for authenticating into\
+    the remote machine. If not given, your private key will be used.
+    :rtype: ``dict``"""
+
+    filestring = string_over_ssh(*args, **kwargs)
+    if filestring is not None:
+        return pdb_string_to_pdb_dict(filestring)
+
+
 def pdb_from_file(path):
     """Opens a .pdb file at the specified path and creates a :py:class:`.Pdb`
     from it.
@@ -88,6 +132,23 @@ def fetch(code, **kwargs):
     :rtype: ``PdbFile``"""
 
     pdb_dict = fetch_data(code, **kwargs)
+    if pdb_dict is not None:
+        return pdb_dict_to_pdb(pdb_dict)
+
+
+def pdb_over_ssh(*args, **kwargs):
+    """Gets a :py:class:`.Pdb via SSH. You can either provide a password or,
+    if no password is given, a connection will be made using your local private
+    key.
+
+    :param str hostname: The hostname of the machine to connect to.
+    :param str username: The username to connect with.
+    :param str path: The location of the file to read on the remote machine.
+    :param str password: If given, this will be used for authenticating into\
+    the remote machine. If not given, your private key will be used.
+    :rtype: ``Pdb``"""
+
+    pdb_dict = pdb_data_over_ssh(*args, **kwargs)
     if pdb_dict is not None:
         return pdb_dict_to_pdb(pdb_dict)
 

@@ -4,3 +4,4 @@ rmsd
 python-coveralls
 sphinx
 sphinx_rtd_theme
+paramiko

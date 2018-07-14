@@ -78,6 +78,56 @@ class StringFromWebServicesTests(TestCase):
 
 
 
+class StringOverSshTests(TestCase):
+
+    def setUp(self):
+        self.patch1 = patch("paramiko.SSHClient")
+        self.mock_ssh = self.patch1.start()
+        self.mock_client = Mock()
+        self.mock_ssh.return_value = self.mock_client
+        self.mock_client.exec_command.return_value = (Mock(), Mock(), Mock())
+        self.mock_client.exec_command.return_value[1].read.return_value = b"STRING"
+        self.patch2 = patch("paramiko.AutoAddPolicy")
+        self.mock_policy = self.patch2.start()
+        self.mock_policy.return_value = "POLICY"
+
+
+    def tearDown(self):
+        self.patch1.stop()
+        self.patch2.stop()
+
+
+    def test_can_get_filestring_over_ssh_with_keys(self):
+        filestring = string_over_ssh("HOST", "USER", "/path/")
+        self.mock_client.set_missing_host_key_policy.assert_called_with("POLICY")
+        self.mock_client.load_system_host_keys.assert_called_with()
+        self.mock_client.connect.assert_called_with(hostname="HOST", username="USER")
+        self.mock_client.exec_command.assert_called_with("less /path/")
+        self.mock_client.close.assert_called_with()
+        self.assertEqual(filestring, "STRING")
+
+
+    def test_can_get_filestring_over_ssh_with_password(self):
+        filestring = string_over_ssh("HOST", "USER", "/path/", password="xxx")
+        self.mock_client.set_missing_host_key_policy.assert_called_with("POLICY")
+        self.assertFalse(self.mock_client.load_system_host_keys.called)
+        self.mock_client.connect.assert_called_with(
+         hostname="HOST", username="USER", password="xxx"
+        )
+        self.mock_client.exec_command.assert_called_with("less /path/")
+        self.mock_client.close.assert_called_with()
+        self.assertEqual(filestring, "STRING")
+
+
+    def test_connection_is_always_closed(self):
+        self.mock_client.set_missing_host_key_policy.side_effect = Exception
+        try:
+            string_over_ssh("HOST", "USER", "/path/")
+        except: pass
+        self.mock_client.close.assert_called_with()
+
+
+
 class PdbDictFromFileTests(TestCase):
 
     @patch("atomium.files.utilities.string_from_file")
@@ -111,6 +161,20 @@ class PdbDictFetchingTests(TestCase):
         pdb_dict = fetch_data("1xxx", a="blorg")
         mock_string.assert_called_with("1xxx", a="blorg")
         self.assertIsNone(pdb_dict)
+
+
+
+class PdbDictSshTests(TestCase):
+
+    @patch("atomium.files.utilities.string_over_ssh")
+    @patch("atomium.files.utilities.pdb_string_to_pdb_dict")
+    def test_can_get_data_file_from_file(self, mock_dict, mock_str):
+        mock_str.return_value = "filestring"
+        mock_dict.return_value = {"pdb": "dict"}
+        pdb_dict = pdb_data_over_ssh("1xxx", a="blorg")
+        mock_str.assert_called_with("1xxx", a="blorg")
+        mock_dict.assert_called_with("filestring")
+        self.assertEqual(pdb_dict, {"pdb": "dict"})
 
 
 
@@ -150,6 +214,20 @@ class PdbFetchingTests(TestCase):
 
 
 
+class PdbSshTests(TestCase):
+
+    @patch("atomium.files.utilities.pdb_data_over_ssh")
+    @patch("atomium.files.utilities.pdb_dict_to_pdb")
+    def test_can_fetch_pdb(self, mock_pdb, mock_dict):
+        mock_dict.return_value = {"pdb": "dict"}
+        mock_pdb.return_value = "PDB"
+        pdb = pdb_over_ssh("1xxx", a="blorg")
+        mock_dict.assert_called_with("1xxx", a="blorg")
+        mock_pdb.assert_called_with({"pdb": "dict"})
+        self.assertEqual(pdb, "PDB")
+
+
+
 class XyzDictFromFileTests(TestCase):
 
     @patch("atomium.files.utilities.string_from_file")
@@ -164,7 +242,7 @@ class XyzDictFromFileTests(TestCase):
 
 
 
-class PdbFromFileTests(TestCase):
+class XyzFromFileTests(TestCase):
 
     @patch("atomium.files.utilities.xyz_data_from_file")
     @patch("atomium.files.utilities.xyz_dict_to_xyz")

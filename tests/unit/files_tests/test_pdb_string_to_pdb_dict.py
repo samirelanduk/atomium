@@ -355,7 +355,8 @@ class BiomoleculeExtractionTests(PdbStringConversionTest):
          "REMARK 350 TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
          "REMARK 350 SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
          "REMARK 350 CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
-         "REMARK 350 APPLY THE FOLLOWING TO CHAINS: E, F, G, H",
+         "REMARK 350 APPLY THE FOLLOWING TO CHAINS: E, F, G, H,",
+         "REMARK 350                    AND CHAINS: J, K, L",
          "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
          "REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
          "REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
@@ -399,11 +400,11 @@ class BiomoleculeExtractionTests(PdbStringConversionTest):
          "buried_surface_area": 21680,
          "surface_area": 12240,
          "transformations": [{
-          "chains": ["E", "F", "G", "H"],
+          "chains": ["E", "F", "G", "H", "J", "K", "L"],
           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
           "vector": [0.0, 0.0, 0.0]
          }, {
-          "chains": ["E", "F", "G", "H"],
+          "chains": ["E", "F", "G", "H", "J", "K", "L"],
           "matrix": [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]],
           "vector": [0.0, 0.0, 0.0]
          }]

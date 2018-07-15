@@ -213,7 +213,11 @@ def extract_biomolecules(pdb_dict, lines):
          biomolecule_lines, r"(.+)APPLY THE FOLLOWING TO CHAINS"
         )
         for operation_lines in operations:
-            chains = operation_lines[0].strip().split(": ")[-1].split(", ")
+            chain_lines = [l.strip().split(": ")[1] for l in operation_lines
+             if "CHAINS:" in l]
+            chain_lines = [l[:-1] if l.endswith(",") else l for l in chain_lines]
+            chains = ", ".join(chain_lines)
+            chains = chains.split(", ")
             for matrix in break_lines_on_regex(operation_lines, r"(.+)BIOMT1"):
                 matrix = [l for l in matrix if "BIOMT" in l]
                 vector = [float(line.strip().split()[-1]) for line in matrix]
@@ -427,7 +431,7 @@ def break_lines_on_regex(lines, regex):
     :param list lines: The list of lines.
     :param str regex: The pattern to use.
     :rtype: ``list``"""
-    
+
     groups, group = [], []
     for line in lines:
         if re.match(regex, line):

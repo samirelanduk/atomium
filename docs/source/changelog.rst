@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+Release 0.10.2
+~~~~~~~~~~~~~~
+
+`29 July 2018`
+
+* Added function for getting PDBs over SSH.
+* Fixed biological assembly parsing bug.
+* Fixed chain copying of sequence bug.
+
+
 Release 0.10.1
 ~~~~~~~~~~~~~~
 

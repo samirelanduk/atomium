@@ -1,9 +1,9 @@
 |travis| |coveralls| |pypi|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.10.1
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.10.2
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.10.1
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.10.2
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -60,7 +60,8 @@ Requirements
 ~~~~~~~~~~~~
 
 atomium requires the Python library
-`NumPy <http://www.numpy.org/>`_ (for now) and
+`NumPy <http://www.numpy.org/>`_ (for now),
+`paramiko <http://www.paramiko.org/>`_ and
 `requests <https://docs.python-requests.org/>`_ - pip will install these
 automatically when it installs atomium.
 
@@ -360,6 +361,16 @@ results.
 
 Changelog
 ---------
+
+Release 0.10.2
+~~~~~~~~~~~~~~
+
+`29 July 2018`
+
+* Added function for getting PDBs over SSH.
+* Fixed biological assembly parsing bug.
+* Fixed chain copying of sequence bug.
+
 
 Release 0.10.1
 ~~~~~~~~~~~~~~

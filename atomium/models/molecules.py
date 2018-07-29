@@ -127,7 +127,7 @@ class Chain(AtomStructure):
         residues = [residue.copy() for residue in self.residues()]
         for res1, res2 in zip(residues[:-1], residues[1:]): res1.next = res2
         substructures = ligands + residues
-        chain = Chain(*substructures)
+        chain = Chain(*substructures, rep=self._rep_sequence)
         atoms = [a for a in self._atoms
          if a._residue is None and a._ligand is None]
         atom_copies = [atom.copy() for atom in atoms]

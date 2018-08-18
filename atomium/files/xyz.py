@@ -1,59 +1,42 @@
-"""Contains the Xyz class."""
+"""Contains functions for dealing with the .xyz file format."""
 
-from ..models.molecules import Model
+import re
+from copy import deepcopy
+from .data import DATA_DICT, ATOM_DICT, MODEL_DICT
 
-class Xyz:
-    """Represents .xyz files and the model they contain.
+def xyz_string_to_xyz_dict(filestring):
+    """Takes the filecontents of a .xyz file and produces an atomium data
+    dictionary from them.
 
-    :param str title: The title at the head of the file."""
+    :param str filestring: The contents of a .xyz file.
+    :rtype: ``dict``"""
 
-    def __init__(self, title=""):
-        self._title = title
-        self._model = None
-
-
-    def __repr__(self):
-        return "<Xyz{}>".format(" (" + self._title + ")" if self._title else "")
-
-
-    @property
-    def title(self):
-        """Returns the title associated with the .xyz file.
-
-        :rtype: ``str``"""
-
-        return self._title
+    lines = list(filter(lambda l: bool(l.strip()), filestring.split("\n")))
+    xyz_dict = {"header_lines": [], "atom_lines": []}
+    element_pattern = r"[A-Z]"
+    float_pattern = r"\s{1,}\-?\d*\.?\d*"
+    pattern = re.compile(element_pattern + (3 * float_pattern))
+    while not pattern.match(lines[0]):
+        xyz_dict["header_lines"].append(lines.pop(0))
+    for line in lines:
+        xyz_dict["atom_lines"].append(line)
+    return xyz_dict
 
 
-    @title.setter
-    def title(self, title):
-        self._title = title
+def xyz_dict_to_data_dict(xyz_dict):
+    """Takes a basic .xyz dict and turns it into a standard atomium data
+    dictionary.
 
+    :param dict xyz_dict: The .xyz dictionary.
+    :rtype: ``dict``"""
 
-    @property
-    def model(self):
-        """Returns the :py:class:`.Model` that the .xyz file contains.
-
-        :rtype: ``Model``"""
-
-        return self._model
-
-
-    def to_file_string(self):
-        """Returns the file text that represents this Xyz.
-
-        :rtype: ``str``"""
-
-        from ..files.xyz2xyzdict import xyz_to_xyz_dict
-        from ..files.xyzdict2xyzstring import xyz_dict_to_xyz_string
-        xyz_dict = xyz_to_xyz_dict(self)
-        return xyz_dict_to_xyz_string(xyz_dict)
-
-
-    def save(self, path):
-        """Saves the Xyz as a .xyz file.
-
-        :param str path: The path to save to."""
-
-        from ..files.utilities import string_to_file
-        string_to_file(self.to_file_string(), path)
+    d = deepcopy(DATA_DICT)
+    d["description"]["title"] = xyz_dict["header_lines"][-1]
+    d["models"].append(deepcopy(MODEL_DICT))
+    for atom_line in xyz_dict["atom_lines"]:
+        a = deepcopy(ATOM_DICT)
+        chunks = atom_line.split()
+        a["element"] = chunks[0]
+        a["x"], a["y"], a["z"] = [float(n) for n in chunks[1:]]
+        d["models"][0]["atoms"].append(a)
+    return d

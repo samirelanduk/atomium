@@ -1,81 +1,64 @@
+from copy import deepcopy
 from unittest import TestCase
-from unittest.mock import patch, Mock
-from atomium.files.xyz import Xyz
-from atomium.models.molecules import Model
+from unittest.mock import Mock, patch, PropertyMock, MagicMock
+from atomium.files.xyz import *
 
-class XyzCreationTests(TestCase):
+class XyzStringToXyzDictTests(TestCase):
 
-    def test_can_create_xyz(self):
-        xyz = Xyz()
-        self.assertEqual(xyz._model, None)
-        self.assertEqual(xyz._title, "")
+    def setUp(self):
+        self.lines = [
+         "",
+         "C       -0.180226841      0.360945118     -1.120304970",
+         "CU      -0.180226841      1.559292118     -0.407860970",
+         "C       -0.180226841      1.503191118      0.986935030"
+        ]
 
-
-    def test_can_create_xyz_with_title(self):
-        xyz = Xyz("Glucose molecule")
-        self.assertEqual(xyz._model, None)
-        self.assertEqual(xyz._title, "Glucose molecule")
-
-
-
-class XyzReprTests(TestCase):
-
-    def test_xyz_repr(self):
-        xyz = Xyz("Glucose molecule")
-        self.assertEqual(str(xyz), "<Xyz (Glucose molecule)>")
+    def test_can_turn_xyz_string_to_xyz_dict_just_atoms(self):
+        self.assertEqual(xyz_string_to_xyz_dict("\n".join(self.lines)), {
+         "header_lines": [], "atom_lines": self.lines[1:]
+        })
 
 
-    def test_xyz_repr_no_title(self):
-        xyz = Xyz()
-        self.assertEqual(str(xyz), "<Xyz>")
+    def test_can_turn_xyz_string_to_xyz_dict_with_count(self):
+        self.lines.insert(0, "11")
+        self.assertEqual(xyz_string_to_xyz_dict("\n".join(self.lines)), {
+         "header_lines": ["11"], "atom_lines": self.lines[2:]
+        })
 
 
-
-class XyzTitleTests(TestCase):
-
-    def test_title_property(self):
-        xyz = Xyz("Glucose molecule")
-        self.assertIs(xyz._title, xyz.title)
-
-
-    def test_can_change_title(self):
-        xyz = Xyz("Glucose molecule")
-        xyz.title = "Fructose molecule"
-        self.assertEqual(xyz._title, "Fructose molecule")
+    def test_can_turn_xyz_string_to_xyz_dict_with_header(self):
+        self.lines.insert(0, "11")
+        self.lines.insert(1, "name of molecule")
+        self.assertEqual(xyz_string_to_xyz_dict("\n".join(self.lines)), {
+         "header_lines": ["11", "name of molecule"], "atom_lines": self.lines[3:]
+        })
 
 
 
-class XyzModelTests(TestCase):
+class XyzDictToDataDictTests(TestCase):
 
-    def test_model_property(self):
-        xyz = Xyz("Glucose molecule")
-        xyz._model = "totally a model"
-        self.assertIs(xyz._model, xyz.model)
-
-
-
-class XyzToStringTests(TestCase):
-
-    @patch("atomium.files.xyz2xyzdict.xyz_to_xyz_dict")
-    @patch("atomium.files.xyzdict2xyzstring.xyz_dict_to_xyz_string")
-    def test_can_get_string_from_xyz(self, mock_string, mock_dict):
-        xyz = Xyz()
-        xyz_dict = Mock()
-        mock_string.return_value = "filecontents"
-        mock_dict.return_value = xyz_dict
-        s = xyz.to_file_string()
-        mock_dict.assert_called_with(xyz)
-        mock_string.assert_called_with(xyz_dict)
-        self.assertEqual(s, "filecontents")
-
-
-
-class XyzToFileTests(TestCase):
-
-    @patch("atomium.files.utilities.string_to_file")
-    @patch("atomium.files.xyz.Xyz.to_file_string")
-    def test_can_save_xyz_to_file(self, mock_string, mock_save):
-        xyz = Xyz()
-        mock_string.return_value = "filestring"
-        xyz.save("test.xyz")
-        mock_save.assert_called_with("filestring", "test.xyz")
+    def test_can_convert_xyz_dict_to_data_dict(self):
+        d = deepcopy(DATA_DICT)
+        d["description"]["title"] = "name"
+        d["models"].append(deepcopy(MODEL_DICT))
+        d["models"][0]["atoms"] = [{
+         "id": 0, "element": "R", "name": None,
+         "x": 1.1, "y": 2.2, "z": -4.5,
+         "bfactor": None, "charge": 0,
+         "residue_id": None, "residue_name": None, "residue_insert": "",
+         "chain_id": None, "occupancy": 1, "alt_loc": None,
+         "anisotropy": [], "polymer": False, "full_res_id": None
+        }, {
+         "id": 0, "element": "CA", "name": None,
+         "x": 0.435, "y": 2.0, "z": -19.234,
+         "bfactor": None, "charge": 0,
+         "residue_id": None, "residue_name": None, "residue_insert": "",
+         "chain_id": None, "occupancy": 1, "alt_loc": None,
+         "anisotropy": [], "polymer": False, "full_res_id": None
+        }]
+        self.assertEqual(xyz_dict_to_data_dict({
+         "header_lines": ["11", "name"], "atom_lines": [
+          "R      1.1        2.2       -4.5",
+          "CA     0.435      2.0      -19.234"
+         ]
+        }), d)

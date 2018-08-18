@@ -1,84 +1,107 @@
 from unittest import TestCase
-from unittest.mock import Mock, MagicMock, patch
-from atomium.files.utilities  import *
+from unittest.mock import Mock, patch, PropertyMock, MagicMock
+from atomium.files.utilities import *
 
-class StringFromFileTests(TestCase):
+class DetermineFileTypeTests(TestCase):
 
-    @patch("builtins.open")
-    def test_gets_string_from_file(self, mock_open):
+    def test_can_recognise_endings(self):
+        self.assertEqual(determine_file_type("/a/d.e/c.pdb", ""), "pdb")
+        self.assertEqual(determine_file_type("/a/d.e/c.cif", ""), "cif")
+        self.assertEqual(determine_file_type("/a/d.e/c.xyz", ""), "xyz")
+
+
+    def test_can_recognise_pdb_content(self):
+        self.assertEqual(determine_file_type(
+         "/a/d.e/c", "HEADER\nATOM\nHETATM"
+        ), "pdb")
+
+
+    def test_can_recognise_mmcif_content(self):
+        self.assertEqual(determine_file_type(
+         "/a/d.e/c", "loop_\n_atom\nATOM\nHETATM"
+        ), "cif")
+
+
+    def test_can_recognise_xyz_content(self):
+        self.assertEqual(determine_file_type(
+         "/a/d.e/c", "header\n1 2 3\n3 4 5"
+        ), "xyz")
+
+
+
+class OpeningTests(TestCase):
+
+    def setUp(self):
+        self.patch1 = patch("builtins.open")
+        self.patch2 = patch("atomium.files.utilities.parse_string")
+        self.mock_open = self.patch1.start()
+        self.mock_parse = self.patch2.start()
         open_return = MagicMock()
         mock_file = Mock()
         open_return.__enter__.return_value = mock_file
         mock_file.read.return_value = "returnstring"
-        mock_open.return_value = open_return
-        string = string_from_file("path/to/file")
-        mock_open.assert_called_with("path/to/file")
-        self.assertEqual(string, "returnstring")
+        self.mock_open.return_value = open_return
+
+
+    def tearDown(self):
+        self.patch1.stop()
+        self.patch2.stop()
+
+
+    def test_can_open_file(self):
+        f = open("path/to/file", 1, a=2)
+        self.mock_open.assert_called_with("path/to/file")
+        self.mock_parse.assert_called_with("returnstring", "path/to/file", 1, a=2)
+        self.assertIs(f, self.mock_parse.return_value)
 
 
 
-class StringToLinesTests(TestCase):
+class FetchingTests(TestCase):
 
-    def test_can_convert_filestring_to_lines(self):
-        filestring = "line1\nline2"
-        lines = string_to_lines(filestring)
-        self.assertEqual(lines, ["line1", "line2"])
-
-
-    def test_can_handle_windows_line_endings(self):
-        filestring = "line1\r\nline2"
-        lines = string_to_lines(filestring)
-        self.assertEqual(lines, ["line1", "line2"])
+    def setUp(self):
+        self.patch1 = patch("atomium.files.utilities.get")
+        self.mock_get = self.patch1.start()
+        self.response = Mock(status_code=200, text="FILE")
+        self.mock_get.return_value = self.response
+        self.patch2 = patch("atomium.files.utilities.parse_string")
+        self.mock_parse = self.patch2.start()
 
 
-    def test_can_remove_empty_lines(self):
-        filestring = "line1\n\nline2\n"
-        lines = string_to_lines(filestring)
-        self.assertEqual(lines, ["line1", "line2"])
+    def tearDown(self):
+        self.patch1.stop()
+        self.patch2.stop()
 
 
-    def test_can_make_lines_fixed_width(self):
-        filestring = "line1\nline2"
-        lines = string_to_lines(filestring, width=80)
-        self.assertEqual(lines, ["line1".ljust(80), "line2".ljust(80)])
+    def test_can_fetch_pdb_code(self):
+        f = fetch("1XXX", 1, a=2)
+        self.mock_get.assert_called_with("https://files.rcsb.org/view/1xxx.pdb")
+        self.mock_parse.assert_called_with("FILE", "1XXX.pdb", 1, a=2)
+        self.assertIs(f, self.mock_parse.return_value)
 
 
-
-class StringFromWebServicesTests(TestCase):
-
-    @patch("atomium.files.utilities.get")
-    def test_can_fetch_string(self, mock_get):
-        response = Mock()
-        response.status_code = 200
-        response.text = "filestring"
-        mock_get.return_value = response
-        returned_string = fetch_string("1XXX")
-        mock_get.assert_called_with("https://files.rcsb.org/view/1xxx.pdb")
-        self.assertEqual(returned_string, "filestring")
+    def test_can_fetch_mmcif(self):
+        f = fetch("1XXX.cif", 1, a=2)
+        self.mock_get.assert_called_with("https://files.rcsb.org/view/1xxx.cif")
+        self.mock_parse.assert_called_with("FILE", "1XXX.cif", 1, a=2)
+        self.assertIs(f, self.mock_parse.return_value)
 
 
-    @patch("atomium.files.utilities.get")
-    def test_can_fetch_pdbe_string(self, mock_get):
-        response = Mock()
-        response.status_code = 200
-        response.text = "filestring"
-        mock_get.return_value = response
-        returned_string = fetch_string("1XXX", pdbe=True)
-        mock_get.assert_called_with(
-         "https://www.ebi.ac.uk/pdbe/entry-files/pdb1xxx.ent"
-        )
-        self.assertEqual(returned_string, "filestring")
+    def test_can_fetch_url(self):
+        f = fetch("https://url/", 1, a=2)
+        self.mock_get.assert_called_with("https://url/")
+        self.mock_parse.assert_called_with("FILE", "https://url/", 1, a=2)
+        self.assertIs(f, self.mock_parse.return_value)
 
 
-    @patch("atomium.files.utilities.get")
-    def test_can_get_none_if_no_file_found(self, mock_get):
-        response = Mock()
-        response.status_code = 404
-        self.assertIsNone(fetch_string("1XXX"))
+    def test_fetching_throws_value_error_if_404(self):
+        self.response.status_code = 404
+        with self.assertRaises(ValueError):
+            fetch("1XXX")
+        self.assertFalse(self.mock_parse.called)
 
 
 
-class StringOverSshTests(TestCase):
+class FetchingOverSshTests(TestCase):
 
     def setUp(self):
         self.patch1 = patch("paramiko.SSHClient")
@@ -90,25 +113,29 @@ class StringOverSshTests(TestCase):
         self.patch2 = patch("paramiko.AutoAddPolicy")
         self.mock_policy = self.patch2.start()
         self.mock_policy.return_value = "POLICY"
+        self.patch3 = patch("atomium.files.utilities.parse_string")
+        self.mock_parse = self.patch3.start()
 
 
     def tearDown(self):
         self.patch1.stop()
         self.patch2.stop()
+        self.patch3.stop()
 
 
     def test_can_get_filestring_over_ssh_with_keys(self):
-        filestring = string_over_ssh("HOST", "USER", "/path/")
+        f = fetch_over_ssh("HOST", "USER", "/path/", 1, a=2)
         self.mock_client.set_missing_host_key_policy.assert_called_with("POLICY")
         self.mock_client.load_system_host_keys.assert_called_with()
         self.mock_client.connect.assert_called_with(hostname="HOST", username="USER")
         self.mock_client.exec_command.assert_called_with("less /path/")
         self.mock_client.close.assert_called_with()
-        self.assertEqual(filestring, "STRING")
+        self.mock_parse.assert_called_with("STRING", "/path/", 1, a=2)
+        self.assertIs(f, self.mock_parse.return_value)
 
 
     def test_can_get_filestring_over_ssh_with_password(self):
-        filestring = string_over_ssh("HOST", "USER", "/path/", password="xxx")
+        f = fetch_over_ssh("HOST", "USER", "/path/", 1, password="xxx", a=2)
         self.mock_client.set_missing_host_key_policy.assert_called_with("POLICY")
         self.assertFalse(self.mock_client.load_system_host_keys.called)
         self.mock_client.connect.assert_called_with(
@@ -116,164 +143,137 @@ class StringOverSshTests(TestCase):
         )
         self.mock_client.exec_command.assert_called_with("less /path/")
         self.mock_client.close.assert_called_with()
-        self.assertEqual(filestring, "STRING")
+        self.mock_parse.assert_called_with("STRING", "/path/", 1, a=2)
+        self.assertIs(f, self.mock_parse.return_value)
 
 
     def test_connection_is_always_closed(self):
         self.mock_client.set_missing_host_key_policy.side_effect = Exception
         try:
-            string_over_ssh("HOST", "USER", "/path/")
+            fetch_over_ssh("HOST", "USER", "/path/")
         except: pass
         self.mock_client.close.assert_called_with()
 
 
 
-class PdbDictFromFileTests(TestCase):
+class StringParsingTests(TestCase):
 
-    @patch("atomium.files.utilities.string_from_file")
+    def setUp(self):
+        self.patch1 = patch("atomium.files.utilities.determine_file_type")
+        self.patch2 = patch("atomium.files.utilities.data_dict_to_file")
+        self.mock_type = self.patch1.start()
+        self.mock_cont = self.patch2.start()
+
+
     @patch("atomium.files.utilities.pdb_string_to_pdb_dict")
-    def test_can_get_data_file_from_file(self, mock_dict, mock_str):
-        mock_str.return_value = "filestring"
-        mock_dict.return_value = {"pdb": "dict"}
-        pdb_dict = pdb_data_from_file("path")
-        mock_str.assert_called_with("path")
-        mock_dict.assert_called_with("filestring")
-        self.assertEqual(pdb_dict, {"pdb": "dict"})
+    @patch("atomium.files.utilities.pdb_dict_to_data_dict")
+    def test_can_parse_pdb(self, mock_data, mock_pdb):
+        self.mock_type.return_value = "pdb"
+        mock_pdb.return_value = {"PDB": "DICT"}
+        mock_data.return_value = {"DATA": "DICT"}
+        pdb = parse_string("returnstring", "path/to/file")
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_pdb.assert_called_with("returnstring")
+        mock_data.assert_called_with({"PDB": "DICT"})
+        self.mock_cont.assert_called_with({"DATA": "DICT"})
+        self.assertIs(pdb, self.mock_cont.return_value)
+        self.assertEqual(pdb._filetype, "pdb")
 
 
-
-class PdbDictFetchingTests(TestCase):
-
-    @patch("atomium.files.utilities.fetch_string")
     @patch("atomium.files.utilities.pdb_string_to_pdb_dict")
-    def test_can_get_data_file_from_file(self, mock_dict, mock_str):
-        mock_str.return_value = "filestring"
-        mock_dict.return_value = {"pdb": "dict"}
-        pdb_dict = fetch_data("1xxx", a="blorg")
-        mock_str.assert_called_with("1xxx", a="blorg")
-        mock_dict.assert_called_with("filestring")
-        self.assertEqual(pdb_dict, {"pdb": "dict"})
+    @patch("atomium.files.utilities.pdb_dict_to_data_dict")
+    def test_can_parse_pdb_data(self, mock_data, mock_pdb):
+        self.mock_type.return_value = "pdb"
+        mock_pdb.return_value = {"PDB": "DICT"}
+        mock_data.return_value = {"DATA": "DICT"}
+        pdb = parse_string("returnstring", "path/to/file", data_dict=True)
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_pdb.assert_called_with("returnstring")
+        mock_data.assert_called_with({"PDB": "DICT"})
+        self.assertEqual(pdb, {"DATA": "DICT"})
 
 
-    @patch("atomium.files.utilities.fetch_string")
-    def test_can_fetch_none_data_file(self, mock_string):
-        mock_string.return_value = None
-        pdb_dict = fetch_data("1xxx", a="blorg")
-        mock_string.assert_called_with("1xxx", a="blorg")
-        self.assertIsNone(pdb_dict)
-
-
-
-class PdbDictSshTests(TestCase):
-
-    @patch("atomium.files.utilities.string_over_ssh")
     @patch("atomium.files.utilities.pdb_string_to_pdb_dict")
-    def test_can_get_data_file_from_file(self, mock_dict, mock_str):
-        mock_str.return_value = "filestring"
-        mock_dict.return_value = {"pdb": "dict"}
-        pdb_dict = pdb_data_over_ssh("1xxx", a="blorg")
-        mock_str.assert_called_with("1xxx", a="blorg")
-        mock_dict.assert_called_with("filestring")
-        self.assertEqual(pdb_dict, {"pdb": "dict"})
+    def test_can_parse_pdb_file_dict(self, mock_pdb):
+        self.mock_type.return_value = "pdb"
+        mock_pdb.return_value = {"PDB": "DICT"}
+        pdb = parse_string("returnstring", "path/to/file", file_dict=True)
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_pdb.assert_called_with("returnstring")
+        self.assertEqual(pdb, {"PDB": "DICT"})
 
 
-
-class PdbFromFileTests(TestCase):
-
-    @patch("atomium.files.utilities.pdb_data_from_file")
-    @patch("atomium.files.utilities.pdb_dict_to_pdb")
-    def test_can_get_pdb_from_file(self, mock_pdb, mock_dict):
-        mock_dict.return_value = {"pdb": "dict"}
-        mock_pdb.return_value = "PDB"
-        pdb = pdb_from_file("path")
-        mock_dict.assert_called_with("path")
-        mock_pdb.assert_called_with({"pdb": "dict"})
-        self.assertEqual(pdb, "PDB")
-
-
-
-class PdbFetchingTests(TestCase):
-
-    @patch("atomium.files.utilities.fetch_data")
-    @patch("atomium.files.utilities.pdb_dict_to_pdb")
-    def test_can_fetch_pdb(self, mock_pdb, mock_dict):
-        mock_dict.return_value = {"pdb": "dict"}
-        mock_pdb.return_value = "PDB"
-        pdb = fetch("1xxx", a="blorg")
-        mock_dict.assert_called_with("1xxx", a="blorg")
-        mock_pdb.assert_called_with({"pdb": "dict"})
-        self.assertEqual(pdb, "PDB")
+    @patch("atomium.files.utilities.mmcif_string_to_mmcif_dict")
+    @patch("atomium.files.utilities.mmcif_dict_to_data_dict")
+    def test_can_parse_mmcif(self, mock_data, mock_mmcif):
+        self.mock_type.return_value = "cif"
+        mock_mmcif.return_value = {"MMCIF": "DICT"}
+        mock_data.return_value = {"DATA": "DICT"}
+        mmcif = parse_string("returnstring", "path/to/file")
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_mmcif.assert_called_with("returnstring")
+        mock_data.assert_called_with({"MMCIF": "DICT"})
+        self.mock_cont.assert_called_with({"DATA": "DICT"})
+        self.assertIs(mmcif, self.mock_cont.return_value)
+        self.assertEqual(mmcif._filetype, "cif")
 
 
-    @patch("atomium.files.utilities.fetch_data")
-    def test_can_fetch_none_pdb(self, mock_data):
-        mock_data.return_value = None
-        pdb = fetch("1xxx", a="blorg")
-        mock_data.assert_called_with("1xxx", a="blorg")
-        self.assertIsNone(pdb)
+    @patch("atomium.files.utilities.mmcif_string_to_mmcif_dict")
+    @patch("atomium.files.utilities.mmcif_dict_to_data_dict")
+    def test_can_parse_mmcif_data(self, mock_data, mock_mmcif):
+        self.mock_type.return_value = "cif"
+        mock_mmcif.return_value = {"MMCIF": "DICT"}
+        mock_data.return_value = {"DATA": "DICT"}
+        mmcif = parse_string("returnstring", "path/to/file", data_dict=True)
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_mmcif.assert_called_with("returnstring")
+        mock_data.assert_called_with({"MMCIF": "DICT"})
+        self.assertEqual(mmcif, {"DATA": "DICT"})
 
 
-
-class PdbSshTests(TestCase):
-
-    @patch("atomium.files.utilities.pdb_data_over_ssh")
-    @patch("atomium.files.utilities.pdb_dict_to_pdb")
-    def test_can_fetch_pdb(self, mock_pdb, mock_dict):
-        mock_dict.return_value = {"pdb": "dict"}
-        mock_pdb.return_value = "PDB"
-        pdb = pdb_over_ssh("1xxx", a="blorg")
-        mock_dict.assert_called_with("1xxx", a="blorg")
-        mock_pdb.assert_called_with({"pdb": "dict"})
-        self.assertEqual(pdb, "PDB")
+    @patch("atomium.files.utilities.mmcif_string_to_mmcif_dict")
+    def test_can_parse_mmcif_file_dict(self, mock_mmcif):
+        self.mock_type.return_value = "cif"
+        mock_mmcif.return_value = {"MMCIF": "DICT"}
+        mmcif = parse_string("returnstring", "path/to/file", file_dict=True)
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_mmcif.assert_called_with("returnstring")
+        self.assertEqual(mmcif, {"MMCIF": "DICT"})
 
 
-
-class XyzDictFromFileTests(TestCase):
-
-    @patch("atomium.files.utilities.string_from_file")
     @patch("atomium.files.utilities.xyz_string_to_xyz_dict")
-    def test_can_get_data_file_from_file(self, mock_dict, mock_str):
-        mock_str.return_value = "filestring"
-        mock_dict.return_value = {"xyz": "dict"}
-        xyz_dict = xyz_data_from_file("path")
-        mock_str.assert_called_with("path")
-        mock_dict.assert_called_with("filestring")
-        self.assertEqual(xyz_dict, {"xyz": "dict"})
+    @patch("atomium.files.utilities.xyz_dict_to_data_dict")
+    def test_can_parse_xyz(self, mock_data, mock_xyz):
+        self.mock_type.return_value = "xyz"
+        mock_xyz.return_value = {"XYZ": "DICT"}
+        mock_data.return_value = {"DATA": "DICT"}
+        xyz = parse_string("returnstring", "path/to/file")
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_xyz.assert_called_with("returnstring")
+        mock_data.assert_called_with({"XYZ": "DICT"})
+        self.mock_cont.assert_called_with({"DATA": "DICT"})
+        self.assertIs(xyz, self.mock_cont.return_value)
+        self.assertEqual(xyz._filetype, "xyz")
 
 
-
-class XyzFromFileTests(TestCase):
-
-    @patch("atomium.files.utilities.xyz_data_from_file")
-    @patch("atomium.files.utilities.xyz_dict_to_xyz")
-    def test_can_get_data_file_from_file(self, mock_xyz, mock_dict):
-        mock_dict.return_value = {"xyz": "dict"}
-        mock_xyz.return_value = "XYZ"
-        xyz = xyz_from_file("path")
-        mock_dict.assert_called_with("path")
-        mock_xyz.assert_called_with({"xyz": "dict"})
-        self.assertEqual(xyz, "XYZ")
-
+    @patch("atomium.files.utilities.xyz_string_to_xyz_dict")
+    @patch("atomium.files.utilities.xyz_dict_to_data_dict")
+    def test_can_parse_xyz_data(self, mock_data, mock_xyz):
+        self.mock_type.return_value = "xyz"
+        mock_xyz.return_value = {"XYZ": "DICT"}
+        mock_data.return_value = {"DATA": "DICT"}
+        xyz = parse_string("returnstring", "path/to/file", data_dict=True)
+        self.mock_type.assert_called_with("path/to/file", "returnstring")
+        mock_xyz.assert_called_with("returnstring")
+        mock_data.assert_called_with({"XYZ": "DICT"})
+        self.assertEqual(xyz, {"DATA": "DICT"})
 
 
-class LinesToStringTests(TestCase):
-
-    def test_can_convert_lines_to_string(self):
-        lines = ["line1", "line2", "line3"]
-        self.assertEqual(lines_to_string(lines), "line1\nline2\nline3")
-
-
-
-class StringToFileTests(TestCase):
-
-    @patch("builtins.open")
-    def test_saves_string_to_file(self, mock_open):
-        open_return = MagicMock()
-        mock_file = Mock()
-        mock_write = MagicMock()
-        mock_file.write = mock_write
-        open_return.__enter__.return_value = mock_file
-        mock_open.return_value = open_return
-        string_to_file("filestring", "filename")
-        mock_open.assert_called_once_with("filename", "w")
-        mock_write.assert_called_once_with("filestring")
+@patch("atomium.files.utilities.xyz_string_to_xyz_dict")
+def test_can_parse_xyz_dfile_dict(self, mock_xyz):
+    self.mock_type.return_value = "xyz"
+    mock_xyz.return_value = {"XYZ": "DICT"}
+    xyz = parse_string("returnstring", "path/to/file", file_dict=True)
+    self.mock_type.assert_called_with("path/to/file", "returnstring")
+    mock_xyz.assert_called_with("returnstring")
+    self.assertEqual(xyz, {"XYZ": "DICT"})

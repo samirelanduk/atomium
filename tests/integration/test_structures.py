@@ -394,29 +394,3 @@ class CreationTests(IntegratedTest):
         self.assertEqual(self.atoms[26].location, (2, 2, 2))
         self.assertEqual(self.atoms[17].location, (2, 2, 1))
         self.assertEqual(self.atoms[8].location, (2, 2, 0))
-
-
-
-class SavingTests(IntegratedTest):
-    """Tests for saving structures."""
-
-    def test_model_saving(self):
-        model = atomium.Model()
-        atom1 = atomium.Atom("N", 12.0, 11.5, 1.5)
-        atom2 = atomium.Atom("C", 12.5, 10, 2, id=102, bfactor=22.1)
-        model.add(atom1)
-        model.add(atom2)
-
-        model.save("tests/integration/files/model.xyz", description="Some atoms")
-        new = atomium.xyz_from_file("tests/integration/files/model.xyz")
-        self.assertEqual(new.title, "Some atoms")
-        self.assertEqual(len(new.model.atoms()), 2)
-        self.assertEqual(new.model.atom(element="N").location, (12, 11.5, 1.5))
-        self.assertEqual(new.model.atom(element="C").location, (12.5, 10, 2))
-
-        model.save("tests/integration/files/model.pdb", description="Some atoms")
-        new = atomium.pdb_from_file("tests/integration/files/model.pdb")
-        self.assertEqual(new.title, "Some atoms")
-        self.assertEqual(len(new.model.atoms()), 2)
-        self.assertEqual(new.model.atom(0).location, (12, 11.5, 1.5))
-        self.assertEqual(new.model.atom(102).bfactor, 22.1)

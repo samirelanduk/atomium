@@ -1,313 +1,396 @@
-"""Contains the Pdb class and functions for opening them."""
+"""Contains functions for dealing with the .pdb file format."""
 
-import datetime
-from math import inf
-from ..models.molecules import Model
+from copy import deepcopy
+from itertools import groupby, chain
+from math import ceil
+from datetime import datetime
+import re
+from .data import generate_higher_structures
+from .data import DATA_DICT, MODEL_DICT, CHAIN_DICT, RESIDUE_DICT, ATOM_DICT
 
-class Pdb:
-    """A Pdb is used to represent a fully processed PDB file. It contains the
-    :py:class:`.Model` and annotation information."""
+def pdb_string_to_pdb_dict(filestring):
+    """Takes the filecontents of a .pdb file and produces an pdb file
+    dictionary from them.
+
+    :param str filestring: The contents of a .pdb file.
+    :rtype: ``dict``"""
+
+    lines = list(filter(lambda l: bool(l.strip()), filestring.split("\n")))
+    pdb_dict = {}
+    for line in lines:
+        record, value = line[:6].rstrip(), line[6:].rstrip()
+        try:
+            pdb_dict[record].append(value)
+        except:
+            pdb_dict[record] = [value]
+    return pdb_dict
 
-    def __init__(self):
-        self._models = []
-        self._code, self._deposition_date = None, None
-        self._title = None
-        self._resolution = None
-        self._organism = None
-        self._expression_system = None
-        self._technique = None
-        self._classification = None
-        self._rfactor = None
-        self._rfree = None
-        self._rcount = None
-        self._keywords = []
-        self._biomolecules = []
 
+def pdb_dict_to_data_dict(pdb_dict):
+    """Takes a basic .pdb dict and turns it into a standard atomium data
+    dictionary.
+
+    :param dict pdb_dict: The .pdb dictionary.
+    :rtype: ``dict``"""
+
+    d = deepcopy(DATA_DICT)
+    update_description_dict(pdb_dict, d)
+    update_experiment_dict(pdb_dict, d)
+    update_quality_dict(pdb_dict, d)
+    update_geometry_dict(pdb_dict, d)
+    update_models_list(pdb_dict, d)
+    return d
 
-    def __repr__(self):
-        num = len(self._models)
-        return "<Pdb {}({} model{})>".format(
-         self._code + " " if self._code else "", num, "" if num == 1 else "s"
-        )
 
+def update_description_dict(pdb_dict, data_dict):
+    """Creates the description component of a standard atomium data dictionary
+    from a .pdb dictionary.
 
-    @property
-    def models(self):
-        """Returns the :py:class:`.Model` objects that the Pdb contains.
+    :param dict pdb_dict: The .pdb dictionary to read.
+    :param dict data_dict: The data dictionary to update."""
 
-        :rtype: ``tuple``"""
+    extract_header(pdb_dict, data_dict["description"])
+    extract_title(pdb_dict, data_dict["description"])
+    extract_keywords(pdb_dict, data_dict["description"])
+    extract_authors(pdb_dict, data_dict["description"])
 
-        return tuple(self._models)
 
+def update_experiment_dict(pdb_dict, data_dict):
+    """Creates the experiment component of a standard atomium data dictionary
+    from a .pdb dictionary.
 
-    @property
-    def model(self):
-        """Returns the first :py:class:`.Model` that the Pdb file contains."""
+    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict data_dict: The data dictionary to update."""
 
-        return self._models[0] if self._models else None
+    extract_technique(pdb_dict, data_dict["experiment"])
+    extract_source(pdb_dict, data_dict["experiment"])
 
 
-    @property
-    def code(self):
-        """The Pdb's 4-letter code - its unique identifier in the Protein Data
-        Bank.
+def update_quality_dict(pdb_dict, data_dict):
+    """Creates the quality component of a standard atomium data dictionary
+    from a .pdb dictionary.
 
-        :rtype: ``str``"""
+    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict data_dict: The data dictionary to update."""
 
-        return self._code
+    extract_resolution_remark(pdb_dict, data_dict["quality"])
+    extract_rvalue_remark(pdb_dict, data_dict["quality"])
 
 
-    @code.setter
-    def code(self, code):
-        self._code = code
+def update_geometry_dict(pdb_dict, data_dict):
+    """Creates the geometry component of a standard atomium data
+    dictionary from a .pdb dictionary.
 
+    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict data_dict: The data dictionary to update."""
 
-    @property
-    def deposition_date(self):
-        """The Pdb's desposition date - when it was submitted to the Protein
-        Data Bank.
+    extract_assembly_remark(pdb_dict, data_dict["geometry"])
 
-        :rtype: ``datetime.date``"""
 
-        return self._deposition_date
+def update_models_list(pdb_dict, data_dict):
+    """Creates the models component of a standard atomium data dictionary
+    from a .pdb dictionary.
 
+    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict data_dict: The data dictionary to update."""
 
-    @deposition_date.setter
-    def deposition_date(self, deposition_date):
-        self._deposition_date = deposition_date
-
-
-    @property
-    def title(self):
-        """The Pdb's title - a plain text description of its contents.
-
-        :rtype: ``str``"""
-
-        return self._title
-
-
-    @title.setter
-    def title(self, title):
-        self._title = title
-
-
-
-    @property
-    def resolution(self):
-        """The Pdb's resolution - a measure of the quality of the model(s)
-        contained.
-
-        :rtype: ``float``"""
-
-        return self._resolution
-
-
-    @resolution.setter
-    def resolution(self, resolution):
-        self._resolution = resolution
-
-
-
-    @property
-    def rfactor(self):
-        """The Pdb's R-factor - a quality indicator which expresses the
-        difference between the theoretical scattering pattern the model
-        contained would produce, and the actual experimental data.
-
-        :rtype: ``float``"""
-
-        return self._rfactor
-
-
-    @rfactor.setter
-    def rfactor(self, rfactor):
-        self._rfactor = rfactor
-
-
-    @property
-    def rfree(self):
-        """The Pdb's Free R-factor - a less biased version of the R-factor.
-
-        See `this explanation <https://bit.ly/2IaQ4ho>`_ for details.
-
-        :rtype: ``float``"""
-
-        return self._rfree
-
-
-    @rfree.setter
-    def rfree(self, rfree):
-        self._rfree = rfree
-
-
-    @property
-    def rcount(self):
-        """The Pdb's R-factor test set count - the number of observations used
-        to calculate the free Rfactor.
-
-        See `this explanation <https://bit.ly/2IaQ4ho>`_ for details.
-
-        :rtype: ``float``"""
-
-        return self._rcount
-
-
-    @rcount.setter
-    def rcount(self, rcount):
-        self._rcount = rcount
-
-
-    @property
-    def organism(self):
-        """The Pdb's source organism - where the molecule(s) contained come
-        from.
-
-        :rtype: ``str``"""
-
-        return self._organism
-
-
-    @organism.setter
-    def organism(self, organism):
-        self._organism = organism
-
-
-    @property
-    def expression_system(self):
-        """The Pdb's expression organism - the organism the molecule(s)
-        contained were actually expressed in for this experiment.
-
-        :rtype: ``str``"""
-
-        return self._expression_system
-
-
-    @expression_system.setter
-    def expression_system(self, expression_system):
-        self._expression_system = expression_system
-
-
-    @property
-    def technique(self):
-        """The Pdb's experimental technique, used to generate the model.
-
-        :rtype: ``str``"""
-
-        return self._technique
-
-
-    @technique.setter
-    def technique(self, technique):
-        self._technique = technique
-
-
-    @property
-    def classification(self):
-        """The Pdb's classification.
-
-        :rtype: ``str``"""
-
-        return self._classification
-
-
-    @classification.setter
-    def classification(self, classification):
-        self._classification = classification
-
-
-    @property
-    def keywords(self):
-        """The Pdb's keywords - helpful descriptive tags.
-
-        :rtype: ``list``"""
-
-        return self._keywords
-
-
-    @property
-    def biomolecules(self):
-        """The Pdb's biomolecules - instructions for creating different
-        biological assemblies using the Pdb's various chains.
-
-        :rtype: ``list``"""
-
-        return self._biomolecules
-
-
-    def generate_assembly(self, id):
-        """Creates a :py:class:`.Model` from the current model and the
-        instructions contained in one of the Pdb's biomolecules, which you
-        specify.
-
-        :param int id: The biomolecule to use to generate the assembly.
-        :raises ValueError: if you give an ID which doesn't correspond to a\
-        biomolecule.
-        :rtype: ``Model``"""
-
-        model = self._models[0]
-        for biomolecule in self._biomolecules:
-            if biomolecule["id"] == id:
+    model = deepcopy(MODEL_DICT)
+    for line in pdb_dict.get("ATOM", []):
+        atom = atom_line_to_atom_dict(line)
+        if model["atoms"] == [] or atom["id"] > model["atoms"][-1]["id"]:
+            model["atoms"].append(atom)
+        else:
+            data_dict["models"].append(model)
+            model = deepcopy(MODEL_DICT)
+            model["atoms"].append(atom)
+    data_dict["models"].append(model)
+    index = 0
+    for line in pdb_dict.get("HETATM", []):
+        atom = atom_line_to_atom_dict(line, polymer=False)
+        if atom["id"] < data_dict["models"][index]["atoms"][-1]["id"]:
+            index += 1
+        data_dict["models"][index]["atoms"].append(atom)
+    generate_higher_structures(data_dict["models"])
+    assign_anisou(pdb_dict, data_dict["models"])
+    extract_sequence(pdb_dict, data_dict["models"])
+    extract_connections(pdb_dict, data_dict["models"])
+
+
+def extract_header(pdb_dict, description_dict):
+    """Takes a ``dict`` and adds header information to it by parsing the HEADER
+    line.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict description_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("HEADER"):
+        line = pdb_dict["HEADER"][0]
+        if line[44:53].strip():
+            description_dict["deposition_date"] = datetime.strptime(
+             line[44:53], "%d-%b-%y"
+            ).date()
+        if line[56:60].strip(): description_dict["code"] = line[56:60]
+        if line[4:44].strip():
+            description_dict["classification"] = line[4:44].strip()
+
+
+def extract_title(pdb_dict, description_dict):
+    """Takes a ``dict`` and adds title information to it by parsing TITLE lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict description_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("TITLE"):
+        description_dict["title"] = merge_lines(pdb_dict["TITLE"], 4)
+
+
+def extract_keywords(pdb_dict, description_dict):
+    """Takes a ``dict`` and adds keyword information to it by parsing KEYWD
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict description_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("KEYWDS"):
+        text = merge_lines(pdb_dict["KEYWDS"], 4)
+        description_dict["keywords"] = [w.strip() for w in text.split(",")]
+
+
+def extract_authors(pdb_dict, description_dict):
+    """Takes a ``dict`` and adds author information to it by parsing AUTHOR
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict description_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("AUTHOR"):
+        text = merge_lines(pdb_dict["AUTHOR"], 4)
+        description_dict["authors"] = [w.strip() for w in text.split(",")]
+
+
+def extract_technique(pdb_dict, experiment_dict):
+    """Takes a ``dict`` and adds technique information to it by parsing EXPDTA
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict experiment_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("EXPDTA"):
+        if pdb_dict["EXPDTA"][0].strip():
+            experiment_dict["technique"] = pdb_dict["EXPDTA"][0].strip()
+
+
+def extract_source(pdb_dict, experiment_dict):
+    """Takes a ``dict`` and adds source information to it by parsing SOURCE
+    lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict experiment_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("SOURCE"):
+        data = merge_lines(pdb_dict["SOURCE"], 4)
+        patterns = {
+         "source_organism": r"ORGANISM_SCIENTIFIC\: (.+?);",
+         "expression_system": r"EXPRESSION_SYSTEM\: (.+?);"
+        }
+        for attribute, pattern in patterns.items():
+            matches = re.findall(pattern, data)
+            if matches:
+                experiment_dict[attribute] = matches[0]
+
+
+def extract_resolution_remark(pdb_dict, quality_dict):
+    """Takes a ``dict`` and adds resolution information to it by parsing REMARK
+    2 lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict quality_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("REMARK"):
+        for remark in pdb_dict["REMARK"]:
+            if int(remark[1:4]) == 2 and remark[4:].strip():
+                try:
+                    quality_dict["resolution"] = float(remark[4:].strip().split()[1])
+                except ValueError: pass
                 break
-        else:
-            raise ValueError("No biomolecule with ID {}".format(id))
-        new_chains = []
-        for transformation in biomolecule["transformations"]:
-            chains = [model.chain(id_) for id_ in transformation["chains"]]
-            for chain in chains:
-                new_chain = chain.copy()
-                new_chain.transform(transformation["matrix"])
-                new_chain.translate(transformation["vector"])
-                new_chains.append(new_chain)
-        return Model(*new_chains)
 
 
-    @property
-    def best_assembly(self):
-        """Returms the 'best' biological assembly for this Pdb - the one with
-        the lowest (most negative) delta energy.
+def extract_rvalue_remark(pdb_dict, quality_dict):
+    """Takes a ``dict`` and adds resolution information to it by parsing REMARK
+    3 lines.
 
-        If there are no assemblies, ``None`` is returned.
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict quality_dict: the ``dict`` to update."""
 
-        :rtype: ``Model``"""
+    if pdb_dict.get("REMARK"):
+        patterns = {
+         "rvalue": r"R VALUE[ ]{2,}\(WORKING SET\) : (.+)",
+         "rfree": r"FREE R VALUE[ ]{2,}: (.+)",
+        }
+        for attribute, pattern in patterns.items():
+            for remark in pdb_dict["REMARK"]:
+                if int(remark[1:4]) == 3 and remark[4:].strip():
+                    matches = re.findall(pattern, remark[4:].strip())
+                    if matches:
+                        try:
+                            quality_dict[attribute] = float(matches[0].strip())
+                        except: pass
+                        break
 
-        sorted_mol = sorted(
-         self._biomolecules,
-         key=lambda b: inf if b["delta_energy"] is None else b["delta_energy"]
+
+def extract_assembly_remark(pdb_dict, geometry_dict):
+    """Takes a ``dict`` and adds assembly information to it by parsing REMARK
+    350 lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict geometry_dict: the ``dict`` to update."""
+
+    l = [l for l in pdb_dict.get("REMARK", []) if int(l[1:4]) == 350]
+    groups = [list(g) for k, g in groupby(l, lambda x: "ECULE:" in x)][1:]
+    assemblies = [list(chain(*a)) for a in zip(groups[::2], groups[1::2])]
+    for a in assemblies:
+        geometry_dict["assemblies"].append(
+         assembly_lines_to_assembly_dict(a)
         )
-        if sorted_mol:
-            return sorted_mol[0]
 
 
-    def generate_best_assembly(self):
-        """Generates the 'best' biological assembly for this Pdb - the one with
-        the lowest (most negative) delta energy.
+def assembly_lines_to_assembly_dict(lines):
+    """Takes the lines representing a single biological assembly and turns
+    them into an assembly dictionary.
 
-        If there are no assemblies, the original model will be returned.
+    :param list lines: The REMARK lines to read.
+    :rtype: ``dict``"""
 
-        :rtype: ``Model``"""
+    assembly = {
+     "transformations": [], "software": None, "buried_surface_area": None,
+     "surface_area": None, "delta_energy": None, "id": 0
+    }
+    patterns = [[r"(.+)SOFTWARE USED: (.+)", "software", lambda x: x],
+     [r"(.+)BIOMOLECULE: (.+)", "id", int],
+     [r"(.+)SURFACE AREA: (.+) [A-Z]", "buried_surface_area", float],
+     [r"(.+)AREA OF THE COMPLEX: (.+) [A-Z]", "surface_area", float],
+     [r"(.+)FREE ENERGY: (.+) [A-Z]", "delta_energy", float]]
+    t = None
+    for line in lines:
+        for p in patterns:
+            matches = re.findall(p[0], line)
+            if matches: assembly[p[1]] = p[2](matches[0][1].strip())
+        if "APPLY THE FOLLOWING" in line:
+            if t: assembly["transformations"].append(trans)
+            t = {"chains": [], "matrix": [], "vector": []}
+        if "CHAINS:" in line:
+            t["chains"] += [c.strip() for c in
+             line.split(":")[-1].strip().split(",") if c.strip()]
+        if "BIOMT" in line:
+            values = [float(x) for x in line.split()[3:]]
+            if len(t["matrix"]) == 3:
+                assembly["transformations"].append(t)
+                t = {"chains": t["chains"], "matrix": [], "vector": []}
+            t["matrix"].append(values[:3])
+            t["vector"].append(values[-1])
+    if t: assembly["transformations"].append(t)
+    return assembly
 
-        best = self.best_assembly
-        if best:
-            return self.generate_assembly(best["id"])
-        else:
-            return self._models[0]
+
+def atom_line_to_atom_dict(line, polymer=True):
+    """Takes an ATOM or HETATM line and converts it to an atom ``dict``.
+
+    :param str line: the atom record to parse.
+    :param bool polymer: is this atom in a chain or not?
+    :rtype: ``dict``"""
+
+    a = deepcopy(ATOM_DICT)
+    if line[:5].strip(): a["id"] = int(line[:5].strip())
+    if line[6:10].strip(): a["name"] = line[6:10].strip()
+    if line[10].strip(): a["alt_loc"] = line[10]
+    if line[11:14].strip(): a["residue_name"] = line[11:14].strip()
+    if line[15].strip(): a["chain_id"] = line[15]
+    if line[16:20].strip(): a["residue_id"] = int(line[16:20].strip())
+    a["residue_insert"] = line[20].strip()
+    if line[24:32].strip(): a["x"] = float(line[24:32].strip())
+    if line[32:40].strip(): a["y"] = float(line[32:40].strip())
+    if line[40:48].strip(): a["z"] = float(line[40:48].strip())
+    if line[48:54].strip(): a["occupancy"] = float(line[48:54].strip())
+    if line[54:60].strip(): a["bfactor"] = float(line[54:60].strip())
+    if line[70:72].strip(): a["element"] = line[70:72].strip()
+    if line[72:76].strip():
+        try:
+            a["charge"] = int(line[72:76].strip())
+        except: a["charge"] = int(line[72:76][::-1].strip())
+    a["full_res_id"] = "{}{}{}".format(
+     a["chain_id"] or "", str(a["residue_id"] or "") or "", a["residue_insert"]
+    ) or None
+    a["polymer"] = polymer
+    return a
 
 
-    def to_file_string(self):
-        """Returns the file text that represents this Pdb.
+def assign_anisou(pdb_dict, model_list):
+    """Aassigns anisotropy information the atoms in a model dictionary, by
+    pasrsing ANISOU lines.
 
-        :rtype: ``str``"""
+    :param dict pdb_dict: The ``dict`` to read.
+    :param list model_list: The list of model dictionaries to update."""
 
-        from ..files.pdb2pdbdict import pdb_to_pdb_dict
-        from ..files.pdbdict2pdbstring import pdb_dict_to_pdb_string
-        pdb_dict = pdb_to_pdb_dict(self)
-        return pdb_dict_to_pdb_string(pdb_dict)
+    anisotropy = {int(line[:5].strip()): [
+     int(line[n * 7 + 22:n * 7 + 29]) / 10000 for n in range(6)
+    ] for line in pdb_dict.get("ANISOU", [])}
+    for model in model_list:
+        for atom in model["atoms"]:
+            atom["anisotropy"] = anisotropy.get(atom["id"], [0, 0, 0, 0, 0, 0])
 
 
-    def save(self, path):
-        """Saves the Pdb as a .pdb file.
+def extract_sequence(pdb_dict, model_list):
+    """Adds sequence information to the chains of each model in a list of model
+    dictionaries, by parsing SEQRES lines.
 
-        :param str path: The path to save to."""
+    :param dict pdb_dict: The ``dict`` to read from.
+    :param list model_list: The list of model dictionaries to update."""
 
-        from ..files.utilities import string_to_file
-        string_to_file(self.to_file_string(), path)
+    sequences = {}
+    if pdb_dict.get("SEQRES"):
+        text = merge_lines(pdb_dict["SEQRES"], 4)
+        blocks, code = text.split(), None
+        blocks = [b for b in blocks if not b.isdigit()]
+        for block in blocks:
+            if len(block) == 1 and block not in sequences:
+                sequences[block], code = [], block
+            elif code and not len(block) == 1:
+                sequences[code].append(block)
+    for model in model_list:
+        for chain in model["chains"]:
+            chain["full_sequence"] = sequences.get(chain["id"], [])
+
+
+def extract_connections(pdb_dict, model_list):
+    """Adds connectivity information to each model in a list of model
+    dictionaries, by parsing CONECT lines.
+
+    :param dict pdb_dict: The ``dict`` to read from.
+    :param list model_list: The list of model dictionaries to update."""
+
+    lines = pdb_dict.get("CONECT", [])
+    atom_ids = sorted(list(set([int(r[:5].strip()) for r in lines])))
+    connections = [{"atom": id_, "bond_to": []} for id_ in atom_ids]
+    for connection in connections:
+        relevant_lines = [line[5:] for line in lines
+          if int(line[:5].strip()) == connection["atom"]]
+        line_numbers = [[
+         line[n * 5:n * 5 + 5].strip() for n in range(4)
+        ] for line in relevant_lines]
+        for line in line_numbers:
+            for number in line:
+                if number:
+                    connection["bond_to"].append(int(number))
+    for model in model_list: model["connections"] = connections.copy()
+
+
+def merge_lines(lines, start, join=" "):
+    """Gets a single continuous string from a sequence of lines.
+
+    :param list lines: The lines to merge.
+    :param int start: The start point in each record.
+    :param str join: The string to join on.
+    :rtype: ``str``"""
+
+    string = join.join([line[start:].strip() for line in lines])
+    return string

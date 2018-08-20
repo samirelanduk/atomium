@@ -9,7 +9,8 @@ class FileDictReadingTests(IntegratedTest):
         self.assertEqual(d["HEADER"], [
          "    LYASE                                   06-MAY-02   1LOL"
         ])
-        self.assertEqual(len(d["ATOM"]), 3191)
+        self.assertEqual(len(d["MODEL"][0]["ATOM"]), 3191)
+        self.assertEqual(len(d["REMARK"].keys()), 16)
 
 
     def test_glucose_xyz(self):
@@ -39,6 +40,7 @@ class FileDictReadingTests(IntegratedTest):
 class DataDictReadingTests(IntegratedTest):
 
     def test_1lol_pdb(self):
+        self.maxDiff = None
         d = atomium.open("tests/integration/files/1lol.pdb", data_dict=True)
         self.assertEqual(set(d.keys()), {
          "description", "experiment", "quality", "geometry", "models"

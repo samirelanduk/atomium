@@ -15,14 +15,33 @@ def pdb_string_to_pdb_dict(filestring):
     :param str filestring: The contents of a .pdb file.
     :rtype: ``dict``"""
 
-    lines = list(filter(lambda l: bool(l.strip()), filestring.split("\n")))
     pdb_dict = {}
+    lines = list(filter(lambda l: bool(l.strip()), filestring.split("\n")))
+    model_records = ("ATOM", "HETATM", "ANISOU", "MODEL", "TER", "ENDMDL")
+    model = {}
     for line in lines:
         record, value = line[:6].rstrip(), line[6:].rstrip()
-        try:
-            pdb_dict[record].append(value)
-        except:
-            pdb_dict[record] = [value]
+        if record == "REMARK":
+            if "REMARK" not in pdb_dict: pdb_dict["REMARK"] = {}
+            number = value.lstrip().split()[0]
+            try:
+                pdb_dict["REMARK"][number].append(value[4:])
+            except: pdb_dict["REMARK"][number] = [value[4:]]
+        elif record not in model_records:
+            try:
+                pdb_dict[record].append(value)
+            except: pdb_dict[record] = [value]
+        else:
+            if "MODEL" not in pdb_dict: pdb_dict["MODEL"] = []
+            if record == "MODEL":
+                model = {}
+            elif record == "ENDMDL":
+                pdb_dict["MODEL"].append(model)
+            else:
+                try:
+                    model[record].append(value)
+                except: model[record] = [value]
+    if not pdb_dict["MODEL"]: pdb_dict["MODEL"].append(model)
     return pdb_dict
 
 
@@ -94,24 +113,15 @@ def update_models_list(pdb_dict, data_dict):
     :param dict pdb_dict: The .pdb dictionary to update.
     :param dict data_dict: The data dictionary to update."""
 
-    model = deepcopy(MODEL_DICT)
-    for line in pdb_dict.get("ATOM", []):
-        atom = atom_line_to_atom_dict(line)
-        if model["atoms"] == [] or atom["id"] > model["atoms"][-1]["id"]:
-            model["atoms"].append(atom)
-        else:
-            data_dict["models"].append(model)
-            model = deepcopy(MODEL_DICT)
-            model["atoms"].append(atom)
-    data_dict["models"].append(model)
-    index = 0
-    for line in pdb_dict.get("HETATM", []):
-        atom = atom_line_to_atom_dict(line, polymer=False)
-        if atom["id"] < data_dict["models"][index]["atoms"][-1]["id"]:
-            index += 1
-        data_dict["models"][index]["atoms"].append(atom)
+    for model_dict in pdb_dict["MODEL"]:
+        model = deepcopy(MODEL_DICT)
+        for line in model_dict.get("ATOM", []):
+            model["atoms"].append(atom_line_to_atom_dict(line))
+        for line in model_dict.get("HETATM", []):
+            model["atoms"].append(atom_line_to_atom_dict(line, polymer=False))
+        assign_anisou(model_dict, model)
+        data_dict["models"].append(model)
     generate_higher_structures(data_dict["models"])
-    assign_anisou(pdb_dict, data_dict["models"])
     extract_sequence(pdb_dict, data_dict["models"])
     extract_connections(pdb_dict, data_dict["models"])
 
@@ -206,13 +216,12 @@ def extract_resolution_remark(pdb_dict, quality_dict):
     :param dict pdb_dict: the ``dict`` to read.
     :param dict quality_dict: the ``dict`` to update."""
 
-    if pdb_dict.get("REMARK"):
-        for remark in pdb_dict["REMARK"]:
-            if int(remark[1:4]) == 2 and remark[4:].strip():
-                try:
-                    quality_dict["resolution"] = float(remark[4:].strip().split()[1])
-                except ValueError: pass
+    if pdb_dict.get("REMARK") and pdb_dict["REMARK"].get("2"):
+        for remark in pdb_dict["REMARK"]["2"]:
+            try:
+                quality_dict["resolution"] = float(remark.strip().split()[1])
                 break
+            except: pass
 
 
 def extract_rvalue_remark(pdb_dict, quality_dict):
@@ -222,20 +231,19 @@ def extract_rvalue_remark(pdb_dict, quality_dict):
     :param dict pdb_dict: the ``dict`` to read.
     :param dict quality_dict: the ``dict`` to update."""
 
-    if pdb_dict.get("REMARK"):
+    if pdb_dict.get("REMARK") and pdb_dict["REMARK"].get("3"):
         patterns = {
          "rvalue": r"R VALUE[ ]{2,}\(WORKING SET\) : (.+)",
          "rfree": r"FREE R VALUE[ ]{2,}: (.+)",
         }
         for attribute, pattern in patterns.items():
-            for remark in pdb_dict["REMARK"]:
-                if int(remark[1:4]) == 3 and remark[4:].strip():
-                    matches = re.findall(pattern, remark[4:].strip())
-                    if matches:
-                        try:
-                            quality_dict[attribute] = float(matches[0].strip())
-                        except: pass
-                        break
+            for remark in pdb_dict["REMARK"]["3"]:
+                matches = re.findall(pattern, remark.strip())
+                if matches:
+                    try:
+                        quality_dict[attribute] = float(matches[0].strip())
+                    except: pass
+                    break
 
 
 def extract_assembly_remark(pdb_dict, geometry_dict):
@@ -245,13 +253,15 @@ def extract_assembly_remark(pdb_dict, geometry_dict):
     :param dict pdb_dict: the ``dict`` to read.
     :param dict geometry_dict: the ``dict`` to update."""
 
-    l = [l for l in pdb_dict.get("REMARK", []) if int(l[1:4]) == 350]
-    groups = [list(g) for k, g in groupby(l, lambda x: "ECULE:" in x)][1:]
-    assemblies = [list(chain(*a)) for a in zip(groups[::2], groups[1::2])]
-    for a in assemblies:
-        geometry_dict["assemblies"].append(
-         assembly_lines_to_assembly_dict(a)
-        )
+    if pdb_dict.get("REMARK") and pdb_dict["REMARK"].get("350"):
+        groups = [list(g) for k, g in groupby(
+         pdb_dict["REMARK"]["350"], lambda x: "ECULE:" in x
+        )][1:]
+        assemblies = [list(chain(*a)) for a in zip(groups[::2], groups[1::2])]
+        for a in assemblies:
+            geometry_dict["assemblies"].append(
+             assembly_lines_to_assembly_dict(a)
+            )
 
 
 def assembly_lines_to_assembly_dict(lines):
@@ -276,13 +286,13 @@ def assembly_lines_to_assembly_dict(lines):
             matches = re.findall(p[0], line)
             if matches: assembly[p[1]] = p[2](matches[0][1].strip())
         if "APPLY THE FOLLOWING" in line:
-            if t: assembly["transformations"].append(trans)
+            if t: assembly["transformations"].append(t)
             t = {"chains": [], "matrix": [], "vector": []}
         if "CHAINS:" in line:
             t["chains"] += [c.strip() for c in
              line.split(":")[-1].strip().split(",") if c.strip()]
         if "BIOMT" in line:
-            values = [float(x) for x in line.split()[3:]]
+            values = [float(x) for x in line.split()[2:]]
             if len(t["matrix"]) == 3:
                 assembly["transformations"].append(t)
                 t = {"chains": t["chains"], "matrix": [], "vector": []}
@@ -324,7 +334,7 @@ def atom_line_to_atom_dict(line, polymer=True):
     return a
 
 
-def assign_anisou(pdb_dict, model_list):
+def assign_anisou(model_dict, model):
     """Aassigns anisotropy information the atoms in a model dictionary, by
     pasrsing ANISOU lines.
 
@@ -333,10 +343,9 @@ def assign_anisou(pdb_dict, model_list):
 
     anisotropy = {int(line[:5].strip()): [
      int(line[n * 7 + 22:n * 7 + 29]) / 10000 for n in range(6)
-    ] for line in pdb_dict.get("ANISOU", [])}
-    for model in model_list:
-        for atom in model["atoms"]:
-            atom["anisotropy"] = anisotropy.get(atom["id"], [0, 0, 0, 0, 0, 0])
+    ] for line in model_dict.get("ANISOU", [])}
+    for atom in model["atoms"]:
+        atom["anisotropy"] = anisotropy.get(atom["id"], [0, 0, 0, 0, 0, 0])
 
 
 def extract_sequence(pdb_dict, model_list):

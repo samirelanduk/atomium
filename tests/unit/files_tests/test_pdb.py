@@ -11,12 +11,17 @@ class PdbStringToPdbDictTests(TestCase):
          " ",
          "REC1  CONTENTS1", "REC2   CONTENTS2", "REC2  CONTENTS3",
          "REC3  CONTENTS4 ...     ", "RECCC4CONTENTS5 ..",
+         "REMARK  1 ABC", "REMARK  2 ABD", "REMARK  2 ABE",
+         "ATOM  1", "ANISOU 2", "HETATM 5", "CONECT 7", "CONECT 9"
         ]
         self.assertEqual(pdb_string_to_pdb_dict("\n".join(lines)), {
          "REC1": ["CONTENTS1"],
          "REC2": [" CONTENTS2", "CONTENTS3"],
          "REC3": ["CONTENTS4 ..."],
-         "RECCC4": ["CONTENTS5 .."]
+         "RECCC4": ["CONTENTS5 .."],
+         "REMARK": {"1": ["ABC"], "2": ["ABD", "ABE"]},
+         "MODEL": [{"ATOM": ["1"], "ANISOU": [" 2"], "HETATM": [" 5"]}],
+         "CONECT": [" 7", " 9"]
         })
 
 
@@ -100,20 +105,20 @@ class ModelListUpdatingTests(TestCase):
     @patch("atomium.files.pdb.extract_sequence")
     @patch("atomium.files.pdb.extract_connections")
     def test_can_update_single_model(self, mock_con, mock_seq, mock_an, mock_gen, mock_at):
-        pdb_dict = {"ATOM": ["at1", "at2", "at3"], "HETATM": ["ht1", "ht2", "ht3"]}
+        pdb_dict = {"MODEL": [{"ATOM": ["at1", "at2", "at3"], "HETATM": ["ht1", "ht2", "ht3"]}]}
         data_dict = {"models": []}
         mock_at.side_effect = ({"id": 1}, {"id": 2}, {"id": 3}, {"id": 4}, {"id": 5}, {"id": 6})
         update_models_list(pdb_dict, data_dict)
-        for a in pdb_dict["ATOM"]:
+        for a in pdb_dict["MODEL"][0]["ATOM"]:
             mock_at.assert_any_call(a)
-        for a in pdb_dict["HETATM"]:
+        for a in pdb_dict["MODEL"][0]["HETATM"]:
             mock_at.assert_any_call(a, polymer=False)
         self.assertEqual(data_dict, {"models": [{
          "atoms": [{"id": 1}, {"id": 2}, {"id": 3}, {"id": 4}, {"id": 5}, {"id": 6}],
          "chains": [], "residues": [], "ligands": [], "connections": []
         }]})
         mock_gen.assert_called_with(data_dict["models"])
-        mock_an.assert_called_with(pdb_dict, data_dict["models"])
+        mock_an.assert_called_with(pdb_dict["MODEL"][0], data_dict["models"][0])
         mock_seq.assert_called_with(pdb_dict, data_dict["models"])
         mock_con.assert_called_with(pdb_dict, data_dict["models"])
 
@@ -124,13 +129,13 @@ class ModelListUpdatingTests(TestCase):
     @patch("atomium.files.pdb.extract_sequence")
     @patch("atomium.files.pdb.extract_connections")
     def test_can_update_multiple_model(self, mock_con, mock_seq, mock_an, mock_gen, mock_at):
-        pdb_dict = {"ATOM": ["at1", "at2", "at3"], "HETATM": ["ht1", "ht2", "ht3"]}
+        pdb_dict = {"MODEL": [{"ATOM": ["at1", "at2"], "HETATM": ["ht1", "ht2"]}, {"ATOM": ["at3"], "HETATM": ["ht3"]}]}
         data_dict = {"models": []}
-        mock_at.side_effect = ({"id": 1}, {"id": 2}, {"id": 1}, {"id": 4}, {"id": 5}, {"id": 4})
+        mock_at.side_effect = ({"id": 1}, {"id": 2}, {"id": 4}, {"id": 5}, {"id": 1}, {"id": 4})
         update_models_list(pdb_dict, data_dict)
-        for a in pdb_dict["ATOM"]:
+        for a in pdb_dict["MODEL"][0]["ATOM"] + pdb_dict["MODEL"][1]["ATOM"]:
             mock_at.assert_any_call(a)
-        for a in pdb_dict["HETATM"]:
+        for a in pdb_dict["MODEL"][0]["HETATM"] + pdb_dict["MODEL"][1]["HETATM"]:
             mock_at.assert_any_call(a, polymer=False)
         self.assertEqual(data_dict, {"models": [{
          "atoms": [{"id": 1}, {"id": 2}, {"id": 4}, {"id": 5}],
@@ -140,7 +145,8 @@ class ModelListUpdatingTests(TestCase):
          "chains": [], "residues": [], "ligands": [], "connections": []
         }]})
         mock_gen.assert_called_with(data_dict["models"])
-        mock_an.assert_called_with(pdb_dict, data_dict["models"])
+        for model1, model2 in zip(pdb_dict["MODEL"], data_dict["models"]):
+            mock_an.assert_any_call(model1, model2)
         mock_seq.assert_called_with(pdb_dict, data_dict["models"])
         mock_con.assert_called_with(pdb_dict, data_dict["models"])
 
@@ -291,16 +297,17 @@ class SourceExtractionTests(TestCase):
 class ResolutionExtractionTests(TestCase):
 
     def setUp(self):
-        self.remark_lines = [
-         "   1", "   1 BLAH BLAH.",
-         "   2", "   2 RESOLUTION.    1.90 ANGSTROMS.",
-         "  24", "  24 BLAH BLAH."
-        ]
+        self.remark_lines = {
+         "1": ["", "BLAH BLAH"],
+         "2": ["", " RESOLUTION.    1.90 ANGSTROMS."],
+         "24": ["", "BLAH BLAH"]
+        }
 
 
     def test_missing_remarks_extraction(self):
         d = {"resolution": None}
-        extract_resolution_remark({"REMARK": self.remark_lines[:2]}, d)
+        del self.remark_lines["2"]
+        extract_resolution_remark({"REMARK": self.remark_lines}, d)
         self.assertEqual(d, {"resolution": None})
         extract_resolution_remark({"ABC": []}, d)
         self.assertEqual(d, {"resolution": None})
@@ -308,8 +315,8 @@ class ResolutionExtractionTests(TestCase):
 
     def test_empty_resolution_extraction(self):
         d = {"resolution": None}
-        self.remark_lines[3] = "REMARK   2 RESOLUTION. NOT APPLICABLE."
-        extract_resolution_remark({"REMARK": self.remark_lines[:2]}, d)
+        self.remark_lines["2"][1] = " RESOLUTION. NOT APPLICABLE."
+        extract_resolution_remark({"REMARK": self.remark_lines}, d)
         self.assertEqual(d, {"resolution": None})
 
 
@@ -323,22 +330,25 @@ class ResolutionExtractionTests(TestCase):
 class RvalueExtractionTests(TestCase):
 
     def setUp(self):
-        self.remark_lines = [
-         "   1", "   1 BLAH BLAH.",
-         "   3   CROSS-VALIDATION METHOD          : THROUGHOUT",
-         "   3   FREE R VALUE TEST SET SELECTION  : RANDOM",
-         "   3   R VALUE            (WORKING SET) : 0.193",
-         "   3   FREE R VALUE                     : 0.229",
-         "   3   FREE R VALUE TEST SET SIZE   (%) : 4.900",
-         "   3   FREE R VALUE TEST SET COUNT      : 1583",
-         "   3   BIN R VALUE           (WORKING SET) : 0.2340 "
-         "  24", "  24 BLAH BLAH."
-        ]
+        self.remark_lines = {
+         "1": ["", "BLAH BLAH"],
+         "3": [
+          "   CROSS-VALIDATION METHOD          : THROUGHOUT",
+          "   FREE R VALUE TEST SET SELECTION  : RANDOM",
+          "   R VALUE            (WORKING SET) : 0.193",
+          "   FREE R VALUE                     : 0.229",
+          "   FREE R VALUE TEST SET SIZE   (%) : 4.900",
+          "   FREE R VALUE TEST SET COUNT      : 1583",
+          "   BIN R VALUE           (WORKING SET) : 0.2340 "
+         ],
+         "24": ["", "BLAH BLAH"]
+        }
 
 
     def test_missing_rvalue_extraction(self):
         d = {"rvalue": None, "rfree": None}
-        extract_resolution_remark({"REMARK": self.remark_lines[:2]}, d)
+        del self.remark_lines["3"]
+        extract_resolution_remark({"REMARK": self.remark_lines}, d)
         self.assertEqual(d, {"rvalue": None, "rfree": None})
         extract_rvalue_remark({"ABC": []}, d)
         self.assertEqual(d, {"rvalue": None, "rfree": None})
@@ -346,9 +356,10 @@ class RvalueExtractionTests(TestCase):
 
     def test_empty_rvalue_extraction(self):
         d = {"rvalue": None, "rfree": None}
-        self.remark_lines[4] = self.remark_lines[4][:-7]
-        self.remark_lines[5] = self.remark_lines[5][:-7]
-        extract_rvalue_remark({"REMARK": self.remark_lines[:2]}, d)
+        self.remark_lines["3"][2] = self.remark_lines["3"][2][:-7]
+        self.remark_lines["3"][3] = self.remark_lines["3"][3][:-7]
+        self.remark_lines["3"].pop()
+        extract_rvalue_remark({"REMARK": self.remark_lines}, d)
         self.assertEqual(d, {"rvalue": None, "rfree": None})
 
 
@@ -362,41 +373,43 @@ class RvalueExtractionTests(TestCase):
 class BiomoleculeExtractionTests(TestCase):
 
     def setUp(self):
-        self.remark_lines = [
-         "   1 BLAH BLAH.",
-         " 350",
-         " 350 BIOMOLECULE: 1",
-         " 350 SOFTWARE DETERMINED QUATERNARY STRUCTURE: DIMERIC",
-         " 350 SOFTWARE USED: PISA",
-         " 350 TOTAL BURIED SURFACE AREA: 1650 ANGSTROM**2",
-         " 350 SURFACE AREA OF THE COMPLEX: 4240 ANGSTROM**2",
-         " 350 APPLY THE FOLLOWING TO CHAINS: G, H",
-         " 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
-         " 350   BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
-         " 350   BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
-         " 350",
-         " 350 BIOMOLECULE: 5",
-         " 350 SOFTWARE DETERMINED QUATERNARY STRUCTURE: DODECAMERIC",
-         " 350 SOFTWARE USED: PISA",
-         " 350 TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
-         " 350 SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
-         " 350 CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
-         " 350 APPLY THE FOLLOWING TO CHAINS: E, F, G, H,",
-         " 350                    AND CHAINS: J, K, L",
-         " 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
-         " 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
-         " 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
-         " 350   BIOMT1   2 -0.500000 -0.866025  0.000000        0.00000",
-         " 350   BIOMT2   2  0.866025 -0.500000  0.000000        0.00000",
-         " 350   BIOMT3   2  0.000000  0.000000  1.000000        0.00000",
-         "  24",
-         "  24 BLAH BLAH."
-        ]
+        self.remark_lines = {
+         "1": ["BLAH BLAH"],
+         "350": [
+          "",
+          " BIOMOLECULE: 1",
+          " SOFTWARE DETERMINED QUATERNARY STRUCTURE: DIMERIC",
+          " SOFTWARE USED: PISA",
+          " TOTAL BURIED SURFACE AREA: 1650 ANGSTROM**2",
+          " SURFACE AREA OF THE COMPLEX: 4240 ANGSTROM**2",
+          " APPLY THE FOLLOWING TO CHAINS: G, H",
+          "   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+          "   BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
+          "   BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
+          "",
+          " BIOMOLECULE: 5",
+          " SOFTWARE DETERMINED QUATERNARY STRUCTURE: DODECAMERIC",
+          " SOFTWARE USED: PISA",
+          " TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
+          " SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
+          " CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
+          " APPLY THE FOLLOWING TO CHAINS: E, F, G, H,",
+          "                    AND CHAINS: J, K, L",
+          "   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+          "   BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
+          "   BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
+          "   BIOMT1   2 -0.500000 -0.866025  0.000000        0.00000",
+          "   BIOMT2   2  0.866025 -0.500000  0.000000        0.00000",
+          "   BIOMT3   2  0.000000  0.000000  1.000000        0.00000",
+         ],
+         "24": ["", "BLAH BLAH"]
+        }
 
 
     def test_missing_biomolecules_extraction(self):
         d = {"assemblies": []}
-        extract_assembly_remark({"REMARK": self.remark_lines[-2:]}, d)
+        del self.remark_lines["350"]
+        extract_assembly_remark({"REMARK": self.remark_lines}, d)
         self.assertEqual(d, {"assemblies": []})
 
 
@@ -406,8 +419,8 @@ class BiomoleculeExtractionTests(TestCase):
         d = {"assemblies": []}
         extract_assembly_remark({"REMARK": self.remark_lines}, d)
         self.assertEqual(d, {"assemblies": ["A", "B"]})
-        mock_dict.assert_any_call(self.remark_lines[2:12])
-        mock_dict.assert_any_call(self.remark_lines[12:-2])
+        mock_dict.assert_any_call(self.remark_lines["350"][1:11])
+        mock_dict.assert_any_call(self.remark_lines["350"][11:])
 
 
 
@@ -415,17 +428,17 @@ class AssemblyLinesToAssemblyDictTests(TestCase):
 
     def test_can_parse_simple_assembly(self):
         d = assembly_lines_to_assembly_dict([
-         " 350 BIOMOLECULE: 1",
-         " 350 SOFTWARE DETERMINED QUATERNARY STRUCTURE: DIMERIC",
-         " 350 SOFTWARE USED: PISA",
-         " 350 TOTAL BURIED SURFACE AREA: 1650 ANGSTROM**2",
-         " 350 SURFACE AREA OF THE COMPLEX: 4240 ANGSTROM**2",
-         " 350 CHANGE IN SOLVENT FREE ENERGY: -7.0 KCAL/MOL",
-         " 350 APPLY THE FOLLOWING TO CHAINS: G, H",
-         " 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
-         " 350   BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
-         " 350   BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
-         " 350"
+         " BIOMOLECULE: 1",
+         " SOFTWARE DETERMINED QUATERNARY STRUCTURE: DIMERIC",
+         " SOFTWARE USED: PISA",
+         " TOTAL BURIED SURFACE AREA: 1650 ANGSTROM**2",
+         " SURFACE AREA OF THE COMPLEX: 4240 ANGSTROM**2",
+         " CHANGE IN SOLVENT FREE ENERGY: -7.0 KCAL/MOL",
+         " APPLY THE FOLLOWING TO CHAINS: G, H",
+         "   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "   BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
+         "   BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
+         ""
         ])
         self.assertEqual(d, {
          "id": 1, "software": "PISA", "delta_energy": -7.0,
@@ -440,20 +453,20 @@ class AssemblyLinesToAssemblyDictTests(TestCase):
 
     def test_can_parse_complex_assembly(self):
         d = assembly_lines_to_assembly_dict([
-         " 350 BIOMOLECULE: 5",
-         " 350 SOFTWARE DETERMINED QUATERNARY STRUCTURE: DODECAMERIC",
-         " 350 SOFTWARE USED: PISA",
-         " 350 TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
-         " 350 SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
-         " 350 CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
-         " 350 APPLY THE FOLLOWING TO CHAINS: E, F, G, H,",
-         " 350                    AND CHAINS: J, K, L",
-         " 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
-         " 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
-         " 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
-         " 350   BIOMT1   2 -0.500000 -0.866025  0.000000        0.00000",
-         " 350   BIOMT2   2  0.866025 -0.500000  0.000000        0.00000",
-         " 350   BIOMT3   2  0.000000  0.000000  1.000000        0.00000",
+         " BIOMOLECULE: 5",
+         " SOFTWARE DETERMINED QUATERNARY STRUCTURE: DODECAMERIC",
+         " SOFTWARE USED: PISA",
+         " TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
+         " SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
+         " CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
+         " APPLY THE FOLLOWING TO CHAINS: E, F, G, H,",
+         "                    AND CHAINS: J, K, L",
+         "   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "   BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
+         "   BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
+         "   BIOMT1   2 -0.500000 -0.866025  0.000000        0.00000",
+         "   BIOMT2   2  0.866025 -0.500000  0.000000        0.00000",
+         "   BIOMT3   2  0.000000  0.000000  1.000000        0.00000",
         ])
         self.assertEqual(d, {
          "id": 5, "software": "PISA", "delta_energy": -332.0,
@@ -472,12 +485,12 @@ class AssemblyLinesToAssemblyDictTests(TestCase):
 
     def test_can_parse_sparse_assembly(self):
         d = assembly_lines_to_assembly_dict([
-         " 350 BIOMOLECULE: 1",
-         " 350 APPLY THE FOLLOWING TO CHAINS: G, H",
-         " 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
-         " 350   BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
-         " 350   BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
-         " 350"
+         " BIOMOLECULE: 1",
+         " APPLY THE FOLLOWING TO CHAINS: G, H",
+         "   BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "   BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
+         "   BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
+         ""
         ])
         self.assertEqual(d, {
          "id": 1, "software": None, "delta_energy": None,
@@ -529,18 +542,16 @@ class AnisouAssingingTests(TestCase):
 
     def test_can_assign_anisou(self):
         model = {"atoms": [{"id": 107}, {"id": 108}, {"id": 109}, {"id": 110}]}
-        models = [deepcopy(model), deepcopy(model)]
         assign_anisou({"ANISOU": [
          "  107  N   GLY A  13     2406   1892   1614    198    519   -328",
          "  110  O   GLY A  13     3837   2505   1611    164   -121    189"
-        ]}, models)
-        for model in models:
-            self.assertEqual(model["atoms"], [
-             {"id": 107, "anisotropy": [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328]},
-             {"id": 108, "anisotropy": [0, 0, 0, 0, 0, 0]},
-             {"id": 109, "anisotropy": [0, 0, 0, 0, 0, 0]},
-             {"id": 110, "anisotropy": [0.3837, 0.2505, 0.1611, 0.0164, -0.0121, 0.0189]}
-            ])
+        ]}, model)
+        self.assertEqual(model["atoms"], [
+         {"id": 107, "anisotropy": [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328]},
+         {"id": 108, "anisotropy": [0, 0, 0, 0, 0, 0]},
+         {"id": 109, "anisotropy": [0, 0, 0, 0, 0, 0]},
+         {"id": 110, "anisotropy": [0.3837, 0.2505, 0.1611, 0.0164, -0.0121, 0.0189]}
+        ])
 
 
 

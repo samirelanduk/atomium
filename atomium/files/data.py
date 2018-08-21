@@ -70,7 +70,9 @@ def model_dict_to_model(m):
         for ligand in ligands:
             ligand_objects.append(create_het(ligand, m["atoms"], model))
         rep = "".join([CODES.get(res, "X") for res in chain["full_sequence"]])
-        Chain(*(residue_objects + ligand_objects), id=chain["id"], rep=rep)
+        try:
+            Chain(*(residue_objects + ligand_objects), id=chain["id"], rep=rep)
+        except: exit()
     bond_atoms(model, m["connections"])
     return model
 

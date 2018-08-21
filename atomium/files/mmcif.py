@@ -410,5 +410,5 @@ def atom_line_to_atom_dict(d):
     a["full_res_id"] = "{}{}{}".format(
      a["chain_id"] or "", str(a["residue_id"] or "") or "", a["residue_insert"]
     ) or None
-    a["polymer"] = d["group_PDB"] == "ATOM"
+    a["polymer"] = d["label_seq_id"] != "."
     return a

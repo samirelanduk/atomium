@@ -9,13 +9,13 @@ import requests
 here = dir_path = os.path.dirname(os.path.realpath(__file__))
 version = atomium.__version__.replace(".", "-")
 today = datetime.datetime.now().date().strftime("%Y-%m-%d")
-print(today)
 
 pdbs = ["1lol", "5xme"]
 for pdb in pdbs:
     for ext in ["cif", "pdb"]:
+        id = pdb + ".cif" if ext == "cif" else "pdb{}.ent".format(pdb)
         filestring = requests.get(
-         "http://www.ebi.ac.uk/pdbe/entry-files/{}.{}".format(pdb.lower(), ext)
+         "http://www.ebi.ac.uk/pdbe/entry-files/{}".format(id)
         ).text
         with open("{}/{}.{}".format(here, pdb, ext), "w") as f:
             f.write(filestring)

@@ -12,7 +12,8 @@ class PdbStringToPdbDictTests(TestCase):
          "REC1  CONTENTS1", "REC2   CONTENTS2", "REC2  CONTENTS3",
          "REC3  CONTENTS4 ...     ", "RECCC4CONTENTS5 ..",
          "REMARK  1 ABC", "REMARK  2 ABD", "REMARK  2 ABE",
-         "ATOM  1", "ANISOU 2", "HETATM 5", "CONECT 7", "CONECT 9"
+         "ATOM  1", "ANISOU 2", "HETATM 5", "TER", "ATOM   9", "HETATM 11",
+         "CONECT 7", "CONECT 9"
         ]
         self.assertEqual(pdb_string_to_pdb_dict("\n".join(lines)), {
          "REC1": ["CONTENTS1"],
@@ -20,7 +21,7 @@ class PdbStringToPdbDictTests(TestCase):
          "REC3": ["CONTENTS4 ..."],
          "RECCC4": ["CONTENTS5 .."],
          "REMARK": {"1": ["ABC"], "2": ["ABD", "ABE"]},
-         "MODEL": [{"ATOM": ["1"], "ANISOU": [" 2"], "HETATM": [" 5"]}],
+         "MODEL": [{"ATOM": ["1", " 5"], "HETATM": [" 9", " 11"], "TER": [""], "ANISOU": [" 2"]}],
          "CONECT": [" 7", " 9"]
         })
 

@@ -17,31 +17,44 @@ def pdb_string_to_pdb_dict(filestring):
 
     pdb_dict = {}
     lines = list(filter(lambda l: bool(l.strip()), filestring.split("\n")))
-    model_records = ("ATOM", "HETATM", "ANISOU", "MODEL", "TER", "ENDMDL")
-    model = {}
-    for line in lines:
-        record, value = line[:6].rstrip(), line[6:].rstrip()
-        if record == "REMARK":
+    lines = [[line[:6].rstrip(), line[6:].rstrip()] for line in lines]
+    pre_m, model, post_m = [], [], []
+    model_recs = ("ATOM", "HETATM", "ANISOU", "MODEL", "TER", "ENDMDL")
+    for l in lines:
+        (model if l[0] in model_recs else post_m if model else pre_m).append(l)
+    for line in pre_m:
+        if line[0] == "REMARK":
             if "REMARK" not in pdb_dict: pdb_dict["REMARK"] = {}
-            number = value.lstrip().split()[0]
+            number = line[1].lstrip().split()[0]
             try:
-                pdb_dict["REMARK"][number].append(value[4:])
-            except: pdb_dict["REMARK"][number] = [value[4:]]
-        elif record not in model_records:
-            try:
-                pdb_dict[record].append(value)
-            except: pdb_dict[record] = [value]
+                pdb_dict["REMARK"][number].append(line[1][4:])
+            except: pdb_dict["REMARK"][number] = [line[1][4:]]
         else:
-            if "MODEL" not in pdb_dict: pdb_dict["MODEL"] = []
-            if record == "MODEL":
-                model = {}
-            elif record == "ENDMDL":
-                pdb_dict["MODEL"].append(model)
-            else:
-                try:
-                    model[record].append(value)
-                except: model[record] = [value]
-    if not pdb_dict["MODEL"]: pdb_dict["MODEL"].append(model)
+            try:
+                pdb_dict[line[0]].append(line[1])
+            except: pdb_dict[line[0]] = [line[1]]
+    pdb_dict["MODEL"], m, het = [], {"ATOM": []}, True
+    for line in model[::-1]:
+        if line[0] == "ENDMDL":
+            m, het = {"ATOM": []}, True
+        elif line[0] == "MODEL":
+            pdb_dict["MODEL"].append(m)
+        else:
+            if line[0] == "TER": het = False
+            if het and line[0] == "ATOM": line[0] = "HETATM"
+            if not het and line[0] == "HETATM": line[0] = "ATOM"
+            try:
+                m[line[0]].append(line[1])
+            except: m[line[0]] = [line[1]]
+    if not pdb_dict["MODEL"]: pdb_dict["MODEL"].append(m)
+    pdb_dict["MODEL"].reverse()
+    for m in pdb_dict["MODEL"]:
+        if "ATOM" in m: m["ATOM"].reverse()
+        if "HETATM" in m: m["HETATM"].reverse()
+    for line in post_m:
+        try:
+            pdb_dict[line[0]].append(line[1])
+        except: pdb_dict[line[0]] = [line[1]]
     return pdb_dict
 
 

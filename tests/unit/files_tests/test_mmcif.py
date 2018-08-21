@@ -540,7 +540,7 @@ class AtomLineToAtomDictTests(TestCase):
 
 
     def test_can_convert_empty_line_to_atom(self):
-        for k in self.d: self.d[k] = "?"
+        for k in self.d: self.d[k] = "."
         atom = atom_line_to_atom_dict(self.d)
         self.assertEqual(atom, deepcopy(ATOM_DICT))
 
@@ -558,7 +558,7 @@ class AtomLineToAtomDictTests(TestCase):
 
 
     def test_can_get_hetatm(self):
-        self.d["group_PDB"] = "HETATM"
+        self.d["label_seq_id"] = "."
         atom = atom_line_to_atom_dict(self.d)
         self.assertEqual(atom, {
          "id": 26962, "name": "O1",

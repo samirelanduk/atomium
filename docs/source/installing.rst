@@ -9,7 +9,7 @@ atomium can be installed using pip:
 ``$ pip3 install atomium``
 
 atomium is written for Python 3, and does not support Python 2. It currently
-requires Python 3.5 and above.
+requires Python 3.5 or above.
 
 If you get permission errors, try using ``sudo``:
 

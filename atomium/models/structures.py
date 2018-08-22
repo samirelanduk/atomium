@@ -469,39 +469,14 @@ class AtomStructure:
         return copy
 
 
-    def to_file_string(self, file_format, description=None):
-        """Converts a structure to a filestring. Currently supported file
-        formats are: .xyz and .pdb.
-
-        :param str file_format: The file format to use, in lowercase.
-        :param str description: A structure description to put in the file.
-        :raises ValueError: if an unsupported file format is given."""
-
-        if file_format == "xyz":
-            from ..files.xyz2xyzdict import structure_to_xyz_dict
-            from ..files.xyzdict2xyzstring import xyz_dict_to_xyz_string
-            xyz_dict = structure_to_xyz_dict(self)
-            xyz_dict["title"] = description
-            return xyz_dict_to_xyz_string(xyz_dict)
-        elif file_format == "pdb":
-            from ..files.pdb2pdbdict import structure_to_pdb_dict
-            from ..files.pdbdict2pdbstring import pdb_dict_to_pdb_string
-            pdb_dict = structure_to_pdb_dict(self)
-            pdb_dict["title"] = description
-            return pdb_dict_to_pdb_string(pdb_dict)
-        else:
-            raise ValueError("{} is not a valid file type".format(file_format))
-
-
-    def save(self, path, *args, **kwargs):
+    def save(self, path):
         """Saves the structure to file, in the format implied by the extension
         of the path you provide (i.e. giving a path ``/path/to/file.xyz`` will
         save as .xyz etc.).
 
         :param str path: The path to save to. The extension you provide here is\
         important as atomium will use that to determine what file format to\
-        save as.
-        :param str description: A structure description to put in the file."""
+        save as."""
 
         from ..files.file import File
         f = File()

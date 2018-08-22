@@ -2,6 +2,8 @@
 
 import re
 import numpy as np
+from math import isclose
+from itertools import combinations
 from .data import PERIODIC_TABLE, METALS
 
 class Atom:
@@ -286,6 +288,19 @@ class Atom:
         :rtype: ``bool``"""
 
         return self._element.upper() in METALS
+
+
+    def angle(self, atom1, atom2):
+        """Gets the angle between two atom vectors with this atom as the origin.
+
+        :param Atom atom1: The first atom.
+        :param Atom atom2: Thne second atom."""
+        
+        vectors = [
+         [v1 - v2 for v1, v2 in zip(atom.location, self.location)
+        ] for atom in (atom1, atom2)]
+        vectors = [v / np.linalg.norm(v) for v in vectors]
+        return np.arccos(np.clip(np.dot(vectors[0], vectors[1]), -1.0, 1.0))
 
 
     def distance_to(self, other):

@@ -148,6 +148,18 @@ class CreationTests(IntegratedTest):
         self.assertEqual(model.atoms(is_metal=False), set(self.atoms) - {self.atoms[-3], self.atoms[-1]})
         self.assertEqual(model.atoms(element__ne="H"), set(self.atoms) - {self.atoms[16], self.atoms[17]})
 
+        # Geometry is fine
+        self.assertEqual(self.atoms[0].angle(self.atoms[1], self.atoms[3]), math.pi / 2)
+        self.assertEqual(self.atoms[0].angle(self.atoms[1], self.atoms[2]), 0)
+        self.assertAlmostEqual(
+         self.atoms[0].angle(self.atoms[1], self.atoms[4]),
+         math.pi / 4, delta=0.00001
+        )
+        self.assertAlmostEqual(
+         self.atoms[8].angle(self.atoms[7], self.atoms[4]),
+         math.pi / 4, delta=0.00001
+        )
+
         # Transformation is fine
         model.translate(12, 13, 14)
         self.assertEqual(self.atoms[0].location, (12, 13, 14))

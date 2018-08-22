@@ -354,6 +354,21 @@ class AtomMetalTests(TestCase):
 
 
 
+class AtomAngleTests(TestCase):
+
+    def setUp(self):
+        self.atom = Atom("C", 1, 1, 1)
+        self.atoms = [Mock() for _ in range(6)]
+
+
+    def test_angle_between_atoms(self):
+        atom = Atom("C", 1, 1, 1)
+        atom1 = Mock(location=(2, 2, 2))
+        atom2 = Mock(location=(-1, -1, -1))
+        self.assertEqual(atom.angle(atom1, atom2), math.pi)
+
+
+
 class AtomDistanceToTests(TestCase):
 
     def test_can_get_distance_between_atoms(self):

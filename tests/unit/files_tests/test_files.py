@@ -1,6 +1,6 @@
 from datetime import date
 from unittest import TestCase
-from unittest.mock import Mock, patch, PropertyMock
+from unittest.mock import Mock, patch, PropertyMock, MagicMock
 from atomium.files.file import File
 
 class FileCreationTests(TestCase):
@@ -360,3 +360,44 @@ class BestAssemblyGenerationTests(TestCase):
         f._models = "ABCDEF"
         model = f.generate_best_assembly()
         self.assertEqual(model, "A")
+
+
+
+class FileSavingTests(TestCase):
+
+    @patch("atomium.files.pdb.file_to_pdb_string")
+    @patch("builtins.open")
+    def test_can_save_as_pdb(self, mock_open, mock_string):
+        open_return = MagicMock()
+        mock_file = Mock()
+        mock_write = MagicMock()
+        mock_file.write = mock_write
+        open_return.__enter__.return_value = mock_file
+        mock_open.return_value = open_return
+        f = File()
+        f.save("/path/file.pdb")
+        mock_string.assert_called_with(f)
+        mock_open.assert_called_once_with("/path/file.pdb", "w")
+        mock_write.assert_called_with(mock_string.return_value)
+
+
+    @patch("atomium.files.xyz.file_to_xyz_string")
+    @patch("builtins.open")
+    def test_can_save_as_xyz(self, mock_open, mock_string):
+        open_return = MagicMock()
+        mock_file = Mock()
+        mock_write = MagicMock()
+        mock_file.write = mock_write
+        open_return.__enter__.return_value = mock_file
+        mock_open.return_value = open_return
+        f = File()
+        f.save("/path/file.xyz")
+        mock_string.assert_called_with(f)
+        mock_open.assert_called_once_with("/path/file.xyz", "w")
+        mock_write.assert_called_with(mock_string.return_value)
+
+
+    def test_unknown_file_extension(self):
+        f = File()
+        with self.assertRaises(ValueError):
+            f.save("/path/file.abc")

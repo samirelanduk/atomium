@@ -295,7 +295,7 @@ def update_models_list(mmcif_dict, data_dict):
     if model["atoms"]: data_dict["models"].append(model)
     generate_higher_structures(data_dict["models"])
     for model in data_dict["models"]:
-        for res in mmcif_dict["pdbx_poly_seq_scheme"]:
+        for res in mmcif_dict.get("pdbx_poly_seq_scheme", []):
             for chain in model["chains"]:
                 if res["asym_id"] == chain["id"]:
                     chain["full_sequence"].append(res["mon_id"])

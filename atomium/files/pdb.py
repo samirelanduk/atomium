@@ -7,6 +7,7 @@ from datetime import datetime
 import re
 from .data import generate_higher_structures
 from .data import DATA_DICT, MODEL_DICT, CHAIN_DICT, RESIDUE_DICT, ATOM_DICT
+from ..models.data import CODES
 
 def pdb_string_to_pdb_dict(filestring):
     """Takes the filecontents of a .pdb file and produces an pdb file
@@ -416,3 +417,314 @@ def merge_lines(lines, start, join=" "):
 
     string = join.join([line[start:].strip() for line in lines])
     return string
+
+
+def file_to_pdb_string(file):
+    """Takes a :py:class:`.File` and turns it into a .pdb filestring that
+    represents it.
+
+    :param File file: the File to convert.
+    :rtype: ``str``"""
+
+    lines = []
+    pack_annotation(file, lines)
+    pack_structure(file, lines)
+    return "\n".join(lines)
+
+
+def pack_annotation(file, lines):
+    """Adds non-structural records to a list of lines.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    pack_header(file, lines)
+    pack_title(file, lines)
+    pack_source(file, lines)
+    pack_keywords(file, lines)
+    pack_technique(file, lines)
+    pack_resolution(file, lines)
+    pack_rvalue(file, lines)
+    pack_assemblies(file, lines)
+    pack_sequences(file, lines)
+
+
+def pack_structure(file, lines):
+    """Adds structural records to a list of lines.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    for i, model in enumerate(file.models, start=1):
+        if len(file.models) > 1: lines.append("MODEL        {}".format(i))
+        for atom in sorted(model.atoms(), key=lambda a: a.id):
+            atom_to_atom_line(atom, lines)
+        if len(file.models) > 1: lines.append("ENDMDL")
+    pack_connections(file.model, lines)
+
+
+def pack_header(file, lines):
+    """Adds a HEADER record to a list of lines.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    if (file.deposition_date or file.code
+     or file.classification):
+        lines.append("HEADER    {}{}   {}".format(
+         file.classification.ljust(40) if
+          file.classification else " " * 40,
+         file.deposition_date.strftime("%d-%b-%y").upper() if
+          file.deposition_date else " " * 9,
+         file.code if file.code else "    "
+        ).ljust(80))
+
+
+def pack_title(file, lines):
+    """Adds TITLE records to a list of lines.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    if file.title:
+        lines += split_string(file.title, "TITLE", 11)
+
+
+def pack_resolution(file, lines):
+    """Adds REMARK records to a list of lines for resolution.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    if file.resolution is not None:
+        lines.append("REMARK   2".ljust(80))
+        lines.append("REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(
+         file.resolution
+        ).ljust(80))
+
+
+def pack_rvalue(file, lines):
+    """Adds REMARK records to a list of lines for rvalue.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    if any([file.rvalue, file.rfree]):
+        lines.append("REMARK   3".ljust(80))
+    if file.rvalue is not None:
+        lines.append("REMARK   3   R VALUE            (WORKING SET) : {}".format(
+         file.rvalue
+        ).ljust(80))
+    if file.rfree is not None:
+        lines.append("REMARK   3   FREE R VALUE                     : {}".format(
+         file.rfree
+        ).ljust(80))
+
+
+def pack_source(file, lines):
+    """Adds SOURCE records to a list of lines for source organism and
+    expression system.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    source = ""
+    if file.source_organism:
+        source += "ORGANISM_SCIENTIFIC: {};".format(
+         file.source_organism
+        ).ljust(70)
+    if file.expression_system:
+        source += "EXPRESSION_SYSTEM: {};".format(
+         file.expression_system
+        ).ljust(70)
+    if source: lines += split_string(source, "SOURCE", 11)
+
+
+def pack_technique(file, lines):
+    """Adds a EXPDTA record to a list of lines for experimental technique.
+    :param list lines: The record lines to add to.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    if file.technique is not None:
+        lines.append("EXPDTA    {}".format(file.technique).ljust(80))
+
+
+def pack_keywords(file, lines):
+    """Adds a KEYWDS record to a list of lines for PDB keyword tags.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    if file.keywords:
+        lines += split_string(", ".join(file.keywords), "KEYWDS", 11)
+
+
+def pack_sequences(file, lines):
+    """Adds SEQRES records to a list of lines for sequence annotation.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    lookup = {v: k for k, v in CODES.items() if k not in ["HIP", "HIE"]}
+    try:
+        for chain in sorted(file.model.chains(), key=lambda c: c.id):
+            if chain.rep_sequence:
+                residues = [lookup.get(c, "???") for c in chain.rep_sequence]
+                length = len(residues)
+                line_count = ceil(length / 13)
+                for line_num in range(line_count):
+                    lines += ["SEQRES {:>3} {} {:>4}  {}".format(
+                     line_num + 1, chain.id, length,
+                     " ".join(residues[line_num * 13: (line_num + 1) * 13])
+                    ).ljust(80)]
+    except AttributeError: pass
+
+
+def pack_assemblies(file, lines):
+    """Adds REMARK 350 records to a list of lines for assembly annotation.
+
+    :param File file: The :py:class:`.File` to read.
+    :param list lines: The record lines to add to."""
+
+    for bm in file.assemblies:
+        lines.append("REMARK 350")
+        lines.append("REMARK 350 BIOMOLECULE: {}".format(bm["id"]))
+        if bm["software"]:
+            lines.append("REMARK 350 SOFTWARE USED: {}".format(bm["software"]))
+        if bm["buried_surface_area"]:
+            lines.append("REMARK 350 TOTAL BURIED SURFACE AREA:" +
+             " {} ANGSTROM**2".format(int(bm["buried_surface_area"])))
+        if bm["surface_area"]:
+            lines.append("REMARK 350 SURFACE AREA OF THE COMPLEX:" +
+             " {} ANGSTROM**2".format(int(bm["surface_area"])))
+        if bm["delta_energy"]:
+            lines.append("REMARK 350 CHANGE IN SOLVENT FREE ENERGY:" +
+             " {} KCAL/MOL".format(bm["delta_energy"]))
+        current_chains = ""
+        for index, transformation in enumerate(bm["transformations"]):
+            if transformation["chains"] != current_chains:
+                lines.append("REMARK 350 APPLY THE FOLLOWING TO CHAINS: "
+                 + ", ".join(transformation["chains"]))
+                current_chains = transformation["chains"]
+            for line in (1, 2, 3):
+                matrix_line = transformation["matrix"][line - 1]
+                lines.append("REMARK 350   BIOMT" +
+                 "{}   {} {}{:.6f} {}{:.6f} {}{:.6f}       {}{:.5f}".format(
+                  line, index + 1,
+                  " " if matrix_line[0] >= 0 else "", matrix_line[0],
+                  " " if matrix_line[1] >= 0 else "", matrix_line[1],
+                  " " if matrix_line[2] >= 0 else "", matrix_line[2],
+                  " " if transformation["vector"][line - 1] >= 0 else "",
+                  transformation["vector"][line - 1],
+                 )
+                )
+
+
+def atom_to_atom_line(a, lines):
+    """Converts an :py:class:`.Atom` to an ATOM or HETATM record and adds it to
+    a list of lines. ANISOU records will also be made.
+
+    :param Atom a: The Atom to pack.
+    :param list l: The lines to add to."""
+
+    line = "{:6}{:5} {:4} {:3} {:1}{:4}{:1}   "
+    line += "{:>8}{:>8}{:>8}  1.00{:6}          {:>2}{:2}"
+    id_, residue_name, chain_id, residue_id, insert_code = "", "", "", "", ""
+    if a.residue:
+        id_, residue_name = a.residue.id, a.residue.name
+        chain_id = a.chain.id if a.chain is not None else ""
+        residue_id = int("".join([c for c in id_ if c.isdigit()]))
+        insert_code = id_[-1] if id_ and id_[-1].isalpha() else ""
+    elif a.ligand:
+        id_, residue_name = a.ligand.id, a.ligand.name
+        chain_id = a.chain.id if a.chain is not None else ""
+        residue_id = int("".join([c for c in id_ if c.isdigit()]))
+    atom_name = a.name if a.name else ""
+    atom_name = " " + atom_name if len(atom_name) < 4 else atom_name
+    occupancy = "  1.00"
+    line = line.format(
+     "HETATM" if a.residue is None else "ATOM",
+     a.id, atom_name, residue_name, chain_id, residue_id, insert_code,
+     "{:.3f}".format(a.x) if a.x is not None else "",
+     "{:.3f}".format(a.y) if a.y is not None else "",
+     "{:.3f}".format(a.z) if a.z is not None else "",
+     a.bfactor if a.bfactor else "",
+     a.element if a.element else "",
+     str(int(a.charge))[::-1] if a.charge else "",
+    )
+    lines.append(line)
+    if a.anisotropy != [0, 0, 0, 0, 0, 0]:
+        lines.append(atom_to_anisou_line(a, atom_name,
+         residue_name, chain_id, residue_id, insert_code))
+
+
+def atom_to_anisou_line(a, name, res_name, chain_id, res_id, insert):
+    """Converts an :py:class:`.Atom` to an ANISOU record.
+
+    :param Atom a: The Atom to pack.
+    :param str name: The atom name to use.
+    :param str res_name: The residue name to use.
+    :param str chain_id: The chain ID to use.
+    :param str res_id: The residue ID to use.
+    :param str insert: The residue insert code to use.
+    :rtype: ``str``"""
+
+    line = "{:6}{:5} {:4} {:3} {:1}{:4}{:1} "
+    line += "{:>7}{:>7}{:>7}{:>7}{:>7}{:>7}      {:>2}{:2}"
+    anisotropy = [round(x * 10000 )for x in a.anisotropy]
+    line = line.format(
+     "ANISOU",
+     a.id, name, res_name, chain_id, res_id, insert,
+     anisotropy[0] if anisotropy[0] is not 0 else "",
+     anisotropy[1] if anisotropy[1] is not 0 else "",
+     anisotropy[2] if anisotropy[2] is not 0 else "",
+     anisotropy[3] if anisotropy[3] is not 0 else "",
+     anisotropy[4] if anisotropy[4] is not 0 else "",
+     anisotropy[5] if anisotropy[5] is not 0 else "",
+     a.element if a.element else "",
+     str(int(a.charge))[::-1] if a.charge else "",
+    )
+    return line
+
+
+def pack_connections(structure, lines):
+    """Adds CONECT records to a list of lines.
+
+    :param AtomStructure structure: The :py:class:`.AtomStructure` to read.
+    :param list lines: The record lines to update."""
+
+    for atom in sorted(structure.atoms(), key=lambda a: a.id):
+        if not atom.residue:
+            bond_ids = sorted([a.id for a in atom.bonded_atoms])
+            for line_num in range(ceil(len(bond_ids) / 4)):
+                bonded_ids = bond_ids[line_num * 4: (line_num + 1) * 4]
+                line = "CONECT" + "{:5}" * (len(bonded_ids) + 1)
+                lines.append(line.format(atom.id, *bonded_ids).ljust(80))
+
+
+def split_string(string, record, start):
+    """Takes a string and splits it into multple PDB records, with number
+    continuation lines.
+
+    :param str string: The string to split.
+    :param str record: The record name.
+    :param int start: The position to start the string at on each line."""
+
+    space = 81 - start
+    if len(string) <= space:
+        return ["{}{}".format(record.ljust(start - 1), string).ljust(80)]
+    else:
+        words = string.split(" ")
+        lines, line = [], record.ljust(start - 1)
+        while words:
+            if len(line) + len(words[0]) > 79:
+                lines.append(line[:80].ljust(80))
+                line = "{}{:<2}{} ".format(
+                 record.ljust(start - 2), len(lines) + 1, words.pop(0).lstrip()
+                )
+            else:
+                line += words.pop(0).lstrip() + " "
+    if len(line.rstrip()) > 10: lines.append(line[:80].ljust(80))
+    return lines

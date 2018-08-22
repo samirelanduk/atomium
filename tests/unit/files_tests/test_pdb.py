@@ -638,3 +638,97 @@ class LineMergingTests(TestCase):
          merge_lines(self.lines, 8, join="."),
          "89.ij.89"
         )
+
+
+
+class FileToPdbStringTests(TestCase):
+
+    @patch("atomium.files.pdb.pack_annotation")
+    @patch("atomium.files.pdb.pack_structure")
+    def test_can_convert_file_to_pdb_string(self, mock_struct, mock_ann):
+        f = Mock()
+        lines = ["A", "B", "C"]
+        mock_struct.side_effect = lambda f, l: [l.append(n) for n in "ABC"]
+        self.assertEqual(file_to_pdb_string(f), "A\nB\nC")
+        mock_ann.assert_called_with(f, lines)
+        mock_struct.assert_called_with(f, lines)
+
+
+
+class AnnotationPackingTests(TestCase):
+
+    @patch("atomium.files.pdb.pack_header")
+    @patch("atomium.files.pdb.pack_title")
+    @patch("atomium.files.pdb.pack_resolution")
+    @patch("atomium.files.pdb.pack_rvalue")
+    @patch("atomium.files.pdb.pack_assemblies")
+    @patch("atomium.files.pdb.pack_source")
+    @patch("atomium.files.pdb.pack_technique")
+    @patch("atomium.files.pdb.pack_keywords")
+    @patch("atomium.files.pdb.pack_sequences")
+    def test_can_pack_annotation(self, mock_seq, mock_key, mock_tech, mock_source, mock_bm, mock_rfac, mock_res, mock_title, mock_head):
+        lines, f = [], Mock()
+        pack_annotation(f, lines)
+        mock_head.assert_called_with(f, lines)
+        mock_title.assert_called_with(f, lines)
+        mock_res.assert_called_with(f, lines)
+        mock_rfac.assert_called_with(f, lines)
+        mock_bm.assert_called_with(f, lines)
+        mock_source.assert_called_with(f, lines)
+        mock_tech.assert_called_with(f, lines)
+        mock_key.assert_called_with(f, lines)
+        mock_seq.assert_called_with(f, lines)
+
+
+
+class StructurePackingTests(TestCase):
+
+    @patch("atomium.files.pdb.atom_to_atom_line")
+    @patch("atomium.files.pdb.pack_connections")
+    def test_can_pack_one_model(self, mock_con, mock_atom):
+        atoms = [Mock(id=2), Mock(id=1)]
+        mock_atom.side_effect = lambda a, l: l.append("ATOM" + str(a.id))
+        model = Mock(atoms=lambda: atoms)
+        lines, f = [], Mock(models=[model], model=model)
+        pack_structure(f, lines)
+        self.assertEqual(lines, ["ATOM1", "ATOM2"])
+        mock_con.assert_called_with(model, lines)
+
+
+    @patch("atomium.files.pdb.atom_to_atom_line")
+    @patch("atomium.files.pdb.pack_connections")
+    def test_can_pack_multiple_models(self, mock_con, mock_atom):
+        atoms1 = [Mock(id=2), Mock(id=1)]
+        atoms2 = [Mock(id=2), Mock(id=1)]
+        mock_atom.side_effect = lambda a, l: l.append("ATOM" + str(a.id))
+        model1, model2 = Mock(atoms=lambda: atoms1), Mock(atoms=lambda: atoms2)
+        lines, f = [], Mock(models=[model1, model2], model=model1)
+        pack_structure(f, lines)
+        self.assertEqual(lines, [
+         "MODEL        1", "ATOM1", "ATOM2", "ENDMDL",
+         "MODEL        2", "ATOM1", "ATOM2", "ENDMDL"
+        ])
+        mock_con.assert_called_with(model1, lines)
+
+
+
+class LineSplittingTests(TestCase):
+
+    def test_can_split_short_string(self):
+        self.assertEqual(
+         split_string("THE REPUBLIC OF HEAVEN", "LIN12", 10),
+         ["LIN12    THE REPUBLIC OF HEAVEN".ljust(80)]
+        )
+        self.assertEqual(
+         split_string("*" * 70, "LIN12", 11),
+         ["LIN12     " + ("*" * 70)]
+        )
+
+
+    def test_can_split_long_string(self):
+        self.assertEqual(
+         split_string("BIGLY " * 30, "LIN12", 11), [
+          "LIN12     BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY     ",
+          "LIN12    2 BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY    ",
+          "LIN12    3 BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY BIGLY                      "
+         ])

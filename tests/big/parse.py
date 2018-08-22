@@ -13,7 +13,18 @@ print("Parsing...")
 shuffle(codes)
 for code in codes:
     print("\tParsing {}.pdb...".format(code))
-    pdb = atomium.fetch(code + ".pdb")
+    try:
+        pdb = atomium.fetch(code + ".pdb")
+    except ValueError:
+        print("    Doesn't exist.")
+        pdb = None
     print("\tParsing {}.cif...".format(code))
-    pdb = atomium.fetch(code + ".cif")
+    cif = atomium.fetch(code + ".cif")
+
+    if pdb:
+        assert len(pdb.model.chains()) == len(cif.model.chains())
+        assert len(pdb.model.residues()) == len(cif.model.residues())
+        assert len(pdb.model.ligands()) == len(cif.model.ligands())
+        assert len(pdb.model.atoms()) == len(cif.model.atoms())
+        assert len(pdb.assemblies) == len(cif.assemblies)
     print()

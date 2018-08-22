@@ -503,10 +503,10 @@ class AtomStructure:
         save as.
         :param str description: A structure description to put in the file."""
 
-        file_format = path.split(".")[-1].lower()
-        s = self.to_file_string(file_format, *args, **kwargs)
-        from ..files.utilities import string_to_file
-        string_to_file(s, path)
+        from ..files.file import File
+        f = File()
+        f._models = [self]
+        f.save(path)
 
 
 AtomStructure.atom.__doc__ =\

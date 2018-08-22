@@ -40,3 +40,21 @@ def xyz_dict_to_data_dict(xyz_dict):
         a["x"], a["y"], a["z"] = [float(n) for n in chunks[1:]]
         d["models"][0]["atoms"].append(a)
     return d
+
+
+def file_to_xyz_string(file):
+    """Takes a :py:class:`.File` and turns it into a .xyz filestring that
+    represents it.
+
+    :param File file: the File to convert.
+    :rtype: ``str``"""
+
+    lines = []
+    lines.append(str(len(file.model.atoms())))
+    if file.title is not None:
+        lines.append(file.title)
+    for atom in file.model.atoms():
+        lines.append("{}{:11.3f}{:11.3f}{:11.3f}".format(
+         atom.element, atom.x, atom.y, atom.z
+        ))
+    return "\n".join(lines)

@@ -113,7 +113,7 @@ class ModelDictToModelTests(TestCase):
          ]
         }
         mock_atom.side_effect = lambda a: str(a)
-        mod = Mock()
+        mod = Mock(atoms=lambda: [])
         mock_mod.return_value = mod
         residues = [Mock() for _ in range(6)]
         ligands = [Mock() for _ in range(3)]

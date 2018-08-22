@@ -62,3 +62,28 @@ class XyzDictToDataDictTests(TestCase):
           "CA     0.435      2.0      -19.234"
          ]
         }), d)
+
+
+
+class FileToXyzStringTests(TestCase):
+
+    def test_can_convert_full_file(self):
+        atoms = [Mock(element="A", x=1, y=2.5, z=2.7), Mock(element="B", x=3, y=1.1, z=-2.7)]
+        model = Mock(atoms=lambda: atoms)
+        f = Mock(title="TITLE", model=model)
+        self.assertEqual(file_to_xyz_string(f), "\n".join([
+         "2", "TITLE",
+         "A      1.000      2.500      2.700",
+         "B      3.000      1.100     -2.700"
+        ]))
+
+
+    def test_can_convert_no_title_file(self):
+        atoms = [Mock(element="A", x=1, y=2.5, z=2.7), Mock(element="B", x=3, y=1.1, z=-2.7)]
+        model = Mock(atoms=lambda: atoms)
+        f = Mock(title=None, model=model)
+        self.assertEqual(file_to_xyz_string(f), "\n".join([
+         "2",
+         "A      1.000      2.500      2.700",
+         "B      3.000      1.100     -2.700"
+        ]))

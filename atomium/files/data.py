@@ -73,6 +73,9 @@ def model_dict_to_model(m):
         try:
             Chain(*(residue_objects + ligand_objects), id=chain["id"], rep=rep)
         except: exit()
+    for a in model.atoms():
+        if not a.residue and not a.ligand and a.name:
+            model.remove(a)
     bond_atoms(model, m["connections"])
     return model
 

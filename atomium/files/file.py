@@ -291,3 +291,24 @@ class File:
             return self.generate_assembly(best["id"])
         else:
             return self._models[0]
+
+
+    def save(self, path):
+        """Saves the File to the location specified. The file extension in the
+        path given will be used to determine what file type to save as.
+
+        Currently supported extensions are .pdb and .xyz (.cif coming soon).
+
+        :param str path: The path to save to."""
+        
+        filestring = ""
+        if path.endswith(".xyz"):
+            from .xyz import file_to_xyz_string
+            filestring = file_to_xyz_string(self)
+        elif path.endswith(".pdb"):
+            from .pdb import file_to_pdb_string
+            filestring = file_to_pdb_string(self)
+        else:
+            raise ValueError("{} has an unknown file extension".format(path))
+        with open(path, "w") as f:
+            f.write(filestring)

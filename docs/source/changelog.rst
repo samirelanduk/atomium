@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+Release 0.11.0
+~~~~~~~~~~~~~~
+
+`22 August 2018`
+
+* Added .mmcif parsing.
+* Changed how parsing in general is done under the hood.
+* Added atom angle calculation.
+* Fixed bug where modified residues were treated as ligands if authors used HETATM records.
+
+
 Release 0.10.2
 ~~~~~~~~~~~~~~
 

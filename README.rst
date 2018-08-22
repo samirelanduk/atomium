@@ -1,9 +1,9 @@
 |travis| |coveralls| |pypi|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.10.2
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.11
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.10.2
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.11
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -39,7 +39,7 @@ atomium can be installed using pip:
 ``$ pip3 install atomium``
 
 atomium is written for Python 3, and does not support Python 2. It currently
-requires Python 3.5 and above.
+requires Python 3.5 or above.
 
 If you get permission errors, try using ``sudo``:
 
@@ -69,8 +69,8 @@ automatically when it installs atomium.
 Overview
 --------
 
-atomium is a Python library for opening and saving .pdb and .xyz files, and
-presenting and manipulating the information contained within.
+atomium is a Python library for opening and saving .pdb, .cif and .xyz files,
+and presenting and manipulating the information contained within.
 
 Loading Data
 ~~~~~~~~~~~~
@@ -80,25 +80,32 @@ Whist you can use atomium to create models from scratch to build an entirely
 data from an existing file...
 
 	>>> import atomium
-	>>> pdb1 = atomium.pdb_from_file('../1LOL.pdb')
-	>>> xyz1 = atomium.xyz_from_file('/structures/glucose.xyz')
+	>>> pdb1 = atomium.open('../1LOL.pdb')
+	>>> xyz1 = atomium.open('/structures/glucose.xyz')
+	>>> mmcif1 = atomium.open('/structures/1XDA.cif')
 	>>> pdb2 = atomium.fetch('5HVD')
+	>>> mmcif2 = atomium.fetch('5HVD.cif')
 
 In that latter case, you don't need the file to be saved locally - it will just
 go and grab the PDB with that code from the RCSB.
 
-The rest of this guide will focus on .pdb files. .xyz files are very simple
-structures, and the only annotation they really contain is a ``.title``.
+atomium will use the file extension you provide to decide how to parse it. If
+there isn't one, or it doesn't recognise the extension, it will peek at the
+file contents and try and guess whether it should be interpreted as .pdb, .cif
+or .xyz.
+
+The rest of this guide will focus on .pdb and .cif files. .xyz files are very
+simple structures, and the only annotation they really contain is a ``.title``.
 
 Using Data
 ~~~~~~~~~~
 
-Once you've got your ``Pdb`` object, what can you do with it?
+Once you've got your ``File`` object, what can you do with it?
 
 Annotation
 ##########
 
-There is various meta information contained within the ``Pdb`` object.
+There is various meta information contained within the ``File`` object.
 
     >>> pdb1.title
     'CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP'
@@ -108,7 +115,7 @@ There is various meta information contained within the ``Pdb`` object.
     ['TIM BARREL', 'LYASE']
     >>> pdb1.classification
     'LYASE'
-    >>> pdb1.organism
+    >>> pdb1.source_organism
     'METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H'
     >>> pdb1.resolution
     1.9
@@ -117,9 +124,9 @@ There is various meta information contained within the ``Pdb`` object.
     >>> pdb1.rfree
     0.229
 
-atomium doesn't currently parse *every* bit of information from .pdb files, but
-there is more than those shown above. See `the full API docs <api/pdb.html>`_
-for more details.
+atomium doesn't currently parse *every* bit of information from .pdb and .cif
+files, but there is more than those shown above. See
+`the full API docs <api/pdb.html>`_ for more details.
 
 Models and Assembly
 ###################
@@ -143,7 +150,7 @@ experiment. To create the 'real thing' from the asymmetric unit, you use
 
 Most .pdb files contain one or more biological assemblies - instructions for how
 to create a more realistic structure from the chains present, which in atomium
-are accessed using ``Pdb.biomolecules``.
+are accessed using ``File.biomolecules``.
 
 In practice, what you need to know is that you can create a new model - not the
 one already there containing the asymmetric unit - as follows...
@@ -339,17 +346,20 @@ Saving Data
 
 A model can be saved to file using:
 
-  >>> model.save("new.xyz", description="Modifed glucose")
+  >>> model.save("new.xyz")
   >>> model.save("new.pdb")
 
 Any structure can be saved in this way, so you can save chains or molecules to
 their own seperate files if you so wish.
 
+(Currently atomium doesn't support .cif saving, but that is planned for a future
+release.)
+
   >>> model.chain("A").save("chainA.pdb")
   >>> model.chain("B").save("chainB.pdb")
   >>> model.ligand(name="XMP").save("ligand.xyz")
 
-The ``Pdb`` or ``Xyz`` object itself can also be saved:
+The ``File`` object itself can also be saved:
 
   >>> pdb.title = "Modified PDB"
   >>> pdb.save("new.pdb")
@@ -361,6 +371,17 @@ results.
 
 Changelog
 ---------
+
+Release 0.11.0
+~~~~~~~~~~~~~~
+
+`22 August 2018`
+
+* Added .mmcif parsing.
+* Changed how parsing in general is done under the hood.
+* Added atom angle calculation.
+* Fixed bug where modified residues were treated as ligands if authors used HETATM records.
+
 
 Release 0.10.2
 ~~~~~~~~~~~~~~

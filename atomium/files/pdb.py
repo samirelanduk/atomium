@@ -342,7 +342,9 @@ def atom_line_to_atom_dict(line, polymer=True):
             a["charge"] = int(line[72:76].strip())
         except: a["charge"] = int(line[72:76][::-1].strip())
     a["full_res_id"] = "{}{}{}".format(
-     a["chain_id"] or "", str(a["residue_id"] or "") or "", a["residue_insert"]
+     a["chain_id"] or "",
+     str(a["residue_id"] if a["residue_id"] is not None else "") or "",
+     a["residue_insert"]
     ) or None
     a["polymer"] = polymer
     return a

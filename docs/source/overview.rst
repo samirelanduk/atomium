@@ -114,27 +114,28 @@ The basic structures within a model are chains, residues, ligands, and atoms.
     >>> pdb1.model.chain('B')
     <Chain (B, 1748 atoms)>
     >>> pdb1.model.residues(name='TYR')
-    {<Residue TYR (A206, 12 atoms)>, <Residue TYR (A45, 12 atoms)>, <Residue TYR
-     (A37, 12 atoms)>, <Residue TYR (B1154, 12 atoms)>, <Residue TYR (B1206, 12
-    atoms)>, <Residue TYR (A154, 12 atoms)>, <Residue TYR (B1045, 12 atoms)>, <R
-    esidue TYR (B1037, 12 atoms)>}
+    {<Residue TYR (A:206, 12 atoms)>, <Residue TYR (A:45, 12 atoms)>, <Residue T
+	YR (A:37, 12 atoms)>, <Residue TYR (B:1154, 12 atoms)>, <Residue TYR (B:1206
+	, 12 atoms)>, <Residue TYR (A:154, 12 atoms)>, <Residue TYR (B:1045, 12 atom
+	s)>, <Residue TYR (B:1037, 12 atoms)>}
     >>> pdb1.model.residues(name_regex='TYR|PRO')
-    {<Residue PRO (B1046, 7 atoms)>, <Residue TYR (A37, 12 atoms)>, <Residue PRO
-     (A157, 7 atoms)>, <Residue TYR (B1206, 12 atoms)>, <Residue PRO (B1228, 7 a
-    toms)>, <Residue PRO (A211, 7 atoms)>, <Residue PRO (B1077, 7 atoms)>, <Resi
-    due PRO (B1129, 7 atoms)>, <Residue TYR (A45, 12 atoms)>, <Residue TYR (A154
-    , 12 atoms)>, <Residue PRO (A180, 7 atoms)>, <Residue PRO (B1157, 7 atoms)>,
-    <Residue TYR (B1037, 12 atoms)>, <Residue TYR (A206, 12 atoms)>, <Residue PR
-    O (B1189, 7 atoms)>, <Residue PRO (A161, 7 atoms)>, <Residue PRO (A101, 7 at
-    oms)>, <Residue PRO (A46, 7 atoms)>, <Residue TYR (B1045, 12 atoms)>, <Resid
-    ue PRO (A77, 7 atoms)>, <Residue PRO (A129, 7 atoms)>, <Residue PRO (B1211,
-    7 atoms)>, <Residue TYR (B1154, 12 atoms)>, <Residue PRO (B1180, 7 atoms)>,
-    <Residue PRO (B1101, 7 atoms)>, <Residue PRO (B1161, 7 atoms)>}
-    >>> pdb1.model.chain('B').residue('B1206')
-    <Residue TYR (B1206, 12 atoms)>
+    {<Residue PRO (B:1046, 7 atoms)>, <Residue TYR (A:37, 12 atoms)>, <Residue P
+	RO (A:157, 7 atoms)>, <Residue TYR (B:1206, 12 atoms)>, <Residue PRO (B:1228
+	, 7 atoms)>, <Residue PRO (A:211, 7 atoms)>, <Residue PRO (B:1077, 7 atoms)>
+	, <Residue PRO (B:1129, 7 atoms)>, <Residue TYR (A:45, 12 atoms)>, <Residue
+	TYR (A:154, 12 atoms)>, <Residue PRO (A:180, 7 atoms)>, <Residue PRO (B:1157
+	, 7 atoms)>, <Residue TYR (B:1037, 12 atoms)>, <Residue TYR (A:206, 12 atoms
+	)>, <Residue PRO (B:1189, 7 atoms)>, <Residue PRO (A:161, 7 atoms)>, <Residu
+	e PRO (A:101, 7 atoms)>, <Residue PRO (A46, 7 atoms)>, <Residue TYR (B1045,
+	12 atoms)>, <Residue PRO (A:77, 7 atoms)>, <Residue PRO (A:129, 7 atoms)>, <
+	Residue PRO (B:1211, 7 atoms)>, <Residue TYR (B1154, 12 atoms)>, <Residue PR
+	O (B1180, 7 atoms)>, <Residue PRO (B:1101, 7 atoms)>, <Residue PRO (B:1161,
+	7 atoms)>}
+    >>> pdb1.model.chain('B').residue('B:1206')
+    <Residue TYR (B:1206, 12 atoms)>
     >>> pdb1.model.ligands(water=False)
-    {<Ligand XMP (B2002, 24 atoms)>, <Ligand BU2 (A5001, 6 atoms)>, <Ligand XMP
-    (A2001, 24 atoms)>, <Ligand BU2 (B5002, 6 atoms)>}
+    {<Ligand XMP (B:2002, 24 atoms)>, <Ligand BU2 (A:5001, 6 atoms)>, <Ligand XM
+	P (A:2001, 24 atoms)>, <Ligand BU2 (B:5002, 6 atoms)>}
     >>> pdb1.model.ligand(name='BU2').atoms()
     {<C (C1) Atom 3194 at (2.646, 45.112, 48.995)>, <C (C4) Atom 3199 at (-0.456
     , 44.629, 51.162)>, <C (C3) Atom 3197 at (0.706, 44.197, 50.309)>, <O (O3) A
@@ -165,33 +166,33 @@ unique atom pairs in the structure. These can obviously get very big indeed - a
 
 Structures can be moved around and otherwise compared with each other...
 
-    >>> pdb1.model.ligand(id='B2002').mass
+    >>> pdb1.model.ligand(id='B:2002').mass
     351.1022
-    >>> pdb1.model.ligand(id='B2002').formula
+    >>> pdb1.model.ligand(id='B:2002').formula
     Counter({'C': 10, 'O': 9, 'N': 4, 'P': 1})
-    >>> pdb1.model.ligand(id='B2002').nearby_atoms(2.8)
+    >>> pdb1.model.ligand(id='B:2002').nearby_atoms(2.8)
     {<O (O) Atom 3377 at (-24.077, 59.423, 53.919)>, <O (O) Atom 3418 at (-14.53
     5, 62.938, 57.757)>, <O (OD1) Atom 1636 at (-22.92, 57.72, 52.315)>}
-    >>> pdb1.model.ligand(id='B2002').nearby_atoms(2.8, name='OD1')
+    >>> pdb1.model.ligand(id='B:2002').nearby_atoms(2.8, name='OD1')
     {<O (OD1) Atom 1636 at (-22.92, 57.72, 52.315)>}
-    >>> pdb1.model.ligand(id='B2002').nearby_residues(2.8)
+    >>> pdb1.model.ligand(id='B:2002').nearby_residues(2.8)
     {<Residue ASP (B1020, 8 atoms)>}
-    >>> pdb1.model.ligand(id='B2002').nearby_residues(2.8, ligands=True)
+    >>> pdb1.model.ligand(id='B:2002').nearby_residues(2.8, ligands=True)
     {<Ligand HOH (B3155, 1 atom)>, <Ligand HOH (B3059, 1 atom)>, <Residue ASP (B
     1020, 8 atoms)>}
     >>> import math
-    >>> pdb1.model.ligand(id='B2002').rotate(math.pi / 2, 'x')
-    >>> pdb1.model.ligand(id='B2002').translate(10, 10, 15)
-    >>> pdb1.model.ligand(id='B2002').center_of_mass
+    >>> pdb1.model.ligand(id='B:2002').rotate(math.pi / 2, 'x')
+    >>> pdb1.model.ligand(id='B:2002').translate(10, 10, 15)
+    >>> pdb1.model.ligand(id='B:2002').center_of_mass
     (-9.886734282781484, -42.558415679537184, 77.33400578435568)
-    >>> pdb1.model.ligand(id='B2002').radius_of_gyration
+    >>> pdb1.model.ligand(id='B:2002').radius_of_gyration
     3.6633506511540825
-    >>> pdb1.model.ligand(id='B2002').rmsd_with(pdb1.model.ligand(id='A2001'))
+    >>> pdb1.model.ligand(id='B:2002').rmsd_with(pdb1.model.ligand(id='A2001'))
     90.55588214099254
     >>> other_ligand = pdb1.model.ligand(id='A2001')
-    >>> pdb1.model.ligand(id='B2002').rmsd_with(other_ligand)
+    >>> pdb1.model.ligand(id='B:2002').rmsd_with(other_ligand)
     90.55588214099254
-    >>> pdb1.model.ligand(id='B2002').rmsd_with(other_ligand, superimpose=True)
+    >>> pdb1.model.ligand(id='B:2002').rmsd_with(other_ligand, superimpose=True)
     0.13325557235580035
 
 Here we look at one of the ligands, identify its mass and molecular formula,
@@ -224,7 +225,7 @@ The :py:class:`.Atom` objects themselves have their own useful properties.
     >>> pdb1.model.atom(97).is_metal
     False
     >>> pdb1.model.atom(97).residue
-    <Residue ASN (A23, 8 atoms)>
+    <Residue ASN (A:23, 8 atoms)>
     >>> pdb1.model.atom(97).chain
     <Chain (A, 1683 atoms)>
 
@@ -240,8 +241,9 @@ indexable, and return their residues as a tuple, not a set...
     >>> pdb1.model.chain('A')[10]
     <Residue LEU (A21, 8 atoms)>
     >>> pdb1.model.chain('A').residues()[:5]
-    (<Residue VAL (A11, 7 atoms)>, <Residue MET (A12, 8 atoms)>, <Residue ASN (A
-    13, 8 atoms)>, <Residue ARG (A14, 11 atoms)>, <Residue LEU (A15, 8 atoms)>)
+    (<Residue VAL (A:11, 7 atoms)>, <Residue MET (A:12, 8 atoms)>, <Residue ASN
+	(A:13, 8 atoms)>, <Residue ARG (A:14, 11 atoms)>, <Residue LEU (A:15, 8 atom
+	s)>)
     >>> pdb1.model.chain('A').sequence
     'VMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICR
     ATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRP
@@ -260,18 +262,18 @@ missing from the model for practical reasons.
 Residues can generate name information based on their three letter code, and are
 aware of their immediate neighbors.
 
-    >>> pdb1.model.residue('A100')
+    >>> pdb1.model.residue('A:100')
     <Residue PHE (A100, 11 atoms)>
-    >>> pdb1.model.residue('A100').name
+    >>> pdb1.model.residue('A:100').name
     'PHE'
-    >>> pdb1.model.residue('A100').code
+    >>> pdb1.model.residue('A:100').code
     'F'
-    >>> pdb1.model.residue('A100').full_name
+    >>> pdb1.model.residue('A:100').full_name
     'phenylalanine'
-    >>> pdb1.model.residue('A100').next
-    <Residue PRO (A101, 7 atoms)>
+    >>> pdb1.model.residue('A:100').next
+    <Residue PRO (A:101, 7 atoms)>
     >>> pdb1.model.residue('A100').previous
-    <Residue GLY (A99, 4 atoms)>
+    <Residue GLY (A:99, 4 atoms)>
 
 Saving Data
 ~~~~~~~~~~~

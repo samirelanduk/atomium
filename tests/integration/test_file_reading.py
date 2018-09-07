@@ -83,17 +83,17 @@ class DataDictReadingTests(IntegratedTest):
             self.assertEqual(len(chain["full_sequence"]), 229)
         self.assertEqual(len(model["residues"]), 418)
         self.assertEqual(model["residues"][0], {
-         "id": "A11", "name": "VAL", "chain_id": "A"
+         "id": "A:11", "name": "VAL", "chain_id": "A"
         })
         self.assertEqual(model["residues"][-1], {
-         "id": "B1229", "name": "GLU", "chain_id": "B"
+         "id": "B:1229", "name": "GLU", "chain_id": "B"
         })
         self.assertEqual(len(model["ligands"]), 184)
         self.assertEqual(model["ligands"][0], {
-         "id": "A5001", "name": "BU2", "chain_id": "A"
+         "id": "A:5001", "name": "BU2", "chain_id": "A"
         })
         self.assertEqual(model["ligands"][-1], {
-         "id": "B3180", "name": "HOH", "chain_id": "B"
+         "id": "B:3180", "name": "HOH", "chain_id": "B"
         })
         self.assertEqual(len(model["atoms"]), 3431)
         self.assertEqual(model["atoms"][0], {
@@ -113,7 +113,7 @@ class DataDictReadingTests(IntegratedTest):
          "alt_loc": None,
          "anisotropy": [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328],
          "polymer": True,
-         "full_res_id": "A11"
+         "full_res_id": "A:11"
         })
         self.assertEqual(len(model["connections"]), 60)
         self.assertEqual(
@@ -161,7 +161,7 @@ class DataDictReadingTests(IntegratedTest):
          "alt_loc": "A",
          "anisotropy": [0, 0, 0, 0, 0, 0],
          "polymer": True,
-         "full_res_id": "A1"
+         "full_res_id": "A:1"
         })
 
 
@@ -274,17 +274,17 @@ class DataDictReadingTests(IntegratedTest):
             self.assertEqual(len(chain["full_sequence"]), 229)
         self.assertEqual(len(model["residues"]), 418)
         self.assertEqual(model["residues"][0], {
-         "id": "A11", "name": "VAL", "chain_id": "A"
+         "id": "A:11", "name": "VAL", "chain_id": "A"
         })
         self.assertEqual(model["residues"][-1], {
-         "id": "B1229", "name": "GLU", "chain_id": "B"
+         "id": "B:1229", "name": "GLU", "chain_id": "B"
         })
         self.assertEqual(len(model["ligands"]), 184)
         self.assertEqual(model["ligands"][0], {
-         "id": "A5001", "name": "BU2", "chain_id": "A"
+         "id": "A:5001", "name": "BU2", "chain_id": "A"
         })
         self.assertEqual(model["ligands"][-1], {
-         "id": "B3180", "name": "HOH", "chain_id": "B"
+         "id": "B:3180", "name": "HOH", "chain_id": "B"
         })
         self.assertEqual(len(model["atoms"]), 3431)
         self.assertEqual(model["atoms"][0], {
@@ -304,7 +304,7 @@ class DataDictReadingTests(IntegratedTest):
          "alt_loc": None,
          "anisotropy": [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328],
          "polymer": True,
-         "full_res_id": "A11"
+         "full_res_id": "A:11"
         })
         self.assertEqual(len(model["connections"]), 0)
 
@@ -346,7 +346,7 @@ class DataDictReadingTests(IntegratedTest):
          "alt_loc": "A",
          "anisotropy": [0, 0, 0, 0, 0, 0],
          "polymer": True,
-         "full_res_id": "A1"
+         "full_res_id": "A:1"
         })
 
 
@@ -486,7 +486,7 @@ class FileReadingTests(IntegratedTest):
         self.assertTrue(chaina.rep_sequence.endswith("LADNPAAAAAGIIESIKDLLIPE"))
         self.assertTrue(chainb.rep_sequence.startswith("LRSRRVDVMDVMNRLILAMDL"))
         self.assertTrue(chainb.rep_sequence.endswith("LADNPAAAAAGIIESIKDLLIPE"))
-        residue = chaina.residue("A13")
+        residue = chaina.residue("A:13")
         self.assertEqual(residue.name, "ASN")
         self.assertEqual(len(residue.atoms()), 8)
         self.assertEqual(len(residue.atoms(element="O")), 2)
@@ -494,7 +494,7 @@ class FileReadingTests(IntegratedTest):
             self.assertIs(atom.residue, residue)
             self.assertIs(atom.chain, chaina)
             self.assertIs(atom.model, model)
-        gly = chaina.residue(id="A32")
+        gly = chaina.residue(id="A:32")
         pairs = list(gly.pairwise_atoms())
         self.assertEqual(len(pairs), 6)
         for pair in pairs:
@@ -507,12 +507,12 @@ class FileReadingTests(IntegratedTest):
         self.assertEqual(len(model.ligands(name="XMP")), 2)
         self.assertEqual(len(model.ligands(name="BU2")), 2)
         self.assertEqual(len(model.ligands(name="HOH")), 180)
-        mol = model.ligand(id="A2001")
+        mol = model.ligand(id="A:2001")
         self.assertIs(mol.model, model)
         self.assertEqual(mol.name, "XMP")
         self.assertEqual(len(mol.atoms()), 24)
         self.assertEqual(mol.formula, {"C": 10, "O": 9, "N": 4, "P": 1})
-        mol1, mol2 = model.ligand("A5001"), model.ligand("B5002")
+        mol1, mol2 = model.ligand("A:5001"), model.ligand("B:5002")
         self.assertEqual(mol1.pairing_with(mol2), {
          model.atom(3194): model.atom(3224),
          model.atom(3195): model.atom(3225),
@@ -543,8 +543,8 @@ class FileReadingTests(IntegratedTest):
         self.assertEqual(cb.bonded_atoms, set([ca, cg1, cg2]))
         self.assertEqual(cg1.bonded_atoms, set([cb]))
         self.assertEqual(cg2.bonded_atoms, set([cb]))
-        res181 = chaina.residue("A181")
-        res190 = chaina.residue("A190")
+        res181 = chaina.residue("A:181")
+        res190 = chaina.residue("A:190")
         c2, n2 = res181.atom(name="C"), res190.atom(name="N")
         self.assertNotIn(c2, n2.bonded_atoms)
         self.assertNotIn(n2, c2.bonded_atoms)
@@ -570,16 +570,16 @@ class FileReadingTests(IntegratedTest):
         self.assertEqual(len(model.atoms_in_sphere(*atom.location, radius=4, element="O")), 1)
 
         # 'Bindsites' are correct
-        nearby = model.ligand("A5001").nearby_residues(4)
+        nearby = model.ligand("A:5001").nearby_residues(4)
         self.assertEqual(nearby, set([
-         model.residue("A42"), model.residue("A70"), model.residue("A72"),
-         model.residue("A96"), model.residue("A123"), model.residue("A155")
+         model.residue("A:42"), model.residue("A:70"), model.residue("A:72"),
+         model.residue("A:96"), model.residue("A:123"), model.residue("A:155")
         ]))
-        nearby = model.ligand("A5001").nearby_residues(4, ligands=True)
+        nearby = model.ligand("A:5001").nearby_residues(4, ligands=True)
         self.assertEqual(nearby, set([
-         model.residue("A42"), model.residue("A70"), model.residue("A72"),
-         model.residue("A96"), model.residue("A123"), model.residue("A155"),
-         model.ligand("A3015"), model.ligand("A2001")
+         model.residue("A:42"), model.residue("A:70"), model.residue("A:72"),
+         model.residue("A:96"), model.residue("A:123"), model.residue("A:155"),
+         model.ligand("A:3015"), model.ligand("A:2001")
         ]))
 
 

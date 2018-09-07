@@ -407,8 +407,9 @@ def atom_line_to_atom_dict(d):
     for row in table:
         if d[row[2]] not in "?.":
             a[row[0]] = row[1](d[row[2]])
-    a["full_res_id"] = "{}{}{}".format(
+    a["full_res_id"] = "{}:{}{}".format(
      a["chain_id"] or "", str(a["residue_id"] or "") or "", a["residue_insert"]
-    ) or None
+    )
+    if a["full_res_id"] == ":": a["full_res_id"] = None
     a["polymer"] = d["label_seq_id"] != "."
     return a

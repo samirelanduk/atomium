@@ -553,7 +553,7 @@ class AtomLineToAtomDictTests(TestCase):
          "chain_id": "B", "residue_id": 13, "residue_insert": "C",
          "x": 199.639, "y": 91.034, "z": -25.211,
          "occupancy": 0.7, "bfactor": 11.21, "anisotropy": [],
-         "element": "O", "charge": -2, "polymer": True, "full_res_id": "B13C"
+         "element": "O", "charge": -2, "polymer": True, "full_res_id": "B:13C"
         })
 
 
@@ -566,5 +566,5 @@ class AtomLineToAtomDictTests(TestCase):
          "chain_id": "B", "residue_id": 13, "residue_insert": "C",
          "x": 199.639, "y": 91.034, "z": -25.211,
          "occupancy": 0.7, "bfactor": 11.21, "anisotropy": [],
-         "element": "O", "charge": -2, "polymer": False, "full_res_id": "B13C"
+         "element": "O", "charge": -2, "polymer": False, "full_res_id": "B:13C"
         })

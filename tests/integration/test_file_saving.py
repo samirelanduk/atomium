@@ -108,7 +108,7 @@ class StructureSavingTests(IntegratedTest):
         self.assertEqual(len(model.chains()), 1)
 
         # Save molecules
-        pdb.model.ligand("A5001").save("tests/integration/files/5001.pdb")
+        pdb.model.ligand("A:5001").save("tests/integration/files/5001.pdb")
         self.check_files_the_same("5001.pdb", "5001_output.pdb")
         new = atomium.open("tests/integration/files/5001.pdb")
         model = new.model

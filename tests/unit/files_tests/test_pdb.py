@@ -525,7 +525,7 @@ class AtomLineToAtomDictTests(TestCase):
          "chain_id": "B", "residue_id": 13, "residue_insert": "C",
          "x": 12.681, "y": 37.302, "z": -25.211,
          "occupancy": 0.7, "bfactor": 15.56, "anisotropy": [],
-         "element": "N", "charge": -2, "polymer": True, "full_res_id": "B13C"
+         "element": "N", "charge": -2, "polymer": True, "full_res_id": "B:13C"
         })
 
 

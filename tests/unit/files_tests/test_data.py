@@ -93,7 +93,26 @@ class ModelDictToModelTests(TestCase):
     @patch("atomium.files.data.bond_atoms")
     def test_can_convert_model_dict_to_model(self, mock_bond, mock_chain, mock_het, mock_mod, mock_atom):
         m = {
-         "atoms": [1, 2, 3],  "connections": [],
+         "atoms": [
+          {"chain_id": "A", "full_res_id": "A1"},
+          {"chain_id": "A", "full_res_id": "A1"},
+          {"chain_id": "A", "full_res_id": "A2"},
+          {"chain_id": "A", "full_res_id": "A2"},
+          {"chain_id": "A", "full_res_id": "A3"},
+          {"chain_id": "A", "full_res_id": "A3"},
+          {"chain_id": "B", "full_res_id": "B1"},
+          {"chain_id": "B", "full_res_id": "B1"},
+          {"chain_id": "B", "full_res_id": "B2"},
+          {"chain_id": "B", "full_res_id": "B2"},
+          {"chain_id": "B", "full_res_id": "B3"},
+          {"chain_id": "B", "full_res_id": "B3"},
+          {"chain_id": "A", "full_res_id": "A100"},
+          {"chain_id": "A", "full_res_id": "A100"},
+          {"chain_id": "A", "full_res_id": "A200"},
+          {"chain_id": "A", "full_res_id": "A200"},
+          {"chain_id": "B", "full_res_id": "B100"},
+          {"chain_id": "B", "full_res_id": "B100"},
+         ],  "connections": [],
          "residues": [
           {"id": "A1", "name": "MET", "chain_id": "A"},
           {"id": "A2", "name": "TYR", "chain_id": "A"},
@@ -112,17 +131,17 @@ class ModelDictToModelTests(TestCase):
           {"id": "B", "full_sequence": ["PLO", "HIS"]}
          ]
         }
-        mock_atom.side_effect = lambda a: str(a)
+        mock_atom.side_effect = lambda a: a["full_res_id"] + "_"
         mod = Mock(atoms=lambda: [])
         mock_mod.return_value = mod
         residues = [Mock() for _ in range(6)]
         ligands = [Mock() for _ in range(3)]
         mock_het.side_effect = residues[:3] + ligands[:2] + residues[3:] + ligands[-1:]
         model = model_dict_to_model(m)
-        for n in (1, 2, 3): mock_atom.assert_any_call(n)
-        mock_mod.assert_called_with("1", "2", "3")
-        for res in m["residues"]: mock_het.assert_any_call(res, [1, 2, 3], mod)
-        for res in m["ligands"]: mock_het.assert_any_call(res, [1, 2, 3], mod)
+        for n in m["atoms"]: mock_atom.assert_any_call(n)
+        mock_mod.assert_called_with(*[a["full_res_id"] + "_" for a in m["atoms"]])
+        for res in m["residues"] + m["ligands"]:
+            mock_het.assert_any_call([a for a in m["atoms"] if a["full_res_id"] == res["id"]], res, mod)
         self.assertIs(residues[0].next, residues[1])
         self.assertIs(residues[1].next, residues[2])
         self.assertIs(residues[3].next, residues[4])
@@ -177,13 +196,11 @@ class HetCreationTests(TestCase):
         model = Mock()
         model.atom.side_effect = [1, 2, 3]
         atoms = [
-         {"full_res_id": "A0", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 1},
          {"full_res_id": "A1", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 2},
          {"full_res_id": "A1", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 3},
          {"full_res_id": "A1", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 4},
-         {"full_res_id": "A2", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 5},
         ]
-        het = create_het(res, atoms, model)
+        het = create_het(atoms, res, model)
         for n in (2, 3, 4): model.atom.assert_any_call(n)
         mock_res.assert_called_with(1, 2, 3, id="A1", name="TYR")
         self.assertIs(het, mock_res.return_value)
@@ -195,13 +212,11 @@ class HetCreationTests(TestCase):
         model = Mock()
         model.atom.side_effect = [1, 2, 3]
         atoms = [
-         {"full_res_id": "A0", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 1},
          {"full_res_id": "A1", "polymer": False, "occupancy": 1, "alt_loc": None, "id": 2},
          {"full_res_id": "A1", "polymer": False, "occupancy": 1, "alt_loc": None, "id": 3},
          {"full_res_id": "A1", "polymer": False, "occupancy": 1, "alt_loc": None, "id": 4},
-         {"full_res_id": "A2", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 5},
         ]
-        het = create_het(res, atoms, model)
+        het = create_het(atoms, res, model)
         for n in (2, 3, 4): model.atom.assert_any_call(n)
         mock_lig.assert_called_with(1, 2, 3, id="A1", name="TYR")
         self.assertIs(het, mock_lig.return_value)
@@ -213,16 +228,14 @@ class HetCreationTests(TestCase):
         model = Mock()
         model.atom.side_effect = [1, 2, 3, 4]
         atoms = [
-         {"full_res_id": "A0", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 1},
          {"full_res_id": "A1", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 2},
          {"full_res_id": "A1", "polymer": True, "occupancy": 1, "alt_loc": "A", "id": 3},
          {"full_res_id": "A1", "polymer": True, "occupancy": 0.7, "alt_loc": "A", "id": 4},
          {"full_res_id": "A1", "polymer": True, "occupancy": 0.3, "alt_loc": "B", "id": 5},
          {"full_res_id": "A1", "polymer": True, "occupancy": 0.4, "alt_loc": "A", "id": 6},
          {"full_res_id": "A1", "polymer": True, "occupancy": 0.6, "alt_loc": "B", "id": 7},
-         {"full_res_id": "A2", "polymer": True, "occupancy": 1, "alt_loc": None, "id": 8},
         ]
-        het = create_het(res, atoms, model)
+        het = create_het(atoms, res, model)
         for n in (2, 3, 4, 6): model.atom.assert_any_call(n)
         mock_res.assert_called_with(1, 2, 3, 4, id="A1", name="TYR")
         self.assertIs(het, mock_res.return_value)

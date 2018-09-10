@@ -59,20 +59,28 @@ def model_dict_to_model(m):
 
     atoms = [atom_dict_to_atom(a) for a in m["atoms"]]
     model = Model(*atoms)
-    for chain in m["chains"]:
-        residues = [r for r in m["residues"] if r["chain_id"] == chain["id"]]
-        ligands = [l for l in m["ligands"] if l["chain_id"] == chain["id"]]
-        residue_objects, ligand_objects = [], []
-        for residue in residues:
-            residue_objects.append(create_het(residue, m["atoms"], model))
-        for res1, res2 in zip(residue_objects[:-1], residue_objects[1:]):
-            res1.next = res2
-        for ligand in ligands:
-            ligand_objects.append(create_het(ligand, m["atoms"], model))
-        rep = "".join([CODES.get(res, "X") for res in chain["full_sequence"]])
-        try:
-            Chain(*(residue_objects + ligand_objects), id=chain["id"], rep=rep)
-        except: exit()
+    if m["chains"]:
+        atom_dicts = sorted(m["atoms"], key=lambda a: a["chain_id"])
+        chains = [list(group[1]) for group in
+         groupby(atom_dicts, key=lambda a: a["chain_id"])]
+        res_dict = {res["id"]: res for res in m["residues"]}
+        lig_dict = {lig["id"]: lig for lig in m["ligands"]}
+        for chain in chains:
+            hets = [list(group[1]) for group in
+             groupby(chain, key=lambda a: a["full_res_id"])]
+            residue_objects, ligand_objects = [], []
+            for het in hets:
+                try:
+                    d = res_dict[het[0]["full_res_id"]]
+                    residue_objects.append(create_het(het, d, model))
+                except KeyError:
+                    d = lig_dict[het[0]["full_res_id"]]
+                    ligand_objects.append(create_het(het, d, model))
+            for res1, res2 in zip(residue_objects[:-1], residue_objects[1:]):
+                res1.next = res2
+            c_dict = [c for c in m["chains"] if c["id"] == chain[0]["chain_id"]][0]
+            rep = "".join([CODES.get(res, "X") for res in c_dict["full_sequence"]])
+            Chain(*(residue_objects + ligand_objects), id=c_dict["id"], rep=rep)
     for a in model.atoms():
         if not a.residue and not a.ligand and a.name:
             model.remove(a)
@@ -94,7 +102,7 @@ def atom_dict_to_atom(atom_dict):
     )
 
 
-def create_het(het, atom_dicts, model):
+def create_het(het_atom_dicts, het_dict, model):
     """Creates either a :py:class:`.Residue` or :py:class:`.Ligand` from the
     relevant dictionary, as well as a source of atom dictionaries and a
     :py:class:`.Model` to update.
@@ -104,16 +112,15 @@ def create_het(het, atom_dicts, model):
     :param Model model: The :py:class:`.Model` to update.
     :rtype: ``Ligand`` or ``Residue``"""
 
-    atom_dicts = [a for a in atom_dicts if a["full_res_id"] == het["id"]]
     alt_loc = None
-    if any([atom["occupancy"] < 1 for atom in atom_dicts]):
-        if any([atom["alt_loc"] for atom in atom_dicts]):
+    if any([atom["occupancy"] < 1 for atom in het_atom_dicts]):
+        if any([atom["alt_loc"] for atom in het_atom_dicts]):
             alt_loc = sorted([atom["alt_loc"]
-             for atom in atom_dicts if atom["alt_loc"]])[0]
-    atoms = [model.atom(a["id"]) for a in atom_dicts if a["occupancy"] == 1
+             for atom in het_atom_dicts if atom["alt_loc"]])[0]
+    atoms = [model.atom(a["id"]) for a in het_atom_dicts if a["occupancy"] == 1
      or a["alt_loc"] is None or a["alt_loc"] == alt_loc]
-    Het = Residue if atom_dicts[0]["polymer"] else Ligand
-    return Het(*atoms, id=het["id"], name=het["name"])
+    Het = Residue if het_atom_dicts[0]["polymer"] else Ligand
+    return Het(*atoms, id=het_dict["id"], name=het_dict["name"])
 
 
 def bond_atoms(model, connections):

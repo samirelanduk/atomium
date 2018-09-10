@@ -350,8 +350,8 @@ class ModelsListUpdatingTests(TestCase):
           {"pdbx_PDB_model_num": 2, "id": 6}
          ],
          "pdbx_poly_seq_scheme": [
-          {"asym_id": "A", "mon_id": "VAL"}, {"asym_id": "A", "mon_id": "TYR"},
-          {"asym_id": "B", "mon_id": "TRP"}, {"asym_id": "B", "mon_id": "MET"},
+          {"pdb_strand_id": "A", "mon_id": "VAL"}, {"pdb_strand_id": "A", "mon_id": "TYR"},
+          {"pdb_strand_id": "B", "mon_id": "TRP"}, {"pdb_strand_id": "B", "mon_id": "MET"},
          ],
          "atom_site_anisotrop": [
           {"id": 3, "U[1][1]": 123, "U[1][2]": 234, "U[1][3]": 345,

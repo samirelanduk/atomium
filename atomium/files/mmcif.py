@@ -297,7 +297,7 @@ def update_models_list(mmcif_dict, data_dict):
     for model in data_dict["models"]:
         for res in mmcif_dict.get("pdbx_poly_seq_scheme", []):
             for chain in model["chains"]:
-                if res["asym_id"] == chain["id"]:
+                if res["pdb_strand_id"] == chain["id"]:
                     chain["full_sequence"].append(res["mon_id"])
         for atom in model["atoms"]:
             for anisou in mmcif_dict.get("atom_site_anisotrop", []):

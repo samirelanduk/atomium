@@ -374,14 +374,11 @@ def extract_sequence(pdb_dict, model_list):
 
     sequences = {}
     if pdb_dict.get("SEQRES"):
-        text = merge_lines(pdb_dict["SEQRES"], 4)
-        blocks, code = text.split(), None
-        blocks = [b for b in blocks if not b.isdigit()]
-        for block in blocks:
-            if len(block) == 1 and block not in sequences:
-                sequences[block], code = [], block
-            elif code and not len(block) == 1:
-                sequences[code].append(block)
+        for line in pdb_dict["SEQRES"]:
+            chain, residues = line[5], line[13:].strip().split()
+            if chain not in sequences:
+                sequences[chain] = []
+            sequences[chain] += residues
     for model in model_list:
         for chain in model["chains"]:
             chain["full_sequence"] = sequences.get(chain["id"], [])

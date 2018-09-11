@@ -571,10 +571,10 @@ class SequenceExtractionTests(TestCase):
         self.assertEqual(m, self.models)
 
 
-    @patch("atomium.files.pdb.merge_lines")
-    def test_sequence_extraction(self, mock_merge):
-        mock_merge.return_value = "C 15 JHY FRT C 15 FDR D YTR"
-        extract_sequence({"SEQRES": ["line1", "line2"]}, self.models)
+    def test_sequence_extraction(self,):
+        extract_sequence({"SEQRES": [
+         "   1 C  271  JHY FRT ", "   1 C  271  FDR", "   1 D  271  YTR"
+        ]}, self.models)
         for model in self.models:
             self.assertEqual(model["chains"], [
              {"id": "C", "full_sequence": ["JHY", "FRT", "FDR"]},

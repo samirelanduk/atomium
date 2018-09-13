@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+Release 0.11.1
+~~~~~~~~~~~~~~
+
+`13 September 2018`
+
+* Fixed bug pertaining to residues with ID 0.
+* Fixed bug pertaining to SEQRES parsing when chain ID is numeric.
+* Changed format of residue IDs to include colon.
+* Considerable speed improvements in .mmcif parsing.
+
+
 Release 0.11.0
 ~~~~~~~~~~~~~~
 

@@ -19,6 +19,6 @@ setup(
   "Programming Language :: Python :: 3.7",
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules PDB XYZ",
- packages=["atomium", "atomium.files", "atomium.models"],
- install_requires=["numpy", "requests", "rmsd", "paramiko"]
+ packages=["atomium"],
+ install_requires=["numpy", "requests", "rmsd", "paramiko", "msgpack"]
 )

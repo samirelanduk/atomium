@@ -3,7 +3,10 @@ import subprocess
 import os
 
 # What files do we want to time?
-files = ["1lol.cif", "5xme.cif", "4v6x.cif"]
+files = [
+ "1lol.cif", "5xme.cif", "4v6x.cif",
+ "1lol.mmtf", "4v6x.mmtf"
+]
 
 # Make a directory for these profiles
 now = datetime.now().strftime("%Y-%m-%d_%H%M%S")

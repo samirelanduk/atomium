@@ -1,6 +1,7 @@
 numpy
 requests
 rmsd
+msgpack
 python-coveralls
 sphinx
 sphinx_rtd_theme

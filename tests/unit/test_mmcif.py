@@ -252,6 +252,13 @@ class MmcifDictTransferTests(TestCase):
         self.m = {"M": [{10: "ten", 11: "2018-09-17"}], "N": [{12: "tw"}, {12: "tw2"}]}
 
 
+    def test_can_do_nothing(self):
+        mmcif_to_data_transfer(self.m, self.d, "A", 1, "X", 10)
+        self.assertEqual(self.d["A"][1], None)
+        mmcif_to_data_transfer(self.m, self.d, "A", 1, "M", 100)
+        self.assertEqual(self.d["A"][1], None)
+
+
     def test_can_transfer_from_mmcif_to_data_dict(self):
         mmcif_to_data_transfer(self.m, self.d, "A", 1, "M", 10)
         self.assertEqual(self.d["A"][1], "ten")

@@ -88,6 +88,29 @@ class MmtfReadingTests(TestCase):
         self.assertEqual(d["insCodeList"][266], "A")
 
 
+    def test_1lol_data_dict(self):
+        d = atomium.open("tests/integration/files/1lol.mmtf", data_dict=True)
+        self.assertEqual(set(d.keys()), {
+         "description", "experiment", "quality"
+        })
+        self.assertEqual(d["description"], {
+         "code": "1LOL",
+         "title": "Crystal structure of orotidine monophosphate decarboxylase complex with XMP",
+         "deposition_date": date(2002, 5, 6),
+         "classification": None,
+         "keywords": [],
+         "authors": []
+        })
+        self.assertEqual(d["experiment"], {
+         "technique": "X-RAY DIFFRACTION",
+         "source_organism": None,
+         "expression_system": None
+        })
+        self.assertEqual(d["quality"], {
+         "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
+        })
+
+
 
 class PdbReadingTests(TestCase):
 

@@ -3,7 +3,7 @@
 import builtins
 from requests import get
 from .mmcif import mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict
-from .mmtf import mmtf_bytes_to_mmtf_dict
+from .mmtf import mmtf_bytes_to_mmtf_dict, mmtf_dict_to_data_dict
 from .pdb import pdb_string_to_pdb_dict
 
 def open(path, *args, **kwargs):
@@ -43,6 +43,6 @@ def get_parse_functions(filestring, path):
         if ending in ("mmtf", "cif", "pdb"):
             return {
              "cif": (mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict),
-             "mmtf": (mmtf_bytes_to_mmtf_dict, None),
+             "mmtf": (mmtf_bytes_to_mmtf_dict, mmtf_dict_to_data_dict),
              "pdb": (pdb_string_to_pdb_dict, None)
             }[ending]

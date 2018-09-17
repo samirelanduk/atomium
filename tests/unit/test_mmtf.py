@@ -1,5 +1,6 @@
 from collections import deque
 import struct
+from datetime import date
 from unittest import TestCase
 from unittest.mock import Mock, patch, PropertyMock, MagicMock
 from atomium.mmtf import *
@@ -195,3 +196,66 @@ class RecursiveDecodingTests(TestCase):
         self.assertEqual(recursive_decode([
          127, 41, 34, 1, 0, -50, -128, 0, 7, 127, 0, 127, 127, 14
         ], bits=8), [168, 34, 1, 0, -50, -128, 7, 127, 268])
+
+
+
+class MmtfDictToDataDictTests(TestCase):
+
+    @patch("atomium.mmtf.mmtf_to_data_transfer")
+    def test_can_convert_mmtf_dict_to_data_dict(self, mock_trans):
+        m = {"A": "B"}
+        d = mmtf_dict_to_data_dict(m)
+        mock_trans.assert_any_call(m, d, "description", "code", "structureId")
+        mock_trans.assert_any_call(m, d, "description", "title", "title")
+        mock_trans.assert_any_call(m, d, "description", "deposition_date", "depositionDate", date=True)
+        mock_trans.assert_any_call(m, d, "experiment", "technique", "experimentalMethods", first=True)
+        mock_trans.assert_any_call(m, d, "quality", "resolution", "resolution", trim=3)
+        mock_trans.assert_any_call(m, d, "quality", "rvalue", "rWork", trim=3)
+        mock_trans.assert_any_call(m, d, "quality", "rfree", "rFree", trim=3)
+        self.assertEqual(d, {
+         "description": {
+          "code": None, "title": None, "deposition_date": None,
+          "classification": None, "keywords": [], "authors": []
+         }, "experiment": {
+          "technique": None, "source_organism": None, "expression_system": None
+         }, "quality": {"resolution": None, "rvalue": None, "rfree": None}
+        })
+
+
+
+class MmtfDictTransferTests(TestCase):
+
+    def setUp(self):
+        self.d = {"A": {1: None, 2: None, 3: None}, "B": {4: None, 5: None}}
+        self.m = {"M": 10.127, "C": 100, "D": "2018-09-17", "L": [8, 9]}
+
+
+    def test_can_do_nothing(self):
+        mmtf_to_data_transfer(self.m, self.d, "A", 1, "X", 10)
+        self.assertEqual(self.d["A"][1], None)
+        mmtf_to_data_transfer(self.m, self.d, "A", 1, "M", 100)
+        self.assertEqual(self.d["A"][1], None)
+
+
+    def test_can_transfer_from_mmtf_to_data_dict(self):
+        mmtf_to_data_transfer(self.m, self.d, "A", 1, "M")
+        self.assertEqual(self.d["A"][1], 10.127)
+        mmtf_to_data_transfer(self.m, self.d, "B", 5, "C")
+        self.assertEqual(self.d["B"][5], 100)
+
+
+    def test_can_transfer_from_mmtf_to_data_dict_date(self):
+        mmtf_to_data_transfer(self.m, self.d, "B", 5, "D", date=True)
+        self.assertEqual(self.d["B"][5], date(2018, 9, 17))
+
+
+    def test_can_transfer_from_mmtf_to_data_dict_first(self):
+        mmtf_to_data_transfer(self.m, self.d, "B", 5, "L", first=True)
+        self.assertEqual(self.d["B"][5], 8)
+
+
+    def test_can_transfer_from_mmtf_to_data_dict_round(self):
+        mmtf_to_data_transfer(self.m, self.d, "B", 5, "M", trim=1)
+        self.assertEqual(self.d["B"][5], 10.1)
+        mmtf_to_data_transfer(self.m, self.d, "B", 5, "M", trim=2)
+        self.assertEqual(self.d["B"][5], 10.13)

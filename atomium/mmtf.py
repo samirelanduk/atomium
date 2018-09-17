@@ -3,6 +3,7 @@
 import msgpack
 import struct
 from collections import deque
+from datetime import datetime
 
 def mmtf_bytes_to_mmtf_dict(bytestring):
     """Takes the raw bytestring of a .mmtf file and turns it into a normal,
@@ -129,3 +130,58 @@ def recursive_decode(integers, bits=16):
         index += 1
         new.append(value)
     return new
+
+
+def mmtf_dict_to_data_dict(mmtf_dict):
+    """Converts an .mmtf dictionary into an atomium data dictionary, with the
+    same standard layout that the other file formats get converted into.
+
+    :param dict mmtf_dict: the .mmtf dictionary.
+    :rtype: ``dict``"""
+
+    data_dict = {
+     "description": {
+      "code": None, "title": None, "deposition_date": None,
+      "classification": None, "keywords": [], "authors": []
+     }, "experiment": {
+      "technique": None, "source_organism": None, "expression_system": None
+     }, "quality": {"resolution": None, "rvalue": None, "rfree": None}
+    }
+    mmtf_to_data_transfer(mmtf_dict, data_dict,
+     "description", "code", "structureId")
+    mmtf_to_data_transfer(mmtf_dict, data_dict,
+     "description", "title", "title")
+    mmtf_to_data_transfer(mmtf_dict, data_dict,
+     "description", "deposition_date", "depositionDate", date=True)
+    mmtf_to_data_transfer(mmtf_dict, data_dict,
+     "experiment", "technique", "experimentalMethods", first=True)
+    mmtf_to_data_transfer(mmtf_dict, data_dict,
+     "quality", "resolution", "resolution", trim=3)
+    mmtf_to_data_transfer(mmtf_dict, data_dict,
+     "quality", "rvalue", "rWork", trim=3)
+    mmtf_to_data_transfer(mmtf_dict, data_dict,
+     "quality", "rfree", "rFree", trim=3)
+    return data_dict
+
+
+def mmtf_to_data_transfer(mmtf_dict, data_dict, d_cat, d_key, m_key,
+                           date=False, first=False, trim=False):
+    """A function for transfering a bit of data from a .mmtf dictionary to a
+    data dictionary, or doing nothing if the data doesn't exist.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param dict data_dict: the data dictionary to update.
+    :param str d_cat: the top-level key in the data dictionary.
+    :param str d_key: the data dictionary field to update.
+    :param str m_key: the .mmtf field to read.
+    :param bool date: if True, the value will be converted to a date.
+    :param bool first: if True, the value's first item will be split used.
+    :param int trim: if given, the value will be rounded by this amount."""
+
+    try:
+        value = mmtf_dict[m_key]
+        if date: value = datetime.strptime(value, "%Y-%m-%d").date()
+        if first: value = value[0]
+        if trim: value = round(value, trim)
+        data_dict[d_cat][d_key] = value
+    except: pass

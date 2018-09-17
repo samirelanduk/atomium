@@ -39,14 +39,14 @@ class BytesDictDecodingTests(TestCase):
 
     @patch("atomium.mmtf.parse_binary_field")
     def test_can_handle_dictionary_with_binary_fields(self, mock_parse):
-        mock_parse.side_effect = [1, 2]
+        mock_parse.side_effect = [1, 1]
         d = decode_dict({
          b"key": b"\x00\x08", b"key2": [b"a", b"b"], b"key3": "\x00123"
         })
         mock_parse.assert_any_call(b"\x00\x08")
         mock_parse.assert_any_call(b"\x00123")
         self.assertEqual(d, {
-         "key": 1, "key2": ["a", "b"], "key3": 2
+         "key": 1, "key2": ["a", "b"], "key3": 1
         })
 
 

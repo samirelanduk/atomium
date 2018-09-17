@@ -2,6 +2,7 @@
 
 from collections import deque
 import re
+from datetime import datetime
 
 def mmcif_string_to_mmcif_dict(filestring):
     """Takes a .cif filestring and turns into a ``dict`` which represents its
@@ -171,5 +172,108 @@ def strip_quotes(mmcif_dict):
     for name, table in mmcif_dict.items():
         for row in table:
             for key, value in row.items():
-                if value[0] == '"' and value[-1] == '"':
-                    row[key] = value[1:-1]
+                for char in "'\"":
+                    if value[0] == char and value[-1] == char:
+                        row[key] = value[1:-1]
+
+
+def mmcif_dict_to_data_dict(mmcif_dict):
+    """Converts an .mmcif dictionary into an atomium data dictionary, with the
+    same standard layout that the other file formats get converted into.
+
+    :param dict mmcif_dict: the .mmcif dictionary.
+    :rtype: ``dict``"""
+
+    data_dict = {
+     "description": {
+      "code": None, "title": None, "deposition_date": None,
+      "classification": None, "keywords": [], "authors": []
+     }, "experiment": {
+      "technique": None, "source_organism": None, "expression_system": None
+     }, "quality": {"resolution": None, "rvalue": None, "rfree": None}
+    }
+    update_description_dict(mmcif_dict, data_dict)
+    update_experiment_dict(mmcif_dict, data_dict)
+    update_quality_dict(mmcif_dict, data_dict)
+    return data_dict
+
+
+def update_description_dict(mmcif_dict, data_dict):
+    """Takes a data dictionary and updates its description sub-dictionary with
+    information from a .mmcif dictionary.
+
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :param dict data_dict: the data dictionary to update."""
+
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "description", "code", "entry", "id")
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "description", "title", "struct", "title")
+    mmcif_to_data_transfer(
+     mmcif_dict, data_dict, "description", "deposition_date",
+     "pdbx_database_status", "recvd_initial_deposition_date", date=True
+    )
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "description", "classification", "struct_keywords", "pdbx_keywords")
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "description", "keywords", "struct_keywords", "text", split=True)
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "description", "authors", "audit_author", "name", multi=True)
+
+
+def update_experiment_dict(mmcif_dict, data_dict):
+    """Takes a data dictionary and updates its experiment sub-dictionary with
+    information from a .mmcif dictionary.
+
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :param dict data_dict: the data dictionary to update."""
+
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "experiment", "technique", "exptl", "method")
+    mmcif_to_data_transfer(mmcif_dict, data_dict, "experiment",
+     "source_organism", "entity_src_gen", "pdbx_gene_src_scientific_name")
+    mmcif_to_data_transfer(mmcif_dict, data_dict, "experiment",
+     "expression_system", "entity_src_gen", "pdbx_host_org_scientific_name")
+
+
+def update_quality_dict(mmcif_dict, data_dict):
+    """Takes a data dictionary and updates its quality sub-dictionary with
+    information from a .mmcif dictionary.
+
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :param dict data_dict: the data dictionary to update."""
+
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "quality", "resolution", "reflns", "d_resolution_high", func=float)
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "quality", "rvalue", "refine", "ls_R_factor_R_work", func=float)
+    mmcif_to_data_transfer(mmcif_dict, data_dict,
+     "quality", "rfree", "refine", "ls_R_factor_R_free", func=float)
+
+
+def mmcif_to_data_transfer(mmcif_dict, data_dict, d_cat, d_key, m_table, m_key,
+                           date=False, split=False, multi=False, func=None):
+    """A function for transfering a bit of data from a .mmcif dictionary to a
+    data dictionary, or doing nothing if the data doesn't exist.
+
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :param dict data_dict: the data dictionary to update.
+    :param str d_cat: the top-level key in the data dictionary.
+    :param str d_key: the data dictionary field to update.
+    :param str m_table: the name of the .mmcif table to look in.
+    :param str m_key: the .mmcif field to read.
+    :param bool date: if True, the value will be converted to a date.
+    :param bool split: if True, the value will be split on commas.
+    :param bool multi: if True, every row in the table will be read.
+    :param function func: if given, this will be applied to the value."""
+    
+    try:
+        if multi:
+            value = [row[m_key] for row in mmcif_dict[m_table]]
+        else:
+            value = mmcif_dict[m_table][0][m_key]
+        if date: value = datetime.strptime(value, "%Y-%m-%d").date()
+        if split: value = value.replace(", ", ",").split(",")
+        if func: value = func(value)
+        data_dict[d_cat][d_key] = value
+    except: pass

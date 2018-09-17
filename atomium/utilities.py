@@ -2,8 +2,8 @@
 
 import builtins
 from requests import get
+from .mmcif import mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict
 from .mmtf import mmtf_bytes_to_mmtf_dict
-from .mmcif import mmcif_string_to_mmcif_dict
 from .pdb import pdb_string_to_pdb_dict
 
 def open(path, *args, **kwargs):
@@ -29,9 +29,11 @@ def fetch(code, *args, **kwargs):
     raise ValueError("Could not find anything at {}".format(url))
 
 
-def parse_string(filestring, path, file_dict=True, data_dict=True):
+def parse_string(filestring, path, file_dict=False, data_dict=False):
     file_func, data_func = get_parse_functions(filestring, path)
     parsed = file_func(filestring)
+    if not file_dict:
+        parsed = data_func(parsed)
     return parsed
 
 
@@ -40,7 +42,7 @@ def get_parse_functions(filestring, path):
         ending = path.split(".")[-1]
         if ending in ("mmtf", "cif", "pdb"):
             return {
+             "cif": (mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict),
              "mmtf": (mmtf_bytes_to_mmtf_dict, None),
-             "cif": (mmcif_string_to_mmcif_dict, None),
              "pdb": (pdb_string_to_pdb_dict, None)
             }[ending]

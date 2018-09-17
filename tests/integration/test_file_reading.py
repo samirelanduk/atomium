@@ -1,5 +1,6 @@
-from unittest import TestCase
+from datetime import date
 import atomium
+from unittest import TestCase
 
 class MmcifReadingTests(TestCase):
 
@@ -10,6 +11,7 @@ class MmcifReadingTests(TestCase):
          {"name": "Wu, N.", "pdbx_ordinal": "1"},
          {"name": "Pai, E.F.", "pdbx_ordinal": "2"}
         ])
+        self.assertEqual(d["struct"][0]["title"][:7], "Crystal")
         entity = d["entity"]
         self.assertEqual(len(entity), 4)
         self.assertEqual(
@@ -24,6 +26,37 @@ class MmcifReadingTests(TestCase):
         self.assertEqual(entity[1]["type"], "non-polymer")
         self.assertTrue(d["citation"][0]["title"].startswith("Crystal"))
         self.assertTrue(d["citation"][0]["title"].endswith("decarboxylase."))
+
+
+    def test_1lol_data_dict(self):
+        d = atomium.open("tests/integration/files/1lol.cif", data_dict=True)
+        self.assertEqual(set(d.keys()), {
+         "description", "experiment", "quality"
+        })
+        self.assertEqual(d["description"], {
+         "code": "1LOL",
+         "title": "Crystal structure of orotidine monophosphate decarboxylase complex with XMP",
+         "deposition_date": date(2002, 5, 6),
+         "classification": "LYASE",
+         "keywords": ["TIM barrel", "LYASE"],
+         "authors": ["Wu, N.", "Pai, E.F."]
+        })
+        self.assertEqual(d["experiment"], {
+         "technique": "X-RAY DIFFRACTION",
+         "source_organism": "Methanothermobacter thermautotrophicus str. Delta H",
+         "expression_system": "Escherichia coli"
+        })
+        self.assertEqual(d["quality"], {
+         "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
+        })
+
+
+    def test_5xme_data_dict(self):
+        d = atomium.open("tests/integration/files/5xme.cif", data_dict=True)
+        self.assertEqual(d["experiment"]["technique"], "SOLUTION NMR")
+        self.assertEqual(d["quality"], {
+         "resolution": None, "rvalue": None, "rfree": None
+        })
 
 
 

@@ -144,3 +144,26 @@ class PdbReadingTests(TestCase):
          d["MODEL"][1][4],
          "ATOM      5  CB  ALA A 199      36.093  -8.556  -1.452  1.00  0.00           C"
         )
+
+
+    def test_1lol_data_dict(self):
+        d = atomium.open("tests/integration/files/1lol.pdb", data_dict=True)
+        self.assertEqual(set(d.keys()), {
+         "description", "experiment", "quality"
+        })
+        self.assertEqual(d["description"], {
+         "code": "1LOL",
+         "title": "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP",
+         "deposition_date": date(2002, 5, 6),
+         "classification": "LYASE",
+         "keywords": ["TIM BARREL", "LYASE"],
+         "authors": ["N.WU", "E.F.PAI"]
+        })
+        self.assertEqual(d["experiment"], {
+         "technique": "X-RAY DIFFRACTION",
+         "source_organism": "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H",
+         "expression_system": "ESCHERICHIA COLI"
+        })
+        self.assertEqual(d["quality"], {
+         "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
+        })

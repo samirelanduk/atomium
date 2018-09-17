@@ -4,7 +4,7 @@ import builtins
 from requests import get
 from .mmcif import mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict
 from .mmtf import mmtf_bytes_to_mmtf_dict, mmtf_dict_to_data_dict
-from .pdb import pdb_string_to_pdb_dict
+from .pdb import pdb_string_to_pdb_dict, pdb_dict_to_data_dict
 
 def open(path, *args, **kwargs):
     try:
@@ -44,5 +44,5 @@ def get_parse_functions(filestring, path):
             return {
              "cif": (mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict),
              "mmtf": (mmtf_bytes_to_mmtf_dict, mmtf_dict_to_data_dict),
-             "pdb": (pdb_string_to_pdb_dict, None)
+             "pdb": (pdb_string_to_pdb_dict, pdb_dict_to_data_dict)
             }[ending]

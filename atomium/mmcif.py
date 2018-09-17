@@ -266,7 +266,7 @@ def mmcif_to_data_transfer(mmcif_dict, data_dict, d_cat, d_key, m_table, m_key,
     :param bool split: if True, the value will be split on commas.
     :param bool multi: if True, every row in the table will be read.
     :param function func: if given, this will be applied to the value."""
-    
+
     try:
         if multi:
             value = [row[m_key] for row in mmcif_dict[m_table]]

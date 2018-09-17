@@ -4,6 +4,7 @@ import builtins
 from requests import get
 from .mmtf import mmtf_bytes_to_mmtf_dict
 from .mmcif import mmcif_string_to_mmcif_dict
+from .pdb import pdb_string_to_pdb_dict
 
 def open(path, *args, **kwargs):
     try:
@@ -37,8 +38,9 @@ def parse_string(filestring, path, file_dict=True, data_dict=True):
 def get_parse_functions(filestring, path):
     if "." in path:
         ending = path.split(".")[-1]
-        if ending in ("mmtf", "cif"):
+        if ending in ("mmtf", "cif", "pdb"):
             return {
              "mmtf": (mmtf_bytes_to_mmtf_dict, None),
-             "cif": (mmcif_string_to_mmcif_dict, None)
+             "cif": (mmcif_string_to_mmcif_dict, None),
+             "pdb": (pdb_string_to_pdb_dict, None)
             }[ending]

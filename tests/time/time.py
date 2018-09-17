@@ -5,7 +5,8 @@ import os
 # What files do we want to time?
 files = [
  "1lol.cif", "5xme.cif", "4v6x.cif",
- "1lol.mmtf", "4v6x.mmtf"
+ "1lol.mmtf", "4v6x.mmtf",
+ "1lol.pdb", "5xme.pdb", "6gc8.pdb"
 ]
 
 # Make a directory for these profiles

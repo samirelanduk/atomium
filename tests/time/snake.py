@@ -27,5 +27,5 @@ for profile in profiles:
      shell=True,
      preexec_fn=os.setsid
     )
-    sleep(1)
+    sleep(1.5)
     os.killpg(os.getpgid(pro.pid), signal.SIGTERM)

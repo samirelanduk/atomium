@@ -53,3 +53,38 @@ class MmtfReadingTests(TestCase):
         d = atomium.open("tests/integration/files/1igt.mmtf", file_dict=True)
         self.assertEqual(d["mmtfVersion"], "1.0.0")
         self.assertEqual(d["insCodeList"][266], "A")
+
+
+
+class PdbReadingTests(TestCase):
+
+    def test_1lol_file_dict(self):
+        d = atomium.open("tests/integration/files/1lol.pdb", file_dict=True)
+        self.assertEqual(d["HEADER"], [
+         "HEADER    LYASE                                   06-MAY-02   1LOL"
+        ])
+        self.assertEqual(d["HETNAM"], [
+         "HETNAM     BU2 1,3-BUTANEDIOL", "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE"
+        ])
+        self.assertEqual(d["CONECT"][0], "CONECT 3194 3195 3196")
+        self.assertEqual(len(d["REMARK"].keys()), 16)
+        self.assertEqual(d["REMARK"]["2"][1], "REMARK   2 RESOLUTION.    1.90 ANGSTROMS.")
+        self.assertEqual(len(d["MODEL"]), 1)
+        self.assertEqual(len(d["MODEL"][0]), 3433)
+        self.assertEqual(
+         d["MODEL"][0][0],
+         "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N"
+        )
+
+
+    def test_5xme_file_dict(self):
+        d = atomium.open("tests/integration/files/5xme.pdb", file_dict=True)
+        self.assertEqual(d["HEADER"], [
+         "HEADER    APOPTOSIS                               15-MAY-17   5XME"
+        ])
+        self.assertEqual(len(d["MODEL"]), 10)
+        self.assertEqual(len(d["MODEL"][0]), 1828)
+        self.assertEqual(
+         d["MODEL"][1][4],
+         "ATOM      5  CB  ALA A 199      36.093  -8.556  -1.452  1.00  0.00           C"
+        )

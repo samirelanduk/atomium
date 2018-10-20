@@ -145,7 +145,8 @@ def mmtf_dict_to_data_dict(mmtf_dict):
       "classification": None, "keywords": [], "authors": []
      }, "experiment": {
       "technique": None, "source_organism": None, "expression_system": None
-     }, "quality": {"resolution": None, "rvalue": None, "rfree": None}
+     }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
+     "geometry": {"assemblies": []}
     }
     mmtf_to_data_transfer(mmtf_dict, data_dict,
      "description", "code", "structureId")
@@ -161,6 +162,14 @@ def mmtf_dict_to_data_dict(mmtf_dict):
      "quality", "rvalue", "rWork", trim=3)
     mmtf_to_data_transfer(mmtf_dict, data_dict,
      "quality", "rfree", "rFree", trim=3)
+    data_dict["geometry"]["assemblies"] = [{
+     "id": int(a["name"]), "software": None, "delta_energy": None,
+     "buried_surface_area": None, "surface_area": None, "transformations": [{
+      "chains": [mmtf_dict["chainIdList"][i] for i in t["chainIndexList"]],
+      "matrix": [t["matrix"][n * 4: (n * 4) + 3] for n in range(3)],
+      "vector": t["matrix"][3:-4:4]} for t in a["transformList"]
+     ]
+    } for a in mmtf_dict.get("bioAssemblyList", [{"transformList": [{}]}])]
     return data_dict
 
 

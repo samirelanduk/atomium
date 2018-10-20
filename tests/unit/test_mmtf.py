@@ -203,7 +203,13 @@ class MmtfDictToDataDictTests(TestCase):
 
     @patch("atomium.mmtf.mmtf_to_data_transfer")
     def test_can_convert_mmtf_dict_to_data_dict(self, mock_trans):
-        m = {"A": "B"}
+        m = {"A": "B", "bioAssemblyList": [{
+         "name": "1", "transformList": [{
+          "chainIndexList": [1, 2], "matrix": "abcdefghijklmnop"
+         }, {
+          "chainIndexList": [0, 2], "matrix": "ABCDEFGHIJKLMNOP"
+         }]
+        }], "chainIdList": ["A", "B", "C"]}
         d = mmtf_dict_to_data_dict(m)
         mock_trans.assert_any_call(m, d, "description", "code", "structureId")
         mock_trans.assert_any_call(m, d, "description", "title", "title")
@@ -218,7 +224,15 @@ class MmtfDictToDataDictTests(TestCase):
           "classification": None, "keywords": [], "authors": []
          }, "experiment": {
           "technique": None, "source_organism": None, "expression_system": None
-         }, "quality": {"resolution": None, "rvalue": None, "rfree": None}
+         }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
+         "geometry": {"assemblies": [{
+          "id": 1, "software": None, "delta_energy": None,
+          "buried_surface_area": None, "surface_area": None, "transformations": [{
+           "chains": ["B", "C"], "matrix": ["abc", "efg", "ijk"], "vector": "dhl"
+          }, {
+           "chains": ["A", "C"], "matrix": ["ABC", "EFG", "IJK"], "vector": "DHL"
+          }]
+         }]}
         })
 
 

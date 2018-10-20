@@ -2,6 +2,7 @@
 
 from datetime import datetime
 import re
+from itertools import groupby, chain
 
 def pdb_string_to_pdb_dict(filestring):
     """Takes a .pdb filestring and turns into a ``dict`` which represents its
@@ -69,11 +70,13 @@ def pdb_dict_to_data_dict(pdb_dict):
       "classification": None, "keywords": [], "authors": []
      }, "experiment": {
       "technique": None, "source_organism": None, "expression_system": None
-     }, "quality": {"resolution": None, "rvalue": None, "rfree": None}
+     }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
+      "geometry": {"assemblies": []}
     }
     update_description_dict(pdb_dict, data_dict)
     update_experiment_dict(pdb_dict, data_dict)
     update_quality_dict(pdb_dict, data_dict)
+    update_geometry_dict(pdb_dict, data_dict)
     return data_dict
 
 
@@ -110,6 +113,16 @@ def update_quality_dict(pdb_dict, data_dict):
 
     extract_resolution_remark(pdb_dict, data_dict["quality"])
     extract_rvalue_remark(pdb_dict, data_dict["quality"])
+
+
+def update_geometry_dict(pdb_dict, data_dict):
+    """Creates the geometry component of a standard atomium data dictionary
+    from a .pdb dictionary.
+
+    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict data_dict: The data dictionary to update."""
+
+    extract_assembly_remark(pdb_dict, data_dict["geometry"])
 
 
 def extract_header(pdb_dict, description_dict):
@@ -233,6 +246,62 @@ def extract_rvalue_remark(pdb_dict, quality_dict):
                     break
 
 
+def extract_assembly_remark(pdb_dict, geometry_dict):
+    """Takes a ``dict`` and adds assembly information to it by parsing REMARK
+    350 lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict geometry_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("REMARK") and pdb_dict["REMARK"].get("350"):
+        groups = [list(g) for k, g in groupby(
+         pdb_dict["REMARK"]["350"], lambda x: "ECULE:" in x
+        )][1:]
+        assemblies = [list(chain(*a)) for a in zip(groups[::2], groups[1::2])]
+        for a in assemblies:
+            geometry_dict["assemblies"].append(
+             assembly_lines_to_assembly_dict(a)
+            )
+
+
+def assembly_lines_to_assembly_dict(lines):
+    """Takes the lines representing a single biological assembly and turns
+    them into an assembly dictionary.
+
+    :param list lines: The REMARK lines to read.
+    :rtype: ``dict``"""
+
+    assembly = {
+     "transformations": [], "software": None, "buried_surface_area": None,
+     "surface_area": None, "delta_energy": None, "id": 0
+    }
+    patterns = [[r"(.+)SOFTWARE USED: (.+)", "software", lambda x: x],
+     [r"(.+)BIOMOLECULE: (.+)", "id", int],
+     [r"(.+)SURFACE AREA: (.+) [A-Z]", "buried_surface_area", float],
+     [r"(.+)AREA OF THE COMPLEX: (.+) [A-Z]", "surface_area", float],
+     [r"(.+)FREE ENERGY: (.+) [A-Z]", "delta_energy", float]]
+    t = None
+    for line in lines:
+        for p in patterns:
+            matches = re.findall(p[0], line)
+            if matches: assembly[p[1]] = p[2](matches[0][1].strip())
+        if "APPLY THE FOLLOWING" in line:
+            if t: assembly["transformations"].append(t)
+            t = {"chains": [], "matrix": [], "vector": []}
+        if "CHAINS:" in line:
+            t["chains"] += [c.strip() for c in
+             line.split(":")[-1].strip().split(",") if c.strip()]
+        if "BIOMT" in line:
+            values = [float(x) for x in line.split()[4:]]
+            if len(t["matrix"]) == 3:
+                assembly["transformations"].append(t)
+                t = {"chains": t["chains"], "matrix": [], "vector": []}
+            t["matrix"].append(values[:3])
+            t["vector"].append(values[-1])
+    if t: assembly["transformations"].append(t)
+    return assembly
+
+
 def merge_lines(lines, start, join=" "):
     """Gets a single continuous string from a sequence of lines.
 
@@ -240,6 +309,6 @@ def merge_lines(lines, start, join=" "):
     :param int start: The start point in each record.
     :param str join: The string to join on.
     :rtype: ``str``"""
-    
+
     string = join.join([line[start:].strip() for line in lines])
     return string

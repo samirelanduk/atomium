@@ -31,7 +31,7 @@ class MmcifReadingTests(TestCase):
     def test_1lol_data_dict(self):
         d = atomium.open("tests/integration/files/1lol.cif", data_dict=True)
         self.assertEqual(set(d.keys()), {
-         "description", "experiment", "quality"
+         "description", "experiment", "quality", "geometry"
         })
         self.assertEqual(d["description"], {
          "code": "1LOL",
@@ -49,6 +49,18 @@ class MmcifReadingTests(TestCase):
         self.assertEqual(d["quality"], {
          "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
         })
+        self.assertEqual(d["geometry"], {"assemblies": [{
+         "id": 1,
+         "software": "PISA",
+         "delta_energy": -31.0,
+         "buried_surface_area": 5230,
+         "surface_area": 16550,
+         "transformations": [{
+          "chains": ["A", "B", "C", "D", "E", "F", "G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        }]})
 
 
     def test_5xme_data_dict(self):
@@ -57,6 +69,69 @@ class MmcifReadingTests(TestCase):
         self.assertEqual(d["quality"], {
          "resolution": None, "rvalue": None, "rfree": None
         })
+
+
+    def test_1xda_data_dict(self):
+        d = atomium.open("tests/integration/files/1xda.cif", data_dict=True)
+        self.assertEqual(len(d["geometry"]["assemblies"]), 12)
+        self.assertEqual(d["geometry"]["assemblies"][0], {
+         "id": 1,
+         "software": "PISA",
+         "delta_energy": -7.0,
+         "buried_surface_area": 1720.0,
+         "surface_area": 3980.0,
+         "transformations": [{
+          "chains": ["A", "B", "I", "J", "K", "L", "Y", "Z"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+        self.assertEqual(d["geometry"]["assemblies"][4], {
+         "id": 5,
+         "software": "PISA",
+         "delta_energy": -332.0,
+         "buried_surface_area": 21680.0,
+         "surface_area": 12240.0,
+         "transformations": [{
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[-0.5, -0.8660254038, 0.0], [0.8660254038, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[-0.5, 0.8660254038, 0.0], [-0.8660254038, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+
+
+    def test_1m4x_data_dict(self):
+        d = atomium.open("tests/integration/files/1m4x.cif", data_dict=True)
+        self.assertEqual(len(d["geometry"]["assemblies"]), 7)
+        self.assertEqual(len(d["geometry"]["assemblies"][0]["transformations"]), 1680)
+        self.assertEqual(len(d["geometry"]["assemblies"][2]["transformations"]), 140)
+        self.assertEqual(len(d["geometry"]["assemblies"][3]["transformations"]), 168)
+        self.assertEqual(len(d["geometry"]["assemblies"][4]["transformations"]), 30)
+        self.assertEqual(len(d["geometry"]["assemblies"][5]["transformations"]), 66)
+        self.assertEqual(
+         d["geometry"]["assemblies"][0]["transformations"][29]["chains"],
+         ["A", "B", "C"]
+        )
+        self.assertAlmostEqual(
+         d["geometry"]["assemblies"][0]["transformations"][29]["vector"][0],
+         -18.95, delta=0.005
+        )
+        self.assertAlmostEqual(
+         d["geometry"]["assemblies"][0]["transformations"][29]["matrix"][0][0],
+         0.812, delta=0.005
+        )
+        self.assertAlmostEqual(
+         d["geometry"]["assemblies"][0]["transformations"][29]["matrix"][-1][-1],
+         0.286, delta=0.005
+        )
 
 
 
@@ -91,7 +166,7 @@ class MmtfReadingTests(TestCase):
     def test_1lol_data_dict(self):
         d = atomium.open("tests/integration/files/1lol.mmtf", data_dict=True)
         self.assertEqual(set(d.keys()), {
-         "description", "experiment", "quality"
+         "description", "experiment", "quality", "geometry"
         })
         self.assertEqual(d["description"], {
          "code": "1LOL",
@@ -108,6 +183,33 @@ class MmtfReadingTests(TestCase):
         })
         self.assertEqual(d["quality"], {
          "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
+        })
+        self.assertEqual(d["geometry"], {"assemblies": [{
+         "id": 1, "software": None, "delta_energy": None,
+         "buried_surface_area": None, "surface_area": None,
+         "transformations": [{
+          "chains": ["A", "B", "C", "D", "E", "F", "G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        }]})
+
+
+    def test_1m4x_data_dict(self):
+        d = atomium.open("tests/integration/files/1m4x.mmtf", data_dict=True)
+        self.assertEqual(len(d["geometry"]["assemblies"]), 7)
+        self.assertEqual(len(d["geometry"]["assemblies"][0]["transformations"]), 1680)
+        self.assertEqual(len(d["geometry"]["assemblies"][2]["transformations"]), 140)
+        self.assertEqual(len(d["geometry"]["assemblies"][3]["transformations"]), 168)
+        self.assertEqual(len(d["geometry"]["assemblies"][4]["transformations"]), 30)
+        self.assertEqual(len(d["geometry"]["assemblies"][5]["transformations"]), 66)
+        self.assertEqual(d["geometry"]["assemblies"][0]["transformations"][29], {
+         "chains": ["A", "B", "C"],
+         "matrix": [
+          [0.81187091297769, 0.33948028980191997, 0.47499304403271003],
+          [0.28918995207974996, 0.47292247575946, -0.83229391203448],
+          [-0.5071820391020601, 0.81307881404246, 0.28577895606718995]
+         ], "vector": [-18.950923036069995, -34.41379177212, 47.03986873605]
         })
 
 
@@ -149,7 +251,7 @@ class PdbReadingTests(TestCase):
     def test_1lol_data_dict(self):
         d = atomium.open("tests/integration/files/1lol.pdb", data_dict=True)
         self.assertEqual(set(d.keys()), {
-         "description", "experiment", "quality"
+         "description", "experiment", "quality", "geometry"
         })
         self.assertEqual(d["description"], {
          "code": "1LOL",
@@ -166,4 +268,68 @@ class PdbReadingTests(TestCase):
         })
         self.assertEqual(d["quality"], {
          "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
+        })
+        self.assertEqual(d["geometry"], {"assemblies": [{
+         "id": 1,
+         "software": "PISA",
+         "delta_energy": -31.0,
+         "buried_surface_area": 5230,
+         "surface_area": 16550,
+         "transformations": [{
+          "chains": ["A", "B"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        }]})
+
+
+    def test_1xda_data_dict(self):
+        d = atomium.open("tests/integration/files/1xda.pdb", data_dict=True)
+        self.assertEqual(len(d["geometry"]["assemblies"]), 12)
+        self.assertEqual(d["geometry"]["assemblies"][0], {
+         "id": 1,
+         "software": "PISA",
+         "delta_energy": -7.0,
+         "buried_surface_area": 1720.0,
+         "surface_area": 3980.0,
+         "transformations": [{
+          "chains": ["A", "B"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+        self.assertEqual(d["geometry"]["assemblies"][4], {
+         "id": 5,
+         "software": "PISA",
+         "delta_energy": -332.0,
+         "buried_surface_area": 21680.0,
+         "surface_area": 12240.0,
+         "transformations": [{
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+
+
+    def test_1m4x_data_dict(self):
+        self.maxDiff=None
+        d = atomium.open("tests/integration/files/1m4x.pdb", data_dict=True)
+        self.assertEqual(len(d["geometry"]["assemblies"]), 1)
+        self.assertEqual(len(d["geometry"]["assemblies"][0]["transformations"]), 1680)
+        self.assertEqual(d["geometry"]["assemblies"][0]["transformations"][29], {
+         "chains": ["A", "B", "C"],
+         "matrix": [
+          [0.811871,  0.339480,  0.474993],
+          [0.289190,  0.472922, -0.832294],
+          [-0.507182,  0.813079,  0.285779]
+         ], "vector": [-18.95092, -34.41379, 47.03987]
         })

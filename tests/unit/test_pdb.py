@@ -87,7 +87,8 @@ class PdbDictToDataDictTests(TestCase):
           "classification": None, "keywords": [], "authors": []
          }, "experiment": {
           "technique": None, "source_organism": None, "expression_system": None
-         }, "quality": {"resolution": None, "rvalue": None, "rfree": None}
+         }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
+         "geometry": {"assemblies": []}
         })
 
 
@@ -132,6 +133,17 @@ class QualityDictUpdatingTests(TestCase):
         update_quality_dict(pdb_dict, d)
         mock_res.assert_called_with(pdb_dict, "dict")
         mock_rfac.assert_called_with(pdb_dict, "dict")
+
+
+
+class GeometryDictUpdatingTests(TestCase):
+
+    @patch("atomium.pdb.extract_assembly_remark")
+    def test_can_update_quality_dict(self, mock_ass):
+        d = {"geometry": "dict"}
+        pdb_dict = {"PDB": "DICT"}
+        update_geometry_dict(pdb_dict, d)
+        mock_ass.assert_called_with(pdb_dict, "dict")
 
 
 
@@ -348,6 +360,140 @@ class RvalueExtractionTests(TestCase):
         d = {"rvalue": None, "rfree": None}
         extract_rvalue_remark({"REMARK": self.remark_lines}, d)
         self.assertEqual(d, {"rvalue": 0.193, "rfree": 0.229})
+
+
+
+class BiomoleculeExtractionTests(TestCase):
+
+    def setUp(self):
+        self.remark_lines = {
+         "1": ["BLAH BLAH"],
+         "350": [
+          "REMARK 350 ",
+          "REMARK 350  BIOMOLECULE: 1",
+          "REMARK 350  SOFTWARE DETERMINED QUATERNARY STRUCTURE: DIMERIC",
+          "REMARK 350  SOFTWARE USED: PISA",
+          "REMARK 350  TOTAL BURIED SURFACE AREA: 1650 ANGSTROM**2",
+          "REMARK 350  SURFACE AREA OF THE COMPLEX: 4240 ANGSTROM**2",
+          "REMARK 350  APPLY THE FOLLOWING TO CHAINS: G, H",
+          "REMARK 350    BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+          "REMARK 350    BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
+          "REMARK 350    BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
+          "REMARK 350 ",
+          "REMARK 350  BIOMOLECULE: 5",
+          "REMARK 350  SOFTWARE DETERMINED QUATERNARY STRUCTURE: DODECAMERIC",
+          "REMARK 350  SOFTWARE USED: PISA",
+          "REMARK 350  TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
+          "REMARK 350  SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
+          "REMARK 350  CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
+          "REMARK 350  APPLY THE FOLLOWING TO CHAINS: E, F, G, H,",
+          "REMARK 350                     AND CHAINS: J, K, L",
+          "REMARK 350    BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+          "REMARK 350    BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
+          "REMARK 350    BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
+          "REMARK 350    BIOMT1   2 -0.500000 -0.866025  0.000000        0.00000",
+          "REMARK 350    BIOMT2   2  0.866025 -0.500000  0.000000        0.00000",
+          "REMARK 350    BIOMT3   2  0.000000  0.000000  1.000000        0.00000",
+         ],
+         "24": ["", "BLAH BLAH"]
+        }
+
+
+    def test_missing_biomolecules_extraction(self):
+        d = {"assemblies": []}
+        del self.remark_lines["350"]
+        extract_assembly_remark({"REMARK": self.remark_lines}, d)
+        self.assertEqual(d, {"assemblies": []})
+
+
+    @patch("atomium.pdb.assembly_lines_to_assembly_dict")
+    def test_biomolecules_extraction(self, mock_dict):
+        mock_dict.side_effect = "AB"
+        d = {"assemblies": []}
+        extract_assembly_remark({"REMARK": self.remark_lines}, d)
+        self.assertEqual(d, {"assemblies": ["A", "B"]})
+        mock_dict.assert_any_call(self.remark_lines["350"][1:11])
+        mock_dict.assert_any_call(self.remark_lines["350"][11:])
+
+
+
+class AssemblyLinesToAssemblyDictTests(TestCase):
+
+    def test_can_parse_simple_assembly(self):
+        d = assembly_lines_to_assembly_dict([
+         "REMARK 350  BIOMOLECULE: 1",
+         "REMARK 350  SOFTWARE DETERMINED QUATERNARY STRUCTURE: DIMERIC",
+         "REMARK 350  SOFTWARE USED: PISA",
+         "REMARK 350  TOTAL BURIED SURFACE AREA: 1650 ANGSTROM**2",
+         "REMARK 350  SURFACE AREA OF THE COMPLEX: 4240 ANGSTROM**2",
+         "REMARK 350  CHANGE IN SOLVENT FREE ENERGY: -7.0 KCAL/MOL",
+         "REMARK 350  APPLY THE FOLLOWING TO CHAINS: G, H",
+         "REMARK 350    BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "REMARK 350    BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
+         "REMARK 350    BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
+         "REMARK 350 "
+        ])
+        self.assertEqual(d, {
+         "id": 1, "software": "PISA", "delta_energy": -7.0,
+         "buried_surface_area": 1650.0, "surface_area": 4240.0,
+         "transformations": [{
+          "chains": ["G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 2.0, -6.0]
+         }]
+        })
+
+
+    def test_can_parse_complex_assembly(self):
+        d = assembly_lines_to_assembly_dict([
+         "REMARK 350  BIOMOLECULE: 5",
+         "REMARK 350  SOFTWARE DETERMINED QUATERNARY STRUCTURE: DODECAMERIC",
+         "REMARK 350  SOFTWARE USED: PISA",
+         "REMARK 350  TOTAL BURIED SURFACE AREA: 21680 ANGSTROM**2",
+         "REMARK 350  SURFACE AREA OF THE COMPLEX: 12240 ANGSTROM**2",
+         "REMARK 350  CHANGE IN SOLVENT FREE ENERGY: -332.0 KCAL/MOL",
+         "REMARK 350  APPLY THE FOLLOWING TO CHAINS: E, F, G, H,",
+         "REMARK 350                     AND CHAINS: J, K, L",
+         "REMARK 350    BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "REMARK 350    BIOMT2   1  0.000000  1.000000  0.000000        0.00000",
+         "REMARK 350    BIOMT3   1  0.000000  0.000000  1.000000        0.00000",
+         "REMARK 350    BIOMT1   2 -0.500000 -0.866025  0.000000        0.00000",
+         "REMARK 350    BIOMT2   2  0.866025 -0.500000  0.000000        0.00000",
+         "REMARK 350    BIOMT3   2  0.000000  0.000000  1.000000        0.00000",
+        ])
+        self.assertEqual(d, {
+         "id": 5, "software": "PISA", "delta_energy": -332.0,
+         "buried_surface_area": 21680.0, "surface_area": 12240.0,
+         "transformations": [{
+          "chains": ["E", "F", "G", "H", "J", "K", "L"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H", "J", "K", "L"],
+          "matrix": [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0, 0, 1]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+
+
+    def test_can_parse_sparse_assembly(self):
+        d = assembly_lines_to_assembly_dict([
+         "REMARK 350  BIOMOLECULE: 1",
+         "REMARK 350  APPLY THE FOLLOWING TO CHAINS: G, H",
+         "REMARK 350    BIOMT1   1  1.000000  0.000000  0.000000        0.00000",
+         "REMARK 350    BIOMT2   1  0.000000  1.000000  0.000000        2.00000",
+         "REMARK 350    BIOMT3   1  0.000000  0.000000  1.000000        -6.00000",
+         "REMARK 350 "
+        ])
+        self.assertEqual(d, {
+         "id": 1, "software": None, "delta_energy": None,
+         "buried_surface_area": None, "surface_area": None,
+         "transformations": [{
+          "chains": ["G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 2.0, -6.0]
+         }]
+        })
 
 
 

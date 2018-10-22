@@ -1,3 +1,164 @@
+"""Contains logic for turning data dictionaies into a parsed Python objects."""
+
+class File:
+    """When a file is parsed, the result is a ``File``. It contains the
+    structure of interest, as well as meta information.
+
+    :param str filetype: the type of file that was parsed to make this."""
+
+    def __init__(self, filetype):
+        self._filetype = filetype
+        self._models = []
+
+
+    def __repr__(self):
+        return "<{}.{} File>".format(self._code or "", self._filetype)
+
+
+    @property
+    def filetype(self):
+        """The filetype that this File was created from, such as .pdb or
+        .cif.
+
+        :rtype: ``str``"""
+
+        return self._filetype
+
+
+    @property
+    def code(self):
+        """The unique database identifer for this structure.
+
+        :rtype: ``str``"""
+
+        return self._code
+
+
+    @property
+    def title(self):
+        """The structure's text description.
+
+        :rtype: ``str``"""
+
+        return self._title
+
+
+    @property
+    def deposition_date(self):
+        """The date the structure was submitted for publication.
+
+        :rtype: ``datetime.date``"""
+
+        return self._deposition_date
+
+
+    @property
+    def classification(self):
+        """The structure's formal classification.
+
+        :rtype: ``str``"""
+
+        return self._classification
+
+
+    @property
+    def keywords(self):
+        """The structure's keyword descriptors.
+
+        :rtype: ``list``"""
+
+        return self._keywords
+
+
+    @property
+    def authors(self):
+        """The structure's authors.
+
+        :rtype: ``list``"""
+
+        return self._authors
+
+
+    @property
+    def technique(self):
+        """The structure's experimental technique.
+
+        :rtype: ``str``"""
+
+        return self._technique
+
+
+    @property
+    def source_organism(self):
+        """The structure's original organism.
+
+        :rtype: ``float``"""
+
+        return self._source_organism
+
+
+    @property
+    def expression_system(self):
+        """The organism the structure was expressed in.
+
+        :rtype: ``float``"""
+
+        return self._expression_system
+
+
+    @property
+    def resolution(self):
+        """The structure's resolution.
+
+        :rtype: ``float``"""
+
+        return self._resolution
+
+
+    @property
+    def rvalue(self):
+        """The structure's R-value.
+
+        :rtype: ``float``"""
+
+        return self._rvalue
+
+
+    @property
+    def rfree(self):
+        """The structure's R-free value.
+
+        :rtype: ``float``"""
+
+        return self._rfree
+
+
+    @property
+    def assemblies(self):
+        """The structure's biological assembly instructions.
+
+        :rtype: ``list``"""
+
+        return self._assemblies
+
+
+
+def data_dict_to_file(data_dict, filetype):
+    """Turns an atomium data dictionary into a :py:class:`.File`.
+
+    :param dict data_dict: the data dictionary to parse.
+    :param str filetype: the file type that is being converted.
+    :rtype: ``File``"""
+
+    f = File(filetype)
+    for key in data_dict.keys():
+        if key != "models":
+            for subkey, value in data_dict[key].items():
+                setattr(f, "_" + subkey, value)
+    return f
+
+
+
 PERIODIC_TABLE = {
  "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,
  "C": 12.0107, "N": 14.0067, "O": 15.9994, "F": 18.9984, "NE": 20.1797,

@@ -5,6 +5,7 @@ from requests import get
 from .mmcif import mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict
 from .mmtf import mmtf_bytes_to_mmtf_dict, mmtf_dict_to_data_dict
 from .pdb import pdb_string_to_pdb_dict, pdb_dict_to_data_dict
+from .data import data_dict_to_file
 
 def open(path, *args, **kwargs):
     try:
@@ -34,6 +35,9 @@ def parse_string(filestring, path, file_dict=False, data_dict=False):
     parsed = file_func(filestring)
     if not file_dict:
         parsed = data_func(parsed)
+        if not data_dict:
+            filetype = data_func.__name__.split("_")[0].replace("mmc", "c")
+            parsed = data_dict_to_file(parsed, filetype)
     return parsed
 
 

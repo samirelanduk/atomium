@@ -97,12 +97,12 @@ class PdbFileDictReadingTests(TestCase):
 class DataDictReadingTests(TestCase):
 
     def test_1lol_data_dict(self):
-        for f in ["cif", "mmtf", "pdb"]:
-            d = atomium.open("tests/integration/files/1lol." + f, data_dict=True)
+        for e in ["cif", "mmtf", "pdb"]:
+            d = atomium.open("tests/integration/files/1lol." + e, data_dict=True)
             self.assertEqual(set(d.keys()), {
              "description", "experiment", "quality", "geometry", "models"
             })
-            if f == "pdb":
+            if e == "pdb":
                 self.assertEqual(d["description"], {
                  "code": "1LOL",
                  "title": "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP",
@@ -116,11 +116,11 @@ class DataDictReadingTests(TestCase):
                  "code": "1LOL",
                  "title": "Crystal structure of orotidine monophosphate decarboxylase complex with XMP",
                  "deposition_date": date(2002, 5, 6),
-                 "classification": None if f == "mmtf" else "LYASE",
-                 "keywords": [] if f == "mmtf" else ["TIM barrel", "LYASE"],
-                 "authors": [] if f == "mmtf" else ["Wu, N.", "Pai, E.F."]
+                 "classification": None if e == "mmtf" else "LYASE",
+                 "keywords": [] if e == "mmtf" else ["TIM barrel", "LYASE"],
+                 "authors": [] if e == "mmtf" else ["Wu, N.", "Pai, E.F."]
                 })
-            if f == "pdb":
+            if e == "pdb":
                 self.assertEqual(d["experiment"], {
                  "technique": "X-RAY DIFFRACTION",
                  "source_organism": "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H",
@@ -129,20 +129,20 @@ class DataDictReadingTests(TestCase):
             else:
                 self.assertEqual(d["experiment"], {
                  "technique": "X-RAY DIFFRACTION",
-                 "source_organism": None if f == "mmtf" else "Methanothermobacter thermautotrophicus str. Delta H",
-                 "expression_system": None if f == "mmtf" else "Escherichia coli"
+                 "source_organism": None if e == "mmtf" else "Methanothermobacter thermautotrophicus str. Delta H",
+                 "expression_system": None if e == "mmtf" else "Escherichia coli"
                 })
             self.assertEqual(d["quality"], {
              "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
             })
             self.assertEqual(d["geometry"], {"assemblies": [{
              "id": 1,
-             "software": None if f == "mmtf" else "PISA",
-             "delta_energy": None if f == "mmtf" else -31.0,
-             "buried_surface_area": None if f == "mmtf" else 5230,
-             "surface_area": None if f == "mmtf" else 16550,
+             "software": None if e == "mmtf" else "PISA",
+             "delta_energy": None if e == "mmtf" else -31.0,
+             "buried_surface_area": None if e == "mmtf" else 5230,
+             "surface_area": None if e == "mmtf" else 16550,
              "transformations": [{
-              "chains": ["A", "B"] if f == "pdb" else ["A", "B", "C", "D", "E", "F", "G", "H"],
+              "chains": ["A", "B"] if e == "pdb" else ["A", "B", "C", "D", "E", "F", "G", "H"],
               "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
               "vector": [0.0, 0.0, 0.0]
              }]
@@ -159,46 +159,46 @@ class DataDictReadingTests(TestCase):
              "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             })
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["name"], "VAL")
-            self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1011"]["atoms"][1558 + (f == "pdb")], {
+            self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1011"]["atoms"][1558 + (e == "pdb")], {
              "element": "N", "name": "N", "x": -26.384, "y": 61.433, "z": 36.898,
              "bvalue": 39.3, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
              "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             })
             self.assertEqual(len(d["models"][0]["non-polymer"]), 4)
             self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["name"], "BU2")
-            self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["internal_id"], "A" if f == "pdb" else "C")
+            self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["internal_id"], "A" if e == "pdb" else "C")
             self.assertEqual(len(d["models"][0]["non-polymer"]["A.5001"]["atoms"]), 6)
             self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["polymer"], "A")
             self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["name"], "XMP")
-            self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["internal_id"], "B" if f == "pdb" else "F")
+            self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["internal_id"], "B" if e == "pdb" else "F")
             self.assertEqual(len(d["models"][0]["non-polymer"]["B.2002"]["atoms"]), 24)
             self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["polymer"], "B")
             self.assertEqual(len(d["models"][0]["water"]), 180)
             self.assertEqual(d["models"][0]["water"]["A.3005"]["name"], "HOH")
-            self.assertEqual(d["models"][0]["water"]["A.3005"]["internal_id"], "A" if f == "pdb" else "G")
+            self.assertEqual(d["models"][0]["water"]["A.3005"]["internal_id"], "A" if e == "pdb" else "G")
             self.assertEqual(d["models"][0]["water"]["A.3005"]["polymer"], "A")
             self.assertEqual(d["models"][0]["water"]["B.3180"]["name"], "HOH")
-            self.assertEqual(d["models"][0]["water"]["B.3180"]["internal_id"], "B" if f == "pdb" else "H")
+            self.assertEqual(d["models"][0]["water"]["B.3180"]["internal_id"], "B" if e == "pdb" else "H")
             self.assertEqual(d["models"][0]["water"]["B.3180"]["polymer"], "B")
 
 
     def test_1xda_data_dict(self):
-        for f in ["cif", "mmtf", "pdb"]:
-            d = atomium.open("tests/integration/files/1xda." + f, data_dict=True)
+        for e in ["cif", "mmtf", "pdb"]:
+            d = atomium.open("tests/integration/files/1xda." + e, data_dict=True)
             self.assertEqual(len(d["geometry"]["assemblies"]), 12)
             self.assertEqual(d["geometry"]["assemblies"][0], {
              "id": 1,
-             "software": None if f == "mmtf" else "PISA",
-             "delta_energy": None if f == "mmtf" else -7.0,
-             "buried_surface_area": None if f == "mmtf" else 1720.0,
-             "surface_area": None if f == "mmtf" else 3980.0,
+             "software": None if e == "mmtf" else "PISA",
+             "delta_energy": None if e == "mmtf" else -7.0,
+             "buried_surface_area": None if e == "mmtf" else 1720.0,
+             "surface_area": None if e == "mmtf" else 3980.0,
              "transformations": [{
-              "chains": ["A", "B"] if f == "pdb" else ["A", "B", "I", "J", "K", "L", "Y", "Z"],
+              "chains": ["A", "B"] if e == "pdb" else ["A", "B", "I", "J", "K", "L", "Y", "Z"],
               "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
               "vector": [0.0, 0.0, 0.0]
              }]
             })
-            if f == "pdb":
+            if e == "pdb":
                 self.assertEqual(d["geometry"]["assemblies"][4], {
                  "id": 5,
                  "software": "PISA",
@@ -222,10 +222,10 @@ class DataDictReadingTests(TestCase):
             else:
                 self.assertEqual(d["geometry"]["assemblies"][4], {
                  "id": 5,
-                 "software": None if f == "mmtf" else "PISA",
-                 "delta_energy": None if f == "mmtf" else -332.0,
-                 "buried_surface_area": None if f == "mmtf" else 21680.0,
-                 "surface_area": None if f == "mmtf" else 12240.0,
+                 "software": None if e == "mmtf" else "PISA",
+                 "delta_energy": None if e == "mmtf" else -332.0,
+                 "buried_surface_area": None if e == "mmtf" else 21680.0,
+                 "surface_area": None if e == "mmtf" else 12240.0,
                  "transformations": [{
                   "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
                   "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
@@ -243,11 +243,11 @@ class DataDictReadingTests(TestCase):
 
 
     def test_1m4x_data_dict(self):
-        for f in ["cif", "mmtf", "pdb"]:
-            d = atomium.open("tests/integration/files/1m4x." + f, data_dict=True)
-            self.assertEqual(len(d["geometry"]["assemblies"]), 1 if f == "pdb" else 7)
+        for e in ["cif", "mmtf", "pdb"]:
+            d = atomium.open("tests/integration/files/1m4x." + e, data_dict=True)
+            self.assertEqual(len(d["geometry"]["assemblies"]), 1 if e == "pdb" else 7)
             self.assertEqual(len(d["geometry"]["assemblies"][0]["transformations"]), 1680)
-            if f != "pdb":
+            if e != "pdb":
                 self.assertEqual(len(d["geometry"]["assemblies"][2]["transformations"]), 140)
                 self.assertEqual(len(d["geometry"]["assemblies"][3]["transformations"]), 168)
                 self.assertEqual(len(d["geometry"]["assemblies"][4]["transformations"]), 30)
@@ -271,8 +271,8 @@ class DataDictReadingTests(TestCase):
 
 
     def test_5xme_data_dict(self):
-        for f in ["cif", "mmtf", "pdb"]:
-            d = atomium.open("tests/integration/files/5xme." + f, data_dict=True)
+        for e in ["cif", "mmtf", "pdb"]:
+            d = atomium.open("tests/integration/files/5xme." + e, data_dict=True)
             self.assertEqual(d["experiment"]["technique"], "SOLUTION NMR")
             self.assertEqual(d["quality"], {
              "resolution": None, "rvalue": None, "rfree": None
@@ -283,14 +283,14 @@ class DataDictReadingTests(TestCase):
                 self.assertEqual(len(model["non-polymer"]), len(d["models"][0]["non-polymer"]))
                 self.assertEqual(len(model["water"]), len(d["models"][0]["water"]))
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.199"]["atoms"][1]["x"], 33.969)
-            self.assertEqual(d["models"][1]["polymer"]["A"]["residues"]["A.199"]["atoms"][1 if f == "pdb" else 1828]["x"], 34.064)
+            self.assertEqual(d["models"][1]["polymer"]["A"]["residues"]["A.199"]["atoms"][1 if e == "pdb" else 1828]["x"], 34.064)
 
 
     def test_4y60_data_dict(self):
-        for f in ["cif", "mmtf", "pdb"]:
+        for e in ["cif", "mmtf", "pdb"]:
             d = atomium.open("tests/integration/files/4y60.cif", data_dict=True)
             self.assertEqual(d["models"][0]["polymer"]["A"]["sequence"][:2], "CA")
-            if f != "mmtf":
+            if e != "mmtf":
                 self.assertEqual(d["models"][0]["polymer"]["C"]["residues"]["C.0"]["atoms"][1], {
                  "element": "N", "name": "N", "x": 43.447, "y": -56.622, "z": -20.561,
                  "bvalue": 56.53, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
@@ -299,10 +299,59 @@ class DataDictReadingTests(TestCase):
 
 
     def test_1cbn_data_dict(self):
-        for f in ["cif", "mmtf", "pdb"]:
+        for e in ["cif", "mmtf", "pdb"]:
             d = atomium.open("tests/integration/files/1cbn.cif", data_dict=True)
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.1"]["atoms"][1], {
              "element": "N", "name": "N", "x": 16.864, "y": 14.059, "z": 3.442,
              "bvalue": 6.22, "charge": 0.0, "occupancy": 0.8, "alt_loc": "A",
              "anisotropy": [0, 0, 0, 0, 0, 0],
             })
+
+
+
+class FileReadingTests(TestCase):
+
+    def test_1lol(self):
+        for e in ["cif", "mmtf", "pdb"]:
+            f = atomium.open("tests/integration/files/1lol." + e)
+            self.assertEqual(f.filetype, e)
+            self.assertEqual(f.code, "1LOL")
+            if e == "pdb":
+                self.assertEqual(
+                 f.title, "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
+                )
+            else:
+                self.assertEqual(
+                 f.title, "Crystal structure of orotidine monophosphate decarboxylase complex with XMP"
+                )
+            self.assertEqual(f.deposition_date, date(2002, 5, 6))
+            self.assertEqual(f.classification, None if e == "mmtf" else "LYASE")
+            self.assertEqual(f.keywords, [] if e == "mmtf" else ["TIM BARREL", "LYASE"] if e == "pdb" else ["TIM barrel", "LYASE"])
+            self.assertEqual(f.authors, [] if e == "mmtf" else ["N.WU", "E.F.PAI"] if e == "pdb" else ["Wu, N.", "Pai, E.F."])
+            self.assertEqual(f.technique, "X-RAY DIFFRACTION")
+            if e == "pdb":
+                self.assertEqual(f.source_organism, "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H")
+                self.assertEqual(f.expression_system, "ESCHERICHIA COLI")
+            else:
+                self.assertEqual(
+                 f.source_organism,
+                 None if e == "mmtf" else "Methanothermobacter thermautotrophicus str. Delta H"
+                )
+                self.assertEqual(
+                 f.expression_system, None if e == "mmtf" else "Escherichia coli"
+                )
+            self.assertEqual(f.resolution, 1.9)
+            self.assertEqual(f.rvalue, 0.193)
+            self.assertEqual(f.rfree, 0.229)
+            self.assertEqual(f.assemblies, [{
+             "id": 1,
+             "software": None if e == "mmtf" else "PISA",
+             "delta_energy": None if e == "mmtf" else -31.0,
+             "buried_surface_area": None if e == "mmtf" else 5230,
+             "surface_area": None if e == "mmtf" else 16550,
+             "transformations": [{
+              "chains": ["A", "B"] if e == "pdb" else ["A", "B", "C", "D", "E", "F", "G", "H"],
+              "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+              "vector": [0.0, 0.0, 0.0]
+             }]
+            }])

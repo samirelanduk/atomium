@@ -50,6 +50,7 @@ def parse_binary_field(b):
     :param bytestring b: the field to parse.
     :returns: the parsed result (type varies)."""
 
+
     codec, length, params = struct.unpack(">iii", b[:12])
     len4 = lambda b: int(len(b[12:]) / 4)
     if codec == 1: return struct.unpack("f" * length, b[12:])
@@ -72,10 +73,10 @@ def parse_binary_field(b):
         return delta_decode(run_length_decode(integers))
     elif codec == 9:
         integers = struct.unpack(">" + ("i" * len4(b)), b[12:])
-        return [n / 100 for n in run_length_decode(integers)]
+        return [n / params for n in run_length_decode(integers)]
     elif codec == 10:
         integers = struct.unpack(">" + ("h" * int(len(b[12:]) / 2)), b[12:])
-        return [n / 1000 for n in delta_decode(recursive_decode(integers))]
+        return [n / params for n in delta_decode(recursive_decode(integers))]
     else: raise ValueError(".mmtf error: {} is invalid codec".format(codec))
 
 
@@ -146,7 +147,7 @@ def mmtf_dict_to_data_dict(mmtf_dict):
      }, "experiment": {
       "technique": None, "source_organism": None, "expression_system": None
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-     "geometry": {"assemblies": []}
+     "geometry": {"assemblies": []}, "models": []
     }
     mmtf_to_data_transfer(mmtf_dict, data_dict,
      "description", "code", "structureId")
@@ -170,7 +171,144 @@ def mmtf_dict_to_data_dict(mmtf_dict):
       "vector": t["matrix"][3:-4:4]} for t in a["transformList"]
      ]
     } for a in mmtf_dict.get("bioAssemblyList", [{"transformList": [{}]}])]
+    update_models_list(mmtf_dict, data_dict)
     return data_dict
+
+
+def update_models_list(mmtf_dict, data_dict):
+    """Takes a data dictionary and updates its models list with
+    information from a .mmtf dictionary.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param dict data_dict: the data dictionary to update."""
+
+    gc, atom_count = 0, 0
+    atoms = get_atoms_list(mmtf_dict)
+    for model_num in range(mmtf_dict["numModels"]):
+        model = {"polymer": {}, "non-polymer": {}, "water": {}}
+        for chain_num in range(mmtf_dict["chainsPerModel"][model_num]):
+            type_ = get_type(mmtf_dict, chain_num)
+            if type_ == "polymer": chain = make_chain(mmtf_dict, chain_num)
+            for g in range(gc, gc + mmtf_dict["groupsPerChain"][chain_num]):
+                group = mmtf_dict["groupList"][mmtf_dict["groupTypeList"][g]]
+                group_id = make_group_id(mmtf_dict, chain_num, gc)
+                group_name = group["groupName"]
+                mol = make_molecule(type_, group_name, mmtf_dict, chain_num)
+                atoms_in_group = len(group["atomNameList"])
+                for atom_num in range(atoms_in_group):
+                    add_atom(mol, atoms, group, atom_num, atom_count)
+                atom_count += atoms_in_group
+                d = chain["residues"] if type_ == "polymer" else model[type_]
+                d[group_id] = mol
+                gc += 1
+            if type_ == "polymer":
+                model["polymer"][mmtf_dict["chainNameList"][chain_num]] = chain
+        data_dict["models"].append(model)
+
+
+def get_atoms_list(mmtf_dict):
+    """Creates a list of atom dictionaries from a .mmtf dictionary by zipping
+    together some of its fields.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :rtype: ``list``"""
+
+    return [{
+     "x": x, "y": y, "z": z, "alt_loc": a or None, "bvalue": b, "occupancy": o,
+     "id": i
+    } for x, y, z, a, b, i, o in zip(
+     mmtf_dict["xCoordList"], mmtf_dict["yCoordList"], mmtf_dict["zCoordList"],
+     mmtf_dict["altLocList"], mmtf_dict["bFactorList"], mmtf_dict["atomIdList"],
+     mmtf_dict["occupancyList"]
+    )]
+
+
+def get_type(mmtf_dict, chain_num):
+    """Takes an .mmtf dictionary and a chain number, and works out what type of
+    molecule it corresponds to.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param int chain_num: the chain number.
+    :rtype: ``str``"""
+
+    for entity in mmtf_dict["entityList"]:
+        if chain_num in entity["chainIndexList"]:
+            return entity["type"]
+
+
+def make_chain(mmtf_dict, chain_num):
+    """Creates a chain dictionary
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param int chain_num: the chain number.
+    :rtype: ``dict``"""
+
+    return {
+     "internal_id": mmtf_dict["chainIdList"][chain_num],
+     "residues": {}, "sequence": get_chain_sequence(mmtf_dict, chain_num)
+    }
+
+
+def get_chain_sequence(mmtf_dict, chain_num):
+    """Gets the chain sequence for a given chain number.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param int chain_num: the chain number.
+    :rtype: ``str``"""
+
+    for entity in mmtf_dict["entityList"]:
+        if chain_num in entity["chainIndexList"]:
+            return entity["sequence"]
+    return ""
+
+
+def make_group_id(mmtf_dict, chain_num, g_count):
+    """Creates an atomium residue/molecule ID for a given group.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param int chain_num: the chain number.
+    :param int g_count: the group number.
+    :rtype: ``str``"""
+
+    return "{}.{}{}".format(
+     mmtf_dict["chainNameList"][chain_num], mmtf_dict["groupIdList"][g_count],
+     mmtf_dict["insCodeList"][g_count]
+    )
+
+
+def make_molecule(type_, group_name, mmtf_dict, chain_num):
+    """Creates a residue or ligand dictionary.
+
+    :param str type_: 'polymer' or 'non-polymer'.
+    :param str group_name: the name of the molecule.
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param int chain_num: the chain number.
+    :rtype: ``dict``"""
+
+    return {"name": group_name, "atoms": {}} if type_ == "polymer" else {
+     "name": group_name,
+     "internal_id": mmtf_dict["chainIdList"][chain_num],
+     "polymer": mmtf_dict["chainNameList"][chain_num],
+     "atoms": {}
+    }
+
+
+def add_atom(d, atoms, group, atom_num, atom_count):
+    """Adds an atom dictionary to a molecule dictionary.
+
+    :param dict d: the molecule dictionary to update.
+    :param list atoms: the list of half-created atom dictionaries.
+    :param dict group: a .mmtf group dictionary.
+    :param int atom_num: the atom number within the group.
+    :param int atom_count: the total number of processed atoms."""
+
+    atom = atoms[atom_num + atom_count]
+    atom["name"] = group["atomNameList"][atom_num]
+    atom["element"] = group["elementList"][atom_num]
+    atom["charge"] = group["formalChargeList"][atom_num]
+    atom["anisotropy"] = [0, 0, 0, 0, 0, 0]
+    d["atoms"][atom["id"]] = atom
+    del atom["id"]
 
 
 def mmtf_to_data_transfer(mmtf_dict, data_dict, d_cat, d_key, m_key,

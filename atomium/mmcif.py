@@ -4,6 +4,8 @@ from collections import deque
 import re
 from datetime import datetime
 import numpy as np
+from itertools import groupby
+from .data import CODES
 
 def mmcif_string_to_mmcif_dict(filestring):
     """Takes a .cif filestring and turns into a ``dict`` which represents its
@@ -192,12 +194,13 @@ def mmcif_dict_to_data_dict(mmcif_dict):
      }, "experiment": {
       "technique": None, "source_organism": None, "expression_system": None
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-     "geometry": {"assemblies": []}
+     "geometry": {"assemblies": []}, "models": []
     }
     update_description_dict(mmcif_dict, data_dict)
     update_experiment_dict(mmcif_dict, data_dict)
     update_quality_dict(mmcif_dict, data_dict)
     update_geometry_dict(mmcif_dict, data_dict)
+    update_models_list(mmcif_dict, data_dict)
     return data_dict
 
 
@@ -350,12 +353,158 @@ def operation_id_groups_to_operations(operations, operation_id_groups):
         operations = []
         for op1 in operation_groups[0]:
             for op2 in operation_groups[1]:
-                operations.append(
-                 np.matmul(op1, op2),
-                )
+                operations.append(np.matmul(op1, op2))
         operation_groups[0] = operations
         operation_groups.pop(1)
     return operation_groups[0]
+
+
+def update_models_list(mmcif_dict, data_dict):
+    """Takes a data dictionary and updates its models list with
+    information from a .mmcif dictionary.
+
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :param dict data_dict: the data dictionary to update."""
+
+    data_dict["models"] = []
+    types = {e["id"]: e["type"] for e in mmcif_dict["entity"]}
+    entities = {m["id"]: m["entity_id"] for m in mmcif_dict.get("struct_asym", [])}
+    sequences = make_sequences(mmcif_dict)
+    aniso = make_aniso(mmcif_dict)
+    model = {"polymer": {}, "non-polymer": {}, "water": {}}
+    model_num = mmcif_dict["atom_site"][0]["pdbx_PDB_model_num"]
+    for atom in mmcif_dict["atom_site"]:
+        if atom["pdbx_PDB_model_num"] != model_num:
+            data_dict["models"].append(model)
+            model = {"polymer": {}, "non-polymer": {}, "water": {}}
+            model_num = atom["pdbx_PDB_model_num"]
+        mol_type = types[entities[atom["label_asym_id"]]]
+        if mol_type == "polymer":
+            add_atom_to_polymer(atom, aniso, model)
+        else:
+            add_atom_to_non_polymer(atom, aniso, model, mol_type)
+    data_dict["models"].append(model)
+    for model in data_dict["models"]:
+        add_sequences_to_polymers(model, mmcif_dict, entities)
+
+
+def make_aniso(mmcif_dict):
+    """Makes a mapping of atom IDs to anisotropy information.
+
+    :param mmcif_dict: the .mmcif dict to read.
+    :rtype: ``dict``"""
+
+    return {int(a["id"]): [
+     float(a["U[{}][{}]".format(x, y)]) for x, y in ["11", "22", "33", "12", "13", "23"]
+    ] for a in mmcif_dict.get("atom_site_anisotrop", [])}
+
+
+def add_atom_to_polymer(atom, aniso, model):
+    """Takes an MMCIF atom dictionary, converts it, and adds it to a polymer
+    dictionary.
+
+    :param dict atom: the .mmcif dictionary to read.
+    :param dict aniso: lookup dictionary for anisotropy information.
+    :param dict model: the model to update."""
+
+    mol_id = atom["auth_asym_id"]
+    res_id = make_residue_id(atom)
+    try:
+        model["polymer"][mol_id]["residues"][res_id]["atoms"][
+         int(atom["id"])
+        ] = atom_dict_to_atom_dict(atom, aniso)
+    except:
+        try:
+            model["polymer"][mol_id]["residues"][res_id] = {
+             "name": atom["auth_comp_id"],
+             "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)},
+            }
+        except:
+            model["polymer"][mol_id] = {
+             "internal_id": atom["label_asym_id"], "residues": {res_id: {
+              "name": atom["auth_comp_id"],
+              "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)}
+             }}
+            }
+
+
+def add_atom_to_non_polymer(atom, aniso, model, mol_type):
+    """Takes an MMCIF atom dictionary, converts it, and adds it to a non-polymer
+    dictionary.
+
+    :param dict atom: the .mmcif dictionary to read.
+    :param dict aniso: lookup dictionary for anisotropy information.
+    :param dict model: the model to update.
+    :param str mol_type: non-polymer or water."""
+
+    mol_id = make_residue_id(atom)
+    try:
+        model[mol_type][mol_id]["atoms"][
+         int(atom["id"])
+        ] = atom_dict_to_atom_dict(atom, aniso)
+    except:
+        model[mol_type][mol_id] = {
+         "name": atom["auth_comp_id"],
+         "internal_id": atom["label_asym_id"],
+         "polymer": atom["auth_asym_id"],
+         "atoms": {int(atom["id"]): atom_dict_to_atom_dict(atom, aniso)},
+        }
+
+
+def make_residue_id(d):
+    """Generates a residue ID for an atom.
+
+    :param dict d: the atom dictionary to read.
+    :rtype: ``str``"""
+
+    insert = "" if d["pdbx_PDB_ins_code"] in "?." else d["pdbx_PDB_ins_code"]
+    return "{}.{}{}".format(d["auth_asym_id"], d["auth_seq_id"], insert)
+
+
+def add_sequences_to_polymers(model, mmcif_dict, entities):
+    """Takes a pre-populated mapping of chain IDs to entity IDs, and uses them
+    to add sequence information to a model.
+
+    :param dict model: the model to update.
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :param dict entities: a mapping of chain IDs to entity IDs."""
+
+    sequences = make_sequences(mmcif_dict)
+    for polymer in model["polymer"].values():
+        polymer["sequence"] = sequences.get(entities.get(polymer["internal_id"], ""), "")
+
+
+def make_sequences(mmcif_dict):
+    """Creates a mapping of entity IDs to sequences.
+
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :rtype: ``dict``"""
+
+    return {e["id"]: "".join([
+     CODES.get(res["mon_id"], "X") for res in
+      mmcif_dict.get("entity_poly_seq", []) if res["entity_id"] == e["id"]
+    ]) for e in mmcif_dict.get("entity", []) if e["type"] == "polymer"}
+
+
+def atom_dict_to_atom_dict(d, aniso_dict):
+    """Turns an .mmcif atom dictionary into an atomium atom data dictionary.
+
+    :param dict d: the .mmcif atom dictionary.
+    :param dict d: the mapping of atom IDs to anisotropy.
+    :rtype: ``dict``"""
+
+    charge = "pdbx_formal_charge"
+    atom = {
+     "x": d["Cartn_x"], "y": d["Cartn_y"], "z": d["Cartn_z"],
+     "element": d["type_symbol"], "name": d.get("label_atom_id"),
+     "occupancy": d.get("occupancy", 1), "bvalue": d.get("B_iso_or_equiv"),
+     "charge": d.get(charge, 0) if d.get(charge) != "?" else 0,
+     "alt_loc": d.get("label_alt_id") if d.get("label_alt_id") != "." else None,
+     "anisotropy": aniso_dict.get(int(d["id"]), [0, 0, 0, 0, 0, 0])
+    }
+    for key in ["x", "y", "z", "charge", "bvalue", "occupancy"]:
+        if atom[key] is not None: atom[key] = float(atom[key])
+    return atom
 
 
 def mmcif_to_data_transfer(mmcif_dict, data_dict, d_cat, d_key, m_table, m_key,

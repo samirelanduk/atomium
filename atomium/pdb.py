@@ -3,6 +3,7 @@
 from datetime import datetime
 import re
 from itertools import groupby, chain
+from .data import CODES
 
 def pdb_string_to_pdb_dict(filestring):
     """Takes a .pdb filestring and turns into a ``dict`` which represents its
@@ -71,12 +72,13 @@ def pdb_dict_to_data_dict(pdb_dict):
      }, "experiment": {
       "technique": None, "source_organism": None, "expression_system": None
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-      "geometry": {"assemblies": []}
+      "geometry": {"assemblies": []}, "models": []
     }
     update_description_dict(pdb_dict, data_dict)
     update_experiment_dict(pdb_dict, data_dict)
     update_quality_dict(pdb_dict, data_dict)
     update_geometry_dict(pdb_dict, data_dict)
+    update_models_list(pdb_dict, data_dict)
     return data_dict
 
 
@@ -123,6 +125,25 @@ def update_geometry_dict(pdb_dict, data_dict):
     :param dict data_dict: The data dictionary to update."""
 
     extract_assembly_remark(pdb_dict, data_dict["geometry"])
+
+
+def update_models_list(pdb_dict, data_dict):
+    sequences = make_sequences(pdb_dict)
+    for model_lines in pdb_dict["MODEL"]:
+        aniso = make_aniso(model_lines)
+        last_ter = get_last_ter_line(model_lines)
+        model = {"polymer": {}, "non-polymer": {}, "water": {}}
+        for index, line in enumerate(model_lines):
+            if line[:6] in ["ATOM  ", "HETATM"]:
+                chain_id = line[21] if index < last_ter else id_from_line(line)
+                res_id = id_from_line(line)
+                if index < last_ter:
+                    add_atom_to_polymer(line, model, chain_id, res_id, aniso)
+                else:
+                    add_atom_to_non_polymer(line, model, res_id, aniso)
+            for chain_id, chain in model["polymer"].items():
+                chain["sequence"] = sequences.get(chain_id, "")
+        data_dict["models"].append(model)
 
 
 def extract_header(pdb_dict, description_dict):
@@ -300,6 +321,135 @@ def assembly_lines_to_assembly_dict(lines):
             t["vector"].append(values[-1])
     if t: assembly["transformations"].append(t)
     return assembly
+
+
+def make_sequences(pdb_dict):
+    """Creates a mapping of chain IDs to sequences, by parsing SEQRES records.
+
+    :param dict pdb_dict: the .pdb dictionary to read.
+    :rtype: ``dict``"""
+
+    seq = {}
+    if pdb_dict.get("SEQRES"):
+        for line in pdb_dict["SEQRES"]:
+            chain, residues = line[11], line[19:].strip().split()
+            if chain not in seq:
+                seq[chain] = []
+            seq[chain] += residues
+    return {k: "".join([CODES.get(r, "X") for r in v]) for k, v in seq.items()}
+
+
+def make_aniso(model_lines):
+    """Creates a mapping of chain IDs to anisotropy, by parsing ANISOU records.
+
+    :param dict pdb_dict: the .pdb dictionary to read.
+    :rtype: ``dict``"""
+
+    return {int(line[6:11].strip()): [
+     int(line[n * 7 + 28:n * 7 + 35]) / 10000 for n in range(6)
+    ] for line in model_lines if line[:6] == "ANISOU"}
+
+
+def get_last_ter_line(model_lines):
+    """Gets the index of the last TER record in a list of records. 0 will be
+    returned if there are none.
+
+    :param list model_lines: the lines to search.
+    :rtype: ``int``"""
+
+    last_ter = 0
+    for index, line in enumerate(model_lines[::-1]):
+        if line[:3] == "TER":
+            last_ter = len(model_lines) - index - 1
+            break
+    return last_ter
+
+
+def id_from_line(line):
+    """Creates a residue ID from an atom line.
+
+    :param str line: the ATOM or HETATM line record.
+    :rtype: ``str``"""
+
+    return "{}.{}{}".format(line[21], line[22:26].strip(), line[26].strip())
+
+
+def add_atom_to_polymer(line, model, chain_id, res_id, aniso_dict):
+    """Takes an .pdb ATOM or HETATM record, converts it, and adds it to a
+    polymer dictionary.
+
+    :param dict line: the line to read.
+    :param dict model: the model to update.
+    :param str chain_id: the chain ID to add to.
+    :param str res_id: the molecule ID to add to.
+    :param dict aniso_dict: lookup dictionary for anisotropy information."""
+
+    try:
+        model["polymer"][chain_id]["residues"][res_id]["atoms"][
+         int(line[6:11])
+        ] = atom_line_to_dict(line, aniso_dict)
+    except:
+        try:
+            model["polymer"][chain_id]["residues"][res_id] = {
+             "name": line[17:20].strip(),
+             "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)}
+            }
+        except:
+            model["polymer"][chain_id] = {
+             "internal_id": chain_id,
+             "residues": {res_id: {
+              "name": line[17:20].strip(),
+              "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)}
+             }}
+            }
+
+
+def add_atom_to_non_polymer(line, model, res_id, aniso_dict):
+    """Takes an .pdb ATOM or HETATM record, converts it, and adds it to a
+    non-polymer dictionary.
+
+    :param dict line: the line to read.
+    :param dict model: the model to update.
+    :param str res_id: the molecule ID to add to.
+    :param dict aniso_dict: lookup dictionary for anisotropy information."""
+
+    key = "water" if line[17:20] == "HOH" else "non-polymer"
+    try:
+        model[key][res_id]["atoms"][
+         int(line[6:11])
+        ] = atom_line_to_dict(line, aniso_dict)
+    except:
+        model[key][res_id] = {
+         "name": line[17:20].strip(),
+         "internal_id": line[21], "polymer": line[21],
+         "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)}
+        }
+
+
+def atom_line_to_dict(line, aniso_dict):
+    """Converts an ATOM or HETATM record to an atom dictionary.
+
+    :param str line: the record to convert.
+    :param dict aniso_dict: the anisotropy dictionary to use.
+    :rtype: ``dict``"""
+
+    a = {
+     "occupancy": 1, "bvalue": None, "charge": 0,
+     "anisotropy": aniso_dict.get(int(line[6:11].strip()), [0, 0, 0, 0, 0, 0])
+    }
+    a["name"] = line[12:16].strip() or None
+    a["alt_loc"] = line[16].strip() or None
+    a["x"] = float(line[30:38].strip())
+    a["y"] = float(line[38:46].strip())
+    a["z"] = float(line[46:54].strip())
+    if line[54:60].strip(): a["occupancy"] = float(line[54:60].strip())
+    if line[60:66].strip(): a["bvalue"] = float(line[60:66].strip())
+    a["element"] = line[76:78].strip() or None
+    if line[78:80].strip():
+        try:
+            a["charge"] = int(line[78:80].strip())
+        except: a["charge"] = int(line[78:80][::-1].strip())
+    return a
 
 
 def merge_lines(lines, start, join=" "):

@@ -191,13 +191,15 @@ class MmcifDictToDataDictTests(TestCase):
     @patch("atomium.mmcif.update_experiment_dict")
     @patch("atomium.mmcif.update_quality_dict")
     @patch("atomium.mmcif.update_geometry_dict")
-    def test_can_convert_mmcif_dict_to_data_dict(self, mock_gm, mock_ql, mock_ex, mock_ds):
+    @patch("atomium.mmcif.update_models_list")
+    def test_can_convert_mmcif_dict_to_data_dict(self, mock_md, mock_gm, mock_ql, mock_ex, mock_ds):
         mmcif_dict = {"A": "B"}
         d = mmcif_dict_to_data_dict(mmcif_dict)
         mock_ds.assert_called_with(mmcif_dict, d)
         mock_ex.assert_called_with(mmcif_dict, d)
         mock_ql.assert_called_with(mmcif_dict, d)
         mock_gm.assert_called_with(mmcif_dict, d)
+        mock_md.assert_called_with(mmcif_dict, d)
         self.assertEqual(d, {
          "description": {
           "code": None, "title": None, "deposition_date": None,
@@ -205,7 +207,7 @@ class MmcifDictToDataDictTests(TestCase):
          }, "experiment": {
           "technique": None, "source_organism": None, "expression_system": None
          }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-         "geometry": {"assemblies": []}
+         "geometry": {"assemblies": []}, "models": []
         })
 
 
@@ -451,6 +453,280 @@ class OperationIdGroupsToOperationsTests(TestCase):
          np.array([[74, 62, 77, 97], [130, 93, 119, 170], [107, 48, 70, 137], [111, 79, 101, 143]]),
          np.array([[74, 62, 73, 97], [130, 93, 107, 170], [107, 48, 68, 137], [111, 79, 91, 143]])
         ]))
+
+
+
+class ModelsListUpdatingTests(TestCase):
+
+    @patch("atomium.mmcif.make_sequences")
+    @patch("atomium.mmcif.make_aniso")
+    @patch("atomium.mmcif.add_atom_to_polymer")
+    @patch("atomium.mmcif.add_atom_to_non_polymer")
+    @patch("atomium.mmcif.add_sequences_to_polymers")
+    def test_can_update_one_model(self, mock_sq, mock_np, mock_p, mock_an, mock_ms):
+        m = {"entity": [
+         {"id": "1", "type": "polymer"}, {"id": "2", "type": "non-polymer"},
+         {"id": "3", "type": "non-polymer"}, {"id": "4", "type": "water"},
+         {"id": "5", "type": "water"}
+        ], "struct_asym": [
+         {"id": "A", "entity_id": "1"}, {"id": "B", "entity_id": "1"},
+         {"id": "C", "entity_id": "2"}, {"id": "D", "entity_id": "3"},
+         {"id": "E", "entity_id": "2"}, {"id": "F", "entity_id": "3"},
+         {"id": "G", "entity_id": "4"}, {"id": "H", "entity_id": "5"}
+        ], "atom_site": [
+         {"pdbx_PDB_model_num": "1", "label_asym_id": n} for n in "ABCDEFGH"
+        ]}
+        d = {"models": []}
+        model = {"polymer": {}, "non-polymer": {}, "water": {}}
+        update_models_list(m, d)
+        mock_ms.assert_called_with(m)
+        mock_an.assert_called_with(m)
+        mock_p.assert_any_call(m["atom_site"][0], mock_an.return_value, model)
+        mock_p.assert_any_call(m["atom_site"][1], mock_an.return_value, model)
+        mock_np.assert_any_call(m["atom_site"][2], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][3], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][4], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][5], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][6], mock_an.return_value, model, "water")
+        mock_np.assert_any_call(m["atom_site"][7], mock_an.return_value, model, "water")
+        self.assertEqual(d["models"], [model])
+
+
+    @patch("atomium.mmcif.make_sequences")
+    @patch("atomium.mmcif.make_aniso")
+    @patch("atomium.mmcif.add_atom_to_polymer")
+    @patch("atomium.mmcif.add_atom_to_non_polymer")
+    @patch("atomium.mmcif.add_sequences_to_polymers")
+    def test_can_update_multiple_model(self, mock_sq, mock_np, mock_p, mock_an, mock_ms):
+        m = {"entity": [
+         {"id": "1", "type": "polymer"}, {"id": "2", "type": "non-polymer"},
+         {"id": "3", "type": "non-polymer"}, {"id": "4", "type": "water"},
+         {"id": "5", "type": "water"}
+        ], "struct_asym": [
+         {"id": "A", "entity_id": "1"}, {"id": "B", "entity_id": "1"},
+         {"id": "C", "entity_id": "2"}, {"id": "D", "entity_id": "3"},
+         {"id": "E", "entity_id": "2"}, {"id": "F", "entity_id": "3"},
+         {"id": "G", "entity_id": "4"}, {"id": "H", "entity_id": "5"}
+        ], "atom_site": [
+         {"pdbx_PDB_model_num": m, "label_asym_id": n} for m in "123" for n in "ABCDEFGH"
+        ]}
+        d = {"models": []}
+        model = {"polymer": {}, "non-polymer": {}, "water": {}}
+        update_models_list(m, d)
+        mock_ms.assert_called_with(m)
+        mock_an.assert_called_with(m)
+        mock_p.assert_any_call(m["atom_site"][0], mock_an.return_value, model)
+        mock_p.assert_any_call(m["atom_site"][1], mock_an.return_value, model)
+        mock_np.assert_any_call(m["atom_site"][2], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][3], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][4], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][5], mock_an.return_value, model, "non-polymer")
+        mock_np.assert_any_call(m["atom_site"][6], mock_an.return_value, model, "water")
+        mock_np.assert_any_call(m["atom_site"][7], mock_an.return_value, model, "water")
+        mock_sq.assert_called_with(model, m, {
+         "A": "1", "B": "1","C": "2", "D": "3", "E": "2", "F": "3", "G": "4", "H": "5"
+        })
+        self.assertEqual(d["models"], [model, model, model])
+
+
+
+class AnisoMakingTests(TestCase):
+
+    def test_can_handle_no_aniso(self):
+        self.assertEqual(make_aniso({}), {})
+
+
+    def test_can_make_aniso(self):
+        self.assertEqual(make_aniso({"atom_site_anisotrop": [{
+         "id": "1", "U[1][1]": "0.98", "U[2][2]": "0.748", "U[3][3]": "0.4152",
+         "U[1][2]": "-0.1159", "U[1][3]": "-0.0115", "U[2][3]": "-0.2655",
+        }, {
+         "id": "9", "U[1][1]": "0.909", "U[2][2]": "0.548", "U[3][3]": "0.4152",
+         "U[1][2]": "-0.2159", "U[1][3]": "-0.115", "U[2][3]": "-0.2654",
+        }]}), {
+         1: [0.98, 0.748, 0.4152, -0.1159, -0.0115, -0.2655],
+         9: [0.909, 0.548, 0.4152, -0.2159, -0.115, -0.2654]
+        })
+
+
+
+class AtomToPolymerAddingTests(TestCase):
+
+    @patch("atomium.mmcif.make_residue_id")
+    @patch("atomium.mmcif.atom_dict_to_atom_dict")
+    def test_can_add_atom_to_existing_residue(self, mock_at, mock_id):
+        atom = {"id": "10", "auth_asym_id": "C"}
+        mock_id.return_value = "A.10"
+        model = {"polymer": {"C": {"residues": {"A.10": {"atoms": {}}}}}}
+        add_atom_to_polymer(atom, "ANISO", model)
+        mock_id.assert_called_with(atom)
+        mock_at.assert_called_with(atom, "ANISO")
+        self.assertEqual(model, {"polymer": {"C": {
+         "residues": {"A.10": {"atoms": {10: mock_at.return_value}}}
+        }}})
+
+
+    @patch("atomium.mmcif.make_residue_id")
+    @patch("atomium.mmcif.atom_dict_to_atom_dict")
+    def test_can_add_atom_to_existing_chain(self, mock_at, mock_id):
+        self.maxDiff = None
+        atom = {"id": "10", "auth_asym_id": "C", "auth_comp_id": "VAL"}
+        mock_id.return_value = "A.10"
+        model = {"polymer": {"C": {"residues": {}}}}
+        add_atom_to_polymer(atom, "ANISO", model)
+        mock_id.assert_called_with(atom)
+        mock_at.assert_called_with(atom, "ANISO")
+        self.assertEqual(model, {"polymer": {"C": {
+         "residues": {"A.10": {"atoms": {10: mock_at.return_value}, "name": "VAL"}},
+        }}})
+
+
+    @patch("atomium.mmcif.make_residue_id")
+    @patch("atomium.mmcif.atom_dict_to_atom_dict")
+    def test_can_add_atom_to_non_existing_chain(self, mock_at, mock_id):
+        self.maxDiff = None
+        atom = {"id": "10", "auth_asym_id": "C", "auth_comp_id": "VAL", "label_asym_id": "F"}
+        mock_id.return_value = "A.10"
+        model = {"polymer": {}}
+        add_atom_to_polymer(atom, "ANISO", model)
+        mock_id.assert_called_with(atom)
+        mock_at.assert_called_with(atom, "ANISO")
+        self.assertEqual(model, {"polymer": {"C": {"internal_id": "F",
+         "residues": {"A.10": {"atoms": {10: mock_at.return_value}, "name": "VAL"}},
+        }}})
+
+
+
+class AtomToNonPolymerAddingTests(TestCase):
+
+    @patch("atomium.mmcif.make_residue_id")
+    @patch("atomium.mmcif.atom_dict_to_atom_dict")
+    def test_can_add_atom_to_existing_molecule(self, mock_at, mock_id):
+        atom = {"id": "10", "auth_asym_id": "C"}
+        mock_id.return_value = "A.10"
+        model = {"TYPE": {"A.10": {"atoms": {}}}}
+        add_atom_to_non_polymer(atom, "ANISO", model, "TYPE")
+        mock_id.assert_called_with(atom)
+        mock_at.assert_called_with(atom, "ANISO")
+        self.assertEqual(
+         model, {"TYPE": {"A.10": {"atoms": {10: mock_at.return_value}}}}
+        )
+
+
+    @patch("atomium.mmcif.make_residue_id")
+    @patch("atomium.mmcif.atom_dict_to_atom_dict")
+    def test_can_add_atom_to_non_existing_molecule(self, mock_at, mock_id):
+        atom = {"id": "10", "auth_asym_id": "C", "auth_comp_id": "XYZ", "label_asym_id": "A"}
+        mock_id.return_value = "A.10"
+        model = {"TYPE": {}}
+        add_atom_to_non_polymer(atom, "ANISO", model, "TYPE")
+        mock_id.assert_called_with(atom)
+        mock_at.assert_called_with(atom, "ANISO")
+        self.assertEqual(
+         model, {"TYPE": {"A.10": {
+          "internal_id": "A", "polymer": "C", "name": "XYZ", "atoms": {10: mock_at.return_value}
+         }}}
+        )
+
+
+
+class ResidueIdMakingTests(TestCase):
+
+    def test_can_make_residue_id(self):
+        self.assertEqual(make_residue_id({
+         "auth_asym_id": "A", "auth_seq_id": 100, "pdbx_PDB_ins_code": "B"
+        }), "A.100B")
+
+
+    def test_can_make_residue_id_with_missing_info(self):
+        self.assertEqual(make_residue_id({
+         "auth_asym_id": "A", "auth_seq_id": 100, "pdbx_PDB_ins_code": "?"
+        }), "A.100")
+        self.assertEqual(make_residue_id({
+         "auth_asym_id": "A", "auth_seq_id": 100, "pdbx_PDB_ins_code": "."
+        }), "A.100")
+
+
+
+class SequencesToPolymerAdditionTests(TestCase):
+
+    @patch("atomium.mmcif.make_sequences")
+    def test_can_add_no_sequences(self, mock_make):
+        mock_make.return_value = {}
+        model = {"polymer": {"A": {"internal_id": "T"}, "B": {"internal_id": "X"}}, "non-polmer": {}}
+        add_sequences_to_polymers(model, {1: 2}, {"A": "1", "B": "2"})
+        self.assertEqual(model, {"polymer": {
+         "A": {"internal_id": "T", "sequence": ""}, "B": {"internal_id": "X", "sequence": ""}
+        }, "non-polmer": {}})
+
+
+    @patch("atomium.mmcif.make_sequences")
+    def test_can_add_sequences(self, mock_make):
+        mock_make.return_value = {"1": "ABC", "2": "DEFG"}
+        model = {"polymer": {"A": {"internal_id": "T"}, "B": {"internal_id": "X"}}, "non-polmer": {}}
+        add_sequences_to_polymers(model, {1: 2}, {"T": "1", "X": "2"})
+        self.assertEqual(model, {"polymer": {
+         "A": {"internal_id": "T", "sequence": "ABC"}, "B": {"internal_id": "X", "sequence": "DEFG"}
+        }, "non-polmer": {}})
+
+
+
+class SequenceMakingTests(TestCase):
+
+    def test_can_make_no_sequences(self):
+        self.assertEqual(make_sequences({}), {})
+        self.assertEqual(make_sequences({
+         "entity": [{"type": "non-polymer"}, {"type": "water"}]
+        }), {})
+        self.assertEqual(make_sequences({
+         "entity": [{"id": "1", "type": "polymer"}]
+        }), {"1": ""})
+
+
+    def test_can_make_sequences(self):
+        self.assertEqual(make_sequences({
+         "entity": [{"id": "1", "type": "polymer"}, {"id": "2", "type": "polymer"}],
+         "entity_poly_seq": [
+          {"entity_id": "1", "mon_id": "MET"}, {"entity_id": "1", "mon_id": "XXX"},
+          {"entity_id": "2", "mon_id": "DA"}, {"entity_id": "2", "mon_id": "DT"}, {"entity_id": "2", "mon_id": "DC"}
+         ]
+        }), {"1": "MX", "2": "ATC"})
+
+
+
+class AtomDictToAtomDictTests(TestCase):
+
+    def setUp(self):
+        self.d = {
+         "group_PDB": "ATOM", "id": "26962", "type_symbol": "O",
+         "label_atom_id": "O1", "label_alt_id": "A", "label_comp_id": "GLY",
+         "label_asym_id": "B", "label_entity_id": "2", "label_seq_id": "13",
+         "pdbx_PDB_ins_code": "C", "Cartn_x": "199.639", "Cartn_y": "91.034",
+         "Cartn_z": "-25.211", "occupancy": "0.70", "B_iso_or_equiv": "11.21",
+         "pdbx_formal_charge": "-2", "auth_seq_id": "13", "auth_comp_id": "TRP",
+         "auth_asym_id": "B", "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
+        }
+
+
+    def test_can_get_atom(self):
+        atom = atom_dict_to_atom_dict(self.d, {})
+        self.assertEqual(atom, {
+         "name": "O1", "alt_loc": "A",
+         "x": 199.639, "y": 91.034, "z": -25.211,
+         "occupancy": 0.7, "bvalue": 11.21, "anisotropy": [0] * 6,
+         "element": "O", "charge": -2
+        })
+
+
+    def test_can_get_atom_with_anisotropy(self):
+        self.d["label_alt_id"] = "."
+        atom = atom_dict_to_atom_dict(self.d, {1: 100, 26962: 200})
+        self.assertEqual(atom, {
+         "name": "O1", "alt_loc": None,
+         "x": 199.639, "y": 91.034, "z": -25.211,
+         "occupancy": 0.7, "bvalue": 11.21, "anisotropy": 200,
+         "element": "O", "charge": -2
+        })
 
 
 

@@ -75,12 +75,16 @@ class PdbDictToDataDictTests(TestCase):
     @patch("atomium.pdb.update_description_dict")
     @patch("atomium.pdb.update_experiment_dict")
     @patch("atomium.pdb.update_quality_dict")
-    def test_can_convert_pdb_dict_to_data_dict(self, mock_ql, mock_ex, mock_ds):
+    @patch("atomium.pdb.update_geometry_dict")
+    @patch("atomium.pdb.update_models_list")
+    def test_can_convert_pdb_dict_to_data_dict(self, mock_md, mock_gm, mock_ql, mock_ex, mock_ds):
         pdb_dict = {"A": "B"}
         d = pdb_dict_to_data_dict(pdb_dict)
         mock_ds.assert_called_with(pdb_dict, d)
         mock_ex.assert_called_with(pdb_dict, d)
         mock_ql.assert_called_with(pdb_dict, d)
+        mock_gm.assert_called_with(pdb_dict, d)
+        mock_md.assert_called_with(pdb_dict, d)
         self.assertEqual(d, {
          "description": {
           "code": None, "title": None, "deposition_date": None,
@@ -88,7 +92,7 @@ class PdbDictToDataDictTests(TestCase):
          }, "experiment": {
           "technique": None, "source_organism": None, "expression_system": None
          }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-         "geometry": {"assemblies": []}
+         "geometry": {"assemblies": []}, "models": []
         })
 
 
@@ -139,11 +143,47 @@ class QualityDictUpdatingTests(TestCase):
 class GeometryDictUpdatingTests(TestCase):
 
     @patch("atomium.pdb.extract_assembly_remark")
-    def test_can_update_quality_dict(self, mock_ass):
+    def test_can_update_geometry_dict(self, mock_ass):
         d = {"geometry": "dict"}
         pdb_dict = {"PDB": "DICT"}
         update_geometry_dict(pdb_dict, d)
         mock_ass.assert_called_with(pdb_dict, "dict")
+
+
+
+class ModelsListUpdatingTests(TestCase):
+
+    @patch("atomium.pdb.make_sequences")
+    @patch("atomium.pdb.make_aniso")
+    @patch("atomium.pdb.get_last_ter_line")
+    @patch("atomium.pdb.id_from_line")
+    @patch("atomium.pdb.add_atom_to_polymer")
+    @patch("atomium.pdb.add_atom_to_non_polymer")
+    def test_can_update_one_model(self, mock_np, mock_p, mock_id, mock_tr, mock_an, mock_sq):
+        p = {"MODEL": [[
+         "ATOM                 A",
+         "ATOM                 A",
+         "TER",
+         "ATOM                 B",
+         "ATOM                 B",
+         "TER",
+         "HETATM               A",
+         "HETATM               B"
+        ]]}
+        d = {"models": []}
+        model = {"polymer": {}, "non-polymer": {}, "water": {}}
+        mock_tr.return_value = 5
+        update_models_list(p, d)
+        mock_sq.assert_called_with(p)
+        mock_an.assert_called_with(p["MODEL"][0])
+        mock_tr.assert_called_with(p["MODEL"][0])
+        for n in [0, 1, 3, 4, 6, 7]: mock_id.assert_any_call(p["MODEL"][0][n])
+        for n in [0, 1, 3, 4]: mock_p.assert_any_call(
+         p["MODEL"][0][n], model, "A" if n < 2 else "B", mock_id.return_value, mock_an.return_value
+        )
+        for n in [6, 7]: mock_np.assert_any_call(
+         p["MODEL"][0][n], model, mock_id.return_value, mock_an.return_value
+        )
 
 
 
@@ -493,6 +533,161 @@ class AssemblyLinesToAssemblyDictTests(TestCase):
           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
           "vector": [0.0, 2.0, -6.0]
          }]
+        })
+
+
+
+class SequenceMakingTests(TestCase):
+
+    def test_can_make_no_sequences(self):
+        self.assertEqual(make_sequences({}), {})
+
+
+    def test_can_make_sequences(self):
+        self.assertEqual(make_sequences({"SEQRES": [
+         "SEQRES   1 C  271  VAL TRP XYZ",
+         "SEQRES   1 C  271  HIS",
+         "SEQRES   1 D  271  DT DA"
+        ]}), {"C": "VWXH", "D": "TA"})
+
+
+
+class AnisoMakingTests(TestCase):
+
+    def test_can_make_no_aniso(self):
+        self.assertEqual(make_aniso([]), {})
+
+
+    def test_can_make_aniso(self):
+        self.assertEqual(make_aniso([
+         "ANISOU  107  N   GLY A  13     2406   1892   1614    198    519   -328",
+         "ANISOU  110  O   GLY A  13     3837   2505   1611    164   -121    189"
+        ]), {
+         107: [0.2406, 0.1892, 0.1614, 0.0198, 0.0519, -0.0328],
+         110: [0.3837, 0.2505, 0.1611, 0.0164, -0.0121, 0.0189]
+        })
+
+
+
+class LastTerLineTests(TestCase):
+
+    def test_can_get_no_ter_line(self):
+        self.assertEqual(get_last_ter_line(["ATOM", "HETATM"]), 0)
+
+
+    def test_can_get_last_ter_line(self):
+        self.assertEqual(get_last_ter_line(["AT", "TER", "HET", "TER", "4"]), 3)
+
+
+
+class IdFromLineTests(TestCase):
+
+    def test_can_get_id_no_insert(self):
+        self.assertEqual(id_from_line("ATOM    219  CZ  TYR A  37 "), "A.37")
+
+
+    def test_can_get_id_with_insert(self):
+        self.assertEqual(id_from_line("ATOM    219  CZ  TYR A  37B"), "A.37B")
+
+
+
+class AtomToPolymerTests(TestCase):
+
+    @patch("atomium.pdb.atom_line_to_dict")
+    def test_can_add_atom_to_residue(self, mock_at):
+        model = {"polymer": {"A": {"residues": {"A.10": {"atoms": {}}}}}}
+        line = "ATOM    10   "
+        add_atom_to_polymer(line, model, "A", "A.10", {1: 2})
+        mock_at.assert_called_with(line, {1: 2})
+        self.assertEqual(
+         model, {"polymer": {"A": {"residues": {"A.10": {"atoms": {10: mock_at.return_value}}}}}}
+        )
+
+
+    @patch("atomium.pdb.atom_line_to_dict")
+    def test_can_add_atom_to_chain(self, mock_at):
+        model = {"polymer": {"A": {"residues": {}}}}
+        line = "ATOM    10       RES"
+        add_atom_to_polymer(line, model, "A", "A.10", {1: 2})
+        mock_at.assert_called_with(line, {1: 2})
+        self.assertEqual(model,
+         {"polymer": {"A": {"residues": {"A.10": {"name": "RES", "atoms": {10: mock_at.return_value}}}}}}
+        )
+
+
+    @patch("atomium.pdb.atom_line_to_dict")
+    def test_can_add_atom_to_model(self, mock_at):
+        model = {"polymer": {}}
+        line = "ATOM    10       RES"
+        add_atom_to_polymer(line, model, "A", "A.10", {1: 2})
+        mock_at.assert_called_with(line, {1: 2})
+        self.assertEqual(model,
+         {"polymer": {"A": {"internal_id": "A", "residues": {"A.10": {"name": "RES", "atoms": {10: mock_at.return_value}}}}}}
+        )
+
+
+
+class AtomToNonPolymerTests(TestCase):
+
+    @patch("atomium.pdb.atom_line_to_dict")
+    def test_can_add_atom_to_molecule(self, mock_at):
+        model = {"non-polymer": {"A.10": {"atoms": {}}}}
+        line = "ATOM    10   "
+        add_atom_to_non_polymer(line, model, "A.10", {1: 2})
+        mock_at.assert_called_with(line, {1: 2})
+        self.assertEqual(
+         model, {"non-polymer": {"A.10": {"atoms": {10: mock_at.return_value}}}}
+        )
+
+
+    @patch("atomium.pdb.atom_line_to_dict")
+    def test_can_add_atom_to_model(self, mock_at):
+        model = {"non-polymer": {}}
+        line = "ATOM    10       MOL A"
+        add_atom_to_non_polymer(line, model, "A.10", {1: 2})
+        mock_at.assert_called_with(line, {1: 2})
+        self.assertEqual(
+         model, {"non-polymer": {"A.10": {
+          "internal_id": "A", "polymer": "A", "name": "MOL", "atoms": {10: mock_at.return_value}
+         }}}
+        )
+
+
+    @patch("atomium.pdb.atom_line_to_dict")
+    def test_can_add_atom_to_water(self, mock_at):
+        model = {"water": {"A.10": {"atoms": {}}}}
+        line = "ATOM    10       HOH A"
+        add_atom_to_non_polymer(line, model, "A.10", {1: 2})
+        mock_at.assert_called_with(line, {1: 2})
+        self.assertEqual(
+         model, {"water": {"A.10": {"atoms": {10: mock_at.return_value}}}}
+        )
+
+
+
+class AtomLineToDictTests(TestCase):
+
+    def test_can_convert_full_line_to_atom(self):
+        atom = atom_line_to_dict(
+         "ATOM    107  N1 AGLY B  13C     " +
+         "12.681  37.302 -25.211 0.70  15.56           N2-", {1: 100, 107: 200}
+        )
+        self.assertEqual(atom, {
+         "name": "N1", "alt_loc": "A", "x": 12.681, "y": 37.302, "z": -25.211,
+         "occupancy": 0.7, "bvalue": 15.56, "anisotropy": 200,
+         "element": "N", "charge": -2,
+        })
+
+
+    def test_can_handle_weird_charge(self):
+        atom = atom_line_to_dict(
+         "ATOM    107  N1  GLY B  13      " +
+         "12.681  37.302 -25.211 0.70  15.56           N-2", {}
+        )
+        self.assertEqual(atom, {
+         "name": "N1", "alt_loc": None, "x": 12.681, "y": 37.302, "z": -25.211,
+         "occupancy": 0.7, "bvalue": 15.56, "anisotropy": [0] * 6,
+         "element": "N", "charge": -2,
         })
 
 

@@ -63,11 +63,11 @@ class QueryDecoratorTests(TestCase):
 
     @patch("atomium.base.filter_objects")
     def test_can_get_filtered_objects_as_tuple(self, mock_filter):
-        mock_filter.side_effect = [{10: 20}, {30: 40}]
+        mock_filter.side_effect = [{1: 2}, {3: 4}]
         f = query(self.f, tuple_=True)
-        self.assertEqual(f(self, a=1, b=2), (40,))
+        self.assertEqual(f(self, a=1, b=2), (4,))
         mock_filter.assert_any_call({1: 2, 3: 4, 5: 6}, "a", 1)
-        mock_filter.assert_any_call({10: 20}, "b", 2)
+        mock_filter.assert_any_call({1: 2}, "b", 2)
 
 
     def test_can_get_objects_by_id(self):

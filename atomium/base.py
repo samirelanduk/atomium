@@ -39,12 +39,15 @@ def query(func, tuple_=False):
 
     def structures(self, *args, **kwargs):
         objects = func(self)
+        original = list(objects.values())
         if len(args) == 1:
             return {objects[args[0]]} if args[0] in objects else set()
         for k, v in kwargs.items():
             objects = filter_objects(objects, k, v)
-        t = tuple if tuple_ else set
-        return t(objects.values())
+        if tuple_:
+            return tuple(sorted(objects.values(), key=lambda o: original.index(o)))
+        else:
+            return set(objects.values())
     return structures
 
 

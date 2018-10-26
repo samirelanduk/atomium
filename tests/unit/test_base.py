@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from unittest import TestCase
 from unittest.mock import Mock, patch, PropertyMock, MagicMock
 from atomium.base import *
@@ -44,7 +45,7 @@ class ObjectFilteringTests(TestCase):
 class QueryDecoratorTests(TestCase):
 
     def setUp(self):
-        self.f = lambda s: {1: 2, 3: 4, 5: 6}
+        self.f = lambda s: OrderedDict([(1, 2), (3, 4), (5, 6)])
 
 
     def test_can_get_unfiltered_objects(self):

@@ -418,12 +418,14 @@ def add_atom_to_polymer(atom, aniso, model):
             model["polymer"][mol_id]["residues"][res_id] = {
              "name": atom["auth_comp_id"],
              "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)},
+             "number": len(model["polymer"][mol_id]["residues"]) + 1
             }
         except:
             model["polymer"][mol_id] = {
              "internal_id": atom["label_asym_id"], "residues": {res_id: {
               "name": atom["auth_comp_id"],
-              "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)}
+              "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)},
+              "number": 1
              }}
             }
 

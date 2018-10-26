@@ -199,6 +199,7 @@ def update_models_list(mmtf_dict, data_dict):
                     add_atom(mol, atoms, group, atom_num, atom_count)
                 atom_count += atoms_in_group
                 d = chain["residues"] if type_ == "polymer" else model[type_]
+                if type_ == "polymer": mol["number"] = len(d) + 1
                 d[group_id] = mol
                 gc += 1
             if type_ == "polymer":

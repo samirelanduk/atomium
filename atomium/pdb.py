@@ -392,14 +392,16 @@ def add_atom_to_polymer(line, model, chain_id, res_id, aniso_dict):
         try:
             model["polymer"][chain_id]["residues"][res_id] = {
              "name": line[17:20].strip(),
-             "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)}
+             "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)},
+             "number": len(model["polymer"][chain_id]["residues"]) + 1
             }
         except:
             model["polymer"][chain_id] = {
              "internal_id": chain_id,
              "residues": {res_id: {
               "name": line[17:20].strip(),
-              "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)}
+              "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)},
+              "number": 1
              }}
             }
 

@@ -201,7 +201,9 @@ def create_chains(model_dict):
 
     chains = []
     for chain_id, chain in model_dict["polymer"].items():
-        res = [create_het(r, i) for i, r in chain["residues"].items()]
+        res = [create_het(r, i) for i, r in sorted(
+         chain["residues"].items(), key=lambda x: x[1]["number"]
+        )]
         for res1, res2 in zip(res[:-1], res[1:]):
             res1._next, res2._previous = res2, res1
         chains.append(Chain(*res, id=chain_id,
@@ -261,7 +263,7 @@ def atom_dict_to_atom(d, atom_id):
     :param dict d: the atom dictionary.
     :param int id: the atom's ID.
     :rtype: ``Atom``"""
-    
+
     return Atom(
      d["element"], d["x"], d["y"], d["z"], atom_id,
      d["name"], d["charge"], d["bvalue"], d["anisotropy"]

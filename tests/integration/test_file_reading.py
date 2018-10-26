@@ -152,6 +152,10 @@ class DataDictReadingTests(TestCase):
             self.assertEqual(len(d["models"][0]["polymer"]["A"]["sequence"]), 229)
             self.assertEqual(len(d["models"][0]["polymer"]["A"]["residues"]), 204)
             self.assertEqual(d["models"][0]["polymer"]["A"]["sequence"][:2], "LR")
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]['number'], 1)
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.13"]['number'], 3)
+            self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1011"]['number'], 1)
+            self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1013"]['number'], 3)
             self.assertEqual(len(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["atoms"]), 7)
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["atoms"][1], {
              "element": "N", "name": "N", "x": 3.696, "y": 33.898, "z": 63.219,
@@ -482,7 +486,7 @@ class FileReadingTests(TestCase):
 
             model.dehydrate()
             self.assertEqual(model.waters(), set())
-            
+
 
     def test_5xme(self):
         for e in ["cif", "mmtf", "pdb"]:

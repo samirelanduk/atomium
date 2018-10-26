@@ -49,14 +49,14 @@ class ChainCreationTests(TestCase):
         mock_het.side_effect = residues
         chains = create_chains({
          "polymer": {
-          "A": {"residues": {1: 2, 3: 4}, "internal_id": "1", "sequence": "GH"},
-          "B": {"residues": {5: 6, 7: 8}, "internal_id": "2", "sequence": "AL"},
+          "A": {"residues": {1: {"number": 4}, 3: {"number": 2}}, "internal_id": "1", "sequence": "GH"},
+          "B": {"residues": {5: {"number": 6}, 7: {"number": 8}}, "internal_id": "2", "sequence": "AL"},
          }
         })
-        mock_het.assert_any_call(2, 1)
-        mock_het.assert_any_call(4, 3)
-        mock_het.assert_any_call(6, 5)
-        mock_het.assert_any_call(8, 7)
+        mock_het.assert_any_call({"number": 4}, 1)
+        mock_het.assert_any_call({"number": 2}, 3)
+        mock_het.assert_any_call({"number": 6}, 5)
+        mock_het.assert_any_call({"number": 8}, 7)
         self.assertIs(residues[0]._next, residues[1])
         self.assertIs(residues[1]._previous, residues[0])
         self.assertIs(residues[2]._next, residues[3])
@@ -147,10 +147,3 @@ class AtomCreationTests(TestCase):
         }, 100)
         mock_atom.assert_called_with(1, 2, 3, 4, 100, 5, 6, 7, 8)
         self.assertIs(a, mock_atom.return_value)
-
-
-
-
-
-
-#

@@ -2,7 +2,7 @@
 
 import numpy as np
 import rmsd
-from collections import Counter
+from collections import Counter, OrderedDict
 from .base import StructureClass, query
 
 class AtomStructure:
@@ -491,7 +491,7 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
     def __init__(self, *residues, id=None, internal_id=None, sequence=""):
         self._id, self._internal_id, self._sequence = id, internal_id, sequence
         for res in residues: res._chain = self
-        self._residues = {res._id: res for res in residues}
+        self._residues = OrderedDict([(res._id, res) for res in residues])
         self._model = None
 
 

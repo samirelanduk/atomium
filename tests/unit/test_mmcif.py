@@ -577,7 +577,7 @@ class AtomToPolymerAddingTests(TestCase):
         mock_id.assert_called_with(atom)
         mock_at.assert_called_with(atom, "ANISO")
         self.assertEqual(model, {"polymer": {"C": {
-         "residues": {"A.10": {"atoms": {10: mock_at.return_value}, "name": "VAL"}},
+         "residues": {"A.10": {"atoms": {10: mock_at.return_value}, "name": "VAL", "number": 1}},
         }}})
 
 
@@ -592,7 +592,7 @@ class AtomToPolymerAddingTests(TestCase):
         mock_id.assert_called_with(atom)
         mock_at.assert_called_with(atom, "ANISO")
         self.assertEqual(model, {"polymer": {"C": {"internal_id": "F",
-         "residues": {"A.10": {"atoms": {10: mock_at.return_value}, "name": "VAL"}},
+         "residues": {"A.10": {"atoms": {10: mock_at.return_value}, "name": "VAL", "number": 1}},
         }}})
 
 

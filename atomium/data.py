@@ -1,5 +1,7 @@
 """Contains logic for turning data dictionaies into a parsed Python objects."""
 
+from .structures import *
+
 class File:
     """When a file is parsed, the result is a ``File``. It contains the
     structure of interest, as well as meta information.
@@ -142,6 +144,24 @@ class File:
         return self._assemblies
 
 
+    @property
+    def models(self):
+        """The structure's models.
+
+        :rtype: ``list``"""
+
+        return self._models
+
+
+    @property
+    def model(self):
+        """The structure's first model (and only model if it has only one).
+
+        :rtype: ``Model``"""
+
+        return self._models[0]
+
+
 
 def data_dict_to_file(data_dict, filetype):
     """Turns an atomium data dictionary into a :py:class:`.File`.
@@ -155,7 +175,97 @@ def data_dict_to_file(data_dict, filetype):
         if key != "models":
             for subkey, value in data_dict[key].items():
                 setattr(f, "_" + subkey, value)
+    f._models = [model_dict_to_model(m) for m in data_dict["models"]]
     return f
+
+
+def model_dict_to_model(model_dict):
+    """Takes a model dictionary and turns it into a fully processed
+    :py:class:`.Model` object.
+
+    :param dict model_dict: the model dictionary.
+    :rtype: ``Model``"""
+
+    chains = create_chains(model_dict)
+    ligands = create_ligands(model_dict, chains)
+    waters = create_ligands(model_dict, chains, water=True)
+    model = Model(*(chains + ligands + waters))
+    return model
+
+
+def create_chains(model_dict):
+    """Creates a list of :py:class:`.Chain` objects from a model dictionary.
+
+    :param dict model_dict: the model dictionary.
+    :rtype: ``list``"""
+
+    chains = []
+    for chain_id, chain in model_dict["polymer"].items():
+        res = [create_het(r, i) for i, r in chain["residues"].items()]
+        for res1, res2 in zip(res[:-1], res[1:]):
+            res1._next, res2._previous = res2, res1
+        chains.append(Chain(*res, id=chain_id,
+         internal_id=chain["internal_id"], sequence=chain["sequence"]))
+    return chains
+
+
+def create_ligands(model_dict, chains, water=False):
+    """Creates a list of :py:class:`.Ligand` objects from a model dictionary.
+
+    :param dict model_dict: the model dictionary.
+    :param list chains: a list of :py:class:`.Chain` objects to assign by ID.
+    :param bool water: if `True``, water ligands will be made.
+    :rtype: ``list``"""
+
+    ligs = []
+    for lig_id, lig in model_dict["water" if water else "non-polymer"].items():
+        chain = None
+        for c in chains:
+            if c._id == lig["polymer"]:
+                chain = c
+                break
+        ligs.append(create_het(lig, lig_id, ligand=True, chain=chain, water=water))
+    return ligs
+
+
+def create_het(d, id, ligand=False, chain=None, water=False):
+    """Creates a :py:class:`.Residue` or :py:class:`.Ligand` from some
+    atom-containing dictionary.
+
+    If there is multiple occupancy, only one position will be used.
+
+    :param dict d: the dictionary to parse.
+    :param str id: the ID of the structure to make.
+    :param bool ligand: if ``True`` a ligand will be made, not a residue.
+    :param Chain chain: the :py:class:`.Chain` to assign if a ligand.
+    :param bool water: if ``True``, the ligand will be a water ligand.
+    :rtype: ``Residue`` or ``Ligand``"""
+
+    alt_loc = None
+    if any([atom["occupancy"] < 1 for atom in d["atoms"].values()]):
+        if any([atom["alt_loc"] for atom in d["atoms"].values()]):
+            alt_loc = sorted([atom["alt_loc"] for atom in d["atoms"].values()
+             if atom["alt_loc"]])[0]
+    atoms = [atom_dict_to_atom(a, i) for i, a in d["atoms"].items()
+     if a["occupancy"] == 1 or a["alt_loc"] is None or a["alt_loc"] == alt_loc]
+    if ligand:
+        return Ligand(*atoms, id=id, name=d["name"], chain=chain,
+         internal_id=d["internal_id"], water=water)
+    else:
+        return Residue(*atoms, id=id, name=d["name"])
+
+
+def atom_dict_to_atom(d, atom_id):
+    """Creates an :py:class:`.Atom` from an atom dictionary.
+
+    :param dict d: the atom dictionary.
+    :param int id: the atom's ID.
+    :rtype: ``Atom``"""
+    
+    return Atom(
+     d["element"], d["x"], d["y"], d["z"], atom_id,
+     d["name"], d["charge"], d["bvalue"], d["anisotropy"]
+    )
 
 
 

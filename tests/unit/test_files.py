@@ -145,3 +145,21 @@ class AssemblyPropertyTests(TestCase):
         f = File("abc")
         f._assemblies = "XXX"
         self.assertIs(f.assemblies, f._assemblies)
+
+
+
+class ModelsPropertyTests(TestCase):
+
+    def test_models(self):
+        f = File("abc")
+        f._models = "XXX"
+        self.assertIs(f.models, f._models)
+
+
+
+class ModelPropertyTests(TestCase):
+
+    def test_model(self):
+        f = File("abc")
+        f._models = "XYZ"
+        self.assertIs(f.model, f._models[0])

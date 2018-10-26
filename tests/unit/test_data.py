@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from datetime import date
 from unittest import TestCase
 from unittest.mock import Mock, patch, PropertyMock, MagicMock
@@ -48,10 +49,10 @@ class ChainCreationTests(TestCase):
         residues = [Mock() for _ in range(6)]
         mock_het.side_effect = residues
         chains = create_chains({
-         "polymer": {
-          "A": {"residues": {1: {"number": 4}, 3: {"number": 2}}, "internal_id": "1", "sequence": "GH"},
-          "B": {"residues": {5: {"number": 6}, 7: {"number": 8}}, "internal_id": "2", "sequence": "AL"},
-         }
+         "polymer": OrderedDict([
+          ("A", {"residues": {1: {"number": 4}, 3: {"number": 2}}, "internal_id": "1", "sequence": "GH"}),
+          ("B", {"residues": {5: {"number": 6}, 7: {"number": 8}}, "internal_id": "2", "sequence": "AL"}),
+         ])
         })
         mock_het.assert_any_call({"number": 4}, 1)
         mock_het.assert_any_call({"number": 2}, 3)

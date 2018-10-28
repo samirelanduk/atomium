@@ -11,7 +11,6 @@ class AtomStructure:
 
     The class would never be instantiated directly."""
 
-
     @property
     def id(self):
         """The structure's unique ID.
@@ -182,8 +181,8 @@ class AtomStructure:
         and attempts to find the nearest equivalent of every atom in this
         structure, in that structure.
 
-        Atoms will be aligned first by element, then by name, then by number of
-        bonds, then IDs, and finally by memory address - this last metric is
+        Atoms will be aligned first by ID (if equal), then element, then by
+        name, and finally by memory address - this last metric is
         used to ensure that even when allocation is essentially random, it is at
         least the same every time two structures are aligned.
 
@@ -192,16 +191,24 @@ class AtomStructure:
         atoms.
         :rtype: ``dict``"""
 
-        atoms, other_atoms = list(self.atoms()), list(structure.atoms())
+        atoms = {a._id: a for a in self.atoms()}
+        other_atoms = {a._id: a for a in structure.atoms()}
         if len(atoms) != len(other_atoms):
             raise ValueError("{} and {} have different numbers of atoms".format(
              self, structure
             ))
+        common_ids = atoms.keys() & other_atoms.keys()
+        pair = {}
+        for id_ in common_ids:
+            pair[atoms[id_]] = other_atoms[id_]
+            del atoms[id_]
+            del other_atoms[id_]
+        atoms, other_atoms = list(atoms.values()), list(other_atoms.values())
         for l in atoms, other_atoms:
             l.sort(key=lambda a: (
-             a.element, a.name, a.id, id(a)
+             a._element, a._name, id(a)
             ))
-        return {a1: a2 for a1, a2 in zip(atoms, other_atoms)}
+        return {**pair, **{a1: a2 for a1, a2 in zip(atoms, other_atoms)}}
 
 
     def rmsd_with(self, structure):
@@ -272,6 +279,22 @@ class AtomStructure:
         for atom in self.atoms():
             atoms.update(atom.nearby_atoms(*args, **kwargs))
         return atoms - self.atoms()
+
+
+    def equivalent_to(self, other):
+        """Two structures are equivalent if (1) they have the same number of
+        atoms and (2) their atoms can be paired using :py:meth:`.pairing_with`
+        such that each atom is equivalent to its pair.
+
+        :param AtomStructure other: the structure to compare with.
+        :rtype: ``bool``"""
+
+        try:
+            mapping = self.pairing_with(other)
+            for atom1, atom2 in mapping.items():
+                if not atom1.equivalent_to(atom2): return False
+            return True
+        except: return False
 
 
 
@@ -1159,6 +1182,22 @@ class Atom:
             self._y = round(self._y, places)
             self._z = round(self._z, places)
 
+
+    def equivalent_to(self, other):
+        """Two atoms are equivalent if they occupy the same position and have
+        the same properties.
+
+        :param Atom other: the atom to compare with.
+        :rtype: `bool``"""
+
+        if not isinstance(other, Atom):
+            raise TypeError("Can't compare Atom with object type '{}'".format(
+             other.__class__.__name__
+            ))
+        for attr in ["_element", "location", "_id", "_name",
+         "_charge", "_bvalue", "_anisotropy"]:
+            if getattr(self, attr) != getattr(other, attr): return False
+        return True
 
 
     def copy(self):

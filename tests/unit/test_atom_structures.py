@@ -191,7 +191,7 @@ class AtomStructurePairingTests(AtomStructureTest):
         self.structure2.atoms = MagicMock()
         self.structure2.atoms.return_value = set(self.other_atoms)
         for i, atom1, atom2 in zip(range(10), self.atoms, self.other_atoms):
-            atom1.element = atom2.element = chr(i + 65)
+            atom1._element = atom2._element = chr(i + 65)
 
 
     def test_paired_structure_must_be_equal_length(self):
@@ -214,29 +214,8 @@ class AtomStructurePairingTests(AtomStructureTest):
         elements = ["A", "A", "B", "B", "C", "C", "D", "D", "E", "E"]
         names = ["1", "2", "1", "2", "1", "2", "1", "2", "1", "2"]
         for i, atom1, atom2 in zip(range(10), self.atoms, self.other_atoms):
-            atom1.element = atom2.element = elements[i]
-            atom1.name = atom2.name = names[i]
-        self.assertEqual(self.structure1.pairing_with(self.structure2), {
-         self.atoms[0]: self.other_atoms[0], self.atoms[1]: self.other_atoms[1],
-         self.atoms[2]: self.other_atoms[2], self.atoms[3]: self.other_atoms[3],
-         self.atoms[4]: self.other_atoms[4], self.atoms[5]: self.other_atoms[5],
-         self.atoms[6]: self.other_atoms[6], self.atoms[7]: self.other_atoms[7],
-         self.atoms[8]: self.other_atoms[8], self.atoms[9]: self.other_atoms[9]
-        })
-
-
-    def test_can_pair_by_id(self):
-        elements = ["A", "A", "A", "A", "A", "B", "B", "B", "B", "B"]
-        names = ["A1", "A1", "A1", "A2", "A2", "B1", "B1", "B2", "B2", "B2"]
-        bond_counts = [1, 1, 3, 1, 2, 1, 2, 1, 2, 2]
-        ids = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        for i, atom1, atom2 in zip(range(10), self.atoms, self.other_atoms):
-            atom1.element = atom2.element = elements[i]
-            atom1.name = atom2.name = names[i]
-            atom1.bonds = atom2.bonds = [
-             "bond" for _ in range(bond_counts[i])
-            ]
-            atom1.id = atom2.id = ids[i]
+            atom1._element = atom2._element = elements[i]
+            atom1._name = atom2._name = names[i]
         self.assertEqual(self.structure1.pairing_with(self.structure2), {
          self.atoms[0]: self.other_atoms[0], self.atoms[1]: self.other_atoms[1],
          self.atoms[2]: self.other_atoms[2], self.atoms[3]: self.other_atoms[3],
@@ -249,20 +228,25 @@ class AtomStructurePairingTests(AtomStructureTest):
     def test_can_pair_by_memory_address(self):
         elements = ["A"] * 10
         names = ["A"] * 10
-        bond_counts = [0] * 10
-        ids = [1] * 10
         for i, atom1, atom2 in zip(range(10), self.atoms, self.other_atoms):
-            atom1.element = atom2.element = elements[i]
-            atom1.name = atom2.name = names[i]
-            atom1.bonds = atom2.bonds = [
-             "bond" for _ in range(bond_counts[i])
-            ]
-            atom1.id = atom2.id = ids[i]
+            atom1._element = atom2._element = elements[i]
+            atom1._name = atom2._name = names[i]
         self.assertEqual(
          self.structure1.pairing_with(self.structure2), {a1: a2 for a1, a2 in zip(
           sorted(self.atoms, key=lambda a: id(a)),
           sorted(self.other_atoms, key=lambda a: id(a))
         )})
+
+
+    def test_common_ids_matched_first(self):
+        self.atoms[0]._id, self.other_atoms[1]._id = 1, 1
+        self.assertEqual(self.structure1.pairing_with(self.structure2), {
+         self.atoms[0]: self.other_atoms[1], self.atoms[1]: self.other_atoms[0],
+         self.atoms[2]: self.other_atoms[2], self.atoms[3]: self.other_atoms[3],
+         self.atoms[4]: self.other_atoms[4], self.atoms[5]: self.other_atoms[5],
+         self.atoms[6]: self.other_atoms[6], self.atoms[7]: self.other_atoms[7],
+         self.atoms[8]: self.other_atoms[8], self.atoms[9]: self.other_atoms[9]
+        })
 
 
 
@@ -343,3 +327,27 @@ class AtomStructureNearbyAtomsTests(AtomStructureTest):
         self.assertEqual(self.structure.nearby_atoms(1, a=2), {1, 2, 3, 4, 9})
         for a in self.atoms:
             a.nearby_atoms.assert_called_with(1, a=2)
+
+
+
+class AtomStructureEquivalenceTests(AtomStructureTest):
+
+    @patch("atomium.structures.AtomStructure.pairing_with")
+    def test_structures_not_equivalent_if_cant_pair(self, mock_pair):
+        other = Mock()
+        mock_pair.side_effect = Exception
+        self.assertFalse(self.structure.equivalent_to(other))
+
+
+    @patch("atomium.structures.AtomStructure.pairing_with")
+    def test_structures_not_equivalent_if_atoms_not_equivalent(self, mock_pair):
+        other = Mock()
+        atoms = [Mock(), Mock(), Mock(), Mock()]
+        atoms[0].equivalent_to.return_value = True
+        atoms[2].equivalent_to.return_value = False
+        mock_pair.return_value = {
+         atoms[0]: atoms[1], atoms[2]: atoms[3]
+        }
+        self.assertFalse(self.structure.equivalent_to(other))
+        atoms[2].equivalent_to.return_value = True
+        self.assertTrue(self.structure.equivalent_to(other))

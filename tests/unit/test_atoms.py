@@ -451,6 +451,20 @@ class AtomTrimmingTests(TestCase):
 
 
 
+class AtomEquivalenceTests(TestCase):
+
+    @patch("atomium.structures.Atom.location", new_callable=PropertyMock)
+    def test_atoms_equivalent(self, mock_loc):
+        mock_loc.return_value = (1, 2, 3)
+        atom = Atom("C", 20, 30, 40, 10, "CA", -1, 0.76, [1,])
+        other = Mock(Atom, _element="C", _id=10, _name="CA", location=(1, 2, 3),
+         _charge=-1, _bvalue=0.76, _anisotropy=[1,])
+        self.assertTrue(atom.equivalent_to(other))
+        other._bvalue = 0.75
+        self.assertFalse(atom.equivalent_to(other))
+
+
+
 class AtomCopyingTests(TestCase):
 
     def test_can_copy_atom(self):

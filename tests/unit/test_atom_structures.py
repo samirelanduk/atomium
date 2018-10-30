@@ -351,3 +351,14 @@ class AtomStructureEquivalenceTests(AtomStructureTest):
         self.assertFalse(self.structure.equivalent_to(other))
         atoms[2].equivalent_to.return_value = True
         self.assertTrue(self.structure.equivalent_to(other))
+
+
+
+class AtomStructureSavingTests(AtomStructureTest):
+
+    @patch("atomium.mmcif.structure_to_mmcif_string")
+    @patch("atomium.utilities.save")
+    def test_can_save_cif(self, mock_save, mock_conv):
+        self.structure.save("test.cif")
+        mock_conv.assert_called_with(self.structure)
+        mock_save.assert_called_with(mock_conv.return_value, "test.cif")

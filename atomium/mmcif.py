@@ -4,8 +4,9 @@ from collections import deque
 import re
 from datetime import datetime
 import numpy as np
+import valerius
 from itertools import groupby
-from .data import CODES
+from .data import CODES, Chain, Residue, Ligand
 
 def mmcif_string_to_mmcif_dict(filestring):
     """Takes a .cif filestring and turns into a ``dict`` which represents its
@@ -367,7 +368,7 @@ def update_models_list(mmcif_dict, data_dict):
     :param dict data_dict: the data dictionary to update."""
 
     data_dict["models"] = []
-    types = {e["id"]: e["type"] for e in mmcif_dict["entity"]}
+    types = {e["id"]: e["type"] for e in mmcif_dict.get("entity", {})}
     entities = {m["id"]: m["entity_id"] for m in mmcif_dict.get("struct_asym", [])}
     sequences = make_sequences(mmcif_dict)
     aniso = make_aniso(mmcif_dict)
@@ -395,7 +396,8 @@ def make_aniso(mmcif_dict):
     :rtype: ``dict``"""
 
     return {int(a["id"]): [
-     float(a["U[{}][{}]".format(x, y)]) for x, y in ["11", "22", "33", "12", "13", "23"]
+     float(a["U[{}][{}]".format(x, y)]) for
+      x, y in ["11", "22", "33", "12", "13", "23"]
     ] for a in mmcif_dict.get("atom_site_anisotrop", [])}
 
 
@@ -473,7 +475,9 @@ def add_sequences_to_polymers(model, mmcif_dict, entities):
 
     sequences = make_sequences(mmcif_dict)
     for polymer in model["polymer"].values():
-        polymer["sequence"] = sequences.get(entities.get(polymer["internal_id"], ""), "")
+        polymer["sequence"] = sequences.get(
+         entities.get(polymer["internal_id"], ""), ""
+        )
 
 
 def make_sequences(mmcif_dict):
@@ -535,3 +539,168 @@ def mmcif_to_data_transfer(mmcif_dict, data_dict, d_cat, d_key, m_table, m_key,
         if func: value = func(value)
         data_dict[d_cat][d_key] = value
     except: pass
+
+
+def structure_to_mmcif_string(structure):
+    """Converts a :py:class:`.AtomStructure` to a .cif filestring.
+
+    :param AtomStructure structure: the structure to convert.
+    :rtype: ``str``"""
+
+    lines = ["data_atomium"]
+    chains, ligands, waters = set(), set(), set()
+    atom_lines = ["#", "loop_"] + ["_atom_site." + field for field in [
+     "group_PDB", "id", "type_symbol", "label_atom_id", "label_alt_id",
+     "label_comp_id", "label_asym_id", "label_entity_id", "label_seq_id",
+     "pdbx_PDB_ins_code", "Cartn_x", "Cartn_y", "Cartn_z", "occupancy",
+     "B_iso_or_equiv", "pdbx_formal_charge", "auth_seq_id",
+     "auth_comp_id", "auth_asym_id", "auth_atom_id", "pdbx_PDB_model_num"
+    ]]
+    aniso_lines = ["#", "loop_"] + ["_atom_site_anisotrop." + f for f in [
+     "id", "U[1][1]", "U[2][2]", "U[3][3]", "U[1][2]", "U[1][3]", "U[2][3]",
+    ]]
+    for atom in sorted(structure.atoms(), key=lambda a: a.id):
+        get_structure_from_atom(atom, chains, ligands, waters)
+        atom_lines.append(atom_to_atom_line(atom))
+        if atom.anisotropy != [0, 0, 0, 0, 0, 0]:
+            aniso_lines.append(
+             "{} {} {} {} {} {} {}".format(atom.id, *atom.anisotropy)
+            )
+    entities = create_entities(chains, ligands, waters)
+    update_lines_with_entities(lines, entities)
+    update_lines_with_structures(lines, chains, ligands, waters, entities)
+    lines += atom_lines
+    if len(aniso_lines) > 9: lines += aniso_lines
+    return "\n".join(lines)
+
+
+def get_structure_from_atom(atom, chains, ligands, waters):
+    """Gets an atom's molecule and adds it to one of three ligands.
+
+    :param Atom atom: the atom to check.
+    :param set chains: the set of chains.
+    :param set chains: the set of ligands.
+    :param set chains: the set of waters."""
+
+    if atom.structure:
+        if isinstance(atom.structure, Residue):
+            chains.add(atom.chain)
+        elif atom.structure.water:
+            waters.add(atom.structure)
+        else:
+            ligands.add(atom.structure)
+
+
+def atom_to_atom_line(atom):
+    """Takes an atomium atom and turns it into a .cif ATOM record.
+
+    :param Atom atom: the atom to read.
+    :rtype: ``str``"""
+
+    name = get_atom_name(atom)
+    res_num, res_insert = split_residue_id(atom)
+    return "ATOM {} {} {} . {} {} . {} {} {} {} {} 1 {} {} {} {} {} {} 1".format(
+     atom.id, atom.element, name, atom.structure._name if atom.structure else "?",
+     atom.structure._internal_id if atom.structure and isinstance(
+      atom.structure, Ligand
+     ) else atom.chain._internal_id if atom.chain else ".",
+     res_num, res_insert, atom.x, atom.y, atom.z, atom.bvalue, atom.charge,
+     res_num, atom.structure._name if atom.structure else "?",
+     atom.chain.id if atom.chain else ".", name
+    )
+
+
+def get_atom_name(atom):
+    """Formats an atom name for packing in .cif.
+
+    :param Atom atom: the atom to read.
+    :rtype: ``str``"""
+
+    return '"{}"'.format(atom._name) if "'" in atom._name else atom._name
+
+
+def split_residue_id(atom):
+    """Takes an atom and splits its het ID into components.
+
+    :param Atom atom: the atom to read.
+    :rtype: ``tuple``"""
+
+    if atom.structure:
+        id = atom.structure.id.split(".")[-1]
+        num = "".join([c for c in id if c.isdigit()])
+        insert = "".join([c for c in id if c.isalpha()]) or "?"
+        return num, insert
+    return ".."
+
+
+def create_entities(chains, ligands, waters):
+    """Creates a list of entities from chains, ligands and waters.
+
+    :param set chains: the chains.
+    :param set ligands: the ligands.
+    :param set waters: the waters.
+    :rtype: ``list``"""
+
+    entities = []
+    for chain in sorted(chains, key=lambda c: c.id):
+        for e in entities:
+            if isinstance(e, Chain) and e.sequence == chain.sequence: break
+        else: entities.append(chain)
+    for ligand in sorted(ligands, key=lambda l: l.chain.id):
+        for e in entities:
+            if isinstance(e, Ligand) and e._name == ligand._name: break
+        else: entities.append(ligand)
+    if len(waters): entities.append(list(waters)[0])
+    return entities
+
+
+def update_lines_with_entities(lines, entities):
+    """Updates a list of .cif lines with relevant information about entities.
+
+    :param list lines: the list of lines to update.
+    :param list entities: the entities to pack."""
+
+    lines += ["#", "loop_", "_entity.id", "_entity.type"]
+    for i, entity in enumerate(entities, start=1):
+        lines.append("{} {}".format(i, "polymer" if isinstance(entity, Chain)
+         else "water" if entity.water else "non-polymer"))
+    if any(isinstance(entity, Chain) for entity in entities):
+        lines += ["#", "loop_", "_entity_poly_seq.entity_id",
+         "_entity_poly_seq.num", "_entity_poly_seq.mon_id"]
+        for ei, entity in enumerate(entities, start=1):
+            if isinstance(entity, Chain):
+                for ci, code in enumerate(
+                 valerius.from_string(entity.sequence).codes, start=1
+                ):
+                    lines.append("{} {} {}".format(ei, ci, code))
+
+
+def update_lines_with_structures(lines, chains, ligands, waters, entities):
+    """Updates a list of .cif lines with relevant information about structures.
+
+    :param list lines: the list of lines to update.
+    :param set chains: the chains.
+    :param set ligands: the ligands.
+    :param set waters: the waters.
+    :param list entities: the entities to pack."""
+
+    lines += ["#", "loop_", "_struct_asym.id", "_struct_asym.entity_id"]
+    struct_num = 1
+    for chain in sorted(chains, key=lambda c: c._internal_id):
+        for i, entity in enumerate(entities, start=1):
+            if isinstance(entity, Chain) and entity.sequence == chain.sequence:
+                lines.append("{} {}".format(chain._internal_id, i))
+                break
+    for ligand in sorted(ligands, key=lambda l: l._internal_id):
+        for i, entity in enumerate(entities, start=1):
+            if isinstance(entity, Ligand) and entity._name == ligand._name:
+                lines.append("{} {}".format(ligand._internal_id, i))
+                break
+    water_chains = []
+    for water in sorted(waters, key=lambda w: w._internal_id):
+        if water.chain not in water_chains:
+            for i, entity in enumerate(entities, start=1):
+                if isinstance(entity, Ligand) and entity.water:
+                    lines.append("{} {}".format(water._internal_id, i))
+                    water_chains.append(water.chain)
+                    break

@@ -50,3 +50,9 @@ def get_parse_functions(filestring, path):
              "mmtf": (mmtf_bytes_to_mmtf_dict, mmtf_dict_to_data_dict),
              "pdb": (pdb_string_to_pdb_dict, pdb_dict_to_data_dict)
             }[ending]
+
+
+
+def save(filestring, path):
+    with builtins.open(path, "w") as f:
+        f.write(filestring)

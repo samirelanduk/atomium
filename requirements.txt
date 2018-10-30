@@ -2,6 +2,7 @@ numpy
 requests
 rmsd
 msgpack
+valerius==0.2
 python-coveralls
 sphinx
 sphinx_rtd_theme

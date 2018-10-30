@@ -297,6 +297,15 @@ class AtomStructure:
         except: return False
 
 
+    def save(self, path):
+        from .utilities import save
+        ext = path.split(".")[-1]
+        if ext == "cif":
+            from .mmcif import structure_to_mmcif_string
+            string = structure_to_mmcif_string(self)
+        save(string, path)
+
+
 
 class Molecule:
     """A molecule is a top-level constituent of a :py:class:`.Model` - a chain,

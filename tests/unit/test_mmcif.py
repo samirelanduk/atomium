@@ -771,3 +771,185 @@ class MmcifDictTransferTests(TestCase):
         self.m["M"][0][11] = "102"
         mmcif_to_data_transfer(self.m, self.d, "B", 5, "M", 11, func=int)
         self.assertEqual(self.d["B"][5], 102)
+
+
+
+class StructureToMmcfifStringTests(TestCase):
+
+    @patch("atomium.mmcif.get_structure_from_atom")
+    @patch("atomium.mmcif.atom_to_atom_line")
+    @patch("atomium.mmcif.create_entities")
+    @patch("atomium.mmcif.update_lines_with_entities")
+    @patch("atomium.mmcif.update_lines_with_structures")
+    def test_can_convert_structure_to_mmcif(self, mock_st, mock_en, mock_cr, mock_at, mock_gt):
+        structure = Mock()
+        atoms = [Mock(id=2), Mock(id=1), Mock(id=3)]
+        for atom in atoms: atom.anisotropy = [0] * 6
+        atoms[1].anisotropy = [1, 2, 3, 4, 5, 6]
+        structure.atoms.return_value = atoms
+        mock_at.side_effect = ["A1", "A2", "A3"]
+        string = structure_to_mmcif_string(structure)
+        for atom in atoms:
+            mock_gt.assert_any_call(atom, set(), set(), set())
+            mock_at.assert_any_call(atom)
+        mock_cr.assert_called_with(set(), set(), set())
+        self.assertEqual(mock_en.call_args_list[0][0][1:], (mock_cr.return_value,))
+        self.assertEqual(mock_st.call_args_list[0][0][1:], (set(), set(), set(), mock_cr.return_value))
+        self.assertIn("1 2 3 4 5 6", string)
+
+
+
+class StructureFromAtomTests(TestCase):
+
+    def setUp(self):
+        self.chains, self.ligands, self.waters = set(), set(), set()
+
+
+    def test_can_get_no_structure(self):
+        atom = Mock(structure=None)
+        get_structure_from_atom(atom, self.chains, self.ligands, self.waters)
+        self.assertFalse(self.chains)
+        self.assertFalse(self.ligands)
+        self.assertFalse(self.waters)
+
+
+    def test_can_get_chain(self):
+        atom = Mock(structure=Mock(Residue), chain="CHAIN")
+        get_structure_from_atom(atom, self.chains, self.ligands, self.waters)
+        self.assertEqual(self.chains, {"CHAIN"})
+        self.assertFalse(self.ligands)
+        self.assertFalse(self.waters)
+
+
+    def test_can_get_ligand(self):
+        ligand = Mock(water=False)
+        atom = Mock(structure=ligand)
+        get_structure_from_atom(atom, self.chains, self.ligands, self.waters)
+        self.assertEqual(self.ligands, {ligand})
+        self.assertFalse(self.chains)
+        self.assertFalse(self.waters)
+
+
+    def test_can_get_water(self):
+        water = Mock(water=True)
+        atom = Mock(structure=water)
+        get_structure_from_atom(atom, self.chains, self.ligands, self.waters)
+        self.assertEqual(self.waters, {water})
+        self.assertFalse(self.chains)
+        self.assertFalse(self.ligands)
+
+
+
+class AtomToAtomLineTests(TestCase):
+
+    @patch("atomium.mmcif.get_atom_name")
+    @patch("atomium.mmcif.split_residue_id")
+    def test_can_convert_chain_atom_to_line(self, mock_splt, mock_name):
+        mock_name.return_value = "P"
+        mock_splt.return_value = ["9", "A"]
+        atom = Mock(
+         id=1, element="C", structure=Mock(_name="TY"), chain=Mock(_internal_id="Q", id="D"),
+         x=3, y=4, z=5, bvalue=6, charge=7
+        )
+        self.assertEqual(
+         atom_to_atom_line(atom),
+         "ATOM 1 C P . TY Q . 9 A 3 4 5 1 6 7 9 TY D P 1"
+        )
+
+
+    @patch("atomium.mmcif.get_atom_name")
+    @patch("atomium.mmcif.split_residue_id")
+    def test_can_convert_ligand_atom_to_line(self, mock_splt, mock_name):
+        mock_name.return_value = "P"
+        mock_splt.return_value = ["9", "A"]
+        atom = Mock(
+         id=1, element="C", structure=Mock(Ligand, _name="TY", _internal_id="Q"), chain=Mock(id="D"),
+         x=3, y=4, z=5, bvalue=6, charge=7
+        )
+        self.assertEqual(
+         atom_to_atom_line(atom),
+         "ATOM 1 C P . TY Q . 9 A 3 4 5 1 6 7 9 TY D P 1"
+        )
+
+
+
+class AtomNameGettingTests(TestCase):
+
+    def test_can_get_atom_name_normal(self):
+        atom = Mock(_name="GT")
+        self.assertEqual(get_atom_name(atom), "GT")
+
+
+    def test_can_get_atom_name_with_quotes(self):
+        atom = Mock(_name="GT'")
+        self.assertEqual(get_atom_name(atom), "\"GT'\"")
+
+
+
+class ResidueIdSplittingTests(TestCase):
+
+    def test_can_get_no_id(self):
+        self.assertEqual(split_residue_id(Mock(structure=None)), "..")
+
+
+    def test_can_split_numeric_id(self):
+        self.assertEqual(split_residue_id(Mock(structure=Mock(id="J.123"))), ("123", "?"))
+
+
+    def test_can_split_insert_id(self):
+        self.assertEqual(split_residue_id(Mock(structure=Mock(id="J.123B"))), ("123", "B"))
+
+
+
+class EntityCreationTests(TestCase):
+
+    def test_can_create_entities(self):
+        chains = [Mock(Chain, sequence="A", id=2), Mock(Chain, sequence="B", id=3), Mock(Chain, sequence="A", id=1)]
+        ligands = [Mock(Ligand, _name="A", chain=Mock(id=2)), Mock(Ligand, _name="B", chain=Mock(id=3)), Mock(Ligand, _name="A", chain=Mock(id=1))]
+        waters = [Mock(Ligand), Mock(Ligand), Mock(Ligand)]
+        entities = create_entities(chains, ligands, waters)
+        self.assertEqual(entities, [
+         chains[2], chains[1], ligands[2], ligands[1], waters[0]
+        ])
+
+
+
+class EntityLineUpdatingTests(TestCase):
+
+    def test_can_add_entities_to_lines(self):
+        lines = []
+        update_lines_with_entities(lines, [
+         Mock(Chain, sequence="VA"), Mock(Chain, sequence="MW"),
+         Mock(Ligand, water=False), Mock(Ligand, water=False), Mock(Ligand, water=True)
+        ])
+        self.assertEqual(lines, [
+         "#", "loop_", "_entity.id", "_entity.type", "1 polymer", "2 polymer",
+         "3 non-polymer", "4 non-polymer", "5 water", "#", "loop_",
+         "_entity_poly_seq.entity_id", "_entity_poly_seq.num",
+         "_entity_poly_seq.mon_id", "1 1 VAL", "1 2 ALA", "2 1 MET", "2 2 TRP"
+        ])
+
+
+
+class StructureLineUpdatingTests(TestCase):
+
+    def test_can_add_structures_to_lines(self):
+        lines = []
+        chains = [Mock(Chain, _internal_id="B", sequence="VA"), Mock(Chain, _internal_id="A", sequence="VA")]
+        ligands = [
+         Mock(Ligand, _internal_id="D", _name="T"), Mock(Ligand, _internal_id="E", _name="W"),
+         Mock(Ligand, _internal_id="C", _name="T"), Mock(Ligand, _internal_id="F", _name="W"),
+        ]
+        waters = [
+         Mock(Ligand, _internal_id="G", chain="T"), Mock(Ligand, _internal_id="H", chain="W"),
+         Mock(Ligand, _internal_id="G", chain="T"), Mock(Ligand, _internal_id="H", chain="W"),
+        ]
+        entities = [
+         Mock(Chain, sequence="VA"),
+         Mock(Ligand, water=False, _name="T"), Mock(Ligand, water=False, _name="W"), Mock(Ligand, water=True)
+        ]
+        update_lines_with_structures(lines, chains, ligands, waters, entities)
+        self.assertEqual(lines, [
+         "#", "loop_", "_struct_asym.id", "_struct_asym.entity_id", "A 1",
+         "B 1", "C 2", "D 2", "E 3", "F 3", "G 4", "H 4"
+        ])

@@ -47,3 +47,30 @@ class MmcifFileSavingTests(SavingTest):
 
     def test_can_save_4y60(self):
         self.check_file_saving("4y60.cif")
+
+
+
+class MmtfFileSavingTests(SavingTest):
+
+    def test_can_save_1lol(self):
+        self.check_file_saving("1lol.mmtf")
+
+
+    def test_can_save_1cbn(self):
+        self.check_file_saving("1cbn.mmtf")
+
+
+    def test_can_save_1m4x(self):
+        self.check_file_saving("1m4x.mmtf")
+
+
+    def test_can_save_1xda(self):
+        self.check_file_saving("1xda.mmtf")
+
+
+    def test_can_save_5xme(self):
+        self.check_file_saving("5xme.mmtf")
+
+
+    def test_can_save_4y60(self):
+        self.check_file_saving("4y60.mmtf")

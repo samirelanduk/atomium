@@ -303,6 +303,9 @@ class AtomStructure:
         if ext == "cif":
             from .mmcif import structure_to_mmcif_string
             string = structure_to_mmcif_string(self)
+        elif ext == "mmtf":
+            from .mmtf import structure_to_mmtf_string
+            string = structure_to_mmtf_string(self)
         save(string, path)
 
 

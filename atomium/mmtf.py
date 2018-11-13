@@ -4,6 +4,8 @@ import msgpack
 import struct
 from collections import deque
 from datetime import datetime
+from .mmcif import get_structure_from_atom, create_entities, split_residue_id
+from .structures import Chain, Ligand
 
 def mmtf_bytes_to_mmtf_dict(bytestring):
     """Takes the raw bytestring of a .mmtf file and turns it into a normal,
@@ -168,9 +170,9 @@ def mmtf_dict_to_data_dict(mmtf_dict):
      "buried_surface_area": None, "surface_area": None, "transformations": [{
       "chains": [mmtf_dict["chainIdList"][i] for i in t["chainIndexList"]],
       "matrix": [t["matrix"][n * 4: (n * 4) + 3] for n in range(3)],
-      "vector": t["matrix"][3:-4:4]} for t in a["transformList"]
+      "vector": t["matrix"][3:-4:4]} for t in a.get("transformList", [])
      ]
-    } for a in mmtf_dict.get("bioAssemblyList", [{"transformList": [{}]}])]
+    } for a in mmtf_dict.get("bioAssemblyList", [])]
     update_models_list(mmtf_dict, data_dict)
     return data_dict
 
@@ -333,3 +335,167 @@ def mmtf_to_data_transfer(mmtf_dict, data_dict, d_cat, d_key, m_key,
         if trim: value = round(value, trim)
         data_dict[d_cat][d_key] = value
     except: pass
+
+
+def structure_to_mmtf_string(structure):
+    """Converts a :py:class:`.AtomStructure` to a .mmtf filestring.
+
+    No compression is currently performed.
+
+    :param AtomStructure structure: the structure to convert.
+    :rtype: ``bytes``"""
+
+    chains, ligands, waters, properties, entities = get_structures(structure)
+    entity_list = get_entity_list(entities, chains, ligands, waters)
+    chain_ids, chain_names = get_chain_ids_and_names(chains, ligands, waters)
+    groups_per_chain = get_groups_per_chain(chains, ligands, waters)
+    group_types, group_ids, groups, ins = get_groups(chains, ligands, waters)
+    x, y, z, alt, bfactor, ids, occupancy = zip(*properties)
+    chain_count = len(chains) + len(ligands) + len(set(l.chain for l in waters))
+    d = {
+     "numModels": 1, "numChains": chain_count, "chainsPerModel": [chain_count],
+     "xCoordList": x, "yCoordList": y, "zCoordList": z, "altLocList": alt,
+     "bFactorList": bfactor, "atomIdList": ids, "occupancyList": occupancy,
+     "entityList": entity_list, "chainIdList": chain_ids, "insCodeList": ins,
+     "chainNameList": chain_names, "groupsPerChain": groups_per_chain,
+     "groupList": groups, "groupIdList": group_ids, "groupTypeList": group_types
+    }
+    return msgpack.packb(d)
+
+
+def get_structures(structure):
+    """Takes an atomic structure, and creates a list of chains within it, a list
+    of ligands, a list of waters, a list of relevant atom properties, and a list
+    of entities.
+
+    :param AtomStructure structure: the structure to unpack.
+    :rtype: ``tuple``"""
+
+    chains, ligands, waters, atom_properties = set(), set(), set(), []
+    for atom in sorted(structure.atoms(), key=lambda a: a.id):
+        get_structure_from_atom(atom, chains, ligands, waters)
+        atom_properties.append([
+         atom.x, atom.y, atom.z, "", atom.bvalue, atom.id, 1
+        ])
+    chains = sorted(chains, key=lambda c: c._internal_id)
+    ligands = sorted(ligands, key=lambda l: l._internal_id)
+    waters = sorted(waters, key=lambda w: w._internal_id)
+    entities = create_entities(chains, ligands, waters)
+    return (chains, ligands, waters, atom_properties, entities)
+
+
+def get_entity_list(entities, chains, ligands, waters):
+    """Takes a list of entity objects, as well as the objects they represent,
+    and turns them into a list of .mmtf dictionaries.
+
+    :param list entities: the entities to pack.
+    :param list chains: the chains to pack.
+    :param list ligands: the ligands to pack.
+    :param list waters: the waters to pack.
+    :rtype: ``list``"""
+
+    entity_list = []
+    for e in entities:
+        if isinstance(e, Chain):
+            entity_list.append({"type": "polymer", "chainIndexList": [
+             i for i, c in enumerate(chains) if c.sequence == e.sequence
+            ], "sequence": e.sequence})
+        elif isinstance(e, Ligand) and not e.water:
+            entity_list.append({"type": "non-polymer", "chainIndexList": [
+             i + len(chains) for i, l in enumerate(ligands) if l._name == e._name
+            ]})
+        else:
+            water_chains = set(w.chain for w in waters)
+            entity_list.append({"type": "water", "chainIndexList": [
+             i + len(chains) + len(ligands) for i in range(len(water_chains))
+            ]})
+    return entity_list
+
+
+def get_chain_ids_and_names(chains, ligands, waters):
+    """Takes lists of chains, ligands and waters, and returns the chain IDs and
+    chain names that should go in the .mmtf file.
+
+    :param list chains: the chains to pack.
+    :param list ligands: the ligands to pack.
+    :param list waters: the waters to pack.
+    :rtype: ``list``"""
+
+    chain_ids, chain_names = [], []
+    for chain in chains:
+        chain_ids.append(chain._internal_id)
+        chain_names.append(chain.id)
+    for ligand in ligands:
+        chain_ids.append(ligand._internal_id)
+        chain_names.append(ligand.chain.id)
+    for water in waters:
+        if water._internal_id not in chain_ids:
+            chain_ids.append(water._internal_id)
+            chain_names.append(water.chain.id)
+    return (chain_ids, chain_names)
+
+
+def get_groups_per_chain(chains, ligands, waters):
+    """Takes lists of chains, ligands and waters, and returns the chain counts
+    that should go in the .mmtf file.
+
+    :param list chains: the chains to pack.
+    :param list ligands: the ligands to pack.
+    :param list waters: the waters to pack.
+    :rtype: ``list``"""
+
+    groups_per_chain = []
+    for chain in chains:
+        groups_per_chain.append(len(chain.residues()))
+    for ligand in ligands:
+        groups_per_chain.append(1)
+    water_chains = sorted(set(w._internal_id for w in waters))
+    for wc in water_chains:
+        groups_per_chain.append(len([w for w in waters if w._internal_id == wc]))
+    return groups_per_chain
+
+
+def get_groups(chains, ligands, waters):
+    """Creates the relevant lists of group information from chains, ligands and
+    waters.
+
+    :param list chains: the chains to pack.
+    :param list ligands: the ligands to pack.
+    :param list waters: the waters to pack.
+    :rtype: ``tuple``"""
+
+    group_types, group_ids, groups, inserts = [], [], [], []
+    for chain in chains:
+        for res in chain.residues():
+            add_het_to_groups(res, group_types, group_ids, groups, inserts)
+    for ligand in ligands + waters:
+        add_het_to_groups(ligand, group_types, group_ids, groups, inserts)
+    return (group_types, group_ids, groups, inserts)
+
+
+def add_het_to_groups(het, group_type_list, group_id_list, group_list, ins_list):
+    """Updates group lists with information from a single :py:class:`.Het`.
+
+    :param Het het: the Het to pack.
+    :param list group_type_list: the list of group types.
+    :param list group_id_list: the list of group IDs.
+    :param list group_list: the list of groups.
+    :param list ins_list: the list of insertion codes.
+    :rtype: ``tuple``"""
+
+    atoms = sorted(het.atoms(), key=lambda a: a.id)
+    group = {
+     "groupName": het._name, "atomNameList": [a._name for a in atoms],
+     "elementList": [a.element for a in atoms],
+     "formalChargeList": [a.charge for a in atoms]
+    }
+    for i, g in enumerate(group_list):
+        if g == group:
+            group_type_list.append(i)
+            break
+    else:
+        group_list.append(group)
+        group_type_list.append(len(group_list) - 1)
+    id_, insert = split_residue_id(atoms[0])
+    group_id_list.append(id_)
+    ins_list.append(insert)

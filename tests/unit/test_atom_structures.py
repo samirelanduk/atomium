@@ -362,3 +362,11 @@ class AtomStructureSavingTests(AtomStructureTest):
         self.structure.save("test.cif")
         mock_conv.assert_called_with(self.structure)
         mock_save.assert_called_with(mock_conv.return_value, "test.cif")
+
+
+    @patch("atomium.mmtf.structure_to_mmtf_string")
+    @patch("atomium.utilities.save")
+    def test_can_save_cif(self, mock_save, mock_conv):
+        self.structure.save("test.mmtf")
+        mock_conv.assert_called_with(self.structure)
+        mock_save.assert_called_with(mock_conv.return_value, "test.mmtf")

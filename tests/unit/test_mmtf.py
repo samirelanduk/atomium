@@ -1,5 +1,6 @@
 from collections import deque
 import struct
+import msgpack
 from datetime import date
 from unittest import TestCase
 from unittest.mock import Mock, patch, PropertyMock, MagicMock
@@ -416,7 +417,6 @@ class AtomAddingTests(TestCase):
 
 
 
-
 class MmtfDictTransferTests(TestCase):
 
     def setUp(self):
@@ -453,3 +453,162 @@ class MmtfDictTransferTests(TestCase):
         self.assertEqual(self.d["B"][5], 10.1)
         mmtf_to_data_transfer(self.m, self.d, "B", 5, "M", trim=2)
         self.assertEqual(self.d["B"][5], 10.13)
+
+
+
+class StructureToMmtfStringTests(TestCase):
+
+    @patch("atomium.mmtf.get_structures")
+    @patch("atomium.mmtf.get_entity_list")
+    @patch("atomium.mmtf.get_chain_ids_and_names")
+    @patch("atomium.mmtf.get_groups_per_chain")
+    @patch("atomium.mmtf.get_groups")
+    def test_can_convert_structure_to_mmtf_string(self, mock_gr, mock_gpc, mock_ch, mock_en, mock_st):
+        structure = Mock()
+        mock_st.return_value = ("AB", "CD", [
+         Mock(chain="A"), Mock(chain="A"), Mock(chain="B"), Mock(chain="B")
+        ], [
+         [1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14]
+        ], [])
+        mock_en.return_value = "GH"
+        mock_ch.return_value = ([10, 20], [30, 40])
+        mock_gpc.return_value = [8, 4]
+        mock_gr.return_value = (100, 200, 300, 400)
+        s = structure_to_mmtf_string(structure)
+        self.assertEqual(s, msgpack.packb({
+         "numModels": 1, "numChains": 6, "chainsPerModel": [6],
+         "xCoordList": [1, 8], "yCoordList": [2, 9], "zCoordList": [3, 10], "altLocList": [4, 11],
+         "bFactorList": [5, 12], "atomIdList": [6, 13], "occupancyList": [7, 14],
+         "entityList": "GH", "chainIdList": [10, 20], "insCodeList": 400,
+         "chainNameList": [30, 40], "groupsPerChain": [8, 4],
+         "groupList": 300, "groupIdList": 200, "groupTypeList": 100
+        }))
+
+
+
+class StructureGettingTests(TestCase):
+
+    @patch("atomium.mmtf.get_structure_from_atom")
+    @patch("atomium.mmtf.create_entities")
+    def test_can_get_structures(self, mock_cr, mock_get):
+        s = Mock()
+        s.atoms.return_value = [
+         Mock(id=2, x=10, y=11, z=13, bvalue=14), Mock(id=1, x=20, y=21, z=23, bvalue=24)
+        ]
+        chains, ligands, waters, atom_properties, entities  = get_structures(s)
+        mock_get.assert_any_call(s.atoms.return_value[0], set(), set(), set())
+        mock_get.assert_any_call(s.atoms.return_value[1], set(), set(), set())
+        mock_cr.assert_called_with([], [], [])
+        self.assertEqual(chains, [])
+        self.assertEqual(ligands, [])
+        self.assertEqual(waters, [])
+        self.assertEqual(atom_properties, [[20, 21, 23, "", 24, 1, 1], [10, 11, 13, "", 14, 2, 1]])
+        self.assertEqual(entities, mock_cr.return_value)
+
+
+
+class EntityListGenerationTests(TestCase):
+
+    def test_can_get_entity_list(self):
+        chains = [Mock(sequence="E"), Mock(sequence="E")]
+        ligands = [Mock(_name="A"), Mock(_name="B")]
+        waters = [Mock(), Mock()]
+        entities = [Mock(Chain, sequence="E"), Mock(Ligand, water=False, _name="A"),
+         Mock(Ligand, water=False, _name="B"), Mock(Ligand)]
+        e = get_entity_list(entities, chains, ligands, waters)
+        self.assertEqual(e, [{
+         "type": "polymer", "sequence": "E", "chainIndexList": [0, 1]
+        }, {
+         "type": "non-polymer", "chainIndexList": [2]
+        }, {
+         "type": "non-polymer", "chainIndexList": [3]
+        }, {
+         "type": "water", "chainIndexList": [4, 5]
+        }])
+
+
+
+class ChainIdAndNameGettingTests(TestCase):
+
+    def test_can_get_chain_ids_and_names(self):
+        chains = [Mock(_internal_id="A", id="A"), Mock(_internal_id="B", id="B")]
+        ligands = [Mock(_internal_id="C", chain=Mock(id="A")), Mock(_internal_id="D", chain=Mock(id="B"))]
+        waters = [Mock(_internal_id="E", chain=Mock(id="A")), Mock(_internal_id="E", id="B")]
+        ids, names = get_chain_ids_and_names(chains, ligands, waters)
+        self.assertEqual(ids, ["A", "B", "C", "D", "E"])
+        self.assertEqual(names, ["A", "B", "A", "B", "A"])
+
+
+
+class GroupPerChainCountTests(TestCase):
+
+    def test_can_get_chain_counts(self):
+        chains = [Mock(), Mock()]
+        chains[0].residues.return_value = "AB"
+        chains[1].residues.return_value = "CDE"
+        ligands = [Mock(), Mock()]
+        waters = [Mock(chain="A", _internal_id=1), Mock(chain="A", _internal_id=1),
+         Mock(chain="B", _internal_id=2), Mock(chain="B", _internal_id=2), Mock(chain="B", _internal_id=2)]
+        counts = get_groups_per_chain(chains, ligands, waters)
+        self.assertEqual(counts, [2, 3, 1, 1, 2, 3])
+
+
+
+class GroupCreationTests(TestCase):
+
+    @patch("atomium.mmtf.add_het_to_groups")
+    def test_can_get_groups(self, mock_add):
+        chains = [Mock(), Mock()]
+        chains[0].residues.return_value = "AB"
+        chains[1].residues.return_value = "CDE"
+        ligands = [Mock(), Mock()]
+        waters = [Mock(), Mock()]
+        a, b, c, d = get_groups(chains, ligands, waters)
+        mock_add.assert_any_call("A", [], [], [], [])
+        mock_add.assert_any_call("B", [], [], [], [])
+        mock_add.assert_any_call("C", [], [], [], [])
+        mock_add.assert_any_call("D", [], [], [], [])
+        mock_add.assert_any_call("E", [], [], [], [])
+        mock_add.assert_any_call(ligands[0], [], [], [], [])
+        mock_add.assert_any_call(ligands[1], [], [], [], [])
+        mock_add.assert_any_call(waters[0], [], [], [], [])
+        mock_add.assert_any_call(waters[1], [], [], [], [])
+        self.assertEqual((a, b, c, d), ([], [], [], []))
+
+
+
+class HetToGroupAdditionTests(TestCase):
+
+    @patch("atomium.mmtf.split_residue_id")
+    def test_can_add_new_het_to_group(self, mock_split):
+        a, b, c, d = [], [], [], []
+        het = Mock(_name="HET")
+        mock_split.return_value = "AB"
+        het.atoms.return_value = [Mock(id=2, _name="AA", element="A", charge=-1), Mock(id=1, _name="BB", element="B", charge=-2)]
+        add_het_to_groups(het, a, b, c, d)
+        self.assertEqual(a, [0])
+        self.assertEqual(b, ["A"])
+        self.assertEqual(c, [{
+         "groupName": "HET", "atomNameList": ["BB", "AA"],
+         "elementList": ["B", "A"], "formalChargeList": [-2, -1]
+        }])
+        self.assertEqual(d, ["B"])
+
+
+    @patch("atomium.mmtf.split_residue_id")
+    def test_can_add_existing_het_to_group(self, mock_split):
+        a, b, c, d = [0], ["A"], [{
+         "groupName": "HET", "atomNameList": ["BB", "AA"],
+         "elementList": ["B", "A"], "formalChargeList": [-2, -1]
+        }], ["B"]
+        het = Mock(_name="HET")
+        mock_split.return_value = "AB"
+        het.atoms.return_value = [Mock(id=2, _name="AA", element="A", charge=-1), Mock(id=1, _name="BB", element="B", charge=-2)]
+        add_het_to_groups(het, a, b, c, d)
+        self.assertEqual(a, [0, 0])
+        self.assertEqual(b, ["A", "A"])
+        self.assertEqual(c, [{
+         "groupName": "HET", "atomNameList": ["BB", "AA"],
+         "elementList": ["B", "A"], "formalChargeList": [-2, -1]
+        }])
+        self.assertEqual(d, ["B", "B"])

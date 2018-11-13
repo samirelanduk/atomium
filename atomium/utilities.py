@@ -54,5 +54,7 @@ def get_parse_functions(filestring, path):
 
 
 def save(filestring, path):
-    with builtins.open(path, "w") as f:
-        f.write(filestring)
+    try:
+        with builtins.open(path, "w") as f: f.write(filestring)
+    except:
+        with builtins.open(path, "wb") as f: f.write(filestring)

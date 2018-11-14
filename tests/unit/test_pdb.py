@@ -721,3 +721,133 @@ class LineMergingTests(TestCase):
          merge_lines(self.lines, 8, join="."),
          "89.ij.89"
         )
+
+
+
+class StructureToPdbStringTests(TestCase):
+
+    def setUp(self):
+        self.patch1 = patch("atomium.pdb.pack_sequences")
+        self.patch2 = patch("atomium.pdb.atom_to_atom_line")
+        self.mock_pk = self.patch1.start()
+        self.mock_at = self.patch2.start()
+        self.mock_at.side_effect = lambda a, l: l.append(str(a.id))
+
+
+    def tearDown(self):
+        self.patch1.stop()
+        self.patch2.stop()
+
+
+    def test_can_convert_structure_with_one_chain_to_lines(self):
+        structure = Mock()
+        structure.atoms.return_value = [
+         Mock(id=1, structure=Mock(Residue), chain=1), Mock(id=2, structure=Mock(Residue), chain=1)
+        ]
+        s = structure_to_pdb_string(structure)
+        self.assertEqual(self.mock_pk.call_args_list[0][0][0], structure)
+        self.assertEqual(s, "1\n2\nTER")
+
+
+
+    def test_can_convert_structure_with_two_chains_to_lines(self):
+        structure = Mock()
+        structure.atoms.return_value = [
+         Mock(id=1, structure=Mock(Residue), chain=1), Mock(id=2, structure=Mock(Residue), chain=1),
+         Mock(id=3, structure=Mock(Residue), chain=2), Mock(id=4, structure=Mock(Residue), chain=2)
+        ]
+        s = structure_to_pdb_string(structure)
+        self.assertEqual(self.mock_pk.call_args_list[0][0][0], structure)
+        self.assertEqual(s, "1\n2\nTER\n3\n4\nTER")
+
+
+    def test_can_convert_structure_with_one_chain_and_ligands_to_lines(self):
+        structure = Mock()
+        structure.atoms.return_value = [
+         Mock(id=1, structure=Mock(Residue), chain=1), Mock(id=2, structure=Mock(Residue), chain=1),
+         Mock(id=3, structure=Mock(Ligand), chain=1), Mock(id=4, structure=Mock(Ligand), chain=1)
+        ]
+        s = structure_to_pdb_string(structure)
+        self.assertEqual(self.mock_pk.call_args_list[0][0][0], structure)
+        self.assertEqual(s, "1\n2\nTER\n3\n4")
+
+
+    def test_can_convert_structure_with_two_chains_and_ligands_to_lines(self):
+        structure = Mock()
+        structure.atoms.return_value = [
+         Mock(id=1, structure=Mock(Residue), chain=1), Mock(id=2, structure=Mock(Residue), chain=1),
+         Mock(id=3, structure=Mock(Residue), chain=2), Mock(id=4, structure=Mock(Residue), chain=2),
+         Mock(id=5, structure=Mock(Ligand), chain=1), Mock(id=6, structure=Mock(Ligand), chain=1)
+        ]
+        s = structure_to_pdb_string(structure)
+        self.assertEqual(self.mock_pk.call_args_list[0][0][0], structure)
+        self.assertEqual(s, "1\n2\nTER\n3\n4\nTER\n5\n6")
+
+
+
+class SequencePackingTests(TestCase):
+
+    def test_can_pack_sequence(self):
+        structure = Mock()
+        structure.chains.return_value = [Mock(sequence="ABC" * 10, id=2), Mock(sequence="GA", id=1)]
+        lines = []
+        pack_sequences(structure, lines)
+        self.assertEqual(lines, [
+         "SEQRES   1 1    2  DG DA",
+         "SEQRES   1 2   30  ALA XXX CYS ALA XXX CYS ALA XXX CYS ALA XXX CYS ALA",
+         "SEQRES   2 2   30  XXX CYS ALA XXX CYS ALA XXX CYS ALA XXX CYS ALA XXX",
+         "SEQRES   3 2   30  CYS ALA XXX CYS"
+        ])
+
+
+    def test_can_handle_no_chains(self):
+        structure = Mock()
+        structure.chains.side_effect = AttributeError
+        lines = []
+        pack_sequences(structure, lines)
+        self.assertEqual(lines, [])
+
+
+
+class AtomToAtomLineTests(TestCase):
+
+    @patch("atomium.pdb.atom_to_anisou_line")
+    def test_can_convert_atom_to_line_residue(self, mock_an):
+        atom = Mock(structure=Mock(Residue, id="A100B", _name="RES"),
+         chain=Mock(id="A"), _name="CD", id=100, x=1.2, y=2.7, z=-9, bvalue=12.1,
+          charge=-2, element="C")
+        lines = []
+        atom_to_atom_line(atom, lines)
+        self.assertEqual(lines[0], "ATOM    100  CD  RES A 100B      1.200   2.700  -9.000  1.00  12.1           C2-")
+        self.assertEqual(lines[1], mock_an.return_value)
+        mock_an.assert_called_with(atom, " CD", "RES", "A", 100, "B")
+
+
+    @patch("atomium.pdb.atom_to_anisou_line")
+    def test_can_convert_atom_to_line_ligand(self, mock_an):
+        atom = Mock(structure=Mock(Ligand, id="A100B", _name="RES"),
+         chain=Mock(id="A"), _name="CD", id=100, x=1.2, y=2.7, z=-9, bvalue=12.1,
+          charge=-2, element="C", anisotropy=[0, 0, 0, 0, 0, 0])
+        lines = []
+        atom_to_atom_line(atom, lines)
+        self.assertEqual(lines[0], "HETATM  100  CD  RES A 100B      1.200   2.700  -9.000  1.00  12.1           C2-")
+        self.assertFalse(mock_an.called)
+
+
+    @patch("atomium.pdb.atom_to_anisou_line")
+    def test_can_convert_atom_to_line_bare(self, mock_an):
+        atom = Mock(_name="CD", id=100, x=1.2, y=2.7, z=-9, bvalue=12.1,
+          charge=-2, element="C", anisotropy=[0, 0, 0, 0, 0, 0], structure=None)
+        lines = []
+        atom_to_atom_line(atom, lines)
+        self.assertEqual(lines[0], "ATOM    100  CD                  1.200   2.700  -9.000  1.00  12.1           C2-")
+        self.assertFalse(mock_an.called)
+
+
+
+class AtomToAnisouLinetests(TestCase):
+
+    def test_can_convert_atom_to_anisou_line(self):
+        atom = Mock(id=4, anisotropy=[0.12, 0.24, 0.36, 0.48, 0.512, 0.1], charge=-1, element="P")
+        line = atom_to_anisou_line(atom, "A", "RES", "C", "101", "D")
+        self.assertEqual(line, "ANISOU    4 A    RES C101 D    1200   2400   3600   4800   5120   1000       P1-")

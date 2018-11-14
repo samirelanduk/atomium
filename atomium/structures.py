@@ -306,6 +306,11 @@ class AtomStructure:
         elif ext == "mmtf":
             from .mmtf import structure_to_mmtf_string
             string = structure_to_mmtf_string(self)
+        elif ext == "pdb":
+            from .pdb import structure_to_pdb_string
+            string = structure_to_pdb_string(self)
+        else:
+            raise ValueError("Unsupported file extension: " + ext)
         save(string, path)
 
 

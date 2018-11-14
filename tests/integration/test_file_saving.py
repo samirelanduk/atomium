@@ -20,6 +20,17 @@ class SavingTest(TestCase):
         f.model.save("tests/integration/files/saved_" + filename)
         f2 = atomium.open("tests/integration/files/saved_" + filename)
         self.assertTrue(f.model.equivalent_to(f2.model))
+        self.assertEqual(len(f.model.chains()), len(f2.model.chains()))
+        for chain1, chain2 in zip(sorted(f.model.chains(), key=lambda c: c.id),
+         sorted(f2.model.chains(), key=lambda c: c.id)):
+            self.assertEqual(chain1.sequence, chain2.sequence)
+            self.assertEqual(chain1.id, chain2.id)
+            self.assertTrue(chain1.equivalent_to(chain2))
+        for lig1, lig2 in zip(sorted(f.model.ligands(), key=lambda c: c.id),
+         sorted(f2.model.ligands(), key=lambda c: c.id)):
+            self.assertEqual(lig1.name, lig2.name)
+            self.assertEqual(lig1.id, lig2.id)
+            self.assertTrue(lig1.equivalent_to(lig2))
 
 
 
@@ -49,6 +60,13 @@ class MmcifFileSavingTests(SavingTest):
         self.check_file_saving("4y60.cif")
 
 
+    def test_chain(self):
+        f = atomium.open("tests/integration/files/1lol.cif")
+        f.model.chain("A").save("tests/integration/files/chaina.cif")
+        chain = atomium.open("tests/integration/files/chaina.cif").model
+        self.assertTrue(f.model.chain("A").equivalent_to(chain))
+
+
 
 class MmtfFileSavingTests(SavingTest):
 
@@ -74,3 +92,44 @@ class MmtfFileSavingTests(SavingTest):
 
     def test_can_save_4y60(self):
         self.check_file_saving("4y60.mmtf")
+
+
+    def test_chain(self):
+        f = atomium.open("tests/integration/files/1lol.mmtf")
+        f.model.chain("A").save("tests/integration/files/chaina.mmtf")
+        chain = atomium.open("tests/integration/files/chaina.mmtf").model
+        self.assertTrue(f.model.chain("A").equivalent_to(chain))
+
+
+
+class PdbFileSavingTests(SavingTest):
+
+    def test_can_save_1lol(self):
+        self.check_file_saving("1lol.pdb")
+
+
+    def test_can_save_1cbn(self):
+        self.check_file_saving("1cbn.pdb")
+
+
+    def test_can_save_1m4x(self):
+        self.check_file_saving("1m4x.pdb")
+
+
+    def test_can_save_1xda(self):
+        self.check_file_saving("1xda.pdb")
+
+
+    def test_can_save_5xme(self):
+        self.check_file_saving("5xme.pdb")
+
+
+    def test_can_save_4y60(self):
+        self.check_file_saving("4y60.pdb")
+
+
+    def test_chain(self):
+        f = atomium.open("tests/integration/files/1lol.pdb")
+        f.model.chain("A").save("tests/integration/files/chaina.pdb")
+        chain = atomium.open("tests/integration/files/chaina.pdb").model
+        self.assertTrue(f.model.chain("A").equivalent_to(chain))

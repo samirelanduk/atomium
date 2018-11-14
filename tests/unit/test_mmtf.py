@@ -602,7 +602,7 @@ class HetToGroupAdditionTests(TestCase):
          "elementList": ["B", "A"], "formalChargeList": [-2, -1]
         }], ["B"]
         het = Mock(_name="HET")
-        mock_split.return_value = "AB"
+        mock_split.return_value = "A?"
         het.atoms.return_value = [Mock(id=2, _name="AA", element="A", charge=-1), Mock(id=1, _name="BB", element="B", charge=-2)]
         add_het_to_groups(het, a, b, c, d)
         self.assertEqual(a, [0, 0])
@@ -611,4 +611,4 @@ class HetToGroupAdditionTests(TestCase):
          "groupName": "HET", "atomNameList": ["BB", "AA"],
          "elementList": ["B", "A"], "formalChargeList": [-2, -1]
         }])
-        self.assertEqual(d, ["B", "B"])
+        self.assertEqual(d, ["B", ""])

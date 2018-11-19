@@ -184,14 +184,14 @@ def update_models_list(mmtf_dict, data_dict):
     :param dict mmtf_dict: the .mmtf dictionary to read.
     :param dict data_dict: the data dictionary to update."""
 
-    gc, atom_count = 0, 0
+    cc, gc, atom_count = 0, 0, 0
     atoms = get_atoms_list(mmtf_dict)
     for model_num in range(mmtf_dict["numModels"]):
         model = {"polymer": {}, "non-polymer": {}, "water": {}}
         for chain_num in range(mmtf_dict["chainsPerModel"][model_num]):
             type_ = get_type(mmtf_dict, chain_num)
-            if type_ == "polymer": chain = make_chain(mmtf_dict, chain_num)
-            for g in range(gc, gc + mmtf_dict["groupsPerChain"][chain_num]):
+            if type_ == "polymer": chain = make_chain(mmtf_dict, cc)
+            for g in range(gc, gc + mmtf_dict["groupsPerChain"][cc]):
                 group = mmtf_dict["groupList"][mmtf_dict["groupTypeList"][g]]
                 group_id = make_group_id(mmtf_dict, chain_num, gc)
                 group_name = group["groupName"]
@@ -206,6 +206,7 @@ def update_models_list(mmtf_dict, data_dict):
                 gc += 1
             if type_ == "polymer":
                 model["polymer"][mmtf_dict["chainNameList"][chain_num]] = chain
+            cc += 1
         data_dict["models"].append(model)
 
 

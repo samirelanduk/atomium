@@ -297,6 +297,15 @@ class DataDictReadingTests(TestCase):
             self.assertEqual(d["models"][1]["polymer"]["A"]["residues"]["A.199"]["atoms"][1 if e == "pdb" else 1828]["x"], 34.064)
 
 
+    def test_1msh_data_dict(self):
+        for e in ["cif", "mmtf", "pdb"]:
+            d = atomium.open("tests/integration/files/1msh." + e, data_dict=True)
+        self.assertEqual(len(d["models"]), 30)
+        for m in d["models"][:-1]:
+            self.assertEqual(len(m["polymer"]), 2)
+        self.assertEqual(len(d["models"][-1]["polymer"]), 1)
+
+
     def test_4y60_data_dict(self):
         for e in ["cif", "mmtf", "pdb"]:
             d = atomium.open("tests/integration/files/4y60.cif", data_dict=True)

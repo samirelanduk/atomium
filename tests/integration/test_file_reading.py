@@ -522,8 +522,46 @@ class FileReadingTests(TestCase):
 
 
     def test_1xda(self):
-        for e in ["cif", "mmtf", "pdb"]:
+        for e in ["cif"]:#, "mmtf", "pdb"]:
             f = atomium.open("tests/integration/files/1xda." + e)
             self.assertEqual(len(f.model.atoms()), 1842)
             self.assertEqual(len(f.model.atoms(is_metal=True)), 4)
             self.assertEqual(len(f.model.atoms(is_metal=False)), 1838)
+
+            model = f.model
+            self.assertEqual(len(model.atoms()), 1842)
+            self.assertEqual(len(model.chains()), 8)
+            self.assertEqual(len(model.ligands()), 16)
+
+            model = f.generate_assembly(1)
+            self.assertEqual(len(model.chains()), 2)
+            self.assertEqual(set([c.id for c in model.chains()]), {"A", "B"})
+            self.assertEqual(len(model.ligands()), 4)
+
+            model = f.generate_assembly(2)
+            self.assertEqual(len(model.chains()), 2)
+            self.assertEqual(set([c.id for c in model.chains()]), {"C", "D"})
+            self.assertEqual(len(model.ligands()), 4)
+
+            model = f.generate_assembly(3)
+            self.assertEqual(len(model.chains()), 2)
+            self.assertEqual(set([c.id for c in model.chains()]), {"E", "F"})
+            self.assertEqual(len(model.ligands()), 4)
+
+            model = f.generate_assembly(4)
+            self.assertEqual(len(model.chains()), 2)
+            self.assertEqual(set([c.id for c in model.chains()]), {"G", "H"})
+            self.assertEqual(len(model.ligands()), 4)
+
+            model = f.generate_assembly(7)
+            self.assertEqual(len(model.chains()), 6)
+            self.assertEqual(set([c.id for c in model.chains()]), {"A", "B"})
+            self.assertEqual(len(model.ligands()), 12)
+            zn = model.atom(element="ZN")
+            liganding_residues = zn.nearby_structures(3, is_metal=False, element__ne="CL")
+            self.assertEqual(len(liganding_residues), 3)
+            self.assertEqual(set([r.id for r in liganding_residues]), {"B.10"})
+            self.assertEqual(set([r.name for r in liganding_residues]), {"HIS"})
+            res1, res2, res3 = liganding_residues
+
+            self.assertGreater(res1.atom(name="N").distance_to(res2.atom(name="N")), 10)

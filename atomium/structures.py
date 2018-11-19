@@ -3,7 +3,7 @@
 import numpy as np
 import rmsd
 from collections import Counter, OrderedDict
-from .base import StructureClass, query
+from .base import StructureClass, query, StructureSet
 
 class AtomStructure:
     """A structure made of atoms. This contains various useful methods that rely
@@ -191,19 +191,21 @@ class AtomStructure:
         atoms.
         :rtype: ``dict``"""
 
-        atoms = {a._id: a for a in self.atoms()}
-        other_atoms = {a._id: a for a in structure.atoms()}
+        atoms = self.atoms()
+        other_atoms = structure.atoms()
         if len(atoms) != len(other_atoms):
             raise ValueError("{} and {} have different numbers of atoms".format(
              self, structure
             ))
-        common_ids = atoms.keys() & other_atoms.keys()
         pair = {}
+        common_ids = set(a._id for a in atoms) & set(a._id for a in other_atoms)
+        id_atoms = {a._id: a for a in atoms}
+        id_other_atoms = {a._id: a for a in other_atoms}
         for id_ in common_ids:
-            pair[atoms[id_]] = other_atoms[id_]
-            del atoms[id_]
-            del other_atoms[id_]
-        atoms, other_atoms = list(atoms.values()), list(other_atoms.values())
+            pair[id_atoms[id_]] = id_other_atoms[id_]
+            atoms.remove(id_atoms[id_])
+            other_atoms.remove(id_other_atoms[id_])
+        atoms, other_atoms = list(atoms), list(other_atoms)
         for l in atoms, other_atoms:
             l.sort(key=lambda a: (
              a._element, a._name, id(a)
@@ -336,11 +338,11 @@ class Het:
 
     def __init__(self, *atoms):
         for atom in atoms: atom._structure = self
-        self._atoms = {atom._id: atom for atom in atoms}
+        self._atoms = StructureSet(*atoms)
 
 
     def __contains__(self, atom):
-        return atom in self._atoms.values()
+        return atom in self._atoms.structures
 
 
     @property
@@ -370,7 +372,7 @@ class Het:
 
         :param Atom atom: the atom to add."""
 
-        self._atoms[atom.id] = atom
+        self._atoms.add(atom)
         atom._structure = self
 
 
@@ -379,7 +381,7 @@ class Het:
 
         :param Atom atom: the atom to remove."""
 
-        del self._atoms[atom.id]
+        self._atoms.remove(atom)
         atom._structure = None
 
 
@@ -391,7 +393,7 @@ class Het:
         :rtype: ``set``"""
 
         structures = set()
-        for atom in self._atoms.values():
+        for atom in self._atoms.structures:
             structures.update(atom.nearby_structures(*args, **kwargs))
         return structures
 
@@ -407,14 +409,14 @@ class Model(AtomStructure, metaclass=StructureClass):
     model."""
 
     def __init__(self, *molecules):
-        self._chains = {}
-        self._ligands = {}
-        self._waters = {}
+        self._chains = StructureSet()
+        self._ligands = StructureSet()
+        self._waters = StructureSet()
         for mol in molecules:
             mol._model = self
             d = (self._chains if isinstance(mol, Chain) else self._waters
              if mol._water else self._ligands)
-            d[mol._id] = mol
+            d.add(mol)
 
 
     def __repr__(self):
@@ -459,7 +461,7 @@ class Model(AtomStructure, metaclass=StructureClass):
 
         :rtype: ``set``"""
 
-        return {**self._chains, **self._ligands, **self._waters}
+        return self._chains + self._ligands + self._waters
 
 
     def residues(self):
@@ -468,9 +470,9 @@ class Model(AtomStructure, metaclass=StructureClass):
         :rtype: ``set``"""
 
         res = []
-        for chain in self._chains.values():
+        for chain in self._chains.structures:
             res += chain.residues()
-        return {r._id: r for r in res}
+        return StructureSet(*res)
 
 
     def atoms(self):
@@ -478,20 +480,20 @@ class Model(AtomStructure, metaclass=StructureClass):
 
         :rtype: ``set``"""
 
-        atoms = {}
+        atoms = set()
         for mol in self.molecules():
             try:
-                atoms.update(mol._atoms)
+                atoms.update(mol._atoms.structures)
             except:
-                for res in mol._residues.values():
-                    atoms.update(res._atoms)
-        return atoms
+                for res in mol._residues.structures:
+                    atoms.update(res._atoms.structures)
+        return StructureSet(*atoms)
 
 
     def dehydrate(self):
         """Removes all water ligands from the model."""
 
-        self._waters = {}
+        self._waters = StructureSet()
 
 
     def add(self, molecule):
@@ -501,7 +503,7 @@ class Model(AtomStructure, metaclass=StructureClass):
 
         d = (self._chains if isinstance(molecule, Chain) else self._waters
          if molecule._water else self._ligands)
-        d[molecule._id] = molecule
+        d.add(molecule)
         molecule._model = self
 
 
@@ -512,7 +514,7 @@ class Model(AtomStructure, metaclass=StructureClass):
 
         d = (self._chains if isinstance(molecule, Chain) else self._waters
          if molecule._water else self._ligands)
-        del d[molecule._id]
+        d.remove(molecule)
         molecule._model = None
 
 
@@ -531,7 +533,7 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
     def __init__(self, *residues, id=None, internal_id=None, sequence=""):
         self._id, self._internal_id, self._sequence = id, internal_id, sequence
         for res in residues: res._chain = self
-        self._residues = OrderedDict([(res._id, res) for res in residues])
+        self._residues = StructureSet(*residues)
         self._model = None
 
 
@@ -544,7 +546,7 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
 
 
     def __iter__(self):
-        return iter(self._residues.values())
+        return iter(self._residues.structures)
 
 
     def __getitem__(self, key):
@@ -552,7 +554,7 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
 
 
     def __contains__(self, obj):
-        return obj in self._residues.values() or obj in self.atoms()
+        return obj in self._residues.structures or obj in self.atoms()
 
 
     @property
@@ -578,9 +580,9 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
 
         :rtype: ``set``"""
 
-        return {} if self._model is None else {
-         i: l for i, l in self._model._ligands.items() if l._chain is self
-        }
+        return StructureSet() if self._model is None else StructureSet(
+         *[l for l in self._model._ligands.structures if l._chain is self]
+        )
 
 
     def atoms(self):
@@ -588,10 +590,10 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
 
         :rtype: ``set``"""
 
-        atoms = {}
-        for res in self._residues.values():
-            atoms.update(res._atoms)
-        return atoms
+        atoms = set()
+        for res in self._residues.structures:
+            atoms.update(res._atoms.structures)
+        return StructureSet(*atoms)
 
 
     @property
@@ -828,7 +830,7 @@ class Atom:
 
     @staticmethod
     def transform_atoms(matrix, *atoms):
-        """Translates multiple atoms using some matrix.
+        """Transforms multiple atoms using some matrix.
 
         :param matrix: the transformation matrix.
         :param \*atoms: the atoms to transform."""

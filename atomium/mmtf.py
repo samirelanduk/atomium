@@ -307,7 +307,7 @@ def add_atom(d, atoms, group, atom_num, atom_count):
 
     atom = atoms[atom_num + atom_count]
     atom["name"] = group["atomNameList"][atom_num]
-    atom["element"] = group["elementList"][atom_num]
+    atom["element"] = group["elementList"][atom_num].upper()
     atom["charge"] = group["formalChargeList"][atom_num]
     atom["anisotropy"] = [0, 0, 0, 0, 0, 0]
     d["atoms"][atom["id"]] = atom

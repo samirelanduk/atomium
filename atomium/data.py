@@ -162,6 +162,29 @@ class File:
         return self._models[0]
 
 
+    def generate_assembly(self, id):
+        m = self._models[0]
+        for assembly in self._assemblies:
+            if assembly["id"] == id: break
+        else:
+            raise ValueError(f"No assembly with ID {id}")
+        all_structures = []
+        for t in assembly["transformations"]:
+            structures = {}
+            for chain_id in t["chains"]:
+                for obj in list(m.chains()) + list(m.ligands() | m.waters()):
+                    if obj._internal_id == chain_id:
+                        copy = obj.copy()
+                        if isinstance(copy, Ligand):
+                            copy._chain = structures.get(obj.chain)
+                        structures[obj] = copy
+            atoms = set()
+            for s in structures.values(): atoms.update(s.atoms())
+            Atom.transform_atoms(t["matrix"], *atoms)
+            Atom.translate_atoms(t["vector"], *atoms)
+            all_structures += structures.values()
+        return Model(*all_structures)
+
 
 def data_dict_to_file(data_dict, filetype):
     """Turns an atomium data dictionary into a :py:class:`.File`.

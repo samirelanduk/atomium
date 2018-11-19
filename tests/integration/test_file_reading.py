@@ -274,6 +274,13 @@ class DataDictReadingTests(TestCase):
             )
 
 
+    def test_4opj_data_dict(self):
+        for e in ["cif", "mmtf", "pdb"]:
+            d = atomium.open("tests/integration/files/4opj." + e, data_dict=True)
+            self.assertEqual(len(d["geometry"]["assemblies"]), 2)
+            self.assertEqual(d["geometry"]["assemblies"][0]["transformations"][0]["vector"], [42.387, 0, 0])
+
+
     def test_5xme_data_dict(self):
         for e in ["cif", "mmtf", "pdb"]:
             d = atomium.open("tests/integration/files/5xme." + e, data_dict=True)

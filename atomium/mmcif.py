@@ -308,8 +308,8 @@ def assign_transformations_to_assembly(mmcif_dict, operations, assembly):
     for gen in mmcif_dict.get("pdbx_struct_assembly_gen", []):
         if gen["assembly_id"] == str(assembly["id"]):
             op_ids_groups = get_operation_id_groups(gen["oper_expression"])
-            operations = operation_id_groups_to_operations(operations, op_ids_groups)
-            for operation in operations:
+            operations_ = operation_id_groups_to_operations(operations, op_ids_groups)
+            for operation in operations_:
                 assembly["transformations"].append({
                  "chains": gen["asym_id_list"].split(","),
                  "matrix": [row[:3] for row in operation[:3]],

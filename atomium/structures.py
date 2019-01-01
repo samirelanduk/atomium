@@ -801,7 +801,7 @@ class Atom:
 
     __slots__ = [
      "_element", "_x", "_y", "_z", "_id", "_name", "_charge",
-     "_bvalue", "_anisotropy", "_structure", "_model"
+     "_bvalue", "_anisotropy", "_structure", "_model", "_flag"
     ]
 
     def __init__(self, element, x, y, z, id, name, charge, bvalue, anisotropy):
@@ -1226,5 +1226,5 @@ class Atom:
 
         :rtype: ``Atom``"""
 
-        args = [getattr(self, k) for k in self.__slots__[:-2]]
+        args = [getattr(self, k) for k in self.__slots__[:-3]]
         return Atom(*args)

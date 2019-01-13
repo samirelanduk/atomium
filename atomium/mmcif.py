@@ -290,11 +290,11 @@ def assign_metrics_to_assembly(mmcif_dict, assembly):
     for a in mmcif_dict.get("pdbx_struct_assembly_prop", []):
         if a["biol_id"] == str(assembly["id"]):
             if a["type"] == "MORE":
-                assembly["delta_energy"] = float(a["value"])
+                assembly["delta_energy"] = float(a["value"].split("/")[0])
             elif a["type"] == "SSA (A^2)":
-                assembly["surface_area"] = float(a["value"])
+                assembly["surface_area"] = float(a["value"].split("/")[0])
             elif a["type"] == "ABSA (A^2)":
-                assembly["buried_surface_area"] = float(a["value"])
+                assembly["buried_surface_area"] = float(a["value"].split("/")[0])
 
 
 def assign_transformations_to_assembly(mmcif_dict, operations, assembly):

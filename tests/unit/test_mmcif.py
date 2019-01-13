@@ -320,7 +320,7 @@ class MetricsAssigningTests(TestCase):
 
     def test_can_assign_metrics_to_assembly(self):
         m = {"pdbx_struct_assembly_prop": [{
-         "biol_id": "1", "type": "ABSA (A^2)", "value": "1720",
+         "biol_id": "1", "type": "ABSA (A^2)", "value": "1720/20",
         }, {
          "biol_id": "1", "type": "MORE", "value": "-7",
         }, {

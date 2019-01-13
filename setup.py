@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
  name="atomium",
- version="0.12.0",
+ version="0.12.1",
  description="A molecular modeller and file parser.",
  url="https://atomium.samireland.com",
  author="Sam Ireland",

@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+Release 0.12.1
+~~~~~~~~~~~~~~
+
+`13 January 2019`
+
+* Fixed assembly parsing bug in small number of .cif files
+
+
 Release 0.12.0
 ~~~~~~~~~~~~~~
 

@@ -1,9 +1,9 @@
 |travis| |coveralls| |pypi|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.12
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.12.1
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.12
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.12.1
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -134,9 +134,9 @@ All .pdb files contain one or more models - little universes containing a
 molecular scene.
 
     >>> pdb1.model
-    <Model (3431 atoms)>
+    <Model (2 chains, 4 ligands)>
     >>> pdb1.models
-    (<Model (3431 atoms)>,)
+    (<Model (2 chains, 4 ligands)>,)
 
 Most just contain one - it's generally those that come from NMR experiments
 which contain multiple models.
@@ -156,11 +156,11 @@ one already there containing the asymmetric unit - as follows...
 
     >>> pdb3 = atomium.fetch('1XDA')
     >>> pdb3.model
-    <Model (1842 atoms)>
+    <Model (8 chains, 16 ligands)>
     >>> pdb3.generate_assembly(1)
-    <Model (924 atoms)>
+    <Model (2 chains, 4 ligands)>
     >>> pdb3.generate_assembly(10)
-    <Model (2730 atoms)>
+    <Model (6 chains, 12 ligands)>
 
 Here you load a .pdb with multiple possible assemblies, have a quick look at
 the asymmetric unit with 1,842 atoms, and then generate two of its possible
@@ -335,6 +335,14 @@ results.
 
 Changelog
 ---------
+
+Release 0.12.1
+~~~~~~~~~~~~~~
+
+`13 January 2019`
+
+* Fixed assembly parsing bug in small number of .cif files
+
 
 Release 0.12.0
 ~~~~~~~~~~~~~~

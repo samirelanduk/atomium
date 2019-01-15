@@ -46,8 +46,8 @@ class StringConsolidationTests(TestCase):
 
 
     def test_can_consolidate_string(self):
-        lines = consolidate_strings(deque(["line1", "line2", ";STRING", ";", "line3"]))
-        self.assertEqual(lines, deque(["line1", "line2 \"STRING\"", "line3"]))
+        lines = consolidate_strings(deque(["line1", "line2", ";STRIN\"G", ";", "line3"]))
+        self.assertEqual(lines, deque(["line1", "line2 \"STRIN\x1aG\"", "line3"]))
 
 
     def test_can_consolidate_multi_strings(self):
@@ -169,7 +169,7 @@ class QuoteStrippingTests(TestCase):
          }], "B": [{
           "3": "30", "4": '"34"'
          }, {
-          "3": "50", "4": "'34 dfe'"
+          "3": "50\x1a", "4": "'34 dfe'"
          }]
         }
         strip_quotes(d)
@@ -179,7 +179,7 @@ class QuoteStrippingTests(TestCase):
          }], "B": [{
           "3": "30", "4": '34'
          }, {
-          "3": "50", "4": '34 dfe'
+          "3": "50\"", "4": '34 dfe'
          }]
         })
 

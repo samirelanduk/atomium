@@ -51,7 +51,7 @@ def consolidate_strings(lines):
                 string.append(lines.popleft())
             lines.popleft()
             new_lines[-1] += " \"{}\"".format(
-             " ".join(string).replace('"', "\x1a")
+             " ".join(string).replace('"', "\x1a").replace("'", "\x1b")
             )
         else:
             new_lines.append(line)
@@ -181,7 +181,7 @@ def strip_quotes(mmcif_dict):
                 for char in "'\"":
                     if value[0] == char and value[-1] == char:
                         row[key] = value[1:-1]
-                    row[key] = row[key].replace("\x1a", '"')
+                    row[key] = row[key].replace("\x1a", '"').replace("\x1b", "'")
 
 
 def mmcif_dict_to_data_dict(mmcif_dict):

@@ -231,11 +231,25 @@ class ExperimentDictionaryUpdatingTests(TestCase):
 
     @patch("atomium.mmcif.mmcif_to_data_transfer")
     def test_can_update_experiment_dictionary(self, mock_trans):
-        m, d = {"M": 1}, {"D": 2}
+        m, d = {"M": 1}, {"experiment": {"source_organism": 1}}
         update_experiment_dict(m, d)
         mock_trans.assert_any_call(m, d, "experiment", "technique", "exptl", "method")
-        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_gen", "pdbx_gene_src_scientific_name")
+        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_nat", "pdbx_organism_scientific")
         mock_trans.assert_any_call(m, d, "experiment", "expression_system", "entity_src_gen", "pdbx_host_org_scientific_name")
+
+
+    @patch("atomium.mmcif.mmcif_to_data_transfer")
+    def test_can_persist_in_finding_species_name(self, mock_trans):
+        m, d = {"M": 1}, {"experiment": {"source_organism": None}}
+        update_experiment_dict(m, d)
+        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_nat", "pdbx_organism_scientific")
+        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_gen", "pdbx_gene_src_scientific_name")
+        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "pdbx_entity_src_syn", "organism_scientific")
+        m, d = {"M": 1}, {"experiment": {"source_organism": "?"}}
+        update_experiment_dict(m, d)
+        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_nat", "pdbx_organism_scientific")
+        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_gen", "pdbx_gene_src_scientific_name")
+        mock_trans.assert_any_call(m, d, "experiment", "source_organism", "pdbx_entity_src_syn", "organism_scientific")
 
 
 

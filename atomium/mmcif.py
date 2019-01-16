@@ -240,8 +240,12 @@ def update_experiment_dict(mmcif_dict, data_dict):
 
     mmcif_to_data_transfer(mmcif_dict, data_dict,
      "experiment", "technique", "exptl", "method")
-    mmcif_to_data_transfer(mmcif_dict, data_dict, "experiment",
-     "source_organism", "entity_src_gen", "pdbx_gene_src_scientific_name")
+    for cat, key in [["entity_src_nat", "pdbx_organism_scientific"],
+     ["entity_src_gen", "pdbx_gene_src_scientific_name"],
+     ["pdbx_entity_src_syn", "organism_scientific"]]:
+        mmcif_to_data_transfer(mmcif_dict, data_dict, "experiment",
+         "source_organism", cat, key)
+        if data_dict["experiment"]["source_organism"] not in [None, "?"]: break
     mmcif_to_data_transfer(mmcif_dict, data_dict, "experiment",
      "expression_system", "entity_src_gen", "pdbx_host_org_scientific_name")
 

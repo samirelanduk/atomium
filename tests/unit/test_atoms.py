@@ -310,6 +310,15 @@ class AtomAngleTests(TestCase):
         self.assertEqual(atom.angle(atom1, atom2), math.pi)
 
 
+    @patch("atomium.structures.Atom.location", new_callable=PropertyMock)
+    def test_angle_between_atoms_when_superimposed(self, mock_loc):
+        mock_loc.return_value = (1, 1, 1)
+        atom = Atom("C", 4, 8, 3, 10, "CA", -1, 0.76, [1, 2, 3, 4, 5, 6])
+        atom1 = Mock(location=(2, 2, 2))
+        atom2 = Mock(location=(1, 1, 1))
+        self.assertEqual(atom.angle(atom1, atom2), 0)
+
+
 
 class AtomNearbyAtomTests(TestCase):
 

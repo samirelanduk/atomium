@@ -1077,7 +1077,9 @@ class Atom:
         vectors = [
          [v1 - v2 for v1, v2 in zip(atom.location, self.location)
         ] for atom in (atom1, atom2)]
-        vectors = [v / np.linalg.norm(v) for v in vectors]
+        normalized = [np.linalg.norm(v) for v in vectors]
+        if 0 in normalized: return 0
+        vectors = [v / n for n, v in zip(vectors, normalized)]
         return np.arccos(np.clip(np.dot(vectors[0], vectors[1]), -1.0, 1.0))
 
 

@@ -4,6 +4,16 @@ Changelog
 Release 0.12.1
 ~~~~~~~~~~~~~~
 
+`4 February 2019`
+
+* Angle between superimposed atoms now possible.
+* Fixed source speices lookup in .cif files.
+* Fixed bug relating to embedded quotes in .cif files.
+
+
+Release 0.12.1
+~~~~~~~~~~~~~~
+
 `13 January 2019`
 
 * Fixed assembly parsing bug in small number of .cif files.

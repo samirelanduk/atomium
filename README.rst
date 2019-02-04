@@ -1,9 +1,9 @@
 |travis| |coveralls| |pypi|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.12.1
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.12.2
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.12.1
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.12.2
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -335,6 +335,16 @@ results.
 
 Changelog
 ---------
+
+Release 0.12.1
+~~~~~~~~~~~~~~
+
+`4 February 2019`
+
+* Angle between superimposed atoms now possible.
+* Fixed source speices lookup in .cif files.
+* Fixed bug relating to embedded quotes in .cif files.
+
 
 Release 0.12.1
 ~~~~~~~~~~~~~~

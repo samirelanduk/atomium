@@ -336,7 +336,7 @@ results.
 Changelog
 ---------
 
-Release 0.12.1
+Release 0.12.2
 ~~~~~~~~~~~~~~
 
 `4 February 2019`

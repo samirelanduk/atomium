@@ -112,6 +112,15 @@ class ExpressionSystemPropertyTests(TestCase):
 
 
 
+class MissingResiduesPropertyTests(TestCase):
+
+    def test_missing_residues(self):
+        f = File("abc")
+        f._missing_residues = "XXX"
+        self.assertIs(f.missing_residues, f._missing_residues)
+
+
+
 class ResolutionPropertyTests(TestCase):
 
     def test_resolution(self):

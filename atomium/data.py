@@ -109,6 +109,15 @@ class File:
 
 
     @property
+    def missing_residues(self):
+        """The residues that should be in the model but aren't.
+
+        :rtype: ``list``"""
+
+        return self._missing_residues
+
+
+    @property
     def resolution(self):
         """The structure's resolution.
 

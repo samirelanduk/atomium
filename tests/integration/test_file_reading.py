@@ -363,9 +363,22 @@ class FileReadingTests(TestCase):
             self.assertEqual(f.keywords, [] if e == "mmtf" else ["TIM BARREL", "LYASE"] if e == "pdb" else ["TIM barrel", "LYASE"])
             self.assertEqual(f.authors, [] if e == "mmtf" else ["N.WU", "E.F.PAI"] if e == "pdb" else ["Wu, N.", "Pai, E.F."])
             self.assertEqual(f.technique, "X-RAY DIFFRACTION")
+            missing_residues = [{"id": id, "name": name} for id, name in zip([
+             "A.1", "A.2", "A.3", "A.4", "A.5", "A.6", "A.7", "A.8", "A.9", "A.10",
+             "A.182", "A.183", "A.184", "A.185", "A.186", "A.187", "A.188", "A.189",
+             "A.223", "A.224", "A.225", "A.226", "A.227", "A.228", "A.229", "B.1001",
+             "B.1002", "B.1003", "B.1004", "B.1005", "B.1006", "B.1007", "B.1008",
+             "B.1009", "B.1010", "B.1182", "B.1183", "B.1184", "B.1185", "B.1186"
+            ], [
+             "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL", "MET", "ASP",
+             "VAL", "GLY", "ALA", "GLN", "GLY", "GLY", "ASP", "PRO", "LYS", "ASP",
+             "LEU", "LEU", "ILE", "PRO", "GLU", "LEU", "ARG", "SER", "ARG", "ARG",
+             "VAL", "ASP", "VAL", "MET", "ASP", "VAL", "GLY", "ALA", "GLN", "GLY"
+            ])]
             if e == "pdb":
                 self.assertEqual(f.source_organism, "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H")
                 self.assertEqual(f.expression_system, "ESCHERICHIA COLI")
+                self.assertEqual(f.missing_residues, missing_residues)
             else:
                 self.assertEqual(
                  f.source_organism,
@@ -374,6 +387,7 @@ class FileReadingTests(TestCase):
                 self.assertEqual(
                  f.expression_system, None if e == "mmtf" else "Escherichia coli"
                 )
+                self.assertEqual(f.missing_residues, [] if e == "mmtf" else missing_residues)
             self.assertEqual(f.resolution, 1.9)
             self.assertEqual(f.rvalue, 0.193)
             self.assertEqual(f.rfree, 0.229)

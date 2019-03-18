@@ -2,6 +2,7 @@
 
 import numpy as np
 import rmsd
+import warnings
 from collections import Counter, OrderedDict
 from .base import StructureClass, query, StructureSet
 
@@ -299,8 +300,30 @@ class AtomStructure:
         except: return False
 
 
+    def check_ids(self):
+        """Looks through all the structure's sub-structures and raises a
+        warning if they have duplicate ID."""
+        
+        for objects in ("chains", "ligands", "waters", "residues", "atoms"):
+            try:
+                ids = [obj.id for obj in getattr(self, objects)()]
+                unique_ids = set(ids)
+                if len(ids) != len(unique_ids):
+                    warnings.warn(f"{objects} have duplicate IDs")
+            except AttributeError: pass
+
+
     def save(self, path):
+        """Saves the structure to file. The file extension given in the filename
+        will be used to determine which file format to save in.
+
+        If the structure you are saving has any duplicate IDs, a warning will be
+        issued, as the file saved will likely be nonsensical.
+
+        :param str path: the filename and location to save to."""
+
         from .utilities import save
+        self.check_ids()
         ext = path.split(".")[-1]
         if ext == "cif":
             from .mmcif import structure_to_mmcif_string

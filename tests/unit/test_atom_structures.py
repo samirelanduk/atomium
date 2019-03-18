@@ -354,19 +354,83 @@ class AtomStructureEquivalenceTests(AtomStructureTest):
 
 
 
+class AtomStructureIdCheckingTests(AtomStructureTest):
+
+    def test_can_warn_on_atom_ids(self):
+        self.structure.atoms = lambda : [Mock(id=1), Mock(id=2)]
+        self.structure.check_ids()
+        self.structure.atoms = lambda : [Mock(id=1), Mock(id=1)]
+        with self.assertWarns(Warning):
+            self.structure.check_ids()
+
+
+    def test_can_warn_on_residue_ids(self):
+        self.structure.residues = lambda : [Mock(id=1), Mock(id=2)]
+        self.structure.check_ids()
+        self.structure.residues = lambda : [Mock(id=1), Mock(id=1)]
+        with self.assertWarns(Warning):
+            self.structure.check_ids()
+
+
+    def test_can_warn_on_chain_ids(self):
+        self.structure.chains = lambda : [Mock(id=1), Mock(id=2)]
+        self.structure.check_ids()
+        self.structure.chains = lambda : [Mock(id=1), Mock(id=1)]
+        with self.assertWarns(Warning):
+            self.structure.check_ids()
+
+
+    def test_can_warn_on_ligand_ids(self):
+        self.structure.ligands = lambda : [Mock(id=1), Mock(id=2)]
+        self.structure.check_ids()
+        self.structure.ligands = lambda : [Mock(id=1), Mock(id=1)]
+        with self.assertWarns(Warning):
+            self.structure.check_ids()
+
+
+    def test_can_warn_on_water_ids(self):
+        self.structure.waters = lambda : [Mock(id=1), Mock(id=2)]
+        self.structure.check_ids()
+        self.structure.waters = lambda : [Mock(id=1), Mock(id=1)]
+        with self.assertWarns(Warning):
+            self.structure.check_ids()
+
+
+
 class AtomStructureSavingTests(AtomStructureTest):
 
+    @patch("atomium.structures.AtomStructure.check_ids")
     @patch("atomium.mmcif.structure_to_mmcif_string")
     @patch("atomium.utilities.save")
-    def test_can_save_cif(self, mock_save, mock_conv):
+    def test_can_save_cif(self, mock_save, mock_conv, mock_check):
         self.structure.save("test.cif")
+        mock_check.assert_called_with()
         mock_conv.assert_called_with(self.structure)
         mock_save.assert_called_with(mock_conv.return_value, "test.cif")
 
 
+    @patch("atomium.structures.AtomStructure.check_ids")
     @patch("atomium.mmtf.structure_to_mmtf_string")
     @patch("atomium.utilities.save")
-    def test_can_save_cif(self, mock_save, mock_conv):
+    def test_can_save_mmtf(self, mock_save, mock_conv, mock_check):
         self.structure.save("test.mmtf")
+        mock_check.assert_called_with()
         mock_conv.assert_called_with(self.structure)
         mock_save.assert_called_with(mock_conv.return_value, "test.mmtf")
+
+
+    @patch("atomium.structures.AtomStructure.check_ids")
+    @patch("atomium.pdb.structure_to_pdb_string")
+    @patch("atomium.utilities.save")
+    def test_can_save_pdb(self, mock_save, mock_conv, mock_check):
+        self.structure.save("test.pdb")
+        mock_check.assert_called_with()
+        mock_conv.assert_called_with(self.structure)
+        mock_save.assert_called_with(mock_conv.return_value, "test.pdb")
+
+
+    @patch("atomium.structures.AtomStructure.check_ids")
+    def test_can_reject_weird_extensions(self, mock_check):
+        with self.assertRaises(ValueError):
+            self.structure.save("test.abc")
+        mock_check.assert_called_with()

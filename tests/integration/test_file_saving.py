@@ -67,6 +67,13 @@ class MmcifFileSavingTests(SavingTest):
         self.assertTrue(f.model.chain("A").equivalent_to(chain))
 
 
+    def test_biological_assembly_warns_on_saving(self):
+        f = atomium.open("tests/integration/files/1xda.cif")
+        model = f.generate_assembly(5)
+        with self.assertWarns(Warning):
+            model.save("tests/integration/files/assembly.cif")
+
+
 
 class MmtfFileSavingTests(SavingTest):
 
@@ -101,6 +108,13 @@ class MmtfFileSavingTests(SavingTest):
         self.assertTrue(f.model.chain("A").equivalent_to(chain))
 
 
+    def test_biological_assembly_warns_on_saving(self):
+        f = atomium.open("tests/integration/files/1xda.cif")
+        model = f.generate_assembly(5)
+        with self.assertWarns(Warning):
+            model.save("tests/integration/files/assembly.cif")
+
+
 
 class PdbFileSavingTests(SavingTest):
 
@@ -133,3 +147,10 @@ class PdbFileSavingTests(SavingTest):
         f.model.chain("A").save("tests/integration/files/chaina.pdb")
         chain = atomium.open("tests/integration/files/chaina.pdb").model
         self.assertTrue(f.model.chain("A").equivalent_to(chain))
+
+
+    def test_biological_assembly_warns_on_saving(self):
+        f = atomium.open("tests/integration/files/1xda.cif")
+        model = f.generate_assembly(5)
+        with self.assertWarns(Warning):
+            model.save("tests/integration/files/assembly.cif")

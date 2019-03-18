@@ -196,7 +196,8 @@ def mmcif_dict_to_data_dict(mmcif_dict):
       "code": None, "title": None, "deposition_date": None,
       "classification": None, "keywords": [], "authors": []
      }, "experiment": {
-      "technique": None, "source_organism": None, "expression_system": None
+      "technique": None, "source_organism": None, "expression_system": None,
+      "missing_residues": []
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
      "geometry": {"assemblies": []}, "models": []
     }
@@ -248,6 +249,12 @@ def update_experiment_dict(mmcif_dict, data_dict):
         if data_dict["experiment"]["source_organism"] not in [None, "?"]: break
     mmcif_to_data_transfer(mmcif_dict, data_dict, "experiment",
      "expression_system", "entity_src_gen", "pdbx_host_org_scientific_name")
+    for r in mmcif_dict.get("pdbx_unobs_or_zero_occ_residues", []):
+        insert = "" if r["PDB_ins_code"] in "?." else r["PDB_ins_code"]
+        data_dict["experiment"]["missing_residues"].append({
+         "id": f"{r['auth_asym_id']}.{r['auth_seq_id']}{insert}",
+         "name": r["auth_comp_id"]
+        })
 
 
 def update_quality_dict(mmcif_dict, data_dict):

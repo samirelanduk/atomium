@@ -205,7 +205,8 @@ class MmcifDictToDataDictTests(TestCase):
           "code": None, "title": None, "deposition_date": None,
           "classification": None, "keywords": [], "authors": []
          }, "experiment": {
-          "technique": None, "source_organism": None, "expression_system": None
+          "technique": None, "source_organism": None, "expression_system": None,
+          "missing_residues": []
          }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
          "geometry": {"assemblies": []}, "models": []
         })
@@ -231,26 +232,35 @@ class ExperimentDictionaryUpdatingTests(TestCase):
 
     @patch("atomium.mmcif.mmcif_to_data_transfer")
     def test_can_update_experiment_dictionary(self, mock_trans):
-        m, d = {"M": 1}, {"experiment": {"source_organism": 1}}
+        m, d = {"M": 1, "pdbx_unobs_or_zero_occ_residues": [{
+         "auth_asym_id": "A", "auth_seq_id": 1, "PDB_ins_code": "?", "auth_comp_id": "HIS"
+        }, {
+         "auth_asym_id": "A", "auth_seq_id": 1, "PDB_ins_code": "A", "auth_comp_id": "VAL"
+        }, {
+         "auth_asym_id": "B", "auth_seq_id": 10, "PDB_ins_code": "?", "auth_comp_id": "TRP"
+        }]}, {"experiment": {"source_organism": 1, "missing_residues": []}}
         update_experiment_dict(m, d)
         mock_trans.assert_any_call(m, d, "experiment", "technique", "exptl", "method")
         mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_nat", "pdbx_organism_scientific")
         mock_trans.assert_any_call(m, d, "experiment", "expression_system", "entity_src_gen", "pdbx_host_org_scientific_name")
+        self.assertEqual(d["experiment"]["missing_residues"], [
+         {"name": "HIS", "id": "A.1"}, {"name": "VAL", "id": "A.1A"}, {"name": "TRP", "id": "B.10"}
+        ])
 
 
     @patch("atomium.mmcif.mmcif_to_data_transfer")
     def test_can_persist_in_finding_species_name(self, mock_trans):
-        m, d = {"M": 1}, {"experiment": {"source_organism": None}}
+        m, d = {"M": 1}, {"experiment": {"source_organism": None, "missing_residues": []}}
         update_experiment_dict(m, d)
         mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_nat", "pdbx_organism_scientific")
         mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_gen", "pdbx_gene_src_scientific_name")
         mock_trans.assert_any_call(m, d, "experiment", "source_organism", "pdbx_entity_src_syn", "organism_scientific")
-        m, d = {"M": 1}, {"experiment": {"source_organism": "?"}}
+        m, d = {"M": 1}, {"experiment": {"source_organism": "?", "missing_residues": []}}
         update_experiment_dict(m, d)
         mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_nat", "pdbx_organism_scientific")
         mock_trans.assert_any_call(m, d, "experiment", "source_organism", "entity_src_gen", "pdbx_gene_src_scientific_name")
         mock_trans.assert_any_call(m, d, "experiment", "source_organism", "pdbx_entity_src_syn", "organism_scientific")
-
+        self.assertEqual(d["experiment"]["missing_residues"], [])
 
 
 class QualityDictionaryUpdatingTests(TestCase):

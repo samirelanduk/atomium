@@ -120,17 +120,31 @@ class DataDictReadingTests(TestCase):
                  "keywords": [] if e == "mmtf" else ["TIM barrel", "LYASE"],
                  "authors": [] if e == "mmtf" else ["Wu, N.", "Pai, E.F."]
                 })
+            missing_residues = [{"id": id, "name": name} for id, name in zip([
+             "A.1", "A.2", "A.3", "A.4", "A.5", "A.6", "A.7", "A.8", "A.9", "A.10",
+             "A.182", "A.183", "A.184", "A.185", "A.186", "A.187", "A.188", "A.189",
+             "A.223", "A.224", "A.225", "A.226", "A.227", "A.228", "A.229", "B.1001",
+             "B.1002", "B.1003", "B.1004", "B.1005", "B.1006", "B.1007", "B.1008",
+             "B.1009", "B.1010", "B.1182", "B.1183", "B.1184", "B.1185", "B.1186"
+            ], [
+             "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL", "MET", "ASP",
+             "VAL", "GLY", "ALA", "GLN", "GLY", "GLY", "ASP", "PRO", "LYS", "ASP",
+             "LEU", "LEU", "ILE", "PRO", "GLU", "LEU", "ARG", "SER", "ARG", "ARG",
+             "VAL", "ASP", "VAL", "MET", "ASP", "VAL", "GLY", "ALA", "GLN", "GLY"
+            ])]
             if e == "pdb":
                 self.assertEqual(d["experiment"], {
                  "technique": "X-RAY DIFFRACTION",
                  "source_organism": "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H",
-                 "expression_system": "ESCHERICHIA COLI"
+                 "expression_system": "ESCHERICHIA COLI",
+                 "missing_residues": missing_residues
                 })
             else:
                 self.assertEqual(d["experiment"], {
                  "technique": "X-RAY DIFFRACTION",
                  "source_organism": None if e == "mmtf" else "Methanothermobacter thermautotrophicus str. Delta H",
-                 "expression_system": None if e == "mmtf" else "Escherichia coli"
+                 "expression_system": None if e == "mmtf" else "Escherichia coli",
+                 "missing_residues": missing_residues if e == "cif" else []
                 })
             self.assertEqual(d["quality"], {
              "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229

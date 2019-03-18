@@ -147,7 +147,8 @@ def mmtf_dict_to_data_dict(mmtf_dict):
       "code": None, "title": None, "deposition_date": None,
       "classification": None, "keywords": [], "authors": []
      }, "experiment": {
-      "technique": None, "source_organism": None, "expression_system": None
+      "technique": None, "source_organism": None, "expression_system": None,
+      "missing_residues": []
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
      "geometry": {"assemblies": []}, "models": []
     }

@@ -90,7 +90,8 @@ class PdbDictToDataDictTests(TestCase):
           "code": None, "title": None, "deposition_date": None,
           "classification": None, "keywords": [], "authors": []
          }, "experiment": {
-          "technique": None, "source_organism": None, "expression_system": None
+          "technique": None, "source_organism": None, "expression_system": None,
+          "missing_residues": []
          }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
          "geometry": {"assemblies": []}, "models": []
         })
@@ -118,12 +119,14 @@ class ExperimentDictUpdatingTests(TestCase):
 
     @patch("atomium.pdb.extract_technique")
     @patch("atomium.pdb.extract_source")
-    def test_can_update_experiment_dict(self, mock_src, mock_tech):
+    @patch("atomium.pdb.extract_missing_residues")
+    def test_can_update_experiment_dict(self, mock_miss, mock_src, mock_tech):
         d = {"experiment": "dict"}
         pdb_dict = {"PDB": "DICT"}
         update_experiment_dict(pdb_dict, d)
         mock_src.assert_called_with(pdb_dict, "dict")
         mock_tech.assert_called_with(pdb_dict, "dict")
+        mock_miss.assert_called_with(pdb_dict, "dict")
 
 
 
@@ -324,6 +327,35 @@ class SourceExtractionTests(TestCase):
          "expression_system": "ESCHERICHIA COLI"
         })
         mock_merge.assert_called_with(["1", "2"], 10)
+
+
+
+class MissingResiduesExtractionTests(TestCase):
+
+    def setUp(self):
+        self.remark_lines = {
+         "1": ["", "BLAH BLAH"],
+         "465": ["", "REMARK 465 MISSING RESIDUES", "REMARK 465     LEU A     1",
+         "REMARK 465     VAL A     6A", "REMARK 465     LEU B  1001"],
+         "466": ["", "BLAH BLAH"]
+        }
+
+
+    def test_missing_remarks_extraction(self):
+        d = {"missing_residues": []}
+        del self.remark_lines["465"]
+        extract_missing_residues({"REMARK": self.remark_lines}, d)
+        self.assertEqual(d, {"missing_residues": []})
+        extract_missing_residues({"ABC": []}, d)
+        self.assertEqual(d, {"missing_residues": []})
+
+
+    def test_missing_residues_extraction(self):
+        d = {"missing_residues": []}
+        extract_missing_residues({"REMARK": self.remark_lines}, d)
+        self.assertEqual(d, {"missing_residues": [
+         {"name": "LEU", "id": "A.1"}, {"name": "VAL", "id": "A.6A"}, {"name": "LEU", "id": "B.1001"}
+        ]})
 
 
 

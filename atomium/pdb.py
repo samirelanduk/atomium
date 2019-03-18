@@ -73,7 +73,8 @@ def pdb_dict_to_data_dict(pdb_dict):
       "code": None, "title": None, "deposition_date": None,
       "classification": None, "keywords": [], "authors": []
      }, "experiment": {
-      "technique": None, "source_organism": None, "expression_system": None
+      "technique": None, "source_organism": None, "expression_system": None,
+      "missing_residues": []
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
       "geometry": {"assemblies": []}, "models": []
     }
@@ -107,6 +108,7 @@ def update_experiment_dict(pdb_dict, data_dict):
 
     extract_technique(pdb_dict, data_dict["experiment"])
     extract_source(pdb_dict, data_dict["experiment"])
+    extract_missing_residues(pdb_dict, data_dict["experiment"])
 
 
 def update_quality_dict(pdb_dict, data_dict):
@@ -231,6 +233,21 @@ def extract_source(pdb_dict, experiment_dict):
             matches = re.findall(pattern, data)
             if matches:
                 experiment_dict[attribute] = matches[0]
+
+
+def extract_missing_residues(pdb_dict, experiment_dict):
+    """Takes a ``dict`` and adds missing residue information to it by parsing
+    REMARK 465 lines.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict experiment_dict: the ``dict`` to update."""
+
+    for line in pdb_dict.get("REMARK", {}).get("465", []):
+        chunks = line.strip().split()
+        if len(chunks) == 5:
+            experiment_dict["missing_residues"].append({
+             "name": chunks[2], "id": f"{chunks[3]}.{chunks[4]}"
+            })
 
 
 def extract_resolution_remark(pdb_dict, quality_dict):

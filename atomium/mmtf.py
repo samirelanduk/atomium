@@ -150,7 +150,7 @@ def mmtf_dict_to_data_dict(mmtf_dict):
       "technique": None, "source_organism": None, "expression_system": None,
       "missing_residues": []
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-     "geometry": {"assemblies": []}, "models": []
+     "geometry": {"assemblies": [], "crystallography": {}}, "models": []
     }
     mmtf_to_data_transfer(mmtf_dict, data_dict,
      "description", "code", "structureId")
@@ -166,6 +166,12 @@ def mmtf_dict_to_data_dict(mmtf_dict):
      "quality", "rvalue", "rWork", trim=3)
     mmtf_to_data_transfer(mmtf_dict, data_dict,
      "quality", "rfree", "rFree", trim=3)
+    mmtf_to_data_transfer(mmtf_dict, data_dict["geometry"],
+     "crystallography", "space_group", "spaceGroup")
+    mmtf_to_data_transfer(mmtf_dict, data_dict["geometry"],
+     "crystallography", "unit_cell", "unitCell", trim=3)
+    if data_dict["geometry"]["crystallography"].get("space_group") == "NA":
+        data_dict["geometry"]["crystallography"] = {}
     data_dict["geometry"]["assemblies"] = [{
      "id": int(a["name"]), "software": None, "delta_energy": None,
      "buried_surface_area": None, "surface_area": None, "transformations": [{
@@ -334,7 +340,10 @@ def mmtf_to_data_transfer(mmtf_dict, data_dict, d_cat, d_key, m_key,
         value = mmtf_dict[m_key]
         if date: value = datetime.strptime(value, "%Y-%m-%d").date()
         if first: value = value[0]
-        if trim: value = round(value, trim)
+        if trim:
+            try:
+                value = [round(v, trim) for v in value]
+            except: value = round(value, trim)
         data_dict[d_cat][d_key] = value
     except: pass
 

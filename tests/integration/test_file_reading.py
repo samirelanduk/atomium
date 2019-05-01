@@ -160,7 +160,11 @@ class DataDictReadingTests(TestCase):
               "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
               "vector": [0.0, 0.0, 0.0]
              }]
-            }]})
+            }], "crystallography": {
+             "space_group": "P 1 21 1", "unit_cell": [
+              57.57, 55.482, 66.129, 90, 94.28, 90
+             ]
+            }})
             self.assertEqual(len(d["models"]), 1)
             self.assertEqual(len(d["models"][0]["polymer"]), 2)
             self.assertEqual(len(d["models"][0]["polymer"]["A"]["sequence"]), 229)
@@ -302,6 +306,9 @@ class DataDictReadingTests(TestCase):
             self.assertEqual(d["quality"], {
              "resolution": None, "rvalue": None, "rfree": None
             })
+            self.assertEqual(d["geometry"]["crystallography"], {
+             "space_group": "P 1", "unit_cell": [1, 1, 1, 90, 90, 90]
+            } if e == "pdb" else {})
             self.assertEqual(len(d["models"]), 10)
             for model in d["models"][1:]:
                 self.assertEqual(len(model["polymer"]), len(d["models"][0]["polymer"]))

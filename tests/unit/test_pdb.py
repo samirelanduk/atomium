@@ -93,7 +93,7 @@ class PdbDictToDataDictTests(TestCase):
           "technique": None, "source_organism": None, "expression_system": None,
           "missing_residues": []
          }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-         "geometry": {"assemblies": []}, "models": []
+         "geometry": {"assemblies": [], "crystallography": {}}, "models": []
         })
 
 
@@ -146,11 +146,13 @@ class QualityDictUpdatingTests(TestCase):
 class GeometryDictUpdatingTests(TestCase):
 
     @patch("atomium.pdb.extract_assembly_remark")
-    def test_can_update_geometry_dict(self, mock_ass):
+    @patch("atomium.pdb.extract_crystallography")
+    def test_can_update_geometry_dict(self, mock_crys, mock_ass):
         d = {"geometry": "dict"}
         pdb_dict = {"PDB": "DICT"}
         update_geometry_dict(pdb_dict, d)
         mock_ass.assert_called_with(pdb_dict, "dict")
+        mock_crys.assert_called_with(pdb_dict, "dict")
 
 
 
@@ -565,6 +567,25 @@ class AssemblyLinesToAssemblyDictTests(TestCase):
           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
           "vector": [0.0, 2.0, -6.0]
          }]
+        })
+
+
+
+class CrystallographyExtractionTests(TestCase):
+
+    def test_missing_crystallography_extraction(self):
+        d = {}
+        extract_crystallography({}, d)
+        self.assertEqual(d, {})
+
+
+    def test_can_extract_crystallography(self):
+        d = {"crystallography": {}}
+        extract_crystallography({"CRYST1": [
+         "CRYST1    1.000    1.000    1.000  90.00  90.00  90.00 P 1           1"
+        ]}, d)
+        self.assertEqual(d, {"crystallography": {
+         "space_group": "P 1", "unit_cell": [1, 1, 1, 90, 90, 90]}
         })
 
 

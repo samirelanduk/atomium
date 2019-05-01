@@ -76,7 +76,7 @@ def pdb_dict_to_data_dict(pdb_dict):
       "technique": None, "source_organism": None, "expression_system": None,
       "missing_residues": []
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-      "geometry": {"assemblies": []}, "models": []
+      "geometry": {"assemblies": [], "crystallography": {}}, "models": []
     }
     update_description_dict(pdb_dict, data_dict)
     update_experiment_dict(pdb_dict, data_dict)
@@ -130,6 +130,7 @@ def update_geometry_dict(pdb_dict, data_dict):
     :param dict data_dict: The data dictionary to update."""
 
     extract_assembly_remark(pdb_dict, data_dict["geometry"])
+    extract_crystallography(pdb_dict, data_dict["geometry"])
 
 
 def update_models_list(pdb_dict, data_dict):
@@ -341,6 +342,22 @@ def assembly_lines_to_assembly_dict(lines):
             t["vector"].append(values[-1])
     if t: assembly["transformations"].append(t)
     return assembly
+
+
+def extract_crystallography(pdb_dict, geometry_dict):
+    """Takes a ``dict`` and adds assembly information to it by parsing the
+    CRYST1 record.
+
+    :param dict pdb_dict: the ``dict`` to read.
+    :param dict geometry_dict: the ``dict`` to update."""
+
+    if pdb_dict.get("CRYST1"):
+        line = pdb_dict["CRYST1"][0]
+        values = line.split()
+        geometry_dict["crystallography"]["space_group"] = line[55:66].strip()
+        geometry_dict["crystallography"]["unit_cell"] = [
+         float(val) for val in values[1:7]
+        ]
 
 
 def make_sequences(pdb_dict):

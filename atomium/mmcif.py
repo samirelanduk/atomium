@@ -199,7 +199,7 @@ def mmcif_dict_to_data_dict(mmcif_dict):
       "technique": None, "source_organism": None, "expression_system": None,
       "missing_residues": []
      }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-     "geometry": {"assemblies": []}, "models": []
+     "geometry": {"assemblies": [], "crystallography": {}}, "models": []
     }
     update_description_dict(mmcif_dict, data_dict)
     update_experiment_dict(mmcif_dict, data_dict)
@@ -292,6 +292,7 @@ def update_geometry_dict(mmcif_dict, data_dict):
         if assembly["software"] == "?": assembly["software"] = None
         assign_metrics_to_assembly(mmcif_dict, assembly)
         assign_transformations_to_assembly(mmcif_dict, operations, assembly)
+    update_crystallography_dict(mmcif_dict, data_dict)
 
 
 def assign_metrics_to_assembly(mmcif_dict, assembly):
@@ -354,6 +355,26 @@ def get_operation_id_groups(expression):
                 ids.append(element)
         group_ids.append(ids)
     return group_ids
+
+
+def update_crystallography_dict(mmcif_dict, data_dict):
+    """Takes a data dictionary and updates its crystallography
+    sub-sub-dictionary with information from a .mmcif dictionary.
+
+    :param dict mmcif_dict: the .mmcif dictionary to read.
+    :param dict data_dict: the data dictionary to update."""
+
+    mmcif_to_data_transfer(mmcif_dict, data_dict["geometry"], "crystallography",
+     "space_group", "symmetry", "space_group_name_H-M")
+    if mmcif_dict.get("cell"):
+        data_dict["geometry"]["crystallography"]["unit_cell"] = [
+         float(mmcif_dict["cell"][0][key]) for key in [
+          "length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma"
+         ]
+        ]
+    if data_dict["geometry"]["crystallography"].get("space_group") == "NA":
+        data_dict["geometry"]["crystallography"] = {}
+
 
 
 def operation_id_groups_to_operations(operations, operation_id_groups):

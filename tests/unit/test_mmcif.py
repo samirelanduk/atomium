@@ -208,7 +208,7 @@ class MmcifDictToDataDictTests(TestCase):
           "technique": None, "source_organism": None, "expression_system": None,
           "missing_residues": []
          }, "quality": {"resolution": None, "rvalue": None, "rfree": None},
-         "geometry": {"assemblies": []}, "models": []
+         "geometry": {"assemblies": [], "crystallography": {}}, "models": []
         })
 
 
@@ -277,15 +277,18 @@ class QualityDictionaryUpdatingTests(TestCase):
 
 class GeometryDictUpdatingTests(TestCase):
 
-    def test_can_update_geometry_with_nothing(self):
+    @patch("atomium.mmcif.update_crystallography_dict")
+    def test_can_update_geometry_with_nothing(self, mock_up):
         m, d = {}, {"geometry": {"assemblies": []}}
         update_geometry_dict(m, d)
         self.assertEqual(d, {"geometry": {"assemblies": []}})
+        mock_up.assert_called_with(m, d)
 
 
     @patch("atomium.mmcif.assign_metrics_to_assembly")
     @patch("atomium.mmcif.assign_transformations_to_assembly")
-    def test_can_add_assemblies_to_geometry(self, mock_trans, mock_ass):
+    @patch("atomium.mmcif.update_crystallography_dict")
+    def test_can_add_assemblies_to_geometry(self, mock_up, mock_trans, mock_ass):
         d = {"geometry": {"assemblies": []}}
         m = {"pdbx_struct_assembly": [{
          "id": "1", "method_details": "PISA",
@@ -322,6 +325,7 @@ class GeometryDictUpdatingTests(TestCase):
         for assembly in d["geometry"]["assemblies"]:
             mock_ass.assert_any_call(m, assembly)
             mock_trans.assert_any_call(m, operations, assembly)
+        mock_up.assert_called_with(m, d)
 
 
 
@@ -477,6 +481,43 @@ class OperationIdGroupsToOperationsTests(TestCase):
          np.array([[74, 62, 77, 97], [130, 93, 119, 170], [107, 48, 70, 137], [111, 79, 101, 143]]),
          np.array([[74, 62, 73, 97], [130, 93, 107, 170], [107, 48, 68, 137], [111, 79, 91, 143]])
         ]))
+
+
+
+class CrystallographyDictUpdatingTests(TestCase):
+
+    @patch("atomium.mmcif.mmcif_to_data_transfer")
+    def test_can_update_crystallography_dict(self, mock_trans):
+        m = {"cell": [{
+         "length_a": "1", "length_b": "2", "length_c": "3",
+         "angle_alpha": "4", "angle_beta": "5", "angle_gamma": "6"
+        }]}
+        d = {"geometry": {"crystallography": {}}}
+        update_crystallography_dict(m, d)
+        mock_trans.assert_called_with(m, d["geometry"], "crystallography",
+         "space_group", "symmetry", "space_group_name_H-M")
+        self.assertEqual(d["geometry"]["crystallography"]["unit_cell"], [1, 2, 3, 4, 5, 6])
+
+
+    @patch("atomium.mmcif.mmcif_to_data_transfer")
+    def test_can_handle_missing_cell(self, mock_trans):
+        m = {}
+        d = {"geometry": {"crystallography": {}}}
+        update_crystallography_dict(m, d)
+        mock_trans.assert_called_with(m, d["geometry"], "crystallography",
+         "space_group", "symmetry", "space_group_name_H-M")
+        self.assertEqual(d["geometry"]["crystallography"], {})
+
+
+    @patch("atomium.mmcif.mmcif_to_data_transfer")
+    def test_can_handle_NA(self, mock_trans):
+        m = {}
+        d = {"geometry": {"crystallography": {"space_group": "NA"}}}
+        update_crystallography_dict(m, d)
+        mock_trans.assert_called_with(m, d["geometry"], "crystallography",
+         "space_group", "symmetry", "space_group_name_H-M")
+        self.assertEqual(d["geometry"]["crystallography"], {})
+
 
 
 

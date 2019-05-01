@@ -220,6 +220,8 @@ class MmtfDictToDataDictTests(TestCase):
         mock_trans.assert_any_call(m, d, "quality", "resolution", "resolution", trim=3)
         mock_trans.assert_any_call(m, d, "quality", "rvalue", "rWork", trim=3)
         mock_trans.assert_any_call(m, d, "quality", "rfree", "rFree", trim=3)
+        mock_trans.assert_any_call(m, d["geometry"], "crystallography", "space_group", "spaceGroup")
+        mock_trans.assert_any_call(m, d["geometry"], "crystallography", "unit_cell", "unitCell", trim=3)
         mock_up.assert_called_with(m, d)
         self.assertEqual(d, {
          "description": {
@@ -236,7 +238,7 @@ class MmtfDictToDataDictTests(TestCase):
           }, {
            "chains": ["A", "C"], "matrix": ["ABC", "EFG", "IJK"], "vector": "DHL"
           }]
-         }]}, "models": []
+         }], "crystallography": {}}, "models": []
         })
 
 
@@ -454,6 +456,9 @@ class MmtfDictTransferTests(TestCase):
         self.assertEqual(self.d["B"][5], 10.1)
         mmtf_to_data_transfer(self.m, self.d, "B", 5, "M", trim=2)
         self.assertEqual(self.d["B"][5], 10.13)
+        self.m["M"] = [10.13122334, 1.119973]
+        mmtf_to_data_transfer(self.m, self.d, "B", 5, "M", trim=2)
+        self.assertEqual(self.d["B"][5], [10.13, 1.12])
 
 
 

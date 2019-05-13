@@ -151,6 +151,10 @@ File
 	source_organisms
 	expression_systems
 
+	resolution
+	rvalue
+	rfree
+
 	assembly_matrices
 	unit_cell
 	space_group

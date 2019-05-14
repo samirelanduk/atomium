@@ -123,6 +123,8 @@ Atom
 
 	mass --> mass based on element
 	is_metal --> true if metal based on element
+	is_backbone --> based on atom name and het
+	is_sidechain --> based on atom name and het
 	chain --> chain above
 	model --> model above
 
@@ -136,28 +138,3 @@ Atom
 	rotate() --> rotates atom around axis
 	trim() --> trims atom coordinates
 	copy() --> creates copy of atom
-
-
-
-File
-	code
-	title
-	deposition_date
-	classification
-	keywords
-	authors
-
-	technique
-	source_organisms
-	expression_systems
-
-	resolution
-	rvalue
-	rfree
-
-	assembly_matrices
-	unit_cell
-	space_group
-
-	models
-	model

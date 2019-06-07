@@ -8,9 +8,30 @@ from .base import StructureClass, query, StructureSet
 
 class AtomStructure:
     """A structure made of atoms. This contains various useful methods that rely
-    on a ``atoms()`` method, which the inheriting object must supply itself.
+    on a ``atoms()`` method, which the inheriting object must supply itself. All
+    atomic structures also have IDs and names.
+
+    Two atomic structures are equal if every pairwise atom in their pairing
+    are equal.
 
     The class would never be instantiated directly."""
+
+    def __init__(self, id=None, name=None):
+        self._id, self._name = id, name
+
+
+    def __eq__(self, other):
+        try:
+            mapping = self.pairing_with(other)
+            for atom1, atom2 in mapping.items():
+                if not atom1 == atom2: return False
+            return True
+        except: return False
+
+
+    def __hash__(self):
+        return id(self)
+
 
     @property
     def id(self):
@@ -18,12 +39,7 @@ class AtomStructure:
 
         :rtype: ``str``"""
 
-        try:
-            return self._id
-        except AttributeError as e:
-            raise AttributeError(
-             "{}s don't have IDs".format(self.__class__.__name__)
-            )
+        return self._id
 
 
     @property
@@ -32,12 +48,7 @@ class AtomStructure:
 
         :rtype: ``str``"""
 
-        try:
-            return self._name
-        except AttributeError as e:
-            raise AttributeError(
-             "{}s don't have names".format(self.__class__.__name__)
-            )
+        return self._name
 
 
     @name.setter
@@ -81,10 +92,8 @@ class AtomStructure:
         :rtype: ``tuple``"""
 
         mass = self.mass
-        average_x = sum([atom.x * atom.mass for atom in self.atoms()]) / mass
-        average_y = sum([atom.y * atom.mass for atom in self.atoms()]) / mass
-        average_z = sum([atom.z * atom.mass for atom in self.atoms()]) / mass
-        return (average_x, average_y, average_z)
+        locations = np.array([a._location * a.mass for a in self.atoms()])
+        return np.sum(locations, axis=0) / mass
 
 
     @property
@@ -104,6 +113,136 @@ class AtomStructure:
         return np.sqrt(mean_square_deviation)
 
 
+    def pairing_with(self, structure):
+        """Takes another structure with the same number of atoms as this one,
+        and attempts to find the nearest equivalent of every atom in this
+        structure, in that structure.
+
+        Atoms will be aligned first by ID (if equal), then element, then by
+        name, and finally by memory address - this last metric is
+        used to ensure that even when allocation is essentially random, it is at
+        least the same every time two structures are aligned.
+
+        :param AtomStructure structure: the structure to pair with.
+        :raises ValueError: if the other structure has a different number of\
+        atoms.
+        :rtype: ``dict``"""
+
+        atoms = self.atoms()
+        other_atoms = structure.atoms()
+        if len(atoms) != len(other_atoms):
+            raise ValueError("{} and {} have different numbers of atoms".format(
+             self, structure
+            ))
+        pair = {}
+        common_ids = set(a._id for a in atoms) & set(a._id for a in other_atoms)
+        id_atoms = {a._id: a for a in atoms}
+        id_other_atoms = {a._id: a for a in other_atoms}
+        for id_ in common_ids:
+            pair[id_atoms[id_]] = id_other_atoms[id_]
+            atoms.remove(id_atoms[id_])
+            other_atoms.remove(id_other_atoms[id_])
+        atoms, other_atoms = list(atoms), list(other_atoms)
+        for l in atoms, other_atoms:
+            l.sort(key=lambda a: (
+             a._id, a._element, a._name, id(a)
+            ))
+        return {**pair, **{a1: a2 for a1, a2 in zip(atoms, other_atoms)}}
+
+
+    def rmsd_with(self, structure):
+        """Calculates the Root Mean Square Deviation between this structure and
+        another.
+
+        :param AtomStructure structure: the structure to check against.
+        :raises ValueError: if the other structure has a different number of\
+        atoms.
+        :rtype: ``float``"""
+
+        pairing = self.pairing_with(structure)
+        coords1, coords2 = [[a.location for a in atoms]
+         for atoms in zip(*pairing.items())]
+        c1, c2 = self.center_of_mass, structure.center_of_mass
+        coords1 = [[x - c1[0], y - c1[1], z - c1[2]] for x, y, z in coords1]
+        coords2 = [[x - c2[0], y - c2[1], z - c2[2]] for x, y, z in coords2]
+        return round(rmsd.kabsch_rmsd(coords1, coords2), 12)
+
+
+    def create_grid(self, size=1, margin=0):
+        """A generator which models a grid around the structure and returns the
+        coordinates of all the points in that grid. The origin is always one of
+        those points, and the grid will be a box.
+
+        :param int size: The spacing between grid points. The default is 1.
+        :param int margin: How far to extend the grid beyond the structure\
+        coordinates. The default is 0.
+        :rtype: ``tuple``"""
+
+        atom_locations = [atom.location for atom in self.atoms()]
+        dimension_values = []
+        for dimension in range(3):
+            coordinates = [loc[dimension] for loc in atom_locations]
+            min_, max_ = min(coordinates) - margin, max(coordinates) + margin
+            values = [0]
+            while values[0] > min_: values.insert(0, values[0] - size)
+            while values[-1] < max_: values.append(values[-1] + size)
+            dimension_values.append(values)
+        for x in dimension_values[0]:
+            for y in dimension_values[1]:
+                for z in dimension_values[2]:
+                    yield (x, y, z)
+
+
+    def check_ids(self):
+        """Looks through all the structure's sub-structures and raises a
+        warning if they have duplicate ID."""
+
+        for objects in ("chains", "ligands", "waters", "residues", "atoms"):
+            try:
+                ids = [obj.id for obj in getattr(self, objects)()]
+                unique_ids = set(ids)
+                if len(ids) != len(unique_ids):
+                    warnings.warn(f"{objects} have duplicate IDs")
+            except AttributeError: pass
+
+
+    def save(self, path):
+        """Saves the structure to file. The file extension given in the filename
+        will be used to determine which file format to save in.
+
+        If the structure you are saving has any duplicate IDs, a warning will be
+        issued, as the file saved will likely be nonsensical.
+
+        :param str path: the filename and location to save to."""
+
+        from .utilities import save
+        self.check_ids()
+        ext = path.split(".")[-1]
+        if ext == "cif":
+            from .mmcif import structure_to_mmcif_string
+            string = structure_to_mmcif_string(self)
+        elif ext == "mmtf":
+            from .mmtf import structure_to_mmtf_string
+            string = structure_to_mmtf_string(self)
+        elif ext == "pdb":
+            from .pdb import structure_to_pdb_string
+            string = structure_to_pdb_string(self)
+        else:
+            raise ValueError("Unsupported file extension: " + ext)
+        save(string, path)
+
+
+    def atoms_in_sphere(self, location, radius, *args, **kwargs):
+        """Returns all the atoms in a given sphere within this structure.
+
+        :param tuple location: the centre of the sphere.
+        :param float radius: the radius of the sphere.
+        :rtype: ``set``"""
+
+        return {a for a in self.atoms(*args, **kwargs)
+         if a.distance_to(location) <= radius}
+
+
     def pairwise_atoms(self, *args, **kwargs):
         """A generator which yeilds all the pairwise atom combinations of the
         structure. There will be no duplicates in the returned generator, and
@@ -115,6 +254,49 @@ class AtomStructure:
         for a_index in range(len(atoms) - 1):
             for o_index in range(a_index + 1, len(atoms)):
                 yield {atoms[a_index], atoms[o_index]}
+
+
+    def nearby_atoms(self, *args, **kwargs):
+        """Returns all atoms within a given distance of this structure,
+        excluding the structure's own atoms.
+
+        :param float cutoff: the distance cutoff to use.
+        :rtype: ``set``"""
+
+        atoms = set()
+        for atom in self.atoms():
+            atoms.update(atom.nearby_atoms(*args, **kwargs))
+        return atoms - self.atoms()
+    
+
+    def nearby_hets(self, *args, **kwargs):
+        """Returns all other het structures within a given distance of this
+        structure, excluding itself.
+
+        :param float cutoff: the distance cutoff to use.
+        :rtype: ``set``"""
+
+        structures = set()
+        hets = set()
+        for atom in self.atoms():
+            structures.update(atom.nearby_hets(*args, **kwargs))
+            hets.add(atom.het)
+        return structures - hets
+    
+
+    def nearby_chains(self, *args, **kwargs):
+        """Returns all other chain structures within a given distance of this
+        structure, excluding itself.
+
+        :param float cutoff: the distance cutoff to use.
+        :rtype: ``set``"""
+
+        structures = set()
+        chains = set()
+        for atom in self.atoms():
+            structures.update(atom.nearby_chains(*args, **kwargs))
+            chains.add(atom.chain)
+        return structures - chains
 
 
     def translate(self, dx=0, dy=0, dz=0, trim=12):
@@ -177,172 +359,28 @@ class AtomStructure:
             atom.trim(places)
 
 
-    def pairing_with(self, structure):
-        """Takes another structure with the same number of atoms as this one,
-        and attempts to find the nearest equivalent of every atom in this
-        structure, in that structure.
 
-        Atoms will be aligned first by ID (if equal), then element, then by
-        name, and finally by memory address - this last metric is
-        used to ensure that even when allocation is essentially random, it is at
-        least the same every time two structures are aligned.
-
-        :param AtomStructure structure: the structure to pair with.
-        :raises ValueError: if the other structure has a different number of\
-        atoms.
-        :rtype: ``dict``"""
-
-        atoms = self.atoms()
-        other_atoms = structure.atoms()
-        if len(atoms) != len(other_atoms):
-            raise ValueError("{} and {} have different numbers of atoms".format(
-             self, structure
-            ))
-        pair = {}
-        common_ids = set(a._id for a in atoms) & set(a._id for a in other_atoms)
-        id_atoms = {a._id: a for a in atoms}
-        id_other_atoms = {a._id: a for a in other_atoms}
-        for id_ in common_ids:
-            pair[id_atoms[id_]] = id_other_atoms[id_]
-            atoms.remove(id_atoms[id_])
-            other_atoms.remove(id_other_atoms[id_])
-        atoms, other_atoms = list(atoms), list(other_atoms)
-        for l in atoms, other_atoms:
-            l.sort(key=lambda a: (
-             a._element, a._name, id(a)
-            ))
-        return {**pair, **{a1: a2 for a1, a2 in zip(atoms, other_atoms)}}
-
-
-    def rmsd_with(self, structure):
-        """Calculates the Root Mean Square Deviation between this structure and
-        another.
-
-        You can get the RMSD either of the coordinates as they are, or of
-        superimposed coordinates.
-
-        :param AtomStructure structure: the structure to check against.
-        :raises ValueError: if the other structure has a different number of\
-        atoms.
-        :rtype: ``float``"""
-
-        pairing = self.pairing_with(structure)
-        coords1, coords2 = [[a.location for a in atoms]
-         for atoms in zip(*pairing.items())]
-        c1, c2 = self.center_of_mass, structure.center_of_mass
-        coords1 = [[x - c1[0], y - c1[1], z - c1[2]] for x, y, z in coords1]
-        coords2 = [[x - c2[0], y - c2[1], z - c2[2]] for x, y, z in coords2]
-        return round(rmsd.kabsch_rmsd(coords1, coords2), 12)
-
-
-    def grid(self, size=1, margin=0):
-        """A generator which models a grid around the structure and returns the
-        coordinates of all the points in that grid. The origin is always one of
-        those points, and the grid will be a box.
-
-        :param int size: The spacing between grid points. The default is 1.
-        :param int margin: How far to extend the grid beyond the structure\
-        coordinates. The default is 0.
-        :rtype: ``tuple``"""
-
-        atom_locations = [atom.location for atom in self.atoms()]
-        dimension_values = []
-        for dimension in range(3):
-            coordinates = [loc[dimension] for loc in atom_locations]
-            min_, max_ = min(coordinates) - margin, max(coordinates) + margin
-            values = [0]
-            while values[0] > min_: values.insert(0, values[0] - size)
-            while values[-1] < max_: values.append(values[-1] + size)
-            dimension_values.append(values)
-        for x in dimension_values[0]:
-            for y in dimension_values[1]:
-                for z in dimension_values[2]:
-                    yield (x, y, z)
-
-
-    def atoms_in_sphere(self, location, radius, *args, **kwargs):
-        """Returns all the atoms in a given sphere within this structure.
-
-        :param tuple location: the centre of the sphere.
-        :param float radius: the radius of the sphere.
-        :rtype: ``set``"""
-
-        return {a for a in self.atoms(*args, **kwargs)
-         if a.distance_to(location) <= radius}
-
-
-    def nearby_atoms(self, *args, **kwargs):
-        """Returns all atoms within a given distance of this structure,
-        excluding the structure's own atoms.
-
-        :param float cutoff: the distance cutoff to use.
-        :rtype: ``set``"""
-
-        atoms = set()
-        for atom in self.atoms():
-            atoms.update(atom.nearby_atoms(*args, **kwargs))
-        return atoms - self.atoms()
-
-
-    def equivalent_to(self, other):
-        """Two structures are equivalent if (1) they have the same number of
-        atoms and (2) their atoms can be paired using :py:meth:`.pairing_with`
-        such that each atom is equivalent to its pair.
-
-        :param AtomStructure other: the structure to compare with.
-        :rtype: ``bool``"""
-
-        try:
-            mapping = self.pairing_with(other)
-            for atom1, atom2 in mapping.items():
-                if not atom1.equivalent_to(atom2): return False
-            return True
-        except: return False
-
-
-    def check_ids(self):
-        """Looks through all the structure's sub-structures and raises a
-        warning if they have duplicate ID."""
-        
-        for objects in ("chains", "ligands", "waters", "residues", "atoms"):
-            try:
-                ids = [obj.id for obj in getattr(self, objects)()]
-                unique_ids = set(ids)
-                if len(ids) != len(unique_ids):
-                    warnings.warn(f"{objects} have duplicate IDs")
-            except AttributeError: pass
-
-
-    def save(self, path):
-        """Saves the structure to file. The file extension given in the filename
-        will be used to determine which file format to save in.
-
-        If the structure you are saving has any duplicate IDs, a warning will be
-        issued, as the file saved will likely be nonsensical.
-
-        :param str path: the filename and location to save to."""
-
-        from .utilities import save
-        self.check_ids()
-        ext = path.split(".")[-1]
-        if ext == "cif":
-            from .mmcif import structure_to_mmcif_string
-            string = structure_to_mmcif_string(self)
-        elif ext == "mmtf":
-            from .mmtf import structure_to_mmtf_string
-            string = structure_to_mmtf_string(self)
-        elif ext == "pdb":
-            from .pdb import structure_to_pdb_string
-            string = structure_to_pdb_string(self)
-        else:
-            raise ValueError("Unsupported file extension: " + ext)
-        save(string, path)
-
-
-
-class Molecule:
+class Molecule(AtomStructure):
     """A molecule is a top-level constituent of a :py:class:`.Model` - a chain,
-    a ligand, or a water molecule."""
+    a ligand, or a water molecule. They can have internal IDs, separate from the
+    standard ID."""
+
+    def __init__(self, id, name, internal_id):
+        AtomStructure.__init__(self, id, name)
+        self._internal_id = internal_id
+        self._model = None
+
+
+    @property
+    def internal_id(self):
+        """The molecule's internal ID - how it is refered to by atomium
+        operations. This will be identical to regular IDs when the model comes
+        from a .pdb file, but .cif and .mmtf files make this distinction.
+        
+        :rtype: ``str``"""
+
+        return self._internal_id
+       
 
     @property
     def model(self):
@@ -354,19 +392,40 @@ class Molecule:
 
 
 
-class Het:
+class Het(AtomStructure):
     """A direct container of atoms, such as a residue or ligand. Though never
     instantiated directly, there is an initaliser method for setting up the
     atom dictionary."""
 
-    def __init__(self, *atoms):
-        for atom in atoms: atom._structure = self
+    from atomium import data as __data
+
+    def __init__(self, id, name, full_name, *atoms):
+        AtomStructure.__init__(self, id, name)
+        self._full_name = full_name
+        for atom in atoms: atom._het = self
         self._atoms = StructureSet(*atoms)
 
 
     def __contains__(self, atom):
         return atom in self._atoms.structures
+    
 
+    @property
+    def full_name(self):
+        """Returns the residue's full name, based on its three letter name - or
+        just the three letter name if it doesn't match anything. Or you can just
+        supply a full name when you instantiate the Het.
+
+        :rtype: ``str``"""
+
+        if self._full_name: return self._full_name
+        return self.__data.FULL_NAMES.get(self._name, self._name)
+    
+
+    @full_name.setter
+    def full_name(self, full_name):
+        self._full_name = full_name
+    
 
     @property
     def chain(self):
@@ -378,50 +437,15 @@ class Het:
         return self._chain
 
 
-    @property
-    def model(self):
-        """Returns the :py:class:`.Model` the structure is part of, via its
-        chain.
+    def atoms(self):
+        """Returns the atoms in the ligand.
 
-        :rtype: ``Model``"""
-
-        try:
-            return self._chain._model
-        except AttributeError: return None
-
-
-    def add(self, atom):
-        """Adds an :py:class:`.Atom` to the structure.
-
-        :param Atom atom: the atom to add."""
-
-        self._atoms.add(atom)
-        atom._structure = self
-
-
-    def remove(self, atom):
-        """Removes an :py:class:`.Atom` from the structure.
-
-        :param Atom atom: the atom to remove."""
-
-        self._atoms.remove(atom)
-        atom._structure = None
-
-
-    def nearby_structures(self, *args, **kwargs):
-        """Returns all other het structures within a given distance of this
-        structure, excluding itself.
-
-        :param float cutoff: the distance cutoff to use.
         :rtype: ``set``"""
 
-        structures = set()
-        for atom in self._atoms.structures:
-            structures.update(atom.nearby_structures(*args, **kwargs))
-        return structures
+        return self._atoms
 
 
-
+    
 class Model(AtomStructure, metaclass=StructureClass):
     """The universe in which all other molecules live, interact, and generally
     exist.
@@ -431,15 +455,20 @@ class Model(AtomStructure, metaclass=StructureClass):
     :param \*molecules: The chains, ligands, and waters that will inhabit the\
     model."""
 
-    def __init__(self, *molecules):
-        self._chains = StructureSet()
-        self._ligands = StructureSet()
-        self._waters = StructureSet()
+    def __init__(self, *molecules, file=None):
+        AtomStructure.__init__(self, None, None)
+        self._chains = set()
+        self._ligands = set()
+        self._waters = set()
         for mol in molecules:
             mol._model = self
             d = (self._chains if isinstance(mol, Chain) else self._waters
              if mol._water else self._ligands)
             d.add(mol)
+        self._chains = StructureSet(*self._chains)
+        self._ligands = StructureSet(*self._ligands)
+        self._waters = StructureSet(*self._waters)
+        self._file = file
 
 
     def __repr__(self):
@@ -453,6 +482,13 @@ class Model(AtomStructure, metaclass=StructureClass):
     def __contains__(self, obj):
         return (obj in self.molecules() or obj in self.residues()
          or obj in self.atoms())
+
+
+    @property
+    def file(self):
+        """The :py:class:`.File` the model comes from."""
+
+        return self._file
 
 
     def chains(self):
@@ -519,31 +555,12 @@ class Model(AtomStructure, metaclass=StructureClass):
         self._waters = StructureSet()
 
 
-    def add(self, molecule):
-        """Add a molecule to the model.
-
-        :param molecule: the chain/ligand to add."""
-
-        d = (self._chains if isinstance(molecule, Chain) else self._waters
-         if molecule._water else self._ligands)
-        d.add(molecule)
-        molecule._model = self
-
-
-    def remove(self, molecule):
-        """Removes a molecule from the model.
-
-        :param molecule: the chain/ligand to remove."""
-
-        d = (self._chains if isinstance(molecule, Chain) else self._waters
-         if molecule._water else self._ligands)
-        d.remove(molecule)
-        molecule._model = None
+    #TODO copy
 
 
 
-class Chain(AtomStructure, Molecule, metaclass=StructureClass):
-    """A sequence of residues. Unlike other structures, they are iterables, and
+class Chain(Molecule, metaclass=StructureClass):
+    """A sequence of residues. Unlike other structures, they are iterable, and
     have a length.
 
     Residues can also be accessed using indexing.
@@ -551,13 +568,18 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
     :param \*residues: The residues that will make up the chain.
     :param str id: the chain's unique ID.
     :param str internal_id: the internal ID used for transformations.
-    :param str sequence: the actual sequence the chain should have."""
+    :param str sequence: the actual sequence the chain should have.
+    :param list helices: the alpha helices within the chain.
+    :param strands sequence: the beta strands within the chain."""
 
-    def __init__(self, *residues, id=None, internal_id=None, sequence=""):
-        self._id, self._internal_id, self._sequence = id, internal_id, sequence
+    def __init__(self, *residues, sequence="", helices=None, strands=None, **kwargs):
+        Molecule.__init__(self, kwargs.get("id"), kwargs.get("internal_id"), kwargs.get("id"))
+        self._sequence = sequence
         for res in residues: res._chain = self
         self._residues = StructureSet(*residues)
         self._model = None
+        self._helices = helices or []
+        self._strands = strands or []
 
 
     def __repr__(self):
@@ -581,13 +603,67 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
 
 
     @property
+    def sequence(self):
+        """Returns the sequence associated with the chain. Note that this is the
+        sequence that the molecule actually has in real life - some may be
+        missing from the actual sequence of residues in the structure.
+
+        :rtype: ``str``"""
+
+        return self._sequence
+
+
+    @sequence.setter
+    def sequence(self, sequence):
+        self._sequence = sequence
+
+
+    @property
+    def helices(self):
+        """The alpha helix residues in the chain
+
+        :rtype: ``tuple``"""
+
+        return tuple(self._helices)
+    
+
+    @property
+    def strands(self):
+        """The beta strand residues in the chain
+
+        :rtype: ``tuple``"""
+
+        return tuple(self._strands)
+
+
+    @property
     def length(self):
         """Returns the number of residues in the chain.
 
         :rtype: ``int``"""
 
         return len(self)
+    
 
+    @property
+    def present_sequence(self):
+        """The sequence of residues actually present in the atoms present.
+
+        :rtype: ``str``"""
+
+        return "".join(r.code for r in self.residues())
+    
+
+    def copy(self, id=None, residue_ids=None, atom_ids=None):
+        """Creates a copy of the chain, with new atoms and residues.
+
+        :rtype: ``Chain``"""
+
+        residue_ids = residue_ids or (lambda i: i)
+        return Chain(*[
+         r.copy(id=residue_ids(r.id), atom_ids=atom_ids) for r in self.residues()
+        ], id=id or self._id, internal_id=self._internal_id, sequence=self._sequence)
+    
 
     def residues(self):
         """Returns the residues in the chain.
@@ -617,35 +693,10 @@ class Chain(AtomStructure, Molecule, metaclass=StructureClass):
         for res in self._residues.structures:
             atoms.update(res._atoms.structures)
         return StructureSet(*atoms)
+        
 
 
-    @property
-    def sequence(self):
-        """Returns the sequence associated with the chain. Note that this is the
-        sequence that the molecule actually has in real life - some may be
-        missing from the actual sequence of residues in the structure.
-
-        :rtype: ``str``"""
-
-        return self._sequence
-
-
-    @sequence.setter
-    def sequence(self, sequence):
-        self._sequence = sequence
-
-
-    def copy(self):
-        """Creates a copy of the chain, with new atoms and residues.
-
-        :rtype: ``Chain``"""
-
-        return Chain(*[r.copy() for r in self.residues()], id=self._id,
-         internal_id=self._internal_id, sequence=self._sequence)
-
-
-
-class Ligand(AtomStructure, Molecule, Het, metaclass=StructureClass):
+class Ligand(Molecule, Het, metaclass=StructureClass):
     """A small molecule, usually associated with a polymer chain.
 
     :param \*atoms: The atoms that will make up the ligand.
@@ -655,11 +706,10 @@ class Ligand(AtomStructure, Molecule, Het, metaclass=StructureClass):
     :param Chain chain: the chain the ligand is associated with.
     :param bool water: if ``True``, the ligand will be treated as water."""
 
-    def __init__(self, *atoms, id=None, name=None, internal_id=None, chain=None,
-                 water=False):
-        self._id, self._name, self._internal_id = id, name, internal_id
+    def __init__(self, *atoms, chain=None, water=False, **kwargs):
+        Het.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("full_name"), *atoms)
+        Molecule.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("internal_id"))
         self._chain, self._water = chain, water
-        Het.__init__(self, *atoms)
 
 
     def __repr__(self):
@@ -668,16 +718,8 @@ class Ligand(AtomStructure, Molecule, Het, metaclass=StructureClass):
         )
 
 
-    def atoms(self):
-        """Returns the atoms in the ligand.
-
-        :rtype: ``set``"""
-
-        return self._atoms
-
-
     @property
-    def water(self):
+    def is_water(self):
         """Returns ``True`` if the ligand is a water ligand.
 
         :rtype: ``bool``"""
@@ -685,17 +727,23 @@ class Ligand(AtomStructure, Molecule, Het, metaclass=StructureClass):
         return self._water
 
 
-    def copy(self):
-        """Creates a copy of the ligand, with new atoms, and no chain.
+    def copy(self, id=None, atom_ids=None):
+        """Creates a copy of the ligand, with new atoms.
 
         :rtype: ``Ligand``"""
 
-        return Ligand(*[a.copy() for a in self.atoms()], id=self._id,
+        atoms = list(self.atoms())
+        if atom_ids:
+            new_ids = [atom_ids(a.id) for a in atoms]
+            atoms = [a.copy(id=id) for a, id in zip(atoms, new_ids)]
+        else:
+            atoms = [a.copy() for a in self.atoms()]
+        return self.__class__(*atoms, id=id or self._id,
          name=self._name, internal_id=self._internal_id, water=self._water)
 
 
 
-class Residue(AtomStructure, Het, metaclass=StructureClass):
+class Residue(Het, metaclass=StructureClass):
     """A small subunit within a chain.
 
     :param \*atoms: The atoms the residue is to be made of.
@@ -704,23 +752,14 @@ class Residue(AtomStructure, Het, metaclass=StructureClass):
 
     from atomium import data as __data
 
-    def __init__(self, *atoms, id=None, name=None):
-        self._id, self._name = id, name
+    def __init__(self, *atoms, **kwargs):
+        Het.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("full_name"), *atoms)
         self._next, self._previous = None, None
         self._chain = None
-        Het.__init__(self, *atoms)
 
 
     def __repr__(self):
         return "<Residue {} ({})>".format(self._name, self._id)
-
-
-    def atoms(self):
-        """Returns the atoms in the residue.
-
-        :rtype: ``set``"""
-
-        return self._atoms
 
 
     @property
@@ -785,23 +824,53 @@ class Residue(AtomStructure, Het, metaclass=StructureClass):
 
 
     @property
-    def full_name(self):
-        """Returns the residue's full name, based on its three letter name - or
-        just the three letter name if it doesn't match anything.
+    def helix(self):
+        """Returns ``True`` if the residue is part of an alpha helix.
 
-        :rtype: ``str``"""
+        :rtype: ``bool``"""
 
-        return self.__data.FULL_NAMES.get(self._name, self._name)
+        if self.chain:
+            for helix in self.chain.helices:
+                if self in helix: return True
+        return False
+    
+
+    @property
+    def strand(self):
+        """Returns ``True`` if the residue is part of a beta strand.
+
+        :rtype: ``bool``"""
+
+        if self.chain:
+            for strand in self.chain.strands:
+                if self in strand: return True
+        return False
 
 
-    def copy(self):
+    def copy(self, id=None, atom_ids=None):
         """Creates a copy of the residue, with new atoms.
 
         :rtype: ``Residue``"""
 
-        return Residue(
-         *[a.copy() for a in self.atoms()], id=self._id, name=self._name
-        )
+        atoms = list(self.atoms())
+        if atom_ids:
+            new_ids = [atom_ids(a.id) for a in atoms]
+            atoms = [a.copy(id=id) for a, id in zip(atoms, new_ids)]
+        else:
+            atoms = [a.copy() for a in self.atoms()]
+        return self.__class__(*atoms, id=id or self._id, name=self._name)
+    
+
+    @property
+    def model(self):
+        """Returns the :py:class:`.Model` the residue is part of, via its
+        chain.
+
+        :rtype: ``Model``"""
+
+        try:
+            return self._chain._model
+        except AttributeError: return None
 
 
 
@@ -809,6 +878,8 @@ class Atom:
     """An atom in space - a point particle with a location, element, charge etc.
 
     Atoms are the building blocks of all structures in atomium.
+
+    Two atoms are equal if they have the same properties (not including ID).
 
     :param str element: The atom's elemental symbol.
     :param number x: The atom's x coordinate.
@@ -823,19 +894,37 @@ class Atom:
     from atomium import data as __data
 
     __slots__ = [
-     "_element", "_x", "_y", "_z", "_id", "_name", "_charge",
-     "_bvalue", "_anisotropy", "_structure", "_model", "_flag"
+     "_element", "_location", "_id", "_name", "_charge",
+     "_bvalue", "_anisotropy", "_het", "_bonded_atoms",
     ]
 
     def __init__(self, element, x, y, z, id, name, charge, bvalue, anisotropy):
-        self._element, self._x, self._y, self._z = element, x, y, z
+        self._location = np.array([x, y, z])
+        self._element = element
         self._id, self._name, self._charge = id, name, charge
         self._bvalue, self._anisotropy = bvalue, anisotropy
-        self._structure, self._model = None, None
+        self._het, self._bonded_atoms = None, set()
 
 
     def __repr__(self):
         return "<Atom {} ({})>".format(self._id, self._name)
+
+
+    def __iter__(self):
+        return iter(self._location)
+
+
+    def __eq__(self, other):
+        if not isinstance(other, Atom): return False
+        for attr in self.__slots__:
+            if attr not in ("_id", "_het", "_bonded_atoms", "_location"):
+                if getattr(self, attr) != getattr(other, attr): return False
+            if list(self._location) != list(other._location): return False
+        return True
+
+
+    def __hash__(self):
+        return id(self)
 
 
     @staticmethod
@@ -846,9 +935,7 @@ class Atom:
         :param \*atoms: the atoms to translate."""
 
         for atom in atoms:
-            atom._x += vector[0]
-            atom._y += vector[1]
-            atom._z += vector[2]
+            atom._location += np.array(vector)
 
 
     @staticmethod
@@ -858,11 +945,10 @@ class Atom:
         :param matrix: the transformation matrix.
         :param \*atoms: the atoms to transform."""
 
-        atoms = list(atoms)
-        locations = [a.location for a in atoms]
+        locations = [list(a) for a in atoms]
         output = np.dot(np.array(matrix), np.array(locations).transpose())
         for atom, location in zip(atoms, output.transpose()):
-            atom._x, atom._y, atom._z = location
+            atom._location = location
 
 
     @staticmethod
@@ -900,51 +986,13 @@ class Atom:
         return self._element
 
 
-    @element.setter
-    def element(self, element):
-        self._element = element
-
-
     @property
-    def x(self):
-        """The atom's x-coordinate.
+    def location(self):
+        """The atom's location.
 
-        :rtype: ``float``"""
+        :rtype: ``tuple``"""
 
-        return self._x
-
-
-    @x.setter
-    def x(self, x):
-        self._x = x
-
-
-    @property
-    def y(self):
-        """The atom's y-coordinate.
-
-        :rtype: ``float``"""
-
-        return self._y
-
-
-    @y.setter
-    def y(self, y):
-        self._y = y
-
-
-    @property
-    def z(self):
-        """The atom's z-coordinate.
-
-        :rtype: ``float``"""
-
-        return self._z
-
-
-    @z.setter
-    def z(self, z):
-        self._z = z
+        return tuple(self._location)
 
 
     @property
@@ -1012,29 +1060,12 @@ class Atom:
 
 
     @property
-    def location(self):
-        """The atom's location in space.
+    def bonded_atoms(self):
+        """Returns the atoms this atom is bonded to.
 
-        :rtype: ``tuple``"""
+        :rtype: ``set```"""
 
-        return (self._x, self._y, self._z)
-
-
-    def distance_to(self, other):
-        """Returns the distance (in whatever units the coordinates are defined
-        in) between this atom and another. You can also give a (x, y, z) tuple
-        instead of another atom if you so wish.
-
-        :param Atom other: The other atom (or location tuple).
-        :rtype: ``float``"""
-
-        try:
-            x, y, z = other
-        except: x, y, z = other.location
-        x_sum = pow((x - self._x), 2)
-        y_sum = pow((y - self._y), 2)
-        z_sum = pow((z - self._z), 2)
-        return np.sqrt(x_sum + y_sum + z_sum)
+        return self._bonded_atoms
 
 
     @property
@@ -1062,33 +1093,32 @@ class Atom:
 
 
     @property
-    def structure(self):
-        """Returns the :py:class:`.Residue` or :py:class:`.Ligand` the atom is
-        part of, or ``None`` if it is not part of one.
+    def is_backbone(self):
+        """Returns ``True`` if the atom has a backbone atom name.
 
-        :rtype: ``Het```"""
+        :rtype: ``bool``"""
 
-        return self._structure
-
-
-    @property
-    def chain(self):
-        """Returns the :py:class:`.Chain` the atom is part of, or ``None`` if
-        it is not part of one.
-
-        :rtype: ``Chain``"""
-
-        if self._structure: return self._structure.chain
+        return isinstance(self._het, Residue) and self._name in ["CA", "C", "N", "O"]
 
 
     @property
-    def model(self):
-        """Returns the :py:class:`.Model` the atom is part of, or ``None`` if
-        it is not part of one.
+    def is_side_chain(self):
+        """Returns ``True`` if the atom has a side chain atom name.
 
-        :rtype: ``Model``"""
+        :rtype: ``bool``"""
 
-        if self.chain: return self.chain.model
+        return isinstance(self._het, Residue) and not self.is_backbone
+
+
+    def distance_to(self, other):
+        """Returns the distance (in whatever units the coordinates are defined
+        in) between this atom and another. You can also give a (x, y, z) tuple
+        instead of another atom if you so wish.
+
+        :param Atom other: The other atom (or location tuple).
+        :rtype: ``float``"""
+
+        return np.linalg.norm(self._location - np.array(list(other)))
 
 
     def angle(self, atom1, atom2):
@@ -1104,6 +1134,49 @@ class Atom:
         if 0 in normalized: return 0
         vectors = [v / n for v, n in zip(vectors, normalized)]
         return np.arccos(np.clip(np.dot(vectors[0], vectors[1]), -1.0, 1.0))
+    
+
+    def copy(self, id=None):
+        """Returns a copy of the atom. The new atom will have the same element,
+        location, name, charge, ID, bvalue etc. as the original, but will not
+        be part of any model or other molecule.
+
+        :rtype: ``Atom``"""
+
+        return Atom(
+         self._element, *self._location, id or self._id, self._name, self._charge,
+         self._bvalue, self._anisotropy
+        )
+    
+
+    @property
+    def het(self):
+        """Returns the :py:class:`.Residue` or :py:class:`.Ligand` the atom is
+        part of, or ``None`` if it is not part of one.
+
+        :rtype: ``Het```"""
+
+        return self._het
+    
+
+    @property
+    def chain(self):
+        """Returns the :py:class:`.Chain` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Chain``"""
+
+        if self._het: return self._het.chain
+
+
+    @property
+    def model(self):
+        """Returns the :py:class:`.Model` the atom is part of, or ``None`` if
+        it is not part of one.
+
+        :rtype: ``Model``"""
+
+        if self.chain: return self.chain.model
 
 
     def nearby_atoms(self, cutoff, *args, **kwargs):
@@ -1125,9 +1198,8 @@ class Atom:
         return set()
 
 
-    def nearby_structures(self, *args, residues=True, ligands=True,
-                          waters=False, **kwargs):
-        """Returns all residues and ligandsin the associated :py:class:`.Model`
+    def nearby_hets(self, *args, residues=True, ligands=True, **kwargs):
+        """Returns all residues and ligands in the associated :py:class:`.Model`
         that are within a given distance (in the units of the atom coordinates)
         of this atom. If the atom is not part of a model, no residues will be
         returned.
@@ -1135,25 +1207,39 @@ class Atom:
         :param float cutoff: the distance cutoff to use.
         :param bool residues: if ``False``, residues will not be returned.
         :param bool ligands: if ``False``, ligands will not be returned.
-        :param bool waters: if ``True``, waters will be returned too.
         :rtype: ``set``"""
 
         atoms = self.nearby_atoms(*args, **kwargs)
         structures = set()
         for atom in atoms:
-            structures.add(atom.structure)
+            if atom.het is not None: structures.add(atom.het)
         try:
-            structures.remove(self.structure)
+            structures.remove(self.het)
         except: pass
         if not residues:
             structures = {s for s in structures if not isinstance(s, Residue)}
         if not ligands:
-            structures = {s for s in structures
-             if not (isinstance(s, Ligand) and not s.water)}
-        if not waters:
-            structures = {s for s in structures
-             if not (isinstance(s, Ligand) and s.water)}
+            structures = {s for s in structures if not (isinstance(s, Ligand))}
         return structures
+    
+
+    def nearby_chains(self, *args, **kwargs):
+        """Returns all chain structures in the associated :py:class:`.Model`
+        that are within a given distance (in the units of the atom coordinates)
+        of this atom. If the atom is not part of a model, no chains will be
+        returned.
+
+        :param float cutoff: the distance cutoff to use.
+        :rtype: ``set``"""
+
+        atoms = self.nearby_atoms(*args, **kwargs)
+        chains = set()
+        for atom in atoms:
+            if atom.chain is not None: chains.add(atom.chain)
+        try:
+            chains.remove(self.chain)
+        except: pass
+        return chains
 
 
     def translate(self, dx=0, dy=0, dz=0, trim=12):
@@ -1211,7 +1297,7 @@ class Atom:
         :param number y: The atom's new y coordinate.
         :param number z: The atom's new z coordinate."""
 
-        self._x, self._y, self._z = x, y, z
+        self._location[0], self._location[1], self._location[2] = x, y, z
 
 
     def trim(self, places):
@@ -1222,34 +1308,13 @@ class Atom:
         ``None``, no rounding will be done."""
 
         if places is not None:
-            self._x = round(self._x, places)
-            self._y = round(self._y, places)
-            self._z = round(self._z, places)
+            self._location = np.round(self._location, places)
 
 
-    def equivalent_to(self, other):
-        """Two atoms are equivalent if they occupy the same position and have
-        the same properties.
+    def bond(self, other):
+        """Bonds the atom to some other atom.
 
-        :param Atom other: the atom to compare with.
-        :rtype: `bool``"""
-
-        if not isinstance(other, Atom):
-            raise TypeError("Can't compare Atom with object type '{}'".format(
-             other.__class__.__name__
-            ))
-        for attr in ["_element", "location", "_id", "_name",
-         "_charge", "_bvalue", "_anisotropy"]:
-            if getattr(self, attr) != getattr(other, attr): return False
-        return True
-
-
-    def copy(self):
-        """Returns a copy of the atom. The new atom will have the same element,
-        location, name, charge, ID, bvalue etc. as the original, but will not
-        be part of any model or other molecule.
-
-        :rtype: ``Atom``"""
-
-        args = [getattr(self, k) for k in self.__slots__[:-3]]
-        return Atom(*args)
+        :param Atom other: the other atom to bond to."""
+        
+        self._bonded_atoms.add(other)
+        other._bonded_atoms.add(self)

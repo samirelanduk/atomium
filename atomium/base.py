@@ -2,6 +2,32 @@
 
 import re
 
+def get_object_from_filter(obj, components):
+    components = components[:]
+    if len(components) > 1:
+        if components[-1] != "regex" and not hasattr(obj, f"__{components[-1]}__"):
+            obj = getattr(obj, components[0])
+    return obj
+
+
+def get_object_attribute_from_filter(obj, components):
+    try:
+        return getattr(
+         obj, components[-1] if hasattr(obj, components[-1]) else components[-2]
+        )
+    except: return None
+
+
+def attribute_matches_value(attribute, value, components):
+
+    if components[-1] == "regex":
+        return re.match(value, attribute)
+    possible_magic = f"__{components[-1]}__"
+    if hasattr(attribute, possible_magic):
+        return getattr(attribute, possible_magic)(value)
+    return getattr(attribute, "__eq__")(value)
+
+
 def filter_objects(objects, key, value):
     """Takes a :py:class:`.StructureSet` of objects, and filters them on object
     properties.
@@ -13,21 +39,14 @@ def filter_objects(objects, key, value):
     :param value: the value that the attribute must have.
     :rtype: ``dict``"""
 
-    if "__" in key:
-        attr, comp = key.split("__")
-        if comp == "regex":
-            objects = StructureSet(*[
-             s for s in objects.structures if re.match(value, getattr(s, attr))
-            ])
-        else:
-            comp = "__{}__".format(comp)
-            objects = StructureSet(*[s for s in objects.structures
-             if getattr(getattr(s, attr), comp)(value)])
-    else:
-        objects = StructureSet(*[
-         s for s in objects.structures if getattr(s, key).__eq__(value)
-        ])
-    return objects
+    components = key.split("__")
+    matching_objects = []
+    for structure in objects.structures:
+        obj = get_object_from_filter(structure, components)
+        attr = get_object_attribute_from_filter(obj, components)
+        if attribute_matches_value(attr, value, components):
+            matching_objects.append(structure)
+    return StructureSet(*matching_objects)
 
 
 def query(func, tuple_=False):
@@ -121,27 +140,6 @@ class StructureSet:
 
     def __len__(self):
         return len(self.structures)
-
-
-    def add(self, obj):
-        """Adds a structure to the StructureSet.
-
-        :param obj: the structure to add."""
-
-        if obj._id in self._d:
-            self._d[obj._id].add(obj)
-        else:
-            self._d[obj._id] = {obj}
-
-
-    def remove(self, obj):
-        """Removes a structure from the StructureSet.
-
-        :param obj: the structure to remove."""
-
-        self._d[obj._id].remove(obj)
-        if not self._d[obj._id]:
-            del self._d[obj._id]
 
 
     @property

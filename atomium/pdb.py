@@ -514,9 +514,9 @@ def structure_to_pdb_string(structure):
     atoms = sorted(structure.atoms(), key=lambda a: a.id)
     for i, atom in enumerate(atoms):
         atom_to_atom_line(atom, lines)
-        if isinstance(atom.structure, Residue) and (
+        if isinstance(atom.het, Residue) and (
          atom is atoms[-1] or atoms[i + 1].chain is not atom.chain or
-          isinstance(atoms[i + 1].structure, Ligand)):
+          isinstance(atoms[i + 1].het, Ligand)):
             lines.append("TER")
     return "\n".join(lines)
 
@@ -539,8 +539,8 @@ def atom_to_atom_line(a, lines):
     line = "{:6}{:5} {:4} {:3} {:1}{:4}{:1}   "
     line += "{:>8}{:>8}{:>8}  1.00{:6}          {:>2}{:2}"
     id_, residue_name, chain_id, residue_id, insert_code = "", "", "", "", ""
-    if a.structure:
-        id_, residue_name = a.structure.id, a.structure._name
+    if a.het:
+        id_, residue_name = a.het.id, a.het._name
         chain_id = a.chain.id if a.chain is not None else ""
         residue_id = int("".join([c for c in id_ if c.isdigit()]))
         insert_code = id_[-1] if id_ and id_[-1].isalpha() else ""
@@ -548,11 +548,11 @@ def atom_to_atom_line(a, lines):
     atom_name = " " + atom_name if len(atom_name) < 4 else atom_name
     occupancy = "  1.00"
     line = line.format(
-     "HETATM" if isinstance(a.structure, Ligand) else "ATOM",
+     "HETATM" if isinstance(a.het, Ligand) else "ATOM",
      a.id, atom_name, residue_name, chain_id, residue_id, insert_code,
-     "{:.3f}".format(a.x) if a.x is not None else "",
-     "{:.3f}".format(a.y) if a.y is not None else "",
-     "{:.3f}".format(a.z) if a.z is not None else "",
+     "{:.3f}".format(a.location[0]) if a.location[0] is not None else "",
+     "{:.3f}".format(a.location[1]) if a.location[1] is not None else "",
+     "{:.3f}".format(a.location[2]) if a.location[2] is not None else "",
      a.bvalue if a.bvalue is not None else "", a.element or "",
      str(int(a.charge))[::-1] if a.charge else "",
     )

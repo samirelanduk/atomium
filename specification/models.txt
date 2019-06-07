@@ -10,11 +10,12 @@ AtomStructure
 	formula --> count of all atoms
 	center_of_mass --> centre of mass
 	radius_of_gyration --> radius of gyration
-	*pairwise_atoms --> all combinations of two atoms
 
+	*pairwise_atoms --> all combinations of two atoms
 	pairing_with() --> mapping of atoms to atoms in other structure
 	rmsd_with() --> RMSD with other structure
 	create_grid() --> creates grid of coordinates
+	*atoms_in_sphere() --> All atoms within some sphere
 	*nearby_atoms() --> atoms within certain distance of structure
 	check_ids() --> checks all IDs are unique
 	save() --> saves to file
@@ -32,15 +33,15 @@ Molecule
 
 
 Het
-
 	*container*
 
 	chain --> chain above
-	model --> model above
+	*atoms --> ligand's atoms
 
+	model --> model above
 	full_name --> full English name
 
-	*nearby_structures() --> structures within a given cutoff distance
+	*nearby_hets() --> structures within a given cutoff distance
 
 	(AtomStructure attributes)
 
@@ -64,19 +65,20 @@ Model
 
 
 Chain
-	*residues --> contains the residues in sequence
-	sequence --> the single letter codes of the residues
-
 	*iterable*
 	*indexable*
 	*container*
 
-	length --> the number of residues
+	*residues --> contains the residues in sequence
+	present_sequence --> the actual sequence contained here
+	secondary_structure --> the secondary structure information
+
 	*ligands --> the ligands associated with the chain
 	*atoms --> the atoms in the chain
-	present_sequence --> the actual sequence contained here
 	helices --> alpha helixes
 	strands --> beta strands
+	sequence --> the single letter codes of the residues
+	length --> the number of residues
 
 	copy() --> creates a deep copy of the chain
 
@@ -84,8 +86,6 @@ Chain
 
 
 Ligand
-	*atoms --> ligand's atoms
-
 	is_water --> true if ligand is water
 
 
@@ -95,7 +95,6 @@ Ligand
 
 
 Residue
-	*atoms --> residue's atoms
 	next --> next residue in sequence
 	previous --> previous residue in sequence
 
@@ -121,17 +120,17 @@ Atom
 	*equality*
 	*iterable*
 
+	chain --> chain above
+	model --> model above
 	mass --> mass based on element
 	is_metal --> true if metal based on element
 	is_backbone --> based on atom name and het
 	is_sidechain --> based on atom name and het
-	chain --> chain above
-	model --> model above
 
 	distance_to() --> distance to atom or vector
 	angle() --> angle with two other atoms
 	*nearby_atoms() --> atoms within distance cutoff
-	*nearby_structures() --> structures within distance cutoff
+	*nearby_hets() --> structures within distance cutoff
 
 	translate() --> translates atom with vector
 	transform() --> transforms atom using matrix

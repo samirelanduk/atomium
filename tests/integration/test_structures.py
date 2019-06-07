@@ -189,6 +189,7 @@ class Tests(TestCase):
         res_copy = res1.copy()
         self.assertEqual(res1, res_copy)
         self.assertEqual(res_copy.id, "A5")
+        self.assertEqual(res_copy.name, "ALA")
         self.assertEqual(res1.pairing_with(res_copy), {
          atom1: res_copy.atom(1), atom2: res_copy.atom(2),
          atom3: res_copy.atom(3), atom4: res_copy.atom(4),
@@ -304,8 +305,13 @@ class Tests(TestCase):
         )
         self.assertEqual(chain1, chain2)
         self.assertEqual(chain2.id, "B")
+        self.assertEqual(chain2.internal_id, "B")
         self.assertEqual([res.id for res in chain2], ["B5", "B5B", "B6"])
         self.assertEqual({a.id for a in chain2.atoms()}, set([x * 100 for x in range(1, 19)]))
+        self.assertIs(chain2[0].next, chain2[1])
+        self.assertIs(chain2[2].previous, chain2[1])
+        self.assertEqual(chain2.helices, ((chain2[0], chain2[1]),))
+        self.assertEqual(chain2.strands, ((chain2[2],),))
 
         # Move chain into place
         chain2.rotate(math.pi, "x")
@@ -336,7 +342,9 @@ class Tests(TestCase):
         cu_copy = copper.copy()
         self.assertEqual(copper, cu_copy)
         self.assertEqual(cu_copy.id, "A100")
+        self.assertEqual(cu_copy.name, "CU")
         self.assertEqual(len(cu_copy.atoms() | cu_copy.atoms()), 1)
+        self.assertFalse(cu_copy.is_water)
 
         # Can make copy of ligand with new IDs
         cu_copy = copper.copy(id="C100", atom_ids=lambda i: i * 100)
@@ -399,11 +407,3 @@ class Tests(TestCase):
         self.assertEqual(model.waters(), set())
         self.assertEqual(model.ligands(), {copper})
         self.assertEqual(model.chains(), {chain1, chain2})
-
-
-        #model.save("temp.pdb")
-
-        # Can copy model
-        #copy = model.copy(); check ids!
-
-        #model.save("temp.pdb")

@@ -657,12 +657,25 @@ class Chain(Molecule, metaclass=StructureClass):
     def copy(self, id=None, residue_ids=None, atom_ids=None):
         """Creates a copy of the chain, with new atoms and residues.
 
+        :param str id: if given, the ID of the new chain.
+        :param function residue_ids: a callable which, if given, will generate\
+        new residue IDs.
+        :param function atom_ids: a callable which, if given, will generate new\
+        atom IDs.
         :rtype: ``Chain``"""
 
         residue_ids = residue_ids or (lambda i: i)
-        return Chain(*[
-         r.copy(id=residue_ids(r.id), atom_ids=atom_ids) for r in self.residues()
-        ], id=id or self._id, internal_id=self._internal_id, sequence=self._sequence)
+        residues = {r: r.copy(
+         id=residue_ids(r.id), atom_ids=atom_ids
+        ) for r in self.residues()}
+        for r in self.residues():
+            residues[r].next = residues[r.next] if r.next else None
+        return Chain(
+         *residues.values(), id=id or self._id, internal_id=self._internal_id,
+         name=self._name, sequence=self._sequence,
+         helices=[tuple(residues[r] for r in h) for h in self._helices],
+         strands=[tuple(residues[r] for r in s) for s in self._strands]
+        )
     
 
     def residues(self):
@@ -693,7 +706,7 @@ class Chain(Molecule, metaclass=StructureClass):
         for res in self._residues.structures:
             atoms.update(res._atoms.structures)
         return StructureSet(*atoms)
-        
+
 
 
 class Ligand(Molecule, Het, metaclass=StructureClass):
@@ -730,6 +743,9 @@ class Ligand(Molecule, Het, metaclass=StructureClass):
     def copy(self, id=None, atom_ids=None):
         """Creates a copy of the ligand, with new atoms.
 
+        :param str id: if given, the ID of the new ligand.
+        :param function atom_ids: a callable which, if given, will generate new\
+        atom IDs.
         :rtype: ``Ligand``"""
 
         atoms = list(self.atoms())
@@ -850,6 +866,9 @@ class Residue(Het, metaclass=StructureClass):
     def copy(self, id=None, atom_ids=None):
         """Creates a copy of the residue, with new atoms.
 
+        :param str id: if given, the ID of the new residue.
+        :param function atom_ids: a callable which, if given, will\
+        generate new atom IDs.
         :rtype: ``Residue``"""
 
         atoms = list(self.atoms())

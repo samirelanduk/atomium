@@ -152,7 +152,7 @@ class GeometryDictTests(DataDictTest):
          }
         })
 
-        
+
     def test_1xda_data_dict_geometry(self):
         # Multiple assemblies with different chains
         data_dicts = self.open("1xda")
@@ -278,3 +278,101 @@ class GeometryDictTests(DataDictTest):
         for d in data_dicts.values():
             self.assertEqual(len(d["geometry"]["assemblies"]), 2)
             self.assertEqual(d["geometry"]["assemblies"][0]["transformations"][0]["vector"], [42.387, 0, 0])
+
+
+
+class ModelDictTests(DataDictTest):
+
+    def test_1lol_data_dict_model(self):
+        data_dicts = self.open("1lol")
+        for e, d in data_dicts.items():
+            self.assertEqual(len(d["models"]), 1)
+            self.assertEqual(len(d["models"][0]["polymer"]), 2)
+            self.assertEqual(len(d["models"][0]["polymer"]["A"]["sequence"]), 229)
+            self.assertEqual(len(d["models"][0]["polymer"]["A"]["residues"]), 204)
+            self.assertEqual(d["models"][0]["polymer"]["A"]["sequence"][:2], "LR")
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]['number'], 1)
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.13"]['number'], 3)
+            self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1011"]['number'], 1)
+            self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1013"]['number'], 3)
+            self.assertEqual(len(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["atoms"]), 7)
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["atoms"][1], {
+             "element": "N", "name": "N", "x": 3.696, "y": 33.898, "z": 63.219,
+             "bvalue": 21.5, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
+             "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            })
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["name"], "VAL")
+            self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1011"]["atoms"][1558 + (e == "pdb")], {
+             "element": "N", "name": "N", "x": -26.384, "y": 61.433, "z": 36.898,
+             "bvalue": 39.3, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
+             "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+            })
+            self.assertEqual(len(d["models"][0]["non-polymer"]), 4)
+            self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["name"], "BU2")
+            self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["internal_id"], "A" if e == "pdb" else "C")
+            self.assertEqual(len(d["models"][0]["non-polymer"]["A.5001"]["atoms"]), 6)
+            self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["polymer"], "A")
+            self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["name"], "XMP")
+            self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["internal_id"], "B" if e == "pdb" else "F")
+            self.assertEqual(len(d["models"][0]["non-polymer"]["B.2002"]["atoms"]), 24)
+            self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["polymer"], "B")
+            self.assertEqual(len(d["models"][0]["water"]), 180)
+            self.assertEqual(d["models"][0]["water"]["A.3005"]["name"], "HOH")
+            self.assertEqual(d["models"][0]["water"]["A.3005"]["internal_id"], "A" if e == "pdb" else "G")
+            self.assertEqual(d["models"][0]["water"]["A.3005"]["polymer"], "A")
+            self.assertEqual(d["models"][0]["water"]["B.3180"]["name"], "HOH")
+            self.assertEqual(d["models"][0]["water"]["B.3180"]["internal_id"], "B" if e == "pdb" else "H")
+            self.assertEqual(d["models"][0]["water"]["B.3180"]["polymer"], "B")
+
+
+    def test_5xme_data_dict_model(self):
+        data_dicts = self.open("5xme")
+        for e, d in data_dicts.items():
+            self.assertEqual(len(d["models"]), 10)
+            for model in d["models"][1:]:
+                self.assertEqual(len(model["polymer"]), len(d["models"][0]["polymer"]))
+                self.assertEqual(len(model["non-polymer"]), len(d["models"][0]["non-polymer"]))
+                self.assertEqual(len(model["water"]), len(d["models"][0]["water"]))
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.199"]["atoms"][1]["x"], 33.969)
+            self.assertEqual(d["models"][1]["polymer"]["A"]["residues"]["A.199"]["atoms"][1 if e == "pdb" else 1828]["x"], 34.064)
+
+
+    def test_1msh_data_dict_model(self):
+        data_dicts = self.open("1msh")
+        for d in data_dicts.values():
+            self.assertEqual(len(d["models"]), 30)
+            for m in d["models"][:-1]:
+                self.assertEqual(len(m["polymer"]), 2)
+            self.assertEqual(len(d["models"][-1]["polymer"]), 1)
+    
+
+    def test_4y60_data_dict_model(self):
+        data_dicts = self.open("4y60")
+        for d in data_dicts.values():
+            self.assertEqual(d["models"][0]["polymer"]["A"]["sequence"][:2], "CA")
+        self.assertEqual(data_dicts["cif"]["models"][0]["polymer"]["C"]["residues"]["C.0"]["atoms"][1], {
+         "element": "N", "name": "N", "x": 43.447, "y": -56.622, "z": -20.561,
+         "bvalue": 56.53, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
+         "anisotropy": [0.9838, 0.7489, 0.4152, -0.1159, -0.0115, -0.2655],
+        })
+        self.assertEqual(data_dicts["mmtf"]["models"][0]["polymer"]["C"]["residues"]["C.0"]["atoms"][1], {
+         "element": "N", "name": "N", "x": 43.447, "y": -56.622, "z": -20.561,
+         "bvalue": 56.53, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
+         "anisotropy": [0, 0, 0, 0, 0, 0],
+        })
+        self.assertEqual(data_dicts["pdb"]["models"][0]["polymer"]["C"]["residues"]["C.0"]["atoms"][1], {
+         "element": "N", "name": "N", "x": 43.447, "y": -56.622, "z": -20.561,
+         "bvalue": 56.53, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
+         "anisotropy": [0.9838, 0.7489, 0.4152, -0.1159, -0.0115, -0.2655],
+        })
+    
+
+    def test_1cbn_data_dict_model(self):
+        data_dicts = self.open("1cbn")
+        for d in data_dicts.values():
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.1"]["atoms"][1], {
+             "element": "N", "name": "N", "x": 16.864, "y": 14.059, "z": 3.442,
+             "bvalue": 6.22, "charge": 0.0, "occupancy": 0.8, "alt_loc": "A",
+             "anisotropy": [0, 0, 0, 0, 0, 0],
+            })
+    

@@ -85,4 +85,23 @@ class ExperimentDictTests(DataDictTest):
          "source_organism_pdb": "CRAMBE HISPANICA SUBSP. ABYSSINICA",
          "expression_system": None,
         })
+
+
+
+class QualityDictTests(DataDictTest):
+
+    def test_1lol_data_dict_quality(self):
+        data_dicts = self.open("1lol")
+        self.check(data_dicts, "quality", {
+         "resolution": 1.9, "rvalue": 0.193, "rfree": 0.229
+        })
+    
+
+    def test_5xme_data_dict_quality(self):
+        data_dicts = self.open("5xme")
+        self.check(data_dicts, "quality", {
+         "resolution": None, "rvalue": None, "rfree": None
+        })
+
+
         

@@ -104,4 +104,177 @@ class QualityDictTests(DataDictTest):
         })
 
 
+
+class GeometryDictTests(DataDictTest):
+
+    def test_1lol_data_dict_geometry(self):
+        data_dicts = self.open("1lol")
+        self.check(data_dicts, "geometry", {
+         "crystallography": {"space_group": "P 1 21 1", "unit_cell": [
+          57.57, 55.482, 66.129, 90, 94.28, 90
+         ]},
+         "assemblies_cif": [{
+          "id": 1, "software": "PISA", "delta_energy": -31.0,
+          "buried_surface_area": 5230, "surface_area": 16550,
+          "transformations": [{
+           "chains": ["A", "B", "C", "D", "E", "F", "G", "H"],
+           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+           "vector": [0.0, 0.0, 0.0]
+          }]
+         }],
+         "assemblies_mmtf": [{
+          "id": 1, "software": None, "delta_energy": None,
+          "buried_surface_area": None, "surface_area": None,
+          "transformations": [{
+           "chains": ["A", "B", "C", "D", "E", "F", "G", "H"],
+           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+           "vector": [0.0, 0.0, 0.0]
+          }]
+         }],
+         "assemblies_pdb": [{
+          "id": 1, "software": "PISA", "delta_energy": -31.0,
+          "buried_surface_area": 5230, "surface_area": 16550,
+          "transformations": [{
+           "chains": ["A", "B"],
+           "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+           "vector": [0.0, 0.0, 0.0]
+          }]
+         }]
+        })
+
+
+    def test_5xme_data_dict_geometry(self):
+        data_dicts = self.open("5xme")
+        self.check(data_dicts, "geometry", {
+         "crystallography": {},
+         "crystallography_pdb": {
+          "space_group": "P 1", "unit_cell": [1, 1, 1, 90, 90, 90]
+         }
+        })
+
         
+    def test_1xda_data_dict_geometry(self):
+        # Multiple assemblies with different chains
+        data_dicts = self.open("1xda")
+        for d in data_dicts.values():
+            self.assertEqual(len(d["geometry"]["assemblies"]), 12)
+        self.assertEqual(data_dicts["cif"]["geometry"]["assemblies"][0], {
+         "id": 1, "software": "PISA", "delta_energy": -7,
+         "buried_surface_area": 1720, "surface_area": 3980,
+         "transformations": [{
+          "chains": ["A", "B", "I", "J", "K", "L", "Y", "Z"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+        self.assertEqual(data_dicts["mmtf"]["geometry"]["assemblies"][0], {
+         "id": 1, "software": None, "delta_energy": None,
+         "buried_surface_area": None, "surface_area": None,
+         "transformations": [{
+          "chains": ["A", "B", "I", "J", "K", "L", "Y", "Z"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+        self.assertEqual(data_dicts["pdb"]["geometry"]["assemblies"][0], {
+         "id": 1, "software": "PISA", "delta_energy": -7,
+         "buried_surface_area": 1720, "surface_area": 3980,
+         "transformations": [{
+          "chains": ["A", "B"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+        self.assertEqual(data_dicts["cif"]["geometry"]["assemblies"][4], {
+         "id": 5, "software": "PISA", "delta_energy": -332.0,
+         "buried_surface_area": 21680.0, "surface_area": 12240.0,
+         "transformations": [{
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[-0.5, -0.8660254038, 0.0], [0.8660254038, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[-0.5, 0.8660254038, 0.0], [-0.8660254038, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+        self.assertEqual(data_dicts["mmtf"]["geometry"]["assemblies"][4], {
+         "id": 5, "software": None, "delta_energy": None,
+         "buried_surface_area": None, "surface_area": None,
+         "transformations": [{
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[-0.5, -0.8660254038, 0.0], [0.8660254038, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H", "Q", "R", "S", "T", "U", "V", "W", "X", "CA", "DA", "EA", "FA"],
+          "matrix": [[-0.5, 0.8660254038, 0.0], [-0.8660254038, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+        self.assertEqual(data_dicts["pdb"]["geometry"]["assemblies"][4], {
+         "id": 5, "software": "PISA", "delta_energy": -332.0,
+         "buried_surface_area": 21680.0, "surface_area": 12240.0,
+         "transformations": [{
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[-0.5, -0.866025, 0.0], [0.866025, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }, {
+          "chains": ["E", "F", "G", "H"],
+          "matrix": [[-0.5, 0.866025, 0.0], [-0.866025, -0.5, 0.0], [0.0, 0.0, 1.0]],
+          "vector": [0.0, 0.0, 0.0]
+         }]
+        })
+
+
+    def test_1m4x_data_dict_geometry(self):
+        # Assemblies with lots of transformations to create virus
+        data_dicts = self.open("1m4x")
+        self.assertEqual(len(data_dicts["cif"]["geometry"]["assemblies"]), 7)
+        self.assertEqual(len(data_dicts["mmtf"]["geometry"]["assemblies"]), 7)
+        self.assertEqual(len(data_dicts["pdb"]["geometry"]["assemblies"]), 1)
+        self.assertEqual(len(data_dicts["cif"]["geometry"]["assemblies"][2]["transformations"]), 140)
+        self.assertEqual(len(data_dicts["cif"]["geometry"]["assemblies"][3]["transformations"]), 168)
+        self.assertEqual(len(data_dicts["cif"]["geometry"]["assemblies"][4]["transformations"]), 30)
+        self.assertEqual(len(data_dicts["cif"]["geometry"]["assemblies"][5]["transformations"]), 66)
+        self.assertEqual(len(data_dicts["mmtf"]["geometry"]["assemblies"][2]["transformations"]), 140)
+        self.assertEqual(len(data_dicts["mmtf"]["geometry"]["assemblies"][3]["transformations"]), 168)
+        self.assertEqual(len(data_dicts["mmtf"]["geometry"]["assemblies"][4]["transformations"]), 30)
+        self.assertEqual(len(data_dicts["mmtf"]["geometry"]["assemblies"][5]["transformations"]), 66)
+        for d in data_dicts.values():
+            self.assertEqual(len(d["geometry"]["assemblies"][0]["transformations"]), 1680)
+            self.assertEqual(
+             d["geometry"]["assemblies"][0]["transformations"][29]["chains"],
+             ["A", "B", "C"]
+            )
+            self.assertAlmostEqual(
+             d["geometry"]["assemblies"][0]["transformations"][29]["vector"][0],
+             -18.95, delta=0.005
+            )
+            self.assertAlmostEqual(
+             d["geometry"]["assemblies"][0]["transformations"][29]["matrix"][0][0],
+             0.812, delta=0.005
+            )
+            self.assertAlmostEqual(
+             d["geometry"]["assemblies"][0]["transformations"][29]["matrix"][-1][-1],
+             0.286, delta=0.005
+            )
+        
+
+    def test_4opj_data_dict_geometry(self):
+        # Weird assemblies
+        data_dicts = self.open("4opj")
+        for d in data_dicts.values():
+            self.assertEqual(len(d["geometry"]["assemblies"]), 2)
+            self.assertEqual(d["geometry"]["assemblies"][0]["transformations"][0]["vector"], [42.387, 0, 0])

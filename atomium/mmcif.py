@@ -572,7 +572,7 @@ def mmcif_to_data_transfer(mmcif_dict, data_dict, d_cat, d_key, m_table, m_key,
         if date: value = datetime.strptime(value, "%Y-%m-%d").date()
         if split: value = value.replace(", ", ",").split(",")
         if func: value = func(value)
-        data_dict[d_cat][d_key] = value
+        data_dict[d_cat][d_key] = None if value == "?" else value
     except: pass
 
 

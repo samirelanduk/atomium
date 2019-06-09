@@ -379,7 +379,7 @@ class Molecule(AtomStructure):
         
         :rtype: ``str``"""
 
-        return self._internal_id
+        return self._internal_id or self._id
        
 
     @property
@@ -573,7 +573,7 @@ class Chain(Molecule, metaclass=StructureClass):
     :param strands sequence: the beta strands within the chain."""
 
     def __init__(self, *residues, sequence="", helices=None, strands=None, **kwargs):
-        Molecule.__init__(self, kwargs.get("id"), kwargs.get("internal_id"), kwargs.get("id"))
+        Molecule.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("internal_id"))
         self._sequence = sequence
         for res in residues: res._chain = self
         self._residues = StructureSet(*residues)

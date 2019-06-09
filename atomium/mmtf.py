@@ -385,8 +385,8 @@ def get_structures(structure):
     chains, ligands, waters, atom_properties = set(), set(), set(), []
     for atom in sorted(structure.atoms(), key=lambda a: a.id):
         get_structure_from_atom(atom, chains, ligands, waters)
-        atom_properties.append([
-         atom.x, atom.y, atom.z, "", atom.bvalue, atom.id, 1
+        atom_properties.append(list(atom.location) + [
+         "", atom.bvalue, atom.id, 1
         ])
     chains = sorted(chains, key=lambda c: c._internal_id)
     ligands = sorted(ligands, key=lambda l: l._internal_id)
@@ -411,7 +411,7 @@ def get_entity_list(entities, chains, ligands, waters):
             entity_list.append({"type": "polymer", "chainIndexList": [
              i for i, c in enumerate(chains) if c.sequence == e.sequence
             ], "sequence": e.sequence})
-        elif isinstance(e, Ligand) and not e.water:
+        elif isinstance(e, Ligand) and not e.is_water:
             entity_list.append({"type": "non-polymer", "chainIndexList": [
              i + len(chains) for i, l in enumerate(ligands) if l._name == e._name
             ]})

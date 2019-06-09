@@ -617,13 +617,13 @@ def get_structure_from_atom(atom, chains, ligands, waters):
     :param set chains: the set of ligands.
     :param set chains: the set of waters."""
 
-    if atom.structure:
-        if isinstance(atom.structure, Residue):
+    if atom.het:
+        if isinstance(atom.het, Residue):
             chains.add(atom.chain)
-        elif atom.structure.water:
-            waters.add(atom.structure)
+        elif atom.het.is_water:
+            waters.add(atom.het)
         else:
-            ligands.add(atom.structure)
+            ligands.add(atom.het)
 
 
 def atom_to_atom_line(atom):
@@ -635,12 +635,13 @@ def atom_to_atom_line(atom):
     name = get_atom_name(atom)
     res_num, res_insert = split_residue_id(atom)
     return "ATOM {} {} {} . {} {} . {} {} {} {} {} 1 {} {} {} {} {} {} 1".format(
-     atom.id, atom.element, name, atom.structure._name if atom.structure else "?",
-     atom.structure._internal_id if atom.structure and isinstance(
-      atom.structure, Ligand
+     atom.id, atom.element, name, atom.het._name if atom.het else "?",
+     atom.het._internal_id if atom.het and isinstance(
+      atom.het, Ligand
      ) else atom.chain._internal_id if atom.chain else ".",
-     res_num, res_insert, atom.x, atom.y, atom.z, atom.bvalue, atom.charge,
-     res_num, atom.structure._name if atom.structure else "?",
+     res_num, res_insert, atom.location[0], atom.location[1], atom.location[2],
+     atom.bvalue, atom.charge,
+     res_num, atom.het._name if atom.het else "?",
      atom.chain.id if atom.chain else ".", name
     )
 
@@ -660,8 +661,8 @@ def split_residue_id(atom):
     :param Atom atom: the atom to read.
     :rtype: ``tuple``"""
 
-    if atom.structure:
-        id = atom.structure.id.split(".")[-1]
+    if atom.het:
+        id = atom.het.id.split(".")[-1]
         num = "".join([c for c in id if c.isdigit()])
         insert = "".join([c for c in id if c.isalpha()]) or "?"
         return num, insert
@@ -698,7 +699,7 @@ def update_lines_with_entities(lines, entities):
     lines += ["#", "loop_", "_entity.id", "_entity.type"]
     for i, entity in enumerate(entities, start=1):
         lines.append("{} {}".format(i, "polymer" if isinstance(entity, Chain)
-         else "water" if entity.water else "non-polymer"))
+         else "water" if entity.is_water else "non-polymer"))
     if any(isinstance(entity, Chain) for entity in entities):
         lines += ["#", "loop_", "_entity_poly_seq.entity_id",
          "_entity_poly_seq.num", "_entity_poly_seq.mon_id"]
@@ -735,7 +736,7 @@ def update_lines_with_structures(lines, chains, ligands, waters, entities):
     for water in sorted(waters, key=lambda w: w._internal_id):
         if water.chain not in water_chains:
             for i, entity in enumerate(entities, start=1):
-                if isinstance(entity, Ligand) and entity.water:
+                if isinstance(entity, Ligand) and entity.is_water:
                     lines.append("{} {}".format(water._internal_id, i))
                     water_chains.append(water.chain)
                     break

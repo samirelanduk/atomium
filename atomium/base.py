@@ -51,7 +51,7 @@ def filter_objects(objects, key, value):
 
 def query(func, tuple_=False):
     """A decorator which can be applied to any function which returns a
-    :py:class:`.StructureSet` and which takes no other paramters other than
+    :py:class:`.StructureSet` and which takes no other parameters other than
     ``self``. It will query the returned objects by any keyword argument, or
     use a positional argument to search by ID.
 
@@ -62,14 +62,14 @@ def query(func, tuple_=False):
 
     def structures(self, *args, **kwargs):
         objects = func(self)
-        original = list(objects.structures)
+        original = {s: n for n, s in enumerate(objects.structures)}
         if len(args) == 1:
             return {objects.get(args[0])} if args[0] in objects.ids else set()
         for k, v in kwargs.items():
             objects = filter_objects(objects, k, v)
         if tuple_:
             return tuple(sorted(
-             objects.structures, key=lambda s: original.index(s)
+             objects.structures, key=lambda s: original[s]
             ))
         else:
             return set(objects.structures)

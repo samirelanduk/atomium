@@ -535,6 +535,7 @@ class FileReadingTests(TestCase):
             self.assertIs(lig.model, model)
             self.assertEqual(len(lig.atoms()), 24)
             self.assertEqual(lig.formula, {"C": 10, "O": 9, "N": 4, "P": 1})
+            self.assertEqual(lig.full_name, "XANTHOSINE-5'-MONOPHOSPHATE")
             lig = model.ligand("A.5001")
             self.assertIs(lig.model, model)
             self.assertIs(lig.chain, chaina)
@@ -634,7 +635,7 @@ class FileReadingTests(TestCase):
 
 
     def test_1xda(self):
-        for e in ["cif"]:#, "mmtf", "pdb"]:
+        for e in ["cif", "mmtf", "pdb"]:
             f = atomium.open("tests/integration/files/1xda." + e)
             self.assertEqual(len(f.model.atoms()), 1842)
             self.assertEqual(len(f.model.atoms(is_metal=True)), 4)
@@ -677,3 +678,20 @@ class FileReadingTests(TestCase):
             res1, res2, res3 = liganding_residues
 
             self.assertGreater(res1.atom(name="N").distance_to(res2.atom(name="N")), 10)
+        
+
+    def test_4opj(self):
+        for e in ["cif", "mmtf", "pdb"]:
+            f = atomium.open("tests/integration/files/4opj." + e)
+            if e == "cif":
+                self.assertEqual(
+                 f.model.residue("B.6").full_name,
+                 "(2R,3aS,4aR,5aR,5bS)-2-(6-amino-9H-purin-9-yl)-3a-hydroxyhexahydrocyclopropa[4,5]cyclopenta[1,2-b]furan-5a(4H)-yl dihydrogen phosphate"
+                )
+            elif e =="mmtf":
+                self.assertEqual(f.model.residue("B.6").full_name, "TCY")
+            else:
+                self.assertEqual(
+                 f.model.residue("B.6").full_name,
+                 "(2R,3AS,4AR,5AR,5BS)-2-(6-AMINO-9H-PURIN-9-YL)-3A-HYDROXYHEXAHYDROCYCLOPROPA[4,5]CYCLOPENTA[1,2-B]FURAN-5A(4H)-YL DIHYDROGEN PHOSPHATE"
+                )

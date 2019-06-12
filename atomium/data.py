@@ -284,9 +284,9 @@ def create_het(d, id, ligand=False, chain=None, water=False):
      if a["occupancy"] == 1 or a["alt_loc"] is None or a["alt_loc"] == alt_loc]
     if ligand:
         return Ligand(*atoms, id=id, name=d["name"], chain=chain,
-         internal_id=d["internal_id"], water=water)
+         internal_id=d["internal_id"], water=water, full_name=d["full_name"])
     else:
-        return Residue(*atoms, id=id, name=d["name"])
+        return Residue(*atoms, id=id, name=d["name"], full_name=d["full_name"])
 
 
 def atom_dict_to_atom(d, atom_id):

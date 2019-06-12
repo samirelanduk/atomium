@@ -135,6 +135,7 @@ def update_geometry_dict(pdb_dict, data_dict):
 
 def update_models_list(pdb_dict, data_dict):
     sequences = make_sequences(pdb_dict)
+    full_names = get_full_names(pdb_dict)
     for model_lines in pdb_dict["MODEL"]:
         aniso = make_aniso(model_lines)
         last_ter = get_last_ter_line(model_lines)
@@ -144,9 +145,9 @@ def update_models_list(pdb_dict, data_dict):
                 chain_id = line[21] if index < last_ter else id_from_line(line)
                 res_id = id_from_line(line)
                 if index < last_ter:
-                    add_atom_to_polymer(line, model, chain_id, res_id, aniso)
+                    add_atom_to_polymer(line, model, chain_id, res_id, aniso, full_names)
                 else:
-                    add_atom_to_non_polymer(line, model, res_id, aniso)
+                    add_atom_to_non_polymer(line, model, res_id, aniso, full_names)
             for chain_id, chain in model["polymer"].items():
                 chain["sequence"] = sequences.get(chain_id, "")
         data_dict["models"].append(model)
@@ -376,6 +377,16 @@ def make_sequences(pdb_dict):
     return {k: "".join([CODES.get(r, "X") for r in v]) for k, v in seq.items()}
 
 
+def get_full_names(pdb_dict):
+
+    full_names = {}
+    for line in pdb_dict.get("HETNAM", []):
+        try:
+            full_names[line[11:14].strip()] += line[15:].strip()
+        except: full_names[line[11:14].strip()] = line[15:].strip()
+    return full_names
+
+
 def make_aniso(model_lines):
     """Creates a mapping of chain IDs to anisotropy, by parsing ANISOU records.
 
@@ -411,7 +422,7 @@ def id_from_line(line):
     return "{}.{}{}".format(line[21], line[22:26].strip(), line[26].strip())
 
 
-def add_atom_to_polymer(line, model, chain_id, res_id, aniso_dict):
+def add_atom_to_polymer(line, model, chain_id, res_id, aniso_dict, full_names):
     """Takes an .pdb ATOM or HETATM record, converts it, and adds it to a
     polymer dictionary.
 
@@ -426,9 +437,10 @@ def add_atom_to_polymer(line, model, chain_id, res_id, aniso_dict):
          int(line[6:11])
         ] = atom_line_to_dict(line, aniso_dict)
     except:
+        name = line[17:20].strip()
         try:
             model["polymer"][chain_id]["residues"][res_id] = {
-             "name": line[17:20].strip(),
+             "name": name, "full_name": full_names.get(name),
              "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)},
              "number": len(model["polymer"][chain_id]["residues"]) + 1
             }
@@ -438,12 +450,12 @@ def add_atom_to_polymer(line, model, chain_id, res_id, aniso_dict):
              "residues": {res_id: {
               "name": line[17:20].strip(),
               "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)},
-              "number": 1
+              "number": 1, "full_name": None,
              }}
             }
 
 
-def add_atom_to_non_polymer(line, model, res_id, aniso_dict):
+def add_atom_to_non_polymer(line, model, res_id, aniso_dict, full_names):
     """Takes an .pdb ATOM or HETATM record, converts it, and adds it to a
     non-polymer dictionary.
 
@@ -458,8 +470,9 @@ def add_atom_to_non_polymer(line, model, res_id, aniso_dict):
          int(line[6:11])
         ] = atom_line_to_dict(line, aniso_dict)
     except:
+        name = line[17:20].strip()
         model[key][res_id] = {
-         "name": line[17:20].strip(),
+         "name": name, "full_name": full_names.get(name),
          "internal_id": line[21], "polymer": line[21],
          "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)}
         }

@@ -404,6 +404,7 @@ def update_models_list(mmcif_dict, data_dict):
 
     data_dict["models"] = []
     types = {e["id"]: e["type"] for e in mmcif_dict.get("entity", {})}
+    names = {e["id"]: e["name"] for e in mmcif_dict.get("chem_comp", {}) if e["mon_nstd_flag"] != "y"}
     entities = {m["id"]: m["entity_id"] for m in mmcif_dict.get("struct_asym", [])}
     sequences = make_sequences(mmcif_dict)
     aniso = make_aniso(mmcif_dict)
@@ -416,9 +417,9 @@ def update_models_list(mmcif_dict, data_dict):
             model_num = atom["pdbx_PDB_model_num"]
         mol_type = types[entities[atom["label_asym_id"]]]
         if mol_type == "polymer":
-            add_atom_to_polymer(atom, aniso, model)
+            add_atom_to_polymer(atom, aniso, model, names)
         else:
-            add_atom_to_non_polymer(atom, aniso, model, mol_type)
+            add_atom_to_non_polymer(atom, aniso, model, mol_type, names)
     data_dict["models"].append(model)
     for model in data_dict["models"]:
         add_sequences_to_polymers(model, mmcif_dict, entities)
@@ -436,13 +437,14 @@ def make_aniso(mmcif_dict):
     ] for a in mmcif_dict.get("atom_site_anisotrop", [])}
 
 
-def add_atom_to_polymer(atom, aniso, model):
+def add_atom_to_polymer(atom, aniso, model, names):
     """Takes an MMCIF atom dictionary, converts it, and adds it to a polymer
     dictionary.
 
     :param dict atom: the .mmcif dictionary to read.
     :param dict aniso: lookup dictionary for anisotropy information.
-    :param dict model: the model to update."""
+    :param dict model: the model to update.
+    :param dict names: the lookup dictionary for full name information."""
 
     mol_id = atom["auth_asym_id"]
     res_id = make_residue_id(atom)
@@ -451,30 +453,32 @@ def add_atom_to_polymer(atom, aniso, model):
          int(atom["id"])
         ] = atom_dict_to_atom_dict(atom, aniso)
     except:
+        name = atom["auth_comp_id"]
         try:
             model["polymer"][mol_id]["residues"][res_id] = {
-             "name": atom["auth_comp_id"],
+             "name": name, "full_name": names.get(name),
              "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)},
              "number": len(model["polymer"][mol_id]["residues"]) + 1
             }
         except:
             model["polymer"][mol_id] = {
              "internal_id": atom["label_asym_id"], "residues": {res_id: {
-              "name": atom["auth_comp_id"],
+              "name": name,
               "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)},
-              "number": 1
+              "number": 1, "full_name": names.get(name),
              }}
             }
 
 
-def add_atom_to_non_polymer(atom, aniso, model, mol_type):
+def add_atom_to_non_polymer(atom, aniso, model, mol_type, names):
     """Takes an MMCIF atom dictionary, converts it, and adds it to a non-polymer
     dictionary.
 
     :param dict atom: the .mmcif dictionary to read.
     :param dict aniso: lookup dictionary for anisotropy information.
     :param dict model: the model to update.
-    :param str mol_type: non-polymer or water."""
+    :param str mol_type: non-polymer or water.
+    :param dict names: the lookup dictionary for full name information."""
 
     mol_id = make_residue_id(atom)
     try:
@@ -482,8 +486,9 @@ def add_atom_to_non_polymer(atom, aniso, model, mol_type):
          int(atom["id"])
         ] = atom_dict_to_atom_dict(atom, aniso)
     except:
+        name = atom["auth_comp_id"]
         model[mol_type][mol_id] = {
-         "name": atom["auth_comp_id"],
+         "name": name, "full_name": names.get(name),
          "internal_id": atom["label_asym_id"],
          "polymer": atom["auth_asym_id"],
          "atoms": {int(atom["id"]): atom_dict_to_atom_dict(atom, aniso)},

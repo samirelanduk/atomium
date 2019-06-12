@@ -293,6 +293,7 @@ class ModelDictTests(DataDictTest):
             self.assertEqual(d["models"][0]["polymer"]["A"]["sequence"][:2], "LR")
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]['number'], 1)
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.13"]['number'], 3)
+            self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.13"]['full_name'], None)
             self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1011"]['number'], 1)
             self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1013"]['number'], 3)
             self.assertEqual(len(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["atoms"]), 7)
@@ -313,6 +314,7 @@ class ModelDictTests(DataDictTest):
             self.assertEqual(len(d["models"][0]["non-polymer"]["A.5001"]["atoms"]), 6)
             self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["polymer"], "A")
             self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["name"], "XMP")
+            self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["full_name"], "XANTHOSINE-5'-MONOPHOSPHATE")
             self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["internal_id"], "B" if e == "pdb" else "F")
             self.assertEqual(len(d["models"][0]["non-polymer"]["B.2002"]["atoms"]), 24)
             self.assertEqual(d["models"][0]["non-polymer"]["B.2002"]["polymer"], "B")
@@ -376,3 +378,22 @@ class ModelDictTests(DataDictTest):
              "anisotropy": [0, 0, 0, 0, 0, 0],
             })
     
+
+    def test_4opj_data_dict_model(self):
+        data_dicts = self.open("4opj")
+        for e ,d in data_dicts.items():
+            if e == "cif":
+                self.assertEqual(
+                 d["models"][0]["polymer"]["B"]["residues"]["B.6"]["full_name"],
+                 "(2R,3aS,4aR,5aR,5bS)-2-(6-amino-9H-purin-9-yl)-3a-hydroxyhexahydrocyclopropa[4,5]cyclopenta[1,2-b]furan-5a(4H)-yl dihydrogen phosphate"
+                )
+            elif e =="mmtf":
+                self.assertEqual(
+                 d["models"][0]["polymer"]["B"]["residues"]["B.6"]["full_name"],
+                 None
+                )
+            else:
+                self.assertEqual(
+                 d["models"][0]["polymer"]["B"]["residues"]["B.6"]["full_name"],
+                 "(2R,3AS,4AR,5AR,5BS)-2-(6-AMINO-9H-PURIN-9-YL)-3A-HYDROXYHEXAHYDROCYCLOPROPA[4,5]CYCLOPENTA[1,2-B]FURAN-5A(4H)-YL DIHYDROGEN PHOSPHATE"
+                )

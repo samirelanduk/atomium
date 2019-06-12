@@ -197,12 +197,13 @@ def update_models_list(mmtf_dict, data_dict):
         model = {"polymer": {}, "non-polymer": {}, "water": {}}
         for chain_num in range(mmtf_dict["chainsPerModel"][model_num]):
             type_ = get_type(mmtf_dict, chain_num)
+            full_name = get_full_name(mmtf_dict, chain_num)
             if type_ == "polymer": chain = make_chain(mmtf_dict, cc)
             for g in range(gc, gc + mmtf_dict["groupsPerChain"][cc]):
                 group = mmtf_dict["groupList"][mmtf_dict["groupTypeList"][g]]
                 group_id = make_group_id(mmtf_dict, chain_num, gc)
                 group_name = group["groupName"]
-                mol = make_molecule(type_, group_name, mmtf_dict, chain_num)
+                mol = make_molecule(type_, group_name, mmtf_dict, chain_num, full_name)
                 atoms_in_group = len(group["atomNameList"])
                 for atom_num in range(atoms_in_group):
                     add_atom(mol, atoms, group, atom_num, atom_count)
@@ -247,6 +248,20 @@ def get_type(mmtf_dict, chain_num):
             return entity["type"]
 
 
+def get_full_name(mmtf_dict, chain_num):
+    """Takes an .mmtf dictionary and a chain number, and works out what the full
+    name of the molecule is.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :param int chain_num: the chain number.
+    :rtype: ``str``"""
+
+    for entity in mmtf_dict["entityList"]:
+        if chain_num in entity["chainIndexList"]:
+            if entity["type"] != "polymer":
+                return entity.get("description", None)
+
+
 def make_chain(mmtf_dict, chain_num):
     """Creates a chain dictionary
 
@@ -287,7 +302,7 @@ def make_group_id(mmtf_dict, chain_num, g_count):
     )
 
 
-def make_molecule(type_, group_name, mmtf_dict, chain_num):
+def make_molecule(type_, group_name, mmtf_dict, chain_num, full_name):
     """Creates a residue or ligand dictionary.
 
     :param str type_: 'polymer' or 'non-polymer'.
@@ -296,8 +311,8 @@ def make_molecule(type_, group_name, mmtf_dict, chain_num):
     :param int chain_num: the chain number.
     :rtype: ``dict``"""
 
-    return {"name": group_name, "atoms": {}} if type_ == "polymer" else {
-     "name": group_name,
+    return {"name": group_name, "atoms": {}, "full_name": full_name} if type_ == "polymer" else {
+     "name": group_name, "full_name": full_name,
      "internal_id": mmtf_dict["chainIdList"][chain_num],
      "polymer": mmtf_dict["chainNameList"][chain_num],
      "atoms": {}

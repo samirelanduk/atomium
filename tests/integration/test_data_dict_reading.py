@@ -308,6 +308,16 @@ class ModelDictTests(DataDictTest):
              "bvalue": 39.3, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
              "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             })
+            if e == "mmtf":
+                self.assertEqual(d["models"][0]["polymer"]["A"]["helices"][0], [f"A.{n}" for n in range(12, 15)])
+                self.assertEqual(d["models"][0]["polymer"]["A"]["strands"][0], [f"A.{n}" for n in range(15, 20)])
+                self.assertEqual(d["models"][0]["polymer"]["B"]["helices"][0], [f"B.{n}" for n in range(1012, 1015)])
+                self.assertEqual(d["models"][0]["polymer"]["B"]["strands"][0], [f"B.{n}" for n in range(1015, 1019)])
+            else:
+                self.assertEqual(d["models"][0]["polymer"]["A"]["helices"][0], [f"A.{n}" for n in range(11, 14)])
+                self.assertEqual(d["models"][0]["polymer"]["A"]["strands"][0], [f"A.{n}" for n in range(15, 20)])
+                self.assertEqual(d["models"][0]["polymer"]["B"]["helices"][0], [f"B.{n}" for n in range(1011, 1014)])
+                self.assertEqual(d["models"][0]["polymer"]["B"]["strands"][0], [f"B.{n}" for n in range(1015, 1019)])
             self.assertEqual(len(d["models"][0]["non-polymer"]), 4)
             self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["name"], "BU2")
             self.assertEqual(d["models"][0]["non-polymer"]["A.5001"]["internal_id"], "A" if e == "pdb" else "C")
@@ -371,7 +381,26 @@ class ModelDictTests(DataDictTest):
 
     def test_1cbn_data_dict_model(self):
         data_dicts = self.open("1cbn")
-        for d in data_dicts.values():
+        for e, d in data_dicts.items():
+            if e == "mmtf":
+                self.assertEqual(d["models"][0]["polymer"]["A"]["helices"], [
+                 [f"A.{n}" for n in range(7, 18)],
+                 [f"A.{n}" for n in range(23, 31)],
+                ])
+                self.assertEqual(d["models"][0]["polymer"]["A"]["strands"], [
+                 ['A.2', 'A.3'], ['A.33', 'A.34']
+                ])
+            else:
+                self.assertEqual(d["models"][0]["polymer"]["A"]["helices"], [
+                 [f"A.{n}" for n in range(7, 20)],
+                 [f"A.{n}" for n in range(23, 31)],
+                ])
+                self.assertEqual(d["models"][0]["polymer"]["A"]["strands"], [
+                 [f"A.{n}" for n in range(32, 36)],
+                 [f"A.{n}" for n in range(1, 5)],
+                 ["A.46"],
+                 [f"A.{n}" for n in range(39, 42)],
+                ])
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.1"]["atoms"][1], {
              "element": "N", "name": "N", "x": 16.864, "y": 14.059, "z": 3.442,
              "bvalue": 6.22, "charge": 0.0, "occupancy": 0.8, "alt_loc": "A",

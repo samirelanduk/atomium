@@ -191,30 +191,15 @@ def update_models_list(mmtf_dict, data_dict):
     :param dict mmtf_dict: the .mmtf dictionary to read.
     :param dict data_dict: the data dictionary to update."""
 
-    cc, gc, atom_count = 0, 0, 0
     atoms = get_atoms_list(mmtf_dict)
+    group_definitions = get_group_definitions_list(mmtf_dict)
+    groups = get_groups_list(mmtf_dict, group_definitions)
+    chains = get_chains_list(mmtf_dict, groups)
     for model_num in range(mmtf_dict["numModels"]):
         model = {"polymer": {}, "non-polymer": {}, "water": {}}
         for chain_num in range(mmtf_dict["chainsPerModel"][model_num]):
-            type_ = get_type(mmtf_dict, chain_num)
-            full_name = get_full_name(mmtf_dict, chain_num)
-            if type_ == "polymer": chain = make_chain(mmtf_dict, cc)
-            for g in range(gc, gc + mmtf_dict["groupsPerChain"][cc]):
-                group = mmtf_dict["groupList"][mmtf_dict["groupTypeList"][g]]
-                group_id = make_group_id(mmtf_dict, chain_num, gc)
-                group_name = group["groupName"]
-                mol = make_molecule(type_, group_name, mmtf_dict, chain_num, full_name)
-                atoms_in_group = len(group["atomNameList"])
-                for atom_num in range(atoms_in_group):
-                    add_atom(mol, atoms, group, atom_num, atom_count)
-                atom_count += atoms_in_group
-                d = chain["residues"] if type_ == "polymer" else model[type_]
-                if type_ == "polymer": mol["number"] = len(d) + 1
-                d[group_id] = mol
-                gc += 1
-            if type_ == "polymer":
-                model["polymer"][mmtf_dict["chainNameList"][chain_num]] = chain
-            cc += 1
+            chain = chains[chain_num]
+            add_chain_to_model(chain, model, atoms)
         data_dict["models"].append(model)
 
 
@@ -235,106 +220,97 @@ def get_atoms_list(mmtf_dict):
     )]
 
 
-def get_type(mmtf_dict, chain_num):
-    """Takes an .mmtf dictionary and a chain number, and works out what type of
-    molecule it corresponds to.
-
-    :param dict mmtf_dict: the .mmtf dictionary to read.
-    :param int chain_num: the chain number.
-    :rtype: ``str``"""
-
-    for entity in mmtf_dict["entityList"]:
-        if chain_num in entity["chainIndexList"]:
-            return entity["type"]
-
-
-def get_full_name(mmtf_dict, chain_num):
-    """Takes an .mmtf dictionary and a chain number, and works out what the full
-    name of the molecule is.
-
-    :param dict mmtf_dict: the .mmtf dictionary to read.
-    :param int chain_num: the chain number.
-    :rtype: ``str``"""
-
-    for entity in mmtf_dict["entityList"]:
-        if chain_num in entity["chainIndexList"]:
-            if entity["type"] != "polymer":
-                return entity.get("description", None)
+def get_group_definitions_list(mmtf_dict):
+    group_definitions = []
+    for group in mmtf_dict["groupList"]:
+        atoms = [{
+         "name": name, "element": element.upper(), "charge": charge
+        } for name, element, charge in zip(
+         group["atomNameList"], group["elementList"], group["formalChargeList"],
+        )]
+        group_definitions.append({
+         "name": group["groupName"], "atoms": atoms
+        })
+    return group_definitions
 
 
-def make_chain(mmtf_dict, chain_num):
-    """Creates a chain dictionary
+def get_groups_list(mmtf_dict, group_definitions):
+    sec_struct = ["helices", None, "helices", "strands", "helices", "strands", None, None]
+    return [{
+     "number": id, "insert": insert, "secondary_structure": sec_struct[ss],
+     **group_definitions[type_]
+    } for id, insert, ss, type_, in zip(
+     mmtf_dict["groupIdList"], mmtf_dict["insCodeList"],
+     mmtf_dict.get("secStructList", [-1] * len(mmtf_dict["groupIdList"])),
+     mmtf_dict["groupTypeList"]
+    )]
 
-    :param dict mmtf_dict: the .mmtf dictionary to read.
-    :param int chain_num: the chain number.
-    :rtype: ``dict``"""
 
-    return {
-     "internal_id": mmtf_dict["chainIdList"][chain_num],
-     "residues": {}, "sequence": get_chain_sequence(mmtf_dict, chain_num)
+def get_chains_list(mmtf_dict, groups):
+    chains = []
+    for i_id, id, group_num in zip(mmtf_dict["chainIdList"],
+     mmtf_dict["chainNameList"], mmtf_dict["groupsPerChain"]):
+        chain = {"id": id, "internal_id": i_id, "groups": groups[:group_num]}
+        del groups[:group_num]
+        for entity in mmtf_dict["entityList"]:
+            if len(chains) in entity["chainIndexList"]:
+                chain["type"] = entity["type"]
+                chain["sequence"] = entity.get("sequence", "")
+                chain["full_name"] = entity.get("description", None)
+                break
+        chains.append(chain)
+    return chains
+
+
+def add_chain_to_model(chain, model, atoms):
+    if chain["type"] == "polymer":
+        polymer = {
+         "internal_id": chain["internal_id"], "sequence": chain["sequence"],
+         "helices": [], "strands": [], "residues": {}
+        }
+        for i, group in enumerate(chain["groups"], start=1):
+            add_het_to_dict(group, chain, atoms, polymer["residues"], number=i)
+        add_ss_to_chain(polymer)
+        model["polymer"][chain["id"]] = polymer
+    else:
+        for group in chain["groups"]:
+            add_het_to_dict(group, chain, atoms, model[chain["type"]])
+         
+
+def add_het_to_dict(group, chain, atoms, d, number=None):
+    het_id = f"{chain['id']}.{group['number']}{group['insert']}"
+    het_atoms = atoms[:len(group["atoms"])]
+    del atoms[:len(het_atoms)]
+    het_atoms = {a["id"]: {
+     "anisotropy": [0] * 6, **a, **g_a
+    } for a, g_a in zip(het_atoms, group["atoms"])}
+    for a in het_atoms.values(): del a["id"]
+    het = {
+     "name": group["name"], "atoms": het_atoms, "full_name": None,
+     "secondary_structure": group["secondary_structure"]
     }
+    if number is None:
+        het["internal_id"] = chain["internal_id"]
+        het["polymer"] = chain["id"]
+        het["full_name"] = chain["full_name"]
+    else:
+        het["number"] = number
+    d[het_id] = het
 
 
-def get_chain_sequence(mmtf_dict, chain_num):
-    """Gets the chain sequence for a given chain number.
-
-    :param dict mmtf_dict: the .mmtf dictionary to read.
-    :param int chain_num: the chain number.
-    :rtype: ``str``"""
-
-    for entity in mmtf_dict["entityList"]:
-        if chain_num in entity["chainIndexList"]:
-            return entity["sequence"]
-    return ""
-
-
-def make_group_id(mmtf_dict, chain_num, g_count):
-    """Creates an atomium residue/molecule ID for a given group.
-
-    :param dict mmtf_dict: the .mmtf dictionary to read.
-    :param int chain_num: the chain number.
-    :param int g_count: the group number.
-    :rtype: ``str``"""
-
-    return "{}.{}{}".format(
-     mmtf_dict["chainNameList"][chain_num], mmtf_dict["groupIdList"][g_count],
-     mmtf_dict["insCodeList"][g_count]
-    )
-
-
-def make_molecule(type_, group_name, mmtf_dict, chain_num, full_name):
-    """Creates a residue or ligand dictionary.
-
-    :param str type_: 'polymer' or 'non-polymer'.
-    :param str group_name: the name of the molecule.
-    :param dict mmtf_dict: the .mmtf dictionary to read.
-    :param int chain_num: the chain number.
-    :rtype: ``dict``"""
-
-    return {"name": group_name, "atoms": {}, "full_name": full_name} if type_ == "polymer" else {
-     "name": group_name, "full_name": full_name,
-     "internal_id": mmtf_dict["chainIdList"][chain_num],
-     "polymer": mmtf_dict["chainNameList"][chain_num],
-     "atoms": {}
-    }
-
-
-def add_atom(d, atoms, group, atom_num, atom_count):
-    """Adds an atom dictionary to a molecule dictionary.
-
-    :param dict d: the molecule dictionary to update.
-    :param list atoms: the list of half-created atom dictionaries.
-    :param dict group: a .mmtf group dictionary.
-    :param int atom_num: the atom number within the group.
-    :param int atom_count: the total number of processed atoms."""
-
-    atom = atoms[atom_num + atom_count]
-    atom["name"] = group["atomNameList"][atom_num]
-    atom["element"] = group["elementList"][atom_num].upper()
-    atom["charge"] = group["formalChargeList"][atom_num]
-    atom["anisotropy"] = [0, 0, 0, 0, 0, 0]
-    d["atoms"][atom["id"]] = atom
-    del atom["id"]
+def add_ss_to_chain(chain):
+    in_ss = {"helices": False, "strands": False}
+    for res_id, res in chain["residues"].items():
+        ss = res["secondary_structure"]
+        if ss:
+            if not in_ss[ss]:
+                chain[ss].append([])
+            in_ss[ss] = True
+            chain[ss][-1].append(res_id)
+        else:
+            if in_ss["helices"]: in_ss["helices"] = False
+            if in_ss["strands"]: in_ss["strands"] = False
+        del res["secondary_structure"]
 
 
 def mmtf_to_data_transfer(mmtf_dict, data_dict, d_cat, d_key, m_key,

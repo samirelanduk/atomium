@@ -376,7 +376,6 @@ def update_crystallography_dict(mmcif_dict, data_dict):
         data_dict["geometry"]["crystallography"] = {}
 
 
-
 def operation_id_groups_to_operations(operations, operation_id_groups):
     """Creates a list of operation matrices for an assembly, from a list of
     operation IDs - cross multiplying as required.
@@ -407,6 +406,7 @@ def update_models_list(mmcif_dict, data_dict):
     names = {e["id"]: e["name"] for e in mmcif_dict.get("chem_comp", {}) if e["mon_nstd_flag"] != "y"}
     entities = {m["id"]: m["entity_id"] for m in mmcif_dict.get("struct_asym", [])}
     sequences = make_sequences(mmcif_dict)
+    secondary_structure = make_secondary_structure(mmcif_dict)
     aniso = make_aniso(mmcif_dict)
     model = {"polymer": {}, "non-polymer": {}, "water": {}}
     model_num = mmcif_dict["atom_site"][0]["pdbx_PDB_model_num"]
@@ -423,6 +423,7 @@ def update_models_list(mmcif_dict, data_dict):
     data_dict["models"].append(model)
     for model in data_dict["models"]:
         add_sequences_to_polymers(model, mmcif_dict, entities)
+        add_secondary_structure_to_polymers(model, secondary_structure)
 
 
 def make_aniso(mmcif_dict):
@@ -435,6 +436,21 @@ def make_aniso(mmcif_dict):
      float(a["U[{}][{}]".format(x, y)]) for
       x, y in ["11", "22", "33", "12", "13", "23"]
     ] for a in mmcif_dict.get("atom_site_anisotrop", [])}
+
+
+def make_secondary_structure(mmcif_dict):
+    helices, strands = [], []
+    for helix in mmcif_dict.get("struct_conf", []):
+        helices.append(["{}.{}{}".format(
+         helix[f"{x}_auth_asym_id"], helix[f"{x}_auth_seq_id"],
+         helix[f"pdbx_{x}_PDB_ins_code"].replace("?", ""),
+        ) for x in ["beg", "end"]])
+    for strand in mmcif_dict.get("struct_sheet_range", []):
+        strands.append(["{}.{}{}".format(
+         strand[f"{x}_auth_asym_id"], strand[f"{x}_auth_seq_id"],
+         strand[f"pdbx_{x}_PDB_ins_code"].replace("?", ""),
+        ) for x in ["beg", "end"]])
+    return {"helices": helices, "strands": strands}
 
 
 def add_atom_to_polymer(atom, aniso, model, names):
@@ -462,7 +478,8 @@ def add_atom_to_polymer(atom, aniso, model, names):
             }
         except:
             model["polymer"][mol_id] = {
-             "internal_id": atom["label_asym_id"], "residues": {res_id: {
+             "internal_id": atom["label_asym_id"], "helices": [], "strands": [],
+             "residues": {res_id: {
               "name": name,
               "atoms": {int(atom["id"]) : atom_dict_to_atom_dict(atom, aniso)},
               "number": 1, "full_name": names.get(name),
@@ -519,6 +536,19 @@ def add_sequences_to_polymers(model, mmcif_dict, entities):
          entities.get(polymer["internal_id"], ""), ""
         )
 
+
+def add_secondary_structure_to_polymers(model, ss_dict):
+    for ss in ("helices", "strands"):
+        for segment in ss_dict[ss]:
+            chain = model["polymer"].get(segment[0][0])
+            if chain:
+                in_segment = False
+                chain[ss].append([])
+                for residue_id in chain["residues"].keys():
+                    if residue_id == segment[0]: in_segment = True
+                    if in_segment: chain[ss][-1].append(residue_id)
+                    if residue_id == segment[1]: break
+            
 
 def make_sequences(mmcif_dict):
     """Creates a mapping of entity IDs to sequences.

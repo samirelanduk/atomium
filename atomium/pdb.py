@@ -7,6 +7,7 @@ import valerius
 from math import ceil
 from .data import CODES
 from .structures import Residue, Ligand
+from .mmcif import add_secondary_structure_to_polymers
 
 def pdb_string_to_pdb_dict(filestring):
     """Takes a .pdb filestring and turns into a ``dict`` which represents its
@@ -135,6 +136,7 @@ def update_geometry_dict(pdb_dict, data_dict):
 
 def update_models_list(pdb_dict, data_dict):
     sequences = make_sequences(pdb_dict)
+    secondary_structure = make_secondary_structure(pdb_dict)
     full_names = get_full_names(pdb_dict)
     for model_lines in pdb_dict["MODEL"]:
         aniso = make_aniso(model_lines)
@@ -150,6 +152,7 @@ def update_models_list(pdb_dict, data_dict):
                     add_atom_to_non_polymer(line, model, res_id, aniso, full_names)
             for chain_id, chain in model["polymer"].items():
                 chain["sequence"] = sequences.get(chain_id, "")
+        add_secondary_structure_to_polymers(model, secondary_structure)
         data_dict["models"].append(model)
 
 
@@ -377,6 +380,21 @@ def make_sequences(pdb_dict):
     return {k: "".join([CODES.get(r, "X") for r in v]) for k, v in seq.items()}
 
 
+def make_secondary_structure(pdb_dict):
+    helices, strands = [], []
+    for helix in pdb_dict.get("HELIX", []):
+        helices.append([
+         f"{helix[19]}.{helix[21:25].strip()}{helix[25].strip()}",
+         f"{helix[31]}.{helix[33:37].strip()}{helix[37].strip()}",
+        ])
+    for strand in pdb_dict.get("SHEET", []):
+        strands.append([
+         f"{strand[21]}.{strand[22:26].strip()}{strand[26].strip()}",
+         f"{strand[32]}.{strand[33:37].strip()}{strand[37].strip()}",
+        ])
+    return {"helices": helices, "strands": strands}
+
+
 def get_full_names(pdb_dict):
 
     full_names = {}
@@ -446,7 +464,7 @@ def add_atom_to_polymer(line, model, chain_id, res_id, aniso_dict, full_names):
             }
         except:
             model["polymer"][chain_id] = {
-             "internal_id": chain_id,
+             "internal_id": chain_id, "helices": [], "strands": [],
              "residues": {res_id: {
               "name": line[17:20].strip(),
               "atoms": {int(line[6:11]): atom_line_to_dict(line, aniso_dict)},

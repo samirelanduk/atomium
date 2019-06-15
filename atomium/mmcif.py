@@ -364,11 +364,11 @@ def update_crystallography_dict(mmcif_dict, data_dict):
     :param dict mmcif_dict: the .mmcif dictionary to read.
     :param dict data_dict: the data dictionary to update."""
 
-    mmcif_to_data_transfer(mmcif_dict, data_dict["geometry"], "crystallography",
-     "space_group", "symmetry", "space_group_name_H-M")
     if mmcif_dict.get("cell"):
+        mmcif_to_data_transfer(mmcif_dict, data_dict["geometry"], "crystallography",
+         "space_group", "symmetry", "space_group_name_H-M")
         data_dict["geometry"]["crystallography"]["unit_cell"] = [
-         float(mmcif_dict["cell"][0][key]) for key in [
+         float(mmcif_dict["cell"][0][key].replace("?", "0")) for key in [
           "length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma"
          ]
         ]

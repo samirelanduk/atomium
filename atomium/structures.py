@@ -1098,6 +1098,19 @@ class Atom:
         :rtype: ``float``"""
 
         return self.__data.PERIODIC_TABLE.get(self._element.upper(), 0)
+    
+
+    @property
+    def covalent_radius(self):
+        """The atom's covalent radius, based on the atom's :py:meth:`element`.
+        If the element doesn't match any symbol on the Periodic Table, a radius
+        of 0 will be returned.
+
+        The element lookup is case-insensitive.
+
+        :rtype: ``float``"""
+
+        return self.__data.COVALENT_RADII.get(self._element.upper(), 0)
 
 
     @property

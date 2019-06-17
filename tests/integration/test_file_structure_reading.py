@@ -43,6 +43,7 @@ class DeNovoStructureTests(TestCase):
 
         # Check atoms' calculated properties
         self.assertAlmostEqual(atom5.mass, 16, delta=0.05)
+        self.assertEqual(atom1.covalent_radius, 0.71)
         for atom in (atom1, atom2, atom3, atom4, atom5):
             self.assertFalse(atom.is_metal)
             self.assertFalse(atom.is_backbone) # Not yet

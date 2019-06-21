@@ -274,6 +274,15 @@ class DeNovoStructureTests(TestCase):
          atom1, atom2, atom3, atom4, atom5, atom6, atom7, atom8, atom9, atom10,
          atom11, atom12, atom13, atom14, atom15, atom16, atom17, atom18
         })
+        self.assertEqual(chain1.atoms(het__name="ALA"), {
+         atom1, atom2, atom3, atom4, atom5
+        })
+        self.assertEqual(chain1.atoms(het__name="CYS"), {
+         atom6, atom7, atom8, atom9, atom10, atom11
+        })
+        self.assertEqual(chain1.atoms(het__name__regex="CYS|ALA"), {
+         atom1, atom2, atom3, atom4, atom5, atom6, atom7, atom8, atom9, atom10, atom11
+        })
         self.assertTrue(res1.helix)
         self.assertFalse(res1.strand)
         self.assertTrue(res2.helix)

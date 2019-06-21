@@ -3,14 +3,31 @@
 import re
 
 def get_object_from_filter(obj, components):
+    """Gets the object whose attributes are actually being queried, which may be
+    a different object if there is a chain.
+
+    :param obj: the intial object.
+    :param list components: the components of the original key.
+    :returns: the relevant object"""
+
     components = components[:]
-    if len(components) > 1:
-        if components[-1] != "regex" and not hasattr(obj, f"__{components[-1]}__"):
-            obj = getattr(obj, components[0])
+    while len(components) > 2:
+        obj = getattr(obj, components.pop(0))
+    if len(components) == 2:
+        if components[-1] != "regex":
+            if not hasattr(obj, f"__{components[-1]}__"):
+                obj = getattr(obj, components[0])
     return obj
 
 
 def get_object_attribute_from_filter(obj, components):
+    """Gets the object's value of some attribute based on a list of key
+    components.
+
+    :param obj: the object with attributes.
+    :param list components: the components of the original key.
+    :returns: the value"""
+
     try:
         return getattr(
          obj, components[-1] if hasattr(obj, components[-1]) else components[-2]
@@ -19,6 +36,14 @@ def get_object_attribute_from_filter(obj, components):
 
 
 def attribute_matches_value(attribute, value, components):
+    """Checks if an attribute value matches a given value. The components given
+    will determine whether an exact match is sought, or whether a more complex
+    criterion is used.
+    
+    :param attribute: the value of an object's attribute.
+    :param value: the value to match against.
+    :param list components: the components of the original key.
+    :rtype: ``bool``"""
 
     if components[-1] == "regex":
         return re.match(value, attribute)
@@ -31,6 +56,9 @@ def attribute_matches_value(attribute, value, components):
 def filter_objects(objects, key, value):
     """Takes a :py:class:`.StructureSet` of objects, and filters them on object
     properties.
+
+    They key can be an attribute of the object, or a complex double-underscore
+    separated chain of attributes.
 
     :param StructreSet objects: the dictionary of objects - the keys are\
     unimportant.
@@ -112,9 +140,13 @@ class StructureClass(type):
 
 
 class StructureSet:
-    """A data structure for holding sub-structures. It stores them internally
+    """A data structure for holding structures. It stores them internally
     as a dictionary where they keys are IDs (to allow rapid lookup by ID) and
     the values are all structures with that ID (to allow for duplicate IDs).
+
+    Two structure sets can be added together, but they are immutable - the
+    structures they have when they are made is the structures they will always
+    have.
 
     :param \* args: the structures that will make up the StructureSet."""
 

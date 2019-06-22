@@ -482,7 +482,7 @@ def add_atom_to_non_polymer(line, model, res_id, aniso_dict, full_names):
     :param str res_id: the molecule ID to add to.
     :param dict aniso_dict: lookup dictionary for anisotropy information."""
 
-    key = "water" if line[17:20] == "HOH" else "non-polymer"
+    key = "water" if line[17:20] in ["HOH", "DOD"] else "non-polymer"
     try:
         model[key][res_id]["atoms"][
          int(line[6:11])

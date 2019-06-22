@@ -426,3 +426,14 @@ class ModelDictTests(DataDictTest):
                  d["models"][0]["polymer"]["B"]["residues"]["B.6"]["full_name"],
                  "(2R,3AS,4AR,5AR,5BS)-2-(6-AMINO-9H-PURIN-9-YL)-3A-HYDROXYHEXAHYDROCYCLOPROPA[4,5]CYCLOPENTA[1,2-B]FURAN-5A(4H)-YL DIHYDROGEN PHOSPHATE"
                 )
+    
+
+    def test_4pgp_data_dict_model(self):
+        data_dicts = self.open("4gpg")
+        for d in data_dicts.values():
+            self.assertEqual(len(d["models"]), 1)
+            self.assertEqual(len(d["models"][0]["polymer"]), 1)
+            self.assertEqual(len(d["models"][0]["non-polymer"]), 0)
+            self.assertEqual(len(d["models"][0]["water"]), 140)
+            for water in d["models"][0]["water"].values():
+                self.assertEqual(water["name"], "DOD")

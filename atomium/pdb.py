@@ -385,12 +385,12 @@ def make_secondary_structure(pdb_dict):
     for helix in pdb_dict.get("HELIX", []):
         helices.append([
          f"{helix[19]}.{helix[21:25].strip()}{helix[25].strip()}",
-         f"{helix[31]}.{helix[33:37].strip()}{helix[37].strip()}",
+         f"{helix[31]}.{helix[33:37].strip()}{helix[37].strip() if len(helix) > 37 else ''}",
         ])
     for strand in pdb_dict.get("SHEET", []):
         strands.append([
          f"{strand[21]}.{strand[22:26].strip()}{strand[26].strip()}",
-         f"{strand[32]}.{strand[33:37].strip()}{strand[37].strip()}",
+         f"{strand[32]}.{strand[33:37].strip()}{strand[37].strip() if len(strand) > 37 else ''}",
         ])
     return {"helices": helices, "strands": strands}
 

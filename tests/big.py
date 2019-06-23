@@ -11,9 +11,7 @@ SUBSET = 1000
 
 # Get all codes
 response = requests.get("https://www.rcsb.org/pdb/rest/getCurrent")
-root = ET.fromstring(response.text)
-codes = []
-for child in root: codes.append(child.attrib["structureId"])
+codes = [child.attrib["structureId"] for child in ET.fromstring(response.text)]
 print(f"There are {len(codes)} codes")
 
 # Go through them
@@ -40,7 +38,7 @@ print((" ".join(no_pdb) + "\n") if no_pdb else "")
 
 mismatch = [code for code in sub_codes if not results[code]["match"]]
 print(f"{len(mismatch)} codes had different models for different extensions:")
-print((" ".join(mismatch) + "\n") if no_pdb else "")
+print((" ".join(mismatch) + "\n") if mismatch else "")
 
 print("Other errors:")
 for code in sub_codes:

@@ -361,7 +361,7 @@ def extract_crystallography(pdb_dict, geometry_dict):
         geometry_dict["crystallography"]["space_group"] = line[55:66].strip()
         geometry_dict["crystallography"]["unit_cell"] = [
          float(val) for val in values[1:7]
-        ]
+        ] if len(values) >= 6 else []
 
 
 def make_sequences(pdb_dict):

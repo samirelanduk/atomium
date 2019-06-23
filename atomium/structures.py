@@ -573,7 +573,9 @@ class Chain(Molecule, metaclass=StructureClass):
     :param strands sequence: the beta strands within the chain."""
 
     def __init__(self, *residues, sequence="", helices=None, strands=None, **kwargs):
-        Molecule.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("internal_id"))
+        Molecule.__init__(
+         self, kwargs.get("id"), kwargs.get("name"), kwargs.get("internal_id")
+        )
         self._sequence = sequence
         for res in residues: res._chain = self
         self._residues = StructureSet(*residues)
@@ -720,8 +722,11 @@ class Ligand(Molecule, Het, metaclass=StructureClass):
     :param bool water: if ``True``, the ligand will be treated as water."""
 
     def __init__(self, *atoms, chain=None, water=False, **kwargs):
-        Het.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("full_name"), *atoms)
-        Molecule.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("internal_id"))
+        Het.__init__(
+        self, kwargs.get("id"), kwargs.get("name"),
+         kwargs.get("full_name"), *atoms)
+        Molecule.__init__(self, kwargs.get("id"), kwargs.get("name"),
+         kwargs.get("internal_id"))
         self._chain, self._water = chain, water
 
 
@@ -769,7 +774,8 @@ class Residue(Het, metaclass=StructureClass):
     from atomium import data as __data
 
     def __init__(self, *atoms, **kwargs):
-        Het.__init__(self, kwargs.get("id"), kwargs.get("name"), kwargs.get("full_name"), *atoms)
+        Het.__init__(self, kwargs.get("id"), kwargs.get("name"),
+         kwargs.get("full_name"), *atoms)
         self._next, self._previous = None, None
         self._chain = None
 
@@ -1130,7 +1136,8 @@ class Atom:
 
         :rtype: ``bool``"""
 
-        return isinstance(self._het, Residue) and self._name in ["CA", "C", "N", "O"]
+        return isinstance(self._het, Residue) and \
+         self._name in ["CA", "C", "N", "O"]
 
 
     @property
@@ -1176,8 +1183,8 @@ class Atom:
         :rtype: ``Atom``"""
 
         return Atom(
-         self._element, *self._location, id or self._id, self._name, self._charge,
-         self._bvalue, self._anisotropy
+         self._element, *self._location, id or self._id, self._name,
+         self._charge, self._bvalue, self._anisotropy
         )
     
 

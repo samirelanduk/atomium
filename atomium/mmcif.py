@@ -177,11 +177,11 @@ def strip_quotes(mmcif_dict):
 
     for name, table in mmcif_dict.items():
         for row in table:
-            for key, value in row.items():
+            for k, value in row.items():
                 for char in "'\"":
                     if value[0] == char and value[-1] == char:
-                        row[key] = value[1:-1]
-                    row[key] = row[key].replace("\x1a", '"').replace("\x1b", "'")
+                        row[k] = value[1:-1]
+                    row[k] = row[k].replace("\x1a", '"').replace("\x1b", "'")
 
 
 def mmcif_dict_to_data_dict(mmcif_dict):
@@ -323,8 +323,8 @@ def assign_transformations_to_assembly(mmcif_dict, operations, assembly):
     for gen in mmcif_dict.get("pdbx_struct_assembly_gen", []):
         if gen["assembly_id"] == str(assembly["id"]):
             op_ids_groups = get_operation_id_groups(gen["oper_expression"])
-            operations_ = operation_id_groups_to_operations(operations, op_ids_groups)
-            for operation in operations_:
+            ops = operation_id_groups_to_operations(operations, op_ids_groups)
+            for operation in ops:
                 assembly["transformations"].append({
                  "chains": gen["asym_id_list"].split(","),
                  "matrix": [row[:3] for row in operation[:3]],
@@ -365,11 +365,12 @@ def update_crystallography_dict(mmcif_dict, data_dict):
     :param dict data_dict: the data dictionary to update."""
 
     if mmcif_dict.get("cell"):
-        mmcif_to_data_transfer(mmcif_dict, data_dict["geometry"], "crystallography",
-         "space_group", "symmetry", "space_group_name_H-M")
+        mmcif_to_data_transfer(mmcif_dict, data_dict["geometry"],
+         "crystallography", "space_group", "symmetry", "space_group_name_H-M")
         data_dict["geometry"]["crystallography"]["unit_cell"] = [
          float(mmcif_dict["cell"][0][key].replace("?", "0")) for key in [
-          "length_a", "length_b", "length_c", "angle_alpha", "angle_beta", "angle_gamma"
+          "length_a", "length_b", "length_c",
+          "angle_alpha", "angle_beta", "angle_gamma"
          ]
         ]
     if data_dict["geometry"]["crystallography"].get("space_group") == "NA":
@@ -383,7 +384,9 @@ def operation_id_groups_to_operations(operations, operation_id_groups):
     :param dict operations: the parsed .mmcif operations.
     :param list operation_id_groups: the operation IDs."""
 
-    operation_groups = [[operations[i] for i in ids] for ids in operation_id_groups]
+    operation_groups = [[
+     operations[i] for i in ids
+    ] for ids in operation_id_groups]
     while len(operation_groups) and len(operation_groups) != 1:
         operations = []
         for op1 in operation_groups[0]:
@@ -403,8 +406,11 @@ def update_models_list(mmcif_dict, data_dict):
 
     data_dict["models"] = []
     types = {e["id"]: e["type"] for e in mmcif_dict.get("entity", {})}
-    names = {e["id"]: e["name"] for e in mmcif_dict.get("chem_comp", {}) if e["mon_nstd_flag"] != "y"}
-    entities = {m["id"]: m["entity_id"] for m in mmcif_dict.get("struct_asym", [])}
+    names = {e["id"]: e["name"] for e in mmcif_dict.get("chem_comp", {})
+     if e["mon_nstd_flag"] != "y"}
+    entities = {
+     m["id"]: m["entity_id"] for m in mmcif_dict.get("struct_asym", []) 
+    }
     sequences = make_sequences(mmcif_dict)
     secondary_structure = make_secondary_structure(mmcif_dict)
     aniso = make_aniso(mmcif_dict)

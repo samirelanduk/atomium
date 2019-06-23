@@ -256,15 +256,17 @@ def create_ligands(model_dict, chains, water=False):
     :param bool water: if `True``, water ligands will be made.
     :rtype: ``list``"""
 
-    ligs = []
+    ligands = []
     for lig_id, lig in model_dict["water" if water else "non-polymer"].items():
         chain = None
         for c in chains:
             if c._id == lig["polymer"]:
                 chain = c
                 break
-        ligs.append(create_het(lig, lig_id, ligand=True, chain=chain, water=water))
-    return ligs
+        ligands.append(
+         create_het(lig, lig_id, ligand=True, chain=chain, water=water)
+        )
+    return ligands
 
 
 def create_het(d, id, ligand=False, chain=None, water=False):

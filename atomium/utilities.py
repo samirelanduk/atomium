@@ -70,7 +70,9 @@ def fetch_over_ssh(hostname, username, path, *args, password=None, **kwargs):
             client.load_system_host_keys()
             client.connect(hostname=hostname, username=username)
         else:
-            client.connect(hostname=hostname, username=username, password=password)
+            client.connect(
+             hostname=hostname, username=username, password=password 
+            )
         stdin, stdout, stderr = client.exec_command("less " + path)
         filestring = stdout.read().decode()
     finally:

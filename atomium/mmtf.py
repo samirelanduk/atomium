@@ -235,7 +235,9 @@ def get_group_definitions_list(mmtf_dict):
 
 
 def get_groups_list(mmtf_dict, group_definitions):
-    sec_struct = ["helices", None, "helices", "strands", "helices", "strands", None, None]
+    sec_struct = [
+     "helices", None, "helices", "strands", "helices", "strands", None, None
+    ]
     return [{
      "number": id, "insert": insert, "secondary_structure": sec_struct[ss],
      **group_definitions[type_]

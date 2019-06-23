@@ -74,6 +74,31 @@ fetching structures over SSH,
 and `valerius <https://valerius.samireland.com>`_ for dealing with sequences.
 
 
+Testing
+~~~~~~~
+
+To test a local version of atomium, cd to the atomium directory and run:
+
+``$ python -m unittest discover tests``
+
+You can opt to only run unit tests or integration tests:
+
+``$ python -m unittest discover tests.unit``
+``$ python -m unittest discover tests.integration``
+
+You can run the 'big test' to get a random 1000 structures, parse them all, and
+report any problems:
+
+``$ python tests/big.py``
+
+Finally, to perform speed profiles you can run:
+
+``$ python tests/time/time.py``
+
+...which creates various profiles that SnakeViz can visualise.
+
+
+
 Overview
 --------
 
@@ -112,7 +137,7 @@ Once you've got your ``File`` object, what can you do with it?
 Annotation
 ##########
 
-There is various meta information contained within the ``File`` object.
+There is meta information contained within the ``File`` object:
 
     >>> pdb1.title
     'CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP'
@@ -177,8 +202,6 @@ the asymmetric unit with 1,842 atoms, and then generate two of its possible
 biological assemblies by passing in their IDs.
 
 
-
-
 Model Contents
 ##############
 
@@ -203,6 +226,8 @@ The basic structures within a model are chains, residues, ligands, and atoms.
     037)>, <Residue PRO (A.129)>, <Residue PRO (B.1161)>, <Residue TYR (A.206)>}
     >>> pdb1.model.chain('B').residue('B.1206')
     <Residue TYR (B.1206)>
+    >>> pdb1.model.chain('B').residue('B.1206').helix
+    True
     >>> pdb1.model.ligands()
     {<Ligand BU2 (A.5001)>, <Ligand XMP (A.2001)>, <Ligand BU2 (B.5002)>, <Ligan
     d XMP (B.2002)>}
@@ -345,6 +370,25 @@ results.
 
 Changelog
 ---------
+
+Release 1.0.0
+~~~~~~~~~~~~~
+
+`23 June 2019`
+
+* Saving now issues warning if the stucture has duplicate IDs.
+* Missing residues parsed for all three file types.
+* Crystallographic information now parsed.
+* Refactor of atomic structures.
+* Refactor of .mmtf parsing.
+* Structure copying now retains all properties.
+* Fixed bug in parsing .cif expression systems.
+* Full names of ligands and modified residues now parsed.
+* Secondary structure information parsed and available now.
+* Atoms now have covalent radius property for calculating bond cutoffs.
+* .pdb parsing can now handle heavy water (DOD).
+* General speed improvements.
+
 
 Release 0.12.2
 ~~~~~~~~~~~~~~

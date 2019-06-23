@@ -13,6 +13,7 @@ def open(path, *args, **kwargs):
     it accordingly.
 
     For example:
+
         >>> atomium.open('/path/to/file.pdb', data_dict=True)
 
     This will parse file.pdb as a .pdb file, but only go as far as converting it
@@ -39,6 +40,7 @@ def fetch(code, *args, **kwargs):
     look in that location.
 
     For example:
+    
         >>> atomium.fetch('1lol.mmtf', file_dict=True)
     
     This will get the .mmtf version of structure 1LOL, but only go as far as

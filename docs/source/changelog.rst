@@ -1,6 +1,25 @@
 Changelog
 ---------
 
+Release 1.0.0
+~~~~~~~~~~~~~
+
+`23 June 2019`
+
+* Saving now issues warning if the stucture has duplicate IDs.
+* Missing residues parsed for all three file types.
+* Crystallographic information now parsed.
+* Refactor of atomic structures.
+* Refactor of .mmtf parsing.
+* Structure copying now retains all properties.
+* Fixed bug in parsing .cif expression systems.
+* Full names of ligands and modified residues now parsed.
+* Secondary structure information parsed and available now.
+* Atoms now have covalent radius property for calculating bond cutoffs.
+* .pdb parsing can now handle heavy water (DOD).
+* General speed improvements.
+
+
 Release 0.12.2
 ~~~~~~~~~~~~~~
 

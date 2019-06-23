@@ -36,7 +36,7 @@ Once you've got your :py:class:`.File` object, what can you do with it?
 Annotation
 ##########
 
-There is various meta information contained within the :py:class:`.File` object.
+There is meta information contained within the :py:class:`.File` object:
 
     >>> pdb1.title
     'CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP'
@@ -101,8 +101,6 @@ the asymmetric unit with 1,842 atoms, and then generate two of its possible
 biological assemblies by passing in their IDs.
 
 
-
-
 Model Contents
 ##############
 
@@ -127,6 +125,8 @@ The basic structures within a model are chains, residues, ligands, and atoms.
     037)>, <Residue PRO (A.129)>, <Residue PRO (B.1161)>, <Residue TYR (A.206)>}
     >>> pdb1.model.chain('B').residue('B.1206')
     <Residue TYR (B.1206)>
+    >>> pdb1.model.chain('B').residue('B.1206').helix
+    True
     >>> pdb1.model.ligands()
     {<Ligand BU2 (A.5001)>, <Ligand XMP (A.2001)>, <Ligand BU2 (B.5002)>, <Ligan
     d XMP (B.2002)>}

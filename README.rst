@@ -1,16 +1,20 @@
-|travis| |coveralls| |pypi|
+atomium
+=======
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=0.12.2
+|travis| |coveralls| |pypi| |downloads|
+
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=0.12.2
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
   :target: https://pypi.org/project/atomium/
 
-atomium
-========
+.. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
+  :target: https://pypi.org/project/atomium/
+
 
 atomium is a molecular modeller and file parser, capable of reading from and
 writing to .pdb, .cif and .mmtf files.

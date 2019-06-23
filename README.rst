@@ -1,7 +1,7 @@
 atomium
 =======
 
-|travis| |coveralls| |pypi| |downloads|
+|travis| |coveralls| |pypi| |version| |commit| |downloads|
 
 .. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0
   :target: https://travis-ci.org/samirelanduk/atomium/
@@ -11,6 +11,12 @@ atomium
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
   :target: https://pypi.org/project/atomium/
+
+.. |version| image:: https://img.shields.io/pypi/v/atomium.svg
+  :target: https://pypi.org/project/atomium/
+
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.svg
+  :target: https://github.com/samirelanduk/atomium/tree/1.0/
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
   :target: https://pypi.org/project/atomium/

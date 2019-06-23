@@ -12,6 +12,12 @@ def open(path, *args, **kwargs):
     """Opens a file at a given path, works out what filetype it is, and parses
     it accordingly.
 
+    For example:
+        >>> atomium.open('/path/to/file.pdb', data_dict=True)
+
+    This will parse file.pdb as a .pdb file, but only go as far as converting it
+    to an atomium data dictionary.
+
     :param str path: the location of the file.
     :param bool file_dict: if ``True``, parsing will stop at the file ``dict``.
     :param bool data_dict: if ``True``, parsing will stop at the data ``dict``.
@@ -31,6 +37,12 @@ def fetch(code, *args, **kwargs):
     the RCSB servers. If that code is given an extension, that file format will
     be obtained instead of .cif. If a URL is given, the function will simply
     look in that location.
+
+    For example:
+        >>> atomium.fetch('1lol.mmtf', file_dict=True)
+    
+    This will get the .mmtf version of structure 1LOL, but only go as far as
+    converting it to an atomium file dictionary.
 
     :param str code: the file to fetch.
     :param bool file_dict: if ``True``, parsing will stop at the file ``dict``.
@@ -81,7 +93,12 @@ def fetch_over_ssh(hostname, username, path, *args, password=None, **kwargs):
 
 
 def parse_string(filestring, path, file_dict=False, data_dict=False):
-    """Takes a filestring and parses it in the appropriate way.
+    """Takes a filestring and parses it in the appropriate way. You must provide
+    the string to parse itself, and some other string that ends in either .cif,
+    .mmtf, or .cif - that will determine how the file is parsed.
+
+    (If this cannot be inferred from the path string, atomium will guess based
+    on the filestring contents.)
 
     :param str filestring: the contents of some file.
     :param str path: the filename of the file of origin.
@@ -102,6 +119,9 @@ def parse_string(filestring, path, file_dict=False, data_dict=False):
 def get_parse_functions(filestring, path):
     """Works out which parsing functions to use for a given filestring and
     returns them.
+
+    (If this cannot be inferred from the path string, atomium will guess based
+    on the filestring contents.)
 
     :param str filestring: the filestring to inspect.
     :param str path: the path to inspect.

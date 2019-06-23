@@ -104,7 +104,7 @@ def update_experiment_dict(pdb_dict, data_dict):
     """Creates the experiment component of a standard atomium data dictionary
     from a .pdb dictionary.
 
-    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict pdb_dict: The .pdb dictionary to read.
     :param dict data_dict: The data dictionary to update."""
 
     extract_technique(pdb_dict, data_dict["experiment"])
@@ -116,7 +116,7 @@ def update_quality_dict(pdb_dict, data_dict):
     """Creates the quality component of a standard atomium data dictionary
     from a .pdb dictionary.
 
-    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict pdb_dict: The .pdb dictionary to read.
     :param dict data_dict: The data dictionary to update."""
 
     extract_resolution_remark(pdb_dict, data_dict["quality"])
@@ -127,7 +127,7 @@ def update_geometry_dict(pdb_dict, data_dict):
     """Creates the geometry component of a standard atomium data dictionary
     from a .pdb dictionary.
 
-    :param dict pdb_dict: The .pdb dictionary to update.
+    :param dict pdb_dict: The .pdb dictionary to read.
     :param dict data_dict: The data dictionary to update."""
 
     extract_assembly_remark(pdb_dict, data_dict["geometry"])
@@ -135,6 +135,11 @@ def update_geometry_dict(pdb_dict, data_dict):
 
 
 def update_models_list(pdb_dict, data_dict):
+    """Creates model dictionaries in a data dictionary.
+
+    :param dict pdb_dict: The .pdb dictionary to read.
+    :param dict data_dict: The data dictionary to update."""
+
     sequences = make_sequences(pdb_dict)
     secondary_structure = make_secondary_structure(pdb_dict)
     full_names = get_full_names(pdb_dict)
@@ -381,6 +386,12 @@ def make_sequences(pdb_dict):
 
 
 def make_secondary_structure(pdb_dict):
+    """Creates a dictionary of helices and strands, with each having a list of
+    start and end residues.
+
+    :param pdb_dict: the .pdb dict to read.
+    :rtype: ``dict``"""
+
     helices, strands = [], []
     for helix in pdb_dict.get("HELIX", []):
         helices.append([
@@ -396,6 +407,10 @@ def make_secondary_structure(pdb_dict):
 
 
 def get_full_names(pdb_dict):
+    """Creates a mapping of het names to full English names.
+
+    :param pdb_dict: the .pdb dict to read.
+    :rtype: ``dict``"""
 
     full_names = {}
     for line in pdb_dict.get("HETNAM", []):
@@ -553,6 +568,11 @@ def structure_to_pdb_string(structure):
 
 
 def pack_sequences(structure, lines):
+    """Adds SEQRES lines from polymer sequence data.
+
+    :param AtomStructure structure: the structure to convert.
+    :param list lines: the string lines to update."""
+
     try:
         for chain in sorted(structure.chains(), key=lambda c: c.id):
             residues = valerius.from_string(chain.sequence).codes
@@ -567,6 +587,12 @@ def pack_sequences(structure, lines):
 
 
 def atom_to_atom_line(a, lines):
+    """Converts an :py:class:`.Atom` to an ATOM or HETATM record. ANISOU lines
+    will also be added where appropriate.
+
+    :param Atom a: The Atom to pack.
+    :param list lines: the string lines to update."""
+
     line = "{:6}{:5} {:4} {:3} {:1}{:4}{:1}   "
     line += "{:>8}{:>8}{:>8}  1.00{:6}          {:>2}{:2}"
     id_, residue_name, chain_id, residue_id, insert_code = "", "", "", "", ""

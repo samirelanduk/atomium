@@ -109,6 +109,10 @@ def getone(func):
     iterable. It produces a function which just gets the first item in that
     iterable.
 
+    In atomium, various classes define methods like atoms, residues, etc. - this
+    decorator can make a function like atom, residue which takes all the same
+    params but just returns one object.
+
     :param func: the function to modify.
     :rtype: ``function``"""
 
@@ -147,6 +151,8 @@ class StructureSet:
     Two structure sets can be added together, but they are immutable - the
     structures they have when they are made is the structures they will always
     have.
+
+    They're basically sets optimised to lookup things by ID.
 
     :param \* args: the structures that will make up the StructureSet."""
 
@@ -195,7 +201,8 @@ class StructureSet:
 
 
     def get(self, id):
-        """Gets a structure by ID.
+        """Gets a structure by ID. If an ID points to multiple structures, just
+        one will be returned.
 
         :returns: some structure."""
 

@@ -172,6 +172,23 @@ class File:
 
 
     def generate_assembly(self, id):
+        """Generates a new model from the existing model using one of the file's
+        set of assembly instructions (for which you provide the ID).
+
+        For example:
+
+            >>> import atomium
+            >>> pdb = atomium.fetch('1xda')
+            >>> pdb.model
+            <Model (8 chains, 16 ligands)>
+            >>> pdb.generate_assembly(1)
+            <Model (2 chains, 4 ligands)>
+            >>> pdb.generate_assembly(5)
+            <Model (12 chains, 24 ligands)>
+
+        :param int id: the ID of the assembly to generate.
+        :rtype: ``Model``"""
+        
         m = self._models[0]
         for assembly in self._assemblies:
             if assembly["id"] == id: break

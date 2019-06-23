@@ -221,6 +221,13 @@ def get_atoms_list(mmtf_dict):
 
 
 def get_group_definitions_list(mmtf_dict):
+    """Gets a list of group definitions from the .mmtf dict and packs its atom
+    attributes into atoms dicts.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :rtype: ``list``"""
+
+
     group_definitions = []
     for group in mmtf_dict["groupList"]:
         atoms = [{
@@ -235,6 +242,12 @@ def get_group_definitions_list(mmtf_dict):
 
 
 def get_groups_list(mmtf_dict, group_definitions):
+    """Creates a list of group dictionaries from a .mmtf dictionary by zipping
+    together some of its fields.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :rtype: ``list``"""
+
     sec_struct = [
      "helices", None, "helices", "strands", "helices", "strands", None, None
     ]
@@ -249,6 +262,12 @@ def get_groups_list(mmtf_dict, group_definitions):
 
 
 def get_chains_list(mmtf_dict, groups):
+    """Creates a list of chain dictionaries from a .mmtf dictionary by zipping
+    together some of its fields.
+
+    :param dict mmtf_dict: the .mmtf dictionary to read.
+    :rtype: ``list``"""
+
     chains = []
     for i_id, id, group_num in zip(mmtf_dict["chainIdList"],
      mmtf_dict["chainNameList"], mmtf_dict["groupsPerChain"]):
@@ -265,6 +284,13 @@ def get_chains_list(mmtf_dict, groups):
 
 
 def add_chain_to_model(chain, model, atoms):
+    """Adds a 'chain' to a model - a chain in the .mmtf dict, which can also be
+    a non-polymner.
+
+    :param dict chain: the 'chain' to add.
+    :param dict model: the model to add it to.
+    :param list atoms: the atoms list to work through."""
+
     if chain["type"] == "polymer":
         polymer = {
          "internal_id": chain["internal_id"], "sequence": chain["sequence"],
@@ -280,6 +306,15 @@ def add_chain_to_model(chain, model, atoms):
          
 
 def add_het_to_dict(group, chain, atoms, d, number=None):
+    """Adds a ligand or water or residue to the appropriate dict. An ID and name
+    will be generated for it.
+
+    :param dict group: the group template the het should be based on.
+    :param dict chain: the chain (in the real sense) the het is associated with.
+    :param list atoms: the atoms list to work through.
+    :param dict d: the dictionary to add to.
+    :param int number: if given, the residue number to use."""
+
     het_id = f"{chain['id']}.{group['number']}{group['insert']}"
     het_atoms = atoms[:len(group["atoms"])]
     del atoms[:len(het_atoms)]
@@ -301,6 +336,11 @@ def add_het_to_dict(group, chain, atoms, d, number=None):
 
 
 def add_ss_to_chain(chain):
+    """Updates polymer dictionary with secondary structure information, from
+    information temporarily stored in its residue dicts.
+
+    :param dict chain: the chain to update."""
+    
     in_ss = {"helices": False, "strands": False}
     for res_id, res in chain["residues"].items():
         ss = res["secondary_structure"]

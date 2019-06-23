@@ -570,7 +570,7 @@ class Chain(Molecule, metaclass=StructureClass):
     :param str internal_id: the internal ID used for transformations.
     :param str sequence: the actual sequence the chain should have.
     :param list helices: the alpha helices within the chain.
-    :param strands sequence: the beta strands within the chain."""
+    :param list strands: the beta strands within the chain."""
 
     def __init__(self, *residues, sequence="", helices=None, strands=None, **kwargs):
         Molecule.__init__(

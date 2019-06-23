@@ -7,7 +7,7 @@ from tqdm import tqdm
 import xml.etree.ElementTree as ET
 print()
 
-SUBSET = 1000
+SUBSET = 5000
 
 # Get all codes
 response = requests.get("https://www.rcsb.org/pdb/rest/getCurrent")

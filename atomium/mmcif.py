@@ -445,6 +445,12 @@ def make_aniso(mmcif_dict):
 
 
 def make_secondary_structure(mmcif_dict):
+    """Creates a dictionary of helices and strands, with each having a list of
+    start and end residues.
+
+    :param mmcif_dict: the .mmcif dict to read.
+    :rtype: ``dict``"""
+
     helices, strands = [], []
     for helix in mmcif_dict.get("struct_conf", []):
         helices.append(["{}.{}{}".format(
@@ -544,6 +550,12 @@ def add_sequences_to_polymers(model, mmcif_dict, entities):
 
 
 def add_secondary_structure_to_polymers(model, ss_dict):
+    """Updates polymer dictionaries with secondary structure information, from
+    a previously created mapping.
+
+    :param dict model: the model to update.
+    :param dict ss_dict: the mapping to read."""
+
     for ss in ("helices", "strands"):
         for segment in ss_dict[ss]:
             chain = model["polymer"].get(segment[0][0])

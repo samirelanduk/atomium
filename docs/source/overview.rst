@@ -8,7 +8,7 @@ and presenting and manipulating the information contained within.
 Loading Data
 ~~~~~~~~~~~~
 
-Whist you can use atomium to create models from scratch to build an entirely
+While you can use atomium to create models from scratch to build an entirely
 *de novo* structure, in practice you would generally use it to load molecular
 data from an existing file...
 

@@ -3,10 +3,10 @@ atomium
 
 |travis| |coveralls| |pypi| |version| |commit| |downloads|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.1
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.1
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -15,8 +15,8 @@ atomium
 .. |version| image:: https://img.shields.io/pypi/v/atomium.svg
   :target: https://pypi.org/project/atomium/
 
-.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.svg
-  :target: https://github.com/samirelanduk/atomium/tree/1.0/
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.1.svg
+  :target: https://github.com/samirelanduk/atomium/tree/1.0.1/
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
   :target: https://pypi.org/project/atomium/
@@ -109,7 +109,7 @@ and presenting and manipulating the information contained within.
 Loading Data
 ~~~~~~~~~~~~
 
-Whist you can use atomium to create models from scratch to build an entirely
+While you can use atomium to create models from scratch to build an entirely
 *de novo* structure, in practice you would generally use it to load molecular
 data from an existing file...
 

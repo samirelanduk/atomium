@@ -11,3 +11,5 @@ profiles
 *.png
 *.json
 *.svg
+*.eps
+readapdb

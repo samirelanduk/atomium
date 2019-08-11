@@ -6,7 +6,7 @@ import os
 import json
 from datetime import datetime
 sys.path.append(os.path.join("..", "atomium"))
-from atomium.utilities import parse_string
+import atomium
 import io
 from Bio.PDB import *
 import matplotlib.pyplot as plt
@@ -33,15 +33,17 @@ if len(sys.argv) > 1 and sys.argv[1] == "--rebuild":
     codes = response.text.split()
 
     data = []
-    while len (data) != 10:
+    while len (data) != 1000:
         code = random.choice(codes)
         d = {"code": code}
         print(len(data) + 1, code)
         for ext in [".cif", ".mmtf", ".pdb"]:
             try:
                 string = get_string(code + ext)
+                with open("temp" + ext, "wb" if ext == ".mmtf" else "w") as f:
+                    f.write(string)
                 start = datetime.now()
-                pdb = parse_string(string, path=ext)
+                pdb = atomium.open("temp" + ext)
                 end = datetime.now()
                 delta = end - start
                 d[ext] = delta.total_seconds()
@@ -56,7 +58,7 @@ if len(sys.argv) > 1 and sys.argv[1] == "--rebuild":
             try:
                 parser = PDBParser(QUIET=True, get_header=True)
                 start = datetime.now()
-                parser.get_structure("", io.StringIO(string))
+                parser.get_structure("", "temp.pdb")
                 end = datetime.now()
                 delta = end - start
                 d["biopython"] = delta.total_seconds()
@@ -80,8 +82,9 @@ if len(sys.argv) > 1 and sys.argv[1] == "--rebuild":
         data.append(d)
         codes.remove(code)
 
-        if os.path.exists("temp.pdb"):
-            os.remove("temp.pdb")
+        for f in ["temp.pdb", "temp.cif", "temp.mmtf"]:
+            if os.path.exists(f):
+                os.remove(f)
         with open("scripts/speed.json", "w") as f:
             json.dump(data, f)
 

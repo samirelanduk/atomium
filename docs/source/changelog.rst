@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 1.0.1
+~~~~~~~~~~~~~
+
+`26 September 2019`
+
+* Added a pdb2json script for converting local structure files to JSON.
+* Improved speed comparison checks.
+
+
 Release 1.0.0
 ~~~~~~~~~~~~~
 

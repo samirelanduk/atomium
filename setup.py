@@ -5,7 +5,7 @@ with open("README.rst") as f:
 
 setup(
  name="atomium",
- version="1.0.1",
+ version="1.0.2",
  description="A molecular modeller and file parser.",
  long_description=long_description,
  long_description_content_type="text/x-rst",

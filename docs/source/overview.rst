@@ -183,6 +183,12 @@ that same distance, rotate it and translate it through space, see where its new
 center of mass is, and then finally get its RMSD with the other similar ligand
 in the model.
 
+Any operation which involves identifying nearby structures or atoms can be sped
+up - dramatically in the case of very large structures - by calling
+:py:meth:`~.Model.optimise_distances` on the :py:class:`.Model` first. This
+prevents atomium from having to compare every atom with every other atom every
+time a proximity check is made.
+
 The :py:class:`.Atom` objects themselves have their own useful properties.
 
     >>> pdb1.model.atom(97)

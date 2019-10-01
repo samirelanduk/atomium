@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 1.0.2
+~~~~~~~~~~~~~
+
+`1 October 2019`
+
+* Added distance optimiser for proximity checks.
+* Improved test coverage.
+
+
 Release 1.0.1
 ~~~~~~~~~~~~~
 

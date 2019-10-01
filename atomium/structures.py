@@ -2,8 +2,9 @@
 
 import numpy as np
 import rmsd
+import math
 import warnings
-from collections import Counter, OrderedDict
+from collections import Counter, OrderedDict, defaultdict
 from .base import StructureClass, query, StructureSet
 
 class AtomStructure:
@@ -233,14 +234,32 @@ class AtomStructure:
 
 
     def atoms_in_sphere(self, location, radius, *args, **kwargs):
-        """Returns all the atoms in a given sphere within this structure.
+        """Returns all the atoms in a given sphere within this structure. This
+        will be a lot faster if the structure is a :py:class:`.Model` and if
+        :py:meth:`.optimise_distances` has been called, as it won't have to
+        search all atoms.
 
         :param tuple location: the centre of the sphere.
         :param float radius: the radius of the sphere.
         :rtype: ``set``"""
 
-        return {a for a in self.atoms(*args, **kwargs)
-         if a.distance_to(location) <= radius}
+        if "_internal_grid" in self.__dict__ and self._internal_grid:
+            r, atoms = math.ceil(radius / 10), set()
+            x, y, z = [int(math.floor(n / 10)) * 10 for n in location]
+            x_range, y_range, z_range = [
+             [(val - (n * 10)) for n in range(1, r + 1)][::-1] + [val] + [
+              (val + n * 10) for n in range(1, r + 1)
+             ] for val in (x, y, z)
+            ]
+            for x in x_range:
+                for y in y_range:
+                    for z in z_range:
+                        atoms = atoms.union(self._internal_grid[x][y][z])
+            atoms = StructureSet(*atoms)
+            atoms = query(lambda self: atoms)(self, *args, **kwargs)
+        else:
+            atoms = self.atoms(*args, **kwargs)
+        return {a for a in atoms if a.distance_to(location) <= radius}
 
 
     def pairwise_atoms(self, *args, **kwargs):
@@ -260,6 +279,10 @@ class AtomStructure:
         """Returns all atoms within a given distance of this structure,
         excluding the structure's own atoms.
 
+        This will be a lot faster if the model's
+        :py:meth:`.optimise_distances` has been called, as it won't have to
+        search all atoms.
+
         :param float cutoff: the distance cutoff to use.
         :rtype: ``set``"""
 
@@ -272,6 +295,10 @@ class AtomStructure:
     def nearby_hets(self, *args, **kwargs):
         """Returns all other het structures within a given distance of this
         structure, excluding itself.
+
+        This will be a lot faster if the model's
+        :py:meth:`.optimise_distances` has been called, as it won't have to
+        search all atoms.
 
         :param float cutoff: the distance cutoff to use.
         :rtype: ``set``"""
@@ -469,6 +496,7 @@ class Model(AtomStructure, metaclass=StructureClass):
         self._ligands = StructureSet(*self._ligands)
         self._waters = StructureSet(*self._waters)
         self._file = file
+        self._internal_grid = None
 
 
     def __repr__(self):
@@ -553,6 +581,20 @@ class Model(AtomStructure, metaclass=StructureClass):
         """Removes all water ligands from the model."""
 
         self._waters = StructureSet()
+    
+
+    def optimise_distances(self):
+        """Calling this method makes finding atoms within a sphere faster, and
+        consequently makes all 'nearby' methods faster. It organises the atoms
+        in the model into grids, so that only relevant atoms are checked for
+        distances."""
+
+        self._internal_grid = defaultdict(
+         lambda: defaultdict(lambda: defaultdict(set))
+        )
+        for atom in self.atoms():
+            x, y, z = [int(math.floor(n / 10)) * 10 for n in atom.location]
+            self._internal_grid[x][y][z].add(atom)
 
 
     #TODO copy

@@ -589,28 +589,34 @@ class FileReadingTests(TestCase):
             self.assertEqual(len(model.molecules(mass__gt=1000)), 2)
             self.assertEqual(len(model.molecules(mass__gt=90, mass__lt=1000)), 2)
 
-            atom = model.atom(1587 if e == "pdb" else 1586)
-            four_angstrom = atom.nearby_atoms(cutoff=4)
-            self.assertEqual(len(four_angstrom), 10)
-            self.assertEqual(
-             sorted([atom.id for atom in four_angstrom]),
-             [n - (e != "pdb") for n in [1576, 1582, 1583, 1584, 1586, 1588, 1589, 1590, 1591, 2957]]
-            )
-            self.assertEqual(len(atom.nearby_atoms(cutoff=4, element="O")), 1)
-            four_angstrom = model.atoms_in_sphere(atom.location, 4)
-            self.assertEqual(len(four_angstrom), 11)
-            self.assertEqual(
-             sorted([atom.id for atom in four_angstrom]),
-             [n - (e != "pdb") for n in [1576, 1582, 1583, 1584, 1586, 1587, 1588, 1589, 1590, 1591, 2957]]
-            )
-            self.assertEqual(len(model.atoms_in_sphere(atom.location, 4, element="O")), 1)
+            for optimise in [False, True]:
+                if optimise: model.optimise_distances()
+                atom = model.atom(1587 if e == "pdb" else 1586)
+                four_angstrom = atom.nearby_atoms(cutoff=4)
+                self.assertEqual(len(four_angstrom), 10)
+                self.assertEqual(
+                sorted([atom.id for atom in four_angstrom]),
+                [n - (e != "pdb") for n in [1576, 1582, 1583, 1584, 1586, 1588, 1589, 1590, 1591, 2957]]
+                )
+                self.assertEqual(len(atom.nearby_atoms(cutoff=4, element="O")), 1)
+                four_angstrom = model.atoms_in_sphere(atom.location, 4)
+                self.assertEqual(len(four_angstrom), 11)
+                self.assertEqual(
+                sorted([atom.id for atom in four_angstrom]),
+                [n - (e != "pdb") for n in [1576, 1582, 1583, 1584, 1586, 1587, 1588, 1589, 1590, 1591, 2957]]
+                )
+                self.assertEqual(len(model.atoms_in_sphere(atom.location, 4, element="O")), 1)
+                self.assertEqual(len(model.atoms_in_sphere([10, 20, 30], 40)), 1281)
+                self.assertEqual(len(model.atoms_in_sphere([10, 20, 30], 41)), 1360)
+                self.assertEqual(len(model.atoms_in_sphere([10, 20, 30], 40, element="C")), 760)
+                self.assertEqual(len(model.atoms_in_sphere([10, 20, 30], 39, element="C")), 711)
 
-            atom = model.atom(905)
-            self.assertEqual(len(atom.nearby_hets(5)), 9)
-            self.assertEqual(len(atom.nearby_hets(5, ligands=False)), 7)
-            self.assertEqual(len(atom.nearby_hets(5, het__is_water=False)), 8)
-            self.assertEqual(len(atom.nearby_hets(5, residues=False)), 2)
-            self.assertEqual(len(atom.nearby_hets(5, element="O")), 4)
+                atom = model.atom(905)
+                self.assertEqual(len(atom.nearby_hets(5)), 9)
+                self.assertEqual(len(atom.nearby_hets(5, ligands=False)), 7)
+                self.assertEqual(len(atom.nearby_hets(5, het__is_water=False)), 8)
+                self.assertEqual(len(atom.nearby_hets(5, residues=False)), 2)
+                self.assertEqual(len(atom.nearby_hets(5, element="O")), 4)
 
             model.dehydrate()
             self.assertEqual(model.waters(), set())

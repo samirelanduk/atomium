@@ -169,3 +169,74 @@ class StructureClassMetaclassTests(TestCase):
         self.assertIs(obj.atom, mock_getone.return_value)
         self.assertEqual(obj.a(), 1000)
         self.assertEqual(obj.b(), 2000)
+
+
+
+class StructureSetTests(TestCase):
+
+    def test_can_make_structure_set(self):
+        objects = [Mock(_id=n) for n in range(5)]
+        s = StructureSet(*objects)
+        self.assertEqual(s._d, {
+         0: {objects[0]}, 1: {objects[1]}, 2: {objects[2]},
+         3: {objects[3]}, 4: {objects[4]}
+        })
+        objects[2]._id = 0
+        s = StructureSet(*objects)
+        self.assertEqual(s._d, {
+         0: {objects[0], objects[2]}, 1: {objects[1]},
+         3: {objects[3]}, 4: {objects[4]}
+        })
+    
+
+    def test_can_add_two_structure_sets(self):
+        objects = [Mock(_id=n) for n in range(5)]
+        objects[2]._id = 0
+        s1 = StructureSet(*objects[:3])
+        s2 = StructureSet(*objects[3:])
+        self.assertEqual(s1._d, {
+         0: {objects[0], objects[2]}, 1: {objects[1]},
+        })
+        self.assertEqual(s2._d, {3: {objects[3]}, 4: {objects[4]}})
+        s3 = s1 + s2
+        self.assertEqual(s3._d, {
+         0: {objects[0], objects[2]}, 1: {objects[1]},
+         3: {objects[3]}, 4: {objects[4]}
+        })
+    
+
+    def test_can_get_length_of_structure_sets(self):
+        objects = [Mock(_id=n) for n in range(5)]
+        s = StructureSet(*objects)
+        self.assertEqual(len(s), 5)
+        objects[2]._id = 0
+        s = StructureSet(*objects)
+        self.assertEqual(len(s), 5)
+    
+
+    def test_can_get_structure_set_ids(self):
+        objects = [Mock(_id=n) for n in range(5)]
+        s = StructureSet(*objects)
+        self.assertEqual(s.ids, {0, 1, 2, 3, 4})
+    
+
+    def test_can_get_structure_set_structures(self):
+        objects = [Mock(_id=n) for n in range(5)]
+        s = StructureSet(*objects)
+        self.assertEqual(s.structures, objects)
+        objects[2]._id = 0
+        s = StructureSet(*objects)
+        self.assertEqual(set(s.structures), set(objects))
+    
+
+    def test_can_get_structures_by_id(self):
+        objects = [Mock(_id=n) for n in range(5)]
+        s = StructureSet(*objects)
+        self.assertEqual(s.get(0), objects[0])
+        self.assertEqual(s.get(4), objects[4])
+        self.assertEqual(s.get(5), None)
+        objects[2]._id = 0
+        s = StructureSet(*objects)
+        self.assertIn(s.get(0), (objects[0], objects[2]))
+        self.assertEqual(s.get(4), objects[4])
+        self.assertEqual(s.get(2), None)

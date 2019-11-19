@@ -266,8 +266,14 @@ def update_quality_dict(mmcif_dict, data_dict):
 
     mmcif_to_data_transfer(mmcif_dict, data_dict,
      "quality", "resolution", "reflns", "d_resolution_high", func=float)
+    if not data_dict["quality"]["resolution"]:
+        mmcif_to_data_transfer(mmcif_dict, data_dict,
+         "quality", "resolution", "refine", "ls_d_res_high", func=float)
     mmcif_to_data_transfer(mmcif_dict, data_dict,
      "quality", "rvalue", "refine", "ls_R_factor_R_work", func=float)
+    if not data_dict["quality"]["rvalue"]:
+        mmcif_to_data_transfer(mmcif_dict, data_dict,
+         "quality", "rvalue", "refine", "ls_R_factor_obs", func=float)
     mmcif_to_data_transfer(mmcif_dict, data_dict,
      "quality", "rfree", "refine", "ls_R_factor_R_free", func=float)
 

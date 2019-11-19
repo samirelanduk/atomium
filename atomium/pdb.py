@@ -284,7 +284,7 @@ def extract_rvalue_remark(pdb_dict, quality_dict):
 
     if pdb_dict.get("REMARK") and pdb_dict["REMARK"].get("3"):
         patterns = {
-         "rvalue": r"R VALUE[ ]{2,}\(WORKING SET\) : (.+)",
+         "rvalue": r"R VALUE.+WORKING.+?: (.+)",
          "rfree": r"FREE R VALUE[ ]{2,}: (.+)",
         }
         for attribute, pattern in patterns.items():

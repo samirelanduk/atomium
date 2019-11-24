@@ -1,4 +1,4 @@
-"""Contains functions for dealing with the .mmtf file format."""
+"""Contains functions for dealing with the .pdb file format."""
 
 from datetime import datetime
 import re

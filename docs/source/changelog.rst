@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 1.0.3
+~~~~~~~~~~~~~
+
+`5 December 2019`
+
+* Made quality information detection more broad.
+* Improved documentqtion. 
+
+
 Release 1.0.2
 ~~~~~~~~~~~~~
 

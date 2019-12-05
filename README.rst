@@ -3,10 +3,10 @@ atomium
 
 |travis| |coveralls| |pypi| |version| |commit| |downloads|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.2
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.3
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.2
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.3
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -15,8 +15,8 @@ atomium
 .. |version| image:: https://img.shields.io/pypi/v/atomium.svg
   :target: https://pypi.org/project/atomium/
 
-.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.2.svg
-  :target: https://github.com/samirelanduk/atomium/tree/1.0.2/
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.3.svg
+  :target: https://github.com/samirelanduk/atomium/tree/1.0.3/
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
   :target: https://pypi.org/project/atomium/
@@ -117,8 +117,8 @@ data from an existing file...
 	>>> pdb1 = atomium.open('../1LOL.pdb')
 	>>> mmtf1 = atomium.open('/structures/glucose.mmtf')
 	>>> cif1 = atomium.open('/structures/1XDA.cif')
-	>>> pdb2 = atomium.fetch('5HVD.pdb')
-	>>> cif2 = atomium.fetch('5HVD')
+	>>> pdb2 = atomium.fetch('5XME.pdb')
+	>>> cif2 = atomium.fetch('5XME')
 
 In that latter case, you don't need the file to be saved locally - it will just
 go and grab the PDB with that code from the RCSB.
@@ -174,7 +174,11 @@ molecular scene.
     (<Model (2 chains, 4 ligands)>,)
 
 Most just contain one - it's generally those that come from NMR experiments
-which contain multiple models.
+which contain multiple models. You can easily iterate through these to get their
+individual metrics:
+
+    >>> for model in pdb2.models:
+            print(model.center_of_mass)
 
 This model contains the 'asymmetric unit' - this is one or more protein
 (usually) chains arranged in space, which may not be how the molecule arranges
@@ -196,10 +200,16 @@ one already there containing the asymmetric unit - as follows...
     <Model (2 chains, 4 ligands)>
     >>> pdb3.generate_assembly(10)
     <Model (6 chains, 12 ligands)>
+    >>> [pdb.generate_assembly(n + 1) for n in range(len(pdb.assemblies))]
+    [<Model (2 chains, 4 ligands)>, <Model (2 chains, 4 ligands)>, <Model (2 cha
+    ins, 4 ligands)>, <Model (2 chains, 4 ligands)>, <Model (12 chains, 24 ligan
+    ds)>, <Model (12 chains, 24 ligands)>, <Model (6 chains, 12 ligands)>, <Mode
+    l (6 chains, 12 ligands)>, <Model (6 chains, 12 ligands)>, <Model (6 chains,
+     12 ligands)>, <Model (4 chains, 8 ligands)>, <Model (4 chains, 8 ligands)>]
 
 Here you load a .pdb with multiple possible assemblies, have a quick look at
-the asymmetric unit with 1,842 atoms, and then generate two of its possible
-biological assemblies by passing in their IDs.
+the asymmetric unit with 1,842 atoms, and then generate first , and then all,
+of its possible biological assemblies by passing in their IDs.
 
 
 Model Contents
@@ -376,6 +386,15 @@ results.
 
 Changelog
 ---------
+
+Release 1.0.3
+~~~~~~~~~~~~~
+
+`5 December 2019`
+
+* Made quality information detection more broad.
+* Improved documentqtion. 
+
 
 Release 1.0.2
 ~~~~~~~~~~~~~

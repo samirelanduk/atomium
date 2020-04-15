@@ -563,7 +563,8 @@ def structure_to_pdb_string(structure):
         if isinstance(atom.het, Residue) and (
          atom is atoms[-1] or atoms[i + 1].chain is not atom.chain or
           isinstance(atoms[i + 1].het, Ligand)):
-            lines.append("TER")
+            last = lines[-1]
+            lines.append(f"TER   {last[6:11]}      {last[17:20]} {last[21]}{last[22:26]}{last[26]}")
     return "\n".join(lines)
 
 

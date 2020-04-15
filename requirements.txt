@@ -1,7 +1,7 @@
 numpy
 requests
 rmsd
-msgpack
+msgpack==0.6.1
 valerius==0.2
 python-coveralls
 sphinx

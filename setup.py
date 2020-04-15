@@ -5,7 +5,7 @@ with open("README.rst") as f:
 
 setup(
  name="atomium",
- version="1.0.3",
+ version="1.0.4",
  description="A molecular modeller and file parser.",
  long_description=long_description,
  long_description_content_type="text/x-rst",
@@ -21,6 +21,7 @@ setup(
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.6",
   "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
  ],
  keywords="chemistry bioinformatics proteins biochemistry molecules PDB MMCIF CIF MMTF",
  packages=["atomium"],

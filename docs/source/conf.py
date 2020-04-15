@@ -20,13 +20,13 @@ sys.path.insert(0, os.path.abspath('../..'))
 # -- Project information -----------------------------------------------------
 
 project = 'atomium'
-copyright = '2019, Sam Ireland'
+copyright = '2020, Sam Ireland'
 author = 'Sam Ireland'
 
 # The short X.Y version
 version = '1.0'
 # The full version, including alpha/beta/rc tags
-release = '1.0.3'
+release = '1.0.4'
 
 
 # -- General configuration ---------------------------------------------------

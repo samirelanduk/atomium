@@ -3,10 +3,10 @@ atomium
 
 |travis| |coveralls| |pypi| |version| |commit| |downloads|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.3
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.4
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.3
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.4
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -15,8 +15,8 @@ atomium
 .. |version| image:: https://img.shields.io/pypi/v/atomium.svg
   :target: https://pypi.org/project/atomium/
 
-.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.3.svg
-  :target: https://github.com/samirelanduk/atomium/tree/1.0.3/
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.4.svg
+  :target: https://github.com/samirelanduk/atomium/tree/1.0.4/
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
   :target: https://pypi.org/project/atomium/
@@ -386,6 +386,16 @@ results.
 
 Changelog
 ---------
+
+
+Release 1.0.4
+~~~~~~~~~~~~~
+
+`1 May 2020`
+
+* Made TER records more compliant in saved PDB files.
+* Specified required msgpack version to fix MMTF parsing issue.
+
 
 Release 1.0.3
 ~~~~~~~~~~~~~

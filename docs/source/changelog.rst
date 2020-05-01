@@ -1,6 +1,16 @@
 Changelog
 ---------
 
+
+Release 1.0.4
+~~~~~~~~~~~~~
+
+`1 May 2020`
+
+* Made TER records more compliant in saved PDB files.
+* Specified required msgpack version to fix MMTF parsing issue.
+
+
 Release 1.0.3
 ~~~~~~~~~~~~~
 

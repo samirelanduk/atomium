@@ -424,11 +424,11 @@ class DeNovoStructureTests(TestCase):
 class FileReadingTests(TestCase):
 
     def test_1lol(self):
-        for e in ["cif", "mmtf", "pdb"]:
+        for e in ["cif", "mmtf", "pdb", "pdb.gz", "cif.gz"]:
             f = atomium.open("tests/integration/files/1lol." + e)
-            self.assertEqual(f.filetype, e)
+            self.assertEqual(f.filetype, e.replace(".gz", ""))
             self.assertEqual(f.code, "1LOL")
-            if e == "pdb":
+            if e.startswith("pdb"):
                 self.assertEqual(
                  f.title, "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
                 )
@@ -438,8 +438,8 @@ class FileReadingTests(TestCase):
                 )
             self.assertEqual(f.deposition_date, date(2002, 5, 6))
             self.assertEqual(f.classification, None if e == "mmtf" else "LYASE")
-            self.assertEqual(f.keywords, [] if e == "mmtf" else ["TIM BARREL", "LYASE"] if e == "pdb" else ["TIM barrel", "LYASE"])
-            self.assertEqual(f.authors, [] if e == "mmtf" else ["N.WU", "E.F.PAI"] if e == "pdb" else ["Wu, N.", "Pai, E.F."])
+            self.assertEqual(f.keywords, [] if e == "mmtf" else ["TIM BARREL", "LYASE"] if e.startswith("pdb") else ["TIM barrel", "LYASE"])
+            self.assertEqual(f.authors, [] if e == "mmtf" else ["N.WU", "E.F.PAI"] if e.startswith("pdb") else ["Wu, N.", "Pai, E.F."])
             self.assertEqual(f.technique, "X-RAY DIFFRACTION")
             missing_residues = [{"id": id, "name": name} for id, name in zip([
              "A.1", "A.2", "A.3", "A.4", "A.5", "A.6", "A.7", "A.8", "A.9", "A.10",
@@ -453,7 +453,7 @@ class FileReadingTests(TestCase):
              "LEU", "LEU", "ILE", "PRO", "GLU", "LEU", "ARG", "SER", "ARG", "ARG",
              "VAL", "ASP", "VAL", "MET", "ASP", "VAL", "GLY", "ALA", "GLN", "GLY"
             ])]
-            if e == "pdb":
+            if e.startswith("pdb"):
                 self.assertEqual(f.source_organism, "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H")
                 self.assertEqual(f.expression_system, "ESCHERICHIA COLI")
                 self.assertEqual(f.missing_residues, missing_residues)
@@ -476,7 +476,7 @@ class FileReadingTests(TestCase):
              "buried_surface_area": None if e == "mmtf" else 5230,
              "surface_area": None if e == "mmtf" else 16550,
              "transformations": [{
-              "chains": ["A", "B"] if e == "pdb" else ["A", "B", "C", "D", "E", "F", "G", "H"],
+              "chains": ["A", "B"] if e.startswith("pdb") else ["A", "B", "C", "D", "E", "F", "G", "H"],
               "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
               "vector": [0.0, 0.0, 0.0]
              }]
@@ -591,19 +591,19 @@ class FileReadingTests(TestCase):
 
             for optimise in [False, True]:
                 if optimise: model.optimise_distances()
-                atom = model.atom(1587 if e == "pdb" else 1586)
+                atom = model.atom(1587 if e.startswith("pdb") else 1586)
                 four_angstrom = atom.nearby_atoms(cutoff=4)
                 self.assertEqual(len(four_angstrom), 10)
                 self.assertEqual(
                 sorted([atom.id for atom in four_angstrom]),
-                [n - (e != "pdb") for n in [1576, 1582, 1583, 1584, 1586, 1588, 1589, 1590, 1591, 2957]]
+                [n - (not e.startswith("pdb")) for n in [1576, 1582, 1583, 1584, 1586, 1588, 1589, 1590, 1591, 2957]]
                 )
                 self.assertEqual(len(atom.nearby_atoms(cutoff=4, element="O")), 1)
                 four_angstrom = model.atoms_in_sphere(atom.location, 4)
                 self.assertEqual(len(four_angstrom), 11)
                 self.assertEqual(
                 sorted([atom.id for atom in four_angstrom]),
-                [n - (e != "pdb") for n in [1576, 1582, 1583, 1584, 1586, 1587, 1588, 1589, 1590, 1591, 2957]]
+                [n - (not e.startswith("pdb")) for n in [1576, 1582, 1583, 1584, 1586, 1587, 1588, 1589, 1590, 1591, 2957]]
                 )
                 self.assertEqual(len(model.atoms_in_sphere(atom.location, 4, element="O")), 1)
                 self.assertEqual(len(model.atoms_in_sphere([10, 20, 30], 40)), 1281)

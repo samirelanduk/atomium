@@ -20,22 +20,25 @@ def open(path, *args, **kwargs):
     This will parse file.pdb as a .pdb file, but only go as far as converting it
     to an atomium data dictionary.
 
+    If the file extension is .gz, the file will be unzipped first.
+
     :param str path: the location of the file.
     :param bool file_dict: if ``True``, parsing will stop at the file ``dict``.
     :param bool data_dict: if ``True``, parsing will stop at the data ``dict``.
     :rtype: ``File``"""
 
-    if str(path)[-3:] == '.gz':
+    if str(path)[-3:] == ".gz":
         try:
-            with gzip.open(path) as f: filestring = f.read()
+            with gzip.open(path) as f: filestring = f.read().decode()
         except:
             with gzip.open(path, "rt") as f: filestring = f.read()
+        return parse_string(filestring, path[:-3], *args, **kwargs)
     else:
         try:
             with builtins.open(path) as f: filestring = f.read()
         except:
             with builtins.open(path, "rb") as f: filestring = f.read()
-    return parse_string(filestring, path, *args, **kwargs)
+        return parse_string(filestring, path, *args, **kwargs)
 
 
 def fetch(code, *args, **kwargs):

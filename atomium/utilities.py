@@ -1,6 +1,7 @@
 """Contains various file handling helper functions."""
 
 import builtins
+import gzip
 import paramiko
 from requests import get
 from .mmcif import mmcif_string_to_mmcif_dict, mmcif_dict_to_data_dict
@@ -24,10 +25,16 @@ def open(path, *args, **kwargs):
     :param bool data_dict: if ``True``, parsing will stop at the data ``dict``.
     :rtype: ``File``"""
 
-    try:
-        with builtins.open(path) as f: filestring = f.read()
-    except:
-        with builtins.open(path, "rb") as f: filestring = f.read()
+    if str(path)[-3:] == '.gz':
+        try:
+            with gzip.open(path) as f: filestring = f.read()
+        except:
+            with gzip.open(path, "rt") as f: filestring = f.read()
+    else:
+        try:
+            with builtins.open(path) as f: filestring = f.read()
+        except:
+            with builtins.open(path, "rb") as f: filestring = f.read()
     return parse_string(filestring, path, *args, **kwargs)
 
 

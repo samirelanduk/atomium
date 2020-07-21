@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+Release 1.0.5
+~~~~~~~~~~~~~
+
+`21 July 2020`
+
+* Added ability to open compressed .gz files.
+
 
 Release 1.0.4
 ~~~~~~~~~~~~~

@@ -17,6 +17,7 @@ data from an existing file...
 	>>> mmtf1 = atomium.open('/structures/glucose.mmtf')
 	>>> cif1 = atomium.open('/structures/1XDA.cif')
 	>>> pdb2 = atomium.fetch('5XME.pdb')
+	>>> pdb3 = atomium.fetch('5CPA.pdb.gz')
 	>>> cif2 = atomium.fetch('5XME')
 
 In that latter case, you don't need the file to be saved locally - it will just

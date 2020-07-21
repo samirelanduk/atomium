@@ -1,12 +1,12 @@
 atomium
 =======
 
-|travis| |coveralls| |pypi| |version| |commit| |downloads|
+|travis| |coveralls| |pypi| |version| |commit|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.4
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.5
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.4
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.5
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -15,11 +15,8 @@ atomium
 .. |version| image:: https://img.shields.io/pypi/v/atomium.svg
   :target: https://pypi.org/project/atomium/
 
-.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.4.svg
-  :target: https://github.com/samirelanduk/atomium/tree/1.0.4/
-
-.. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
-  :target: https://pypi.org/project/atomium/
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.5.svg
+  :target: https://github.com/samirelanduk/atomium/tree/1.0.5/
 
 
 atomium is a molecular modeller and file parser, capable of reading from and
@@ -118,6 +115,7 @@ data from an existing file...
 	>>> mmtf1 = atomium.open('/structures/glucose.mmtf')
 	>>> cif1 = atomium.open('/structures/1XDA.cif')
 	>>> pdb2 = atomium.fetch('5XME.pdb')
+	>>> pdb3 = atomium.fetch('5CPA.pdb.gz')
 	>>> cif2 = atomium.fetch('5XME')
 
 In that latter case, you don't need the file to be saved locally - it will just
@@ -386,6 +384,13 @@ results.
 
 Changelog
 ---------
+
+Release 1.0.5
+~~~~~~~~~~~~~
+
+`21 July 2020`
+
+* Added ability to open compressed .gz files.
 
 
 Release 1.0.4

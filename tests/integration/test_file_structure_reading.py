@@ -716,3 +716,11 @@ class FileReadingTests(TestCase):
                  f.model.residue("B.6").full_name,
                  "(2R,3AS,4AR,5AR,5BS)-2-(6-AMINO-9H-PURIN-9-YL)-3A-HYDROXYHEXAHYDROCYCLOPROPA[4,5]CYCLOPENTA[1,2-B]FURAN-5A(4H)-YL DIHYDROGEN PHOSPHATE"
                 )
+
+
+    def test_6xlu(self):
+        # Branched chains
+        for e in ["cif", "mmtf", "pdb"]:
+            f = atomium.open("tests/integration/files/6xlu." + e)
+            self.assertEqual(len(f.model.chains()), 3 if e == "pdb" else 18)
+            self.assertEqual(len(f.model.ligands()), 62 if e == "pdb" else 32)

@@ -196,7 +196,7 @@ def update_models_list(mmtf_dict, data_dict):
     groups = get_groups_list(mmtf_dict, group_definitions)
     chains = get_chains_list(mmtf_dict, groups)
     for model_num in range(mmtf_dict["numModels"]):
-        model = {"polymer": {}, "non-polymer": {}, "water": {}}
+        model = {"polymer": {}, "non-polymer": {}, "water": {}, "branched": {}}
         for chain_num in range(mmtf_dict["chainsPerModel"][model_num]):
             chain = chains[chain_num]
             add_chain_to_model(chain, model, atoms)
@@ -285,13 +285,13 @@ def get_chains_list(mmtf_dict, groups):
 
 def add_chain_to_model(chain, model, atoms):
     """Adds a 'chain' to a model - a chain in the .mmtf dict, which can also be
-    a non-polymner.
+    a non-polymer.
 
     :param dict chain: the 'chain' to add.
     :param dict model: the model to add it to.
     :param list atoms: the atoms list to work through."""
 
-    if chain["type"] == "polymer":
+    if chain["type"] == "polymer" or chain["type"] == "branched":
         polymer = {
          "internal_id": chain["internal_id"], "sequence": chain["sequence"],
          "helices": [], "strands": [], "residues": {}

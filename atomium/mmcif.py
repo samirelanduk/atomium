@@ -420,15 +420,15 @@ def update_models_list(mmcif_dict, data_dict):
     sequences = make_sequences(mmcif_dict)
     secondary_structure = make_secondary_structure(mmcif_dict)
     aniso = make_aniso(mmcif_dict)
-    model = {"polymer": {}, "non-polymer": {}, "water": {}}
+    model = {"polymer": {}, "non-polymer": {}, "water": {}, "branched": {}}
     model_num = mmcif_dict["atom_site"][0]["pdbx_PDB_model_num"]
     for atom in mmcif_dict["atom_site"]:
         if atom["pdbx_PDB_model_num"] != model_num:
             data_dict["models"].append(model)
-            model = {"polymer": {}, "non-polymer": {}, "water": {}}
+            model = {"polymer": {}, "non-polymer": {}, "water": {}, "branched": {}}
             model_num = atom["pdbx_PDB_model_num"]
         mol_type = types[entities[atom["label_asym_id"]]]
-        if mol_type == "polymer":
+        if mol_type == "polymer" or mol_type == "branched":
             add_atom_to_polymer(atom, aniso, model, names)
         else:
             add_atom_to_non_polymer(atom, aniso, model, mol_type, names)

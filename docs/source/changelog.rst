@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+Release 1.0.6
+~~~~~~~~~~~~~
+
+`8 September 2020`
+
+* Added handling of new branched entities in MMCIF/MMTF.
+
 Release 1.0.5
 ~~~~~~~~~~~~~
 

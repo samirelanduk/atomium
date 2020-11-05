@@ -636,12 +636,8 @@ def atom_to_anisou_line(a, name, res_name, chain_id, res_id, insert):
     anisotropy = [round(x * 10000 )for x in a.anisotropy]
     line = line.format(
      a.id, name, res_name, chain_id, res_id, insert,
-     anisotropy[0] if anisotropy[0] is not 0 else "",
-     anisotropy[1] if anisotropy[1] is not 0 else "",
-     anisotropy[2] if anisotropy[2] is not 0 else "",
-     anisotropy[3] if anisotropy[3] is not 0 else "",
-     anisotropy[4] if anisotropy[4] is not 0 else "",
-     anisotropy[5] if anisotropy[5] is not 0 else "",
+     anisotropy[0], anisotropy[1], anisotropy[2],
+     anisotropy[3], anisotropy[4], anisotropy[5],
      a.element if a.element else "",
      str(int(a.charge))[::-1] if a.charge else "",
     )

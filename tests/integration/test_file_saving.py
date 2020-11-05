@@ -140,6 +140,10 @@ class PdbFileSavingTests(SavingTest):
 
     def test_can_save_4y60(self):
         self.check_file_saving("4y60.pdb")
+    
+
+    def test_can_save_1d5t(self):
+        self.check_file_saving("1d5t.pdb")
 
 
     def test_chain(self):

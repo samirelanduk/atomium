@@ -3,10 +3,10 @@ atomium
 
 |travis| |coveralls| |pypi| |version| |commit| |downloads|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.6
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.7
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.6
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.7
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -15,8 +15,8 @@ atomium
 .. |version| image:: https://img.shields.io/pypi/v/atomium.svg
   :target: https://pypi.org/project/atomium/
 
-.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.6.svg
-  :target: https://github.com/samirelanduk/atomium/tree/1.0.6/
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.7.svg
+  :target: https://github.com/samirelanduk/atomium/tree/1.0.7/
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
   :target: https://pypi.org/project/atomium/
@@ -387,6 +387,15 @@ results.
 
 Changelog
 ---------
+
+Release 1.0.7
+~~~~~~~~~~~~~
+
+`5 November 2020`
+
+* Fixed blank ANISOU values in PDB saving.
+* Fixed negative residue IDs in PDB saving.
+* Fixed SyntaxWarning messages on PDB saving.
 
 Release 1.0.6
 ~~~~~~~~~~~~~

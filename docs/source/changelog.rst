@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 1.0.7
+~~~~~~~~~~~~~
+
+`5 November 2020`
+
+* Fixed blank ANISOU values in PDB saving.
+* Fixed negative residue IDs in PDB saving.
+* Fixed SyntaxWarning messages on PDB saving.
+
 Release 1.0.6
 ~~~~~~~~~~~~~
 

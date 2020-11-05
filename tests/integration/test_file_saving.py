@@ -26,6 +26,11 @@ class SavingTest(TestCase):
             self.assertEqual(chain1.sequence, chain2.sequence)
             self.assertEqual(chain1.id, chain2.id)
             self.assertEqual(chain1, chain2)
+            for res1, res2 in zip(sorted(chain1.residues(), key=lambda r: r.id),
+             sorted(chain2.residues(), key=lambda r: r.id)):
+                self.assertEqual(res1.id, res2.id)
+                self.assertEqual(res1.name, res2.name)
+                self.assertEqual(res1, res2)
         for lig1, lig2 in zip(sorted(f.model.ligands(), key=lambda c: c.id),
          sorted(f2.model.ligands(), key=lambda c: c.id)):
             self.assertEqual(lig1.name, lig2.name)

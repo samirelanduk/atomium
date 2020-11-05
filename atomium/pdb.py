@@ -600,7 +600,7 @@ def atom_to_atom_line(a, lines):
     if a.het:
         id_, residue_name = a.het.id, a.het._name
         chain_id = a.chain.id if a.chain is not None else ""
-        residue_id = int("".join([c for c in id_ if c.isdigit()]))
+        residue_id = int("".join([c for c in id_ if c.isdigit() or c == "-"]))
         insert_code = id_[-1] if id_ and id_[-1].isalpha() else ""
     atom_name = a._name or ""
     atom_name = " " + atom_name if len(atom_name) < 4 else atom_name

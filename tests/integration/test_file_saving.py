@@ -151,7 +151,7 @@ class PdbFileSavingTests(SavingTest):
         self.check_file_saving("1d5t.pdb")
     
 
-    def test_can_save_1lol(self):
+    def test_can_save_1grm(self):
         self.check_file_saving("1grm.pdb")
         f = atomium.open("tests/integration/files/1grm.pdb")
         f.model.save("tests/integration/files/saved_1grm.pdb")
@@ -172,7 +172,7 @@ class PdbFileSavingTests(SavingTest):
 
 
     def test_biological_assembly_warns_on_saving(self):
-        f = atomium.open("tests/integration/files/1xda.cif")
+        f = atomium.open("tests/integration/files/1xda.pdb")
         model = f.generate_assembly(5)
         with self.assertWarns(Warning):
-            model.save("tests/integration/files/assembly.cif")
+            model.save("tests/integration/files/assembly.pdb")

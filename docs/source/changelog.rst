@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+Release 1.0.8
+~~~~~~~~~~~~~
+
+`9 December 2020`
+
+* HETATM identity now preserved when parsing PDB files
+
+
 Release 1.0.7
 ~~~~~~~~~~~~~
 

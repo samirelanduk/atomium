@@ -300,13 +300,13 @@ class ModelDictTests(DataDictTest):
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["atoms"][1], {
              "element": "N", "name": "N", "x": 3.696, "y": 33.898, "z": 63.219,
              "bvalue": 21.5, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
-             "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+             "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "is_hetatm": False
             })
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.11"]["name"], "VAL")
             self.assertEqual(d["models"][0]["polymer"]["B"]["residues"]["B.1011"]["atoms"][1558 + (e == "pdb")], {
              "element": "N", "name": "N", "x": -26.384, "y": 61.433, "z": 36.898,
              "bvalue": 39.3, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
-             "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+             "anisotropy": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "is_hetatm": False
             })
             if e == "mmtf":
                 self.assertEqual(d["models"][0]["polymer"]["A"]["helices"][0], [f"A.{n}" for n in range(12, 15)])
@@ -365,17 +365,17 @@ class ModelDictTests(DataDictTest):
         self.assertEqual(data_dicts["cif"]["models"][0]["polymer"]["C"]["residues"]["C.0"]["atoms"][1], {
          "element": "N", "name": "N", "x": 43.447, "y": -56.622, "z": -20.561,
          "bvalue": 56.53, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
-         "anisotropy": [0.9838, 0.7489, 0.4152, -0.1159, -0.0115, -0.2655],
+         "anisotropy": [0.9838, 0.7489, 0.4152, -0.1159, -0.0115, -0.2655], "is_hetatm": False
         })
         self.assertEqual(data_dicts["mmtf"]["models"][0]["polymer"]["C"]["residues"]["C.0"]["atoms"][1], {
          "element": "N", "name": "N", "x": 43.447, "y": -56.622, "z": -20.561,
          "bvalue": 56.53, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
-         "anisotropy": [0, 0, 0, 0, 0, 0],
+         "anisotropy": [0, 0, 0, 0, 0, 0], "is_hetatm": False
         })
         self.assertEqual(data_dicts["pdb"]["models"][0]["polymer"]["C"]["residues"]["C.0"]["atoms"][1], {
          "element": "N", "name": "N", "x": 43.447, "y": -56.622, "z": -20.561,
          "bvalue": 56.53, "charge": 0.0, "occupancy": 1.0, "alt_loc": None,
-         "anisotropy": [0.9838, 0.7489, 0.4152, -0.1159, -0.0115, -0.2655],
+         "anisotropy": [0.9838, 0.7489, 0.4152, -0.1159, -0.0115, -0.2655], "is_hetatm": False
         })
     
 
@@ -404,7 +404,7 @@ class ModelDictTests(DataDictTest):
             self.assertEqual(d["models"][0]["polymer"]["A"]["residues"]["A.1"]["atoms"][1], {
              "element": "N", "name": "N", "x": 16.864, "y": 14.059, "z": 3.442,
              "bvalue": 6.22, "charge": 0.0, "occupancy": 0.8, "alt_loc": "A",
-             "anisotropy": [0, 0, 0, 0, 0, 0],
+             "anisotropy": [0, 0, 0, 0, 0, 0], "is_hetatm": False
             })
     
 

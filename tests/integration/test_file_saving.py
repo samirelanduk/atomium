@@ -149,6 +149,19 @@ class PdbFileSavingTests(SavingTest):
 
     def test_can_save_1d5t(self):
         self.check_file_saving("1d5t.pdb")
+    
+
+    def test_can_save_1lol(self):
+        self.check_file_saving("1grm.pdb")
+        f = atomium.open("tests/integration/files/1grm.pdb")
+        f.model.save("tests/integration/files/saved_1grm.pdb")
+        with open("tests/integration/files/1grm.pdb") as f:
+            old_text = f.read()
+            old_text = old_text[:old_text.find("ENDMDL")]
+            old_remark_count = old_text.count("HETATM")
+        with open("tests/integration/files/saved_1grm.pdb") as f:
+            new_remark_count = f.read().count("HETATM")
+        self.assertEqual(old_remark_count, new_remark_count)
 
 
     def test_chain(self):

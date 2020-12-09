@@ -235,6 +235,7 @@ def model_dict_to_model(model_dict):
     :param dict model_dict: the model dictionary.
     :rtype: ``Model``"""
 
+
     chains = create_chains(model_dict)
     ligands = create_ligands(model_dict, chains)
     waters = create_ligands(model_dict, chains, water=True)
@@ -322,7 +323,7 @@ def atom_dict_to_atom(d, atom_id):
 
     return Atom(
      d["element"], d["x"], d["y"], d["z"], atom_id,
-     d["name"], d["charge"], d["bvalue"], d["anisotropy"]
+     d["name"], d["charge"], d["bvalue"], d["anisotropy"], d["is_hetatm"]
     )
 
 

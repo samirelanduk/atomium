@@ -147,6 +147,7 @@ def update_models_list(pdb_dict, data_dict):
         aniso = make_aniso(model_lines)
         last_ter = get_last_ter_line(model_lines)
         model = {"polymer": {}, "non-polymer": {}, "water": {}}
+        count = 0
         for index, line in enumerate(model_lines):
             if line[:6] in ["ATOM  ", "HETATM"]:
                 chain_id = line[21] if index < last_ter else id_from_line(line)
@@ -155,6 +156,7 @@ def update_models_list(pdb_dict, data_dict):
                     add_atom_to_polymer(line, model, chain_id, res_id, aniso, full_names)
                 else:
                     add_atom_to_non_polymer(line, model, res_id, aniso, full_names)
+        
             for chain_id, chain in model["polymer"].items():
                 chain["sequence"] = sequences.get(chain_id, "")
         add_secondary_structure_to_polymers(model, secondary_structure)
@@ -522,6 +524,7 @@ def atom_line_to_dict(line, aniso_dict):
      "occupancy": 1, "bvalue": None, "charge": 0,
      "anisotropy": aniso_dict.get(int(line[6:11].strip()), [0, 0, 0, 0, 0, 0])
     }
+    a["is_hetatm"] = line[:6] == "HETATM"
     a["name"] = line[12:16].strip() or None
     a["alt_loc"] = line[16].strip() or None
     a["x"] = float(line[30:38].strip())
@@ -606,7 +609,7 @@ def atom_to_atom_line(a, lines):
     atom_name = " " + atom_name if len(atom_name) < 4 else atom_name
     occupancy = "  1.00"
     line = line.format(
-     "HETATM" if isinstance(a.het, Ligand) else "ATOM",
+     "HETATM" if isinstance(a.het, Ligand) or a._is_hetatm else "ATOM",
      a.id, atom_name, residue_name, chain_id, residue_id, insert_code,
      "{:.3f}".format(a.location[0]) if a.location[0] is not None else "",
      "{:.3f}".format(a.location[1]) if a.location[1] is not None else "",

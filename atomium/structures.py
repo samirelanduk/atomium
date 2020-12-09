@@ -962,15 +962,15 @@ class Atom:
 
     __slots__ = [
      "_element", "_location", "_id", "_name", "_charge",
-     "_bvalue", "_anisotropy", "_het", "_bonded_atoms",
+     "_bvalue", "_anisotropy", "_het", "_bonded_atoms", "_is_hetatm"
     ]
 
-    def __init__(self, element, x, y, z, id, name, charge, bvalue, anisotropy):
+    def __init__(self, element, x, y, z, id, name, charge, bvalue, anisotropy, is_hetatm=False):
         self._location = np.array([x, y, z])
         self._element = element
         self._id, self._name, self._charge = id, name, charge
         self._bvalue, self._anisotropy = bvalue, anisotropy
-        self._het, self._bonded_atoms = None, set()
+        self._het, self._bonded_atoms, self._is_hetatm = None, set(), is_hetatm
 
 
     def __repr__(self):

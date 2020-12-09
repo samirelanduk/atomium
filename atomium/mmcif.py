@@ -600,7 +600,7 @@ def atom_dict_to_atom_dict(d, aniso_dict):
      "occupancy": d.get("occupancy", 1), "bvalue": d.get("B_iso_or_equiv"),
      "charge": d.get(charge, 0) if d.get(charge) != "?" else 0,
      "alt_loc": d.get("label_alt_id") if d.get("label_alt_id") != "." else None,
-     "anisotropy": aniso_dict.get(int(d["id"]), [0, 0, 0, 0, 0, 0])
+     "anisotropy": aniso_dict.get(int(d["id"]), [0, 0, 0, 0, 0, 0]), "is_hetatm": False
     }
     for key in ["x", "y", "z", "charge", "bvalue", "occupancy"]:
         if atom[key] is not None: atom[key] = float(atom[key])

@@ -212,7 +212,7 @@ def get_atoms_list(mmtf_dict):
 
     return [{
      "x": x, "y": y, "z": z, "alt_loc": a or None, "bvalue": b, "occupancy": o,
-     "id": i
+     "id": i, "is_hetatm": False
     } for x, y, z, a, b, i, o in zip(
      mmtf_dict["xCoordList"], mmtf_dict["yCoordList"], mmtf_dict["zCoordList"],
      mmtf_dict["altLocList"], mmtf_dict["bFactorList"], mmtf_dict["atomIdList"],

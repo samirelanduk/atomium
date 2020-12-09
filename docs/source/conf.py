@@ -22,11 +22,12 @@ sys.path.insert(0, os.path.abspath('../..'))
 project = 'atomium'
 copyright = '2020, Sam Ireland'
 author = 'Sam Ireland'
+analytics = "UA-51790964-14"
 
 # The short X.Y version
 version = '1.0'
 # The full version, including alpha/beta/rc tags
-release = '1.0.7'
+release = '1.0.8'
 
 
 # -- General configuration ---------------------------------------------------

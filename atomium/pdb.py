@@ -614,8 +614,8 @@ def atom_to_atom_line(a, lines):
      "{:.3f}".format(a.location[0]) if a.location[0] is not None else "",
      "{:.3f}".format(a.location[1]) if a.location[1] is not None else "",
      "{:.3f}".format(a.location[2]) if a.location[2] is not None else "",
-     a.bvalue if a.bvalue is not None else "", a.element or "",
-     str(int(a.charge))[::-1] if a.charge else "",
+     "{:.2f}".format(a.bvalue).strip().rjust(6) if a.bvalue is not None else "",
+     a.element or "", str(int(a.charge))[::-1] if a.charge else "",
     )
     lines.append(line)
     if a.anisotropy != [0, 0, 0, 0, 0, 0]:

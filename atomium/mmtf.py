@@ -40,7 +40,7 @@ def decode_dict(d):
                 new_value = [decode_dict(x) for x in new_value]
             elif isinstance(new_value[0], bytes):
                 new_value = [x.decode() for x in new_value]
-        new[key.decode()] = new_value
+        new[key.decode() if isinstance(key, bytes) else key] = new_value
     return new
 
 

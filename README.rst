@@ -1,12 +1,12 @@
 atomium
 =======
 
-|travis| |coveralls| |pypi| |version| |commit| |downloads|
+|travis| |coveralls| |pypi| |version| |commit|
 
-.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=1.0.8
+.. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
   :target: https://travis-ci.org/samirelanduk/atomium/
 
-.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=1.0.8
+.. |coveralls| image:: https://coveralls.io/repos/github/samirelanduk/atomium/badge.svg?branch=master
   :target: https://coveralls.io/github/samirelanduk/atomium/
 
 .. |pypi| image:: https://img.shields.io/pypi/pyversions/atomium.svg
@@ -15,11 +15,8 @@ atomium
 .. |version| image:: https://img.shields.io/pypi/v/atomium.svg
   :target: https://pypi.org/project/atomium/
 
-.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/1.0.8.svg
-  :target: https://github.com/samirelanduk/atomium/tree/1.0.8/
-
-.. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
-  :target: https://pypi.org/project/atomium/
+.. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/master.svg
+  :target: https://github.com/samirelanduk/atomium/tree/master/
 
 
 atomium is a molecular modeller and file parser, capable of reading from and
@@ -387,6 +384,15 @@ results.
 
 Changelog
 ---------
+
+Release 1.0.9
+~~~~~~~~~~~~~
+
+`4 February 2021`
+
+* Fixed temperature factor zero-padding in PDB saving.
+* Fixed MMTF decode big in Ubuntu.
+
 
 Release 1.0.8
 ~~~~~~~~~~~~~

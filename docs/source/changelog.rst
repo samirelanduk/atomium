@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+Release 1.0.9
+~~~~~~~~~~~~~
+
+`4 February 2021`
+
+* Fixed temperature factor zero-padding in PDB saving.
+* Fixed MMTF decode big in Ubuntu.
+
+
 Release 1.0.8
 ~~~~~~~~~~~~~
 

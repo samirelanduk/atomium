@@ -7,7 +7,7 @@ Release 1.0.9
 `4 February 2021`
 
 * Fixed temperature factor zero-padding in PDB saving.
-* Fixed MMTF decode big in Ubuntu.
+* Fixed MMTF decode bug in Ubuntu.
 
 
 Release 1.0.8
@@ -57,7 +57,7 @@ Release 1.0.3
 `5 December 2019`
 
 * Made quality information detection more broad.
-* Improved documentqtion. 
+* Improved documentation. 
 
 
 Release 1.0.2

@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+Release 1.10.0
+~~~~~~~~~~~~~
+
+`29 May 2021`
+
+* Fixed secondary structure parsing for multi character asym IDs in mmCIF.
+
+
 Release 1.0.9
 ~~~~~~~~~~~~~
 

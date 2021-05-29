@@ -1,7 +1,7 @@
 atomium
 =======
 
-|travis| |coveralls| |pypi| |version| |commit|
+|travis| |coveralls| |pypi| |version| |commit| |downloads|
 
 .. |travis| image:: https://api.travis-ci.org/samirelanduk/atomium.svg?branch=master
   :target: https://travis-ci.org/samirelanduk/atomium/
@@ -17,6 +17,9 @@ atomium
 
 .. |commit| image:: https://img.shields.io/github/last-commit/samirelanduk/atomium/master.svg
   :target: https://github.com/samirelanduk/atomium/tree/master/
+
+.. |downloads| image:: https://img.shields.io/pypi/dm/atomium.svg
+  :target: https://pypi.org/project/atomium/
 
 
 atomium is a molecular modeller and file parser, capable of reading from and
@@ -384,6 +387,14 @@ results.
 
 Changelog
 ---------
+
+Release 1.10.0
+~~~~~~~~~~~~~
+
+`29 May 2021`
+
+* Fixed secondary structure parsing for multi character asym IDs in mmCIF.
+
 
 Release 1.0.9
 ~~~~~~~~~~~~~

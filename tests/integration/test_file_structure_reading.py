@@ -724,3 +724,10 @@ class FileReadingTests(TestCase):
             f = atomium.open("tests/integration/files/6xlu." + e)
             self.assertEqual(len(f.model.chains()), 3 if e == "pdb" else 18)
             self.assertEqual(len(f.model.ligands()), 62 if e == "pdb" else 32)
+    
+
+    def test_3jbp(self):
+        # Multi character secondary structure
+        for e in ["cif"]:
+            f = atomium.open("tests/integration/files/3jbp." + e)
+            self.assertEqual(len(f.model.chain("Aa").helices), 4)

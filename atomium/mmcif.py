@@ -564,7 +564,7 @@ def add_secondary_structure_to_polymers(model, ss_dict):
 
     for ss in ("helices", "strands"):
         for segment in ss_dict[ss]:
-            chain = model["polymer"].get(segment[0][0])
+            chain = model["polymer"].get(segment[0].split('.')[0])
             if chain:
                 in_segment = False
                 chain[ss].append([])

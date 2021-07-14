@@ -1,4 +1,6 @@
+from datetime import datetime
 from .structures import Model, Atom, Ligand, Chain, Residue
+from .assemblies import extract_assemblies
 
 def parse_mmcif_dict(mmcif_dict):
     
@@ -101,8 +103,9 @@ def make_waters(atoms):
 def make_id(atom):
     chain = atom["auth_asym_id"]
     number = atom["auth_seq_id"]
-    insertion = atom["pdbx_PDB_ins_code"].replace("?", "") or ""
-    return f"{chain}.{number}{insertion}"
+    insert = atom["PDB_ins_code"] if "PDB_ins_code" in atom else atom["pdbx_PDB_ins_code"]
+    insert = insert.replace("?", "") or ""
+    return f"{chain}.{number}{insert}"
 
 
 
@@ -124,5 +127,76 @@ class File:
             if category in self.source and data in self.source[category][0]:
                 return self.source[category][0][data]
         raise AttributeError(f"File has no attribute '{name}'")
+    
+
+    @property
+    def title(self):
+        return self.source.get("struct", [{}])[0].get("title", "")
+
+
+    @property
+    def deposition_date(self):
+        datestring = self.source.get("pdbx_database_status", [{}])[0].get("recvd_initial_deposition_date", "")
+        return datetime.strptime(datestring, "%Y-%m-%d").date()
+
+
+    @property
+    def classification(self):
+        return self.source.get("struct_keywords", [{}])[0].get("pdbx_keywords", "")
+
+
+    @property
+    def keywords(self):
+        return self.source.get("struct_keywords", [{}])[0].get("text", "").split(", ")
+
+
+    @property
+    def authors(self):
+        return [author["name"] for author in self.source.get("citation_author", [])]
+
+
+    @property
+    def technique(self):
+        return self.source.get("exptl", [{}])[0].get("method", "")
+
+
+    @property
+    def source_organism(self):
+        return self.source.get("entity_src_gen", [{}])[0].get("pdbx_gene_src_scientific_name", "")
+
+
+    @property
+    def expression_system(self):
+        return self.source.get("entity_src_gen", [{}])[0].get("pdbx_host_org_scientific_name", "")
+
+
+    @property
+    def resolution(self):
+        value = self.source.get("refine", [{}])[0].get("ls_d_res_high", "")
+        return float(value) if value else None
+
+    @property
+    def rvalue(self):
+        value = self.source.get("refine", [{}])[0].get("ls_R_factor_obs", "")
+        return float(value) if value else None
+
+
+    @property
+    def rfree(self):
+        value = self.source.get("refine", [{}])[0].get("ls_R_factor_R_free", "")
+        return float(value) if value else None
+    
+
+    @property
+    def missing_residues(self):
+        return [{
+            "id": make_id(res),
+            "name": res["label_comp_id"]
+        } for res in self.source.get("pdbx_unobs_or_zero_occ_residues", [])]
+
+
+    @property
+    def assemblies(self):
+        return extract_assemblies(self.source)
 
 

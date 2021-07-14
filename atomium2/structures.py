@@ -424,7 +424,7 @@ class Het(AtomStructure):
     instantiated directly, there is an initaliser method for setting up the
     atom dictionary."""
 
-    from atomium import data as __data
+    from atomium2 import data as __data
 
     def __init__(self, id, name, full_name, *atoms):
         AtomStructure.__init__(self, id, name)
@@ -813,7 +813,7 @@ class Residue(Het, metaclass=StructureClass):
     :param str id: The residue's ID.
     :param str name: The residue's name."""
 
-    from atomium import data as __data
+    from atomium2 import data as __data
 
     def __init__(self, *atoms, **kwargs):
         Het.__init__(self, kwargs.get("id"), kwargs.get("name"),
@@ -958,7 +958,7 @@ class Atom:
     :param number bvalue: The B-value of the atom (its uncertainty).
     :param list anisotropy: The directional uncertainty of the atom."""
 
-    from atomium import data as __data
+    from atomium2 import data as __data
 
     __slots__ = [
      "_element", "_location", "_id", "_name", "_charge",

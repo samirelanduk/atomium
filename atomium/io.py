@@ -1,6 +1,7 @@
 import builtins
 import requests
 from .mmcif import mmcif_string_to_mmcif_dict
+from .file import parse_mmcif_dict
 
 def open(path, dictionary=False):
     try:
@@ -32,7 +33,8 @@ def parse_filestring(filestring, dictionary=False):
     mmcif_dict = {
         "mmcif": mmcif_string_to_mmcif_dict
     }[filetype](filestring)
-    return mmcif_dict
+    if dictionary: return mmcif_dict
+    return parse_mmcif_dict(mmcif_dict)
 
 
 def determine_filetype(filestring):

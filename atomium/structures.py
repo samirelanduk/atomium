@@ -1,10 +1,28 @@
 import numpy as np
 from .search import StructureSet, StructureClass
+
+class Entity(metaclass=StructureClass):
+
+    def __init__(self, id, name, type, sequence):
+        self.id, self.name, self.type, self.sequence = id, name, type, sequence
+    
+
+    def __repr__(self):
+        return f"<Entity {self.id} ({self.type})>"
+    
+
+    def molecules(self):
+        if not self.model: return StructureSet([])
+        return StructureSet(self.model.molecules(entity__id=self.id))
+
+
+
 class Model(metaclass=StructureClass):
 
     def __init__(self, chains, carbohydrates, ligands, waters):
         for mol in chains + carbohydrates + ligands + waters:
             mol.model = self
+            mol.entity.model = self
         self._chains = StructureSet(chains)
         self._carbohydrates = StructureSet(carbohydrates)
         self._ligands = StructureSet(ligands)
@@ -73,6 +91,13 @@ class Model(metaclass=StructureClass):
         return StructureSet(atoms)
     
 
+    def entities(self):
+        entities = set()
+        for mol in self.molecules():
+            if mol.entity: entities.add(mol.entity)
+        return StructureSet(entities)
+    
+
     def dehydrate(self):
         """Removes all water ligands from the model."""
 
@@ -82,14 +107,14 @@ class Model(metaclass=StructureClass):
 
 class Chain(metaclass=StructureClass):
 
-    def __init__(self, *residues, id="", asym_id="", auth_asym_id="", sequence=None, helices=None, strands=None):
+    def __init__(self, *residues, id="", asym_id="", auth_asym_id="", entity=None, sequence=None, helices=None, strands=None):
         for res in residues: res.chain = self
         self._residues = StructureSet(residues)
         self.id, self.asym_id, self.auth_asym_id = id, asym_id, auth_asym_id
         self.sequence = sequence
         self._helices = helices or []
         self._strands = strands or []
-        self.model = None
+        self.model, self.entity = None, entity
     
 
     def __repr__(self):
@@ -160,11 +185,11 @@ class Chain(metaclass=StructureClass):
 
 class Carbohydrate(metaclass=StructureClass):
 
-    def __init__(self, *residues, id="", asym_id="", auth_asym_id=""):
+    def __init__(self, *residues, id="", asym_id="", auth_asym_id="", entity=None,):
         for res in residues: res.carb = self
         self._residues = StructureSet(residues)
         self.id, self.asym_id, self.auth_asym_id = id, asym_id, auth_asym_id
-        self.model = None
+        self.model, self.entity = None, entity
     
 
     def __repr__(self):
@@ -238,12 +263,12 @@ class Residue(metaclass=StructureClass):
 
 class Ligand(metaclass=StructureClass):
 
-    def __init__(self, *atoms, id="", asym_id="", auth_asym_id="", name="", water=False):
+    def __init__(self, *atoms, id="", asym_id="", auth_asym_id="", entity=None, name="", water=False):
         for atom in atoms: atom.ligand = self
         self._atoms = StructureSet(atoms)
         self.id, self.name, self.is_water = id, name, water
         self.asym_id, self.auth_asym_id = asym_id, auth_asym_id
-        self.model = None
+        self.model, self.entity = None, entity
     
 
     def __repr__(self):

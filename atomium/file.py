@@ -1,5 +1,5 @@
 from datetime import datetime
-from .structures import Model, Atom, Ligand, Chain, Carbohydrate, Residue
+from .structures import Entity, Model, Atom, Ligand, Chain, Carbohydrate, Residue
 from .assemblies import extract_assemblies
 from .data import CODES
 
@@ -26,17 +26,16 @@ def parse_mmcif_dict(mmcif_dict):
         # Make objects
         chains, carbs, ligands, waters = [], [], [], []
         for structure in structures:
-            if structure["entity"]["type"] == "non-polymer":
-                ligands.append(make_comp(atoms[structure["id"]], ligand=True))
-            if structure["entity"]["type"] == "branched":
-                carbs.append(make_chain(atoms[structure["id"]], carb=True))
-            if structure["entity"]["type"] == "polymer":
+            if structure["entity"].type == "non-polymer":
+                ligands.append(make_comp(atoms[structure["id"]], entities, ligand=True))
+            if structure["entity"].type == "branched":
+                carbs.append(make_chain(atoms[structure["id"]], entities, carb=True))
+            if structure["entity"].type == "polymer":
                 chains.append(make_chain(
-                    atoms[structure["id"]], structure["entity"]["sequence"],
-                    secondary_structure
+                    atoms[structure["id"]], entities, secondary_structure
                 ))
-            if structure["entity"]["type"] == "water":
-                waters += make_waters(atoms[structure["id"]])
+            if structure["entity"].type == "water":
+                waters += make_waters(atoms[structure["id"]], entities)
 
         models.append(Model(chains=chains, carbohydrates=carbs, ligands=ligands, waters=waters))
 
@@ -49,11 +48,11 @@ def parse_mmcif_dict(mmcif_dict):
 
 
 def get_entities(mmcif_dict):
-    entities = {e["id"]: {
-        "id": e["id"], "type": e["type"], "name": e["pdbx_description"]
-    } for e in mmcif_dict["entity"]}
+    entities = {e["id"]: Entity(
+        id=e["id"], type=e["type"], name=e["pdbx_description"], sequence=""
+    ) for e in mmcif_dict["entity"]}
     for entity in entities.values():
-        if entity["type"] == "polymer":
+        if entity.type == "polymer":
             annotate_polymer_entity(entity, mmcif_dict)
         else:
             annotate_non_polymer_entity(entity, mmcif_dict)
@@ -83,10 +82,10 @@ def get_secondary_structure(mmcif_dict):
 
 def annotate_polymer_entity(entity, mmcif_dict):
     for entity_poly in mmcif_dict.get("entity_poly"):
-        if entity_poly["entity_id"] == entity["id"]:
-            entity["sequence"] = entity_poly["pdbx_seq_one_letter_code"]
+        if entity_poly["entity_id"] == entity.id:
+            entity.sequence = entity_poly["pdbx_seq_one_letter_code"]
             break
-    else: entity["sequence"] = ""
+    else: entity.sequence = ""
 
 
 def annotate_non_polymer_entity(entity, mmcif_dict):
@@ -126,7 +125,7 @@ def organise_atoms_by_asym_id(atoms):
     return d
 
 
-def make_chain(atoms, sequence=None, secondary_structure=None, carb=False):
+def make_chain(atoms, entities, secondary_structure=None, carb=False):
     residues = []
     atoms_ = []
     res_id = None
@@ -138,11 +137,12 @@ def make_chain(atoms, sequence=None, secondary_structure=None, carb=False):
             res_id = (atom["auth_seq_id"], atom["pdbx_PDB_ins_code"])
         atoms_.append(atom)
     if atoms_: residues.append(atoms_)
-    residues = [make_comp(residue) for residue in residues]
+    residues = [make_comp(residue, entities) for residue in residues]
     asym_id, auth_asym_id = atoms[0]["label_asym_id"], atoms[0]["auth_asym_id"]
+    entity = entities[atoms[0]["label_entity_id"]]
     if carb:
         return Carbohydrate(
-            *residues, id=atoms[0]["label_asym_id"],
+            *residues, id=atoms[0]["label_asym_id"], entity=entity,
             asym_id=asym_id, auth_asym_id=auth_asym_id, 
         )
     else:
@@ -151,33 +151,36 @@ def make_chain(atoms, sequence=None, secondary_structure=None, carb=False):
         strands = [s for s in secondary_structure["strands"]
             if s[0].split(".")[0] == auth_asym_id]
         return Chain(
-            *residues, id=atoms[0]["label_asym_id"], sequence=sequence,
-            asym_id=asym_id, auth_asym_id=auth_asym_id,
+            *residues, id=atoms[0]["label_asym_id"], sequence=entity.sequence,
+            asym_id=asym_id, auth_asym_id=auth_asym_id, entity=entity,
             helices=helices, strands=strands
         )
         
 
-def make_comp(atoms, ligand=False):
+def make_comp(atoms, entities, ligand=False):
     alt_loc = None
     if any([float(atom["occupancy"]) < 1 for atom in atoms]):
         if any([atom["label_alt_id"] for atom in atoms]):
             alt_loc = sorted([atom["label_alt_id"] for atom in atoms if atom["label_alt_id"] != "."])[0]
     ligand_atoms = [make_atom(atom) for atom in atoms if float(atom["occupancy"]) == 1 or atom["label_alt_id"] == "." or atom["label_alt_id"] == alt_loc]
     Comp = Ligand if ligand else Residue
+    entity = entities[atoms[0]["label_entity_id"]]
     return Comp(
         *ligand_atoms, name=atoms[0]["label_comp_id"], id=make_id(atoms[0]),
+        **({"entity": entity} if ligand else {}),
         asym_id=atoms[0]["label_asym_id"], auth_asym_id=atoms[0]["auth_asym_id"]
     )
     
 
 
-def make_waters(atoms):
+def make_waters(atoms, entities):
     waters = []
     for atom in atoms:
+        entity = entities[atom["label_entity_id"]]
         waters.append(Ligand(
             make_atom(atom), name=atom["label_comp_id"], id=make_id(atom),
             asym_id=atom["label_asym_id"], auth_asym_id=atom["auth_asym_id"],
-            water=True
+            water=True, entity=entity
         ))
     return waters
 

@@ -2,10 +2,11 @@ import numpy as np
 from .search import StructureSet, StructureClass
 class Model(metaclass=StructureClass):
 
-    def __init__(self, chains=None, ligands=None, waters=None):
-        for mol in chains + ligands + waters:
+    def __init__(self, chains, carbohydrates, ligands, waters):
+        for mol in chains + carbohydrates + ligands + waters:
             mol.model = self
         self._chains = StructureSet(chains)
+        self._carbohydrates = StructureSet(carbohydrates)
         self._ligands = StructureSet(ligands)
         self._waters = StructureSet(waters)
     
@@ -15,11 +16,19 @@ class Model(metaclass=StructureClass):
         if len(self._chains) == 1: chains = chains[:-1]
         ligands = "{} ligands".format(len(self._ligands))
         if len(self._ligands) == 1: ligands = ligands[:-1]
-        return "<Model ({}, {})>".format(chains, ligands)
+        carbs = ""
+        if len(self._carbohydrates):
+            carbs = ", {} carbs".format(len(self._carbohydrates))
+            if len(self._carbohydrates) == 1: carbs = carbs[:-1]
+        return "<Model ({}, {}{})>".format(chains, ligands, carbs)
     
 
     def chains(self):
         return self._chains
+    
+
+    def carbohydrates(self):
+        return self._carbohydrates
 
     
     def ligands(self):
@@ -35,7 +44,7 @@ class Model(metaclass=StructureClass):
 
         :rtype: ``set``"""
 
-        return self._chains + self._ligands + self._waters
+        return self._chains + self._carbohydrates + self._ligands + self._waters
     
 
     def residues(self):
@@ -149,6 +158,49 @@ class Chain(metaclass=StructureClass):
 
 
 
+class Carbohydrate(metaclass=StructureClass):
+
+    def __init__(self, *residues, id="", asym_id="", auth_asym_id=""):
+        for res in residues: res.carb = self
+        self._residues = StructureSet(residues)
+        self.id, self.asym_id, self.auth_asym_id = id, asym_id, auth_asym_id
+        self.model = None
+    
+
+    def __repr__(self):
+        return f"<Carbohydrate {self.id} ({len(self._residues)} residues)>"
+    
+
+    def __contains__(self, obj):
+        return obj in self._residues.structures or obj in self.atoms()
+
+
+    def residues(self):
+        return self._residues
+    
+
+    def ligands(self):
+        if not self.model: return None
+        return StructureSet(self.model.ligands(auth_asym_id=self.auth_asym_id))
+    
+
+    def waters(self):
+        if not self.model: return None
+        return StructureSet(self.model.waters(auth_asym_id=self.auth_asym_id))
+    
+
+    def atoms(self):
+        """Returns all the atoms in with the chain.
+
+        :rtype: ``set``"""
+
+        atoms = set()
+        for res in self._residues.structures:
+            atoms.update(res._atoms.structures)
+        return StructureSet(atoms)
+
+
+
 class Residue(metaclass=StructureClass):
 
     def __init__(self, *atoms, id="", asym_id="", auth_asym_id="", name=""):
@@ -156,7 +208,7 @@ class Residue(metaclass=StructureClass):
         self._atoms = StructureSet(atoms)
         self.id, self.name = id, name
         self.asym_id, self.auth_asym_id = asym_id, auth_asym_id
-        self.chain = None
+        self.chain, self.carbohydrate = None, None
     
 
     def __repr__(self):
@@ -208,6 +260,12 @@ class Ligand(metaclass=StructureClass):
         return self.model.chain(self.auth_asym_id)
     
 
+    @property
+    def carbohydrate(self):
+        if not self.model: return None
+        return self.model.carbohydrate(self.auth_asym_id)
+    
+
     def atoms(self):
         return self._atoms
 
@@ -234,6 +292,12 @@ class Atom:
     def chain(self):
         if self.residue: return self.residue.chain
         if self.ligand: return self.ligand.chain
+    
+
+    @property
+    def carbohydrate(self):
+        if self.residue: return self.residue.carbohydrate
+        if self.ligand: return self.ligand.carbohydrate
     
 
     @property

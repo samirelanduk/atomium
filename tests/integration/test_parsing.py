@@ -62,6 +62,7 @@ class ParsingTests(TestCase):
         self.assertIs(pdb.model, pdb.models[0])
         self.assertEqual(str(pdb.model), "<Model (2 chains, 4 ligands)>")
         self.assertEqual(len(pdb.model.chains()), 2)
+        self.assertEqual(len(pdb.model.carbohydrates()), 0)
         self.assertEqual(len(pdb.model.ligands()), 4)
         self.assertEqual(len(pdb.model.waters()), 180)
         self.assertEqual(len(pdb.model.residues()), 418)
@@ -96,6 +97,7 @@ class ParsingTests(TestCase):
         self.assertEqual(residue.id, "A.11")
         self.assertEqual(residue.name, "VAL")
         self.assertIs(residue.chain, chain_a)
+        self.assertIsNone(residue.carbohydrate)
         self.assertIs(residue.model, pdb.model)
         self.assertEqual(len(residue.atoms()), 7)
         for atom in residue.atoms(): self.assertIn(atom, residue)
@@ -107,6 +109,7 @@ class ParsingTests(TestCase):
         self.assertEqual(ligand.id, "A.5001")
         self.assertEqual(ligand.name, "BU2")
         self.assertIs(ligand.chain, chain_a)
+        self.assertIsNone(ligand.carbohydrate)
         self.assertIs(ligand.model, pdb.model)
         self.assertEqual(len(ligand.atoms()), 6)
         for atom in ligand.atoms(): self.assertIn(atom, ligand)
@@ -118,6 +121,7 @@ class ParsingTests(TestCase):
         self.assertEqual(str(water), "<Water HOH (A.3005)>")
         self.assertTrue(water.is_water)
         self.assertIs(water.model, pdb.model)
+        self.assertIsNone(water.carbohydrate)
         self.assertIs(water.chain, chain_a)
         self.assertIn(water.atom(), water)
 
@@ -142,6 +146,7 @@ class ParsingTests(TestCase):
         self.assertIs(atom.residue, pdb.model.residue("B.1152"))
         self.assertIsNone(atom.ligand)
         self.assertIs(atom.chain, pdb.model.chain("B"))
+        self.assertIsNone(atom.carbohydrate)
 
 
     def test_5xme_mmcif(self):
@@ -183,3 +188,28 @@ class ParsingTests(TestCase):
         # Multi character secondary structure
         pdb = atomium.open("tests/integration/files/3jbp.cif")
         self.assertEqual(len(pdb.model.chain("TA").helices), 4)
+    
+
+    def test_6xlu(self):
+        # Carbs parsed
+        pdb = atomium.open("tests/integration/files/6xlu.cif")
+
+        # Model
+        self.assertEqual(len(pdb.model.chains()), 3)
+        self.assertEqual(len(pdb.model.carbohydrates()), 15)
+        self.assertEqual(len(pdb.model.residues()), 3178)
+        self.assertEqual(len(pdb.model.ligands()), 32)
+        self.assertEqual(len(pdb.model.atoms()), 25948)
+
+        # Carb
+        carb = pdb.model.carbohydrate("D")
+        self.assertEqual(str(carb), "<Carbohydrate D (2 residues)>")
+        self.assertEqual(carb.id, "D")
+        self.assertEqual(carb.asym_id, "D")
+        self.assertEqual(carb.auth_asym_id, "D")
+        self.assertEqual(len(carb.residues()), 2)
+        self.assertEqual(len(carb.ligands()), 0)
+        self.assertEqual(len(carb.waters()), 0)
+        self.assertIs(carb.model, pdb.model)
+        self.assertEqual(len(carb.atoms()), 28)
+        self.assertTrue(list(carb.atoms())[0] in carb)

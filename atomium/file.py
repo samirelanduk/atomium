@@ -1,5 +1,5 @@
 from datetime import datetime
-from .structures import Model, Atom, Ligand, Chain, Residue
+from .structures import Model, Atom, Ligand, Chain, Carbohydrate, Residue
 from .assemblies import extract_assemblies
 from .data import CODES
 
@@ -24,10 +24,12 @@ def parse_mmcif_dict(mmcif_dict):
         atoms = organise_atoms_by_asym_id(model)
         
         # Make objects
-        chains, ligands, waters = [], [], []
+        chains, carbs, ligands, waters = [], [], [], []
         for structure in structures:
             if structure["entity"]["type"] == "non-polymer":
                 ligands.append(make_comp(atoms[structure["id"]], ligand=True))
+            if structure["entity"]["type"] == "branched":
+                carbs.append(make_chain(atoms[structure["id"]], carb=True))
             if structure["entity"]["type"] == "polymer":
                 chains.append(make_chain(
                     atoms[structure["id"]], structure["entity"]["sequence"],
@@ -36,8 +38,7 @@ def parse_mmcif_dict(mmcif_dict):
             if structure["entity"]["type"] == "water":
                 waters += make_waters(atoms[structure["id"]])
 
-        
-        models.append(Model(chains=chains, ligands=ligands, waters=waters))
+        models.append(Model(chains=chains, carbohydrates=carbs, ligands=ligands, waters=waters))
 
     f = File(
         name=mmcif_dict.get("entry", [{}])[0].get("id"),
@@ -125,28 +126,36 @@ def organise_atoms_by_asym_id(atoms):
     return d
 
 
-def make_chain(atoms, sequence, secondary_structure):
+def make_chain(atoms, sequence=None, secondary_structure=None, carb=False):
     residues = []
     atoms_ = []
     res_id = None
     for atom in atoms:
-        if (atom["label_seq_id"], atom["pdbx_PDB_ins_code"]) != res_id:
+        if (atom["auth_seq_id"], atom["pdbx_PDB_ins_code"]) != res_id:
             if atoms_:
                 residues.append(atoms_)
                 atoms_ = []
-            res_id = (atom["label_seq_id"], atom["pdbx_PDB_ins_code"])
+            res_id = (atom["auth_seq_id"], atom["pdbx_PDB_ins_code"])
         atoms_.append(atom)
     if atoms_: residues.append(atoms_)
     residues = [make_comp(residue) for residue in residues]
     asym_id, auth_asym_id = atoms[0]["label_asym_id"], atoms[0]["auth_asym_id"]
-    helices = [h for h in secondary_structure["helices"] if h[0].split(".")[0] == auth_asym_id]
-    strands = [s for s in secondary_structure["strands"] if s[0].split(".")[0] == auth_asym_id]
-    return Chain(
-        *residues, id=atoms[0]["label_asym_id"], sequence=sequence,
-        asym_id=asym_id, auth_asym_id=auth_asym_id, helices=helices, strands=strands
-    )
+    if carb:
+        return Carbohydrate(
+            *residues, id=atoms[0]["label_asym_id"],
+            asym_id=asym_id, auth_asym_id=auth_asym_id, 
+        )
+    else:
+        helices = [h for h in secondary_structure["helices"]
+            if h[0].split(".")[0] == auth_asym_id]
+        strands = [s for s in secondary_structure["strands"]
+            if s[0].split(".")[0] == auth_asym_id]
+        return Chain(
+            *residues, id=atoms[0]["label_asym_id"], sequence=sequence,
+            asym_id=asym_id, auth_asym_id=auth_asym_id,
+            helices=helices, strands=strands
+        )
         
-    
 
 def make_comp(atoms, ligand=False):
     alt_loc = None

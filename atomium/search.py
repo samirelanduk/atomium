@@ -74,7 +74,7 @@ class StructureClass(type):
     list ('atoms', 'chains' etc.) will have the :py:func:`.query` decorator
     applied and a copy with the :py:func:`.getone` decorator applied."""
 
-    METHODS = ["chains", "residues", "ligands", "waters", "molecules", "atoms"]
+    METHODS = ["chains", "carbohydrates", "residues", "ligands", "waters", "molecules", "atoms"]
 
     def __new__(self, *args, **kwargs):
         cls = type.__new__(self, *args, **kwargs)

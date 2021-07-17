@@ -164,3 +164,22 @@ class ParsingTests(TestCase):
             atom = res.atom(name="N")
             self.assertEqual(atom.location[0], x)
         self.assertEqual(len(all_atoms), 18270)
+    
+
+    def test_1cbn(self):
+        # Multiple occupancy is handled
+        pdb = atomium.open("tests/integration/files/1cbn.cif")
+        chain = pdb.model.chain()
+        residue1, residue2, residue3 = chain[:3]
+        self.assertEqual(len(residue1.atoms()), 16)
+        self.assertEqual(len(residue2.atoms()), 14)
+        self.assertEqual(len(residue3.atoms()), 10)
+        for residue in chain[:3]:
+            for name in ["N", "C", "CA", "CB"]:
+                self.assertEqual(len(residue.atoms(name=name)), 1)
+    
+
+    def test_3jbp(self):
+        # Multi character secondary structure
+        pdb = atomium.open("tests/integration/files/3jbp.cif")
+        self.assertEqual(len(pdb.model.chain("TA").helices), 4)

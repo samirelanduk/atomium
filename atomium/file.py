@@ -27,7 +27,7 @@ def parse_mmcif_dict(mmcif_dict):
         chains, ligands, waters = [], [], []
         for structure in structures:
             if structure["entity"]["type"] == "non-polymer":
-                ligands.append(make_ligand(atoms[structure["id"]]))
+                ligands.append(make_comp(atoms[structure["id"]], ligand=True))
             if structure["entity"]["type"] == "polymer":
                 chains.append(make_chain(
                     atoms[structure["id"]], structure["entity"]["sequence"],
@@ -137,14 +137,10 @@ def make_chain(atoms, sequence, secondary_structure):
             res_id = (atom["label_seq_id"], atom["pdbx_PDB_ins_code"])
         atoms_.append(atom)
     if atoms_: residues.append(atoms_)
-    residues = [Residue(
-        *[make_atom(atom) for atom in residue], id=make_id(residue[0]),
-        asym_id=residue[0]["label_asym_id"],  name=residue[0]["label_comp_id"],
-        auth_asym_id=residue[0]["auth_asym_id"],
-    ) for residue in residues]
+    residues = [make_comp(residue) for residue in residues]
     asym_id, auth_asym_id = atoms[0]["label_asym_id"], atoms[0]["auth_asym_id"]
-    helices = [h for h in secondary_structure["helices"] if h[0].split(".")[0] == asym_id]
-    strands = [s for s in secondary_structure["strands"] if s[0].split(".")[0] == asym_id]
+    helices = [h for h in secondary_structure["helices"] if h[0].split(".")[0] == auth_asym_id]
+    strands = [s for s in secondary_structure["strands"] if s[0].split(".")[0] == auth_asym_id]
     return Chain(
         *residues, id=atoms[0]["label_asym_id"], sequence=sequence,
         asym_id=asym_id, auth_asym_id=auth_asym_id, helices=helices, strands=strands
@@ -152,12 +148,18 @@ def make_chain(atoms, sequence, secondary_structure):
         
     
 
-def make_ligand(atoms):
-    ligand_atoms = [make_atom(atom) for atom in atoms]
-    return Ligand(
+def make_comp(atoms, ligand=False):
+    alt_loc = None
+    if any([float(atom["occupancy"]) < 1 for atom in atoms]):
+        if any([atom["label_alt_id"] for atom in atoms]):
+            alt_loc = sorted([atom["label_alt_id"] for atom in atoms if atom["label_alt_id"] != "."])[0]
+    ligand_atoms = [make_atom(atom) for atom in atoms if float(atom["occupancy"]) == 1 or atom["label_alt_id"] == "." or atom["label_alt_id"] == alt_loc]
+    Comp = Ligand if ligand else Residue
+    return Comp(
         *ligand_atoms, name=atoms[0]["label_comp_id"], id=make_id(atoms[0]),
         asym_id=atoms[0]["label_asym_id"], auth_asym_id=atoms[0]["auth_asym_id"]
     )
+    
 
 
 def make_waters(atoms):

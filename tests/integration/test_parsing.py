@@ -56,3 +56,111 @@ class ParsingTests(TestCase):
                 "vector": [0.0, 0.0, 0.0]
             }]
         }])
+
+        # Models
+        self.assertEqual(len(pdb.models), 1)
+        self.assertIs(pdb.model, pdb.models[0])
+        self.assertEqual(str(pdb.model), "<Model (2 chains, 4 ligands)>")
+        self.assertEqual(len(pdb.model.chains()), 2)
+        self.assertEqual(len(pdb.model.ligands()), 4)
+        self.assertEqual(len(pdb.model.waters()), 180)
+        self.assertEqual(len(pdb.model.residues()), 418)
+        self.assertEqual(len(pdb.model.atoms()), 3431)
+
+        # Chains
+        chain_a = pdb.model.chain("A")
+        self.assertEqual(str(chain_a), "<Chain A (204 residues)>")
+        self.assertEqual(chain_a.id, "A")
+        self.assertEqual(chain_a.asym_id, "A")
+        self.assertEqual(chain_a.auth_asym_id, "A")
+        self.assertEqual(len(chain_a), 204)
+        self.assertEqual(len(chain_a.residues()), 204)
+        for res in chain_a: self.assertIn(res, chain_a)
+        self.assertIs(chain_a[2], chain_a.residues()[2])
+        self.assertTrue(chain_a.sequence.startswith("LRSRRVDVMDVMNRLILAMDL"))
+        self.assertTrue(chain_a.sequence.endswith("LADNPAAAAAGIIESIKDLLIPE"))
+        self.assertEqual(len(chain_a.ligands()), 2)
+        self.assertEqual(len(chain_a.waters()), 96)
+        self.assertIs(chain_a.model, pdb.model)
+        self.assertEqual(len(chain_a.atoms()), 1557)
+        self.assertTrue(list(chain_a.atoms())[0] in chain_a)
+        self.assertEqual(len(chain_a.helices), 11)
+        self.assertEqual(chain_a.helices[0], chain_a.residues()[:3])
+        self.assertEqual(len(chain_a.helices[-1]), 12)
+        self.assertEqual(len(chain_a.strands), 9)
+        self.assertEqual(chain_a.strands[0], chain_a.residues()[4:9])
+
+        # Residues
+        residue = pdb.model.residue("A.11")
+        self.assertEqual(str(residue), "<Residue VAL (A.11)>")
+        self.assertEqual(residue.id, "A.11")
+        self.assertEqual(residue.name, "VAL")
+        self.assertIs(residue.chain, chain_a)
+        self.assertIs(residue.model, pdb.model)
+        self.assertEqual(len(residue.atoms()), 7)
+        for atom in residue.atoms(): self.assertIn(atom, residue)
+
+        # Ligands
+        ligand = pdb.model.ligand("A.5001")
+        self.assertEqual(str(ligand), "<Ligand BU2 (A.5001)>")
+        self.assertFalse(ligand.is_water)
+        self.assertEqual(ligand.id, "A.5001")
+        self.assertEqual(ligand.name, "BU2")
+        self.assertIs(ligand.chain, chain_a)
+        self.assertIs(ligand.model, pdb.model)
+        self.assertEqual(len(ligand.atoms()), 6)
+        for atom in ligand.atoms(): self.assertIn(atom, ligand)
+
+        # Waters
+        for water in pdb.model.waters():
+            self.assertEqual(len(water.atoms()), 1)
+        water = pdb.model.water("A.3005")
+        self.assertEqual(str(water), "<Water HOH (A.3005)>")
+        self.assertTrue(water.is_water)
+        self.assertIs(water.model, pdb.model)
+        self.assertIs(water.chain, chain_a)
+        self.assertIn(water.atom(), water)
+
+        # Atoms 2649
+        atom = pdb.model.atom(3231)
+        self.assertEqual(str(atom), "<Atom 3231 (O5')>")
+        self.assertEqual(atom.element, "O")
+        self.assertEqual(atom.name, "O5'")
+        self.assertEqual(atom.charge, 0)
+        self.assertEqual(atom.bvalue, 34.58)
+        self.assertEqual(list(atom.location), [-22.61, 62.264, 52.258])
+        for i, value in enumerate(atom): self.assertEqual(value, atom.location[i])
+        self.assertIsNone(atom.anisotropy)
+        self.assertIs(atom.model, pdb.model)
+        self.assertIs(atom.ligand, pdb.model.ligand("B.2002"))
+        self.assertIsNone(atom.residue)
+        self.assertIs(atom.chain, pdb.model.chain("B"))
+        atom = pdb.model.atom(2649)
+        self.assertEqual(atom.element, "N")
+        self.assertEqual(atom.name, "NZ")
+        self.assertIs(atom.model, pdb.model)
+        self.assertIs(atom.residue, pdb.model.residue("B.1152"))
+        self.assertIsNone(atom.ligand)
+        self.assertIs(atom.chain, pdb.model.chain("B"))
+
+
+    def test_5xme_mmcif(self):
+        # Parse
+        pdb = atomium.open("tests/integration/files/5xme.cif")
+        self.assertIsNone(pdb.resolution)
+
+        # Models are correct
+        self.assertEqual(len(pdb.models), 10)
+        self.assertIs(pdb.model, pdb.models[0])
+        x_values = [
+            33.969, 34.064, 37.369, 36.023, 35.245,
+            35.835, 37.525, 35.062, 36.244, 37.677
+        ]
+        all_atoms = set()
+        for x, model in zip(x_values, pdb.models):
+            self.assertEqual(len(model.atoms()), 1827)
+            all_atoms.update(model.atoms())
+            res = model.chain()[0]
+            atom = res.atom(name="N")
+            self.assertEqual(atom.location[0], x)
+        self.assertEqual(len(all_atoms), 18270)

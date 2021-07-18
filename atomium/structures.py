@@ -298,6 +298,11 @@ class Ligand(metaclass=StructureClass):
 
 class Atom:
 
+    __slots__ = [
+        "element", "location", "id", "name", "charge",
+        "bvalue", "anisotropy", "residue", "ligand",
+    ]
+
     def __init__(self, element, x, y, z, id, name, charge=0, bvalue=0, anisotropy=None):
         self.location = np.array([x, y, z])
         self.element, self.id, self.name = element, id, name

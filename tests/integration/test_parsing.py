@@ -261,3 +261,9 @@ class ParsingTests(TestCase):
         self.assertEqual(pdb.model.entity("1").name, "FATTY ACID ACYLATED INSULIN")
         self.assertEqual(pdb.model.entity("3").name, "PHENOL")
         self.assertEqual(len(pdb.model.chains()), 12)
+    
+
+    def test_12ca(self):
+        # Values not ?
+        pdb = atomium.open("tests/integration/files/12ca.cif")
+        self.assertIsNone(pdb.expression_system)

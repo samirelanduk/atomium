@@ -237,7 +237,8 @@ class File:
 
     @property
     def classification(self):
-        return self.source.get("struct_keywords", [{}])[0].get("pdbx_keywords", "")
+        classification = self.source.get("struct_keywords", [{}])[0].get("pdbx_keywords", "")
+        return None if classification == "?" else classification
 
 
     @property
@@ -253,22 +254,26 @@ class File:
     @property
     def technique(self):
         return self.source.get("exptl", [{}])[0].get("method", "")
+        return None if system == "?" else system
 
 
     @property
     def source_organism(self):
-        return self.source.get("entity_src_gen", [{}])[0].get("pdbx_gene_src_scientific_name", "")
+        source_organism = self.source.get("entity_src_gen", [{}])[0].get("pdbx_gene_src_scientific_name", "")
+        return None if source_organism == "?" else source_organism
 
 
     @property
     def expression_system(self):
-        return self.source.get("entity_src_gen", [{}])[0].get("pdbx_host_org_scientific_name", "")
+        system = self.source.get("entity_src_gen", [{}])[0].get("pdbx_host_org_scientific_name", "")
+        return None if system == "?" else system
 
 
     @property
     def resolution(self):
         value = self.source.get("refine", [{}])[0].get("ls_d_res_high", "")
         return float(value) if value else None
+
 
     @property
     def rvalue(self):

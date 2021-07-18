@@ -622,7 +622,7 @@ class FileReadingTests(TestCase):
             self.assertEqual(model.waters(), set())
 
 
-    def test_5xme(self):
+    '''def test_5xme(self):
         for e in ["cif", "mmtf", "pdb"]:
             f = atomium.open("tests/integration/files/5xme." + e)
             self.assertEqual(f.resolution, None)
@@ -639,10 +639,10 @@ class FileReadingTests(TestCase):
                 all_atoms.update(model.atoms())
                 atom = model.chain()[0].atom(name="N")
                 self.assertEqual(atom.location[0], x)
-            self.assertEqual(len(all_atoms), 18270)
+            self.assertEqual(len(all_atoms), 18270)'''
 
 
-    def test_1cbn(self):
+    '''def test_1cbn(self):
         for e in ["cif", "mmtf", "pdb"]:
             f = atomium.open("tests/integration/files/1cbn." + e)
             chain = f.model.chain()
@@ -652,7 +652,7 @@ class FileReadingTests(TestCase):
             self.assertEqual(len(residue3.atoms()), 10)
             for residue in chain[:3]:
                 for name in ["N", "C", "CA", "CB"]:
-                    self.assertEqual(len(residue.atoms(name=name)), 1)
+                    self.assertEqual(len(residue.atoms(name=name)), 1)'''
 
 
     def test_1xda(self):
@@ -718,16 +718,16 @@ class FileReadingTests(TestCase):
                 )
 
 
-    def test_6xlu(self):
+    '''def test_6xlu(self):
         # Branched chains
         for e in ["cif", "mmtf", "pdb"]:
             f = atomium.open("tests/integration/files/6xlu." + e)
             self.assertEqual(len(f.model.chains()), 3 if e == "pdb" else 18)
-            self.assertEqual(len(f.model.ligands()), 62 if e == "pdb" else 32)
+            self.assertEqual(len(f.model.ligands()), 62 if e == "pdb" else 32)'''
     
 
-    def test_3jbp(self):
+    '''def test_3jbp(self):
         # Multi character secondary structure
         for e in ["cif"]:
             f = atomium.open("tests/integration/files/3jbp." + e)
-            self.assertEqual(len(f.model.chain("Aa").helices), 4)
+            self.assertEqual(len(f.model.chain("Aa").helices), 4)'''

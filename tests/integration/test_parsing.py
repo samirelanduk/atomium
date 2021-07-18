@@ -251,3 +251,13 @@ class ParsingTests(TestCase):
         self.assertIs(carb.model, pdb.model)
         self.assertEqual(len(carb.atoms()), 28)
         self.assertTrue(list(carb.atoms())[0] in carb)
+    
+
+    def test_1xda_assembly_5(self):
+        # Parse PDBe assembly files
+        pdb = atomium.open("tests/integration/files/1xda-assembly-5.cif")
+        self.assertEqual(len(pdb.model.entities(type="polymer")), 2)
+        self.assertEqual(len(pdb.model.entities(type="non-polymer")), 4)
+        self.assertEqual(pdb.model.entity("1").name, "FATTY ACID ACYLATED INSULIN")
+        self.assertEqual(pdb.model.entity("3").name, "PHENOL")
+        self.assertEqual(len(pdb.model.chains()), 12)

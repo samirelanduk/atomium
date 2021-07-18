@@ -159,10 +159,10 @@ def make_chain(atoms, entities, secondary_structure=None, carb=False):
 
 def make_comp(atoms, entities, ligand=False):
     alt_loc = None
-    if any([float(atom["occupancy"]) < 1 for atom in atoms]):
-        if any([atom["label_alt_id"] for atom in atoms]):
+    if any([atom["occupancy"] != "." and float(atom["occupancy"]) < 1 for atom in atoms]):
+        if any([atom["label_alt_id"] and atom["label_alt_id"] != "." for atom in atoms]):
             alt_loc = sorted([atom["label_alt_id"] for atom in atoms if atom["label_alt_id"] != "."])[0]
-    ligand_atoms = [make_atom(atom) for atom in atoms if float(atom["occupancy"]) == 1 or atom["label_alt_id"] == "." or atom["label_alt_id"] == alt_loc]
+    ligand_atoms = [make_atom(atom) for atom in atoms if atom["occupancy"] == "." or float(atom["occupancy"]) == 1 or atom["label_alt_id"] == "." or atom["label_alt_id"] == alt_loc]
     Comp = Ligand if ligand else Residue
     entity = entities[atoms[0]["label_entity_id"]]
     return Comp(

@@ -275,6 +275,15 @@ class ParsingTests(TestCase):
         self.assertIsNone(atom.non_polymer)
         self.assertIs(atom.water, mol_g)
         self.assertIsNone(atom.residue)
+    
+
+    def test_2igd(self):
+        # Anisotropy
+        pdb = atomium.open("tests/integration/files/2igd.cif")
+        atom = pdb.model.atom(1)
+        self.assertEqual(atom.anisotropy, [
+            0.1085, 0.125, 0.1612, -0.0074, -0.0061, 0.0108
+        ])
 
 
     def test_5xme(self):

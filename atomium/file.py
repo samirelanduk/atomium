@@ -1,7 +1,6 @@
 from datetime import datetime
 from .structures import Model, Polymer, BranchedPolymer, NonPolymer, Water, Residue, Atom
 from .assemblies import extract_assemblies
-from .data import CODES
 
 class File:
     
@@ -110,7 +109,8 @@ class File:
 def make_models(mmcif_dict):
     entities = make_entities(mmcif_dict)
     secondary_structure = get_secondary_structure(mmcif_dict)
-    atom_lists = divide_atoms_into_models(mmcif_dict)
+    aniso = make_aniso(mmcif_dict)
+    atom_lists = divide_atoms_into_models(mmcif_dict, aniso)
     models = []
     for model_atoms in atom_lists:
         asyms = organise_atoms_by_asym_id(model_atoms)
@@ -166,11 +166,23 @@ def get_secondary_structure(mmcif_dict):
     return {"helices": helices, "strands": strands}
 
 
-def divide_atoms_into_models(mmcif_dict):
+def make_aniso(mmcif_dict):
+    """Makes a mapping of atom IDs to anisotropy information.
+
+    :param mmcif_dict: the .mmcif dict to read.
+    :rtype: ``dict``"""
+
+    return {a["id"]: [
+        float(a["U[{}][{}]".format(x, y)]) for x, y in ["11", "22", "33", "12", "13", "23"]
+    ] for a in mmcif_dict.get("atom_site_anisotrop", [])}
+
+
+def divide_atoms_into_models(mmcif_dict, aniso):
     models = []
     model_id = None
     atoms = []
     for atom in mmcif_dict["atom_site"]:
+        atom["anisotropy"] = aniso.get(atom["id"])
         if atom["pdbx_PDB_model_num"] != model_id:
             if atoms: models.append(atoms)
             model_id = atom["pdbx_PDB_model_num"]
@@ -247,7 +259,8 @@ def make_atom(atom):
         float(atom["Cartn_x"]), float(atom["Cartn_y"]), float(atom["Cartn_z"]),
         int(atom["id"]), atom["label_atom_id"],
         charge=float(atom["pdbx_formal_charge"].replace("?", "") or "0"),
-        bvalue=float(atom["B_iso_or_equiv"].replace("?", "") or "0")
+        bvalue=float(atom["B_iso_or_equiv"].replace("?", "") or "0"),
+        anisotropy=atom["anisotropy"]
     )
 
 

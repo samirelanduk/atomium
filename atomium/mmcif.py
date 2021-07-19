@@ -43,8 +43,9 @@ def consolidate_strings(lines):
             while not lines[0].startswith(";"):
                 string.append(lines.popleft())
             lines.popleft()
+            joiner = " " if any(" " in x for x in string) else ""
             new_lines[-1] += " \"{}\"".format(
-                " ".join(string).replace('"', "\x1a").replace("'", "\x1b")
+                joiner.join(string).replace('"', "\x1a").replace("'", "\x1b")
             )
         else:
             new_lines.append(line)

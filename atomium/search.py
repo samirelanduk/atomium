@@ -74,19 +74,20 @@ class StructureClass(type):
     list ('atoms', 'chains' etc.) will have the :py:func:`.query` decorator
     applied and a copy with the :py:func:`.getone` decorator applied."""
 
-    METHODS = ["entities", "chains", "carbohydrates", "residues", "ligands", "waters", "molecules", "atoms"]
+    METHODS = ["molecules", "polymers", "branched_polymers", "non_polymers", "waters", "residues", "atoms"]
 
     def __new__(self, *args, **kwargs):
         cls = type.__new__(self, *args, **kwargs)
-        for attribute in dir(cls):
-            if attribute in cls.METHODS:
-                structures_method = query(
-                    getattr(cls, attribute),
-                    tuple_=(attribute == "residues" and cls.__name__ == "Chain")
-                )
-                setattr(cls, attribute, structures_method)
-                singular = attribute[:-3] + "y" if attribute.endswith("ies") else attribute[:-1]
-                setattr(cls, singular, getone(getattr(cls, attribute)))
+        if "locals" not in str(cls):
+            for attribute in dir(cls):
+                if attribute in cls.METHODS:
+                    structures_method = query(
+                        getattr(cls, attribute),
+                        tuple_=(attribute == "residues" and cls.__name__ == "Polymer")
+                    )
+                    setattr(cls, attribute, structures_method)
+                    singular = attribute[:-3] + "y" if attribute.endswith("ies") else attribute[:-1]
+                    setattr(cls, singular, getone(getattr(cls, attribute)))
         return cls
 
 

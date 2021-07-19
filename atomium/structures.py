@@ -1,125 +1,86 @@
 import numpy as np
 from .search import StructureSet, StructureClass
 
-class Entity(metaclass=StructureClass):
-
-    def __init__(self, id, name, type, sequence):
-        self.id, self.name, self.type, self.sequence = id, name, type, sequence
-    
-
-    def __repr__(self):
-        return f"<Entity {self.id} ({self.type})>"
-    
-
-    def molecules(self):
-        if not self.model: return StructureSet([])
-        return StructureSet(self.model.molecules(entity__id=self.id))
-
-
-
 class Model(metaclass=StructureClass):
 
-    def __init__(self, chains, carbohydrates, ligands, waters):
-        for mol in chains + carbohydrates + ligands + waters:
-            mol.model = self
-            mol.entity.model = self
-        self._chains = StructureSet(chains)
-        self._carbohydrates = StructureSet(carbohydrates)
-        self._ligands = StructureSet(ligands)
-        self._waters = StructureSet(waters)
+    def __init__(self, molecules):
+        for molecule in molecules: molecule.model = self
+        self._molecules = StructureSet(molecules)
     
 
     def __repr__(self):
-        chains = "{} chains".format(len(self._chains))
-        if len(self._chains) == 1: chains = chains[:-1]
-        ligands = "{} ligands".format(len(self._ligands))
-        if len(self._ligands) == 1: ligands = ligands[:-1]
-        carbs = ""
-        if len(self._carbohydrates):
-            carbs = ", {} carbs".format(len(self._carbohydrates))
-            if len(self._carbohydrates) == 1: carbs = carbs[:-1]
-        return "<Model ({}, {}{})>".format(chains, ligands, carbs)
-    
-
-    def chains(self):
-        return self._chains
-    
-
-    def carbohydrates(self):
-        return self._carbohydrates
-
-    
-    def ligands(self):
-        return self._ligands
-
-
-    def waters(self):
-        return self._waters
+        lists = [[
+            m for m in self._molecules.structures if isinstance(m, Type)
+        ] for Type in [Polymer, BranchedPolymer, NonPolymer]]
+        strings = []
+        if lists[0]:
+            strings.append("{} polymer{}".format(len(lists[0]), "" if len(lists[0]) == 1 else "s"))
+        if lists[1]:
+            strings.append("{} branched-polymer{}".format(len(lists[1]), "" if len(lists[1]) == 1 else "s"))
+        if lists[2]:
+            strings.append("{} non-polymer{}".format(len(lists[2]), "" if len(lists[2]) == 1 else "s"))
+        return "<Model ({})>".format(", ".join(strings))
     
 
     def molecules(self):
-        """Returns all of the model's molecules (chains, ligands, waters).
+        return self._molecules
+    
 
-        :rtype: ``set``"""
+    def polymers(self):
+        return StructureSet([m for m in self._molecules.structures if isinstance(m, Polymer)])
+    
 
-        return self._chains + self._carbohydrates + self._ligands + self._waters
+    def branched_polymers(self):
+        return StructureSet([m for m in self._molecules.structures if isinstance(m, BranchedPolymer)])
+    
+
+    def non_polymers(self):
+        return StructureSet([m for m in self._molecules.structures if isinstance(m, NonPolymer)])
+    
+    
+    def waters(self):
+        return StructureSet([m for m in self._molecules.structures if isinstance(m, Water)])
     
 
     def residues(self):
-        """Returns all of the model's residues in all its chains.
-
-        :rtype: ``set``"""
-
         residues = []
-        for chain in self._chains.structures:
+        for chain in self.polymers():
+            residues += chain.residues()
+        for chain in self.branched_polymers():
             residues += chain.residues()
         return StructureSet(residues)
     
 
     def atoms(self):
-        """Returns all of the model's atoms in all its molecules.
-
-        :rtype: ``set``"""
-
-        atoms = set()
-        for mol in self.molecules():
-            try:
-                atoms.update(mol._atoms.structures)
-            except:
-                for res in mol._residues.structures:
-                    atoms.update(res._atoms.structures)
+        atoms = []
+        for molecule in self.molecules():
+            atoms += molecule.atoms()
         return StructureSet(atoms)
+
+
+
+
+class Entity(metaclass=StructureClass):
     
-
-    def entities(self):
-        entities = set()
-        for mol in self.molecules():
-            if mol.entity: entities.add(mol.entity)
-        return StructureSet(entities)
-    
-
-    def dehydrate(self):
-        """Removes all water ligands from the model."""
-
-        self._waters = StructureSet([])
+    def __init__(self, id, auth_id):
+        self.id = id
+        self.auth_id = auth_id
+        self.model = None
 
 
 
-class Chain(metaclass=StructureClass):
+class Polymer(Entity):
 
-    def __init__(self, *residues, id="", asym_id="", auth_asym_id="", entity=None, sequence=None, helices=None, strands=None):
-        for res in residues: res.chain = self
+    def __init__(self, residues, helices, strands, *args, **kwargs):
+        for residue in residues: residue.polymer = self
         self._residues = StructureSet(residues)
-        self.id, self.asym_id, self.auth_asym_id = id, asym_id, auth_asym_id
-        self.sequence = sequence
-        self._helices = helices or []
-        self._strands = strands or []
-        self.model, self.entity = None, entity
-    
+        self._helices, self._strands = helices, strands
+        Entity.__init__(self, *args, **kwargs)
 
-    def __repr__(self):
-        return f"<Chain {self.id} ({len(self._residues)} residues)>"
     
+    def __repr__(self):
+        return f"<Polymer {self.id} ({len(self._residues)} residue{'' if len(self._residues) == 1 else 's'})>"
+
 
     def __len__(self):
         return len(self._residues)
@@ -141,24 +102,10 @@ class Chain(metaclass=StructureClass):
         return self._residues
     
 
-    def ligands(self):
-        if not self.model: return None
-        return StructureSet(self.model.ligands(auth_asym_id=self.auth_asym_id))
-    
-
-    def waters(self):
-        if not self.model: return None
-        return StructureSet(self.model.waters(auth_asym_id=self.auth_asym_id))
-    
-
     def atoms(self):
-        """Returns all the atoms in with the chain.
-
-        :rtype: ``set``"""
-
-        atoms = set()
-        for res in self._residues.structures:
-            atoms.update(res._atoms.structures)
+        atoms = []
+        for residue in self.residues():
+            atoms += residue.atoms()
         return StructureSet(atoms)
     
 
@@ -180,60 +127,88 @@ class Chain(metaclass=StructureClass):
             ids.index(start), ids.index(end)
         ] for start, end in self._strands if start in ids and end in ids]
         return [residues[start:end + 1] for start, end in indices]
+    
 
 
+class BranchedPolymer(Entity):
 
-class Carbohydrate(metaclass=StructureClass):
-
-    def __init__(self, *residues, id="", asym_id="", auth_asym_id="", entity=None,):
-        for res in residues: res.carb = self
+    def __init__(self, residues, *args, **kwargs):
+        for residue in residues: residue.branched_polymer = self
         self._residues = StructureSet(residues)
-        self.id, self.asym_id, self.auth_asym_id = id, asym_id, auth_asym_id
-        self.model, self.entity = None, entity
-    
+        Entity.__init__(self, *args, **kwargs)
 
-    def __repr__(self):
-        return f"<Carbohydrate {self.id} ({len(self._residues)} residues)>"
     
+    def __repr__(self):
+        return f"<BranchedPolymer {self.id} ({len(self._residues)} residue{'' if len(self._residues) == 1 else 's'})>"
+
 
     def __contains__(self, obj):
         return obj in self._residues.structures or obj in self.atoms()
 
-
+    
     def residues(self):
         return self._residues
     
 
-    def ligands(self):
-        if not self.model: return None
-        return StructureSet(self.model.ligands(auth_asym_id=self.auth_asym_id))
+    def atoms(self):
+        atoms = []
+        for residue in self.residues():
+            atoms += residue.atoms()
+        return StructureSet(atoms)
+
+
+class NonPolymer(Entity):
+
+    def __init__(self, name, atoms, *args, **kwargs):
+        for atom in atoms: atom.non_polymer = self
+        self._atoms = StructureSet(atoms)
+        self.name = name
+        Entity.__init__(self, *args, **kwargs)
+
+    
+    def __repr__(self):
+        return f"<NonPolymer {self.id} ({self.name})>"
     
 
-    def waters(self):
-        if not self.model: return None
-        return StructureSet(self.model.waters(auth_asym_id=self.auth_asym_id))
+    def __contains__(self, atom):
+        return atom in self._atoms.structures
     
 
     def atoms(self):
-        """Returns all the atoms in with the chain.
+        return self._atoms
 
-        :rtype: ``set``"""
 
-        atoms = set()
-        for res in self._residues.structures:
-            atoms.update(res._atoms.structures)
-        return StructureSet(atoms)
+
+class Water(Entity):
+
+    def __init__(self, name, atoms, *args, **kwargs):
+        for atom in atoms: atom.water = self
+        self._atoms = StructureSet(atoms)
+        self.name = name
+        Entity.__init__(self, *args, **kwargs)
+
+    
+    def __repr__(self):
+        return f"<Water {self.id} ({self.name})>"
+    
+
+    def __contains__(self, atom):
+        return atom in self._atoms.structures
+    
+
+    def atoms(self):
+        return self._atoms
 
 
 
 class Residue(metaclass=StructureClass):
 
-    def __init__(self, *atoms, id="", asym_id="", auth_asym_id="", name=""):
+    def __init__(self, id, name, atoms):
         for atom in atoms: atom.residue = self
+        self.id = id
+        self.name = name
         self._atoms = StructureSet(atoms)
-        self.id, self.name = id, name
-        self.asym_id, self.auth_asym_id = asym_id, auth_asym_id
-        self.chain, self.carbohydrate = None, None
+        self.polymer, self.branched_polymer = None, None
     
 
     def __repr__(self):
@@ -242,57 +217,16 @@ class Residue(metaclass=StructureClass):
 
     def __contains__(self, atom):
         return atom in self._atoms.structures
-
     
+
     def atoms(self):
         return self._atoms
     
 
     @property
     def model(self):
-        """Returns the :py:class:`.Model` the residue is part of, via its
-        chain.
-
-        :rtype: ``Model``"""
-
-        try:
-            return self.chain.model
-        except AttributeError: return None
-
-
-
-class Ligand(metaclass=StructureClass):
-
-    def __init__(self, *atoms, id="", asym_id="", auth_asym_id="", entity=None, name="", water=False):
-        for atom in atoms: atom.ligand = self
-        self._atoms = StructureSet(atoms)
-        self.id, self.name, self.is_water = id, name, water
-        self.asym_id, self.auth_asym_id = asym_id, auth_asym_id
-        self.model, self.entity = None, entity
-    
-
-    def __repr__(self):
-        return f"<{'Water' if self.is_water else 'Ligand'} {self.name} ({self.id})>"
-    
-
-    def __contains__(self, atom):
-        return atom in self._atoms.structures
-    
-
-    @property
-    def chain(self):
-        if not self.model: return None
-        return self.model.chain(self.auth_asym_id)
-    
-
-    @property
-    def carbohydrate(self):
-        if not self.model: return None
-        return self.model.carbohydrate(self.auth_asym_id)
-    
-
-    def atoms(self):
-        return self._atoms
+        if self.polymer: return self.polymer.model
+        if self.branched_polymer: return self.branched_polymer.model
 
 
 
@@ -300,14 +234,14 @@ class Atom:
 
     __slots__ = [
         "element", "location", "id", "name", "charge",
-        "bvalue", "anisotropy", "residue", "ligand",
+        "bvalue", "anisotropy", "residue", "non_polymer", "water"
     ]
 
     def __init__(self, element, x, y, z, id, name, charge=0, bvalue=0, anisotropy=None):
         self.location = np.array([x, y, z])
         self.element, self.id, self.name = element, id, name
         self.charge, self.bvalue, self.anisotropy = charge, bvalue, anisotropy
-        self.residue, self.ligand = None, None
+        self.residue, self.non_polymer, self.water = None, None, None
     
 
     def __repr__(self):
@@ -319,18 +253,17 @@ class Atom:
     
 
     @property
-    def chain(self):
-        if self.residue: return self.residue.chain
-        if self.ligand: return self.ligand.chain
+    def polymer(self):
+        if self.residue: return self.residue.polymer
     
 
     @property
-    def carbohydrate(self):
-        if self.residue: return self.residue.carbohydrate
-        if self.ligand: return self.ligand.carbohydrate
-    
+    def branched_polymer(self):
+        if self.residue: return self.residue.branched_polymer
+        
 
     @property
     def model(self):
-        if self.chain: return self.chain.model
-        if self.ligand: return self.ligand.chain
+        if self.residue: return self.residue.model
+        if self.non_polymer: return self.non_polymer.model
+        if self.water: return self.water.model

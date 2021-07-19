@@ -78,13 +78,14 @@ class StructureClass(type):
 
     def __new__(self, *args, **kwargs):
         cls = type.__new__(self, *args, **kwargs)
-        if "locals" not in str(cls):
-            for attribute in dir(cls):
-                if attribute in cls.METHODS:
+        for attribute in dir(cls):
+            if attribute in cls.METHODS:
+                if "done" not in dir(getattr(cls, attribute)):
                     structures_method = query(
                         getattr(cls, attribute),
                         tuple_=(attribute == "residues" and cls.__name__ == "Polymer")
                     )
+                    structures_method.done = True
                     setattr(cls, attribute, structures_method)
                     singular = attribute[:-3] + "y" if attribute.endswith("ies") else attribute[:-1]
                     setattr(cls, singular, getone(getattr(cls, attribute)))

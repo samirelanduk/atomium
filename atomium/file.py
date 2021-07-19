@@ -128,12 +128,12 @@ def make_entities(mmcif_dict):
             "polymer": Polymer, "branched": BranchedPolymer,
             "non-polymer": NonPolymer, "water": Water
         }[row["type"]]
-        class Molecule(Parent):
-            entity_id = row["id"]
-            entity_name = row["pdbx_description"]
+        cls = type(row["pdbx_description"], (Parent,), {
+            "entity_id": row["id"], "entity_name": row["pdbx_description"]
+        })
         if row["type"] == "polymer":
-            annotate_polymer_entity(Molecule, mmcif_dict)
-        entities[row["id"]] = Molecule
+            annotate_polymer_entity(cls, mmcif_dict)
+        entities[row["id"]] = cls
     return entities
 
 

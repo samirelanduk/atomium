@@ -1,9 +1,17 @@
 import builtins
 import requests
+import gzip
+import paramiko
 from .mmcif import mmcif_string_to_mmcif_dict
 from .file import File
 
 def open(path, dictionary=False):
+    if str(path)[-3:] == ".gz":
+        try:
+            with gzip.open(path) as f: filestring = f.read().decode()
+        except:
+            with gzip.open(path, "rt") as f: filestring = f.read()
+        return parse_filestring(filestring, dictionary=dictionary)
     try:
         with builtins.open(path) as f:
             filestring = f.read()
@@ -26,6 +34,24 @@ def fetch(code, dictionary=False):
         text = response.content if code.endswith(".mmtf") else response.text
         return parse_filestring(text, dictionary=dictionary)
     raise ValueError("Could not find anything at {}".format(url))
+
+
+def fetch_over_ssh(hostname, username, path, password=None, dictionary=False):
+    client = paramiko.SSHClient()
+    try:
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        if not password:
+            client.load_system_host_keys()
+            client.connect(hostname=hostname, username=username)
+        else:
+            client.connect(
+                hostname=hostname, username=username, password=password 
+            )
+        stdout = client.exec_command("less " + path)[1]
+        filestring = stdout.read().decode()
+    finally:
+        client.close()
+    return parse_filestring(filestring, dictionary=dictionary)
 
 
 def parse_filestring(filestring, dictionary=False):

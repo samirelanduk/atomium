@@ -157,6 +157,7 @@ class BranchedPolymer(Entity):
         return StructureSet(atoms)
 
 
+
 class NonPolymer(Entity):
 
     def __init__(self, name, atoms, *args, **kwargs):

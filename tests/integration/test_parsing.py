@@ -7,6 +7,45 @@ class DictParsingTests(TestCase):
     def test_1lol_mmcif(self):
         d = atomium.open("tests/integration/files/1lol.cif", dictionary=True)
         self.assertEqual(len(d.keys()), 66)
+        self.assertEqual(d["entry"], [{"id": "1LOL"}])
+        self.assertEqual(d["database_2"], [
+            {"database_id": "PDB", "database_code": "1LOL"},
+            {"database_id": "RCSB", "database_code": "RCSB016137"},
+            {"database_id": "WWPDB", "database_code": "D_1000016137"},
+        ])
+        self.assertEqual(
+            d["pdbx_database_related"][0]["details"],
+            "orotidine monophosphate decarboxylase complexed with UMP"
+        )
+        self.assertEqual(d["entity"][2]["pdbx_description"], "XANTHOSINE-5'-MONOPHOSPHATE")
+        self.assertEqual(
+            d["entity_poly"][0]["pdbx_seq_one_letter_code"],
+            "LRSRRVDVMDVMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFG" +
+            "CRIIADFKVADIPETNEKICRATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSH" +
+            "PGAEMFIQGAADEIARMGVDLGVKNYVGPSTRPERLSRLREIIGQDSFLISPGVGAQGGDPGET" +
+            "LRFADAIIVGRSIYLADNPAAAAAGIIESIKDLLIPE"
+        )
+        self.assertEqual(
+            d["struct_biol"][0]["details"],
+            "The biologically functional unit is a dimer composed of the two monomers in the asymmetric unit."
+        )
+        self.assertEqual(
+            d["pdbx_database_remark"][0]["text"], "\n".join([
+                "sequence",
+                "Author states that although residues 1 and 1001 are MET",
+                "and residues 101 and 1101 are Arg according to the",
+                "SwissProt entry, residues 1 and 1001 were LEU and residues",
+                "101 and 1101 were Pro in the original construct cloned",
+                "of MT genomic dna.",
+            ])
+        )
+    
+
+    def test_1lol_mmcif_compressed(self):
+        d = atomium.open("tests/integration/files/1lol.cif.gz", dictionary=True)
+        self.assertEqual(len(d.keys()), 66)
+        self.assertEqual(d["entry"], [{"id": "1LOL"}])
+    
 
 
 
@@ -326,3 +365,16 @@ class ParsingTests(TestCase):
         # Values not ?
         pdb = atomium.open("tests/integration/files/12ca.cif")
         self.assertIsNone(pdb.expression_system)
+
+
+
+class NetworkTests(TestCase):
+
+    def test_fetching_3nir_mmcif_rcsb(self):
+        pdb = atomium.fetch("3nir")
+        self.assertEqual(pdb.title, "Crystal structure of small protein crambin at 0.48 A resolution")
+    
+
+    def test_fetching_3nir_mmcif_pdbe(self):
+        pdb = atomium.fetch("https://www.ebi.ac.uk/pdbe/static/entry/3nir_updated.cif")
+        self.assertEqual(pdb.title, "Crystal structure of small protein crambin at 0.48 A resolution")

@@ -43,10 +43,9 @@ def consolidate_strings(lines):
             while not lines[0].startswith(";"):
                 string.append(lines.popleft())
             lines.popleft()
-            joiner = " " if any(" " in x for x in string) else ""
-            new_lines[-1] += " \"{}\"".format(
-                joiner.join(string).replace('"', "\x1a").replace("'", "\x1b")
-            )
+            join = "\x00" if len(string) > 1 and " " in "".join(string) else ""
+            string = join.join(string).replace('"', "\x1a")
+            new_lines.append("\"{}\"".format(string))
         else:
             new_lines.append(line)
     return new_lines
@@ -174,4 +173,4 @@ def strip_quotes(mmcif_dict):
                 for char in "'\"":
                     if value[0] == char and value[-1] == char:
                         row[k] = value[1:-1]
-                    row[k] = row[k].replace("\x1a", '"').replace("\x1b", "'")
+                    row[k] = row[k].replace("\x1a", '"').replace("\x1b", "'").replace("\x00", "\n")

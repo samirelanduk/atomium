@@ -7,7 +7,7 @@ class File:
     def __init__(self, mmcif_dict):
         self.source = mmcif_dict
         self.name = mmcif_dict.get("entry", [{}])[0].get("id")
-        self.models = make_models(mmcif_dict)
+        self.models = make_models(mmcif_dict, self)
     
 
     def __repr__(self):
@@ -106,7 +106,7 @@ class File:
 
 
 
-def make_models(mmcif_dict):
+def make_models(mmcif_dict, file):
     entities = make_entities(mmcif_dict)
     secondary_structure = get_secondary_structure(mmcif_dict)
     aniso = make_aniso(mmcif_dict)
@@ -117,7 +117,7 @@ def make_models(mmcif_dict):
         molecules = [make_molecule(
             asym_id, atoms, entities, secondary_structure
         ) for asym_id, atoms in asyms.items()]
-        models.append(Model(molecules=molecules))
+        models.append(Model(molecules=molecules, file=file))
     return models
 
 

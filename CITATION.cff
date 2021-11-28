@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Ireland"
+  given-names: "S. M."
+  orcid: "https://orcid.org/0000-0001-8248-7614"
+- family-names: "Martin"
+  given-names: "A. C. R."
+  orcid: "https://orcid.org/0000-0002-2835-2572"
+title: "atomium"
+version: 1.0.0
+doi: 10.1093/bioinformatics/btaa072
+date-released: 2020-02-11
+url: "https://github.com/samirelanduk/atomium"

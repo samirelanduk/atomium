@@ -27,7 +27,7 @@ analytics = "UA-51790964-14"
 # The short X.Y version
 version = '1.0'
 # The full version, including alpha/beta/rc tags
-release = '1.0.10'
+release = '1.0.11'
 
 
 # -- General configuration ---------------------------------------------------

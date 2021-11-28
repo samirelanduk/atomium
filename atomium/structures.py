@@ -4,6 +4,7 @@ import numpy as np
 import rmsd
 import math
 import warnings
+from scipy.spatial.distance import cdist
 from collections import Counter, OrderedDict, defaultdict
 from .base import StructureClass, query, StructureSet
 
@@ -259,7 +260,10 @@ class AtomStructure:
             atoms = query(lambda self: atoms)(self, *args, **kwargs)
         else:
             atoms = self.atoms(*args, **kwargs)
-        return {a for a in atoms if a.distance_to(location) <= radius}
+        X = np.tile(location, [len(atoms), 1])
+        Y = np.array([a.location for a in atoms])
+        distances = cdist(X, Y)[0]
+        return {a for index, a in enumerate(atoms) if distances[index] <= radius}
 
 
     def pairwise_atoms(self, *args, **kwargs):

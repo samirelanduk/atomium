@@ -1,6 +1,0 @@
-Methods which return structures take parameters which can filter them
-
-property=x --> Only those with poperty value x
-porperty__gt=x --> Only those where the numerical value of property is greater than x
-property__regex=x --> Only those where the string value of property matches regex
-structure__property__xyz=x --> Only those belonging to a structure whose property matches x when filtered

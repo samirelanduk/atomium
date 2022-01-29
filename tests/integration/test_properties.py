@@ -50,11 +50,6 @@ class SpecificStructureProperties(TestCase):
         self.assertTrue(residue.in_strand)
 
 
-    def test_model_properties(self):
-        pdb = atomium.open("tests/integration/files/1lol.cif")
-        self.assertEqual(pdb.model.file, pdb)
-    
-
     def test_polymer_properties(self):
         pdb = atomium.open("tests/integration/files/1lol.cif")
         polymer = pdb.model.polymer("A")
@@ -62,6 +57,22 @@ class SpecificStructureProperties(TestCase):
         self.assertTrue(polymer.present_sequence.startswith("VMNRLILAMDLMNRDDALRVTGEVREY"))
         self.assertTrue(polymer.present_sequence.endswith("IVGRSIYLADNPAAAAAGIIESI"))
         self.assertEqual(len(polymer.present_sequence), len(polymer))
+        self.assertEqual(len(polymer.helices), 11)
+        self.assertEqual(len(polymer.helices[0]), 3)
+        self.assertIs(polymer.helices[0][0], pdb.model.residue("A.11"))
+        self.assertIs(polymer.helices[0][-1], pdb.model.residue("A.13"))
+        self.assertEqual(len(polymer.strands), 9)
+        self.assertEqual(len(polymer.strands[0]), 5)
+        self.assertIs(polymer.strands[0][0], pdb.model.residue("A.15"))
+        self.assertIs(polymer.strands[0][-1], pdb.model.residue("A.19"))
+
+
+    def test_model_properties(self):
+        pdb = atomium.open("tests/integration/files/1lol.cif")
+        self.assertEqual(pdb.model.file, pdb)
+    
+
+    
     
 
     

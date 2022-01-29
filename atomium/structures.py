@@ -31,6 +31,18 @@ class AtomStructure:
         :rtype: ``Counter``"""
 
         return Counter([atom.element for atom in self.atoms()])
+    
+
+    @property
+    def center_of_mass(self):
+        """Returns the center of mass of the structure. This is the average of
+        all the atom coordinates, weighted by the mass of each atom.
+
+        :rtype: ``tuple``"""
+
+        mass = self.mass
+        locations = np.array([a.location * a.mass for a in self.atoms()])
+        return np.sum(locations, axis=0) / mass
 
 
     # Center of mass

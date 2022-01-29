@@ -106,3 +106,9 @@ class AtomStructurePropertyTests(TestCase):
         self.assertEqual(self.pdb.model.non_polymer("E").formula, {
             "C": 4, "O": 2
         })
+    
+
+    def test_center_of_mass(self):
+        self.assertEqual(round(self.pdb.model.center_of_mass[0], 1), -10.1)
+        self.assertEqual(round(self.pdb.model.center_of_mass[1], 1), 50.3)
+        self.assertEqual(round(self.pdb.model.center_of_mass[2], 1), 48.6)

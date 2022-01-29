@@ -1,4 +1,5 @@
 import numpy as np
+from collections import Counter
 from .search import StructureSet, StructureClass
 from .data import CODES, PERIODIC_TABLE, COVALENT_RADII, METALS, FULL_NAMES
 
@@ -20,8 +21,18 @@ class AtomStructure:
         :rtype: ``float``"""
 
         return round(sum([atom.charge for atom in self.atoms()]), 12)
+    
 
-    # Formula
+    @property
+    def formula(self):
+        """The structure's formula as a ``Counter`` dictionary - the count of
+        all its atoms' elements.
+
+        :rtype: ``Counter``"""
+
+        return Counter([atom.element for atom in self.atoms()])
+
+
     # Center of mass
     # Radius of gyration
     # Grid

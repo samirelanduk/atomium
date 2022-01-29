@@ -94,3 +94,15 @@ class AtomStructurePropertyTests(TestCase):
         self.assertEqual(self.pdb.model.residue("A.11").charge, -1)
         self.assertEqual(self.pdb.model.polymer("A").charge, -1)
         self.assertEqual(self.pdb.model.non_polymer("E").charge, 0.5)
+    
+
+    def test_atom_structure_formula(self):
+        self.assertEqual(self.pdb.model.formula, {
+            "C": 2039, "O": 803, "N": 565, "S": 22, "P": 2
+        })
+        self.assertEqual(self.pdb.model.residue("A.11").formula, {
+            "C": 5, "O": 1, "N": 1
+        })
+        self.assertEqual(self.pdb.model.non_polymer("E").formula, {
+            "C": 4, "O": 2
+        })

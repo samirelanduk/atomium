@@ -241,6 +241,10 @@ def make_residues(atoms):
     return [Residue(
         id=make_id(res_atoms[0]),
         name=res_atoms[0]["label_comp_id"],
+        number=int(
+            res_atoms[0]["label_seq_id"] if res_atoms[0]["label_seq_id"] != "."
+            else res_atoms[0]["auth_seq_id"]
+        ),
         atoms=[make_atom(a) for a in remove_alt_loc_atoms(res_atoms)],
     ) for res_atoms in residues]
     
@@ -266,7 +270,7 @@ def make_atom(atom):
 
 def make_id(atom):
     chain = atom["label_asym_id"]
-    number = atom["label_seq_id"]
+    number = atom["label_seq_id"] if atom["label_seq_id"] != "." else atom["auth_seq_id"]
     insert = atom["PDB_ins_code"] if "PDB_ins_code" in atom else atom["pdbx_PDB_ins_code"]
     insert = insert.replace("?", "") or ""
     return f"{chain}.{number}{insert}"

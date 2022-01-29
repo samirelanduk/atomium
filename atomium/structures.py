@@ -224,10 +224,11 @@ class Water(Entity):
 
 class Residue(metaclass=StructureClass):
 
-    def __init__(self, id, name, atoms):
+    def __init__(self, id, name, number, atoms):
         for atom in atoms: atom.residue = self
         self.id = id
         self.name = name
+        self.number = number
         self._atoms = StructureSet(atoms)
         self.polymer, self.branched_polymer = None, None
     

@@ -230,6 +230,7 @@ class ParsingTests(TestCase):
         residue = pdb.model.residue("A.11")
         self.assertEqual(str(residue), "<Residue VAL (A.11)>")
         self.assertEqual(residue.id, "A.11")
+        self.assertEqual(residue.number, 11)
         self.assertEqual(residue.name, "VAL")
         self.assertIs(residue.polymer, mol_a)
         self.assertIsNone(residue.branched_polymer)
@@ -349,6 +350,13 @@ class ParsingTests(TestCase):
         self.assertTrue(list(carb.atoms())[0] in carb)
         self.assertEqual(carb.entity_id, "2")
         self.assertEqual(carb.entity_name, "2-acetamido-2-deoxy-beta-D-glucopyranose-(1-4)-2-acetamido-2-deoxy-beta-D-glucopyranose")
+
+        # Residue
+        residue = pdb.model.residue("D.2")
+        self.assertEqual(residue.id, "D.2")
+        self.assertEqual(residue.number, 2)
+        self.assertIs(residue.branched_polymer, carb)
+
     
 
     def test_1xda_assembly_5(self):

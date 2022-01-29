@@ -2,7 +2,25 @@ import numpy as np
 from .search import StructureSet, StructureClass
 from .data import CODES, PERIODIC_TABLE, COVALENT_RADII, METALS, FULL_NAMES
 
-class Model(metaclass=StructureClass):
+class AtomStructure:
+    
+    @property
+    def mass(self):
+        """The structure's mass - the sum of all its atoms' masses.
+
+        :rtype: ``float``"""
+
+        return round(sum([atom.mass for atom in self.atoms()]), 12)
+
+    # Mass
+    # Charge
+    # Formula
+    # Center of mass
+    # Radius of gyration
+    # Grid
+
+
+class Model(AtomStructure, metaclass=StructureClass):
 
     def __init__(self, molecules, file=None):
         for molecule in molecules: molecule.model = self
@@ -62,7 +80,7 @@ class Model(metaclass=StructureClass):
 
 
 
-class Entity(metaclass=StructureClass):
+class Entity(AtomStructure, metaclass=StructureClass):
     
     def __init__(self, id, auth_id):
         self.id = id
@@ -222,7 +240,7 @@ class Water(Entity):
 
 
 
-class Residue(metaclass=StructureClass):
+class Residue(AtomStructure, metaclass=StructureClass):
 
     def __init__(self, id, name, number, atoms):
         for atom in atoms: atom.residue = self

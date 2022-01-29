@@ -70,3 +70,17 @@ class SpecificStructureProperties(TestCase):
     def test_model_properties(self):
         pdb = atomium.open("tests/integration/files/1lol.cif")
         self.assertEqual(pdb.model.file, pdb)
+
+
+
+class AtomStructurePropertyTests(TestCase):
+
+    def setUp(self):
+        self.pdb = atomium.open("tests/integration/files/1lol.cif")
+
+
+    def test_atom_structure_mass(self):
+        self.assertEqual(round(self.pdb.model.mass), 46018)
+        self.assertEqual(round(self.pdb.model.residue("A.11").mass, 1), 90.1)
+        self.assertEqual(round(self.pdb.model.polymer("A").mass, 1), 20630.9)
+        self.assertEqual(round(self.pdb.model.non_polymer("E").mass, 1), 80)

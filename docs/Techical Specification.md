@@ -69,6 +69,12 @@ This query language is very flexible. It allows the returned objects to be query
 
 ## Properties
 
+In addition to direct attributes, atomium objects have various dynamic, calculated properties.
+
+Some of these are specific to particular classes. For example, atoms have various properties that use their element to give their mass, and residues have properties for pointing to the next residue if they are in a polymer.
+
+All of the classes which are in some way a container of atoms subclass the `AtomStructure` class, which provides many more generic properties, such as overall mass, center of mass, radius of gyration etc.
+
 ## Structure Comparisons
 
 ## Structure Modification

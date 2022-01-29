@@ -112,3 +112,23 @@ class AtomStructurePropertyTests(TestCase):
         self.assertEqual(round(self.pdb.model.center_of_mass[0], 1), -10.1)
         self.assertEqual(round(self.pdb.model.center_of_mass[1], 1), 50.3)
         self.assertEqual(round(self.pdb.model.center_of_mass[2], 1), 48.6)
+    
+
+    def test_grid(self):
+        # Integer grid
+        grid = list(self.pdb.model.residue("A.11").create_grid())
+        self.assertEqual(len(grid), 180)
+        self.assertEqual(grid[0], (2, 31, 59))
+        self.assertEqual(grid[-1], (6, 36, 64))
+
+        # 0.1 grid
+        grid = list(self.pdb.model.residue("A.11").create_grid(size=0.1))
+        self.assertEqual(len(grid), 44640)
+        self.assertEqual(grid[0], (2.2, 31.7, 59.4))
+        self.assertEqual(grid[-1], (5.2, 35.2, 63.3))
+
+        # Margin of 2
+        grid = list(self.pdb.model.residue("A.11").create_grid(margin=2))
+        self.assertEqual(len(grid), 900)
+        self.assertEqual(grid[0], (0, 29, 57))
+        self.assertEqual(grid[-1], (8, 38, 66))

@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from collections import Counter
 from .search import StructureSet, StructureClass
@@ -45,9 +46,33 @@ class AtomStructure:
         return np.sum(locations, axis=0) / mass
 
 
-    # Center of mass
-    # Radius of gyration
-    # Grid
+    def create_grid(self, size=1, margin=0):
+        """A generator which models a grid around the structure and returns the
+        coordinates of all the points in that grid.
+
+        :param int size: The spacing between grid points. The default is 1.
+        :param int margin: How far to extend the grid beyond the structure\
+        coordinates. The default is 0.
+        :rtype: ``tuple``"""
+
+        atom_locations = [atom.location for atom in self.atoms()]
+        dimension_values = []
+        for dimension in range(3):
+            coordinates = [loc[dimension] for loc in atom_locations]
+            min_, max_ = min(coordinates) - margin, max(coordinates) + margin
+            values = [0]
+            while values[0] > min_: values.insert(0, round(values[0] - size, 12))
+            while values[-1] < max_: values.append(round(values[-1] + size, 12))
+            values = [
+                v for v in values
+                if (v > min_ or abs(v - min_) < size) and
+                (v < max_ or abs(v - max_) < size)
+            ]
+            dimension_values.append(values)
+        for x in dimension_values[0]:
+            for y in dimension_values[1]:
+                for z in dimension_values[2]:
+                    yield (x, y, z)
 
 
 class Model(AtomStructure, metaclass=StructureClass):

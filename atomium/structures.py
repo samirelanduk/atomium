@@ -311,6 +311,24 @@ class Residue(metaclass=StructureClass):
 
 
 class Atom:
+    """Represents a single atom - neutral or charged.
+    
+    Atoms have attributes for the residue, non-polymer or water they belong to,
+    and dynamic properties for the polymer, branched-polymer and model they
+    belong to.
+    
+    :param str element - the atom's element.
+    :param float x - the atom's element.
+    :param float y - the atom's element.
+    :param float z - the atom's element.
+    :param int id - the atom's ID.
+    :param str name - the atom's name.
+    :param float charge - the atom's charge.
+    :param float bvalue - the atom's isotropic uncertainty.
+    :param tuple anisotropy - the atom's anisotropic uncertainty.
+    :param Residue residue - the atom's residue container.
+    :param NonPolymer non_polymer - the atom's non-polymer container.
+    :param Water water - the atom's water container."""
 
     __slots__ = [
         "element", "location", "id", "name", "charge",
@@ -334,16 +352,22 @@ class Atom:
 
     @property
     def polymer(self):
+        """The atom's polymer."""
+
         if self.residue: return self.residue.polymer
     
 
     @property
     def branched_polymer(self):
+        """The atom's branched-polymer."""
+
         if self.residue: return self.residue.branched_polymer
         
 
     @property
     def model(self):
+        """The model the atom is in."""
+
         if self.residue: return self.residue.model
         if self.non_polymer: return self.non_polymer.model
         if self.water: return self.water.model

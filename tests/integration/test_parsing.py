@@ -338,15 +338,6 @@ class ParsingTests(TestCase):
         self.assertEqual(len(pdb.model.non_polymers()), 32)
         self.assertEqual(len(pdb.model.atoms()), 25948)
 
-        '''# Entities
-        entity = pdb.model.entity("2")
-        self.assertEqual(str(entity), "<Entity 2 (branched)>")
-        self.assertEqual(entity.id, "2")
-        self.assertEqual(entity.type, "branched")
-        self.assertEqual(entity.name, "2-acetamido-2-deoxy-beta-D-glucopyranose-(1-4)-2-acetamido-2-deoxy-beta-D-glucopyranose")
-        self.assertEqual(len(entity.molecules()), 15)
-        entity = pdb.model.entity("2")'''
-
         # Carb
         carb = pdb.model.branched_polymer("D")
         self.assertEqual(str(carb), "<BranchedPolymer D (2 residues)>")

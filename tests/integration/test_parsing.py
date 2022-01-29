@@ -345,6 +345,7 @@ class ParsingTests(TestCase):
         self.assertEqual(carb.id, "D")
         self.assertEqual(carb.auth_id, "D")
         self.assertEqual(len(carb.residues()), 2)
+        for residue in carb.residues(): self.assertIn(residue, carb)
         self.assertIs(carb.model, pdb.model)
         self.assertEqual(len(carb.atoms()), 28)
         self.assertTrue(list(carb.atoms())[0] in carb)

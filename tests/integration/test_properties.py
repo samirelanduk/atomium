@@ -70,12 +70,3 @@ class SpecificStructureProperties(TestCase):
     def test_model_properties(self):
         pdb = atomium.open("tests/integration/files/1lol.cif")
         self.assertEqual(pdb.model.file, pdb)
-    
-
-    
-    
-
-    
-    
-
-    

@@ -75,8 +75,9 @@ class SpecificStructureProperties(TestCase):
 
 class AtomStructurePropertyTests(TestCase):
 
-    def setUp(self):
-        self.pdb = atomium.open("tests/integration/files/1lol.cif")
+    @classmethod
+    def setUpClass(cls):
+        cls.pdb = atomium.open("tests/integration/files/1lol.cif")
 
 
     def test_atom_structure_mass(self):
@@ -84,3 +85,12 @@ class AtomStructurePropertyTests(TestCase):
         self.assertEqual(round(self.pdb.model.residue("A.11").mass, 1), 90.1)
         self.assertEqual(round(self.pdb.model.polymer("A").mass, 1), 20630.9)
         self.assertEqual(round(self.pdb.model.non_polymer("E").mass, 1), 80)
+    
+
+    def test_atom_structure_charge(self):
+        self.pdb.model.atom(1).charge = -1
+        self.pdb.model.atom(3222).charge = 0.5
+        self.assertEqual(self.pdb.model.charge, -0.5)
+        self.assertEqual(self.pdb.model.residue("A.11").charge, -1)
+        self.assertEqual(self.pdb.model.polymer("A").charge, -1)
+        self.assertEqual(self.pdb.model.non_polymer("E").charge, 0.5)

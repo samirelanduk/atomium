@@ -11,9 +11,16 @@ class AtomStructure:
         :rtype: ``float``"""
 
         return round(sum([atom.mass for atom in self.atoms()]), 12)
+    
 
-    # Mass
-    # Charge
+    @property
+    def charge(self):
+        """The structure's charge - the sum of all its atoms' charges.
+
+        :rtype: ``float``"""
+
+        return round(sum([atom.charge for atom in self.atoms()]), 12)
+
     # Formula
     # Center of mass
     # Radius of gyration

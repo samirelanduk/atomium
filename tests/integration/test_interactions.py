@@ -96,7 +96,6 @@ class DistanceTests(TestCase):
         molecules = atom.nearby_molecules(5)
         self.assertEqual(len(molecules), 5)
         self.assertNotIn(atom.polymer, molecules)
-        print(molecules)
         
         # Subtypes
         molecules = atom.nearby_molecules(5, polymer=True)
@@ -106,6 +105,42 @@ class DistanceTests(TestCase):
         molecules = atom.nearby_molecules(5, non_polymer=True)
         self.assertEqual(len(molecules), 2)
         molecules = atom.nearby_molecules(5, water=True)
+        self.assertEqual(len(molecules), 2)
+    
+
+    def test_structure_nearby_residues(self):
+        # Residues near ligand
+        molecule = self.pdb.model.non_polymer("F")
+        residues = molecule.nearby_residues(5)
+        self.assertEqual(len(residues), 18)
+
+        # Residues near residue
+        residue = self.pdb.model.residue("A.11")
+        residues = residue.nearby_residues(5)
+        self.assertEqual(len(residues), 10)
+        self.assertNotIn(residue, residues)
+
+        # Filtering
+        residues = molecule.nearby_residues(5, residue__name="SER")
+        self.assertEqual(len(residues), 2)
+        residues = molecule.nearby_residues(5, residue__mass__gt=100)
+        self.assertEqual(len(residues), 11)
+    
+
+    def test_structure_nearby_molecules(self):
+        # All structues
+        molecule = self.pdb.model.non_polymer("F")
+        molecules = molecule.nearby_molecules(5)
+        self.assertEqual(len(molecules), 5)
+
+        # Filtered by type
+        molecules = molecule.nearby_molecules(5, polymer=True)
+        self.assertEqual(len(molecules), 2)
+        molecules = molecule.nearby_molecules(5, branched_polymer=True)
+        self.assertEqual(len(molecules), 0)
+        molecules = molecule.nearby_molecules(5, non_polymer=True)
+        self.assertEqual(len(molecules), 1)
+        molecules = molecule.nearby_molecules(5, water=True)
         self.assertEqual(len(molecules), 2)
 
 

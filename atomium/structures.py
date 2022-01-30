@@ -107,6 +107,20 @@ class AtomStructure:
         Y = np.array([a.location for a in atoms])
         distances = cdist(X, Y)[0]
         return {a for index, a in enumerate(atoms) if distances[index] <= radius}
+    
+
+    def nearby_residues(self, *args, **kwargs):
+        residues = set()
+        for atom in self.atoms():
+            residues.update(atom.nearby_residues(*args, **kwargs)) 
+        return residues
+    
+
+    def nearby_molecules(self, *args, **kwargs):
+        molecules = set()
+        for atom in self.atoms():
+            molecules.update(atom.nearby_molecules(*args, **kwargs)) 
+        return molecules
 
 
 class Model(AtomStructure, metaclass=StructureClass):

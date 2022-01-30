@@ -502,3 +502,14 @@ class Atom:
 
         if not self.residue: return False
         return not self.is_backbone
+    
+
+    def distance_to(self, other):
+        """Returns the distance (in whatever units the coordinates are defined
+        in) between this atom and another. You can also give a (x, y, z) tuple
+        instead of another atom if you so wish.
+
+        :param Atom other: The other atom (or location tuple).
+        :rtype: ``float``"""
+
+        return np.linalg.norm(self.location - np.array(list(other)))

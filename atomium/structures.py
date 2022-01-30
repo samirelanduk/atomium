@@ -151,6 +151,19 @@ class AtomStructure:
         for atom in self.atoms():
             molecules.update(atom.nearby_molecules(*args, **kwargs)) 
         return molecules
+    
+
+    def pairing_with(self, structure, *args, **kwargs):
+        self_atoms = list(self.atoms(*args, **kwargs))
+        other_atoms = list(structure.atoms(*args, **kwargs))
+        if len(self_atoms) != len(other_atoms):
+            raise ValueError(f"{self} and {structure} have different numbers of atoms")
+        for struct, atoms in ((self, self_atoms), (structure, other_atoms)):
+            center = struct.center_of_mass
+            atoms.sort(key=lambda a: (
+                a.element, a.name, a.id, a.distance_to(center), id(a)
+            ))
+        return {atom1: atom2 for atom1, atom2 in zip(self_atoms, other_atoms)}
 
 
 class Model(AtomStructure, metaclass=StructureClass):

@@ -145,4 +145,50 @@ class DistanceTests(TestCase):
 
 
 
+class RmsdTests(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.pdb = atomium.open("tests/integration/files/1lol.cif")
+
+
+    def test_can_get_xmp_pairing(self):
+        mol1 = self.pdb.model.non_polymer("C")
+        mol2 = self.pdb.model.non_polymer("E")
+        pairing = mol1.pairing_with(mol2)
+        for a1, a2 in pairing.items():
+            self.assertEqual(a1.element, a2.element)
+            self.assertEqual(a1.name, a2.name)
+
+    
+
+    def test_can_get_bu2_pairing(self):
+        mol1 = self.pdb.model.non_polymer("D")
+        mol2 = self.pdb.model.non_polymer("F")
+        pairing = mol1.pairing_with(mol2)
+        for a1, a2 in pairing.items():
+            self.assertEqual(a1.element, a2.element)
+            self.assertEqual(a1.name, a2.name)
+    
+
+    def test_can_get_polymer_pairing(self):
+        mol1 = self.pdb.model.polymer("A")
+        mol2 = self.pdb.model.polymer("B")
+        pairing = mol1.pairing_with(mol2, name="CA", residue__number__lt=187)
+        sorted_by_first_id = sorted(pairing.items(), key=lambda p: p[0].id)
+        second_ids = [a[1].id for a in sorted_by_first_id]
+        self.assertEqual(second_ids, sorted(second_ids))
+
+
+        
+
+
+    def test_can_handle_mispairing(self):
+        mol1 = self.pdb.model.non_polymer("C")
+        mol2 = self.pdb.model.non_polymer("D")
+        with self.assertRaises(ValueError):
+            mol1.pairing_with(mol2)
+
+
+
 

@@ -72,3 +72,42 @@ class DistanceTests(TestCase):
         self.assertEqual(len(atoms), 13)
         atoms = atom.nearby_atoms(5, residue__name="HIS")
         self.assertEqual(len(atoms), 3)
+    
+
+    def test_atom_nearby_residues(self):
+        # All nearby residues
+        atom = self.pdb.model.atom(528)
+        residues = atom.nearby_residues(5)
+        self.assertEqual(len(residues), 4)
+        self.assertNotIn(atom.residue, residues)
+
+        # Filtering by atom property
+        residues = atom.nearby_residues(5, name="N")
+        self.assertEqual(len(residues), 1)
+
+        # Filtering by residue property
+        residues = atom.nearby_residues(5, residue__name="MET")
+        self.assertEqual(len(residues), 1)
+    
+
+    def test_atom_nearby_molecules(self):
+        # Molecules of all kind
+        atom = self.pdb.model.atom(528)
+        molecules = atom.nearby_molecules(5)
+        self.assertEqual(len(molecules), 5)
+        self.assertNotIn(atom.polymer, molecules)
+        print(molecules)
+        
+        # Subtypes
+        molecules = atom.nearby_molecules(5, polymer=True)
+        self.assertEqual(len(molecules), 1)
+        molecules = atom.nearby_molecules(5, branched_polymer=True)
+        self.assertEqual(len(molecules), 0)
+        molecules = atom.nearby_molecules(5, non_polymer=True)
+        self.assertEqual(len(molecules), 2)
+        molecules = atom.nearby_molecules(5, water=True)
+        self.assertEqual(len(molecules), 2)
+
+
+
+

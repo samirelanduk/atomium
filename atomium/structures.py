@@ -587,7 +587,7 @@ class Atom:
         :rtype: ``set``"""
 
         if self.model:
-            atoms =  self.model.atoms_in_sphere(
+            atoms = self.model.atoms_in_sphere(
                 self.location, cutoff, *args, **kwargs
             )
             try:
@@ -595,3 +595,27 @@ class Atom:
             except: pass
             return atoms
         return set()
+    
+
+    def nearby_residues(self, cutoff, *args, **kwargs):
+        atoms = self.nearby_atoms(cutoff, *args, **kwargs)
+        residues = set()
+        for atom in atoms:
+            if atom.residue and atom.residue is not self.residue:
+                residues.add(atom.residue)
+        return residues
+    
+
+    def nearby_molecules(self, cutoff, *args, **kwargs):
+        atoms = self.nearby_atoms(cutoff, *args, **kwargs)
+        molecules = set()
+        for atom in atoms:
+            if atom.polymer and atom.polymer is not self.polymer:
+                molecules.add(atom.polymer)
+            if atom.branched_polymer and atom.branched_polymer is not self.branched_polymer:
+                molecules.add(atom.branched_polymer)
+            if atom.non_polymer and atom.non_polymer is not self.non_polymer:
+                molecules.add(atom.non_polymer)
+            if atom.water and atom.water is not self.water:
+                molecules.add(atom.water)
+        return molecules

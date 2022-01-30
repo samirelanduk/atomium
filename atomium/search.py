@@ -166,6 +166,8 @@ def attribute_matches_value(attribute, value, components):
     possible_magic = f"__{components[-1]}__"
     if hasattr(attribute, possible_magic):
         return getattr(attribute, possible_magic)(value)
+    if type(value) == bool:
+        return getattr(bool(attribute), "__eq__")(value)
     return getattr(attribute, "__eq__")(value)
 
 

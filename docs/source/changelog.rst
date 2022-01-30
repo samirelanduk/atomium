@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+Release 1.0.11
+~~~~~~~~~~~~~~
+
+`27 November 2021`
+
+* Optimised distance lookup for finding atoms within sphere.
+
+
 Release 1.0.10
 ~~~~~~~~~~~~~~
 

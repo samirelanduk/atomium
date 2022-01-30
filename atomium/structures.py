@@ -45,6 +45,23 @@ class AtomStructure:
         mass = self.mass
         locations = np.array([a.location * a.mass for a in self.atoms()])
         return np.sum(locations, axis=0) / mass
+    
+
+    @property
+    def radius_of_gyration(self):
+        """The radius of gyration of a structure is a measure of how extended it
+        is. It is the root mean square deviation of the atoms' distance from the
+        structure's :py:meth:`.center_of_mass`.
+
+        :rtype: ``float``"""
+
+        center_of_mass = self.center_of_mass
+        atoms = self.atoms()
+        square_deviation = sum(
+            [atom.distance_to(center_of_mass) ** 2 for atom in atoms]
+        )
+        mean_square_deviation = square_deviation / len(atoms)
+        return np.sqrt(mean_square_deviation)
 
 
     def create_grid(self, size=1, margin=0):

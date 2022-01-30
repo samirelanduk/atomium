@@ -114,6 +114,10 @@ class AtomStructurePropertyTests(TestCase):
         self.assertEqual(round(self.pdb.model.center_of_mass[2], 1), 48.6)
     
 
+    def test_radius_of_gyration(self):
+        self.assertEqual(round(self.pdb.model.radius_of_gyration, 1), 21.8)
+    
+
     def test_grid(self):
         # Integer grid
         grid = list(self.pdb.model.residue("A.11").create_grid())

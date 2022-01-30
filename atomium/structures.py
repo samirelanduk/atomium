@@ -1,7 +1,8 @@
 import math
 import numpy as np
-from collections import Counter
-from .search import StructureSet, StructureClass
+from scipy.spatial.distance import cdist
+from collections import Counter, defaultdict
+from .search import StructureSet, StructureClass, query
 from .data import CODES, PERIODIC_TABLE, COVALENT_RADII, METALS, FULL_NAMES
 
 class AtomStructure:
@@ -73,6 +74,38 @@ class AtomStructure:
             for y in dimension_values[1]:
                 for z in dimension_values[2]:
                     yield (x, y, z)
+    
+
+    def atoms_in_sphere(self, location, radius, *args, **kwargs):
+        """Returns all the atoms in a given sphere within this structure. This
+        will be a lot faster if the structure is a :py:class:`.Model` and if
+        :py:meth:`.optimise_distances` has been called, as it won't have to
+        search all atoms.
+
+        :param tuple location: the centre of the sphere.
+        :param float radius: the radius of the sphere.
+        :rtype: ``set``"""
+
+        if "_internal_grid" in self.__dict__ and self._internal_grid:
+            r, atoms = math.ceil(radius / 10), set()
+            x, y, z = [int(math.floor(n / 10)) * 10 for n in location]
+            x_range, y_range, z_range = [
+                [(val - (n * 10)) for n in range(1, r + 1)][::-1] + [val] + [
+                    (val + n * 10) for n in range(1, r + 1)
+                ] for val in (x, y, z)
+            ]
+            for x in x_range:
+                for y in y_range:
+                    for z in z_range:
+                        atoms = atoms.union(self._internal_grid[x][y][z])
+            atoms = StructureSet(atoms)
+            atoms = query(lambda self: atoms)(self, *args, **kwargs)
+        else:
+            atoms = self.atoms(*args, **kwargs)
+        X = np.tile(location, [len(atoms), 1])
+        Y = np.array([a.location for a in atoms])
+        distances = cdist(X, Y)[0]
+        return {a for index, a in enumerate(atoms) if distances[index] <= radius}
 
 
 class Model(AtomStructure, metaclass=StructureClass):
@@ -131,6 +164,20 @@ class Model(AtomStructure, metaclass=StructureClass):
         for molecule in self.molecules():
             atoms += molecule.atoms()
         return StructureSet(atoms)
+    
+
+    def optimise_distances(self):
+        """Calling this method makes finding atoms within a sphere faster, and
+        consequently makes all 'nearby' methods faster. It organises the atoms
+        in the model into grids, so that only relevant atoms are checked for
+        distances."""
+
+        self._internal_grid = defaultdict(
+            lambda: defaultdict(lambda: defaultdict(set))
+        )
+        for atom in self.atoms():
+            x, y, z = [int(math.floor(n / 10)) * 10 for n in atom.location]
+            self._internal_grid[x][y][z].add(atom)
 
 
 

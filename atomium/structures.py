@@ -513,3 +513,18 @@ class Atom:
         :rtype: ``float``"""
 
         return np.linalg.norm(self.location - np.array(list(other)))
+    
+
+    def angle(self, atom1, atom2):
+        """Gets the angle between two atom vectors with this atom as the origin.
+
+        :param Atom atom1: The first atom.
+        :param Atom atom2: Thne second atom."""
+
+        vectors = [
+            [v1 - v2 for v1, v2 in zip(list(atom), self.location)
+        ] for atom in (atom1, atom2)]
+        normalized = [np.linalg.norm(v) for v in vectors]
+        if 0 in normalized: return 0
+        vectors = [v / n for v, n in zip(vectors, normalized)]
+        return np.arccos(np.clip(np.dot(vectors[0], vectors[1]), -1.0, 1.0))

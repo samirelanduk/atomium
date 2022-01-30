@@ -102,6 +102,7 @@ class AtomStructure:
             atoms = query(lambda self: atoms)(self, *args, **kwargs)
         else:
             atoms = self.atoms(*args, **kwargs)
+        if not atoms: return atoms
         X = np.tile(location, [len(atoms), 1])
         Y = np.array([a.location for a in atoms])
         distances = cdist(X, Y)[0]
@@ -575,3 +576,22 @@ class Atom:
         if 0 in normalized: return 0
         vectors = [v / n for v, n in zip(vectors, normalized)]
         return np.arccos(np.clip(np.dot(vectors[0], vectors[1]), -1.0, 1.0))
+    
+
+    def nearby_atoms(self, cutoff, *args, **kwargs):
+        """Returns all atoms in the associated :py:class:`.Model` that are
+        within a given distance (in the units of the atom coordinates) of this
+        atom. If the atom is not part of a model, no atoms will be returned.
+
+        :param float cutoff: The radius to search within.
+        :rtype: ``set``"""
+
+        if self.model:
+            atoms =  self.model.atoms_in_sphere(
+                self.location, cutoff, *args, **kwargs
+            )
+            try:
+                atoms.remove(self)
+            except: pass
+            return atoms
+        return set()

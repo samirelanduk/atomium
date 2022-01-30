@@ -93,6 +93,19 @@ class AtomStructure:
                     yield (x, y, z)
     
 
+    def pairwise_atoms(self, *args, **kwargs):
+        """A generator which yields all the pairwise atom combinations of the
+        structure. There will be no duplicates in the returned generator, and
+        the number of returned pairs will be a triangle number.
+
+        :rtype: ``tuple``"""
+
+        atoms = list(self.atoms(*args, **kwargs))
+        for a_index in range(len(atoms) - 1):
+            for o_index in range(a_index + 1, len(atoms)):
+                yield {atoms[a_index], atoms[o_index]}
+    
+
     def atoms_in_sphere(self, location, radius, *args, **kwargs):
         """Returns all the atoms in a given sphere within this structure. This
         will be a lot faster if the structure is a :py:class:`.Model` and if

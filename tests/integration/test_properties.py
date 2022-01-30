@@ -136,3 +136,18 @@ class AtomStructurePropertyTests(TestCase):
         self.assertEqual(len(grid), 900)
         self.assertEqual(grid[0], (0, 29, 57))
         self.assertEqual(grid[-1], (8, 38, 66))
+    
+
+    def test_pairwise_atoms(self):
+        # All atoms
+        residue = self.pdb.model.residue("A.11")
+        pairs = list(residue.pairwise_atoms())
+        self.assertEqual(len(pairs), 21)
+        for pair in pairs:
+            self.assertIsNot(*pair)
+        
+        # Filtered atoms
+        pairs = list(residue.pairwise_atoms(element="C"))
+        self.assertEqual(len(pairs), 10)
+        for pair in pairs:
+            self.assertIsNot(*pair)

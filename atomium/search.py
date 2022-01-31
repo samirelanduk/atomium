@@ -65,6 +65,14 @@ class StructureSet:
 
         matches = self._d.get(id, set())
         for match in matches: return match
+    
+
+    def remove(self, obj):
+        matches = self._d.get(obj.id, set())
+        for match in matches:
+            if match is obj:
+                matches.remove(obj)
+                break
 
 
 

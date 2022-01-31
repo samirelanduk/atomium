@@ -130,6 +130,7 @@ class ParsingTests(TestCase):
         self.assertEqual(len(mol_a.sequence), 229)
         self.assertTrue(mol_a.sequence.startswith("LRSRRVDVMDVMNRLILAMDL"))
         self.assertTrue(mol_a.sequence.endswith("LADNPAAAAAGIIESIKDLLIPE"))
+        self.assertIn(mol_a, pdb.model)
 
         # Molecule B
         mol_b = pdb.model.polymer("B")
@@ -153,6 +154,7 @@ class ParsingTests(TestCase):
         self.assertEqual(len(mol_b.sequence), 229)
         self.assertTrue(mol_b.sequence.startswith("LRSRRVDVMDVMNRLILAMDL"))
         self.assertTrue(mol_b.sequence.endswith("LADNPAAAAAGIIESIKDLLIPE"))
+        self.assertIn(mol_b, pdb.model)
 
         # Molecule C
         mol_c = pdb.model.non_polymer("C")
@@ -165,6 +167,7 @@ class ParsingTests(TestCase):
         for atom in mol_c.atoms(): self.assertIn(atom, mol_c)
         self.assertEqual(mol_c.entity_id, "2")
         self.assertEqual(mol_c.entity_name, "1,3-BUTANEDIOL")
+        self.assertIn(mol_c, pdb.model)
 
         # Molecule D
         mol_d = pdb.model.non_polymer("D")
@@ -177,6 +180,7 @@ class ParsingTests(TestCase):
         for atom in mol_d.atoms(): self.assertIn(atom, mol_d)
         self.assertEqual(mol_d.entity_id, "3")
         self.assertEqual(mol_d.entity_name, "XANTHOSINE-5'-MONOPHOSPHATE")
+        self.assertIn(mol_d, pdb.model)
 
         # Molecule E
         mol_e = pdb.model.non_polymer("E")
@@ -189,6 +193,7 @@ class ParsingTests(TestCase):
         for atom in mol_e.atoms(): self.assertIn(atom, mol_e)
         self.assertEqual(mol_e.entity_id, "2")
         self.assertEqual(mol_e.entity_name, "1,3-BUTANEDIOL")
+        self.assertIn(mol_e, pdb.model)
 
         # Molecule F
         mol_f = pdb.model.non_polymer("F")
@@ -201,6 +206,7 @@ class ParsingTests(TestCase):
         for atom in mol_f.atoms(): self.assertIn(atom, mol_f)
         self.assertEqual(mol_f.entity_id, "3")
         self.assertEqual(mol_f.entity_name, "XANTHOSINE-5'-MONOPHOSPHATE")
+        self.assertIn(mol_f, pdb.model)
 
         # Molecule G
         mol_g = pdb.model.water("G")
@@ -213,6 +219,7 @@ class ParsingTests(TestCase):
         for atom in mol_g.atoms(): self.assertIn(atom, mol_g)
         self.assertEqual(mol_g.entity_id, "4")
         self.assertEqual(mol_g.entity_name, "water")
+        self.assertIn(mol_g, pdb.model)
 
         # Molecule H
         mol_h = pdb.model.water("H")
@@ -225,6 +232,7 @@ class ParsingTests(TestCase):
         for atom in mol_h.atoms(): self.assertIn(atom, mol_h)
         self.assertEqual(mol_h.entity_id, "4")
         self.assertEqual(mol_h.entity_name, "water")
+        self.assertIn(mol_h, pdb.model)
 
         # Residue A.11
         residue = pdb.model.residue("A.11")
@@ -237,6 +245,7 @@ class ParsingTests(TestCase):
         self.assertIs(residue.model, pdb.model)
         self.assertEqual(len(residue.atoms()), 7)
         for atom in residue.atoms(): self.assertIn(atom, residue)
+        self.assertIn(residue, pdb.model)
 
         # Atom 3231
         atom = pdb.model.atom(3231)
@@ -254,6 +263,7 @@ class ParsingTests(TestCase):
         self.assertIs(atom.non_polymer, mol_f)
         self.assertIsNone(atom.water)
         self.assertIsNone(atom.residue)
+        self.assertIn(atom, pdb.model)
 
         # Atom 2649
         atom = pdb.model.atom(2649)
@@ -265,6 +275,7 @@ class ParsingTests(TestCase):
         self.assertIsNone(atom.non_polymer)
         self.assertIsNone(atom.water)
         self.assertIs(atom.residue, pdb.model.residue("B.152"))
+        self.assertIn(atom, pdb.model)
 
         # Atom 3323
         atom = pdb.model.atom(3323)
@@ -276,6 +287,7 @@ class ParsingTests(TestCase):
         self.assertIsNone(atom.non_polymer)
         self.assertIs(atom.water, mol_g)
         self.assertIsNone(atom.residue)
+        self.assertIn(atom, pdb.model)
     
 
     def test_2igd(self):
@@ -341,6 +353,7 @@ class ParsingTests(TestCase):
 
         # Carb
         carb = pdb.model.branched_polymer("D")
+        self.assertIn(carb, pdb.model)
         self.assertEqual(str(carb), "<BranchedPolymer D (2 residues)>")
         self.assertEqual(carb.id, "D")
         self.assertEqual(carb.auth_id, "D")

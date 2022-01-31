@@ -196,7 +196,6 @@ class AtomStructure:
 
 
 
-
 class Model(AtomStructure, metaclass=StructureClass):
 
     def __init__(self, molecules, file=None):
@@ -217,6 +216,11 @@ class Model(AtomStructure, metaclass=StructureClass):
         if lists[2]:
             strings.append("{} non-polymer{}".format(len(lists[2]), "" if len(lists[2]) == 1 else "s"))
         return "<Model ({})>".format(", ".join(strings))
+    
+
+    def __contains__(self, obj):
+        return obj in self._molecules.structures or\
+            obj in self.residues() or obj in self.atoms()
     
 
     def molecules(self):
@@ -267,6 +271,13 @@ class Model(AtomStructure, metaclass=StructureClass):
         for atom in self.atoms():
             x, y, z = [int(math.floor(n / 10)) * 10 for n in atom.location]
             self._internal_grid[x][y][z].add(atom)
+    
+
+    def remove(self, structure):
+        self._molecules.remove(structure)
+        if isinstance(structure, (Residue, Atom)):
+            for molecule in self._molecules.structures:
+                molecule.remove(structure)
 
 
 
@@ -358,6 +369,13 @@ class Polymer(Entity):
         return "".join(r.code for r in self.residues())
     
 
+    def remove(self, structure):
+        if isinstance(structure, Atom):
+            for residue in self._residues.structures:
+                residue.remove(structure)
+        self._residues.remove(structure)
+    
+
 
 class BranchedPolymer(Entity):
 
@@ -384,6 +402,13 @@ class BranchedPolymer(Entity):
         for residue in self.residues():
             atoms += residue.atoms()
         return StructureSet(atoms)
+    
+
+    def remove(self, structure):
+        if isinstance(structure, Atom):
+            for residue in self._residues.structures:
+                residue.remove(structure)
+        self._residues.remove(structure)
 
 
 
@@ -406,6 +431,10 @@ class NonPolymer(Entity):
 
     def atoms(self):
         return self._atoms
+    
+
+    def remove(self, atom):
+        self._atoms.remove(atom)
 
 
 
@@ -428,6 +457,10 @@ class Water(Entity):
 
     def atoms(self):
         return self._atoms
+    
+
+    def remove(self, atom):
+        self._atoms.remove(atom)
 
 
 
@@ -517,6 +550,10 @@ class Residue(AtomStructure, metaclass=StructureClass):
             for residue in strand:
                 if residue is self: return True
         return False
+    
+
+    def remove(self, atom):
+        self._atoms.remove(atom)
 
 
 

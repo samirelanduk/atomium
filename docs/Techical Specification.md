@@ -77,6 +77,19 @@ All of the classes which are in some way a container of atoms subclass the `Atom
 
 ## Structure Comparisons
 
+Atoms and structures have various methods for comparing themselves to other atoms and structures.
+
+Mostly these are related to distance. Atoms can get their distance to other atoms (as well as their angle with two other atoms), and have methods for determining the atoms within some radius (filterable by the atomium query language) and the residues or molecules within some radius. Structures themsevles have `nearby_atoms`, `nearby_residues` and `nearby_molecules` that essentially wrap around the equivalent methods of their atoms.
+
+Distance lookup can be quite computationally expensive as it often involves pairwise comparisons, and the combinatorics of this can get very large. There are two optimisations used:
+
+1. Models have a `optimise_distances` method which, when called, puts all atoms in a grid. Calls to the `atoms_in_sphere` method that underpins all the `nearby_` method calls will first use this gird to get only atoms which could feasibly be nearby, and only do the Pythagorean measurement on that subset of atoms.
+
+2. The `atoms_in_sphere` method doesn't go through each atom one by one and call its `distance_to` method on the sphere centre. It uses the scipy `cdist` method to do it all in one big matrix calculation.
+
+The other comparison methods relate to RMSD, a measure of similar two structure's coordinates are. This involves creating a mapping of each atom in one structure to its corresponding atom in the other. Names, elements, atomium IDs, and Python IDs are used to order them correctly - this last one being used to ensure that unmatchable structures are at least ordered the same way each time.
+
+
 ## Structure Modification
 
 ## Biological Assemblies

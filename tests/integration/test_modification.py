@@ -130,6 +130,8 @@ class RemovalTests(TestCase):
         model.remove(water)
         self.assertNotIn(water, model)
         self.assertEqual(len(model.waters()), 2)
+        model.dehydrate()
+        self.assertEqual(len(model.waters()), 0)
 
         # Remove non-polymer
         non_polymer = model.non_polymer("V")
@@ -149,25 +151,8 @@ class RemovalTests(TestCase):
 
         # Remove atom
         atom = model.atom(1)
-        self.assertEqual(len(model.atoms()), 17528)
+        self.assertEqual(len(model.atoms()), 17361)
         self.assertIn(atom, model)
         model.remove(atom)
         self.assertNotIn(atom, model)
-        self.assertEqual(len(model.atoms()), 17527)
-
-        
-
-    '''def test_can_remove_atom(self):
-        # Delete atom from polymer
-        model = atomium.open("tests/integration/files/1cbn.cif").model
-        atom = model.atom(1)
-        self.assertEqual(len(model.atoms()), 640)
-        atom.remove()
-        self.assertEqual(len(model.atoms()), 639)
-
-        # Delete atom fron non-polymer
-        mol = model.non_polymer()
-        atom = mol.atom()
-        self.assertEqual(len(mol.atoms()), 3)
-        atom.remove()
-        self.assertEqual(len(mol.atoms()), 2)'''
+        self.assertEqual(len(model.atoms()), 17360)

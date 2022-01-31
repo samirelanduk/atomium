@@ -278,6 +278,11 @@ class Model(AtomStructure, metaclass=StructureClass):
         if isinstance(structure, (Residue, Atom)):
             for molecule in self._molecules.structures:
                 molecule.remove(structure)
+    
+
+    def dehydrate(self):
+        for water in self.waters():
+            self.remove(water)
 
 
 

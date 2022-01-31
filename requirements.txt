@@ -1,6 +1,5 @@
 numpy
 requests
-rmsd
 msgpack==0.6.1
 valerius==0.2
 python-coveralls

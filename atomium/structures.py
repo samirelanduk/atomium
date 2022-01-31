@@ -164,6 +164,27 @@ class AtomStructure:
                 a.element, a.name, a.id, a.distance_to(center), id(a)
             ))
         return {atom1: atom2 for atom1, atom2 in zip(self_atoms, other_atoms)}
+    
+
+    def rmsd_with(self, structure, *args, **kwargs):
+        pairing = self.pairing_with(structure, *args, **kwargs)
+        coords1, coords2 = [[
+            a.location for a in atoms
+        ] for atoms in zip(*pairing.items())]
+        coords1 = coords1 - np.array(self.center_of_mass)
+        coords2 = coords2 - np.array(structure.center_of_mass)
+        cov_matrix = np.dot(np.transpose(coords1), coords2)
+        V, S, W = np.linalg.svd(cov_matrix)
+        d = (np.linalg.det(V) * np.linalg.det(W)) < 0.0
+        if d: S[-1] = -S[-1]
+        if d: V[:, -1] = -V[:, -1]
+        rot_matrix = np.dot(V, W)
+        coords1_rotated = np.dot(coords1, rot_matrix)
+        diff = coords1_rotated - coords2
+        N = len(coords2)
+        return np.sqrt((diff * diff).sum() / N)
+
+
 
 
 class Model(AtomStructure, metaclass=StructureClass):

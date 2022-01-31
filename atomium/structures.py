@@ -183,6 +183,16 @@ class AtomStructure:
         diff = coords1_rotated - coords2
         N = len(coords2)
         return np.sqrt((diff * diff).sum() / N)
+    
+
+    def trim(self, places):
+        """Rounds the coordinate values to a given number of decimal places.
+        Useful for removing floating point rounding errors after transformation.
+
+        :param int places: The number of places to round the coordinates to."""
+
+        for atom in self.atoms():
+            atom.trim(places)
 
 
 
@@ -697,3 +707,12 @@ class Atom:
             if atom.water and atom.water is not self.water:
                 molecules.add(atom.water)
         return molecules
+    
+
+    def trim(self, places):
+        """Rounds the coordinate values to a given number of decimal places.
+        Useful for removing floating point rounding errors after transformation.
+
+        :param int places: The number of places to round the coordinates to."""
+
+        self.location = np.round(self.location, places)

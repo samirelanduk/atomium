@@ -285,6 +285,12 @@ class Model(AtomStructure, metaclass=StructureClass):
     def dehydrate(self):
         for water in self.waters():
             self.remove(water)
+    
+
+    def copy(self):
+        return Model(
+            molecules=[mol.copy() for mol in self.molecules()], file=self.file
+        )
 
 
 
@@ -385,6 +391,14 @@ class Polymer(Entity):
                 residue.remove(structure)
     
 
+    def copy(self):
+        return self.__class__(
+            id=self.id, auth_id=self.auth_id,
+            helices=self._helices, strands=self._strands,
+            residues=[residue.copy() for residue in self.residues()]
+        )
+    
+
 
 class BranchedPolymer(Entity):
 
@@ -420,6 +434,13 @@ class BranchedPolymer(Entity):
         if isinstance(structure, Atom):
             for residue in self._residues.structures:
                 residue.remove(structure)
+    
+
+    def copy(self):
+        return self.__class__(
+            id=self.id, auth_id=self.auth_id,
+            residues=[residue.copy() for residue in self.residues()]
+        )
 
 
 
@@ -447,6 +468,13 @@ class NonPolymer(Entity):
     def remove(self, atom):
         self._atoms.remove(atom)
         atom.non_polymer = None
+    
+
+    def copy(self):
+        return self.__class__(
+            id=self.id, auth_id=self.auth_id, name=self.name,
+            atoms=[atom.copy() for atom in self.atoms()]
+        )
 
 
 
@@ -474,6 +502,13 @@ class Water(Entity):
     def remove(self, atom):
         self._atoms.remove(atom)
         atom.water = None
+    
+
+    def copy(self):
+        return self.__class__(
+            id=self.id, auth_id=self.auth_id, name=self.name,
+            atoms=[atom.copy() for atom in self.atoms()]
+        )
 
 
 
@@ -568,6 +603,13 @@ class Residue(AtomStructure, metaclass=StructureClass):
     def remove(self, atom):
         self._atoms.remove(atom)
         atom.residue = None
+    
+
+    def copy(self):
+        return Residue(
+            id=self.id, name=self.name, number=self.number,
+            atoms=[atom.copy() for atom in self.atoms()]
+        )
 
 
 
@@ -767,3 +809,10 @@ class Atom:
         :param int places: The number of places to round the coordinates to."""
 
         self.location = np.round(self.location, places)
+    
+
+    def copy(self):
+        return Atom(
+            self.element, *self.location, self.id, self.name,
+            self.charge, self.bvalue, self.anisotropy
+        )

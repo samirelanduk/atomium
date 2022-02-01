@@ -169,3 +169,125 @@ class RemovalTests(TestCase):
         self.assertNotIn(atom, model)
         self.assertEqual(len(model.atoms()), 17360)
         self.assertIsNone(atom.model)
+
+
+
+class CopyingTests(TestCase):
+
+    def test_atom_copying(self):
+        model = atomium.open("tests/integration/files/1cbn.cif").model
+        atom = model.atom(1)
+        residue = atom.residue
+        copy = atom.copy()
+        self.assertIsNone(copy.residue)
+        self.assertNotIn(copy, residue)
+        self.assertEqual(atom.id, copy.id)
+        self.assertEqual(atom.element, copy.element)
+        self.assertEqual(atom.name, copy.name)
+        self.assertEqual(atom.bvalue, copy.bvalue)
+        self.assertEqual(atom.anisotropy, copy.anisotropy)
+        self.assertEqual(list(atom.location), list(copy.location))
+    
+
+    def test_residue_copying(self):
+        model = atomium.open("tests/integration/files/1cbn.cif").model
+        residue = model.residue("A.20")
+        polymer = residue.polymer
+        copy = residue.copy()
+        self.assertIsNone(copy.polymer)
+        self.assertNotIn(copy, polymer)
+        self.assertEqual(residue.id, copy.id)
+        self.assertEqual(residue.name, copy.name)
+        self.assertEqual(residue.number, copy.number)
+        self.assertEqual(residue.formula, copy.formula)
+        self.assertEqual(
+            len(residue.atoms() | copy.atoms()),
+            len(residue.atoms()) + len(copy.atoms())
+        )
+    
+
+    def test_non_polymer_copying(self):
+        model = atomium.open("tests/integration/files/1lol.cif").model
+        molecule = model.non_polymer("C")
+        model = molecule.model
+        copy = molecule.copy()
+        self.assertIsNone(copy.model)
+        self.assertNotIn(copy, model)
+        self.assertEqual(molecule.id, copy.id)
+        self.assertEqual(molecule.name, copy.name)
+        self.assertEqual(molecule.entity_name, copy.entity_name)
+        self.assertEqual(molecule.auth_id, copy.auth_id)
+        self.assertEqual(molecule.formula, copy.formula)
+        self.assertEqual(
+            len(molecule.atoms() | copy.atoms()),
+            len(molecule.atoms()) + len(copy.atoms())
+        )
+    
+
+    def test_non_polymer_copying(self):
+        model = atomium.open("tests/integration/files/1lol.cif").model
+        molecule = model.water("G")
+        model = molecule.model
+        copy = molecule.copy()
+        self.assertIsNone(copy.model)
+        self.assertNotIn(copy, model)
+        self.assertEqual(molecule.id, copy.id)
+        self.assertEqual(molecule.name, copy.name)
+        self.assertEqual(molecule.entity_name, copy.entity_name)
+        self.assertEqual(molecule.auth_id, copy.auth_id)
+        self.assertEqual(molecule.formula, copy.formula)
+        self.assertEqual(
+            len(molecule.atoms() | copy.atoms()),
+            len(molecule.atoms()) + len(copy.atoms())
+        )
+    
+
+    def test_polymer_copying(self):
+        model = atomium.open("tests/integration/files/1cbn.cif").model
+        molecule = model.polymer("A")
+        model = molecule.model
+        copy = molecule.copy()
+        self.assertIsNone(copy.model)
+        self.assertNotIn(copy, model)
+        self.assertEqual(molecule.id, copy.id)
+        self.assertEqual(molecule._helices, copy._helices)
+        self.assertEqual(molecule._strands, copy._strands)
+        self.assertEqual(molecule.entity_name, copy.entity_name)
+        self.assertEqual(molecule.sequence, copy.sequence)
+        self.assertEqual(molecule.present_sequence, copy.present_sequence)
+        self.assertEqual(molecule.auth_id, copy.auth_id)
+        self.assertEqual(molecule.formula, copy.formula)
+        self.assertEqual(
+            len(molecule.atoms() | copy.atoms()),
+            len(molecule.atoms()) + len(copy.atoms())
+        )
+    
+
+    def test_branched_polymer_copying(self):
+        model = atomium.open("tests/integration/files/6xlu.cif").model
+        molecule = model.branched_polymer("D")
+        model = molecule.model
+        copy = molecule.copy()
+        self.assertIsNone(copy.model)
+        self.assertNotIn(copy, model)
+        self.assertEqual(molecule.id, copy.id)
+        self.assertEqual(molecule.entity_name, copy.entity_name)
+        self.assertEqual(molecule.auth_id, copy.auth_id)
+        self.assertEqual(molecule.formula, copy.formula)
+        self.assertEqual(
+            len(molecule.atoms() | copy.atoms()),
+            len(molecule.atoms()) + len(copy.atoms())
+        )
+        self.assertEqual(len(copy.residues()), len(molecule.residues()))
+    
+
+    def test_model_copying(self):
+        model = atomium.open("tests/integration/files/6xlu.cif").model
+        copy = model.copy()
+        self.assertIs(model.file, copy.file)
+        self.assertEqual(model.formula, copy.formula)
+        self.assertEqual(
+            len(model.atoms() | copy.atoms()),
+            len(model.atoms()) + len(copy.atoms())
+        )
+        self.assertEqual(len(copy.molecules()), len(model.molecules()))

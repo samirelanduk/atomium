@@ -19,6 +19,23 @@ def updates_model(func):
     return inner
 
 
+def make_rotation_matrix(axis, angle):
+    try:
+        axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]
+    except ValueError:
+        raise ValueError("'{}' is not a valid axis".format(axis))
+    axis = np.asarray(axis)
+    axis = axis / np.sqrt(np.dot(axis, axis))
+    a = np.cos(angle / 2)
+    b, c, d = -axis * np.sin(angle / 2)
+    aa, bb, cc, dd = a * a, b * b, c * c, d * d
+    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+    return np.array([
+        [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+        [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+        [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
+    ])
+
 
 class AtomStructure:
     
@@ -237,21 +254,7 @@ class AtomStructure:
 
     @updates_model
     def rotate_around_axis(self, axis, angle):
-        try:
-            axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]
-        except ValueError:
-            raise ValueError("'{}' is not a valid axis".format(axis))
-        axis = np.asarray(axis)
-        axis = axis / np.sqrt(np.dot(axis, axis))
-        a = np.cos(angle / 2)
-        b, c, d = -axis * np.sin(angle / 2)
-        aa, bb, cc, dd = a * a, b * b, c * c, d * d
-        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-        self.rotate(np.array([
-            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
-        ]))
+        self.rotate(make_rotation_matrix(axis, angle))
 
 
 
@@ -899,18 +902,4 @@ class Atom:
     
     @updates_model
     def rotate_around_axis(self, axis, angle):
-        try:
-            axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]
-        except ValueError:
-            raise ValueError("'{}' is not a valid axis".format(axis))
-        axis = np.asarray(axis)
-        axis = axis / np.sqrt(np.dot(axis, axis))
-        a = np.cos(angle / 2)
-        b, c, d = -axis * np.sin(angle / 2)
-        aa, bb, cc, dd = a * a, b * b, c * c, d * d
-        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-        self.rotate(np.array([
-            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
-        ]))
+        self.rotate(make_rotation_matrix(axis, angle))

@@ -5,6 +5,21 @@ from collections import Counter, defaultdict
 from .search import StructureSet, StructureClass, query
 from .data import CODES, PERIODIC_TABLE, COVALENT_RADII, METALS, FULL_NAMES
 
+def updates_model(func):
+    def inner(self, *args, **kwargs):
+        func(self, *args, **kwargs)
+        try:
+            del self._internal_grid
+        except AttributeError: pass
+        try:
+            del self.model._internal_grid
+        except AttributeError: pass
+    inner.__name__ = func.__name__
+    inner.__doc__ = func.__doc__
+    return inner
+
+
+
 class AtomStructure:
     
     @property
@@ -195,6 +210,7 @@ class AtomStructure:
             atom.trim(places)
     
 
+    @updates_model
     def translate(self, vector):
         atoms = list(self.atoms())
         coordinates = np.array([a.location for a in atoms])
@@ -203,6 +219,7 @@ class AtomStructure:
             atom.location = coords
     
 
+    @updates_model
     def rotate(self, matrix):
         """Non-rotation matrices will deform."""
 
@@ -218,6 +235,7 @@ class AtomStructure:
             atom.location = coords
     
 
+    @updates_model
     def rotate_around_axis(self, axis, angle):
         try:
             axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]
@@ -314,6 +332,7 @@ class Model(AtomStructure, metaclass=StructureClass):
             self._internal_grid[x][y][z].add(atom)
     
 
+    @updates_model
     def remove(self, structure):
         if isinstance(structure, Entity):
             self._molecules.remove(structure)
@@ -323,6 +342,7 @@ class Model(AtomStructure, metaclass=StructureClass):
                 molecule.remove(structure)
     
 
+    @updates_model
     def dehydrate(self):
         for water in self.waters():
             self.remove(water)
@@ -423,6 +443,7 @@ class Polymer(Entity):
         return "".join(r.code for r in self.residues())
     
 
+    @updates_model
     def remove(self, structure):
         if isinstance(structure, Residue):
             self._residues.remove(structure)
@@ -468,6 +489,7 @@ class BranchedPolymer(Entity):
         return StructureSet(atoms)
     
 
+    @updates_model
     def remove(self, structure):
         if isinstance(structure, Residue):
             self._residues.remove(structure)
@@ -505,7 +527,8 @@ class NonPolymer(Entity):
     def atoms(self):
         return self._atoms
     
-
+    
+    @updates_model
     def remove(self, atom):
         self._atoms.remove(atom)
         atom.non_polymer = None
@@ -540,6 +563,7 @@ class Water(Entity):
         return self._atoms
     
 
+    @updates_model
     def remove(self, atom):
         self._atoms.remove(atom)
         atom.water = None
@@ -641,6 +665,7 @@ class Residue(AtomStructure, metaclass=StructureClass):
         return False
     
 
+    @updates_model
     def remove(self, atom):
         self._atoms.remove(atom)
         atom.residue = None
@@ -859,10 +884,12 @@ class Atom:
         )
     
 
+    @updates_model
     def translate(self, vector):
         self.location += vector
     
 
+    @updates_model
     def rotate(self, matrix):
         """Non-rotation matrices will deform."""
 
@@ -870,7 +897,7 @@ class Atom:
             np.array(matrix), np.array(self.location).transpose()
         )
     
-
+    @updates_model
     def rotate_around_axis(self, axis, angle):
         try:
             axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]

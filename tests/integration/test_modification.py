@@ -32,6 +32,7 @@ class RemovalTests(TestCase):
 
     def test_residue_can_remove_contents(self):
         model = atomium.open("tests/integration/files/1cbn.cif").model
+        model.optimise_distances()
         residue = model.residue("A.5")
         atom = residue.atom()
         self.assertEqual(len(residue.atoms()), 14)
@@ -40,10 +41,12 @@ class RemovalTests(TestCase):
         self.assertNotIn(atom, residue)
         self.assertEqual(len(residue.atoms()), 13)
         self.assertIsNone(atom.residue)
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_non_polymer_can_remove_contents(self):
         model = atomium.open("tests/integration/files/1cbn.cif").model
+        model.optimise_distances()
         molecule = model.non_polymer("B")
         atom = molecule.atom()
         self.assertEqual(len(molecule.atoms()), 3)
@@ -52,10 +55,12 @@ class RemovalTests(TestCase):
         self.assertNotIn(atom, molecule)
         self.assertEqual(len(molecule.atoms()), 2)
         self.assertIsNone(atom.non_polymer)
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_water_can_remove_contents(self):
         model = atomium.open("tests/integration/files/1lol.cif").model
+        model.optimise_distances()
         molecule = model.water("G")
         atom = molecule.atom()
         self.assertEqual(len(molecule.atoms()), 96)
@@ -64,10 +69,12 @@ class RemovalTests(TestCase):
         self.assertNotIn(atom, molecule)
         self.assertEqual(len(molecule.atoms()), 95)
         self.assertIsNone(atom.water)
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_polymer_can_remove_contents(self):
         model = atomium.open("tests/integration/files/1cbn.cif").model
+        model.optimise_distances()
         polymer = model.polymer("A")
 
         # Remove residue
@@ -87,10 +94,12 @@ class RemovalTests(TestCase):
         self.assertNotIn(atom, polymer)
         self.assertEqual(len(polymer.atoms()), 629)
         self.assertIsNone(atom.polymer)
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_branched_polymer_can_remove_contents(self):
         model = atomium.open("tests/integration/files/6xlu.cif").model
+        model.optimise_distances()
         branched_polymer = model.branched_polymer("D")
 
         # Remove residue
@@ -110,12 +119,14 @@ class RemovalTests(TestCase):
         self.assertNotIn(atom, branched_polymer)
         self.assertEqual(len(branched_polymer.atoms()), 13)
         self.assertIsNone(atom.branched_polymer)
+        self.assertNotIn("_internal_grid", dir(model))
         
     
 
     def test_model_can_remove_contents(self):
         # Remove polymer
         model = atomium.open("tests/integration/files/6xlu.cif").model
+        model.optimise_distances()
         polymer = model.polymer("B")
         self.assertEqual(len(model.polymers()), 3)
         self.assertIn(polymer, model)
@@ -170,6 +181,7 @@ class RemovalTests(TestCase):
         self.assertNotIn(atom, model)
         self.assertEqual(len(model.atoms()), 17360)
         self.assertIsNone(atom.model)
+        self.assertNotIn("_internal_grid", dir(model))
 
 
 
@@ -299,13 +311,16 @@ class TranslationTests(TestCase):
 
     def test_atom_translation(self):
         model = atomium.open("tests/integration/files/1cbn.cif").model
+        model.optimise_distances()
         atom = model.atom(1)
         atom.translate([2, -3, 4])
         self.assertEqual(list(atom.location), [18.864, 11.059, 7.442])
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_structure_translation(self):
         model = atomium.open("tests/integration/files/1lol.cif").model
+        model.optimise_distances()
         molecule = model.non_polymer("C")
         atom = molecule.atom(3192)
         molecule.translate([-10, 1, -2])
@@ -314,6 +329,7 @@ class TranslationTests(TestCase):
             [round(v, 3) for v in molecule.center_of_mass],
             [-8.701, 45.529, 47.839]
         )
+        self.assertNotIn("_internal_grid", dir(model))
 
 
 
@@ -321,14 +337,17 @@ class RotationTests(TestCase):
 
     def test_atom_rotation(self):
         model = atomium.open("tests/integration/files/1cbn.cif").model
+        model.optimise_distances()
         atom = model.atom(1)
         atom.rotate([[0.9842, 0.1243, 0.1259], [0.0343, 0.5638, -0.8252], [-0.1737, 0.8164, 0.5506]])
         atom.trim(3)
         self.assertEqual(list(atom.location), [18.778, 5.665, 10.444])
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_structure_rotation(self):
         model = atomium.open("tests/integration/files/1lol.cif").model
+        model.optimise_distances()
         molecule = model.non_polymer("C")
         atom = molecule.atom(3192)
         molecule.rotate([[0.3535, 0.8838, 0.3061], [0.3535, 0.1767, -0.9186], [-0.8661, 0.433, -0.25]])
@@ -338,10 +357,12 @@ class RotationTests(TestCase):
             [round(v, 3) for v in molecule.center_of_mass],
             [55.069, -37.455, 5.696]
         )
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_atom_rotation_around_axis(self):
         model = atomium.open("tests/integration/files/1cbn.cif").model
+        model.optimise_distances()
         atom = model.atom(1)
         atom.rotate_around_axis("x", math.pi / 6)
         atom.trim(3)
@@ -352,10 +373,12 @@ class RotationTests(TestCase):
         atom.rotate_around_axis("z", math.pi / 3)
         atom.trim(3)
         self.assertEqual(list(atom.location), [-4.048, 13.896, -16.864])
+        self.assertNotIn("_internal_grid", dir(model))
     
 
     def test_structure_rotation_around_axis(self):
         model = atomium.open("tests/integration/files/1cbn.cif").model
+        model.optimise_distances()
         polymer = model.polymer("A")
         atom = polymer.atom(1)
         polymer.rotate_around_axis("x", math.pi / 6)
@@ -367,3 +390,4 @@ class RotationTests(TestCase):
         polymer.rotate_around_axis("z", math.pi / 3)
         atom.trim(3)
         self.assertEqual(list(atom.location), [-4.048, 13.896, -16.864])
+        self.assertNotIn("_internal_grid", dir(model))

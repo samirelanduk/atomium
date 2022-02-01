@@ -193,6 +193,14 @@ class AtomStructure:
 
         for atom in self.atoms():
             atom.trim(places)
+    
+
+    def translate(self, vector):
+        atoms = list(self.atoms())
+        coordinates = np.array([a.location for a in atoms])
+        coordinates += vector
+        for atom, coords in zip(atoms, coordinates):
+            atom.location = coords
 
 
 
@@ -816,3 +824,7 @@ class Atom:
             self.element, *self.location, self.id, self.name,
             self.charge, self.bvalue, self.anisotropy
         )
+    
+
+    def translate(self, vector):
+        self.location += vector

@@ -291,3 +291,25 @@ class CopyingTests(TestCase):
             len(model.atoms()) + len(copy.atoms())
         )
         self.assertEqual(len(copy.molecules()), len(model.molecules()))
+
+
+
+class TranslationTests(TestCase):
+
+    def test_atom_translation(self):
+        model = atomium.open("tests/integration/files/1cbn.cif").model
+        atom = model.atom(1)
+        atom.translate([2, -3, 4])
+        self.assertEqual(list(atom.location), [18.864, 11.059, 7.442])
+    
+
+    def test_structure_translation(self):
+        model = atomium.open("tests/integration/files/1lol.cif").model
+        molecule = model.non_polymer("C")
+        atom = molecule.atom(3192)
+        molecule.translate([-10, 1, -2])
+        self.assertEqual(list(atom.location), [-7.354, 46.112, 46.995])
+        self.assertEqual(
+            [round(v, 3) for v in molecule.center_of_mass],
+            [-8.7, 45.529, 47.84]
+        )

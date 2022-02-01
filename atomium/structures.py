@@ -274,7 +274,9 @@ class Model(AtomStructure, metaclass=StructureClass):
     
 
     def remove(self, structure):
-        self._molecules.remove(structure)
+        if isinstance(structure, Entity):
+            self._molecules.remove(structure)
+            structure.model = None
         if isinstance(structure, (Residue, Atom)):
             for molecule in self._molecules.structures:
                 molecule.remove(structure)
@@ -375,10 +377,12 @@ class Polymer(Entity):
     
 
     def remove(self, structure):
+        if isinstance(structure, Residue):
+            self._residues.remove(structure)
+            structure.polymer = None
         if isinstance(structure, Atom):
             for residue in self._residues.structures:
                 residue.remove(structure)
-        self._residues.remove(structure)
     
 
 
@@ -410,10 +414,12 @@ class BranchedPolymer(Entity):
     
 
     def remove(self, structure):
+        if isinstance(structure, Residue):
+            self._residues.remove(structure)
+            structure.branched_polymer = None
         if isinstance(structure, Atom):
             for residue in self._residues.structures:
                 residue.remove(structure)
-        self._residues.remove(structure)
 
 
 
@@ -440,6 +446,7 @@ class NonPolymer(Entity):
 
     def remove(self, atom):
         self._atoms.remove(atom)
+        atom.non_polymer = None
 
 
 
@@ -466,6 +473,7 @@ class Water(Entity):
 
     def remove(self, atom):
         self._atoms.remove(atom)
+        atom.water = None
 
 
 
@@ -559,6 +567,7 @@ class Residue(AtomStructure, metaclass=StructureClass):
 
     def remove(self, atom):
         self._atoms.remove(atom)
+        atom.residue = None
 
 
 

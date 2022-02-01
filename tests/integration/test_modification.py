@@ -38,6 +38,7 @@ class RemovalTests(TestCase):
         residue.remove(atom)
         self.assertNotIn(atom, residue)
         self.assertEqual(len(residue.atoms()), 13)
+        self.assertIsNone(atom.residue)
     
 
     def test_non_polymer_can_remove_contents(self):
@@ -49,6 +50,7 @@ class RemovalTests(TestCase):
         molecule.remove(atom)
         self.assertNotIn(atom, molecule)
         self.assertEqual(len(molecule.atoms()), 2)
+        self.assertIsNone(atom.non_polymer)
     
 
     def test_water_can_remove_contents(self):
@@ -60,6 +62,7 @@ class RemovalTests(TestCase):
         molecule.remove(atom)
         self.assertNotIn(atom, molecule)
         self.assertEqual(len(molecule.atoms()), 95)
+        self.assertIsNone(atom.water)
     
 
     def test_polymer_can_remove_contents(self):
@@ -73,6 +76,7 @@ class RemovalTests(TestCase):
         polymer.remove(residue)
         self.assertNotIn(residue, polymer)
         self.assertEqual(len(polymer.residues()), 45)
+        self.assertIsNone(residue.polymer)
 
         # Remove atom
         atom = polymer.atom()
@@ -81,6 +85,7 @@ class RemovalTests(TestCase):
         polymer.remove(atom)
         self.assertNotIn(atom, polymer)
         self.assertEqual(len(polymer.atoms()), 629)
+        self.assertIsNone(atom.polymer)
     
 
     def test_branched_polymer_can_remove_contents(self):
@@ -94,6 +99,7 @@ class RemovalTests(TestCase):
         branched_polymer.remove(residue)
         self.assertNotIn(residue, branched_polymer)
         self.assertEqual(len(branched_polymer.residues()), 1)
+        self.assertIsNone(residue.branched_polymer)
 
         # Remove atom
         atom = branched_polymer.atom()
@@ -102,6 +108,7 @@ class RemovalTests(TestCase):
         branched_polymer.remove(atom)
         self.assertNotIn(atom, branched_polymer)
         self.assertEqual(len(branched_polymer.atoms()), 13)
+        self.assertIsNone(atom.branched_polymer)
         
     
 
@@ -114,6 +121,7 @@ class RemovalTests(TestCase):
         model.remove(polymer)
         self.assertNotIn(polymer, model)
         self.assertEqual(len(model.polymers()), 2)
+        self.assertIsNone(polymer.model)
 
         # Remove branched-polymer
         branched_polymer = model.branched_polymer("F")
@@ -122,6 +130,7 @@ class RemovalTests(TestCase):
         model.remove(branched_polymer)
         self.assertNotIn(branched_polymer, model)
         self.assertEqual(len(model.branched_polymers()), 14)
+        self.assertIsNone(branched_polymer.model)
 
         # Remove water
         water = model.water("YA")
@@ -132,6 +141,7 @@ class RemovalTests(TestCase):
         self.assertEqual(len(model.waters()), 2)
         model.dehydrate()
         self.assertEqual(len(model.waters()), 0)
+        self.assertIsNone(water.model)
 
         # Remove non-polymer
         non_polymer = model.non_polymer("V")
@@ -140,6 +150,7 @@ class RemovalTests(TestCase):
         model.remove(non_polymer)
         self.assertNotIn(non_polymer, model)
         self.assertEqual(len(model.non_polymers()), 31)
+        self.assertIsNone(non_polymer.model)
 
         # Remove residue
         residue = model.residue("A.20")
@@ -148,6 +159,7 @@ class RemovalTests(TestCase):
         model.remove(residue)
         self.assertNotIn(residue, model)
         self.assertEqual(len(model.residues()), 2144)
+        self.assertIsNone(residue.model)
 
         # Remove atom
         atom = model.atom(1)
@@ -156,3 +168,4 @@ class RemovalTests(TestCase):
         model.remove(atom)
         self.assertNotIn(atom, model)
         self.assertEqual(len(model.atoms()), 17360)
+        self.assertIsNone(atom.model)

@@ -92,6 +92,14 @@ The other comparison methods relate to RMSD, a measure of similar two structure'
 
 ## Structure Modification
 
+Some methods modify the contents of a model, structure or atom. Where these methods render the `_internal_grid` created by `_optimise_distances` out of date, they have a decorator applied which deletes the grid.
+
+All structures have a `remove()` method which lets them remove one of their contents. They can remove their direct children (atoms from residues, residues from polymers etc.) or indirect children, in which case the thing being removed will be removed from its direct parent.
+
+All structures also have a `copy()` method, which creates an identical structure with no parent.
+
+Structures can also be removed - translated with a vector, rotated with a rotation matrix, or rotated around an axis. In the latter case, a rotation matrix will be calculated on the fly.
+
 ## Biological Assemblies
 
 ## PDB Interchange

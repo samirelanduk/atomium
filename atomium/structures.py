@@ -216,6 +216,24 @@ class AtomStructure:
         )
         for atom, coords in zip(atoms, coordinates.transpose()):
             atom.location = coords
+    
+
+    def rotate_around_axis(self, axis, angle):
+        try:
+            axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]
+        except ValueError:
+            raise ValueError("'{}' is not a valid axis".format(axis))
+        axis = np.asarray(axis)
+        axis = axis / np.sqrt(np.dot(axis, axis))
+        a = np.cos(angle / 2)
+        b, c, d = -axis * np.sin(angle / 2)
+        aa, bb, cc, dd = a * a, b * b, c * c, d * d
+        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+        self.rotate(np.array([
+            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
+        ]))
 
 
 
@@ -851,3 +869,21 @@ class Atom:
         self.location = np.dot(
             np.array(matrix), np.array(self.location).transpose()
         )
+    
+
+    def rotate_around_axis(self, axis, angle):
+        try:
+            axis = [1 if i == "xyz".index(axis) else 0 for i in range(3)]
+        except ValueError:
+            raise ValueError("'{}' is not a valid axis".format(axis))
+        axis = np.asarray(axis)
+        axis = axis / np.sqrt(np.dot(axis, axis))
+        a = np.cos(angle / 2)
+        b, c, d = -axis * np.sin(angle / 2)
+        aa, bb, cc, dd = a * a, b * b, c * c, d * d
+        bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+        self.rotate(np.array([
+            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
+        ]))

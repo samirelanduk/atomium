@@ -1,3 +1,4 @@
+import math
 from unittest import TestCase
 import atomium
 
@@ -337,3 +338,32 @@ class RotationTests(TestCase):
             [round(v, 3) for v in molecule.center_of_mass],
             [55.069, -37.455, 5.696]
         )
+    
+
+    def test_atom_rotation_around_axis(self):
+        model = atomium.open("tests/integration/files/1cbn.cif").model
+        atom = model.atom(1)
+        atom.rotate_around_axis("x", math.pi / 6)
+        atom.trim(3)
+        self.assertEqual(list(atom.location), [16.864, 10.454, 10.01])
+        atom.rotate_around_axis("y", -math.pi * 1.5)
+        atom.trim(3)
+        self.assertEqual(list(atom.location), [10.01, 10.454, -16.864])
+        atom.rotate_around_axis("z", math.pi / 3)
+        atom.trim(3)
+        self.assertEqual(list(atom.location), [-4.048, 13.896, -16.864])
+    
+
+    def test_structure_rotation_around_axis(self):
+        model = atomium.open("tests/integration/files/1cbn.cif").model
+        polymer = model.polymer("A")
+        atom = polymer.atom(1)
+        polymer.rotate_around_axis("x", math.pi / 6)
+        polymer.trim(3)
+        self.assertEqual(list(atom.location), [16.864, 10.454, 10.01])
+        polymer.rotate_around_axis("y", -math.pi * 1.5)
+        atom.trim(3)
+        self.assertEqual(list(atom.location), [10.01, 10.454, -16.864])
+        polymer.rotate_around_axis("z", math.pi / 3)
+        atom.trim(3)
+        self.assertEqual(list(atom.location), [-4.048, 13.896, -16.864])

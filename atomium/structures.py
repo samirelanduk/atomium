@@ -201,6 +201,21 @@ class AtomStructure:
         coordinates += vector
         for atom, coords in zip(atoms, coordinates):
             atom.location = coords
+    
+
+    def rotate(self, matrix):
+        """Non-rotation matrices will deform."""
+
+        matrix = np.array(matrix)
+        if matrix.shape != (3, 3):
+            raise ValueError("Matrix must have shape (3, 3).")
+        atoms = list(self.atoms())
+        coordinates = np.array([a.location for a in atoms])
+        coordinates = np.dot(
+            np.array(matrix), coordinates.transpose()
+        )
+        for atom, coords in zip(atoms, coordinates.transpose()):
+            atom.location = coords
 
 
 
@@ -828,3 +843,11 @@ class Atom:
 
     def translate(self, vector):
         self.location += vector
+    
+
+    def rotate(self, matrix):
+        """Non-rotation matrices will deform."""
+
+        self.location = np.dot(
+            np.array(matrix), np.array(self.location).transpose()
+        )

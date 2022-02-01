@@ -311,5 +311,29 @@ class TranslationTests(TestCase):
         self.assertEqual(list(atom.location), [-7.354, 46.112, 46.995])
         self.assertEqual(
             [round(v, 3) for v in molecule.center_of_mass],
-            [-8.7, 45.529, 47.84]
+            [-8.701, 45.529, 47.839]
+        )
+
+
+
+class RotationTests(TestCase):
+
+    def test_atom_rotation(self):
+        model = atomium.open("tests/integration/files/1cbn.cif").model
+        atom = model.atom(1)
+        atom.rotate([[0.9842, 0.1243, 0.1259], [0.0343, 0.5638, -0.8252], [-0.1737, 0.8164, 0.5506]])
+        atom.trim(3)
+        self.assertEqual(list(atom.location), [18.778, 5.665, 10.444])
+    
+
+    def test_structure_rotation(self):
+        model = atomium.open("tests/integration/files/1lol.cif").model
+        molecule = model.non_polymer("C")
+        atom = molecule.atom(3192)
+        molecule.rotate([[0.3535, 0.8838, 0.3061], [0.3535, 0.1767, -0.9186], [-0.8661, 0.433, -0.25]])
+        molecule.trim(3)
+        self.assertEqual(list(atom.location), [55.803, -36.1, 4.993])
+        self.assertEqual(
+            [round(v, 3) for v in molecule.center_of_mass],
+            [55.069, -37.455, 5.696]
         )

@@ -62,3 +62,17 @@ class SimpleAssemblyGenerationTests(TestCase):
         self.assertEqual(set([r.name for r in liganding_residues]), {"HIS"})
         res1, res2, res3 = liganding_residues
         self.assertGreater(res1.atom(name="N").distance_to(res2.atom(name="N")), 10)
+
+
+
+class ComplexAssemblyGenerationTests(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.pdb = atomium.open("tests/integration/files/1m4x.cif")
+
+    
+    def test_complex_operations(self):
+        model = self.pdb.generate_assembly(6)
+        self.assertEqual(len(model.polymers()), 198)
+        self.assertEqual([round(c, 1) for c in model.center_of_mass], [433.1, 433.1, 433.1])

@@ -1,3 +1,5 @@
+import re
+import numpy as np
 from datetime import datetime
 from .structures import Model, Polymer, BranchedPolymer, NonPolymer, Water, Residue, Atom
 from .assemblies import extract_assemblies
@@ -102,6 +104,29 @@ class File:
     @property
     def model(self):
         return self.models[0] if self.models else None
+    
+
+    def generate_assembly(self, id):
+        assemblies = self.source.get("pdbx_struct_assembly", [])
+        for assembly in assemblies:
+            if assembly["id"] == str(id):
+                molecules = []
+                steps = [s for s in self.source.get(
+                    "pdbx_struct_assembly_gen", []
+                ) if s["assembly_id"] == assembly["id"]]
+                for step in steps:
+                    for operation in get_operations(self.source, step):
+                        new_molecules = [self.model.molecule(id).copy() for
+                            id in step["asym_id_list"].split(",")]
+                        for molecule in new_molecules:
+                            molecule.rotate([row[:3] for row in operation[:3]])
+                            molecule.translate([row[-1] for row in operation[:3]])
+                        molecules += new_molecules
+                return Model(molecules)
+        return None
+    
+
+    
 
 
 
@@ -275,4 +300,39 @@ def make_id(atom):
     insert = insert.replace("?", "") or ""
     return f"{chain}.{number}{insert}"
 
+
+def get_operations(mmcif, step):
+    groups = get_operation_id_groups(step["oper_expression"])
+    operations = {o["id"]: [
+        [float(o["matrix[{}][{}]".format(r, c)]) for c in [1, 2, 3]
+    ] + [float(o["vector[{}]".format(r)])] for r in [1, 2, 3]] + [[0, 0, 0, 1]]
+     for o in mmcif.get("pdbx_struct_oper_list", [])}
+    operation_groups = [[
+        operations[i] for i in ids
+    ] for ids in groups]
+    while len(operation_groups) and len(operation_groups) != 1:
+        operations = []
+        for op1 in operation_groups[0]:
+            for op2 in operation_groups[1]:
+                operations.append(np.matmul(op1, op2))
+        operation_groups[0] = operations
+        operation_groups.pop(1)
+    return operation_groups[0]
+
+
+def get_operation_id_groups(expression):
+    if expression[0] != "(": expression = "({})".format(expression)
+    groups = re.findall(r"\((.+?)\)", expression)
+    group_ids = []
+    for group in groups:
+        ids = []
+        elements = group.split(",")
+        for element in elements:
+            if "-" in element:
+                bounds = [int(x) for x in element.split("-")]
+                ids += [str(n) for n in list(range(bounds[0], bounds[1] + 1))]
+            else:
+                ids.append(element)
+        group_ids.append(ids)
+    return group_ids
 

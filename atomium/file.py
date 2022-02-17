@@ -2,7 +2,6 @@ import re
 import numpy as np
 from datetime import datetime
 from .structures import Model, Polymer, BranchedPolymer, NonPolymer, Water, Residue, Atom
-from .assemblies import extract_assemblies
 
 class File:
     
@@ -94,11 +93,6 @@ class File:
             "id": make_id(res),
             "name": res["label_comp_id"]
         } for res in self.source.get("pdbx_unobs_or_zero_occ_residues", [])]
-
-
-    @property
-    def assemblies(self):
-        return extract_assemblies(self.source)
     
 
     @property

@@ -86,15 +86,6 @@ class ParsingTests(TestCase):
             "VAL", "ASP", "VAL", "MET", "ASP", "VAL", "GLY", "ALA", "GLN", "GLY"
         ])]
         self.assertEqual(pdb.missing_residues, missing_residues)
-        self.assertEqual(pdb.assemblies, [{
-            "id": 1, "software": "PISA", "delta_energy": -31.0,
-            "buried_surface_area":5230, "surface_area": 16550,
-            "transformations": [{
-                "chains": ["A", "B", "C", "D", "E", "F", "G", "H"],
-                "matrix": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
-                "vector": [0.0, 0.0, 0.0]
-            }]
-        }])
 
         # Model
         self.assertEqual(len(pdb.models), 1)

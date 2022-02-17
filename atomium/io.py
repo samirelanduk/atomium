@@ -3,6 +3,7 @@ import requests
 import gzip
 import paramiko
 from .mmcif import mmcif_string_to_mmcif_dict
+from .bcif import bcif_string_to_mmcif_dict
 from .file import File
 
 def open(path, dictionary=False):
@@ -31,7 +32,7 @@ def fetch(code, dictionary=False):
         url = "https://files.rcsb.org/view/" + code.lower()
     response = requests.get(url, stream=True)
     if response.status_code == 200:
-        text = response.content if code.endswith(".mmtf") else response.text
+        text = response.content if code.endswith(".bcif") else response.text
         return parse_filestring(text, dictionary=dictionary)
     raise ValueError("Could not find anything at {}".format(url))
 
@@ -57,11 +58,14 @@ def fetch_over_ssh(hostname, username, path, password=None, dictionary=False):
 def parse_filestring(filestring, dictionary=False):
     filetype = determine_filetype(filestring)
     mmcif_dict = {
-        "mmcif": mmcif_string_to_mmcif_dict
+        "mmcif": mmcif_string_to_mmcif_dict,
+        "bcif": bcif_string_to_mmcif_dict,
     }[filetype](filestring)
     if dictionary: return mmcif_dict
     return File(mmcif_dict)
 
 
 def determine_filetype(filestring):
+    if isinstance(filestring, bytes):
+        return "bcif"
     return "mmcif"

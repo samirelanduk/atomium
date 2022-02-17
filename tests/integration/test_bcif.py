@@ -66,3 +66,17 @@ class ParsingTests(TestCase):
         ])]
         self.assertEqual(pdb.missing_residues, missing_residues)
         self.assertEqual(str(pdb.model), "<Model (2 polymers, 4 non-polymers)>")
+    
+
+    def test_1lol_bcif_compressed(self):
+        d = atomium.open("tests/integration/files/1lol.bcif.gz", dictionary=True)
+        self.assertEqual(len(d.keys()), 66)
+        self.assertEqual(d["entry"], [{"id": "1LOL"}])
+
+
+
+class NetworkTests(TestCase):
+
+    def test_fetching_3nir_bcif_rcsb(self):
+        pdb = atomium.fetch("3nir.bcif")
+        self.assertEqual(pdb.title, "Crystal structure of small protein crambin at 0.48 A resolution")

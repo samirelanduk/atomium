@@ -11,7 +11,7 @@ def open(path, dictionary=False):
         try:
             with gzip.open(path) as f: filestring = f.read().decode()
         except:
-            with gzip.open(path, "rt") as f: filestring = f.read()
+            with gzip.open(path, "rb") as f: filestring = f.read()
         return parse_filestring(filestring, dictionary=dictionary)
     try:
         with builtins.open(path) as f:
@@ -25,6 +25,8 @@ def open(path, dictionary=False):
 def fetch(code, dictionary=False):
     if code.startswith("http"):
         url = code
+    elif code.endswith(".bcif"):
+        url = "https://models.rcsb.org/{}.bcif".format(code[:-5].lower())
     elif code.endswith(".mmtf"):
         url = "https://mmtf.rcsb.org/v1.0/full/{}".format(code[:-5].lower())
     else:

@@ -74,12 +74,10 @@ def decode_fixed_point(data, encoding):
 
 
 def decode_interval_quantization(data, encoding):
-    delta = float(encoding[b"max"] - encoding[b"min"]) / float(encoding[b"numSteps"] - 1.0)
-    minVal = encoding[b"min"]
-    values = []
-    for val in data:
-        values.append(minVal + delta * val)
-    return values
+    delta = float(
+        encoding[b"max"] - encoding[b"min"]) / float(encoding[b"numSteps"] - 1
+    )
+    return [encoding[b"min"] + delta * value for value in data]
 
 
 def decode_run_length(data, encoding):
@@ -98,40 +96,22 @@ def decode_delta(data, encoding):
 
 
 def decode_integer_packing(data, encoding):
-
-    if encoding[b"isUnsigned"]:
-        upperLimit = 0xFF if encoding[b"byteCount"] == 1 else 0xFFFF
-        i = 0
-        colDataList = list(data)
-        integers = []
-        while i < len(colDataList):
-            value = 0
-            tVal = colDataList[i]
-            while tVal == upperLimit:
-                value += tVal
-                i += 1
-                tVal = colDataList[i]
-            integers.append(value + tVal)
-            i += 1
-        assert len(integers) == encoding[b"srcSize"]
-        return integers
+    i, column, integers, unsigned = 0, list(data), [], encoding[b"isUnsigned"]
+    if unsigned:
+        upper = 0xFF if encoding[b"byteCount"] == 1 else 0xFFFF
     else:
-        upperLimit = 0x7F if encoding[b"byteCount"] == 1 else 0x7FFF
-        lowerLimit = -0x7F - 1 if encoding[b"byteCount"] == 1 else -0x7FFF - 1
-        i = 0
-        colDataList = list(data)
-        integers = []
-        while i < len(colDataList):
-            value = 0
-            tVal = colDataList[i]
-            while tVal == upperLimit or tVal == lowerLimit:
-                value += tVal
-                i += 1
-                tVal = colDataList[i]
-            integers.append(value + tVal)
+        upper = 0x7F if encoding[b"byteCount"] == 1 else 0x7FFF
+        lower = -0x7F - 1 if encoding[b"byteCount"] == 1 else -0x7FFF - 1 ###
+    while i < len(column):
+        value = 0
+        t_value = column[i]
+        while t_value == upper or t_value == (upper if unsigned else lower):
+            value += t_value
             i += 1
-        assert len(integers) == encoding[b"srcSize"]
-        return integers
+            t_value = column[i]
+        integers.append(value + t_value)
+        i += 1
+    return integers
 
 
 def decode_string_array(data, encoding):

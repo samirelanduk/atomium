@@ -13,6 +13,7 @@ class DictParsingTests(TestCase):
             {"database_id": "RCSB", "database_code": "RCSB016137"},
             {"database_id": "WWPDB", "database_code": "D_1000016137"},
         ])
+        self.assertEqual(d["pdbx_database_status"][0]["SG_entry"], "?")
         self.assertEqual(
             d["pdbx_database_related"][0]["details"],
             "orotidine monophosphate decarboxylase complexed with UMP"

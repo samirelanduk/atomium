@@ -10,7 +10,7 @@ def bcif_string_to_mmcif_dict(filestring):
 
 
 def category_to_table(category):
-    columns = [parse_column_data(col[b"data"]) for col in category[b"columns"]]
+    columns = [parse_column_data(col[b"data"]) for col in category[b"columns"]]        
     return [{
         col[b"name"].decode(): col_data[n] for col, col_data in zip(category[b"columns"], columns)}
         for n in range(category[b"rowCount"]
@@ -21,7 +21,17 @@ def parse_column_data(column_data):
     data = column_data[b"data"]
     for encoding in column_data[b"encoding"][::-1]:
         data = decode(data, encoding)
-    return data
+    data = list(data)
+    for n in range(len(data)):
+        value = str(data[n])
+        if "\n" in value:
+            if " " not in value:
+                data[n] = value.replace("\n", "")
+            else:
+                data[n] = "\n".join([line.strip() for line in value.splitlines()])
+        else:
+            data[n] = value
+    return list(data)
 
 
 def decode(data, encoding):

@@ -4,6 +4,7 @@ import gzip
 import paramiko
 from .mmcif import mmcif_string_to_mmcif_dict
 from .bcif import bcif_string_to_mmcif_dict
+from .mmtf import mmtf_string_to_mmcif_dict
 from .file import File
 
 def open(path, dictionary=False):
@@ -12,14 +13,14 @@ def open(path, dictionary=False):
             with gzip.open(path) as f: filestring = f.read().decode()
         except:
             with gzip.open(path, "rb") as f: filestring = f.read()
-        return parse_filestring(filestring, dictionary=dictionary)
+        return parse_filestring(filestring, path[:-3], dictionary=dictionary)
     try:
         with builtins.open(path) as f:
             filestring = f.read()
     except:
         with builtins.open(path, "rb") as f:
             filestring = f.read()
-    return parse_filestring(filestring, dictionary=dictionary)
+    return parse_filestring(filestring, path, dictionary=dictionary)
 
 
 def fetch(code, dictionary=False):
@@ -35,7 +36,7 @@ def fetch(code, dictionary=False):
     response = requests.get(url, stream=True)
     if response.status_code == 200:
         text = response.content if code.endswith(".bcif") else response.text
-        return parse_filestring(text, dictionary=dictionary)
+        return parse_filestring(text, url, dictionary=dictionary)
     raise ValueError("Could not find anything at {}".format(url))
 
 
@@ -54,20 +55,21 @@ def fetch_over_ssh(hostname, username, path, password=None, dictionary=False):
         filestring = stdout.read().decode()
     finally:
         client.close()
-    return parse_filestring(filestring, dictionary=dictionary)
+    return parse_filestring(filestring, path, dictionary=dictionary)
 
 
-def parse_filestring(filestring, dictionary=False):
-    filetype = determine_filetype(filestring)
+def parse_filestring(filestring, filename, dictionary=False):
+    filetype = determine_filetype(filestring, filename)
     mmcif_dict = {
         "mmcif": mmcif_string_to_mmcif_dict,
         "bcif": bcif_string_to_mmcif_dict,
+        "mmtf": mmtf_string_to_mmcif_dict,
     }[filetype](filestring)
     if dictionary: return mmcif_dict
     return File(mmcif_dict)
 
 
-def determine_filetype(filestring):
+def determine_filetype(filestring, filename):
     if isinstance(filestring, bytes):
-        return "bcif"
+        return "mmtf" if filename.endswith("mmtf") else "bcif"
     return "mmcif"

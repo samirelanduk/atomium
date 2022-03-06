@@ -13,8 +13,43 @@ def mmtf_string_to_mmcif_dict(bytestring):
     mmcif_dict = {
 
     }
-    mmcif_dict["entry"] = [{"id": "?"}]
-    mmcif_dict["struct"] = [{"entry_id": "?", "title": mmtf["title"]}]
+
+    mmcif_dict["entry"] = [{"id": mmtf["structureId"]}]
+
+    mmcif_dict["struct"] = [{"entry_id": mmtf["structureId"], "title": mmtf["title"]}]
+
+    mmcif_dict["pdbx_database_status"] = [{
+        "entry_id": mmtf["structureId"], "recvd_initial_deposition_date": mmtf["depositionDate"]
+    }]
+
+    mmcif_dict["exptl"] = [{
+        "entry_id": mmtf["structureId"], "method": ",".join(mmtf["experimentalMethods"])
+    }]
+
+    mmcif_dict["refine"] = [{
+        "entry_id": mmtf["structureId"],
+        "ls_d_res_high": mmtf["resolution"],
+        "ls_R_factor_obs": mmtf["rWork"],
+        "ls_R_factor_all": mmtf["rWork"],
+        "ls_R_factor_R_work": mmtf["rWork"],
+        "ls_R_factor_R_free": mmtf["rFree"],
+    }]
+
+    mmcif_dict["symmetry"] = [{
+        "entry_id": mmtf["structureId"],
+        "space_group_name_H-M": mmtf["spaceGroup"]
+    }]
+
+    mmcif_dict["cell"] = [{
+        "entry_id": mmtf["structureId"],
+        "length_a": mmtf["unitCell"][0],
+        "length_b": mmtf["unitCell"][1],
+        "length_c": mmtf["unitCell"][2],
+        "length_alpha": mmtf["unitCell"][3],
+        "length_beta": mmtf["unitCell"][4],
+        "length_gamme": mmtf["unitCell"][5],
+    }]
+
     return mmcif_dict
 
 

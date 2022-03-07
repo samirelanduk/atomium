@@ -50,6 +50,35 @@ def mmtf_string_to_mmcif_dict(bytestring):
         "length_gamme": mmtf["unitCell"][5],
     }]
 
+    if mmtf["bioAssemblyList"]:
+        mmcif_dict["pdbx_struct_assembly"] = []
+        mmcif_dict["pdbx_struct_assembly_gen"] = []
+        mmcif_dict["pdbx_struct_assembly_prop"] = []
+        for assembly in mmtf["bioAssemblyList"]:
+            mmcif_dict["pdbx_struct_assembly"].append({"id": assembly["name"]})
+            for transformation in assembly["transformList"]:
+                op_id = len(mmcif_dict["pdbx_struct_assembly_prop"]) + 1
+                mmcif_dict["pdbx_struct_assembly_gen"].append({
+                    "assembly_id": assembly["name"],
+                    "oper_expression": op_id,
+                    "asym_id_list": ",".join([mmtf["chainIdList"][index] for index in transformation["chainIndexList"]])
+                })
+                mmcif_dict["pdbx_struct_assembly_gen"].append({
+                    "id": op_id,
+                    "pdbx_struct_oper_list.matrix[1][1]": transformation["matrix"][0],
+                    "pdbx_struct_oper_list.matrix[1][2]": transformation["matrix"][1],
+                    "pdbx_struct_oper_list.matrix[1][3]": transformation["matrix"][2],
+                    "pdbx_struct_oper_list.matrix[1]": transformation["matrix"][3],
+                    "pdbx_struct_oper_list.matrix[2][1]": transformation["matrix"][4],
+                    "pdbx_struct_oper_list.matrix[2][2]": transformation["matrix"][5],
+                    "pdbx_struct_oper_list.matrix[2][3]": transformation["matrix"][6],
+                    "pdbx_struct_oper_list.matrix[2]": transformation["matrix"][7],
+                    "pdbx_struct_oper_list.matrix[3][1]": transformation["matrix"][8],
+                    "pdbx_struct_oper_list.matrix[3][2]": transformation["matrix"][9],
+                    "pdbx_struct_oper_list.matrix[3][3]": transformation["matrix"][10],
+                    "pdbx_struct_oper_list.matrix[3]": transformation["matrix"][11],
+                })
+    
     return mmcif_dict
 
 

@@ -35,8 +35,8 @@ def fetch(code, dictionary=False):
         url = "https://files.rcsb.org/view/" + code.lower()
     response = requests.get(url, stream=True)
     if response.status_code == 200:
-        text = response.content if code.endswith(".bcif") else response.text
-        return parse_filestring(text, url, dictionary=dictionary)
+        text = response.content if code.endswith(".bcif") or code.endswith(".mmtf") else response.text
+        return parse_filestring(text, code, dictionary=dictionary)
     raise ValueError("Could not find anything at {}".format(url))
 
 

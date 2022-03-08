@@ -29,11 +29,11 @@ def mmtf_string_to_mmcif_dict(bytestring):
 
     mmcif_dict["refine"] = [{
         "entry_id": mmtf["structureId"],
-        "ls_d_res_high": mmtf["resolution"],
-        "ls_R_factor_obs": mmtf["rWork"],
-        "ls_R_factor_all": mmtf["rWork"],
-        "ls_R_factor_R_work": mmtf["rWork"],
-        "ls_R_factor_R_free": mmtf["rFree"],
+        "ls_d_res_high": str(round(mmtf["resolution"], 3)),
+        "ls_R_factor_obs":str(round( mmtf["rWork"], 3)),
+        "ls_R_factor_all": str(round(mmtf["rWork"], 3)),
+        "ls_R_factor_R_work": str(round(mmtf["rWork"], 3)),
+        "ls_R_factor_R_free": str(round(mmtf["rFree"], 3)),
     }]
 
     mmcif_dict["symmetry"] = [{
@@ -43,56 +43,56 @@ def mmtf_string_to_mmcif_dict(bytestring):
 
     mmcif_dict["cell"] = [{
         "entry_id": mmtf["structureId"],
-        "length_a": mmtf["unitCell"][0],
-        "length_b": mmtf["unitCell"][1],
-        "length_c": mmtf["unitCell"][2],
-        "length_alpha": mmtf["unitCell"][3],
-        "length_beta": mmtf["unitCell"][4],
-        "length_gamme": mmtf["unitCell"][5],
+        "length_a": str(round(mmtf["unitCell"][0], 3)),
+        "length_b": str(round(mmtf["unitCell"][1], 3)),
+        "length_c": str(round(mmtf["unitCell"][2], 3)),
+        "length_alpha": str(round(mmtf["unitCell"][3], 3)),
+        "length_beta": str(round(mmtf["unitCell"][4], 3)),
+        "length_gamme": str(round(mmtf["unitCell"][5], 3))
     }]
 
     if mmtf["bioAssemblyList"]:
         mmcif_dict["pdbx_struct_assembly"] = []
         mmcif_dict["pdbx_struct_assembly_gen"] = []
-        mmcif_dict["pdbx_struct_assembly_prop"] = []
+        mmcif_dict["pdbx_struct_oper_list"] = []
         for assembly in mmtf["bioAssemblyList"]:
             mmcif_dict["pdbx_struct_assembly"].append({"id": assembly["name"]})
             for transformation in assembly["transformList"]:
-                op_id = len(mmcif_dict["pdbx_struct_assembly_prop"]) + 1
+                op_id = str(len(mmcif_dict["pdbx_struct_oper_list"]) + 1)
                 mmcif_dict["pdbx_struct_assembly_gen"].append({
                     "assembly_id": assembly["name"],
                     "oper_expression": op_id,
                     "asym_id_list": ",".join([mmtf["chainIdList"][index] for index in transformation["chainIndexList"]])
                 })
-                mmcif_dict["pdbx_struct_assembly_gen"].append({
+                mmcif_dict["pdbx_struct_oper_list"].append({
                     "id": op_id,
-                    "pdbx_struct_oper_list.matrix[1][1]": transformation["matrix"][0],
-                    "pdbx_struct_oper_list.matrix[1][2]": transformation["matrix"][1],
-                    "pdbx_struct_oper_list.matrix[1][3]": transformation["matrix"][2],
-                    "pdbx_struct_oper_list.matrix[1]": transformation["matrix"][3],
-                    "pdbx_struct_oper_list.matrix[2][1]": transformation["matrix"][4],
-                    "pdbx_struct_oper_list.matrix[2][2]": transformation["matrix"][5],
-                    "pdbx_struct_oper_list.matrix[2][3]": transformation["matrix"][6],
-                    "pdbx_struct_oper_list.matrix[2]": transformation["matrix"][7],
-                    "pdbx_struct_oper_list.matrix[3][1]": transformation["matrix"][8],
-                    "pdbx_struct_oper_list.matrix[3][2]": transformation["matrix"][9],
-                    "pdbx_struct_oper_list.matrix[3][3]": transformation["matrix"][10],
-                    "pdbx_struct_oper_list.matrix[3]": transformation["matrix"][11],
+                    "pdbx_struct_oper_list.matrix[1][1]": f"{round(transformation['matrix'][0], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[1][2]": f"{round(transformation['matrix'][1], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[1][3]": f"{round(transformation['matrix'][2], 10):.10f}",
+                    "pdbx_struct_oper_list.vector[1]": f"{round(transformation['matrix'][3], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[2][1]": f"{round(transformation['matrix'][4], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[2][2]": f"{round(transformation['matrix'][5], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[2][3]": f"{round(transformation['matrix'][6], 10):.10f}",
+                    "pdbx_struct_oper_list.vector[2]": f"{round(transformation['matrix'][7], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[3][1]": f"{round(transformation['matrix'][8], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[3][2]": f"{round(transformation['matrix'][9], 10):.10f}",
+                    "pdbx_struct_oper_list.matrix[3][3]": f"{round(transformation['matrix'][10], 10):.10f}",
+                    "pdbx_struct_oper_list.vector[3]": f"{round(transformation['matrix'][11], 10):.10f}",
                 })
     
     mmcif_dict["entity"] = []
     for entity in mmtf["entityList"]:
         mmcif_dict["entity"].append({
-            "id": len(mmcif_dict["entity"]) + 1,
+            "id": str(len(mmcif_dict["entity"]) + 1),
             "type": entity["type"],
             "pdbx_description": entity["description"],
-            "pdbx_number_of_molecules": len(entity["chainIndexList"])
+            "pdbx_number_of_molecules": str(len(entity["chainIndexList"]))
         })
         if entity["type"] == "polymer":
             if "entity_poly" not in mmcif_dict:
                 mmcif_dict["entity_poly"] = []
             mmcif_dict["entity_poly"].append({
-                "entity_id": len(mmcif_dict["entity"]),
+                "entity_id": str(len(mmcif_dict["entity"])),
                 "pdbx_seq_one_letter_code": entity["sequence"],
                 "pdbx_seq_one_letter_code_can": entity["sequence"],
             })
@@ -121,34 +121,28 @@ def mmtf_string_to_mmcif_dict(bytestring):
                 for atom_name, element, charge in zip(group["atomNameList"], group["elementList"], group["formalChargeList"]):
                     id, x, y, z, alt, occ, b = atoms.pop(0)
                     mmcif_dict["atom_site"].append({
-                        "group_PDB": "ATOM",
-                        "id": id,
+                        "group_PDB": "HETATM" if group["singleLetterCode"] == "?" else "ATOM",
+                        "id": str(id),
                         "type_symbol": element,
                         "label_atom_id": atom_name,
-                        "label_alt_id": alt,
+                        "label_alt_id": alt or ".",
                         "label_comp_id": group["groupName"],
-                        "label_asym_id": mmtf["chainNameList"][chain_index],
-                        "label_entity_id": entity_id,
-                        "label_seq_id": group_id,
-                        "pdbx_PDB_ins_code": insert,
-                        "Cartn_x": x,
-                        "Cartn_y": y,
-                        "Cartn_z": z,
-                        "occupancy": occ,
+                        "label_asym_id": mmtf["chainIdList"][chain_index],
+                        "label_entity_id": str(entity_id),
+                        "label_seq_id": str(group_id),
+                        "pdbx_PDB_ins_code": insert or "?",
+                        "Cartn_x": str(x),
+                        "Cartn_y": str(y),
+                        "Cartn_z": str(z),
+                        "occupancy": str(occ),
                         "B_iso_or_equiv": str(b),
                         "pdbx_formal_charge": str(charge),
-                        "auth_seq_id": group_id,
+                        "auth_seq_id": str(group_id),
                         "auth_comp_id": group["groupName"],
-                        "auth_asym_id": mmtf["chainIdList"][chain_index],
+                        "auth_asym_id": mmtf["chainNameList"][chain_index],
                         "auth_atom_id": atom_name,
-                        "pdbx_PDB_model_num": model_num
+                        "pdbx_PDB_model_num": str(model_num)
                     })
-            pass
-
-
-
-    print(mmtf.keys())
-
     
     return mmcif_dict
 
@@ -323,8 +317,8 @@ def mmtf_dict_to_data_dict(mmtf_dict):
      "id": int(a["name"]), "software": None, "delta_energy": None,
      "buried_surface_area": None, "surface_area": None, "transformations": [{
       "chains": [mmtf_dict["chainIdList"][i] for i in t["chainIndexList"]],
-      "matrix": [t["matrix"][n * 4: (n * 4) + 3] for n in range(3)],
-      "vector": t["matrix"][3:-4:4]} for t in a.get("transformList", [])
+      'matrix': [t['matrix'][n * 4: (n * 4) + 3] for n in range(3)],
+      "vector": t['matrix'][3:-4:4]} for t in a.get("transformList", [])
      ]
     } for a in mmtf_dict.get("bioAssemblyList", [])]
     update_models_list(mmtf_dict, data_dict)

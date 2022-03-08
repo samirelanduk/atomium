@@ -13,6 +13,7 @@ def mmtf_string_to_mmcif_dict(bytestring):
     mmcif_dict = {
 
     }
+    #print(mmtf["entityList"])
 
     mmcif_dict["entry"] = [{"id": mmtf["structureId"]}]
 
@@ -78,6 +79,24 @@ def mmtf_string_to_mmcif_dict(bytestring):
                     "pdbx_struct_oper_list.matrix[3][3]": transformation["matrix"][10],
                     "pdbx_struct_oper_list.matrix[3]": transformation["matrix"][11],
                 })
+    
+    mmcif_dict["entity"] = []
+    for entity in mmtf["entityList"]:
+        mmcif_dict["entity"].append({
+            "id": len(mmcif_dict["entity"]) + 1,
+            "type": entity["type"],
+            "pdbx_description": entity["description"],
+            "pdbx_number_of_molecules": len(entity["chainIndexList"])
+        })
+        if entity["type"] == "polymer":
+            if "entity_poly" not in mmcif_dict:
+                mmcif_dict["entity_poly"] = []
+            mmcif_dict["entity_poly"].append({
+                "entity_id": len(mmcif_dict["entity"]),
+                "pdbx_seq_one_letter_code": entity["sequence"],
+                "pdbx_seq_one_letter_code_can": entity["sequence"],
+            })
+
     
     return mmcif_dict
 

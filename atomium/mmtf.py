@@ -96,6 +96,58 @@ def mmtf_string_to_mmcif_dict(bytestring):
                 "pdbx_seq_one_letter_code": entity["sequence"],
                 "pdbx_seq_one_letter_code_can": entity["sequence"],
             })
+        
+    mmcif_dict["atom_site"] = []
+    atoms = list(zip(
+        mmtf["atomIdList"], mmtf["xCoordList"], mmtf["yCoordList"],
+        mmtf["zCoordList"], mmtf["altLocList"],
+        mmtf["occupancyList"], mmtf["bFactorList"]
+    ))
+    for model_num, chain_count in enumerate(mmtf["chainsPerModel"], start=1):
+        for chain_index, group_count in enumerate(mmtf["groupsPerChain"][:chain_count]):
+            entity_id = "?"
+            for num, entity in enumerate(mmtf["entityList"], start=1):
+                if chain_index in entity["chainIndexList"]:
+                    entity_id = num
+                    break
+            group_ids = mmtf["groupIdList"][:group_count]
+            group_types = mmtf["groupTypeList"][:group_count]
+            insert_codes = mmtf["insCodeList"][:group_count]
+            mmtf["groupIdList"] = mmtf["groupIdList"][group_count:]
+            mmtf["groupTypeList"] = mmtf["groupTypeList"][group_count:]
+            mmtf["insCodeList"] = mmtf["insCodeList"][group_count:]
+            for group_type, group_id, insert in zip(group_types, group_ids, insert_codes):
+                group = mmtf["groupList"][group_type]
+                for atom_name, element, charge in zip(group["atomNameList"], group["elementList"], group["formalChargeList"]):
+                    id, x, y, z, alt, occ, b = atoms.pop(0)
+                    mmcif_dict["atom_site"].append({
+                        "group_PDB": "ATOM",
+                        "id": id,
+                        "type_symbol": element,
+                        "label_atom_id": atom_name,
+                        "label_alt_id": alt,
+                        "label_comp_id": group["groupName"],
+                        "label_asym_id": mmtf["chainNameList"][chain_index],
+                        "label_entity_id": entity_id,
+                        "label_seq_id": group_id,
+                        "pdbx_PDB_ins_code": insert,
+                        "Cartn_x": x,
+                        "Cartn_y": y,
+                        "Cartn_z": z,
+                        "occupancy": occ,
+                        "B_iso_or_equiv": str(b),
+                        "pdbx_formal_charge": str(charge),
+                        "auth_seq_id": group_id,
+                        "auth_comp_id": group["groupName"],
+                        "auth_asym_id": mmtf["chainIdList"][chain_index],
+                        "auth_atom_id": atom_name,
+                        "pdbx_PDB_model_num": model_num
+                    })
+            pass
+
+
+
+    print(mmtf.keys())
 
     
     return mmcif_dict

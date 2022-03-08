@@ -98,13 +98,25 @@ def mmtf_string_to_mmcif_dict(bytestring):
             })
         
     mmcif_dict["atom_site"] = []
+    mmcif_dict["struct_conf"] = []
+    mmcif_dict["struct_sheet_range"] = []
     atoms = list(zip(
         mmtf["atomIdList"], mmtf["xCoordList"], mmtf["yCoordList"],
         mmtf["zCoordList"], mmtf["altLocList"],
         mmtf["occupancyList"], mmtf["bFactorList"]
     ))
+    
     for model_num, chain_count in enumerate(mmtf["chainsPerModel"], start=1):
         for chain_index, group_count in enumerate(mmtf["groupsPerChain"][:chain_count]):
+
+            in_helix = False
+            helices = []
+            helix = []
+
+            in_strand = False
+            strands = []
+            strand = []
+
             entity_id = "?"
             for num, entity in enumerate(mmtf["entityList"], start=1):
                 if chain_index in entity["chainIndexList"]:
@@ -113,11 +125,37 @@ def mmtf_string_to_mmcif_dict(bytestring):
             group_ids = mmtf["groupIdList"][:group_count]
             group_types = mmtf["groupTypeList"][:group_count]
             insert_codes = mmtf["insCodeList"][:group_count]
+            ss_codes = mmtf["secStructList"][:group_count]
             mmtf["groupIdList"] = mmtf["groupIdList"][group_count:]
             mmtf["groupTypeList"] = mmtf["groupTypeList"][group_count:]
             mmtf["insCodeList"] = mmtf["insCodeList"][group_count:]
-            for group_type, group_id, insert in zip(group_types, group_ids, insert_codes):
+            mmtf["secStructList"] = mmtf["secStructList"][group_count:]
+            for group_type, group_id, insert, ss_code in zip(group_types, group_ids, insert_codes, ss_codes):
                 group = mmtf["groupList"][group_type]
+                ss_type = [
+                    "helices", None, "helices", "strands", "helices", "strands", None, None
+                ][ss_code]
+
+                if ss_type == "helices":
+                    helix.append([
+                        mmtf["chainIdList"][chain_index], mmtf["chainNameList"][chain_index],
+                        group["groupName"], group_id, insert
+                    ])
+                elif in_helix:
+                    helices.append(helix)
+                    helix = []
+                in_helix = ss_type == "helices"
+
+                if ss_type == "strands":
+                    strand.append([
+                        mmtf["chainIdList"][chain_index], mmtf["chainNameList"][chain_index],
+                        group["groupName"], group_id, insert
+                    ])
+                elif in_strand:
+                    strands.append(strand)
+                    strand = []
+                in_strand = ss_type == "strands"
+
                 for atom_name, element, charge in zip(group["atomNameList"], group["elementList"], group["formalChargeList"]):
                     id, x, y, z, alt, occ, b = atoms.pop(0)
                     mmcif_dict["atom_site"].append({
@@ -144,6 +182,50 @@ def mmtf_string_to_mmcif_dict(bytestring):
                         "pdbx_PDB_model_num": str(model_num)
                     })
     
+            if helix: helices.append(helix)
+            if strand: strands.append(strand)
+            for helix in helices:
+                mmcif_dict["struct_conf"].append({
+                    "id": f"HELIX_P{len(mmcif_dict['struct_conf'])}",
+                    "pdbx_PDB_helix_id": str(len(mmcif_dict["struct_conf"])),
+                    "beg_label_comp_id": helix[0][2],
+                    "beg_label_asym_id": helix[0][0],
+                    "beg_label_seq_id": str(helix[0][3]),
+                    "pdbx_beg_PDB_ins_code": helix[0][4] or "?",
+                    "end_label_comp_id": helix[-1][2],
+                    "end_label_asym_id": helix[-1][0],
+                    "end_label_seq_id": str(helix[-1][3]),
+                    "pdbx_end_PDB_ins_code": helix[-1][4] or "?",
+                    "beg_auth_comp_id": helix[0][2],
+                    "beg_auth_asym_id": helix[0][1],
+                    "beg_auth_seq_id": str(helix[0][3]),
+                    "end_auth_comp_id": helix[-1][2],
+                    "end_auth_asym_id": helix[-1][1],
+                    "end_auth_seq_id": str(helix[-1][3]),
+                    "pdbx_PDB_helix_class": "?",
+                    "details": "?",
+                    "pdbx_PDB_helix_length": str(len(helix))
+                })
+            for strand in strands:
+                mmcif_dict["struct_sheet_range"].append({
+                    "sheet_id": strand[0][1],
+                    "id": str(len(mmcif_dict["struct_sheet_range"])),
+                    "beg_label_comp_id": strand[0][2],
+                    "beg_label_asym_id": strand[0][0],
+                    "beg_label_seq_id": str(strand[0][3]),
+                    "pdbx_beg_PDB_ins_code": strand[0][4] or "?",
+                    "end_label_comp_id": strand[-1][2],
+                    "end_label_asym_id": strand[-1][0],
+                    "end_label_seq_id": str(strand[-1][3]),
+                    "pdbx_end_PDB_ins_code": strand[-1][4] or "?",
+                    "beg_auth_comp_id": strand[0][2],
+                    "beg_auth_asym_id": strand[0][1],
+                    "beg_auth_seq_id": str(strand[0][3]),
+                    "end_auth_comp_id": strand[-1][2],
+                    "end_auth_asym_id": strand[-1][1],
+                    "end_auth_seq_id": str(strand[-1][3]),
+                })
+
     return mmcif_dict
 
 

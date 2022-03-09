@@ -65,11 +65,11 @@ class DictParsingTests(TestCase):
         })
         self.assertEqual(d["atom_site"][-1], {
             "group_PDB": "HETATM", "id": "3431", "type_symbol": "O", "label_atom_id": "O",
-            "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "B",
+            "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "H",
             "label_entity_id": "4", "label_seq_id": "3180", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-39.239", "Cartn_y": "51.357", "Cartn_z": "40.064", "occupancy": "1.0",
             "B_iso_or_equiv": "37.93", "pdbx_formal_charge": "0", "auth_seq_id": "3180",
-            "auth_comp_id": "HOH", "auth_asym_id": "H", "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
+            "auth_comp_id": "HOH", "auth_asym_id": "B", "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
         })
 
 

@@ -30,11 +30,11 @@ def mmtf_string_to_mmcif_dict(bytestring):
     if "resolution" in mmtf or "rWork" in mmtf or "rFree" in mmtf:
         mmcif_dict["refine"] = [{
             "entry_id": mmtf["structureId"],
-            "ls_d_res_high": str(round(mmtf["resolution"], 3)),
-            "ls_R_factor_obs":str(round( mmtf["rWork"], 3)),
-            "ls_R_factor_all": str(round(mmtf["rWork"], 3)),
-            "ls_R_factor_R_work": str(round(mmtf["rWork"], 3)),
-            "ls_R_factor_R_free": str(round(mmtf["rFree"], 3)),
+            "ls_d_res_high": str(round(mmtf["resolution"], 3)) if "resolution" in mmtf else "?",
+            "ls_R_factor_obs":str(round( mmtf["rWork"], 3)) if "rWork" in mmtf else "?",
+            "ls_R_factor_all": str(round(mmtf["rWork"], 3)) if "rWork" in mmtf else "?",
+            "ls_R_factor_R_work": str(round(mmtf["rWork"], 3)) if "rWork" in mmtf else "?",
+            "ls_R_factor_R_free": str(round(mmtf["rFree"], 3)) if "rFree" in mmtf else "?",
         }]
 
     mmcif_dict["symmetry"] = [{

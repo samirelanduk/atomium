@@ -73,7 +73,6 @@ class DictParsingTests(TestCase):
         })
 
 
-
 class ParsingTests(TestCase):
 
     def test_1lol(self):
@@ -202,6 +201,15 @@ class ParsingTests(TestCase):
         self.assertTrue(list(carb.atoms())[0] in carb)
         self.assertEqual(carb.entity_id, "2")
         self.assertEqual(carb.entity_name, "2-acetamido-2-deoxy-beta-D-glucopyranose-(1-4)-2-acetamido-2-deoxy-beta-D-glucopyranose")
+    
+
+    def test_1msh_data_dict_model(self):
+        pdb = atomium.open("tests/integration/files/1msh.mmtf")
+        self.assertEqual(len(pdb.models), 30)
+        for model in pdb.models[:-1]:
+            self.assertEqual(len(model.polymers()), 2)
+        self.assertEqual(len(pdb.models[-1].polymers()), 1)
+
 
 
 

@@ -30,8 +30,8 @@ class DictParsingTests(TestCase):
         self.assertEqual(d["pdbx_struct_assembly_gen"], [{
             "assembly_id": "1", "oper_expression": "1", "asym_id_list": "A,B,C,D,E,F,G,H"
         }])
-        self.assertEqual(d["pdbx_struct_oper_list"][0]["pdbx_struct_oper_list.matrix[1][1]"], "1.0000000000")
-        self.assertEqual(d["pdbx_struct_oper_list"][0]["pdbx_struct_oper_list.vector[3]"], "0.0000000000")
+        self.assertEqual(d["pdbx_struct_oper_list"][0]["matrix[1][1]"], "1.0000000000")
+        self.assertEqual(d["pdbx_struct_oper_list"][0]["vector[3]"], "0.0000000000")
 
         self.assertEqual(len(d["entity"]), 4)       
         self.assertEqual(d["entity"][0]["pdbx_description"], "orotidine 5'-monophosphate decarboxylase")
@@ -212,9 +212,45 @@ class ParsingTests(TestCase):
 
 
 
-
 class NetworkTests(TestCase):
 
     def test_fetching_3nir_mmtf_rcsb(self):
         pdb = atomium.fetch("3nir.mmtf")
         self.assertEqual(pdb.title, "Crystal structure of small protein crambin at 0.48 A resolution")
+
+
+
+class AssemblyTests(TestCase):
+
+    def test_1xda(self):
+        pdb = atomium.open("tests/integration/files/1xda.mmtf")
+
+        model = pdb.generate_assembly(1)
+        self.assertEqual(len(model.polymers()), 2)
+        self.assertEqual(set([p.id for p in model.polymers()]), {"A", "B"})
+        self.assertEqual(len(model.non_polymers()), 4)
+
+        model = pdb.generate_assembly(2)
+        self.assertEqual(len(model.polymers()), 2)
+        self.assertEqual(set([p.id for p in model.polymers()]), {"C", "D"})
+        self.assertEqual(len(model.non_polymers()), 4)
+
+        model = pdb.generate_assembly(7)
+        self.assertEqual(len(model.polymers()), 6)
+        self.assertEqual(set([p.id for p in model.polymers()]), {"A", "B"})
+        self.assertEqual(len(model.non_polymers()), 12)
+        zn = model.atom(element="Zn")
+        liganding_residues = zn.nearby_residues(3, is_metal=False, element__ne="CL")
+        self.assertEqual(len(liganding_residues), 3)
+        self.assertEqual(set([r.id for r in liganding_residues]), {"B.10"})
+        self.assertEqual(set([r.name for r in liganding_residues]), {"HIS"})
+        res1, res2, res3 = liganding_residues
+        self.assertGreater(res1.atom(name="N").distance_to(res2.atom(name="N")), 10)
+    
+
+    def test_complex_operations(self):
+        pdb = atomium.open("tests/integration/files/1m4x.mmtf")
+        model = pdb.generate_assembly(6)
+        self.assertEqual(len(model.polymers()), 198)
+        self.assertEqual([round(c, 1) for c in model.center_of_mass], [433.1, 433.1, 433.1])
+

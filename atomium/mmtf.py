@@ -68,18 +68,18 @@ def mmtf_string_to_mmcif_dict(bytestring):
                 })
                 mmcif_dict["pdbx_struct_oper_list"].append({
                     "id": op_id,
-                    "pdbx_struct_oper_list.matrix[1][1]": f"{round(transformation['matrix'][0], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[1][2]": f"{round(transformation['matrix'][1], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[1][3]": f"{round(transformation['matrix'][2], 10):.10f}",
-                    "pdbx_struct_oper_list.vector[1]": f"{round(transformation['matrix'][3], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[2][1]": f"{round(transformation['matrix'][4], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[2][2]": f"{round(transformation['matrix'][5], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[2][3]": f"{round(transformation['matrix'][6], 10):.10f}",
-                    "pdbx_struct_oper_list.vector[2]": f"{round(transformation['matrix'][7], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[3][1]": f"{round(transformation['matrix'][8], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[3][2]": f"{round(transformation['matrix'][9], 10):.10f}",
-                    "pdbx_struct_oper_list.matrix[3][3]": f"{round(transformation['matrix'][10], 10):.10f}",
-                    "pdbx_struct_oper_list.vector[3]": f"{round(transformation['matrix'][11], 10):.10f}",
+                    "matrix[1][1]": f"{round(transformation['matrix'][0], 10):.10f}",
+                    "matrix[1][2]": f"{round(transformation['matrix'][1], 10):.10f}",
+                    "matrix[1][3]": f"{round(transformation['matrix'][2], 10):.10f}",
+                    "vector[1]": f"{round(transformation['matrix'][3], 10):.10f}",
+                    "matrix[2][1]": f"{round(transformation['matrix'][4], 10):.10f}",
+                    "matrix[2][2]": f"{round(transformation['matrix'][5], 10):.10f}",
+                    "matrix[2][3]": f"{round(transformation['matrix'][6], 10):.10f}",
+                    "vector[2]": f"{round(transformation['matrix'][7], 10):.10f}",
+                    "matrix[3][1]": f"{round(transformation['matrix'][8], 10):.10f}",
+                    "matrix[3][2]": f"{round(transformation['matrix'][9], 10):.10f}",
+                    "matrix[3][3]": f"{round(transformation['matrix'][10], 10):.10f}",
+                    "vector[3]": f"{round(transformation['matrix'][11], 10):.10f}",
                 })
     
     mmcif_dict["entity"] = []

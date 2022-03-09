@@ -50,7 +50,7 @@ def mmtf_string_to_mmcif_dict(bytestring):
             "length_c": str(round(mmtf["unitCell"][2], 3)),
             "length_alpha": str(round(mmtf["unitCell"][3], 3)),
             "length_beta": str(round(mmtf["unitCell"][4], 3)),
-            "length_gamme": str(round(mmtf["unitCell"][5], 3))
+            "length_gamma": str(round(mmtf["unitCell"][5], 3))
         }]
 
     if mmtf["bioAssemblyList"]:

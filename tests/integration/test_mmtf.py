@@ -163,6 +163,19 @@ class ParsingTests(TestCase):
             atom = res.atom(name="N")
             self.assertEqual(atom.location[0], x)
         self.assertEqual(len(all_atoms), 18270)
+    
+
+    def test_1cbn(self):
+        # Multiple occupancy is handled
+        pdb = atomium.open("tests/integration/files/1cbn.mmtf")
+        polymer = pdb.model.polymer()
+        residue1, residue2, residue3 = polymer[:3]
+        self.assertEqual(len(residue1.atoms()), 16)
+        self.assertEqual(len(residue2.atoms()), 14)
+        self.assertEqual(len(residue3.atoms()), 10)
+        for residue in polymer[:3]:
+            for name in ["N", "C", "CA", "CB"]:
+                self.assertEqual(len(residue.atoms(name=name)), 1)
 
 
 

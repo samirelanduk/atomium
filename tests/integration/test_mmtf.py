@@ -141,6 +141,28 @@ class ParsingTests(TestCase):
     def test_1lol_mmtf_compressed(self):
         d = atomium.open("tests/integration/files/1lol.mmtf.gz", dictionary=True)
         self.assertEqual(d["entry"], [{"id": "1LOL"}])
+    
+
+    def test_5xme(self):
+        # Parse
+        pdb = atomium.open("tests/integration/files/5xme.mmtf")
+        self.assertIsNone(pdb.resolution)
+
+        # Models are correct
+        self.assertEqual(len(pdb.models), 10)
+        self.assertIs(pdb.model, pdb.models[0])
+        x_values = [
+            33.969, 34.064, 37.369, 36.023, 35.245,
+            35.835, 37.525, 35.062, 36.244, 37.677
+        ]
+        all_atoms = set()
+        for x, model in zip(x_values, pdb.models):
+            self.assertEqual(len(model.atoms()), 1827)
+            all_atoms.update(model.atoms())
+            res = model.polymer()[0]
+            atom = res.atom(name="N")
+            self.assertEqual(atom.location[0], x)
+        self.assertEqual(len(all_atoms), 18270)
 
 
 

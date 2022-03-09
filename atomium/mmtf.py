@@ -27,29 +27,31 @@ def mmtf_string_to_mmcif_dict(bytestring):
         "entry_id": mmtf["structureId"], "method": ",".join(mmtf["experimentalMethods"])
     }]
 
-    mmcif_dict["refine"] = [{
-        "entry_id": mmtf["structureId"],
-        "ls_d_res_high": str(round(mmtf["resolution"], 3)),
-        "ls_R_factor_obs":str(round( mmtf["rWork"], 3)),
-        "ls_R_factor_all": str(round(mmtf["rWork"], 3)),
-        "ls_R_factor_R_work": str(round(mmtf["rWork"], 3)),
-        "ls_R_factor_R_free": str(round(mmtf["rFree"], 3)),
-    }]
+    if "resolution" in mmtf or "rWork" in mmtf or "rFree" in mmtf:
+        mmcif_dict["refine"] = [{
+            "entry_id": mmtf["structureId"],
+            "ls_d_res_high": str(round(mmtf["resolution"], 3)),
+            "ls_R_factor_obs":str(round( mmtf["rWork"], 3)),
+            "ls_R_factor_all": str(round(mmtf["rWork"], 3)),
+            "ls_R_factor_R_work": str(round(mmtf["rWork"], 3)),
+            "ls_R_factor_R_free": str(round(mmtf["rFree"], 3)),
+        }]
 
     mmcif_dict["symmetry"] = [{
         "entry_id": mmtf["structureId"],
         "space_group_name_H-M": mmtf["spaceGroup"]
     }]
 
-    mmcif_dict["cell"] = [{
-        "entry_id": mmtf["structureId"],
-        "length_a": str(round(mmtf["unitCell"][0], 3)),
-        "length_b": str(round(mmtf["unitCell"][1], 3)),
-        "length_c": str(round(mmtf["unitCell"][2], 3)),
-        "length_alpha": str(round(mmtf["unitCell"][3], 3)),
-        "length_beta": str(round(mmtf["unitCell"][4], 3)),
-        "length_gamme": str(round(mmtf["unitCell"][5], 3))
-    }]
+    if "unitCell" in mmtf:
+        mmcif_dict["cell"] = [{
+            "entry_id": mmtf["structureId"],
+            "length_a": str(round(mmtf["unitCell"][0], 3)),
+            "length_b": str(round(mmtf["unitCell"][1], 3)),
+            "length_c": str(round(mmtf["unitCell"][2], 3)),
+            "length_alpha": str(round(mmtf["unitCell"][3], 3)),
+            "length_beta": str(round(mmtf["unitCell"][4], 3)),
+            "length_gamme": str(round(mmtf["unitCell"][5], 3))
+        }]
 
     if mmtf["bioAssemblyList"]:
         mmcif_dict["pdbx_struct_assembly"] = []

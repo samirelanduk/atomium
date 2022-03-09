@@ -176,6 +176,32 @@ class ParsingTests(TestCase):
         for residue in polymer[:3]:
             for name in ["N", "C", "CA", "CB"]:
                 self.assertEqual(len(residue.atoms(name=name)), 1)
+    
+
+    def test_6xlu(self):
+        # Carbs parsed
+        pdb = atomium.open("tests/integration/files/6xlu.mmtf")
+
+        # Model
+        self.assertEqual(len(pdb.model.polymers()), 3)
+        self.assertEqual(len(pdb.model.branched_polymers()), 15)
+        self.assertEqual(len(pdb.model.residues()), 3208)
+        self.assertEqual(len(pdb.model.non_polymers()), 32)
+        self.assertEqual(len(pdb.model.atoms()), 25948)
+
+        # Carb
+        carb = pdb.model.branched_polymer("D")
+        self.assertIn(carb, pdb.model)
+        self.assertEqual(str(carb), "<BranchedPolymer D (2 residues)>")
+        self.assertEqual(carb.id, "D")
+        self.assertEqual(carb.auth_id, "D")
+        self.assertEqual(len(carb.residues()), 2)
+        for residue in carb.residues(): self.assertIn(residue, carb)
+        self.assertIs(carb.model, pdb.model)
+        self.assertEqual(len(carb.atoms()), 28)
+        self.assertTrue(list(carb.atoms())[0] in carb)
+        self.assertEqual(carb.entity_id, "2")
+        self.assertEqual(carb.entity_name, "2-acetamido-2-deoxy-beta-D-glucopyranose-(1-4)-2-acetamido-2-deoxy-beta-D-glucopyranose")
 
 
 

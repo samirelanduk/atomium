@@ -115,9 +115,17 @@ To uncompress it, the bytstring is opened with `msgpack`, to get a dictionary wh
 Columns can also have a 'mask' associated, which specifies what symbol should be used for empty values - `?` or `.`.
 
 Turning the list of columns into an mmCIF dictionary is then a very straightforward process. Some line breaks need to be removed from certain strings, and everything should be converted to a string to make it identical the those created from mmCIF.
-## PDB Interchange
 
 ## MMTF Interchange
+
+MMTF is another file format for storing mmCIF data in a compressed form - though in this case it is just a subset of the data.
+
+The binary contents are extracted using `msgpack` to get a dictionary with some bytes data, which must be extracted using custom MMTF algorithms. The end result is an MMTF dictionary, with keys for various important header attributes, and atom information.
+
+An mmCIF dictionary is created from this by manually creating the relevant header tables, and then creating the entities and atom records. Individual atom properties are stored as vectors (the `x` vector, the `occupancy` vector etc.) and properties common to a residue are stored in once in `groups` lists. MMTF also refers to all entity molecules as 'chains'.
+
+## PDB Interchange
+
 
 
 

@@ -546,6 +546,22 @@ class FileReadingTests(TestCase):
             self.assertIs(res.next, chaina[5])
             self.assertIn(chaina.residue(name="GLN"), [chaina.residue("A.136"), chaina.residue("A.173")])
 
+            # Source information
+            if e == "pdb":
+                for chain in (chaina, chainb):
+                    self.assertEqual(
+                        chain.information["organism_scientific"],
+                        "METHANOTHERMOBACTER THERMAUTOTROPHICUS STR. DELTA H",
+                    )
+                    self.assertEqual(
+                        chain.information["molecule"],
+                        "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+                    )
+                    self.assertEqual(
+                        chain.information["engineered"],
+                        "YES",
+                    )
+
             lig = model.ligand(name="XMP")
             self.assertIs(lig.model, model)
             self.assertEqual(len(lig.atoms()), 24)
@@ -641,6 +657,21 @@ class FileReadingTests(TestCase):
                 self.assertEqual(atom.location[0], x)
             self.assertEqual(len(all_atoms), 18270)
 
+            # Source information
+            if e == "pdb":
+                chain = models[0].chain("A")
+                self.assertEqual(
+                    chain.information["organism_scientific"],
+                    "HOMO SAPIENS",
+                )
+                self.assertEqual(
+                    chain.information["molecule"],
+                    "TUMOR NECROSIS FACTOR RECEPTOR TYPE 1-ASSOCIATED DEATH DOMAIN PROTEIN",
+                )
+                self.assertEqual(
+                    chain.information["engineered"],
+                    "YES",
+                )
 
     def test_1cbn(self):
         for e in ["cif", "mmtf", "pdb"]:
@@ -717,6 +748,26 @@ class FileReadingTests(TestCase):
                  "(2R,3AS,4AR,5AR,5BS)-2-(6-AMINO-9H-PURIN-9-YL)-3A-HYDROXYHEXAHYDROCYCLOPROPA[4,5]CYCLOPENTA[1,2-B]FURAN-5A(4H)-YL DIHYDROGEN PHOSPHATE"
                 )
 
+            if e == "pdb":
+                self.assertEqual(
+                    f.model.chain("A").information["molecule"], "RIBONUCLEASE H"
+                )
+                self.assertEqual(
+                    f.model.chain("C").information["molecule"], "RIBONUCLEASE H"
+                )
+                self.assertEqual(
+                    f.model.chain("B").information["molecule"],
+                    "5'-D(*CP*GP*CP*GP*AP*(TCY)P*TP*TP*CP*GP*CP*G)-3'",
+                )
+                self.assertEqual(
+                    f.model.chain("D").information["molecule"],
+                    "5'-D(*CP*GP*CP*GP*AP*(TCY)P*TP*TP*CP*GP*CP*G)-3'",
+                )
+                self.assertEqual(
+                    f.model.chain("A").information["organism_scientific"],
+                    "BACILLUS HALODURANS",
+                )
+                self.assertNotIn("organism_scientific", f.model.chain("B").information)
 
     def test_6xlu(self):
         # Branched chains

@@ -134,6 +134,59 @@ def update_geometry_dict(pdb_dict, data_dict):
     extract_crystallography(pdb_dict, data_dict["geometry"])
 
 
+def add_annotation_to_polymers(model, pdb_dict):
+    """Parses COMPND and SOURCE records present in a .pdb dictionary and
+    updates the polymers present in the model with the retrieved
+    information.
+
+    :param dict model: The model dictionary to update.
+    :param dict pdb_dict: The .pdb dictionary to parse."""
+
+    compounds = []
+    compound = {}
+    if "COMPND" in pdb_dict:
+        for key, value in [
+            s.strip().replace(": ", ":").split(":")
+            for s in "".join([line[10:] for line in pdb_dict["COMPND"]]).split(";")
+        ]:
+            # New molecule described?
+            if key.lower() == "mol_id":
+                if compound:
+                    compounds.append(compound)
+                compound = {}
+            compound[key.lower()] = value
+
+        if compound:
+            compounds.append(compound)
+    else:
+        return
+
+    # All compounds should have a mol_id associated with them
+    if not all("mol_id" in compound for compound in compounds):
+        return
+
+    if "SOURCE" in pdb_dict:
+        for key, value in [
+            s.strip().replace(": ", ":").split(":")
+            for s in "".join([line[10:] for line in pdb_dict["SOURCE"]]).split(";")
+        ]:
+            # New molecule described?
+            if key.lower() == "mol_id":
+                compound = [
+                    compound for compound in compounds if compound["mol_id"] == value
+                ][0]
+
+            compound[key.lower()] = value
+
+    # Update polymers
+    for compound in compounds:
+        if "chain" in compound:
+            chain_ids = [chain_id.strip() for chain_id in compound["chain"].split(",")]
+            for chain_id in chain_ids:
+                if chain_id in model["polymer"]:
+                    model["polymer"][chain_id]["information"] = compound
+
+
 def update_models_list(pdb_dict, data_dict):
     """Creates model dictionaries in a data dictionary.
 
@@ -160,6 +213,7 @@ def update_models_list(pdb_dict, data_dict):
             for chain_id, chain in model["polymer"].items():
                 chain["sequence"] = sequences.get(chain_id, "")
         add_secondary_structure_to_polymers(model, secondary_structure)
+        add_annotation_to_polymers(model, pdb_dict)
         data_dict["models"].append(model)
 
 

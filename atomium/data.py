@@ -257,12 +257,17 @@ def create_chains(model_dict):
         res_by_id = {r.id: r for r in res}
         for res1, res2 in zip(res[:-1], res[1:]):
             res1._next, res2._previous = res2, res1
-        chains.append(Chain(
-         *res, id=chain_id,
-         helices=[[res_by_id[r] for r in h] for h in chain["helices"]],
-         strands=[[res_by_id[r] for r in s] for s in chain["strands"]],
-         internal_id=chain["internal_id"], sequence=chain["sequence"]
-        ))
+        chains.append(
+            Chain(
+                *res,
+                id=chain_id,
+                helices=[[res_by_id[r] for r in h] for h in chain["helices"]],
+                strands=[[res_by_id[r] for r in s] for s in chain["strands"]],
+                information=chain["information"] if "information" in chain else [],
+                internal_id=chain["internal_id"],
+                sequence=chain["sequence"],
+            )
+        )
     return chains
 
 

@@ -618,7 +618,7 @@ class Chain(Molecule, metaclass=StructureClass):
     :param list helices: the alpha helices within the chain.
     :param list strands: the beta strands within the chain."""
 
-    def __init__(self, *residues, sequence="", helices=None, strands=None, **kwargs):
+    def __init__(self, *residues, sequence="", helices=None, strands=None, information=None, **kwargs):
         Molecule.__init__(
          self, kwargs.get("id"), kwargs.get("name"), kwargs.get("internal_id")
         )
@@ -628,7 +628,7 @@ class Chain(Molecule, metaclass=StructureClass):
         self._model = None
         self._helices = helices or []
         self._strands = strands or []
-
+        self._information = information or {}
 
     def __repr__(self):
         return "<Chain {} ({} residues)>".format(self._id, len(self._residues))
@@ -683,6 +683,13 @@ class Chain(Molecule, metaclass=StructureClass):
 
         return tuple(self._strands)
 
+    @property
+    def information(self):
+        """The source organism and other information related to the chain
+
+        :rtype: ``dict``"""
+
+        return self._information
 
     @property
     def length(self):

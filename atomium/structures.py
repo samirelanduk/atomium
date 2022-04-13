@@ -1167,7 +1167,7 @@ class Atom:
 
         The element lookup is case-insensitive.
 
-        :rtype: ``float``"""
+        :rtype: ``int``"""
 
         return self.__data.ATOMIC_NUMBER.get(self._element.upper(), 0)
 

@@ -43,6 +43,7 @@ class DeNovoStructureTests(TestCase):
 
         # Check atoms' calculated properties
         self.assertAlmostEqual(atom5.mass, 16, delta=0.05)
+        self.assertEqual(atom5.atomic_number, 8)
         self.assertEqual(atom1.covalent_radius, 0.71)
         for atom in (atom1, atom2, atom3, atom4, atom5):
             self.assertFalse(atom.is_metal)
@@ -593,6 +594,7 @@ class FileReadingTests(TestCase):
             self.assertEqual(atom.bvalue, 17.14)
             self.assertEqual(atom.charge, 0)
             self.assertAlmostEqual(atom.mass, 12, delta=0.1)
+            self.assertEqual(atom.atomic_number, 6)
             self.assertIs(atom.chain, chaina)
             self.assertIs(atom.model, model)
             self.assertIs(atom.het, model.residue("A.131"))

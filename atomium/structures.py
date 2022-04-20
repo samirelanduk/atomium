@@ -1160,6 +1160,19 @@ class Atom:
     
 
     @property
+    def atomic_number(self):
+        """The atom's nuclear charge or atomic number, based on the
+        atom's :py:meth:`element`. If the element doesn't match any symbol on
+        the Periodic Table, a mass of 0 will be returned.
+
+        The element lookup is case-insensitive.
+
+        :rtype: ``int``"""
+
+        return self.__data.ATOMIC_NUMBER.get(self._element.upper(), 0)
+
+
+    @property
     def covalent_radius(self):
         """The atom's covalent radius, based on the atom's :py:meth:`element`.
         If the element doesn't match any symbol on the Periodic Table, a radius

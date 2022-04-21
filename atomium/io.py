@@ -5,6 +5,7 @@ import paramiko
 from .mmcif import mmcif_string_to_mmcif_dict
 from .bcif import bcif_string_to_mmcif_dict
 from .mmtf import mmtf_string_to_mmcif_dict
+from .pdb import pdb_string_to_mmcif_dict
 from .file import File
 
 def open(path, dictionary=False):
@@ -64,6 +65,7 @@ def parse_filestring(filestring, filename, dictionary=False):
         "mmcif": mmcif_string_to_mmcif_dict,
         "bcif": bcif_string_to_mmcif_dict,
         "mmtf": mmtf_string_to_mmcif_dict,
+        "pdb": pdb_string_to_mmcif_dict,
     }[filetype](filestring)
     if dictionary: return mmcif_dict
     return File(mmcif_dict)
@@ -72,4 +74,4 @@ def parse_filestring(filestring, filename, dictionary=False):
 def determine_filetype(filestring, filename):
     if isinstance(filestring, bytes):
         return "mmtf" if filename.endswith("mmtf") else "bcif"
-    return "mmcif"
+    return "pdb" if filename.endswith("pdb") else "mmcif"

@@ -15,3 +15,9 @@ class DictParsingTests(TestCase):
             "status_code": "REL", "entry_id": "1LOL",
             "recvd_initial_deposition_date": "2002-05-06"
         }])
+
+        self.assertEqual(d["struct"], [{
+            "entry_id": "1LOL", "pdbx_CASP_flag": "?", "pdbx_descriptor": "?",
+            "pdbx_model_details": "?", "pdbx_model_type_details": "?",
+            "title": "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
+        }])

@@ -4,6 +4,7 @@ import calendar
 def pdb_string_to_mmcif_dict(filestring):
     mmcif = {}
     parse_header(filestring, mmcif)
+    parse_title(filestring, mmcif)
     return mmcif
 
 
@@ -27,3 +28,16 @@ def parse_header(filestring, mmcif):
     mmcif["struct_keywords"] = [{
         "entry_id": code, "pdbx_keywords": keyword, "text": "?"
     }]
+
+
+def parse_title(filestring, mmcif):    
+    mmcif["struct"] = [{"entry_id": mmcif["entry"][0]["id"], **{
+        k: "?" for k in [
+            "title", "pdbx_descriptor", "pdbx_model_details", "pdbx_CASP_flag",
+            "pdbx_model_type_details"
+        ]
+    }}]
+    title_lines = re.findall(r"^TITLE.+", filestring, re.M)
+    title = " ".join([l[10:80] for l in title_lines]).strip()
+    if title and set(title) != {"-"} and title not in ["NULL", "NONE"]:
+        mmcif["struct"][0]["title"] = " ".join(title.split())

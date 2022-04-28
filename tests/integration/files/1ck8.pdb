@@ -1,0 +1,242 @@
+HEADER    RIBOSOME/RNA                            28-APR-99   1CK8              
+OBSLTE     25-JUL-06 1CK8      1T0K                                             
+TITLE     RPL30-MRNA COMPLEX FROM YEAST                                         
+CAVEAT     1CK8    THERE ARE CHIRALITY ERRORS IN C-ALPHA CENTERS                
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: L30 33 NUCLEOTIDE RNA YL32;                                
+COMPND   3 CHAIN: A;                                                            
+COMPND   4 FRAGMENT: YEAST L30 PRE-MRNA BINDING SITE;                           
+COMPND   5 SYNONYM: RPL32,YGL030W;                                              
+COMPND   6 ENGINEERED: YES;                                                     
+COMPND   7 MOL_ID: 2;                                                           
+COMPND   8 MOLECULE: 60S RIBOSOMAL PROTEIN L30;                                 
+COMPND   9 CHAIN: B;                                                            
+COMPND  10 SYNONYM: RL30_YEAST, YL32,RP73;                                      
+COMPND  11 ENGINEERED: YES                                                      
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: SACCHAROMYCES CEREVISIAE;                       
+SOURCE   3 ORGANISM_COMMON: YEAST;                                              
+SOURCE   4 CELLULAR_LOCATION: NUCLEI;                                           
+SOURCE   5 GENE: YSCRPL32;                                                      
+SOURCE   6 OTHER_DETAILS: SYNTHESIZED USING IN VITRO T7 POLYMERASE;             
+SOURCE   7 MOL_ID: 2;                                                           
+SOURCE   8 ORGANISM_SCIENTIFIC: SACCHAROMYCES CEREVISIAE;                       
+SOURCE   9 ORGANISM_COMMON: YEAST;                                              
+SOURCE  10 ORGANELLE: RIBOSOME,60S SUBUNIT;                                     
+SOURCE  11 CELLULAR_LOCATION: CYTOPLASM;                                        
+SOURCE  12 GENE: YSCRPL32;                                                      
+SOURCE  13 EXPRESSION_SYSTEM: ESCHERICHIA COLI;                                 
+SOURCE  14 EXPRESSION_SYSTEM_COMMON: BACTERIA;                                  
+SOURCE  15 EXPRESSION_SYSTEM_STRAIN: BL21(DE3);                                 
+SOURCE  16 EXPRESSION_SYSTEM_CELLULAR_LOCATION: CYTOPLASM;                      
+SOURCE  17 EXPRESSION_SYSTEM_PLASMID: PMALC-L30;                                
+SOURCE  18 EXPRESSION_SYSTEM_GENE: L30;                                         
+SOURCE  19 OTHER_DETAILS: RECOMBINANT EXPRESSION AS A C-TERMINAL                
+SOURCE  20 MALTOSE-BINDING PROTEIN FUSION IN ESCHERICHIA COLI STRAIN            
+SOURCE  21 JM109 HOSTING PLASMID PMALC-30                                       
+KEYWDS    RIBOSOMAL PROTEIN, PRE-MRNA, MRNA, AUTOREGULATION, PROTEIN-           
+KEYWDS   2 RNA COMPLEX, NMR                                                     
+EXPDTA    NMR, 21 STRUCTURES                                                    
+AUTHOR    H.MAO,S.A.WHITE,J.R.WILLAMSON                                         
+REVDAT   4   25-JUL-06 1CK8    1       OBSLTE                                   
+REVDAT   3   01-APR-03 1CK8    1       JRNL                                     
+REVDAT   2   27-MAR-00 1CK8    3       ATOM                                     
+REVDAT   1   02-DEC-99 1CK8    0                                                
+JRNL        AUTH   H.MAO,S.A.WHITE,J.R.WILLIAMSON                               
+JRNL        TITL   A NOVEL LOOP-LOOP RECOGNITION MOTIF IN THE YEAST             
+JRNL        TITL 2 RIBOSOMAL PROTEIN L30 AUTOREGULATORY RNA COMPLEX.            
+JRNL        REF    NAT.STRUCT.BIOL.              V.   6  1139 1999              
+JRNL        REFN   ASTM NSBIEW  US ISSN 1072-8368                               
+REMARK   1                                                                      
+REMARK   1 REFERENCE 1                                                          
+REMARK   1  AUTH   H.LI,S.DALAL,J.KOHLER,J.VILARDELL,S.A.WHITE                  
+REMARK   1  TITL   CHARACTERIZATION OF THE PRE-MRNA BINDING SITE FOR            
+REMARK   1  TITL 2 YEAST RIBOSOMAL PROTEIN L32: THE IMPORTANCE OF A             
+REMARK   1  TITL 3 PURINE-RICH LOOP                                             
+REMARK   1  REF    J.MOL.BIOL.                   V. 250   447 1995              
+REMARK   1  REFN   ASTM JMOBAK  UK ISSN 0022-2836                               
+REMARK   1 REFERENCE 2                                                          
+REMARK   1  AUTH   F.J.ENG,J.R.WARNER                                           
+REMARK   1  TITL   STRUCTURAL BASIS FOR THE REGULATION OF SPLICING OF           
+REMARK   1  TITL 2 A YEAST MESSENGER RNA                                        
+REMARK   1  REF    CELL(CAMBRIDGE,MASS.)         V.  65   797 1991              
+REMARK   1  REFN   ASTM CELLB5  US ISSN 0092-8674                               
+REMARK   2                                                                      
+REMARK   2 RESOLUTION. NOT APPLICABLE.                                          
+REMARK   3                                                                      
+REMARK   3 REFINEMENT.                                                          
+REMARK   3   PROGRAM     : AMBER                                                
+REMARK   3   AUTHORS     : PEARLMAN,CASE,CALDWELL,ROSS,CHEATHAM, FERGUSON,      
+REMARK   3                 SEIBEL,SINGH,WEINER,KOLLMAN                          
+REMARK   3                                                                      
+REMARK   3  OTHER REFINEMENT REMARKS: CONSTRAINTS: DISTANCE PROTEIN             
+REMARK   3  INTRARESIDUE NOES: 898; INTERRESIDUE NOES: 1175; SEQUENTIAL (|      
+REMARK   3  I-J|=1): 512; SHORT-RANGE (|I-J|<=4): 328; LONG-RANGE (|I-J|>       
+REMARK   3  4): 335; HYDROGEN BONDS: 56; TOTAL: 2129. RNA INTRARESIDUE          
+REMARK   3  NOES: 249; INTERRESIDUE NOES: 221 SEQUENTIAL (|I-J|=1): 159;        
+REMARK   3  SHORT-RANGE (|I-J|<=4): 12; LONG-RANGE (| I-J|>1): 50;              
+REMARK   3  HYDROGEN BONDS: 77; TOTAL 547. PROTEIN-RNA INTRARMOLECULE           
+REMARK   3  NOES: 73; TORSION PROTEIN BACKBONE PHI: 76; SIDECHAIN KAI1:         
+REMARK   3  59; TOTAL 135 RNA GLYCOSIDIC KAI, DELTA AND AMINO 107; TOTAL        
+REMARK   3  107                                                                 
+REMARK   4                                                                      
+REMARK   4 1CK8 COMPLIES WITH FORMAT V. 3.0, 1-DEC-2006                         
+REMARK   4                                                                      
+REMARK   4 THIS FILE IS A TEST VERSION.                                         
+REMARK   4                                                                      
+REMARK   4 THIS IS THE REMEDIATED VERSION OF THIS PDB ENTRY.                    
+REMARK   4 REMEDIATED DATA FILE REVISION 3.100 (2007-03-19)                     
+REMARK 100                                                                      
+REMARK 100 THIS ENTRY HAS BEEN PROCESSED BY RCSB ON 30-APR-1999.                
+REMARK 100 THE RCSB ID CODE IS RCSB000964.                                      
+REMARK 105                                                                      
+REMARK 105 THE PROTEIN DATA BANK HAS ADOPTED THE SACCHARIDE CHEMISTS            
+REMARK 105 NOMENCLATURE FOR ATOMS OF THE DEOXYRIBOSE/RIBOSE MOIETY              
+REMARK 105 RATHER THAN THAT OF THE NUCLEOSIDE CHEMISTS.  THE RING               
+REMARK 105 OXYGEN ATOM IS LABELLED O4' INSTEAD OF O1'.                          
+REMARK 210                                                                      
+REMARK 210 EXPERIMENTAL DETAILS                                                 
+REMARK 210  EXPERIMENT TYPE                : NMR                                
+REMARK 210  TEMPERATURE           (KELVIN) : 303                                
+REMARK 210  PH                             : 6.0                                
+REMARK 210  IONIC STRENGTH                 : 10 MM                              
+REMARK 210  PRESSURE                       : 1 ATM                              
+REMARK 210  SAMPLE CONTENTS                : 10% WATER/90% D2O                  
+REMARK 210                                                                      
+REMARK 210  NMR EXPERIMENTS CONDUCTED      : NOESY, COSY, TOCSY, HNCA,          
+REMARK 210                                   HNCO, HN(CO)CA, HNCACB,            
+REMARK 210                                   HCCHTOCSY, NOESYHSQC, HNHA,        
+REMARK 210                                   HMQC-J                             
+REMARK 210  SPECTROMETER FIELD STRENGTH    : 600 MHZ, 750 MHZ                   
+REMARK 210  SPECTROMETER MODEL             : INOVA                              
+REMARK 210  SPECTROMETER MANUFACTURER      : VARIAN                             
+REMARK 210                                                                      
+REMARK 210  STRUCTURE DETERMINATION.                                            
+REMARK 210   SOFTWARE USED                 : NMRDRAW, NMRPIPE                   
+REMARK 210   METHOD USED                   : SIMULATED ANNEALING MOLECULAR      
+REMARK 210                                   DYNAMIC                            
+REMARK 210                                                                      
+REMARK 210 CONFORMERS, NUMBER CALCULATED   : 100                                
+REMARK 210 CONFORMERS, NUMBER SUBMITTED    : 21                                 
+REMARK 210 CONFORMERS, SELECTION CRITERIA  : LOWEST TOTAL ENERGY                
+REMARK 210                                                                      
+REMARK 210 BEST REPRESENTATIVE CONFORMER IN THIS ENSEMBLE : NULL                
+REMARK 210                                                                      
+REMARK 210 REMARK: THIS STRUCTURE WAS DETERMINED USING TRIPLE-RESONANCE         
+REMARK 210  NMR SPECTROSCOPY ON 13C, 15N-LABELED L30 PROTEIN AND 13C, 15N-      
+REMARK 210  LABELED RNA IN COMPLEXED WITH THEIR UNLABELED COUNTERPARTS.         
+REMARK 215                                                                      
+REMARK 215 NMR STUDY                                                            
+REMARK 215 THE COORDINATES IN THIS ENTRY WERE GENERATED FROM SOLUTION           
+REMARK 215 NMR DATA.  PROTEIN DATA BANK CONVENTIONS REQUIRE THAT                
+REMARK 215 CRYST1 AND SCALE RECORDS BE INCLUDED, BUT THE VALUES ON              
+REMARK 215 THESE RECORDS ARE MEANINGLESS.                                       
+REMARK 500                                                                      
+REMARK 500 GEOMETRY AND STEREOCHEMISTRY                                         
+REMARK 500 SUBTOPIC: COVALENT BOND ANGLES                                       
+REMARK 500                                                                      
+REMARK 500 THE STEREOCHEMICAL PARAMETERS OF THE FOLLOWING RESIDUES              
+REMARK 500 HAVE VALUES WHICH DEVIATE FROM EXPECTED VALUES BY MORE               
+REMARK 500 THAN 6*RMSD (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN               
+REMARK 500 IDENTIFIER; SSEQ=SEQUENCE NUMBER; I=INSERTION CODE).                 
+REMARK 500                                                                      
+REMARK 500 STANDARD TABLE:                                                      
+REMARK 500 FORMAT: (10X,I3,1X,A3,1X,A1,I4,A1,3(1X,A4,2X),12X,F5.1)              
+REMARK 500                                                                      
+REMARK 500 EXPECTED VALUES: ENGH AND HUBER, 1991                                
+REMARK 500                                                                      
+REMARK 500  M RES CSSEQI ATM1   ATM2   ATM3                                     
+REMARK 500 12 GLU B  55   CB  -  CA  -  C   ANGL. DEV. = 16.0 DEGREES           
+REMARK 500                                                                      
+REMARK 500 GEOMETRY AND STEREOCHEMISTRY                                         
+REMARK 500 SUBTOPIC: NON-CIS, NON-TRANS                                         
+REMARK 500                                                                      
+REMARK 500 THE FOLLOWING PEPTIDE BONDS DEVIATE SIGNIFICANTLY FROM BOTH          
+REMARK 500 CIS AND TRANS CONFORMATION.  CIS BONDS, IF ANY, ARE LISTED           
+REMARK 500 ON CISPEP RECORDS.  TRANS IS DEFINED AS 180 +/- 30 AND               
+REMARK 500 CIS IS DEFINED AS 0 +/- 30 DEGREES.                                  
+REMARK 500                                 MODEL     OMEGA                      
+REMARK 500 THR B   65    LYS B   66          1      -148.22                     
+REMARK 500 ALA B   95    GLY B   96          1       -65.00                     
+REMARK 500 ALA B   95    GLY B   96          2      -134.71                     
+REMARK 500 ASP B   99    ILE B  100          2      -148.06                     
+REMARK 500 LEU B  104    ALA B  105          2       143.41                     
+REMARK 500 LYS B    5    SER B    6          3      -143.59                     
+REMARK 500 ALA B   95    GLY B   96          3      -120.15                     
+REMARK 500 ALA B   95    GLY B   96          4      -119.88                     
+REMARK 500 LEU B  104    ALA B  105          4       148.84                     
+REMARK 500 ALA B   95    GLY B   96          5      -111.47                     
+REMARK 500 LYS B   40    LEU B   41          6       145.42                     
+REMARK 500 ASN B   74    ASN B   75          6       149.35                     
+REMARK 500 ALA B   95    GLY B   96          6      -136.51                     
+REMARK 500 ASP B   99    ILE B  100          6      -149.69                     
+REMARK 500 LEU B  104    ALA B  105          6       148.75                     
+REMARK 500 LYS B    5    SER B    6          7      -144.21                     
+REMARK 500 ALA B   95    GLY B   96          7      -138.59                     
+REMARK 500 LEU B  104    ALA B  105          7      -141.55                     
+REMARK 500 ALA B   95    GLY B   96          8       -62.35                     
+REMARK 500 GLU B    8    SER B    9          9       147.55                     
+REMARK 500 SER B   39    LYS B   40          9       145.83                     
+REMARK 500 ALA B   95    GLY B   96          9      -137.32                     
+REMARK 500 LEU B  104    ALA B  105          9       145.06                     
+REMARK 500 SER B   39    LYS B   40         10       143.44                     
+REMARK 500 ALA B   95    GLY B   96         10      -102.70                     
+REMARK 500 SER B   39    LYS B   40         11       140.48                     
+REMARK 500 ALA B   95    GLY B   96         11      -122.51                     
+REMARK 500 GLU B    8    SER B    9         12       147.95                     
+REMARK 500 SER B   39    LYS B   40         12       143.50                     
+REMARK 500 ALA B   95    GLY B   96         12      -137.77                     
+REMARK 500 ALA B   95    GLY B   96         13      -126.20                     
+REMARK 500 LEU B  104    ALA B  105         13       145.69                     
+REMARK 500 LYS B    5    SER B    6         14      -149.01                     
+REMARK 500 ASN B   74    ASN B   75         14       144.31                     
+REMARK 500 ALA B   95    GLY B   96         14      -136.49                     
+REMARK 500 ALA B   95    GLY B   96         15      -142.68                     
+REMARK 500 LEU B  104    ALA B  105         15      -146.49                     
+REMARK 500 GLU B    8    SER B    9         16       149.59                     
+REMARK 500 THR B   65    LYS B   66         16      -147.90                     
+REMARK 500 ALA B   95    GLY B   96         16       -62.11                     
+REMARK 500 LYS B    5    SER B    6         17      -147.80                     
+REMARK 500 ASN B   74    ASN B   75         17       149.47                     
+REMARK 500 ALA B   95    GLY B   96         17      -135.64                     
+REMARK 500 ASP B   99    ILE B  100         17      -149.80                     
+REMARK 500 SER B   39    LYS B   40         18       141.72                     
+REMARK 500 ALA B   95    GLY B   96         19      -133.71                     
+REMARK 500 ALA B   95    GLY B   96         20      -137.08                     
+REMARK 500 ASP B   99    ILE B  100         20      -149.80                     
+REMARK 500 GLU B    8    SER B    9         21       146.63                     
+REMARK 500 ASN B   74    ASN B   75         21       149.93                     
+REMARK 500 ALA B   95    GLY B   96         21      -115.14                     
+REMARK 999                                                                      
+REMARK 999 SEQUENCE REFERENCES:                                                 
+REMARK 999 LI ET AL. (1995) J.MOL.BIOL. 250, P447.                              
+REMARK 999 DEBEVA ET AL. (1987) J.BIOL.CHEM. 262,P 16055.                       
+DBREF  1CK8 B    2   105  UNP    P14120   RL30_YEAST       2    105             
+SEQRES   1 A   33    G   G   A   C   C   G   G   A   G   U   G   U   C          
+SEQRES   2 A   33    G   C   A   A   G   A   C   G   C   A   G   A   G          
+SEQRES   3 A   33    A   U   G   G   U   C   C                                  
+SEQRES   1 B  104  ALA PRO VAL LYS SER GLN GLU SER ILE ASN GLN LYS LEU          
+SEQRES   2 B  104  ALA LEU VAL ILE LYS SER GLY LYS TYR THR LEU GLY TYR          
+SEQRES   3 B  104  LYS SER THR VAL LYS SER LEU ARG GLN GLY LYS SER LYS          
+SEQRES   4 B  104  LEU ILE ILE ILE ALA ALA ASN THR PRO VAL LEU ARG LYS          
+SEQRES   5 B  104  SER GLU LEU GLU TYR TYR ALA MET LEU SER LYS THR LYS          
+SEQRES   6 B  104  VAL TYR TYR PHE GLN GLY GLY ASN ASN GLU LEU GLY THR          
+SEQRES   7 B  104  ALA VAL GLY LYS LEU PHE ARG VAL GLY VAL VAL SER ILE          
+SEQRES   8 B  104  LEU GLU ALA GLY ASP SER ASP ILE LEU THR THR LEU ALA          
+HELIX    1   1 GLN B    7  ILE B   18  5                                  12    
+HELIX    2   2 LYS B   28  GLN B   36  1                                   9    
+HELIX    3   3 VAL B   17  SER B   63  1                                  47    
+HELIX    4   4 GLY B   73  ALA B   80  1                                   8    
+HELIX    5   5 ILE B  100  THR B  103  1                                   4    
+SHEET    1   A 4 TYR B  23  LEU B  25  0                                        
+SHEET    2   A 4 VAL B  89  ILE B  92 -1  N  SER B  91   O  THR B  24           
+SHEET    3   A 4 ILE B  42  ALA B  45 -1  N  ILE B  10   O  VAL B  90           
+SHEET    4   A 4 VAL B  67  PHE B  70  1  N  TYR B  68   O  ILE B  42           
+CRYST1    1.000    1.000    1.000  90.00  90.00  90.00 P 1           1          
+ORIGX1      1.000000  0.000000  0.000000        0.00000                         
+ORIGX2      0.000000  1.000000  0.000000        0.00000                         
+ORIGX3      0.000000  0.000000  1.000000        0.00000                         
+SCALE1      1.000000  0.000000  0.000000        0.00000                         
+SCALE2      0.000000  1.000000  0.000000        0.00000                         
+SCALE3      0.000000  0.000000  1.000000        0.00000                         
+MODEL        1                                                                  

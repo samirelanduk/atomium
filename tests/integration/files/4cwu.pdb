@@ -1,0 +1,111 @@
+HEADER    VIRUS                                   03-APR-14   4CWU              
+OBSLTE     02-MAY-18 4CWU      6CGV                                             
+TITLE     CRYSTAL STRUCTURE DERIVED MODELS OF ADENOVIRUS CEMENT PROTEINS AT 3.8A
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: HEXON PROTEIN;                                             
+COMPND   3 CHAIN: A, B, C, D, E, F, G, H, I, J, K, L;                           
+COMPND   4 SYNONYM: CP-H, PROTEIN II, HUMAN ADENOVIRUS 5;                       
+COMPND   5 ENGINEERED: YES;                                                     
+COMPND   6 MOL_ID: 2;                                                           
+COMPND   7 MOLECULE: PENTON PROTEIN;                                            
+COMPND   8 CHAIN: N;                                                            
+COMPND   9 SYNONYM: CP-P, PENTON BASE PROTEIN, PROTEIN III, HUMAN ADENOVIRUS 5; 
+COMPND  10 ENGINEERED: YES;                                                     
+COMPND  11 MOL_ID: 3;                                                           
+COMPND  12 MOLECULE: PRE-CAPSID VERTEX PROTEIN;                                 
+COMPND  13 CHAIN: O;                                                            
+COMPND  14 SYNONYM: CAPSID VERTEX-SPECIFIC COMPONENT IIIA, CVSC, PROTEIN IIIA,  
+COMPND  15 PIIIA, HUMAN ADENOVIRUS 5;                                           
+COMPND  16 ENGINEERED: YES;                                                     
+COMPND  17 MOL_ID: 4;                                                           
+COMPND  18 MOLECULE: HEXON-INTERLACING PROTEIN;                                 
+COMPND  19 CHAIN: P, Q, R, S;                                                   
+COMPND  20 SYNONYM: PROTEIN IX, HUMAN ADENOVIRUS 5;                             
+COMPND  21 ENGINEERED: YES;                                                     
+COMPND  22 MOL_ID: 5;                                                           
+COMPND  23 MOLECULE: CORE-CAPSID BRIDGING PROTEIN;                              
+COMPND  24 CHAIN: T;                                                            
+COMPND  25 SYNONYM: CORE PROTEIN V, HUMAN ADENOVIRUS 5;                         
+COMPND  26 ENGINEERED: YES;                                                     
+COMPND  27 MOL_ID: 6;                                                           
+COMPND  28 MOLECULE: PRE-PROTEIN VI;                                            
+COMPND  29 CHAIN: U, V;                                                         
+COMPND  30 SYNONYM: PVI, PVI-C, HUMAN ADENOVIRUS 5;                             
+COMPND  31 ENGINEERED: YES;                                                     
+COMPND  32 MOL_ID: 7;                                                           
+COMPND  33 MOLECULE: PRE-HEXON-LINKING PROTEIN;                                 
+COMPND  34 CHAIN: X, Y;                                                         
+COMPND  35 SYNONYM: PRE-PROTEIN VIII, PVIII, 12.1 KDA PROTEIN VIII, PROTEIN VII 
+COMPND  36 I-N, 7.6 KDA PROTEIN VIII, PROTEIN VIII-C, HUMAN ADENOVIRUS 5;       
+COMPND  37 ENGINEERED: YES                                                      
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: HUMAN ADENOVIRUS 5;                             
+SOURCE   3 ORGANISM_TAXID: 28285;                                               
+SOURCE   4 ATCC: CRL-1573;                                                      
+SOURCE   5 EXPRESSION_SYSTEM: HOMO SAPIENS;                                     
+SOURCE   6 EXPRESSION_SYSTEM_COMMON: HUMAN;                                     
+SOURCE   7 EXPRESSION_SYSTEM_TAXID: 9606;                                       
+SOURCE   8 EXPRESSION_SYSTEM_CELL_LINE: HEK293/BETA 5;                          
+SOURCE   9 MOL_ID: 2;                                                           
+SOURCE  10 ORGANISM_SCIENTIFIC: HUMAN ADENOVIRUS 5;                             
+SOURCE  11 ORGANISM_TAXID: 28285;                                               
+SOURCE  12 ATCC: CRL-1573;                                                      
+SOURCE  13 EXPRESSION_SYSTEM: HOMO SAPIENS;                                     
+SOURCE  14 EXPRESSION_SYSTEM_COMMON: HUMAN;                                     
+SOURCE  15 EXPRESSION_SYSTEM_TAXID: 9606;                                       
+SOURCE  16 EXPRESSION_SYSTEM_CELL_LINE: HEK293/BETA 5;                          
+SOURCE  17 MOL_ID: 3;                                                           
+SOURCE  18 ORGANISM_SCIENTIFIC: HUMAN ADENOVIRUS 5;                             
+SOURCE  19 ORGANISM_TAXID: 28285;                                               
+SOURCE  20 ATCC: CRL-1573;                                                      
+SOURCE  21 EXPRESSION_SYSTEM: HOMO SAPIENS;                                     
+SOURCE  22 EXPRESSION_SYSTEM_COMMON: HUMAN;                                     
+SOURCE  23 EXPRESSION_SYSTEM_TAXID: 9606;                                       
+SOURCE  24 EXPRESSION_SYSTEM_CELL_LINE: HEK293/BETA 5;                          
+SOURCE  25 MOL_ID: 4;                                                           
+SOURCE  26 ORGANISM_SCIENTIFIC: HUMAN ADENOVIRUS 5;                             
+SOURCE  27 ORGANISM_TAXID: 28285;                                               
+SOURCE  28 ATCC: CRL-1573;                                                      
+SOURCE  29 EXPRESSION_SYSTEM: HOMO SAPIENS;                                     
+SOURCE  30 EXPRESSION_SYSTEM_COMMON: HUMAN;                                     
+SOURCE  31 EXPRESSION_SYSTEM_TAXID: 9606;                                       
+SOURCE  32 EXPRESSION_SYSTEM_CELL_LINE: HEK293/BETA 5;                          
+SOURCE  33 MOL_ID: 5;                                                           
+SOURCE  34 ORGANISM_SCIENTIFIC: HUMAN ADENOVIRUS 5;                             
+SOURCE  35 ORGANISM_TAXID: 28285;                                               
+SOURCE  36 ATCC: CRL-1573;                                                      
+SOURCE  37 EXPRESSION_SYSTEM: HOMO SAPIENS;                                     
+SOURCE  38 EXPRESSION_SYSTEM_COMMON: HUMAN;                                     
+SOURCE  39 EXPRESSION_SYSTEM_TAXID: 9606;                                       
+SOURCE  40 EXPRESSION_SYSTEM_CELL_LINE: HEK293/BETA 5;                          
+SOURCE  41 MOL_ID: 6;                                                           
+SOURCE  42 ORGANISM_SCIENTIFIC: HUMAN ADENOVIRUS 5;                             
+SOURCE  43 ORGANISM_TAXID: 28285;                                               
+SOURCE  44 ATCC: CRL-1573;                                                      
+SOURCE  45 EXPRESSION_SYSTEM: HOMO SAPIENS;                                     
+SOURCE  46 EXPRESSION_SYSTEM_COMMON: HUMAN;                                     
+SOURCE  47 EXPRESSION_SYSTEM_TAXID: 9606;                                       
+SOURCE  48 EXPRESSION_SYSTEM_CELL_LINE: HEK293/BETA 5;                          
+SOURCE  49 MOL_ID: 7;                                                           
+SOURCE  50 ORGANISM_SCIENTIFIC: HUMAN ADENOVIRUS 5;                             
+SOURCE  51 ORGANISM_TAXID: 28285;                                               
+SOURCE  52 ATCC: CRL-1573;                                                      
+SOURCE  53 EXPRESSION_SYSTEM: HOMO SAPIENS;                                     
+SOURCE  54 EXPRESSION_SYSTEM_COMMON: HUMAN;                                     
+SOURCE  55 EXPRESSION_SYSTEM_TAXID: 9606;                                       
+SOURCE  56 EXPRESSION_SYSTEM_CELL_LINE: HEK293/BETA 5                           
+KEYWDS    VIRUS, ADENOVIRUS, CEMENT PROTEINS, PROTEIN VI                        
+EXPDTA    X-RAY DIFFRACTION                                                     
+AUTHOR    V.S.REDDY,G.R.NEMEROW                                                 
+REVDAT   3   02-MAY-18 4CWU    1       OBSLTE                                   
+REVDAT   2   27-AUG-14 4CWU    1       JRNL                                     
+REVDAT   1   06-AUG-14 4CWU    0                                                
+SPRSDE     06-AUG-14 4CWU      1VSZ                                             
+JRNL        AUTH   V.S.REDDY,G.R.NEMEROW                                        
+JRNL        TITL   STRUCTURES AND ORGANIZATION OF ADENOVIRUS CEMENT PROTEINS    
+JRNL        TITL 2 PROTEINS PROVIDE INSIGHTS INTO THE ROLE OF CAPSID MATURATION 
+JRNL        TITL 3 IN VIRUS ENTRY AND INFECTION.                                
+JRNL        REF    PROC.NATL.ACAD.SCI.USA        V. 111 11715 2014              
+JRNL        REFN                   ISSN 0027-8424                               
+JRNL        PMID   25071205                                                     
+JRNL        DOI    10.1073/PNAS.1408462111

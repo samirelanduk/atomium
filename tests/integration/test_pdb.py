@@ -1,4 +1,3 @@
-from datetime import date
 from unittest import TestCase
 import atomium
 
@@ -20,4 +19,43 @@ class DictParsingTests(TestCase):
             "entry_id": "1LOL", "pdbx_CASP_flag": "?", "pdbx_descriptor": "?",
             "pdbx_model_details": "?", "pdbx_model_type_details": "?",
             "title": "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
+        }])
+    
+
+    def test_1CK8_pdb(self):
+        # Tests OBSLTE
+        d = atomium.open("tests/integration/files/1ck8.pdb", dictionary=True)
+        self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
+            "id": "OBSLTE", "date": "2006-07-25", "pdb_id": "1T0K",
+            "replace_pdb_id": "1CK8", "details": "?"
+        }])
+    
+
+    def test_4HHB_pdb(self):
+        # Tests SPRSDE
+        d = atomium.open("tests/integration/files/4hhb.pdb", dictionary=True)
+        self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
+            "id": "SPRSDE", "date": "1984-07-17", "pdb_id": "4HHB",
+            "replace_pdb_id": "1HHB", "details": "?"
+        }])
+    
+
+    def test_1GDJ_pdb(self):
+        # Tests SPRSDE
+        d = atomium.open("tests/integration/files/1gdj.pdb", dictionary=True)
+        self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
+            "id": "SPRSDE", "date": "1995-02-27", "pdb_id": "1GDJ",
+            "replace_pdb_id": "1LH4 2LH4", "details": "?"
+        }])
+    
+
+    def test_4CWU_pdb(self):
+        # Tests OBSLTE, SPRSDE
+        d = atomium.open("tests/integration/files/4cwu.pdb", dictionary=True)
+        self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
+            "id": "SPRSDE", "date": "2014-08-06", "pdb_id": "4CWU",
+            "replace_pdb_id": "1VSZ", "details": "?"
+        }, {
+            "id": "OBSLTE", "date": "2018-05-02", "pdb_id": "6CGV",
+            "replace_pdb_id": "4CWU", "details": "?"
         }])

@@ -1,0 +1,509 @@
+HEADER    OXYGEN TRANSPORT                        14-SEP-94   1GDJ              
+TITLE     CRYSTAL STRUCTURE OF FERRIC COMPLEXES OF THE YELLOW LUPIN             
+TITLE    2 LEGHEMOGLOBIN WITH ISOQUINOLINE AT 1.8 ANGSTROMS RESOLUTION (RUSSIAN)
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: LEGHEMOGLOBIN (DEOXY);                                     
+COMPND   3 CHAIN: A;                                                            
+COMPND   4 ENGINEERED: YES                                                      
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: LUPINUS LUTEUS;                                 
+SOURCE   3 ORGANISM_COMMON: YELLOW LUPINE;                                      
+SOURCE   4 ORGANISM_TAXID: 3873                                                 
+KEYWDS    OXYGEN TRANSPORT                                                      
+EXPDTA    X-RAY DIFFRACTION                                                     
+AUTHOR    E.HARUTYUNYAN,T.SAFONOVA,I.KURANOVA                                   
+REVDAT   4   29-NOV-17 1GDJ    1       HELIX                                    
+REVDAT   3   29-OCT-14 1GDJ    1       LINK   VERSN                             
+REVDAT   2   24-FEB-09 1GDJ    1       VERSN                                    
+REVDAT   1   27-FEB-95 1GDJ    0                                                
+SPRSDE     27-FEB-95 1GDJ      1LH4 2LH4                                        
+JRNL        AUTH   H.E.HARUTYUNYAN,T.N.SAFONOVA,I.P.KURANOVA,A.N.POPOV,         
+JRNL        AUTH 2 A.V.TEPLYAKOV,G.V.OBMOLOVA,A.A.RUSAKOV,B.K.VAINSHTEIN,       
+JRNL        AUTH 3 G.G.DODSON,J.C.WILSON,M.F.PERUTZ                             
+JRNL        TITL   THE STRUCTURE OF DEOXY- AND OXY-LEGHAEMOGLOBIN FROM LUPIN    
+JRNL        REF    J.MOL.BIOL.                   V. 251   104 1995              
+JRNL        REFN                   ISSN 0022-2836                               
+JRNL        PMID   7643380                                                      
+JRNL        DOI    10.1006/JMBI.1995.0419                                       
+REMARK   1                                                                      
+REMARK   1 REFERENCE 1                                                          
+REMARK   1  AUTH   T.N.SAFONOVA,A.V.TEPLYAKOV,G.V.OBMOLOVA,A.N.POPOV,           
+REMARK   1  AUTH 2 I.P.KURANOVA,E.G.HARUTYUNYAN                                 
+REMARK   1  TITL   CRYSTAL STRUCTURE OF FERRIC COMPLEXES OF THE YELLOW LUPIN    
+REMARK   1  TITL 2 LEGHEMOGLOBIN WITH ISOQUINOLINE AT 1.8 ANGSTROMS RESOLUTION  
+REMARK   1  TITL 3 (RUSSIAN)                                                    
+REMARK   1  REF    BIOORG.KHIM.                  V.  17  1605 1991              
+REMARK   1  REFN                   ISSN 0132-3423                               
+REMARK   1 REFERENCE 2                                                          
+REMARK   1  AUTH   G.V.OBMOLOVA,T.N.SAFONOVA,A.V.TEPLYAKOV,A.N.POPOV,           
+REMARK   1  AUTH 2 I.P.KURANOVA,E.G.HARUTYUNYAN,B.K.VAINSHTEIN                  
+REMARK   1  TITL   X-RAY STRUCTURE OF FERROUS COMPLEXES OF THE YELLOW LUPIN     
+REMARK   1  TITL 2 LEGHEMOGLOBIN WITH CO AND NO AT 1.8 ANGSTROMS RESOLUTION     
+REMARK   1  TITL 3 (RUSSIAN)                                                    
+REMARK   1  REF    BIOORG.KHIM.                  V.  14  1509 1988              
+REMARK   1  REFN                   ISSN 0132-3423                               
+REMARK   1 REFERENCE 3                                                          
+REMARK   1  AUTH   E.G.ARUTYUNYAN,I.P.KURANOVA,B.K.VAINSHTEIN,W.STEIGEMANN      
+REMARK   1  TITL   X-RAY STRUCTURAL INVESTIGATION OF LEGHEMOGLOBIN. VI.         
+REMARK   1  TITL 2 STRUCTURE OF ACETATE-FERRILEGHEMOGLOBIN AT A RESOLUTION OF   
+REMARK   1  TITL 3 2.0 ANGSTROMS (RUSSIAN)                                      
+REMARK   1  REF    KRISTALLOGRAFIYA              V.  25    80 1980              
+REMARK   1  REFN                   ISSN 0023-4761                               
+REMARK   1 REFERENCE 4                                                          
+REMARK   1  AUTH   E.G.ARUTYUNYAN,I.P.KURANOVA,B.K.VAINSHTEIN,W.STEIGEMANN      
+REMARK   1  TITL   X-RAY STRUCTURAL INVESTIGATION OF LEGHEMOGLOBIN. VI.         
+REMARK   1  TITL 2 STRUCTURE OF ACETATE-FERRILEGHEMOGLOBIN AT A RESOLUTION OF   
+REMARK   1  TITL 3 2.0 ANGSTROMS                                                
+REMARK   1  REF    SOV.PHYS.CRYSTALLOGR.(ENGL.   V.  25    43 1980              
+REMARK   1  REF  2 TRANSL.)                                                     
+REMARK   1  REFN                   ISSN 0038-5638                               
+REMARK   1 REFERENCE 5                                                          
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,YU.V.NEKRASOV       
+REMARK   1  TITL   X-RAY DIFFRACTION STUDY OF LEGHEMOGLOBIN. IV. DETERMINATION  
+REMARK   1  TITL 2 OF THE STRUCTURE WITH 2.8 ANGSTROMS RESOLUTION (RUSSIAN)     
+REMARK   1  REF    KRISTALLOGRAFIYA              V.  23   517 1978              
+REMARK   1  REFN                   ISSN 0023-4761                               
+REMARK   1 REFERENCE 6                                                          
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,YU.V.NEKRASOV       
+REMARK   1  TITL   X-RAY STRUCTURAL INVESTIGATION OF LEGHEMOGLOBIN. IV.         
+REMARK   1  TITL 2 STRUCTURE DETERMINATION AT A RESOLUTION OF 2.8 ANGSTROMS     
+REMARK   1  REF    SOV.PHYS.CRYSTALLOGR.(ENGL.   V.  23   287 1978              
+REMARK   1  REF  2 TRANSL.)                                                     
+REMARK   1  REFN                   ISSN 0038-5638                               
+REMARK   1 REFERENCE 7                                                          
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTIUNIAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA,       
+REMARK   1  AUTH 3 IU.V.NEKRASOV                                                
+REMARK   1  TITL   SPATIAL STRUCTURE OF LUPINE LEGHEMOGLOBIN WITH THE 2.8       
+REMARK   1  TITL 2 ANGSTROMS RESOLUTION (RUSSIAN)                               
+REMARK   1  REF    DOKL.AKAD.NAUK SSSR           V. 233   238 1977              
+REMARK   1  REFN                   ISSN 0002-3264                               
+REMARK   1 REFERENCE 8                                                          
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA,       
+REMARK   1  AUTH 3 YU.V.NEKRASOV                                                
+REMARK   1  TITL   THREE-DIMENSIONAL STRUCTURE OF LUPINE LEGHEMOGLOBIN WITH A   
+REMARK   1  TITL 2 RESOLUTION OF 2.8 ANGSTROMS                                  
+REMARK   1  REF    DOKL.BIOCHEM.(ENGL.TRANSL.)   V. 233    67 1977              
+REMARK   1  REFN                   ISSN 0012-4958                               
+REMARK   1 REFERENCE 9                                                          
+REMARK   1  AUTH   E.G.ARUTYUNYAN,I.P.KURANOVA,A.I.GREBENKO,A.A.VORONOVA        
+REMARK   1  TITL   X-RAY STRUCTURAL STUDY OF LEGHEMOGLOBIN. III.                
+REMARK   1  TITL 2 CRYSTALLOGRAPHIC DATA ON THE STRUCTURE OF THE FIRST          
+REMARK   1  TITL 3 COMPONENT (RUSSIAN)                                          
+REMARK   1  REF    KRISTALLOGRAFIYA              V.  22   634 1977              
+REMARK   1  REFN                   ISSN 0023-4761                               
+REMARK   1 REFERENCE 10                                                         
+REMARK   1  AUTH   E.G.ARUTYUNYAN,I.P.KURANOVA,A.I.GREBENKO,A.A.VORONOVA        
+REMARK   1  TITL   X-RAY STRUCTURAL STUDY OF LEGHEMOGLOBIN. III.                
+REMARK   1  TITL 2 CRYSTALLOGRAPHIC DATA REGARDING THE STRUCTURE OF THE FIRST   
+REMARK   1  TITL 3 COMPONENT                                                    
+REMARK   1  REF    SOV.PHYS.CRYSTALLOGR.(ENGL.   V.  22   362 1977              
+REMARK   1  REF  2 TRANSL.)                                                     
+REMARK   1  REFN                   ISSN 0038-5638                               
+REMARK   1 REFERENCE 11                                                         
+REMARK   1  AUTH   S.VUK-PAVLOVIC,B.BENKO,S.MARICIC,G.LAHAJNAR,I.P.KURANOVA,    
+REMARK   1  AUTH 2 B.K.VAINSHTEIN                                               
+REMARK   1  TITL   THE HAEM-ACCESSIBILITY IN LEGHAEMOGLOBIN OF LUPINUS LUTEUS   
+REMARK   1  TITL 2 AS OBSERVED BY PROTON MAGNETIC RELAXATION                    
+REMARK   1  REF    INT.J.PEPT.PROTEIN RES.       V.   8   427 1976              
+REMARK   1  REFN                   ISSN 0367-8377                               
+REMARK   1 REFERENCE 12                                                         
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA        
+REMARK   1  TITL   X-RAY STUDY OF LEGHEMOGLOBIN. II. DETERMINATION OF THE       
+REMARK   1  TITL 2 STRUCTURE WITH RESOLUTION OF 5 ANGSTROMS                     
+REMARK   1  REF    SOV.PHYS.CRYSTALLOGR.(ENGL.   V.  19   602 1975              
+REMARK   1  REF  2 TRANSL.)                                                     
+REMARK   1  REFN                   ISSN 0038-5638                               
+REMARK   1 REFERENCE 13                                                         
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA        
+REMARK   1  TITL   X-RAY STUDY OF LEGHEMOGLOBIN. I.PURIFICATION,                
+REMARK   1  TITL 2 CRYSTALLIZATION, AND PREPARATION OF DERIVATIVES CONTAINING   
+REMARK   1  TITL 3 HEAVY ATOMS                                                  
+REMARK   1  REF    SOV.PHYS.CRYSTALLOGR.(ENGL.   V.  19   598 1975              
+REMARK   1  REF  2 TRANSL.)                                                     
+REMARK   1  REFN                   ISSN 0038-5638                               
+REMARK   1 REFERENCE 14                                                         
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.H.HARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,     
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKY,A.I.GREBENKO,N.V.KONAREVA         
+REMARK   1  TITL   STRUCTURE OF LEGHAEMOGLOBIN FROM LUPIN ROOT NODULES AT 5     
+REMARK   1  TITL 2 ANGSTROMS RESOLUTION                                         
+REMARK   1  REF    NATURE                        V. 254   163 1975              
+REMARK   1  REFN                   ISSN 0028-0836                               
+REMARK   1 REFERENCE 15                                                         
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA        
+REMARK   1  TITL   THE X-RAY STRUCTURAL STUDY OF LEGHEMOGLOBIN. II.             
+REMARK   1  TITL 2 DETERMINATION OF THE STRUCTURE AT 5 ANGSTROMS RESOLUTION     
+REMARK   1  TITL 3 (RUSSIAN)                                                    
+REMARK   1  REF    KRISTALLOGRAFIYA              V.  19   971 1974              
+REMARK   1  REFN                   ISSN 0023-4761                               
+REMARK   1 REFERENCE 16                                                         
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA        
+REMARK   1  TITL   THE X-RAY STRUCTURAL STUDY OF LEGHEMOGLOBIN. I.              
+REMARK   1  TITL 2 PURIFICATION, CRYSTALLIZATION, AND PRODUCTION OF DERIVATIVES 
+REMARK   1  TITL 3 CONTAINING HEAVY ATOMS (RUSSIAN)                             
+REMARK   1  REF    KRISTALLOGRAFIYA              V.  19   964 1974              
+REMARK   1  REFN                   ISSN 0023-4761                               
+REMARK   1 REFERENCE 17                                                         
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTIUNIAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA        
+REMARK   1  TITL   X-RAY DETERMINATION OF THREE-DIMENSIONAL STRUCTURE OF        
+REMARK   1  TITL 2 LEGHEMOGLOBIN FROM LUPINUS LUTEUS L. AT 5 ANGSTROMS          
+REMARK   1  TITL 3 RESOLUTION (RUSSIAN)                                         
+REMARK   1  REF    DOKL.AKAD.NAUK SSSR           V. 216   690 1974              
+REMARK   1  REFN                   ISSN 0002-3264                               
+REMARK   1 REFERENCE 18                                                         
+REMARK   1  AUTH   B.K.VAINSHTEIN,E.G.ARUTYUNYAN,I.P.KURANOVA,V.V.BORISOV,      
+REMARK   1  AUTH 2 N.I.SOSFENOV,A.G.PAVLOVSKII,A.I.GREBENKO,N.V.KONAREVA        
+REMARK   1  TITL   X-RAY DIFFRACTION DETERMINATION OF THE THREE-DIMENSIONAL     
+REMARK   1  TITL 2 STRUCTURE OF LEGHEMOGLOBIN OF LUPINUS LUTEUS L. WITH 5       
+REMARK   1  TITL 3 ANGSTROMS RESOLUTION                                         
+REMARK   1  REF    DOKL.BIOCHEM.(ENGL.TRANSL.)   V. 216   226 1974              
+REMARK   1  REFN                   ISSN 0012-4958                               
+REMARK   1 REFERENCE 19                                                         
+REMARK   1  AUTH   E.G.ARUTYUNYAN,V.N.ZAITSEV,G.YA.ZHIZNEVSKAYA,L.I.BORODENKO   
+REMARK   1  TITL   CELL PARAMETERS OF CRYSTALLINE PLANT (LUPINUS LUTEUS         
+REMARK   1  TITL 2 (LUPINE)) HEMOGLOBIN (RUSSIAN)                               
+REMARK   1  REF    KRISTALLOGRAFIYA              V.  16   237 1971              
+REMARK   1  REFN                   ISSN 0023-4761                               
+REMARK   1 REFERENCE 20                                                         
+REMARK   1  AUTH   E.G.ARUTYUNYAN,V.N.ZAITSEV,G.YA.ZHIZNEVSKAYA,L.I.BORODENKO   
+REMARK   1  TITL   UNIT-CELL PARAMETERS OF CRYSTALLINE PLANT HEMOGLOBIN         
+REMARK   1  REF    SOV.PHYS.CRYSTALLOGR.(ENGL.   V.  16   193 1971              
+REMARK   1  REF  2 TRANSL.)                                                     
+REMARK   1  REFN                   ISSN 0038-5638                               
+REMARK   2                                                                      
+REMARK   2 RESOLUTION.    1.70 ANGSTROMS.                                       
+REMARK   3                                                                      
+REMARK   3 REFINEMENT.                                                          
+REMARK   3   PROGRAM     : PROLSQ                                               
+REMARK   3   AUTHORS     : KONNERT,HENDRICKSON                                  
+REMARK   3                                                                      
+REMARK   3  DATA USED IN REFINEMENT.                                            
+REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) : 1.70                           
+REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) : 8.00                           
+REMARK   3   DATA CUTOFF            (SIGMA(F)) : 1.000                          
+REMARK   3   COMPLETENESS FOR RANGE        (%) : NULL                           
+REMARK   3   NUMBER OF REFLECTIONS             : 14374                          
+REMARK   3                                                                      
+REMARK   3  FIT TO DATA USED IN REFINEMENT.                                     
+REMARK   3   CROSS-VALIDATION METHOD          : NULL                            
+REMARK   3   FREE R VALUE TEST SET SELECTION  : NULL                            
+REMARK   3   R VALUE     (WORKING + TEST SET) : 0.165                           
+REMARK   3   R VALUE            (WORKING SET) : NULL                            
+REMARK   3   FREE R VALUE                     : NULL                            
+REMARK   3   FREE R VALUE TEST SET SIZE   (%) : NULL                            
+REMARK   3   FREE R VALUE TEST SET COUNT      : NULL                            
+REMARK   3                                                                      
+REMARK   3  FIT/AGREEMENT OF MODEL WITH ALL DATA.                               
+REMARK   3   R VALUE   (WORKING + TEST SET, NO CUTOFF) : NULL                   
+REMARK   3   R VALUE          (WORKING SET, NO CUTOFF) : NULL                   
+REMARK   3   FREE R VALUE                  (NO CUTOFF) : NULL                   
+REMARK   3   FREE R VALUE TEST SET SIZE (%, NO CUTOFF) : NULL                   
+REMARK   3   FREE R VALUE TEST SET COUNT   (NO CUTOFF) : NULL                   
+REMARK   3   TOTAL NUMBER OF REFLECTIONS   (NO CUTOFF) : NULL                   
+REMARK   3                                                                      
+REMARK   3  NUMBER OF NON-HYDROGEN ATOMS USED IN REFINEMENT.                    
+REMARK   3   PROTEIN ATOMS            : 1177                                    
+REMARK   3   NUCLEIC ACID ATOMS       : 0                                       
+REMARK   3   HETEROGEN ATOMS          : 43                                      
+REMARK   3   SOLVENT ATOMS            : 243                                     
+REMARK   3                                                                      
+REMARK   3  B VALUES.                                                           
+REMARK   3   FROM WILSON PLOT           (A**2) : NULL                           
+REMARK   3   MEAN B VALUE      (OVERALL, A**2) : NULL                           
+REMARK   3   OVERALL ANISOTROPIC B VALUE.                                       
+REMARK   3    B11 (A**2) : NULL                                                 
+REMARK   3    B22 (A**2) : NULL                                                 
+REMARK   3    B33 (A**2) : NULL                                                 
+REMARK   3    B12 (A**2) : NULL                                                 
+REMARK   3    B13 (A**2) : NULL                                                 
+REMARK   3    B23 (A**2) : NULL                                                 
+REMARK   3                                                                      
+REMARK   3  ESTIMATED COORDINATE ERROR.                                         
+REMARK   3   ESD FROM LUZZATI PLOT        (A) : NULL                            
+REMARK   3   ESD FROM SIGMAA              (A) : NULL                            
+REMARK   3   LOW RESOLUTION CUTOFF        (A) : NULL                            
+REMARK   3                                                                      
+REMARK   3  RMS DEVIATIONS FROM IDEAL VALUES.                                   
+REMARK   3   DISTANCE RESTRAINTS.                    RMS    SIGMA               
+REMARK   3    BOND LENGTH                     (A) : NULL  ; NULL                
+REMARK   3    ANGLE DISTANCE                  (A) : NULL  ; NULL                
+REMARK   3    INTRAPLANAR 1-4 DISTANCE        (A) : NULL  ; NULL                
+REMARK   3    H-BOND OR METAL COORDINATION    (A) : NULL  ; NULL                
+REMARK   3                                                                      
+REMARK   3   PLANE RESTRAINT                  (A) : NULL  ; NULL                
+REMARK   3   CHIRAL-CENTER RESTRAINT       (A**3) : NULL  ; NULL                
+REMARK   3                                                                      
+REMARK   3   NON-BONDED CONTACT RESTRAINTS.                                     
+REMARK   3    SINGLE TORSION                  (A) : NULL  ; NULL                
+REMARK   3    MULTIPLE TORSION                (A) : NULL  ; NULL                
+REMARK   3    H-BOND (X...Y)                  (A) : NULL  ; NULL                
+REMARK   3    H-BOND (X-H...Y)                (A) : NULL  ; NULL                
+REMARK   3                                                                      
+REMARK   3   CONFORMATIONAL TORSION ANGLE RESTRAINTS.                           
+REMARK   3    SPECIFIED                 (DEGREES) : NULL  ; NULL                
+REMARK   3    PLANAR                    (DEGREES) : NULL  ; NULL                
+REMARK   3    STAGGERED                 (DEGREES) : NULL  ; NULL                
+REMARK   3    TRANSVERSE                (DEGREES) : NULL  ; NULL                
+REMARK   3                                                                      
+REMARK   3  ISOTROPIC THERMAL FACTOR RESTRAINTS.    RMS    SIGMA                
+REMARK   3   MAIN-CHAIN BOND               (A**2) : NULL  ; NULL                
+REMARK   3   MAIN-CHAIN ANGLE              (A**2) : NULL  ; NULL                
+REMARK   3   SIDE-CHAIN BOND               (A**2) : NULL  ; NULL                
+REMARK   3   SIDE-CHAIN ANGLE              (A**2) : NULL  ; NULL                
+REMARK   3                                                                      
+REMARK   3  OTHER REFINEMENT REMARKS:                                           
+REMARK   3  THE FIRST AND LAST RESIDUES OF THE PROTEIN CHAIN ARE                
+REMARK   3  POORLY REVEALED IN THE ELECTRON DENSITY SYNTHESIS.                  
+REMARK   4                                                                      
+REMARK   4 1GDJ COMPLIES WITH FORMAT V. 3.30, 13-JUL-11                         
+REMARK 100                                                                      
+REMARK 100 THIS ENTRY HAS BEEN PROCESSED BY BNL.                                
+REMARK 100 THE DEPOSITION ID IS D_1000173532.                                   
+REMARK 200                                                                      
+REMARK 200 EXPERIMENTAL DETAILS                                                 
+REMARK 200  EXPERIMENT TYPE                : X-RAY DIFFRACTION                  
+REMARK 200  DATE OF DATA COLLECTION        : NULL                               
+REMARK 200  TEMPERATURE           (KELVIN) : NULL                               
+REMARK 200  PH                             : NULL                               
+REMARK 200  NUMBER OF CRYSTALS USED        : NULL                               
+REMARK 200                                                                      
+REMARK 200  SYNCHROTRON              (Y/N) : NULL                               
+REMARK 200  RADIATION SOURCE               : NULL                               
+REMARK 200  BEAMLINE                       : NULL                               
+REMARK 200  X-RAY GENERATOR MODEL          : NULL                               
+REMARK 200  MONOCHROMATIC OR LAUE    (M/L) : NULL                               
+REMARK 200  WAVELENGTH OR RANGE        (A) : NULL                               
+REMARK 200  MONOCHROMATOR                  : NULL                               
+REMARK 200  OPTICS                         : NULL                               
+REMARK 200                                                                      
+REMARK 200  DETECTOR TYPE                  : NULL                               
+REMARK 200  DETECTOR MANUFACTURER          : NULL                               
+REMARK 200  INTENSITY-INTEGRATION SOFTWARE : NULL                               
+REMARK 200  DATA SCALING SOFTWARE          : NULL                               
+REMARK 200                                                                      
+REMARK 200  NUMBER OF UNIQUE REFLECTIONS   : NULL                               
+REMARK 200  RESOLUTION RANGE HIGH      (A) : NULL                               
+REMARK 200  RESOLUTION RANGE LOW       (A) : NULL                               
+REMARK 200  REJECTION CRITERIA  (SIGMA(I)) : NULL                               
+REMARK 200                                                                      
+REMARK 200 OVERALL.                                                             
+REMARK 200  COMPLETENESS FOR RANGE     (%) : NULL                               
+REMARK 200  DATA REDUNDANCY                : NULL                               
+REMARK 200  R MERGE                    (I) : NULL                               
+REMARK 200  R SYM                      (I) : NULL                               
+REMARK 200  <I/SIGMA(I)> FOR THE DATA SET  : NULL                               
+REMARK 200                                                                      
+REMARK 200 IN THE HIGHEST RESOLUTION SHELL.                                     
+REMARK 200  HIGHEST RESOLUTION SHELL, RANGE HIGH (A) : NULL                     
+REMARK 200  HIGHEST RESOLUTION SHELL, RANGE LOW  (A) : NULL                     
+REMARK 200  COMPLETENESS FOR SHELL     (%) : NULL                               
+REMARK 200  DATA REDUNDANCY IN SHELL       : NULL                               
+REMARK 200  R MERGE FOR SHELL          (I) : NULL                               
+REMARK 200  R SYM FOR SHELL            (I) : NULL                               
+REMARK 200  <I/SIGMA(I)> FOR SHELL         : NULL                               
+REMARK 200                                                                      
+REMARK 200 DIFFRACTION PROTOCOL: NULL                                           
+REMARK 200 METHOD USED TO DETERMINE THE STRUCTURE: NULL                         
+REMARK 200 SOFTWARE USED: NULL                                                  
+REMARK 200 STARTING MODEL: NULL                                                 
+REMARK 200                                                                      
+REMARK 200 REMARK: NULL                                                         
+REMARK 280                                                                      
+REMARK 280 CRYSTAL                                                              
+REMARK 280 SOLVENT CONTENT, VS   (%): 55.09                                     
+REMARK 280 MATTHEWS COEFFICIENT, VM (ANGSTROMS**3/DA): 2.74                     
+REMARK 280                                                                      
+REMARK 280 CRYSTALLIZATION CONDITIONS: NULL                                     
+REMARK 290                                                                      
+REMARK 290 CRYSTALLOGRAPHIC SYMMETRY                                            
+REMARK 290 SYMMETRY OPERATORS FOR SPACE GROUP: C 1 2 1                          
+REMARK 290                                                                      
+REMARK 290      SYMOP   SYMMETRY                                                
+REMARK 290     NNNMMM   OPERATOR                                                
+REMARK 290       1555   X,Y,Z                                                   
+REMARK 290       2555   -X,Y,-Z                                                 
+REMARK 290       3555   X+1/2,Y+1/2,Z                                           
+REMARK 290       4555   -X+1/2,Y+1/2,-Z                                         
+REMARK 290                                                                      
+REMARK 290     WHERE NNN -> OPERATOR NUMBER                                     
+REMARK 290           MMM -> TRANSLATION VECTOR                                  
+REMARK 290                                                                      
+REMARK 290 CRYSTALLOGRAPHIC SYMMETRY TRANSFORMATIONS                            
+REMARK 290 THE FOLLOWING TRANSFORMATIONS OPERATE ON THE ATOM/HETATM             
+REMARK 290 RECORDS IN THIS ENTRY TO PRODUCE CRYSTALLOGRAPHICALLY                
+REMARK 290 RELATED MOLECULES.                                                   
+REMARK 290   SMTRY1   1  1.000000  0.000000  0.000000        0.00000            
+REMARK 290   SMTRY2   1  0.000000  1.000000  0.000000        0.00000            
+REMARK 290   SMTRY3   1  0.000000  0.000000  1.000000        0.00000            
+REMARK 290   SMTRY1   2 -1.000000  0.000000  0.000000        0.00000            
+REMARK 290   SMTRY2   2  0.000000  1.000000  0.000000        0.00000            
+REMARK 290   SMTRY3   2  0.000000  0.000000 -1.000000        0.00000            
+REMARK 290   SMTRY1   3  1.000000  0.000000  0.000000       46.74000            
+REMARK 290   SMTRY2   3  0.000000  1.000000  0.000000       25.80000            
+REMARK 290   SMTRY3   3  0.000000  0.000000  1.000000        0.00000            
+REMARK 290   SMTRY1   4 -1.000000  0.000000  0.000000       46.74000            
+REMARK 290   SMTRY2   4  0.000000  1.000000  0.000000       25.80000            
+REMARK 290   SMTRY3   4  0.000000  0.000000 -1.000000        0.00000            
+REMARK 290                                                                      
+REMARK 290 REMARK: NULL                                                         
+REMARK 300                                                                      
+REMARK 300 BIOMOLECULE: 1                                                       
+REMARK 300 SEE REMARK 350 FOR THE AUTHOR PROVIDED AND/OR PROGRAM                
+REMARK 300 GENERATED ASSEMBLY INFORMATION FOR THE STRUCTURE IN                  
+REMARK 300 THIS ENTRY. THE REMARK MAY ALSO PROVIDE INFORMATION ON               
+REMARK 300 BURIED SURFACE AREA.                                                 
+REMARK 350                                                                      
+REMARK 350 COORDINATES FOR A COMPLETE MULTIMER REPRESENTING THE KNOWN           
+REMARK 350 BIOLOGICALLY SIGNIFICANT OLIGOMERIZATION STATE OF THE                
+REMARK 350 MOLECULE CAN BE GENERATED BY APPLYING BIOMT TRANSFORMATIONS          
+REMARK 350 GIVEN BELOW.  BOTH NON-CRYSTALLOGRAPHIC AND                          
+REMARK 350 CRYSTALLOGRAPHIC OPERATIONS ARE GIVEN.                               
+REMARK 350                                                                      
+REMARK 350 BIOMOLECULE: 1                                                       
+REMARK 350 AUTHOR DETERMINED BIOLOGICAL UNIT: MONOMERIC                         
+REMARK 350 APPLY THE FOLLOWING TO CHAINS: A                                     
+REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000            
+REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000            
+REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000            
+REMARK 500                                                                      
+REMARK 500 GEOMETRY AND STEREOCHEMISTRY                                         
+REMARK 500 SUBTOPIC: CLOSE CONTACTS IN SAME ASYMMETRIC UNIT                     
+REMARK 500                                                                      
+REMARK 500 THE FOLLOWING ATOMS ARE IN CLOSE CONTACT.                            
+REMARK 500                                                                      
+REMARK 500  ATM1  RES C  SSEQI   ATM2  RES C  SSEQI           DISTANCE          
+REMARK 500   O    HOH A   349     O    HOH A   354              2.11            
+REMARK 500   O    HOH A   352     O    HOH A   404              2.15            
+REMARK 500                                                                      
+REMARK 500 REMARK: NULL                                                         
+REMARK 500                                                                      
+REMARK 500 GEOMETRY AND STEREOCHEMISTRY                                         
+REMARK 500 SUBTOPIC: CLOSE CONTACTS                                             
+REMARK 500                                                                      
+REMARK 500 THE FOLLOWING ATOMS THAT ARE RELATED BY CRYSTALLOGRAPHIC             
+REMARK 500 SYMMETRY ARE IN CLOSE CONTACT.  AN ATOM LOCATED WITHIN 0.15          
+REMARK 500 ANGSTROMS OF A SYMMETRY RELATED ATOM IS ASSUMED TO BE ON A           
+REMARK 500 SPECIAL POSITION AND IS, THEREFORE, LISTED IN REMARK 375             
+REMARK 500 INSTEAD OF REMARK 500.  ATOMS WITH NON-BLANK ALTERNATE               
+REMARK 500 LOCATION INDICATORS ARE NOT INCLUDED IN THE CALCULATIONS.            
+REMARK 500                                                                      
+REMARK 500 DISTANCE CUTOFF:                                                     
+REMARK 500 2.2 ANGSTROMS FOR CONTACTS NOT INVOLVING HYDROGEN ATOMS              
+REMARK 500 1.6 ANGSTROMS FOR CONTACTS INVOLVING HYDROGEN ATOMS                  
+REMARK 500                                                                      
+REMARK 500  ATM1  RES C  SSEQI   ATM2  RES C  SSEQI  SSYMOP   DISTANCE          
+REMARK 500   O    HOH A   385     O    HOH A   385     2657     2.06            
+REMARK 500                                                                      
+REMARK 500 REMARK: NULL                                                         
+REMARK 500                                                                      
+REMARK 500 GEOMETRY AND STEREOCHEMISTRY                                         
+REMARK 500 SUBTOPIC: COVALENT BOND ANGLES                                       
+REMARK 500                                                                      
+REMARK 500 THE STEREOCHEMICAL PARAMETERS OF THE FOLLOWING RESIDUES              
+REMARK 500 HAVE VALUES WHICH DEVIATE FROM EXPECTED VALUES BY MORE               
+REMARK 500 THAN 6*RMSD (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN               
+REMARK 500 IDENTIFIER; SSEQ=SEQUENCE NUMBER; I=INSERTION CODE).                 
+REMARK 500                                                                      
+REMARK 500 STANDARD TABLE:                                                      
+REMARK 500 FORMAT: (10X,I3,1X,A3,1X,A1,I4,A1,3(1X,A4,2X),12X,F5.1)              
+REMARK 500                                                                      
+REMARK 500 EXPECTED VALUES PROTEIN: ENGH AND HUBER, 1999                        
+REMARK 500 EXPECTED VALUES NUCLEIC ACID: CLOWNEY ET AL 1996                     
+REMARK 500                                                                      
+REMARK 500  M RES CSSEQI ATM1   ATM2   ATM3                                     
+REMARK 500    ALA A   2   O   -  C   -  N   ANGL. DEV. = -11.3 DEGREES          
+REMARK 500    LEU A   3   C   -  N   -  CA  ANGL. DEV. =  56.5 DEGREES          
+REMARK 500    ARG A  28   CD  -  NE  -  CZ  ANGL. DEV. =   9.7 DEGREES          
+REMARK 500    ASP A 104   CB  -  CG  -  OD1 ANGL. DEV. =   6.4 DEGREES          
+REMARK 500    SER A 132   O   -  C   -  N   ANGL. DEV. = -11.7 DEGREES          
+REMARK 500    ASP A 139   CB  -  CG  -  OD1 ANGL. DEV. =   8.4 DEGREES          
+REMARK 500                                                                      
+REMARK 500 REMARK: NULL                                                         
+REMARK 500                                                                      
+REMARK 500 GEOMETRY AND STEREOCHEMISTRY                                         
+REMARK 500 SUBTOPIC: TORSION ANGLES                                             
+REMARK 500                                                                      
+REMARK 500 TORSION ANGLES OUTSIDE THE EXPECTED RAMACHANDRAN REGIONS:            
+REMARK 500 (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN IDENTIFIER;               
+REMARK 500 SSEQ=SEQUENCE NUMBER; I=INSERTION CODE).                             
+REMARK 500                                                                      
+REMARK 500 STANDARD TABLE:                                                      
+REMARK 500 FORMAT:(10X,I3,1X,A3,1X,A1,I4,A1,4X,F7.2,3X,F7.2)                    
+REMARK 500                                                                      
+REMARK 500 EXPECTED VALUES: GJ KLEYWEGT AND TA JONES (1996). PHI/PSI-           
+REMARK 500 CHOLOGY: RAMACHANDRAN REVISITED. STRUCTURE 4, 1395 - 1400            
+REMARK 500                                                                      
+REMARK 500  M RES CSSEQI        PSI       PHI                                   
+REMARK 500    ALA A   2       51.73     34.18                                   
+REMARK 500    LEU A   3      104.80     47.97                                   
+REMARK 500                                                                      
+REMARK 500 REMARK: NULL                                                         
+REMARK 620                                                                      
+REMARK 620 METAL COORDINATION                                                   
+REMARK 620 (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN IDENTIFIER;               
+REMARK 620 SSEQ=SEQUENCE NUMBER; I=INSERTION CODE):                             
+REMARK 620                                                                      
+REMARK 620 COORDINATION ANGLES FOR:  M RES CSSEQI METAL                         
+REMARK 620                             HEM A 154  FE                            
+REMARK 620 N RES CSSEQI ATOM                                                    
+REMARK 620 1 HIS A  97   NE2                                                    
+REMARK 620 2 HEM A 154   NA  118.0                                              
+REMARK 620 3 HEM A 154   NB  105.6  91.7                                        
+REMARK 620 4 HEM A 154   NC   79.9 162.1  82.5                                  
+REMARK 620 5 HEM A 154   ND   87.6  91.5 162.9  89.3                            
+REMARK 620 6 HIS A  97   NE2  16.6 104.4  97.7  93.2  97.7                      
+REMARK 620 N                    1     2     3     4     5                       
+REMARK 800                                                                      
+REMARK 800 SITE                                                                 
+REMARK 800 SITE_IDENTIFIER: AC1                                                 
+REMARK 800 EVIDENCE_CODE: SOFTWARE                                              
+REMARK 800 SITE_DESCRIPTION: BINDING SITE FOR RESIDUE HEM A 154                 
+DBREF  1GDJ A    1   153  UNP    P02240   LGB2_LUPLU       1    153             
+SEQADV 1GDJ GLU A   79  UNP  P02240    GLN    79 CONFLICT                       
+SEQADV 1GDJ ASP A  150  UNP  P02240    ASN   150 CONFLICT                       
+SEQRES   1 A  153  GLY ALA LEU THR GLU SER GLN ALA ALA LEU VAL LYS SER          
+SEQRES   2 A  153  SER TRP GLU GLU PHE ASN ALA ASN ILE PRO LYS HIS THR          
+SEQRES   3 A  153  HIS ARG PHE PHE ILE LEU VAL LEU GLU ILE ALA PRO ALA          
+SEQRES   4 A  153  ALA LYS ASP LEU PHE SER PHE LEU LYS GLY THR SER GLU          
+SEQRES   5 A  153  VAL PRO GLN ASN ASN PRO GLU LEU GLN ALA HIS ALA GLY          
+SEQRES   6 A  153  LYS VAL PHE LYS LEU VAL TYR GLU ALA ALA ILE GLN LEU          
+SEQRES   7 A  153  GLU VAL THR GLY VAL VAL VAL THR ASP ALA THR LEU LYS          
+SEQRES   8 A  153  ASN LEU GLY SER VAL HIS VAL SER LYS GLY VAL ALA ASP          
+SEQRES   9 A  153  ALA HIS PHE PRO VAL VAL LYS GLU ALA ILE LEU LYS THR          
+SEQRES  10 A  153  ILE LYS GLU VAL VAL GLY ALA LYS TRP SER GLU GLU LEU          
+SEQRES  11 A  153  ASN SER ALA TRP THR ILE ALA TYR ASP GLU LEU ALA ILE          
+SEQRES  12 A  153  VAL ILE LYS LYS GLU MET ASP ASP ALA ALA                      
+HET    HEM  A 154      43                                                       
+HETNAM     HEM PROTOPORPHYRIN IX CONTAINING FE                                  
+HETSYN     HEM HEME                                                             
+FORMUL   2  HEM    C34 H32 FE N4 O4                                             
+FORMUL   3  HOH   *243(H2 O)                                                    
+HELIX    1   A THR A    4  ALA A   20  1                                  17    
+HELIX    2   B ASN A   21  ILE A   36  1                                  16    
+HELIX    3   C ALA A   37  LEU A   43  1                                   7    
+HELIX    4   D PHE A   44  LYS A   48  1                                   5    
+HELIX    5   E ASN A   57  GLY A   82  1                                  26    
+HELIX    6   F ALA A   88  GLY A  101  1                                  14    
+HELIX    7   G ASP A  104  GLY A  123  1                                  20    
+HELIX    8   H SER A  127  ALA A  152  1                                  26    
+LINK         NE2BHIS A  97                FE   HEM A 154     1555   1555  2.12  
+LINK         NE2AHIS A  97                FE   HEM A 154     1555   1555  2.25  
+SITE     1 AC1 15 LEU A  43  PHE A  44  SER A  45  HIS A  63                    
+SITE     2 AC1 15 LYS A  66  VAL A  67  LEU A  70  HIS A  97                    
+SITE     3 AC1 15 VAL A 102  HIS A 106  PHE A 107  VAL A 110                    
+SITE     4 AC1 15 TYR A 138  ILE A 145  HOH A 419                               
+CRYST1   93.480   51.600   38.330  90.00  98.80  90.00 C 1 2 1       4          
+ORIGX1      1.000000  0.000000  0.000000        0.00000                         
+ORIGX2      0.000000  1.000000  0.000000        0.00000                         
+ORIGX3      0.000000  0.000000  1.000000        0.00000                         
+SCALE1      0.010697  0.000000  0.001656       -0.25000                         
+SCALE2      0.000000  0.019380  0.000000        0.00000                         
+SCALE3      0.000000  0.000000  0.026400        0.00000                         

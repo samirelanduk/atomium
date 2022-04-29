@@ -11,6 +11,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_keywds(filestring, mmcif)
     parse_expdta(filestring, mmcif)
     parse_mdltyp(filestring, mmcif)
+    parse_author(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     return mmcif
 
@@ -107,6 +108,15 @@ def parse_mdltyp(filestring, mmcif):
         mmcif["struct"][0]["pdbx_model_type_details"] = " ; ".join(sections)
 
 
+def parse_author(filestring, mmcif):
+    lines = re.findall(r"^AUTHOR.+", filestring, re.M)
+    if not lines: return
+    author_lines = [line[10:].strip() for line in lines]
+    authors = process_names(author_lines)
+    mmcif["audit_author"] = [{
+        "name": author, "pdbx_ordinal": str(num)
+    }  for num, author in enumerate(authors, start=1)]
+
 
 def parse_sprsde(filestring, mmcif):
     sprsde_lines = re.findall(r"^SPRSDE.+", filestring, re.M)
@@ -132,3 +142,14 @@ def pdb_date_to_mmcif_date(date):
         if int(year) > 50: year = "19" + year
         if int(year) <= 50: year = "20" + year
     return f"{year}-{month}-{day}"
+
+
+def process_names(lines):
+    all_names = [name for line in lines for name in line.split(",") if name]
+    processed_names = []
+    for name in all_names:
+        if "." in name and "," not in name:
+            names = [n.title() for n in name.split(".")]
+            processed_names.append(f"{names[-1]}, {'.'.join(names[:-1])}")
+        else: processed_names.append(name.title())
+    return processed_names

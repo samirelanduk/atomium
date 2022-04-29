@@ -22,10 +22,15 @@ class DictParsingTests(TestCase):
         }])
 
         self.assertEqual(d["exptl"], [{"entry_id": "1LOL", "method": "X-RAY DIFFRACTION"}])
+
+        self.assertEqual(d["audit_author"], [
+            {"name": "Wu, N", "pdbx_ordinal": "1"},
+            {"name": "Pai, E.F", "pdbx_ordinal": "2"},
+        ])
     
 
     def test_1CK8_pdb(self):
-        # Tests OBSLTE, CAVEAT
+        # Tests OBSLTE, CAVEAT, AUTHOR
         d = atomium.open("tests/integration/files/1ck8.pdb", dictionary=True)
         self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
             "id": "OBSLTE", "date": "2006-07-25", "pdb_id": "1T0K",
@@ -34,6 +39,11 @@ class DictParsingTests(TestCase):
         self.assertEqual(d["database_PDB_caveat"], [{
             "text": "THERE ARE CHIRALITY ERRORS IN C-ALPHA CENTERS"
         }])
+        self.assertEqual(d["audit_author"], [
+            {"name": "Mao, H", "pdbx_ordinal": "1"},
+            {"name": "White, S.A", "pdbx_ordinal": "2"},
+            {"name": "Willamson, J.R", "pdbx_ordinal": "3"},
+        ])
     
 
     def test_4HHB_pdb(self):

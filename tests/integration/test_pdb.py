@@ -23,20 +23,35 @@ class DictParsingTests(TestCase):
     
 
     def test_1CK8_pdb(self):
-        # Tests OBSLTE
+        # Tests OBSLTE, CAVEAT
         d = atomium.open("tests/integration/files/1ck8.pdb", dictionary=True)
         self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
             "id": "OBSLTE", "date": "2006-07-25", "pdb_id": "1T0K",
             "replace_pdb_id": "1CK8", "details": "?"
         }])
+        self.assertEqual(d["database_PDB_caveat"], [{
+            "text": "THERE ARE CHIRALITY ERRORS IN C-ALPHA CENTERS"
+        }])
     
 
     def test_4HHB_pdb(self):
-        # Tests SPRSDE
+        # Tests SPRSDE, CAVEAT
         d = atomium.open("tests/integration/files/4hhb.pdb", dictionary=True)
         self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
             "id": "SPRSDE", "date": "1984-07-17", "pdb_id": "4HHB",
             "replace_pdb_id": "1HHB", "details": "?"
+        }])
+        self.assertEqual(d["database_PDB_caveat"], [{
+            "text": "THR A 137 HAS WRONG CHIRALITY AT ATOM CB "
+            "THR B 12 HAS WRONG CHIRALITY AT ATOM CB "
+            "THR B 50 HAS WRONG CHIRALITY AT ATOM CB "
+            "ASN C 78 HAS WRONG CHIRALITY AT ATOM CA "
+            "THR C 118 HAS WRONG CHIRALITY AT ATOM CB "
+            "HIS D 2 HAS WRONG CHIRALITY AT ATOM CA "
+            "SER D 72 HAS WRONG CHIRALITY AT ATOM CA "
+            "ASP D 73 HAS WRONG CHIRALITY AT ATOM CA "
+            "LEU D 78 HAS WRONG CHIRALITY AT ATOM CA "
+            "LYS D 144 HAS WRONG CHIRALITY AT ATOM CA"
         }])
     
 

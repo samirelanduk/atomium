@@ -7,6 +7,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_obslte(filestring, mmcif)
     parse_title(filestring, mmcif)
     parse_split(filestring, mmcif)
+    parse_caveat(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     return mmcif
 
@@ -49,8 +50,7 @@ def parse_title(filestring, mmcif):
     }}]
     title_lines = re.findall(r"^TITLE.+", filestring, re.M)
     title = " ".join([l[10:80] for l in title_lines]).strip()
-    if title and set(title) != {"-"} and title not in ["NULL", "NONE"]:
-        mmcif["struct"][0]["title"] = " ".join(title.split())
+    mmcif["struct"][0]["title"] = " ".join(title.split())
 
 
 def parse_split(filestring, mmcif):
@@ -61,6 +61,12 @@ def parse_split(filestring, mmcif):
             "db_name": "PDB", "db_id": code, "content_type": "split",
             "details": f"Split {n}"
         } for n, code in enumerate(codes, start=1)]
+
+
+def parse_caveat(filestring, mmcif):    
+    caveat_lines = re.findall(r"^CAVEAT.+", filestring, re.M)
+    caveat = " ".join([l[19:80] for l in caveat_lines]).strip()
+    mmcif["database_PDB_caveat"] = [{"text": " ".join(caveat.split())}]
 
 
 def parse_sprsde(filestring, mmcif):

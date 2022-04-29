@@ -90,9 +90,10 @@ def parse_mdltyp(filestring, mmcif):
     mdltyp = re.findall(f"^MDLTYP.+", filestring, re.M)
     if not mdltyp: return
     text = " ".join([l[10:80].strip() for l in mdltyp]).strip()
-    sections = text.split(";")
-    for section in sections:
-        match = re.match(r"(.+?), CHAIN (.+)", section)
+    features = text.split(";")
+    sections = []
+    for feature in features:
+        match = re.match(r"(.+?), CHAIN (.+)", feature)
         if match:
             if "pdbx_coordinate_model" not in mmcif:
                 mmcif["pdbx_coordinate_model"] = []
@@ -101,8 +102,10 @@ def parse_mdltyp(filestring, mmcif):
                     "asym_id": chain.strip(), "type": match[1].strip()
                 })
         else:
-            mmcif["struct"][0]["pdbx_model_type_details"] = text
-            break
+            sections.append(feature.strip())
+    if sections:
+        mmcif["struct"][0]["pdbx_model_type_details"] = " ; ".join(sections)
+
 
 
 def parse_sprsde(filestring, mmcif):

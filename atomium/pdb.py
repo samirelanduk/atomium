@@ -6,6 +6,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_header(filestring, mmcif)
     parse_obslte(filestring, mmcif)
     parse_title(filestring, mmcif)
+    parse_split(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     return mmcif
 
@@ -36,7 +37,6 @@ def parse_obslte(filestring, mmcif):
             "date": pdb_date_to_mmcif_date(obslte_lines[0][11:20].strip()),
             "pdb_id": " ".join(codes),
             "replace_pdb_id": obslte_lines[0][21:25].strip()
-
         }]
 
 
@@ -51,6 +51,16 @@ def parse_title(filestring, mmcif):
     title = " ".join([l[10:80] for l in title_lines]).strip()
     if title and set(title) != {"-"} and title not in ["NULL", "NONE"]:
         mmcif["struct"][0]["title"] = " ".join(title.split())
+
+
+def parse_split(filestring, mmcif):
+    split_lines = re.findall(r"^SPLIT.+", filestring, re.M)
+    if split_lines:
+        codes = [code for l in split_lines for code in l[11:].strip().split()]
+        mmcif["pdbx_database_related"] = [{
+            "db_name": "PDB", "db_id": code, "content_type": "split",
+            "details": f"Split {n}"
+        } for n, code in enumerate(codes, start=1)]
 
 
 def parse_sprsde(filestring, mmcif):

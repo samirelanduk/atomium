@@ -59,3 +59,16 @@ class DictParsingTests(TestCase):
             "id": "OBSLTE", "date": "2018-05-02", "pdb_id": "6CGV",
             "replace_pdb_id": "4CWU", "details": "?"
         }])
+    
+
+    def test_1VUA_pdb(self):
+        # Tests SPLIT
+        d = atomium.open("tests/integration/files/1vua.pdb", dictionary=True)
+        self.assertEqual(d["pdbx_database_related"], [{
+            "db_name": "PDB", "db_id": code, "content_type": "split",
+            "details": f"Split {n}"
+        } for n, code in enumerate([
+            "1VU4", "1VU5", "1VU6", "1VU7", "1VU8", "1VU9", "1VUA", "1VUC",
+            "1VUD", "1VUE", "1VUF", "1VUG", "1VUH", "1VUI", "1VUJ", "1VUK",
+            "1VUL", "1VUM", "1VUN", "1VUO", "1VUP", "1VUQ", "1VUR", "1VUS", "1VUT"
+        ], start=1)])

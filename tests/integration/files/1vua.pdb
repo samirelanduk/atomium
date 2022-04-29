@@ -1,0 +1,38 @@
+HEADER    VIRUS                                   12-APR-13   1VUA              
+OBSLTE     10-DEC-14 1VUA      3J3Q                                             
+TITLE     ATOMIC-LEVEL STRUCTURE OF THE ENTIRE HIV-1 CAPSID                     
+SPLIT      1VU4 1VU5 1VU6 1VU7 1VU8 1VU9 1VUA 1VUC 1VUD 1VUE 1VUF 1VUG 1VUH 1VUI
+SPLIT    2 1VUJ 1VUK 1VUL 1VUM 1VUN 1VUO 1VUP 1VUQ 1VUR 1VUS 1VUT               
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: CAPSID PROTEIN;                                            
+COMPND   3 CHAIN: A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U,
+COMPND   4 V, W, X, Y, Z, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, 
+COMPND   5 s, t, u, v, w, x, y, z, 0, 1, 2;                                     
+COMPND   6 FRAGMENT: UNP RESIDUES 133-363;                                      
+COMPND   7 SYNONYM: CA;                                                         
+COMPND   8 ENGINEERED: YES;                                                     
+COMPND   9 MUTATION: YES                                                        
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: HUMAN IMMUNODEFICIENCY VIRUS 1;                 
+SOURCE   3 ORGANISM_COMMON: HIV-1;                                              
+SOURCE   4 ORGANISM_TAXID: 11676;                                               
+SOURCE   5 GENE: GAG;                                                           
+SOURCE   6 EXPRESSION_SYSTEM: ESCHERICHIA COLI;                                 
+SOURCE   7 EXPRESSION_SYSTEM_TAXID: 469008;                                     
+SOURCE   8 EXPRESSION_SYSTEM_STRAIN: ROSETTA 2 (DE3);                           
+SOURCE   9 EXPRESSION_SYSTEM_VECTOR_TYPE: PLASMID;                              
+SOURCE  10 EXPRESSION_SYSTEM_PLASMID: PET21                                     
+KEYWDS    HIV-1 CAPSID, CORE, ALL-ATOM MODEL, COMPLETE CAPSID, VIRUS            
+EXPDTA    ELECTRON MICROSCOPY                                                   
+AUTHOR    J.R.PERILLA,G.ZHAO,P.ZHANG,K.J.SCHULTEN                               
+REVDAT   3   10-DEC-14 1VUA    1       OBSLTE                                   
+REVDAT   2   12-JUN-13 1VUA    1       JRNL                                     
+REVDAT   1   29-MAY-13 1VUA    0                                                
+JRNL        AUTH   G.ZHAO,J.R.PERILLA,E.L.YUFENYUY,X.MENG,B.CHEN,J.NING,J.AHN,  
+JRNL        AUTH 2 A.M.GRONENBORN,K.SCHULTEN,C.AIKEN,P.ZHANG                    
+JRNL        TITL   MATURE HIV-1 CAPSID STRUCTURE BY CRYO-ELECTRON MICROSCOPY    
+JRNL        TITL 2 AND ALL-ATOM MOLECULAR DYNAMICS.                             
+JRNL        REF    NATURE                        V. 497   643 2013              
+JRNL        REFN                   ISSN 0028-0836                               
+JRNL        PMID   23719463                                                     
+JRNL        DOI    10.1038/NATURE12162 

@@ -9,6 +9,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_split(filestring, mmcif)
     parse_caveat(filestring, mmcif)
     parse_keywds(filestring, mmcif)
+    parse_expdta(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     return mmcif
 
@@ -75,6 +76,13 @@ def parse_keywds(filestring, mmcif):
     if not lines: return
     keywords = " ".join([l[10:].strip() for l in lines]).strip()
     mmcif["struct_keywords"][0]["text"] = keywords
+
+
+def parse_expdta(filestring, mmcif):
+    mmcif["exptl"] = [{"entry_id": mmcif["entry"][0]["id"], "method": "?"}]
+    exptl = re.findall(f"^EXPDTA.+", filestring, re.M)
+    if not exptl: return
+    mmcif["exptl"][0]["method"] = " ".join([l[10:79].strip() for l in exptl])
 
 
 def parse_sprsde(filestring, mmcif):

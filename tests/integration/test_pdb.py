@@ -20,6 +20,8 @@ class DictParsingTests(TestCase):
             "pdbx_model_details": "?", "pdbx_model_type_details": "?",
             "title": "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP"
         }])
+
+        self.assertEqual(d["exptl"], [{"entry_id": "1LOL", "method": "X-RAY DIFFRACTION"}])
     
 
     def test_1CK8_pdb(self):

@@ -8,7 +8,7 @@ class DictParsingTests(TestCase):
         
         self.assertEqual(d["entry"], [{"id": "1LOL"}])
         self.assertEqual(d["struct_keywords"], [
-            {"entry_id": "1LOL", "pdbx_keywords": "LYASE", "text": "?"}
+            {"entry_id": "1LOL", "pdbx_keywords": "LYASE", "text": "TIM BARREL, LYASE"}
         ])
         self.assertEqual(d["pdbx_database_status"], [{
             "status_code": "REL", "entry_id": "1LOL",

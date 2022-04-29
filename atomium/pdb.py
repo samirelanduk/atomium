@@ -8,6 +8,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_title(filestring, mmcif)
     parse_split(filestring, mmcif)
     parse_caveat(filestring, mmcif)
+    parse_keywds(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     return mmcif
 
@@ -67,6 +68,13 @@ def parse_caveat(filestring, mmcif):
     caveat_lines = re.findall(r"^CAVEAT.+", filestring, re.M)
     caveat = " ".join([l[19:80] for l in caveat_lines]).strip()
     mmcif["database_PDB_caveat"] = [{"text": " ".join(caveat.split())}]
+
+
+def parse_keywds(filestring, mmcif):
+    lines = re.findall(r"^KEYWDS.+", filestring, re.M)
+    if not lines: return
+    keywords = " ".join([l[10:].strip() for l in lines]).strip()
+    mmcif["struct_keywords"][0]["text"] = keywords
 
 
 def parse_sprsde(filestring, mmcif):

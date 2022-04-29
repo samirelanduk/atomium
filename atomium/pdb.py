@@ -10,6 +10,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_caveat(filestring, mmcif)
     parse_keywds(filestring, mmcif)
     parse_expdta(filestring, mmcif)
+    parse_mdltyp(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     return mmcif
 
@@ -83,6 +84,25 @@ def parse_expdta(filestring, mmcif):
     exptl = re.findall(f"^EXPDTA.+", filestring, re.M)
     if not exptl: return
     mmcif["exptl"][0]["method"] = " ".join([l[10:79].strip() for l in exptl])
+
+
+def parse_mdltyp(filestring, mmcif):
+    mdltyp = re.findall(f"^MDLTYP.+", filestring, re.M)
+    if not mdltyp: return
+    text = " ".join([l[10:80].strip() for l in mdltyp]).strip()
+    sections = text.split(";")
+    for section in sections:
+        match = re.match(r"(.+?), CHAIN (.+)", section)
+        if match:
+            if "pdbx_coordinate_model" not in mmcif:
+                mmcif["pdbx_coordinate_model"] = []
+            for chain in match[2].split(","):
+                mmcif["pdbx_coordinate_model"].append({
+                    "asym_id": chain.strip(), "type": match[1].strip()
+                })
+        else:
+            mmcif["struct"][0]["pdbx_model_type_details"] = text
+            break
 
 
 def parse_sprsde(filestring, mmcif):

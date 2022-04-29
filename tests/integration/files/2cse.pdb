@@ -1,0 +1,64 @@
+HEADER    VIRUS                                   21-MAY-05   2CSE              
+TITLE     FEATURES OF REOVIRUS OUTER-CAPSID PROTEIN MU1 REVEALED BY ELECTRON AND
+TITLE    2 IMAGE RECONSTRUCTION OF THE VIRION AT 7.0-A RESOLUTION               
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: MAJOR OUTER-CAPSID PROTEIN MU1;                            
+COMPND   3 CHAIN: A, B, C, P, Q, R, J, K, L, T;                                 
+COMPND   4 MOL_ID: 2;                                                           
+COMPND   5 MOLECULE: MAJOR CAPSID SURFACE PROTEIN SIGMA-3;                      
+COMPND   6 CHAIN: S, D, E, F, M, N, O, G, H, I;                                 
+COMPND   7 MOL_ID: 3;                                                           
+COMPND   8 MOLECULE: GUANYLYLTRANSFERASE;                                       
+COMPND   9 CHAIN: U;                                                            
+COMPND  10 MOL_ID: 4;                                                           
+COMPND  11 MOLECULE: MAJOR CORE PROTEIN LAMBDA 1;                               
+COMPND  12 CHAIN: V, W;                                                         
+COMPND  13 MOL_ID: 5;                                                           
+COMPND  14 MOLECULE: SIGMA 2 PROTEIN;                                           
+COMPND  15 CHAIN: X, Y, Z;                                                      
+COMPND  16 SYNONYM: CORE PROTEIN;                                               
+COMPND  17 MOL_ID: 6;                                                           
+COMPND  18 MOLECULE: MINOR CORE PROTEIN LAMBDA 3;                               
+COMPND  19 CHAIN: 1                                                             
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: MAMMALIAN ORTHOREOVIRUS 1;                      
+SOURCE   3 ORGANISM_TAXID: 10884;                                               
+SOURCE   4 STRAIN: LANG;                                                        
+SOURCE   5 MOL_ID: 2;                                                           
+SOURCE   6 ORGANISM_SCIENTIFIC: MAMMALIAN ORTHOREOVIRUS 1;                      
+SOURCE   7 ORGANISM_TAXID: 10884;                                               
+SOURCE   8 STRAIN: LANG;                                                        
+SOURCE   9 MOL_ID: 3;                                                           
+SOURCE  10 ORGANISM_SCIENTIFIC: MAMMALIAN ORTHOREOVIRUS 3;                      
+SOURCE  11 ORGANISM_TAXID: 10886;                                               
+SOURCE  12 STRAIN: DEARING;                                                     
+SOURCE  13 MOL_ID: 4;                                                           
+SOURCE  14 ORGANISM_SCIENTIFIC: MAMMALIAN ORTHOREOVIRUS 1;                      
+SOURCE  15 ORGANISM_TAXID: 10884;                                               
+SOURCE  16 STRAIN: LANG;                                                        
+SOURCE  17 MOL_ID: 5;                                                           
+SOURCE  18 ORGANISM_SCIENTIFIC: MAMMALIAN ORTHOREOVIRUS 1;                      
+SOURCE  19 ORGANISM_TAXID: 10884;                                               
+SOURCE  20 STRAIN: LANG;                                                        
+SOURCE  21 MOL_ID: 6;                                                           
+SOURCE  22 ORGANISM_SCIENTIFIC: MAMMALIAN ORTHOREOVIRUS 1;                      
+SOURCE  23 ORGANISM_TAXID: 10884;                                               
+SOURCE  24 STRAIN: LANG                                                         
+KEYWDS    CRYOEM, IMAGE PROCESSING, REOVIRUS, MEMBRANE PENETRATION PROTEIN,     
+KEYWDS   2 ICOSAHEDRAL VIRUS, VIRUS                                             
+EXPDTA    ELECTRON MICROSCOPY                                                   
+MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, S, D, E, F, M, N, O, G, H, I, P, Q, R,  
+MDLTYP   2J, K, L, T, U, V, W, X, Y, Z, 1                                       
+AUTHOR    X.ZHANG,Y.JI,L.ZHANG,S.C.HARRISON,D.C.MARINESCU,M.L.NIBERT,T.S.BAKER  
+REVDAT   3   06-NOV-19 2CSE    1       SEQADV CRYST1 SCALE                      
+REVDAT   2   24-FEB-09 2CSE    1       VERSN                                    
+REVDAT   1   18-OCT-05 2CSE    0                                                
+JRNL        AUTH   X.ZHANG,Y.JI,L.ZHANG,S.C.HARRISON,D.C.MARINESCU,M.L.NIBERT,  
+JRNL        AUTH 2 T.S.BAKER                                                    
+JRNL        TITL   FEATURES OF REOVIRUS OUTER CAPSID PROTEIN MU1 REVEALED BY    
+JRNL        TITL 2 ELECTRON CRYOMICROSCOPY AND IMAGE RECONSTRUCTION OF THE      
+JRNL        TITL 3 VIRION AT 7.0 ANGSTROM RESOLUTION.                           
+JRNL        REF    STRUCTURE                     V.  13  1545 2005              
+JRNL        REFN                   ISSN 0969-2126                               
+JRNL        PMID   16216585                                                     
+JRNL        DOI    10.1016/J.STR.2005.07.012 

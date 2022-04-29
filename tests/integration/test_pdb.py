@@ -89,3 +89,42 @@ class DictParsingTests(TestCase):
             "1VUD", "1VUE", "1VUF", "1VUG", "1VUH", "1VUI", "1VUJ", "1VUK",
             "1VUL", "1VUM", "1VUN", "1VUO", "1VUP", "1VUQ", "1VUR", "1VUS", "1VUT"
         ], start=1)])
+    
+
+    def test_2CSE_pdb(self):
+        # Tests MDLTYP
+        d = atomium.open("tests/integration/files/2cse.pdb", dictionary=True)
+        self.assertEqual(d["struct"], [{
+            "entry_id": "2CSE", "pdbx_CASP_flag": "?", "pdbx_descriptor": "?",
+            "pdbx_model_details": "?",
+            "pdbx_model_type_details": "?",
+            "title": "FEATURES OF REOVIRUS OUTER-CAPSID PROTEIN MU1 REVEALED BY "
+            "ELECTRON AND IMAGE RECONSTRUCTION OF THE VIRION AT 7.0-A RESOLUTION"
+        }])
+        self.assertEqual(d["pdbx_coordinate_model"], [{
+            "asym_id": char, "type": "CA ATOMS ONLY"
+        } for char in "ABCSDEFMNOGHIPQRJKLTUVWXYZ1"
+        ])
+    
+
+    def test_1GIY_pdb(self):
+        # Tests MDLTYP
+        d = atomium.open("tests/integration/files/1giy.pdb", dictionary=True)
+        self.assertEqual(d["struct"][0]["pdbx_model_type_details"], "?")
+        self.assertEqual(d["pdbx_coordinate_model"], [{
+            "asym_id": char, "type": "CA ATOMS ONLY"
+        } for char in "CDEFGHIJKLMNOPQRSTUVWX"] + [{
+            "asym_id": char, "type": "P ATOMS ONLY"
+        } for char in "AB"])
+    
+
+    def test_2JRQ_pdb(self):
+        # Tests MDLTYP
+        d = atomium.open("tests/integration/files/2jrq.pdb", dictionary=True)
+        self.assertEqual(d["struct"], [{
+            "entry_id": "2JRQ", "pdbx_CASP_flag": "?", "pdbx_descriptor": "?",
+            "pdbx_model_details": "?",
+            "pdbx_model_type_details": "MINIMIZED AVERAGE",
+            "title": "NMR SOLUTION STRUCTURE OF THE ANTICODON OF E. COLI TRNA-VAL3 WITH 1 MODIFICATION (CMO5U34)"
+        }])
+        self.assertNotIn("pdbx_coordinate_model", d)

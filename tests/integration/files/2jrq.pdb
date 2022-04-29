@@ -1,0 +1,115 @@
+HEADER    RNA                                     28-JUN-07   2JRQ              
+TITLE     NMR SOLUTION STRUCTURE OF THE ANTICODON OF E. COLI TRNA-VAL3 WITH 1   
+TITLE    2 MODIFICATION (CMO5U34)                                               
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: 5'-R(*CP*CP*UP*CP*CP*CP*UP*(CM0)                           
+COMPND   3 P*AP*CP*AP*AP*GP*GP*AP*GP*G)-3';                                     
+COMPND   4 CHAIN: A;                                                            
+COMPND   5 ENGINEERED: YES                                                      
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 SYNTHETIC: YES                                                       
+KEYWDS    E.COLI, VALINE, TRNA, ANTICODON STEM LOOP, TRNA DOMAIN, RNA HAIRPIN,  
+KEYWDS   2 URIDINE 5-OXYACETIC ACID, CMO5U, RNA                                 
+EXPDTA    SOLUTION NMR                                                          
+NUMMDL    11                                                                    
+MDLTYP    MINIMIZED AVERAGE                                                     
+AUTHOR    F.A.P.VENDEIX,A.DZIERGOWSKA,E.M.GUSTILO,W.D.GRAHAM,B.SPROAT,          
+AUTHOR   2 A.MALKIEWICZ,P.F.AGRIS                                               
+REVDAT   3   09-MAR-22 2JRQ    1       REMARK LINK                              
+REVDAT   2   24-FEB-09 2JRQ    1       VERSN                                    
+REVDAT   1   24-JUL-07 2JRQ    0                                                
+JRNL        AUTH   F.A.P.VENDEIX,A.DZIERGOWSKA,E.M.GUSTILO,W.D.GRAHAM,B.SPROAT, 
+JRNL        AUTH 2 A.MALKIEWICZ,P.F.AGRIS                                       
+JRNL        TITL   WOBBLE-POSITION MODIFICATIONS PRE-STRUCTURE TRNA'S ANTICODON 
+JRNL        TITL 2 FOR RIBOSOME-MEDIATED CODON BINDING                          
+JRNL        REF    TO BE PUBLISHED                                              
+JRNL        REFN                                                                
+REMARK   2                                                                      
+REMARK   2 RESOLUTION. NOT APPLICABLE.                                          
+REMARK   3                                                                      
+REMARK   3 REFINEMENT.                                                          
+REMARK   3   PROGRAM     : XWINNMR, CNS 1.1                                     
+REMARK   3   AUTHORS     : BRUKER BIOSPIN (XWINNMR), BRUNGER, ADAMS, CLORE,     
+REMARK   3                 GROS, NILGES AND READ (CNS)                          
+REMARK   3                                                                      
+REMARK   3  OTHER REFINEMENT REMARKS: ANNEAL.INP PROTOCOL IN CNS                
+REMARK   4                                                                      
+REMARK   4 2JRQ COMPLIES WITH FORMAT V. 3.15, 01-DEC-08                         
+REMARK 100                                                                      
+REMARK 100 THIS ENTRY HAS BEEN PROCESSED BY RCSB ON 02-JUL-07.                  
+REMARK 100 THE DEPOSITION ID IS D_1000100206.                                   
+REMARK 210                                                                      
+REMARK 210 EXPERIMENTAL DETAILS                                                 
+REMARK 210  EXPERIMENT TYPE                : NMR                                
+REMARK 210  TEMPERATURE           (KELVIN) : 295; 275                           
+REMARK 210  PH                             : 6.2; 6.2                           
+REMARK 210  IONIC STRENGTH                 : NULL; NULL                         
+REMARK 210  PRESSURE                       : AMBIENT; AMBIENT                   
+REMARK 210  SAMPLE CONTENTS                : 1.5-2 MM RNA 17MER, 90% H2O/10%    
+REMARK 210                                   D2O; 1.5-2 MM RNA 17MER, 100% D2O  
+REMARK 210                                                                      
+REMARK 210  NMR EXPERIMENTS CONDUCTED      : 2D 1H-1H COSY; 2D DQF-COSY; 2D     
+REMARK 210                                   1H-1H TOCSY; 2D 1H-13C HSQC; 2D    
+REMARK 210                                   1H-1H NOESY; 2D 1H-31P HETCOR      
+REMARK 210  SPECTROMETER FIELD STRENGTH    : 500 MHZ; 600 MHZ                   
+REMARK 210  SPECTROMETER MODEL             : AVANCE; INOVA                      
+REMARK 210  SPECTROMETER MANUFACTURER      : BRUKER; VARIAN                     
+REMARK 210                                                                      
+REMARK 210  STRUCTURE DETERMINATION.                                            
+REMARK 210   SOFTWARE USED                 : VNMR, NMRDRAW 3.0, SPARKY, CNS     
+REMARK 210                                   1.1                                
+REMARK 210   METHOD USED                   : TORSION ANGLE DYNAMICS             
+REMARK 210                                                                      
+REMARK 210 CONFORMERS, NUMBER CALCULATED   : 80                                 
+REMARK 210 CONFORMERS, NUMBER SUBMITTED    : 11                                 
+REMARK 210 CONFORMERS, SELECTION CRITERIA  : STRUCTURES WITH THE LOWEST         
+REMARK 210                                   ENERGY                             
+REMARK 210                                                                      
+REMARK 210 BEST REPRESENTATIVE CONFORMER IN THIS ENSEMBLE : 1                   
+REMARK 210                                                                      
+REMARK 210 REMARK: NULL                                                         
+REMARK 215                                                                      
+REMARK 215 NMR STUDY                                                            
+REMARK 215 THE COORDINATES IN THIS ENTRY WERE GENERATED FROM SOLUTION           
+REMARK 215 NMR DATA.  PROTEIN DATA BANK CONVENTIONS REQUIRE THAT                
+REMARK 215 CRYST1 AND SCALE RECORDS BE INCLUDED, BUT THE VALUES ON              
+REMARK 215 THESE RECORDS ARE MEANINGLESS.                                       
+REMARK 300                                                                      
+REMARK 300 BIOMOLECULE: 1                                                       
+REMARK 300 SEE REMARK 350 FOR THE AUTHOR PROVIDED AND/OR PROGRAM                
+REMARK 300 GENERATED ASSEMBLY INFORMATION FOR THE STRUCTURE IN                  
+REMARK 300 THIS ENTRY. THE REMARK MAY ALSO PROVIDE INFORMATION ON               
+REMARK 300 BURIED SURFACE AREA.                                                 
+REMARK 350                                                                      
+REMARK 350 COORDINATES FOR A COMPLETE MULTIMER REPRESENTING THE KNOWN           
+REMARK 350 BIOLOGICALLY SIGNIFICANT OLIGOMERIZATION STATE OF THE                
+REMARK 350 MOLECULE CAN BE GENERATED BY APPLYING BIOMT TRANSFORMATIONS          
+REMARK 350 GIVEN BELOW.  BOTH NON-CRYSTALLOGRAPHIC AND                          
+REMARK 350 CRYSTALLOGRAPHIC OPERATIONS ARE GIVEN.                               
+REMARK 350                                                                      
+REMARK 350 BIOMOLECULE: 1                                                       
+REMARK 350 AUTHOR DETERMINED BIOLOGICAL UNIT: MONOMERIC                         
+REMARK 350 APPLY THE FOLLOWING TO CHAINS: A                                     
+REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        0.00000            
+REMARK 350   BIOMT2   1  0.000000  1.000000  0.000000        0.00000            
+REMARK 350   BIOMT3   1  0.000000  0.000000  1.000000        0.00000            
+REMARK 900                                                                      
+REMARK 900 RELATED ENTRIES                                                      
+REMARK 900 RELATED ID: 2JR4   RELATED DB: PDB                                   
+REMARK 900 RELATED ID: 2JRG   RELATED DB: PDB                                   
+DBREF  2JRQ A   27    43  PDB    2JRQ     2JRQ            27     43             
+SEQRES   1 A   17    C   C   U   C   C   C   U CM0   A   C   A   A   G          
+SEQRES   2 A   17    G   A   G   G                                              
+HET    CM0  A  34      36                                                       
+HETNAM     CM0 5-(CARBOXYMETHOXY) URIDINE-5'-MONOPHOSPHATE                      
+FORMUL   1  CM0    C11 H15 N2 O12 P                                             
+LINK         O3'   U A  33                 P   CM0 A  34     1555   1555  1.61  
+LINK         O3' CM0 A  34                 P     A A  35     1555   1555  1.61  
+CRYST1    1.000    1.000    1.000  90.00  90.00  90.00 P 1           1          
+ORIGX1      1.000000  0.000000  0.000000        0.00000                         
+ORIGX2      0.000000  1.000000  0.000000        0.00000                         
+ORIGX3      0.000000  0.000000  1.000000        0.00000                         
+SCALE1      1.000000  0.000000  0.000000        0.00000                         
+SCALE2      0.000000  1.000000  0.000000        0.00000                         
+SCALE3      0.000000  0.000000  1.000000        0.00000                         
+MODEL        1                                                                  

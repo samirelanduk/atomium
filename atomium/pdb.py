@@ -12,6 +12,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_expdta(filestring, mmcif)
     parse_mdltyp(filestring, mmcif)
     parse_author(filestring, mmcif)
+    parse_revdat(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     return mmcif
 
@@ -116,6 +117,19 @@ def parse_author(filestring, mmcif):
     mmcif["audit_author"] = [{
         "name": author, "pdbx_ordinal": str(num)
     }  for num, author in enumerate(authors, start=1)]
+
+
+def parse_revdat(filestring, mmcif):
+    lines = re.findall(r"^REVDAT.+", filestring, re.M)
+    if not lines: return
+    mod_nums = sorted(set([int(line[7:10].strip()) for line in lines]))
+    mmcif["pdbx_audit_revision_history"] = [{
+        "ordinal": str(num), "data_content_type": "Structure model",
+        "major_revision": str(num), "minor_revision": "0",
+        "revision_date": pdb_date_to_mmcif_date([
+            l for l in lines if int(l[7:10].strip()) == num
+        ][0][13:22])
+    } for num in mod_nums]
 
 
 def parse_sprsde(filestring, mmcif):

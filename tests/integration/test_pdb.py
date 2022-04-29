@@ -27,6 +27,20 @@ class DictParsingTests(TestCase):
             {"name": "Wu, N", "pdbx_ordinal": "1"},
             {"name": "Pai, E.F", "pdbx_ordinal": "2"},
         ])
+
+        self.assertEqual(d["pdbx_audit_revision_history"], [{
+            "ordinal": "1", "data_content_type": "Structure model",
+            "major_revision": "1", "minor_revision": "0", "revision_date": "2002-08-07"
+        }, {
+            "ordinal": "2", "data_content_type": "Structure model", 
+            "major_revision": "2","minor_revision": "0", "revision_date": "2002-08-14"
+        }, {
+            "ordinal": "3", "data_content_type": "Structure model",
+            "major_revision": "3", "minor_revision": "0", "revision_date": "2003-04-01"
+        }, {
+            "ordinal": "4", "data_content_type": "Structure model",
+            "major_revision": "4", "minor_revision": "0", "revision_date": "2009-02-24"
+        }])
     
 
     def test_1CK8_pdb(self):
@@ -47,7 +61,7 @@ class DictParsingTests(TestCase):
     
 
     def test_4HHB_pdb(self):
-        # Tests SPRSDE, CAVEAT
+        # Tests SPRSDE, CAVEAT, REVDAT
         d = atomium.open("tests/integration/files/4hhb.pdb", dictionary=True)
         self.assertEqual(d["pdbx_database_PDB_obs_spr"], [{
             "id": "SPRSDE", "date": "1984-07-17", "pdb_id": "4HHB",
@@ -64,6 +78,28 @@ class DictParsingTests(TestCase):
             "ASP D 73 HAS WRONG CHIRALITY AT ATOM CA "
             "LEU D 78 HAS WRONG CHIRALITY AT ATOM CA "
             "LYS D 144 HAS WRONG CHIRALITY AT ATOM CA"
+        }])
+        self.assertEqual(d["pdbx_audit_revision_history"], [{
+           "ordinal": "1", "data_content_type": "Structure model",
+           "major_revision": "1", "minor_revision": "0", "revision_date": "1984-07-17"
+        }, {
+            "ordinal": "2", "data_content_type": "Structure model",
+            "major_revision": "2", "minor_revision": "0", "revision_date": "1989-10-15"
+        }, {
+            "ordinal": "3", "data_content_type": "Structure model",
+            "major_revision": "3", "minor_revision": "0", "revision_date": "2003-04-01"
+        }, {
+            "ordinal": "4", "data_content_type": "Structure model",
+            "major_revision": "4", "minor_revision": "0", "revision_date": "2009-02-24"
+        }, {
+            "ordinal": "5", "data_content_type": "Structure model",
+            "major_revision": "5", "minor_revision": "0", "revision_date": "2011-07-13"
+        }, {
+            "ordinal": "6", "data_content_type": "Structure model",
+            "major_revision": "6", "minor_revision": "0", "revision_date": "2020-06-17"
+        }, {
+            "ordinal": "7", "data_content_type": "Structure model",
+            "major_revision": "7", "minor_revision": "0", "revision_date": "2021-03-31"
         }])
     
 

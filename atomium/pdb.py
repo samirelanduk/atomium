@@ -14,6 +14,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_author(filestring, mmcif)
     parse_revdat(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
+    parse_jrnl(filestring, mmcif)
     return mmcif
 
 
@@ -145,6 +146,64 @@ def parse_sprsde(filestring, mmcif):
         mmcif["pdbx_database_PDB_obs_spr"] = [
             *sprsde, *mmcif.get("pdbx_database_PDB_obs_spr", [])
         ]
+
+
+def parse_jrnl(filestring, mmcif):
+    journal_lines = re.findall(f"^JRNL.+", filestring, re.M)
+    if not journal_lines: return
+    for record, table in [["AUTH", "author"], ["EDIT", "editor"]]:
+        lines = [l[19:].strip() for l in journal_lines if l[12:16] == record]
+        names = process_names(lines)
+        if names:
+            mmcif[f"citation_{table}"] = [{
+                "citation_id": "primary", "name": name, "pdbx_ordinal": str(num)
+            }  for num, name in enumerate(names, start=1)]
+    mmcif["citation"] = [{"id": "primary", **{k: "?" for k in [
+        "title", "journal_abbrev", "journal_volume", "page_first", "page_last",
+        "year", "journal_id_ASTM", "country", "journal_id_ISSN",
+        "journal_id_CSD", "book_publisher", "pdbx_database_id_PubMed",
+        "pdbx_database_id_DOI"
+    ]}}]
+    parse_journal_title(journal_lines, mmcif)
+    parse_journal_references(journal_lines, mmcif)
+    parse_journal_ids(journal_lines, mmcif)
+
+
+def parse_journal_title(journal_lines, mmcif):
+    title_lines = [l for l in journal_lines if l[12:16] == "TITL"]
+    if not title_lines: return
+    title = " ".join([l[19:80] for l in title_lines])
+    mmcif["citation"][0]["title"] = " ".join(title.split())
+
+
+def parse_journal_references(journal_lines, mmcif):
+    lines = [l for l in journal_lines if l[12:16].strip() == "REF"]
+    if lines:
+        mmcif["citation"][0]["journal_abbrev"] = " ".join(
+            [l[19:47].strip() for l in lines]
+        ).strip().title() or "?"
+        mmcif["citation"][0]["journal_volume"] = lines[0][51:55].strip() or "?"
+        mmcif["citation"][0]["page_first"] = lines[0][56:61].strip() or "?"
+        mmcif["citation"][0]["year"] = lines[0][62:66].strip() or "?"
+    lines = [l for l in journal_lines if l[12:16] == "REFN"]
+    if lines:
+        mmcif["citation"][0]["journal_id_ISSN"] = lines[0][40:65].strip() or "?"
+    lines = [l for l in journal_lines if l[12:16] == "PUBL"]
+    if lines:
+        mmcif["citation"][0]["book_publisher"] = lines[0][19:80].strip() or "?"
+
+
+def parse_journal_ids(journal_lines, mmcif):
+    pmid_lines = [l for l in journal_lines if l[12:16] == "PMID"]
+    if pmid_lines:
+        mmcif["citation"][0]["pdbx_database_id_PubMed"] = "".join(
+            [l[19:79] for l in pmid_lines]
+        ).strip() or "?"
+    doi_lines = [l for l in journal_lines if l[12:16].strip() == "DOI"]
+    if doi_lines:
+        mmcif["citation"][0]["pdbx_database_id_DOI"] = "".join(
+            [l[19:79] for l in doi_lines]
+        ).strip().lower() or "?"
         
 
 

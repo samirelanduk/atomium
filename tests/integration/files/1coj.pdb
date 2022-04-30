@@ -1,0 +1,30 @@
+HEADER    OXIDOREDUCTASE                          28-MAY-99   1COJ              
+TITLE     FE-SOD FROM AQUIFEX PYROPHILUS, A HYPERTHERMOPHILIC BACTERIUM         
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: PROTEIN (SUPEROXIDE DISMUTASE);                            
+COMPND   3 CHAIN: A;                                                            
+COMPND   4 ENGINEERED: YES                                                      
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: AQUIFEX PYROPHILUS;                             
+SOURCE   3 ORGANISM_TAXID: 2714;                                                
+SOURCE   4 EXPRESSION_SYSTEM: ESCHERICHIA COLI BL21(DE3);                       
+SOURCE   5 EXPRESSION_SYSTEM_TAXID: 469008;                                     
+SOURCE   6 EXPRESSION_SYSTEM_STRAIN: BL21(DE3);                                 
+SOURCE   7 OTHER_DETAILS: GERMAN COLLECTION OF MICROORGANISMS (DSM)             
+KEYWDS    OXIDOREDUCTASE                                                        
+EXPDTA    X-RAY DIFFRACTION                                                     
+AUTHOR    J.H.LIM,Y.G.YU,S.-H.KIM,S.-J.CHO,B.Y.AHN,Y.S.HAN,Y.CHO                
+REVDAT   4   13-JUL-11 1COJ    1       VERSN                                    
+REVDAT   3   24-FEB-09 1COJ    1       VERSN                                    
+REVDAT   2   01-APR-03 1COJ    1       JRNL                                     
+REVDAT   1   14-JUN-99 1COJ    0                                                
+JRNL        AUTH   J.H.LIM,Y.G.YU,Y.S.HAN,S.CHO,B.Y.AHN,S.H.KIM,Y.CHO           
+JRNL        TITL   THE CRYSTAL STRUCTURE OF AN FE-SUPEROXIDE DISMUTASE FROM THE 
+JRNL        TITL 2 HYPERTHERMOPHILE AQUIFEX PYROPHILUS AT 1.9 A RESOLUTION:     
+JRNL        TITL 3 STRUCTURAL BASIS FOR THERMOSTABILITY.                        
+JRNL        EDIT   PETER WRIGHT                                                 
+JRNL        REF    J.MOL.BIOL.                   V. 270   259 1997              
+JRNL        PUBL   U.K. : ACADEMIC PRESS                                        
+JRNL        REFN                   ISSN 0022-2836                               
+JRNL        PMID   9236127                                                      
+JRNL        DOI    10.1006/JMBI.1997.1105   

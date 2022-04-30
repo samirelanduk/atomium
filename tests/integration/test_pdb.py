@@ -41,6 +41,20 @@ class DictParsingTests(TestCase):
             "ordinal": "4", "data_content_type": "Structure model",
             "major_revision": "4", "minor_revision": "0", "revision_date": "2009-02-24"
         }])
+
+        self.assertEqual(d["citation"], [{
+            "id": "primary",
+            "title": "CRYSTAL STRUCTURES OF INHIBITOR COMPLEXES REVEAL AN ALTERNATE BINDING MODE IN OROTIDINE-5'-MONOPHOSPHATE DECARBOXYLASE.",
+            "journal_abbrev": "J.Biol.Chem.", "journal_volume": "277",
+            "page_first": "28080", "page_last": "?", "year": "2002", "journal_id_ASTM": "?",
+            "country": "?", "journal_id_ISSN": "0021-9258", "journal_id_CSD": "?",
+            "book_publisher": "?", "pdbx_database_id_PubMed": "12011084",
+            "pdbx_database_id_DOI": "10.1074/jbc.m202362200"
+        }])
+        self.assertEqual(d["citation_author"], [
+            {"citation_id": "primary", "name": "Wu, N", "pdbx_ordinal": "1"},
+            {"citation_id": "primary", "name": "Pai, E.F", "pdbx_ordinal": "2"}
+        ])
     
 
     def test_1CK8_pdb(self):
@@ -174,3 +188,30 @@ class DictParsingTests(TestCase):
             "title": "NMR SOLUTION STRUCTURE OF THE ANTICODON OF E. COLI TRNA-VAL3 WITH 1 MODIFICATION (CMO5U34)"
         }])
         self.assertNotIn("pdbx_coordinate_model", d)
+    
+
+    def test_1COJ_pdb(self):
+        # Tests JRNL
+        d = atomium.open("tests/integration/files/1coj.pdb", dictionary=True)
+        self.assertEqual(d["citation"], [{
+            "id": "primary",
+            "title": "THE CRYSTAL STRUCTURE OF AN FE-SUPEROXIDE DISMUTASE FROM THE HYPERTHERMOPHILE AQUIFEX PYROPHILUS AT 1.9 A RESOLUTION: STRUCTURAL BASIS FOR THERMOSTABILITY.",
+            "journal_abbrev": "J.Mol.Biol.", "journal_volume": "270",
+            "page_first": "259", "page_last": "?", "year": "1997",
+            "journal_id_ASTM": "?", "country": "?", "journal_id_ISSN": "0022-2836",
+            "journal_id_CSD": "?", "book_publisher": "U.K. : ACADEMIC PRESS",
+            "pdbx_database_id_PubMed": "9236127",
+            "pdbx_database_id_DOI": "10.1006/jmbi.1997.1105"
+        }])
+        self.assertEqual(d["citation_author"], [
+            {"citation_id": "primary", "name": "Lim, J.H", "pdbx_ordinal": "1"},
+            {"citation_id": "primary", "name": "Yu, Y.G", "pdbx_ordinal": "2"},
+            {"citation_id": "primary", "name": "Han, Y.S", "pdbx_ordinal": "3"},
+            {"citation_id": "primary", "name": "Cho, S", "pdbx_ordinal": "4"},
+            {"citation_id": "primary", "name": "Ahn, B.Y", "pdbx_ordinal": "5"},
+            {"citation_id": "primary", "name": "Kim, S.H", "pdbx_ordinal": "6"},
+            {"citation_id": "primary", "name": "Cho, Y", "pdbx_ordinal": "7"}
+        ])
+        self.assertEqual(d["citation_editor"], [
+            {"citation_id": "primary", "name": "Peter Wright", "pdbx_ordinal": "1"},
+        ])

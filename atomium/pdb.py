@@ -15,6 +15,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_revdat(filestring, mmcif)
     parse_sprsde(filestring, mmcif)
     parse_jrnl(filestring, mmcif)
+    parse_remarks(filestring, mmcif)
     return mmcif
 
 
@@ -204,9 +205,62 @@ def parse_journal_ids(journal_lines, mmcif):
         mmcif["citation"][0]["pdbx_database_id_DOI"] = "".join(
             [l[19:79] for l in doi_lines]
         ).strip().lower() or "?"
+
+
+def parse_remarks(filestring, mmcif):
+    parse_remark_2(filestring, mmcif)
+    parse_remark_3(filestring, mmcif)
+
+
+def parse_remark_2(filestring, mmcif):
+    reflns = [
+        "B_iso_Wilson_estimate", "entry_id", "data_reduction_details",
+        "data_reduction_method", "d_resolution_high", "d_resolution_low",
+        "details", "limit_h_max", "limit_h_min", "limit_k_max", "limit_k_min",
+        "limit_l_max", "limit_l_min", "number_all", "number_obs",
+        "observed_criterion", "observed_criterion_F_max",
+        "observed_criterion_F_min", "observed_criterion_I_max",
+        "observed_criterion_I_min", "observed_criterion_sigma_F",
+        "observed_criterion_sigma_I", "percent_possible_obs", "R_free_details",
+        "Rmerge_F_all", "Rmerge_F_obs", "Friedel_coverage", "number_gt",
+        "threshold_expression", "pdbx_redundancy", "pdbx_Rmerge_I_obs",
+        "pdbx_Rmerge_I_all", "pdbx_Rsym_value", "pdbx_netI_over_av_sigmaI",
+        "pdbx_netI_over_sigmaI", "pdbx_res_netI_over_av_sigmaI_2",
+        "pdbx_res_netI_over_sigmaI_2", "pdbx_chi_squared",
+        "pdbx_scaling_rejects", "pdbx_d_res_high_opt", "pdbx_d_res_low_opt",
+        "pdbx_d_res_opt_method", "phase_calculation_details", "pdbx_Rrim_I_all",
+        "pdbx_Rpim_I_all", "pdbx_d_opt", "pdbx_number_measured_all",
+        "pdbx_diffrn_id", "pdbx_ordinal", "pdbx_CC_half", "pdbx_R_split"
+    ]
+
+    mmcif["reflns"] = [{
+        **{key: "?" for key in reflns}, "entry_id": mmcif["entry"][0]["id"]
+    }]
+    records = re.findall(r"^REMARK   2 .+", filestring, re.M)
+    for r in records:
+        if "RESOLUTION" in r:
+            mmcif["reflns"][0]["d_resolution_high"] = r[10:].strip().split()[1]
+            break
+
+
+def parse_remark_3(filestring, mmcif):
+    records = re.findall(r"^REMARK   3 .+", filestring, re.M)
+    if not records: return
+    string = "\n".join(records)
+    for regex, key in [
+        [r"RESOLUTION RANGE LOW.+?\:(.+)", "d_resolution_low"],
+        [r"RESOLUTION RANGE HIGH.+?\:(.+)", "d_resolution_high"],
+        [r"R VALUE[ ]+?\(WORKING SET\) \: (.+)", "ls_R_factor_R_work"],
+        [r"FREE R VALUE[ ]+?\:(.+)", "ls_R_factor_R_free"],
+        [
+            r"FREE R VALUE TEST SET SIZE[ ]+?\(%\)[ ]+?\:(.+)",
+            "ls_percent_reflns_R_free"
+        ],
+        [r"FREE R VALUE TEST SET COUNT.+?\:(.+)", "ls_number_reflns_R_free"],
+    ]:
+        value = re.search(regex, string)
+        mmcif["reflns"][0][key] = value[1].strip() if value else "?"
         
-
-
 
 def pdb_date_to_mmcif_date(date):
     day, month, year = date.split("-")

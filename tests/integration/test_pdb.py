@@ -55,6 +55,27 @@ class DictParsingTests(TestCase):
             {"citation_id": "primary", "name": "Wu, N", "pdbx_ordinal": "1"},
             {"citation_id": "primary", "name": "Pai, E.F", "pdbx_ordinal": "2"}
         ])
+        self.assertEqual(d["reflns"], [{
+            "B_iso_Wilson_estimate": "?", "entry_id": "1LOL", "data_reduction_details": "?",
+            "data_reduction_method": "?", "d_resolution_high": "1.90", "d_resolution_low": "27.07",
+            "details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?",
+            "limit_k_min": "?", "limit_l_max": "?", "limit_l_min": "?", "number_all": "?",
+            "number_obs": "?", "observed_criterion": "?", "observed_criterion_F_max": "?",
+            "observed_criterion_F_min": "?", "observed_criterion_I_max": "?",
+            "observed_criterion_I_min": "?", "observed_criterion_sigma_F": "?",
+            "observed_criterion_sigma_I": "?", "percent_possible_obs": "?", "R_free_details": "?",
+            "Rmerge_F_all": "?", "Rmerge_F_obs": "?", "Friedel_coverage": "?", "number_gt": "?",
+            "threshold_expression": "?", "pdbx_redundancy": "?", "pdbx_Rmerge_I_obs": "?",
+            "pdbx_Rmerge_I_all": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_av_sigmaI": "?",
+            "pdbx_netI_over_sigmaI": "?", "pdbx_res_netI_over_av_sigmaI_2": "?",
+            "pdbx_res_netI_over_sigmaI_2": "?", "pdbx_chi_squared": "?", "pdbx_scaling_rejects": "?",
+            "pdbx_d_res_high_opt": "?", "pdbx_d_res_low_opt": "?", "pdbx_d_res_opt_method": "?",
+            "phase_calculation_details": "?", "pdbx_Rrim_I_all": "?", "pdbx_Rpim_I_all": "?",
+            "pdbx_d_opt": "?", "pdbx_number_measured_all": "?", "pdbx_diffrn_id": "?",
+            "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?",
+            "ls_R_factor_R_work": "0.193", "ls_R_factor_R_free": "0.229",
+            "ls_percent_reflns_R_free": "4.900", "ls_number_reflns_R_free": "1583"
+        }])
     
 
     def test_1CK8_pdb(self):

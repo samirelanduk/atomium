@@ -210,6 +210,7 @@ def parse_journal_ids(journal_lines, mmcif):
 def parse_remarks(filestring, mmcif):
     parse_remark_2(filestring, mmcif)
     parse_remark_3(filestring, mmcif)
+    parse_remark_200(filestring, mmcif)
 
 
 def parse_remark_2(filestring, mmcif):
@@ -232,7 +233,6 @@ def parse_remark_2(filestring, mmcif):
         "pdbx_Rpim_I_all", "pdbx_d_opt", "pdbx_number_measured_all",
         "pdbx_diffrn_id", "pdbx_ordinal", "pdbx_CC_half", "pdbx_R_split"
     ]
-
     mmcif["reflns"] = [{
         **{key: "?" for key in reflns}, "entry_id": mmcif["entry"][0]["id"]
     }]
@@ -260,6 +260,29 @@ def parse_remark_3(filestring, mmcif):
     ]:
         value = re.search(regex, string)
         mmcif["reflns"][0][key] = value[1].strip() if value else "?"
+
+
+def parse_remark_200(filestring, mmcif):
+    records = re.findall(r"^REMARK 200 .+", filestring, re.M)
+    if not records: return
+    string = "\n".join(records)
+    temp = re.search(r"TEMPERATURE.+?\: (\d+)", string)
+    detector = re.search(r"DETECTOR TYPE[ ]+\:[ ]+(.+)", string)
+    type_ = re.search(r"DETECTOR MANUFACTURER.+?\:[ ]+(.+)", string)
+    collection = re.search(r"DATE OF DATA COLLECTION.+?\:[ ]+(.+)", string)
+    details = re.search(r"OPTICS.+?\:(.+?)  ", string)
+    mmcif["diffrn"] = [{
+        "id": "1", "ambient_temp": temp[1].strip() if temp else "?",
+        "ambient_temp_details": "?", "crystal_id": "1"
+    }]
+    mmcif["diffrn_detector"] = [{
+        "diffrn_id": "1",
+        "detector": detector[1].strip() if detector else "?",
+        "type": type_[1].strip() if type_ else "?",
+        "pdbx_collection_date": pdb_date_to_mmcif_date(collection[1].strip())\
+            if collection and collection[1].strip() != "NULL" else "?",
+        "details": details[1].strip() if details else "?"
+    }]
         
 
 def pdb_date_to_mmcif_date(date):

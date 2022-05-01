@@ -51,6 +51,7 @@ class DictParsingTests(TestCase):
             "book_publisher": "?", "pdbx_database_id_PubMed": "12011084",
             "pdbx_database_id_DOI": "10.1074/jbc.m202362200"
         }])
+
         self.assertEqual(d["citation_author"], [
             {"citation_id": "primary", "name": "Wu, N", "pdbx_ordinal": "1"},
             {"citation_id": "primary", "name": "Pai, E.F", "pdbx_ordinal": "2"}
@@ -75,6 +76,14 @@ class DictParsingTests(TestCase):
             "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?",
             "ls_R_factor_R_work": "0.193", "ls_R_factor_R_free": "0.229",
             "ls_percent_reflns_R_free": "4.900", "ls_number_reflns_R_free": "1583"
+        }])
+
+        self.assertEqual(d["diffrn"], [
+            {"id": "1", "crystal_id": "1", "ambient_temp": "100", "ambient_temp_details": "?"}
+        ])
+        self.assertEqual(d["diffrn_detector"], [{
+            "details": "?", "detector": "CCD", "diffrn_id": "1",
+            "pdbx_collection_date": "2001-09-12", "type": "ADSC QUANTUM 4"
         }])
     
 

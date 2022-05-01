@@ -211,6 +211,9 @@ def parse_remarks(filestring, mmcif):
     parse_remark_2(filestring, mmcif)
     parse_remark_3(filestring, mmcif)
     parse_remark_200(filestring, mmcif)
+    parse_remark_465(filestring, mmcif)
+    parse_remark_470(filestring, mmcif)
+    parse_remark_480(filestring, mmcif)
 
 
 def parse_remark_2(filestring, mmcif):
@@ -283,6 +286,68 @@ def parse_remark_200(filestring, mmcif):
             if collection and collection[1].strip() != "NULL" else "?",
         "details": details[1].strip() if details else "?"
     }]
+
+
+def parse_remark_465(filestring, mmcif):
+    records = re.findall(r"^REMARK 465 .+", filestring, re.M)
+    if not records: return
+    mmcif["pdbx_unobs_or_zero_occ_residues"] = [{
+        "id": str(i), "PDB_model_num": "1", "polymer_flag": "Y",
+        "occupancy_flag": "1", "auth_asym_id": rec[19].strip() or "?",
+        "auth_comp_id": rec[15:18].strip() or "?",
+        "auth_seq_id": rec[21:26].strip() or "?",
+        "PDB_ins_code": (rec[26].strip() if len(rec) > 26 else "") or "?",
+        "label_asym_id": rec[19].strip() or "?",
+        "label_comp_id": rec[15:18].strip() or "?",
+        "label_seq_id": rec[21:26].strip() or "?"
+    } for i, rec in enumerate(records[7:], start=1)]
+
+
+def parse_remark_470(filestring, mmcif):
+    records = re.findall(r"^REMARK 470 .+", filestring, re.M)
+    if not records[6:]: return
+    mmcif["pdbx_unobs_or_zero_occ_atoms"] = []
+    for rec in records[6:]:
+        for atom in rec[27:].strip().split():
+            mmcif["pdbx_unobs_or_zero_occ_atoms"].append({
+                "id": str(len(mmcif["pdbx_unobs_or_zero_occ_atoms"]) + 1),
+                "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "0",
+                "auth_asym_id": rec[19].strip() or "?",
+                "auth_comp_id": rec[15:18].strip() or "?",
+                "auth_seq_id": rec[21:26].strip() or "?",
+                "PDB_ins_code": rec[26].strip() or "?",
+                "auth_atom_id": atom, "label_alt_id": "?",
+                "label_asym_id": rec[19].strip() or "?",
+                "label_comp_id": rec[15:18].strip() or "?",
+                "label_seq_id": rec[21:26].strip() or "?", "label_atom_id": atom
+            })
+
+
+def parse_remark_480(filestring, mmcif):
+    records = re.findall(r"^REMARK 480 .+", filestring, re.M)
+    if not records[8:]: return
+    if "pdbx_unobs_or_zero_occ_atoms" not in mmcif:
+        mmcif["pdbx_unobs_or_zero_occ_atoms"] = []
+    for rec in records[8:]:
+        for atom in rec[27:].strip().split():
+            mmcif["pdbx_unobs_or_zero_occ_atoms"].append({
+                "id": str(len(mmcif["pdbx_unobs_or_zero_occ_atoms"]) + 1),
+                "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "0",
+                "auth_asym_id": rec[19].strip() or "?",
+                "auth_comp_id": rec[15:18].strip() or "?",
+                "auth_seq_id": rec[21:26].strip() or "?",
+                "PDB_ins_code": rec[26].strip() or "?",
+                "auth_atom_id": atom, "label_alt_id": "?",
+                "label_asym_id": rec[19].strip() or "?",
+                "label_comp_id": rec[15:18].strip() or "?",
+                "label_seq_id": rec[21:26].strip() or "?", "label_atom_id": atom
+            })
+    mmcif["pdbx_unobs_or_zero_occ_atoms"].sort(key=lambda r: int(
+        "".join([char for char in r["auth_seq_id"] if char.isdigit()])
+    ))
+    for i, row in enumerate(mmcif["pdbx_unobs_or_zero_occ_atoms"], start=1):
+        row["id"] = str(i)
+
         
 
 def pdb_date_to_mmcif_date(date):

@@ -85,6 +85,18 @@ class DictParsingTests(TestCase):
             "details": "?", "detector": "CCD", "diffrn_id": "1",
             "pdbx_collection_date": "2001-09-12", "type": "ADSC QUANTUM 4"
         }])
+
+        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_residues"]), 38)
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][0], {
+            "id": "1", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "SER", "auth_seq_id": "3", "PDB_ins_code": "?",
+            "label_asym_id": "A", "label_comp_id": "SER", "label_seq_id": "3"
+        })
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][-1], {
+            "id": "38", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "B", "auth_comp_id": "GLY", "auth_seq_id": "1186", "PDB_ins_code": "?",
+            "label_asym_id": "B", "label_comp_id": "GLY", "label_seq_id": "1186"
+        })
     
 
     def test_1CK8_pdb(self):
@@ -245,3 +257,21 @@ class DictParsingTests(TestCase):
         self.assertEqual(d["citation_editor"], [
             {"citation_id": "primary", "name": "Peter Wright", "pdbx_ordinal": "1"},
         ])
+    
+
+    def test_2NQ2_pdb(self):
+        # Tests REMARK 470,480
+        d = atomium.open("tests/integration/files/2nq2.pdb", dictionary=True)
+        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_atoms"]), 129)
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][0], {
+            'id': '1', 'PDB_model_num': '1', 'polymer_flag': 'Y', 'occupancy_flag': '0',
+            'auth_asym_id': 'B', 'auth_comp_id': 'ILE', 'auth_seq_id': '9', 'PDB_ins_code': '?',
+            'auth_atom_id': 'CD1', 'label_alt_id': '?', 'label_asym_id': 'B',
+            'label_comp_id': 'ILE', 'label_seq_id': '9', 'label_atom_id': 'CD1'
+        })
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][-1], {
+            'id': '129', 'PDB_model_num': '1', 'polymer_flag': 'Y', 'occupancy_flag': '0',
+            'auth_asym_id': 'B', 'auth_comp_id': 'LEU', 'auth_seq_id': '330', 'PDB_ins_code': '?',
+            'auth_atom_id': 'O', 'label_alt_id': '?', 'label_asym_id': 'B',
+            'label_comp_id': 'LEU', 'label_seq_id': '330', 'label_atom_id': 'O'
+        })

@@ -214,6 +214,7 @@ def parse_remarks(filestring, mmcif):
     parse_remark_465(filestring, mmcif)
     parse_remark_470(filestring, mmcif)
     parse_remark_480(filestring, mmcif)
+    parse_remark_800(filestring, mmcif)
 
 
 def parse_remark_2(filestring, mmcif):
@@ -348,8 +349,30 @@ def parse_remark_480(filestring, mmcif):
     for i, row in enumerate(mmcif["pdbx_unobs_or_zero_occ_atoms"], start=1):
         row["id"] = str(i)
 
-        
 
+def parse_remark_800(filestring, mmcif):
+    records = re.findall(r"^REMARK 800 .+", filestring, re.M)
+    records = [r for r in records if r[15:].strip()]
+    if not records: return
+    site_obj = {
+        "id": "?", "pdbx_evidence_code": "?", "pdbx_auth_asym_id": "?",
+        "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?",
+        "pdbx_auth_ins_code": "?", "pdbx_num_residues": "?",  "details": "?"
+    }
+    mmcif["struct_site"], site = [], {**site_obj}
+    for record in records:
+        if "SITE_IDENTIFIER" in record:
+            if site != site_obj:
+                mmcif["struct_site"].append(site)
+                site = {**site_obj}
+            site["id"] = record.split(":")[1].strip()
+        if "EVIDENCE_CODE" in record:
+            site["pdbx_evidence_code"] = record.split(":")[1].strip().title()
+        if "SITE_DESCRIPTION" in record:
+            site["details"] = record.split(":")[1].strip()
+    if site != site_obj: mmcif["struct_site"].append(site)
+
+        
 def pdb_date_to_mmcif_date(date):
     day, month, year = date.split("-")
     month = str(list(calendar.month_abbr).index(month.title())).zfill(2)

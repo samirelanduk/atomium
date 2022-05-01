@@ -97,6 +97,24 @@ class DictParsingTests(TestCase):
             "auth_asym_id": "B", "auth_comp_id": "GLY", "auth_seq_id": "1186", "PDB_ins_code": "?",
             "label_asym_id": "B", "label_comp_id": "GLY", "label_seq_id": "1186"
         })
+
+        self.assertEqual(d["struct_site"], [{
+            "id": "AC1", "pdbx_evidence_code": "Software", "pdbx_auth_asym_id": "?",
+            "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
+            "pdbx_num_residues": "?", "details": "BINDING SITE FOR RESIDUE BU2 A 5001"
+        }, {
+            "id": "AC2", "pdbx_evidence_code": "Software", "pdbx_auth_asym_id": "?",
+            "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
+            "pdbx_num_residues": "?", "details": "BINDING SITE FOR RESIDUE BU2 B 5002"
+        }, {
+            "id": "AC3", "pdbx_evidence_code": "Software", "pdbx_auth_asym_id": "?",
+            "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
+            "pdbx_num_residues": "?", "details": "BINDING SITE FOR RESIDUE XMP A 2001"
+        }, {
+            "id": "AC4", "pdbx_evidence_code": "Software", "pdbx_auth_asym_id": "?",
+            "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
+            "pdbx_num_residues": "?", "details": "BINDING SITE FOR RESIDUE XMP B 2002"
+        }])
     
 
     def test_1CK8_pdb(self):

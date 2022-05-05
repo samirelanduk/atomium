@@ -115,6 +115,35 @@ class DictParsingTests(TestCase):
             "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
             "pdbx_num_residues": "?", "details": "BINDING SITE FOR RESIDUE XMP B 2002"
         }])
+
+        self.assertEqual(d["cell"], [{
+            "entry_id": "1LOL", "length_a": "57.570", "length_b": "55.482", 
+            "length_c": "66.129", "angle_alpha": "90.00", "angle_beta": "94.28",
+            "angle_gamma": "90.00", "Z_pdb": "4", "pdbx_unique_axis": "?"
+        }])
+        self.assertEqual(d["symmetry"], [{
+            "entry_id": "1LOL", "space_group_name_H-M": "P 1 21 1", 
+            "pdbx_full_space_group_name_H-M": "?",
+            "cell_setting": "?", "Int_Tables_number": "?"
+        }])
+        self.assertEqual(d["database_PDB_matrix"], [{
+            "entry_id": "1LOL", "origx[1][1]": "1.000000", "origx[2][1]": "0.000000",
+            "origx[3][1]": "0.000000", "origx[1][2]": "0.000000", "origx[2][2]": "1.000000",
+            "origx[3][2]": "0.000000", "origx[1][3]": "0.000000", "origx[2][3]": "0.000000",
+            "origx[3][3]": "1.000000", "origx_vector[1]": "0.00000",
+            "origx_vector[2]": "0.00000", "origx_vector[3]": "0.00000"
+        }])
+        self.assertEqual(d["atom_sites"], [{
+            "entry_id": "1LOL", "fract_transf_matrix[1][1]": "0.017370",
+            "fract_transf_matrix[2][1]": "0.000000", "fract_transf_matrix[3][1]": "0.000000",
+            "fract_transf_matrix[1][2]": "0.000000", "fract_transf_matrix[2][2]": "0.018024",
+            "fract_transf_matrix[3][2]": "0.000000", "fract_transf_matrix[1][3]": "0.001301",
+            "fract_transf_matrix[2][3]": "0.000000", "fract_transf_matrix[3][3]": "0.015164",
+            "fract_transf_vector[1]": "0.00000", "fract_transf_vector[2]": "0.00000",
+            "fract_transf_vector[3]": "0.00000", "fract_transf_matrix[P][1]": "?",
+            "fract_transf_matrix[P][2]": "?", "fract_transf_matrix[P][3]": "?",
+            "fract_transf_vector[P]": "?"
+        }])
     
 
     def test_1CK8_pdb(self):
@@ -282,14 +311,14 @@ class DictParsingTests(TestCase):
         d = atomium.open("tests/integration/files/2nq2.pdb", dictionary=True)
         self.assertEqual(len(d["pdbx_unobs_or_zero_occ_atoms"]), 129)
         self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][0], {
-            'id': '1', 'PDB_model_num': '1', 'polymer_flag': 'Y', 'occupancy_flag': '0',
-            'auth_asym_id': 'B', 'auth_comp_id': 'ILE', 'auth_seq_id': '9', 'PDB_ins_code': '?',
-            'auth_atom_id': 'CD1', 'label_alt_id': '?', 'label_asym_id': 'B',
-            'label_comp_id': 'ILE', 'label_seq_id': '9', 'label_atom_id': 'CD1'
+            "id": "1", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "0",
+            "auth_asym_id": "B", "auth_comp_id": "ILE", "auth_seq_id": "9", "PDB_ins_code": "?",
+            "auth_atom_id": "CD1", "label_alt_id": "?", "label_asym_id": "B",
+            "label_comp_id": "ILE", "label_seq_id": "9", "label_atom_id": "CD1"
         })
         self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][-1], {
-            'id': '129', 'PDB_model_num': '1', 'polymer_flag': 'Y', 'occupancy_flag': '0',
-            'auth_asym_id': 'B', 'auth_comp_id': 'LEU', 'auth_seq_id': '330', 'PDB_ins_code': '?',
-            'auth_atom_id': 'O', 'label_alt_id': '?', 'label_asym_id': 'B',
-            'label_comp_id': 'LEU', 'label_seq_id': '330', 'label_atom_id': 'O'
+            "id": "129", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "0",
+            "auth_asym_id": "B", "auth_comp_id": "LEU", "auth_seq_id": "330", "PDB_ins_code": "?",
+            "auth_atom_id": "O", "label_alt_id": "?", "label_asym_id": "B",
+            "label_comp_id": "LEU", "label_seq_id": "330", "label_atom_id": "O"
         })

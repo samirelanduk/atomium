@@ -72,19 +72,19 @@ class File:
     @property
     def resolution(self):
         value = self.source.get("refine", [{}])[0].get("ls_d_res_high", "")
-        return float(value) if value else None
+        return float(value) if value and value not in "?." else None
 
 
     @property
     def rvalue(self):
         value = self.source.get("refine", [{}])[0].get("ls_R_factor_obs", "")
-        return float(value) if value else None
+        return float(value) if value and value not in "?." else None
 
 
     @property
     def rfree(self):
         value = self.source.get("refine", [{}])[0].get("ls_R_factor_R_free", "")
-        return float(value) if value else None
+        return float(value) if value and value not in "?." else None
     
 
     @property

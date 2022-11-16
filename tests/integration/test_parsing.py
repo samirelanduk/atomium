@@ -367,9 +367,8 @@ class ParsingTests(TestCase):
     def test_1xda_assembly_5(self):
         # Parse PDBe assembly files
         pdb = atomium.open("tests/integration/files/1xda-assembly-5.cif")
-        self.assertIsNone(pdb.resolution)
+        self.assertEqual(pdb.resolution, 1.8)
         self.assertIsNone(pdb.rvalue)
-        self.assertIsNone(pdb.rwork)
 
         self.assertEqual(len(pdb.model.polymers()), 12)
         self.assertEqual(len(pdb.model.non_polymers()), 24)

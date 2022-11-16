@@ -176,7 +176,10 @@ def attribute_matches_value(attribute, value, components):
         return getattr(attribute, possible_magic)(value)
     if type(value) == bool:
         return getattr(bool(attribute), "__eq__")(value)
-    return getattr(attribute, "__eq__")(value)
+    if attribute == None: return True
+    value = getattr(attribute, "__eq__")(value)
+    if value == NotImplemented: return False
+    return value
 
 
 def filter_objects(objects, key, value):

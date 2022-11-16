@@ -170,16 +170,18 @@ def attribute_matches_value(attribute, value, components):
     :rtype: ``bool``"""
 
     if components[-1] == "regex":
-        return re.match(value, attribute)
+        value = re.match(value, attribute)
+        return False if value == NotImplemented else value
     possible_magic = f"__{components[-1]}__"
     if hasattr(attribute, possible_magic):
-        return getattr(attribute, possible_magic)(value)
+        value = getattr(attribute, possible_magic)(value)
+        return False if value == NotImplemented else value
     if type(value) == bool:
-        return getattr(bool(attribute), "__eq__")(value)
+        value = getattr(bool(attribute), "__eq__")(value)
+        return False if value == NotImplemented else value
     if attribute == None: return True
     value = getattr(attribute, "__eq__")(value)
-    if value == NotImplemented: return False
-    return value
+    return False if value == NotImplemented else value
 
 
 def filter_objects(objects, key, value):

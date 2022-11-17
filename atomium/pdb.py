@@ -19,6 +19,7 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_cryst1(filestring, mmcif)
     parse_origx(filestring, mmcif)
     parse_scalen(filestring, mmcif)
+    parse_mtrixn(filestring, mmcif)
     return mmcif
 
 
@@ -433,6 +434,40 @@ def parse_scalen(filestring, mmcif):
         mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][2]"] = rec[20:30].strip() or "?"
         mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][3]"] = rec[30:40].strip() or "?"
         mmcif["atom_sites"][0][f"fract_transf_vector[{n}]"] = rec[45:55].strip() or "?"
+
+
+def parse_mtrixn(filestring, mmcif):
+    lines = re.findall(r"MTRIX\d.+", filestring, re.M)
+    if len(lines) == 0: return
+    matrices = [lines[n * 3:(n + 1) * 3] for n in range(len(lines) // 3)]
+    mmcif["struct_ncs_oper"] = [{
+        "id": str(n),
+        "code": "given" if matrix[0][59] == "1" else "generate",
+        "details": "?",
+        "matrix[1][1]": matrix[0][10:20].strip() or "?",
+        "matrix[1][2]": matrix[0][20:30].strip() or "?",
+        "matrix[1][3]": matrix[0][30:40].strip() or "?",
+        "matrix[2][1]": matrix[1][10:20].strip() or "?",
+        "matrix[2][2]": matrix[1][20:30].strip() or "?",
+        "matrix[2][3]": matrix[1][30:40].strip() or "?",
+        "matrix[3][1]": matrix[2][10:20].strip() or "?",
+        "matrix[3][2]": matrix[2][20:30].strip() or "?",
+        "matrix[3][3]": matrix[2][30:40].strip() or "?",
+        "vector[1]": matrix[0][45:55].strip() or "?",
+        "vector[2]": matrix[1][45:55].strip() or "?",
+        "vector[3]": matrix[2][45:55].strip() or "?",
+    } for n, matrix in enumerate(matrices, start=1)]
+
+    for rec in re.findall(r"MTRIX.+", filestring, re.M):
+        pass
+
+
+    """ mmcif["struct_ncs_oper"] = [{"entry_id": mmcif["entry"][0]["id"], **{
+        k: "?" for k in [
+        "matrix[1][1]", "matrix[2][1]", "matrix[3][1]", "matrix[1][2]", 
+        "matrix[2][2]", "matrix[3][2]", "matrix[1][3]", "matrix[2][3]", 
+        "matrix[3][3]", "vector[1]", "vector[2]", "vector[3]", 
+    ]}}] """
 
 
 def pdb_date_to_mmcif_date(date):

@@ -322,3 +322,33 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "O", "label_alt_id": "?", "label_asym_id": "B",
             "label_comp_id": "LEU", "label_seq_id": "330", "label_atom_id": "O"
         })
+    
+
+    def test_1NCF_pdb(self):
+        # Tests MTRIXn
+        d = atomium.open("tests/integration/files/1ncf.pdb", dictionary=True)
+        self.assertEqual(d["struct_ncs_oper"], [{
+            "id": "1", "code": "given", "details": "?",
+            "matrix[1][1]": "-0.745000", "matrix[1][2]": "0.008000", "matrix[1][3]": "0.667000",
+            "matrix[2][1]": "0.020000", "matrix[2][2]": "-0.999000", "matrix[2][3]": "0.035000",
+            "matrix[3][1]": "0.667000", "matrix[3][2]": "0.040000", "matrix[3][3]": "0.744000",
+            "vector[1]": "14.56700", "vector[2]": "27.10700", "vector[3]": "-6.04300"
+        }, {
+            "id": "2", "code": "given", "details": "?",
+            "matrix[1][1]": "-0.746000", "matrix[1][2]": "-0.029000", "matrix[1][3]": "0.665000",
+            "matrix[2][1]": "0.045000", "matrix[2][2]": "-0.999000", "matrix[2][3]": "0.007000",
+            "matrix[3][1]": "0.664000", "matrix[3][2]": "0.035000", "matrix[3][3]": "0.747000",
+            "vector[1]": "14.68300", "vector[2]": "27.24500", "vector[3]": "-5.93200"
+        }, {
+            "id": "3", "code": "given", "details": "?",
+            "matrix[1][1]": "-0.814000", "matrix[1][2]": "-0.073000", "matrix[1][3]": "0.576000",
+            "matrix[2][1]": "0.147000", "matrix[2][2]": "-0.986000", "matrix[2][3]": "0.083000",
+            "matrix[3][1]": "0.562000", "matrix[3][2]": "0.153000", "matrix[3][3]": "0.813000",
+            "vector[1]": "19.59000", "vector[2]": "22.20100", "vector[3]": "-7.71900"
+        }, {
+            "id": "4", "code": "given", "details": "?",
+            "matrix[1][1]": "-0.862000", "matrix[1][2]": "0.043000", "matrix[1][3]": "0.505000",
+            "matrix[2][1]": "0.102000", "matrix[2][2]": "-0.961000", "matrix[2][3]": "0.255000",
+            "matrix[3][1]": "0.496000", "matrix[3][2]": "0.272000", "matrix[3][3]": "0.825000",
+            "vector[1]": "23.91900", "vector[2]": "11.13100", "vector[3]": "-7.60600"
+        }])

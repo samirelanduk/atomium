@@ -144,6 +144,36 @@ class DictParsingTests(TestCase):
             "fract_transf_matrix[P][2]": "?", "fract_transf_matrix[P][3]": "?",
             "fract_transf_vector[P]": "?"
         }])
+
+        self.assertEqual(d["entity"], [{
+            "id": "1", "type": "polymer", "src_method": "?",
+            "pdbx_description": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
+            "formula_weight": "?", "pdbx_number_of_molecules": "2",
+            "pdbx_ec": "4.1.1.23", "pdbx_mutation": "?", "pdbx_fragment": "?",
+            "details": "?"
+        }, {
+            "id": "2", "type": "non-polymer", "src_method": "?",
+            "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "2",
+            "pdbx_ec": "?", "pdbx_mutation": "?", "pdbx_fragment": "?",
+            "details": "?"
+        }, {
+            "id": "3", "type": "non-polymer", "src_method": "?",
+            "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "2",
+            "pdbx_ec": "?", "pdbx_mutation": "?", "pdbx_fragment": "?",
+            "details": "?"
+        }, {
+            "id": "4", "type": "water", "src_method": "?",
+            "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "180",
+            "pdbx_ec": "?", "pdbx_mutation": "?", "pdbx_fragment": "?",
+            "details": "?"
+        }])
+
+        self.assertEqual(d["entity_name_com"], [{
+            "entity_id": "1", "name": "OMP DECARBOXYLASE, OMPDCASE, OMPDECASE"
+        }])
     
 
     def test_1CK8_pdb(self):

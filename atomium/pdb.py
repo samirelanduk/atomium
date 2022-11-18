@@ -20,7 +20,88 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_origx(filestring, mmcif)
     parse_scalen(filestring, mmcif)
     parse_mtrixn(filestring, mmcif)
+
+    entities = guess_entities(filestring)
+    compounds = parse_pdb_entity_information("COMPND", filestring)
+    sources = parse_pdb_entity_information("SOURCE", filestring)
+    combine_entities(entities, compounds, sources)
+    
+
+
+
+    mmcif["entity"] = []
+    for key, values in entities.items():
+        for value in values:
+            mmcif["entity"].append({
+                "id": str(len(mmcif["entity"]) + 1),
+                "type": key,
+                "src_method": "?",
+                "pdbx_description": value.get("MOLECULE", "?"),
+                "formula_weight": "?",
+                "pdbx_number_of_molecules": str(value["count"]),
+                "pdbx_ec": value.get("EC", "?"),
+                "pdbx_mutation": "?",
+                "pdbx_fragment": "?",
+                "details": "?",
+            })
+    
+    mmcif["entity_name_com"] = [{
+        "entity_id": str(i), "name": polymer.get("SYNONYM", "?")
+    } for i, polymer in enumerate(entities["polymer"], start=1)]
+
     return mmcif
+
+
+def parse_pdb_entity_information(record_name, filestring):
+    records = re.findall(rf"^{record_name}.+", filestring, re.M)
+    molecules, molecule = [], ""
+    for record in records:
+        if "MOL_ID" in record:
+            if molecule:
+                molecules.append(molecule)
+                molecule = ""
+        molecule += record[10:] + " "
+    if molecule: molecules.append(molecule)
+    molecules = [parse_entity_string(mol) for mol in molecules]
+    return molecules
+
+
+def parse_entity_string(s):
+    """Takes a molecule string from a COMPND or SOURCE record and parses it into
+    a dict, converting values where appropriate.
+
+    :param str s: the string to convert.
+    :rtype: ``dict``"""
+
+    molecule = {}
+    entries = [entry.strip() for entry in s.split(";")]
+    for entry in entries:
+        key =  entry.split(":")[0].strip()
+        value = ":".join([s.strip() for s in entry.split(":")[1:]])
+        if value == "YES":value = True
+        if value == "NO": value = False
+        if key == "CHAIN": value = tuple([
+            c.strip() for c in value.split(",")
+        ])
+        molecule[key] = value
+    return molecule
+
+
+def combine_entities(guessed, compounds, sources):
+    entities = compounds or sources
+    entities = [e["CHAIN"] for e in entities if "CHAIN" in e]
+    if not entities: return
+    for entity in entities:
+        one_to_keep = [g for g in guessed["polymer"] if g["name"] == entity[0]][0]
+        ones_to_merge = [g for g in guessed["polymer"] if g["name"] in entity[1:]]
+        for merge in ones_to_merge:
+            one_to_keep["name"] += f",{merge['name']}"
+            one_to_keep["count"] += 1
+            guessed["polymer"] = [p for p in guessed["polymer"] if p != merge]
+    for compound in compounds:
+        for entity in guessed["polymer"]:
+            if set(compound["CHAIN"]) == set(entity["name"].split(",")):
+                entity.update(compound)
 
 
 def parse_header(filestring, mmcif):
@@ -458,16 +539,30 @@ def parse_mtrixn(filestring, mmcif):
         "vector[3]": matrix[2][45:55].strip() or "?",
     } for n, matrix in enumerate(matrices, start=1)]
 
-    for rec in re.findall(r"MTRIX.+", filestring, re.M):
-        pass
 
-
-    """ mmcif["struct_ncs_oper"] = [{"entry_id": mmcif["entry"][0]["id"], **{
-        k: "?" for k in [
-        "matrix[1][1]", "matrix[2][1]", "matrix[3][1]", "matrix[1][2]", 
-        "matrix[2][2]", "matrix[3][2]", "matrix[1][3]", "matrix[2][3]", 
-        "matrix[3][3]", "vector[1]", "vector[2]", "vector[3]", 
-    ]}}] """
+def guess_entities(filestring):
+    entities = {"polymer": [], "non-polymer": [], "water": []}
+    lines = re.findall(r"^ATOM.+|^HETATM.+|^TER", filestring, re.M)
+    residues = []
+    for line in lines:
+        if line == "TER":
+            entities["polymer"].append({"name": residues[0][0], "count": 1})
+            residues = []
+        else:
+            residue = (
+                line[21], line[17:20].strip(),
+                line[22:26].strip(), line[16].strip()
+            )
+            if not residues or residues[-1] != residue: residues.append(residue)
+    if residues:
+        names = []
+        for residue in residues:
+            if residue[1] not in names:
+                names.append(residue[1])
+    for name in names:
+        key = "water" if name in ["HOH"] else "non-polymer"
+        entities[key].append({"name": name, "count": len([r for r in residues if r[1] == name])})
+    return entities
 
 
 def pdb_date_to_mmcif_date(date):

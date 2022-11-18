@@ -146,7 +146,7 @@ class DictParsingTests(TestCase):
         }])
 
         self.assertEqual(d["entity"], [{
-            "id": "1", "type": "polymer", "src_method": "?",
+            "id": "1", "type": "polymer", "src_method": "man",
             "pdbx_description": "OROTIDINE 5'-MONOPHOSPHATE DECARBOXYLASE",
             "formula_weight": "?", "pdbx_number_of_molecules": "2",
             "pdbx_ec": "4.1.1.23", "pdbx_mutation": "?", "pdbx_fragment": "?",

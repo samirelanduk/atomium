@@ -20,88 +20,9 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_origx(filestring, mmcif)
     parse_scalen(filestring, mmcif)
     parse_mtrixn(filestring, mmcif)
-
-    entities = guess_entities(filestring)
-    compounds = parse_pdb_entity_information("COMPND", filestring)
-    sources = parse_pdb_entity_information("SOURCE", filestring)
-    combine_entities(entities, compounds, sources)
-    
-
-
-
-    mmcif["entity"] = []
-    for key, values in entities.items():
-        for value in values:
-            mmcif["entity"].append({
-                "id": str(len(mmcif["entity"]) + 1),
-                "type": key,
-                "src_method": "?",
-                "pdbx_description": value.get("MOLECULE", "?"),
-                "formula_weight": "?",
-                "pdbx_number_of_molecules": str(value["count"]),
-                "pdbx_ec": value.get("EC", "?"),
-                "pdbx_mutation": "?",
-                "pdbx_fragment": "?",
-                "details": "?",
-            })
-    
-    mmcif["entity_name_com"] = [{
-        "entity_id": str(i), "name": polymer.get("SYNONYM", "?")
-    } for i, polymer in enumerate(entities["polymer"], start=1)]
-
+    chains_by_entity = guess_entities(filestring, mmcif)
+    parse_compnd(filestring, mmcif, chains_by_entity)
     return mmcif
-
-
-def parse_pdb_entity_information(record_name, filestring):
-    records = re.findall(rf"^{record_name}.+", filestring, re.M)
-    molecules, molecule = [], ""
-    for record in records:
-        if "MOL_ID" in record:
-            if molecule:
-                molecules.append(molecule)
-                molecule = ""
-        molecule += record[10:] + " "
-    if molecule: molecules.append(molecule)
-    molecules = [parse_entity_string(mol) for mol in molecules]
-    return molecules
-
-
-def parse_entity_string(s):
-    """Takes a molecule string from a COMPND or SOURCE record and parses it into
-    a dict, converting values where appropriate.
-
-    :param str s: the string to convert.
-    :rtype: ``dict``"""
-
-    molecule = {}
-    entries = [entry.strip() for entry in s.split(";")]
-    for entry in entries:
-        key =  entry.split(":")[0].strip()
-        value = ":".join([s.strip() for s in entry.split(":")[1:]])
-        if value == "YES":value = True
-        if value == "NO": value = False
-        if key == "CHAIN": value = tuple([
-            c.strip() for c in value.split(",")
-        ])
-        molecule[key] = value
-    return molecule
-
-
-def combine_entities(guessed, compounds, sources):
-    entities = compounds or sources
-    entities = [e["CHAIN"] for e in entities if "CHAIN" in e]
-    if not entities: return
-    for entity in entities:
-        one_to_keep = [g for g in guessed["polymer"] if g["name"] == entity[0]][0]
-        ones_to_merge = [g for g in guessed["polymer"] if g["name"] in entity[1:]]
-        for merge in ones_to_merge:
-            one_to_keep["name"] += f",{merge['name']}"
-            one_to_keep["count"] += 1
-            guessed["polymer"] = [p for p in guessed["polymer"] if p != merge]
-    for compound in compounds:
-        for entity in guessed["polymer"]:
-            if set(compound["CHAIN"]) == set(entity["name"].split(",")):
-                entity.update(compound)
 
 
 def parse_header(filestring, mmcif):
@@ -540,29 +461,125 @@ def parse_mtrixn(filestring, mmcif):
     } for n, matrix in enumerate(matrices, start=1)]
 
 
-def guess_entities(filestring):
-    entities = {"polymer": [], "non-polymer": [], "water": []}
+def guess_entities(filestring, mmcif):
+    entity_template = {
+        "id": "?", "type": "?", "src_method": "?", "pdbx_description": "?",
+        "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+        "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+    }
+    chains_by_entity = {}
+    mmcif["entity"] = []
+    polymers, non_polymers = divide_residues(filestring)
+    for polymer in polymers:
+        entity = {**entity_template}
+        entity["id"] = str(len(mmcif["entity"]) + 1)
+        entity["type"] = "polymer"
+        mmcif["entity"].append(entity)
+        chains_by_entity[polymer] = entity["id"]
+    for non_polymer, count in non_polymers.items():
+        entity = {**entity_template}
+        key = "water" if non_polymer in ["HOH"] else "non-polymer"
+        entity["id"] = str(len(mmcif["entity"]) + 1)
+        entity["type"] = key
+        entity["pdbx_number_of_molecules"] = str(count)
+        mmcif["entity"].append(entity)
+    return chains_by_entity
+
+
+def divide_residues(filestring):
     lines = re.findall(r"^ATOM.+|^HETATM.+|^TER", filestring, re.M)
-    residues = []
-    for line in lines:
-        if line == "TER":
-            entities["polymer"].append({"name": residues[0][0], "count": 1})
+    polymers, non_polymers, residues = [], {}, []
+    for rec in lines:
+        if rec == "TER":
+            polymers.append(residues[0][0])
             residues = []
         else:
             residue = (
-                line[21], line[17:20].strip(),
-                line[22:26].strip(), line[16].strip()
+                rec[21], rec[17:20].strip(), rec[22:26].strip(), rec[16].strip()
             )
             if not residues or residues[-1] != residue: residues.append(residue)
     if residues:
         names = []
         for residue in residues:
-            if residue[1] not in names:
-                names.append(residue[1])
-    for name in names:
-        key = "water" if name in ["HOH"] else "non-polymer"
-        entities[key].append({"name": name, "count": len([r for r in residues if r[1] == name])})
-    return entities
+            if residue[1] not in names: names.append(residue[1])
+        non_polymers = {name: len([
+            r for r in residues if r[1] == name
+        ]) for name in names}
+    return polymers, non_polymers
+        
+
+def parse_compnd(filestring, mmcif, chains_by_entity):
+    molecules = parse_pdb_entity_information("COMPND", filestring)
+    mmcif["entity_name_com"] = []
+    for molecule in molecules:
+        if "CHAIN" not in molecule: continue
+        entity_ids = sorted([
+            v for k, v in chains_by_entity.items() if k in molecule["CHAIN"]
+        ])
+        to_keep = [e for e in mmcif["entity"] if e["id"] == entity_ids[0]][0]
+        to_merge = [e for e in mmcif["entity"] if e["id"] in entity_ids[1:]]
+        for merging in to_merge:
+            chain_id = {v: k for k, v in chains_by_entity.items()}[merging["id"]]
+            chains_by_entity[chain_id] = to_keep["id"]
+            to_keep["pdbx_number_of_molecules"] = str(int(
+                to_keep["pdbx_number_of_molecules"]
+            ) + 1)
+            mmcif["entity"] = [e for e in mmcif["entity"] if e != merging]
+        to_keep["pdbx_description"] = molecule.get("MOLECULE", "?")
+        to_keep["pdbx_ec"] = molecule.get("EC", "?")
+        to_keep["src_method"] = "man" if molecule.get("ENGINEERED") else "nat"
+    for i, entity in enumerate(mmcif["entity"], start=1):
+        entity["id"] = str(i)
+    make_entity_name_com_from_compnd(mmcif, molecules, chains_by_entity)
+    
+
+def make_entity_name_com_from_compnd(mmcif, molecules, chains_by_entity):
+    mmcif["entity_name_com"] = []
+    for entity in mmcif["entity"]:
+        if entity["type"] == "polymer":
+            matches = [mol for mol in molecules if {
+                v: k for k, v in chains_by_entity.items()
+            }[entity["id"]] in mol.get("CHAIN", [])]
+            mmcif["entity_name_com"].append({
+                "entity_id": entity["id"],
+                "name": matches[0].get("SYNONYM", "?") if len(matches) else "?"
+            })
+    if not mmcif["entity_name_com"]: del mmcif["entity_name_com"]
+    
+    
+def parse_pdb_entity_information(record_name, filestring):
+    records = re.findall(rf"^{record_name}.+", filestring, re.M)
+    molecules, molecule = [], ""
+    for record in records:
+        if "MOL_ID" in record:
+            if molecule:
+                molecules.append(molecule)
+                molecule = ""
+        molecule += record[10:] + " "
+    if molecule: molecules.append(molecule)
+    molecules = [parse_entity_string(mol) for mol in molecules]
+    return molecules
+
+
+def parse_entity_string(s):
+    """Takes a molecule string from a COMPND or SOURCE record and parses it into
+    a dict, converting values where appropriate.
+
+    :param str s: the string to convert.
+    :rtype: ``dict``"""
+
+    molecule = {}
+    entries = [entry.strip() for entry in s.split(";")]
+    for entry in entries:
+        key =  entry.split(":")[0].strip()
+        value = ":".join([s.strip() for s in entry.split(":")[1:]])
+        if value == "YES":value = True
+        if value == "NO": value = False
+        if key == "CHAIN": value = tuple([
+            c.strip() for c in value.split(",")
+        ])
+        molecule[key] = value
+    return molecule
 
 
 def pdb_date_to_mmcif_date(date):

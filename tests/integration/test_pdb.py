@@ -174,6 +174,101 @@ class DictParsingTests(TestCase):
         self.assertEqual(d["entity_name_com"], [{
             "entity_id": "1", "name": "OMP DECARBOXYLASE, OMPDCASE, OMPDECASE"
         }])
+
+        self.assertEqual(d["atom_type"], [
+            {"symbol": "C"}, {"symbol": "N"}, {"symbol": "O"}, {"symbol": "P"}, {"symbol": "S"}
+        ])
+
+        self.assertEqual(d["atom_site"][0], {
+            "group_pdb": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "label_alt_id": ".", "label_comp_id": "VAL", "label_asym_id": "A",
+            "label_entity_id": "1", "label_seq_id": "11", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "3.696", "Cartn_y": "33.898", "Cartn_z": "63.219",
+            "occupancy": "1.00", "B_iso_or_equiv": "21.50", "pdbx_formal_charge": "?",
+            "auth_seq_id": "11", "auth_comp_id": "VAL", "auth_asym_id": "A",
+            "auth_atom_id": "N", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][1557], {
+            "group_pdb": "ATOM", "id": "1559", "type_symbol": "N", "label_atom_id": "N",
+            "label_alt_id": ".", "label_comp_id": "VAL", "label_asym_id": "B",
+            "label_entity_id": "1", "label_seq_id": "1011", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "-26.384", "Cartn_y": "61.433", "Cartn_z": "36.898",
+            "occupancy": "1.00", "B_iso_or_equiv": "39.30", "pdbx_formal_charge": "?",
+            "auth_seq_id": "1011", "auth_comp_id": "VAL", "auth_asym_id": "B",
+            "auth_atom_id": "N", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3191], {
+            "group_pdb": "HETATM", "id": "3194", "type_symbol": "C", "label_atom_id": "C1",
+            "label_alt_id": ".", "label_comp_id": "BU2", "label_asym_id": "C",
+            "label_entity_id": "2", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "2.646", "Cartn_y": "45.112", "Cartn_z": "48.995",
+            "occupancy": "1.00", "B_iso_or_equiv": "43.24", "pdbx_formal_charge": "?",
+            "auth_seq_id": "5001", "auth_comp_id": "BU2", "auth_asym_id": "A",
+            "auth_atom_id": "C1", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3197], {
+            "group_pdb": "HETATM", "id": "3200", "type_symbol": "P", "label_atom_id": "P",
+            "label_alt_id": ".", "label_comp_id": "XMP", "label_asym_id": "D",
+            "label_entity_id": "3", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "3.293", "Cartn_y": "36.948", "Cartn_z": "44.605",
+            "occupancy": "1.00", "B_iso_or_equiv": "20.47", "pdbx_formal_charge": "?",
+            "auth_seq_id": "2001", "auth_comp_id": "XMP", "auth_asym_id": "A",
+            "auth_atom_id": "P", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3221], {
+            "group_pdb": "HETATM", "id": "3224", "type_symbol": "C", "label_atom_id": "C1",
+            "label_alt_id": ".", "label_comp_id": "BU2", "label_asym_id": "E",
+            "label_entity_id": "2", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "-14.563", "Cartn_y": "61.208", "Cartn_z": "49.005",
+            "occupancy": "1.00", "B_iso_or_equiv": "45.50", "pdbx_formal_charge": "?",
+            "auth_seq_id": "5002", "auth_comp_id": "BU2", "auth_asym_id": "B",
+            "auth_atom_id": "C1", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3227], {
+            "group_pdb": "HETATM", "id": "3230", "type_symbol": "P", "label_atom_id": "P",
+            "label_alt_id": ".", "label_comp_id": "XMP", "label_asym_id": "F",
+            "label_entity_id": "3", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "-23.846", "Cartn_y": "63.007", "Cartn_z": "53.020",
+            "occupancy": "1.00", "B_iso_or_equiv": "33.88", "pdbx_formal_charge": "?",
+            "auth_seq_id": "2002", "auth_comp_id": "XMP", "auth_asym_id": "B",
+            "auth_atom_id": "P", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3251], {
+            "group_pdb": "HETATM", "id": "3254", "type_symbol": "O", "label_atom_id": "O",
+            "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "G",
+            "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "-7.624", "Cartn_y": "43.710", "Cartn_z": "47.691",
+            "occupancy": "1.00", "B_iso_or_equiv": "15.72", "pdbx_formal_charge": "?",
+            "auth_seq_id": "3005", "auth_comp_id": "HOH", "auth_asym_id": "A",
+            "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3252], {
+            "group_pdb": "HETATM", "id": "3255", "type_symbol": "O", "label_atom_id": "O",
+            "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "G",
+            "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "-8.138", "Cartn_y": "37.776", "Cartn_z": "46.819",
+            "occupancy": "1.00", "B_iso_or_equiv": "31.82", "pdbx_formal_charge": "?",
+            "auth_seq_id": "3007", "auth_comp_id": "HOH", "auth_asym_id": "A",
+            "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3347], {
+            "group_pdb": "HETATM", "id": "3350", "type_symbol": "O", "label_atom_id": "O",
+            "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "H",
+            "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "-9.220", "Cartn_y": "50.800", "Cartn_z": "49.092",
+            "occupancy": "1.00", "B_iso_or_equiv": "17.69", "pdbx_formal_charge": "?",
+            "auth_seq_id": "3001", "auth_comp_id": "HOH", "auth_asym_id": "B",
+            "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][3348], {
+            "group_pdb": "HETATM", "id": "3351", "type_symbol": "O", "label_atom_id": "O",
+            "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "H",
+            "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "-8.391", "Cartn_y": "48.561", "Cartn_z": "47.191",
+            "occupancy": "1.00", "B_iso_or_equiv": "23.47", "pdbx_formal_charge": "?",
+            "auth_seq_id": "3002", "auth_comp_id": "HOH", "auth_asym_id": "B",
+            "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
+        })
     
 
     def test_1CK8_pdb(self):

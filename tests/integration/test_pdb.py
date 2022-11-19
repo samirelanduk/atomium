@@ -477,3 +477,38 @@ class DictParsingTests(TestCase):
             "matrix[3][1]": "0.496000", "matrix[3][2]": "0.272000", "matrix[3][3]": "0.825000",
             "vector[1]": "23.91900", "vector[2]": "11.13100", "vector[3]": "-7.60600"
         }])
+    
+
+    def test_4y60_pdb(self):
+        # Test ANISOU
+        d = atomium.open("tests/integration/files/4y60.pdb", dictionary=True)
+        
+        self.assertEqual(d["entry"], [{"id": "4Y60"}])
+
+        self.assertEqual(d["atom_site"][0], {
+            "group_pdb": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "label_alt_id": ".", "label_comp_id": "GLY", "label_asym_id": "A",
+            "label_entity_id": "1", "label_seq_id": "1", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "43.447", "Cartn_y": "-56.622", "Cartn_z": "-20.561",
+            "occupancy": "1.00", "B_iso_or_equiv": "56.53", "pdbx_formal_charge": "?",
+            "auth_seq_id": "0", "auth_comp_id": "GLY", "auth_asym_id": "C",
+            "auth_atom_id": "N", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site_anisotrop"][0], {
+            "id": "1", "type_symbol": "N", "pdbx_label_atom_id": "N",
+            "pdbx_label_alt_id": ".", "pdbx_label_comp_id": "GLY",
+            "pdbx_label_asym_id": "A", "pdbx_label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "U[1][1]": "0.9838", "U[2][2]": "0.7489",
+            "U[3][3]": "0.4152", "U[1][2]": "-0.1159", "U[1][3]": "-0.0115",
+            "U[2][3]": "-0.2655", "pdbx_auth_seq_id": "0", "pdbx_auth_comp_id": "GLY",
+            "pdbx_auth_asym_id": "C", "pdbx_auth_atom_id ": "N"
+        })
+        self.assertEqual(d["atom_site_anisotrop"][-1], {
+            "id": "1321", "type_symbol": "C", "pdbx_label_atom_id": "C4",
+            "pdbx_label_alt_id": ".", "pdbx_label_comp_id": "DG",
+            "pdbx_label_asym_id": "C", "pdbx_label_seq_id": "16",
+            "pdbx_PDB_ins_code": "?", "U[1][1]": "0.4728", "U[2][2]": "0.6687",
+            "U[3][3]": "0.5867", "U[1][2]": "0.2574", "U[1][3]": "-0.0037",
+            "U[2][3]": "-0.1117", "pdbx_auth_seq_id": "15", "pdbx_auth_comp_id": "DG",
+            "pdbx_auth_asym_id": "B", "pdbx_auth_atom_id ": "C4"
+        })

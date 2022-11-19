@@ -24,8 +24,7 @@ def pdb_string_to_mmcif_dict(filestring):
     molecules = guess_entities(filestring, mmcif)
     parse_compnd(filestring, mmcif, molecules)
     parse_atoms(filestring, mmcif, molecules)
-    """ parse_compnd(filestring, mmcif, chains_by_entity)
-    parse_atoms(filestring, mmcif) """
+    parse_anisou(filestring, mmcif)
     return mmcif
 
 
@@ -503,10 +502,10 @@ def create_molecules(filestring):
 
 
 def update_molecules_with_labels(molecules):
-    chain_id = "A"
+    chain_id = "@"
     waters = {}
     for polymer in molecules["polymer"]:
-        chain_id = polymer["name"]
+        chain_id = chr(ord(chain_id) + 1)
         polymer["label"] = chain_id
     for molecule in molecules["non-polymer"]:
         is_water = molecule["name"] in WATER_NAMES
@@ -639,14 +638,16 @@ def parse_atoms(filestring, mmcif, molecules):
     residues_to_info = {}
     for key, l in molecules.items():
         for mol in l:
+            res_num = max(int(mol["residues"][0][2]), 1)
             for res in mol["residues"]:
-                residues_to_info[res] = [mol["entity"], mol["label"], key]
+                residues_to_info[res] = [mol["entity"], mol["label"], key, res_num]
+                res_num += 1
     for line in re.findall(r"^ATOM.+|^HETATM.+|^MODEL.+", filestring, re.M):
         if line.startswith("MODEL"):
             model_num += 1
         else:
             residue = get_residue_signature(line)
-            entity_id, label_asym_id, key = residues_to_info[residue]
+            entity_id, label_asym_id, key, res_num = residues_to_info[residue]
             chain_id = line[21]
             mmcif["atom_site"].append({
                 "group_pdb": line[:6].strip(),
@@ -657,7 +658,7 @@ def parse_atoms(filestring, mmcif, molecules):
                 "label_comp_id": line[17:20].strip(),
                 "label_asym_id": label_asym_id,
                 "label_entity_id": str(entity_id),
-                "label_seq_id": line[22:26].strip() if key == "polymer" else ".",
+                "label_seq_id": str(res_num) if key == "polymer" else ".",
                 "pdbx_PDB_ins_code": line[26].strip() or "?",
                 "Cartn_x": line[30:38].strip(),
                 "Cartn_y": line[38:46].strip(),
@@ -675,6 +676,37 @@ def parse_atoms(filestring, mmcif, molecules):
         a["type_symbol"] for a in mmcif["atom_site"]
     ])):
         mmcif["atom_type"].append({"symbol": symbol})
+
+
+def parse_anisou(filestring, mmcif):
+    anisou = re.findall(r"^ANISOU.+", filestring, re.M)
+    if not anisou: return
+    mmcif["atom_site_anisotrop"] = []
+    atoms_by_id = {a["id"]: a for a in mmcif["atom_site"]}
+    for a in anisou:
+        atom_id = a[6:11].strip()
+        atom = atoms_by_id[atom_id]
+        convert = lambda s: str(float(s) / 10000)
+        mmcif["atom_site_anisotrop"].append({
+        "id": atom_id, 
+        "type_symbol": atom["type_symbol"], 
+        "pdbx_label_atom_id": atom["label_atom_id"], 
+        "pdbx_label_alt_id": atom["label_alt_id"], 
+        "pdbx_label_comp_id": atom["label_comp_id"], 
+        "pdbx_label_asym_id": atom["label_asym_id"], 
+        "pdbx_label_seq_id": atom["label_seq_id"], 
+        "pdbx_PDB_ins_code": atom["pdbx_PDB_ins_code"], 
+        "U[1][1]": convert(a[28:35].strip()),
+        "U[2][2]": convert(a[35:42].strip()), 
+        "U[3][3]": convert(a[42:49].strip()), 
+        "U[1][2]": convert(a[49:56].strip()), 
+        "U[1][3]": convert(a[56:63].strip()), 
+        "U[2][3]": convert(a[63:70].strip()), 
+        "pdbx_auth_seq_id": atom["auth_seq_id"], 
+        "pdbx_auth_comp_id": atom["auth_comp_id"], 
+        "pdbx_auth_asym_id": atom["auth_asym_id"], 
+        "pdbx_auth_atom_id ": atom["auth_atom_id"], 
+    })
 
 
 def pdb_date_to_mmcif_date(date):

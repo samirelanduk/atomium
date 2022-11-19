@@ -41,3 +41,9 @@ The `asym_id` of an atom is the molecule it belongs to, and there are `auth` and
 The sequence number is taken from the PDB equivalent for all atoms for the `auth` value, but only for polymers for the `label` value.
 
 **PDB Records**: `ATOM`, `HETATM`, `TER`, `MODEL`, `ENDMDL`
+
+### `atom_site_anisotrop`
+
+Anisotropy associated with atoms.
+
+**PDB Records**: `ANISOU`

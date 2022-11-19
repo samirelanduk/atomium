@@ -560,6 +560,7 @@ def parse_compnd(filestring, mmcif, molecules):
         for mol in molecules["polymer"]:
             if mol["name"] in compound["CHAIN"] and str(mol["entity"]) not in entity_ids:
                 entity_ids.append(str(mol["entity"]))
+        if not entity_ids: continue
         to_keep = [e for e in mmcif["entity"] if e["id"] == entity_ids[0]][0]
         to_merge = [e for e in mmcif["entity"] if e["id"] in entity_ids[1:]]
         compound["entity"] = to_keep["id"]

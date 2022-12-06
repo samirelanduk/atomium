@@ -16,6 +16,24 @@ FULL_NAMES = {
     "LYS": "lysine", "ARG": "arginine", "HIS": "histidine",
 }
 
+FORMULAE = {
+    "GLY": "C2 H5 N O2", "ALA": "C3 H7 N O2", "VAL": "C5 H11 N O2",
+    "LEU": "C6 H13 N O2", "ILE": "C6 H13 N O2", "MET": "C5 H11 N O2 S",
+    "PHE": "C9 H11 N O2", "TRP": "C11 H12 N2 O2", "PRO": "C5 H9 N O2",
+    "SER": "C3 H7 N O3", "THR": "C4 H9 N O3", "CYS": "C3 H7 N O2 S",
+    "TYR": "C9 H11 N O3", "ASN": "C4 H8 N2 O3", "GLN": "C5 H10 N2 O3",
+    "ASP": "C4 H7 N O4", "GLU": "C5 H9 N O4", "LYS": "C6 H15 N2 O2 1",
+    "ARG": "C6 H15 N4 O2 1", "HIS": "C6 H10 N3 O2 1",
+}
+
+RESIDUE_MASSES = {
+    "GLY": 75.067, "ALA": 89.093, "VAL": 117.146, "LEU": 131.173,
+    "ILE": 131.173, "MET": 149.211, "PHE": 165.189, "TRP": 204.225,
+    "PRO": 115.130, "SER": 115.130, "THR": 119.119, "CYS": 121.158,
+    "TYR": 181.189, "ASN": 132.118, "GLN": 146.144, "ASP": 133.103,
+    "GLU": 147.129, "LYS": 147.195, "ARG": 175.209, "HIS": 156.162,
+}
+
 WATER_NAMES = ["HOH"]
 
 PERIODIC_TABLE = {

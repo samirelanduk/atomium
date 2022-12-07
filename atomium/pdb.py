@@ -1,5 +1,6 @@
 import re
 import calendar
+from atomium.sequences import align
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
 from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
 
@@ -151,24 +152,27 @@ def pdb_string_to_mmcif_dict(filestring):
     lines = re.findall(r"^ATOM.+|^HETATM.+|^TER", filestring, re.M)
     chain_id = ""
     het_names = set()
-    residue_sigs = set()
+    residue_sigs = []
     for line in lines:
         if line == "TER":
             if chain_id not in polymers:
                 polymers[chain_id] = {}
             elif "residues" not in polymers[chain_id]:
                 polymers[chain_id]["residues"] = [r[1] for r in residue_sigs]
+            polymers[chain_id]["observed_sigs"] = list(residue_sigs)
+            polymers[chain_id]["align"] = align(polymers[chain_id]["residues"], [r[1] for r in residue_sigs])
             for entity in polymer_entities.values():
                 if chain_id in entity["CHAIN"]: break
             else:
                 new_entity_id = int(list(polymer_entities)[-1]) + 1
                 polymer_entities[str(new_entity_id)] = {"CHAIN": (chain_id,)}
             het_names = set()
-            residue_sigs = set()
+            residue_sigs = []
         else:
             chain_id = line[21]
             het_names.add(line[17:20].strip())
-            residue_sigs.add(residue_sig(line))
+            sig = residue_sig(line)
+            if sig not in residue_sigs: residue_sigs.append(sig)
     for name in het_names:
         if name not in non_polymers:
             non_polymers[name] = {}
@@ -326,7 +330,10 @@ def pdb_string_to_mmcif_dict(filestring):
                 for entity in polymer_entities.values():
                     if chain_id in entity["CHAIN"]:
                         polymer = entity
+                sig = residue_sig(line)
+                res_num = polymers[chain_id]["observed_sigs"].index(sig)
                 label = polymers[chain_id]["label"]
+                alignment = polymers[chain_id]["align"][res_num]
             else:
                 sig = residue_sig(line)
                 label = non_polymer["labels"][sig]
@@ -339,7 +346,7 @@ def pdb_string_to_mmcif_dict(filestring):
                 "label_comp_id": comp_id,
                 "label_asym_id": label,
                 "label_entity_id": polymer["MOL_ID"] if polymer else non_polymer["id"],
-                #"label_seq_id": "?",
+                "label_seq_id": str(alignment + 1) if polymer else ".",
                 "pdbx_PDB_ins_code": line[26].strip() or "?",
                 "Cartn_x": line[30:38].strip(),
                 "Cartn_y": line[38:46].strip(),
@@ -353,7 +360,7 @@ def pdb_string_to_mmcif_dict(filestring):
                 "auth_atom_id": line[12:16].strip(),
                 "pdbx_PDB_model_num": str(model_index + 1)
             })
-    
+    print(mmcif["atom_site"][0])
     anisou = re.findall(r"^ANISOU.+", filestring, re.M)
     if not anisou: return
     mmcif["atom_site_anisotrop"] = []

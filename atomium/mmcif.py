@@ -174,3 +174,66 @@ def strip_quotes(mmcif_dict):
                     if value[0] == char and value[-1] == char:
                         row[k] = value[1:-1]
                     row[k] = row[k].replace("\x1a", '"').replace("\x1b", "'").replace("\x00", "\n")
+
+
+def save_mmcif_dict(mmcif_dict, path):
+    code = mmcif_dict.get("entry", [{"id": ""}])[0]["id"]
+    lines = [f"data_{code}" if code else "data_XXXX"]
+    for category_name, rows in mmcif_dict.items():
+        lines.append("#")
+        if len(rows) == 1:
+            lines += get_non_list_lines(category_name, rows)
+        else:
+            lines += get_list_lines(category_name, rows)
+    lines.append("#")
+    with open(path, "w") as f:
+        f.write("\n".join(lines))
+
+
+def get_non_list_lines(name, rows):
+    lines = []
+    keys = list(rows[0].keys())
+    max_length = max(len(k) for k in keys)
+    for key in keys:
+        value = format_value(rows[0][key])
+        if value[0] == ";":
+            lines.append(f"_{name}.{key.ljust(max_length)}")
+            lines.append(value)
+        else:
+            lines.append(f"_{name}.{key.ljust(max_length)} {value}")
+    return lines
+
+
+def get_list_lines(name, rows):
+    lines = []
+    lines.append("loop_")
+    keys = list(rows[0].keys())
+    for key in keys:
+        lines.append(f"_{name}.{key}")
+    grid = [[ format_value(row[key]) for key in keys] for row in rows]
+    max_lengths = [max([len(row[col_num]) for row in grid])
+        for col_num in range(len(keys))]
+    for row in grid:
+        line = []
+        for i, cell in enumerate(row):
+            line.append(cell.ljust(max_lengths[i]))
+        lines.append(" ".join(line))
+    return lines
+
+
+def format_value(s):
+    if "\n" in s:
+        lines = s.splitlines()
+        lines[0] = f";{lines[0]}"
+        lines.append(";")
+        return "\n".join(lines)
+    if " " in s:
+        if "'" in s:
+            return f'"{s}"'
+        else:
+            return f"'{s}'"
+    elif "'" in s:
+        return f'"{s}"'
+    elif '"' in s:
+        return f"'{s}'"
+    return s

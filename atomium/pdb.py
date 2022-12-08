@@ -64,6 +64,7 @@ def build_structure_categories(filestring, polymer_entities, non_polymer_entitie
     build_atom_type(filestring, mmcif)
     build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif)
     build_atom_site_anisotrop(filestring, mmcif)
+    update_atom_ids(mmcif)
 
 
 def parse_header(filestring, mmcif):
@@ -689,8 +690,7 @@ def finalize_entities(polymer_entities, non_polymer_entities):
     entity_id = 1
     holding = []
     non_pol_fields = {
-        "name": str, "formula": str, "synonyms": list,
-        "molecules": dict
+        "name": str, "formula": str, "synonyms": list, "molecules": dict
     }
     for entity in polymer_entities.values():
         entity["id"] = str(entity_id)
@@ -709,13 +709,16 @@ def finalize_entities(polymer_entities, non_polymer_entities):
 
 
 def finalize_polymers(polymers):
-    polymer_fields = {"dbrefs": list, "differences": list, "residues": list}
+    polymer_fields = {
+        "dbrefs": list, "differences": list,
+        "residues": list, "observed_residues": list
+    }
     for polymer in polymers.values():
         for key, func in polymer_fields.items():
             if key not in polymer: polymer[key] = func()
-            if polymer["residues"] == []:
-                polymer["residues"] = polymer["observed_residues"]
-            polymer["alignment"] = align(polymer["residues"], polymer["observed_residues"])
+        if polymer["residues"] == []:
+            polymer["residues"] = polymer["observed_residues"]
+        polymer["alignment"] = align(polymer["residues"], polymer["observed_residues"])
     
 
 def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities, non_polymers):
@@ -729,8 +732,6 @@ def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities, 
             if name == sig[1]:
                 entity["molecules"][sig] = non_polymer
                 break
-
-
 
 
 def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
@@ -769,6 +770,7 @@ def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
 def build_entity_poly(polymer_entities, mmcif):
     mmcif["entity_poly"] = []
     for entity in polymer_entities.values():
+        if not entity["molecules"]: continue
         polymer = list(entity["molecules"].values())[0]
         sequence = "".join([CODES.get(r, "X") for r in polymer["residues"]]) or "?"
         mmcif["entity_poly"].append({
@@ -785,6 +787,7 @@ def build_entity_poly(polymer_entities, mmcif):
 def build_entity_poly_seq(polymer_entities, mmcif):
     mmcif["entity_poly_seq"] = []
     for entity in polymer_entities.values():
+        if not entity["molecules"]: continue
         polymer = list(entity["molecules"].values())[0]
         for i, residue in enumerate(polymer["residues"], start=1):
             mmcif["entity_poly_seq"].append({
@@ -858,13 +861,15 @@ def build_atom_type(filestring, mmcif):
 
 
 def build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif):
-    lines = re.findall(r"^ATOM.+|^HETATM.+", filestring, re.M)
+    lines = re.findall(r"^ATOM.+|^HETATM.+|^ENDMDL", filestring, re.M)
     mmcif["atom_site"] = []
     labels = {}
     model_index, residue_index, current_sig, current_chain_id = 0, -1, None, None
     for line in lines:
         if line == "ENDMDL":
             model_index += 1
+            residue_index = -1
+            current_chain_id = None
         else:
             sig = residue_sig(line)
             if sig != current_sig: residue_index += 1
@@ -967,6 +972,16 @@ def build_atom_site_anisotrop(filestring, mmcif):
             "pdbx_auth_asym_id": atom["auth_asym_id"], 
             "pdbx_auth_atom_id ": atom["auth_atom_id"], 
         })
+
+
+def update_atom_ids(mmcif):
+    lookup = {}
+    for i, atom in enumerate(mmcif["atom_site"], start=1):
+        lookup[atom["id"]] = str(i)
+        atom["id"] = str(i)
+    for aniso in mmcif.get("atom_site_anisotrop", []):
+        aniso["id"] = lookup[aniso["id"]]
+
 
 
 def pdb_date_to_mmcif_date(date):

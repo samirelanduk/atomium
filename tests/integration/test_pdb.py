@@ -540,3 +540,14 @@ class DictParsingTests(TestCase):
             "auth_seq_id": "199", "auth_comp_id": "ALA", "auth_asym_id": "A",
             "auth_atom_id": "N", "pdbx_PDB_model_num": "2"
         })
+
+
+
+class FullParsingTests(TestCase):
+    
+    def test_1LOL_pdb(self):
+        pdb = atomium.open("tests/integration/files/1lol.pdb")
+        self.assertEqual(pdb.name, "1LOL")
+        self.assertEqual(pdb.title, "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP")
+        self.assertEqual(pdb.keywords, ["TIM BARREL", "LYASE"])
+        self.assertEqual(str(pdb.model), "<Model (2 polymers, 4 non-polymers)>")

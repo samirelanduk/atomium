@@ -774,7 +774,7 @@ def build_entity_poly(polymer_entities, mmcif):
         polymer = list(entity["molecules"].values())[0]
         sequence = "".join([CODES.get(r, "X") for r in polymer["residues"]]) or "?"
         mmcif["entity_poly"].append({
-            "id": entity["id"],
+            "entity_id": entity["id"],
             "type": "polypeptide(L)",
             "nstd_linkage": "no", "nstd_monomer": "no",
             "pdbx_seq_one_letter_code": sequence,

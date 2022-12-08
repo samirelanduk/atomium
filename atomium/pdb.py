@@ -4,24 +4,14 @@ from atomium.sequences import align
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
 from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
 
-def formula_to_weight(formula):
-    weight = 0
-    atoms = formula.split()
-    for atom in atoms:
-        symbol, count, in_count = "", "", False
-        for char in atom:
-            if char in "+-": continue
-            if char.isdigit(): in_count = True
-            if in_count:
-                count += char
-            else:
-                symbol += char
-        mass = PERIODIC_TABLE.get(symbol, 0)
-        weight += (mass * int(count or "1"))
-    return weight
-
-
 def pdb_string_to_mmcif_dict(filestring):
+    mmcif = parse_metadata(filestring)
+    polymer_entities, non_polymer_entities = get_entities(filestring)
+    build_structure_categories(filestring, polymer_entities, non_polymer_entities, mmcif)
+    return mmcif
+
+
+def parse_metadata(filestring):
     mmcif = {}
     parse_header(filestring, mmcif)
     parse_obslte(filestring, mmcif)
@@ -40,373 +30,40 @@ def pdb_string_to_mmcif_dict(filestring):
     parse_origx(filestring, mmcif)
     parse_scalen(filestring, mmcif)
     parse_mtrixn(filestring, mmcif)
-
-    # Parse COMPND and SOURCE
-    polymer_entities = {}
-    for record_name in ["COMPND", "SOURCE"]:
-        records = re.findall(rf"^{record_name}.+", filestring, re.M)
-        molecules, molecule = [], ""
-        for record in records:
-            if "MOL_ID" in record:
-                if molecule: molecules.append(molecule)
-                molecule = ""
-            molecule += record[10:] + " "
-        if molecule: molecules.append(molecule)
-        molecules = [parse_entity_string(mol) for mol in molecules]
-        for molecule in molecules:
-            if molecule["MOL_ID"] not in polymer_entities:
-                polymer_entities[molecule["MOL_ID"]] = {}
-            polymer_entities[molecule["MOL_ID"]].update(molecule)
-
-
-    # Parse DBREF
-    lines = re.findall(r"^DBREF.+", filestring, re.M)
-    polymers = {}
-    for line in lines:
-        chain_id = line[12]
-        if chain_id not in polymers: polymers[chain_id] = {"dbrefs": []}
-        polymers[chain_id]["dbrefs"].append({
-            "start": line[14:18].strip(),
-            "start_insert": line[18:19].strip(),
-            "end": line[20:24].strip(),
-            "end_insert": line[24:25].strip(),
-            "database": line[26:32].strip(),
-            "accession": line[33:41].strip(),
-            "id": line[42:54].strip(),
-            "db_start": line[55:60].strip(),
-            "db_start_insert": line[60:61].strip(),
-            "db_end": line[62:67].strip(),
-            "db_end_insert": line[67:68].strip(),
-        })
-    
-    # Parse SEQADV
-    lines = re.findall(r"^SEQADV.+", filestring, re.M)
-    for line in lines:
-        chain_id = line[16]
-        if chain_id not in polymers: polymers[chain_id] = {}
-        if "differences" not in polymers[chain_id]:
-            polymers[chain_id]["differences"] = []
-        polymers[chain_id]["differences"].append({
-            "name": line[12:15].strip(),
-            "number": line[18:22].strip(),
-            "insert": line[22].strip(),
-            "database": line[24:28].strip(),
-            "accession": line[29:38].strip(),
-            "db_name": line[39:42].strip(),
-            "db_number": line[43:48].strip(),
-            "comment": line[49:70].strip(),
-        })
-    
-    # Parse SEQRES
-    lines = re.findall(r"^SEQRES.+", filestring, re.M)
-    for line in lines:
-        chain_id = line[11]
-        if chain_id not in polymers: polymers[chain_id] = {}
-        if "residues" not in polymers[chain_id]:
-            polymers[chain_id]["residues"] = []
-        polymers[chain_id]["residues"] += line[19:70].strip().split()
-    
-    # Make sure polymer entity IDs are sequential
-    polymer_entities = {str(n): entity for n, entity in enumerate(
-        polymer_entities.values(), start=1
-    )}
-    for id, entity in polymer_entities.items():
-        entity["MOL_ID"] = id
-    
-    # Parse HET
-    non_polymers = {}
-    lines = re.findall(r"^HET .+", filestring, re.M)
-    for line in lines:
-        name = line[7:10].strip()
-        if name not in non_polymers: non_polymers[name] = {"sigs": []}
-        non_polymers[name]["sigs"].append((
-            line[12], name, line[13:17].strip(), line[17].strip(),
-        ))
-    
-    # Parse HETNAM
-    lines = re.findall(r"^HETNAM.+", filestring, re.M)
-    names = [l[11:14].strip() for l in lines]
-    for name in names:
-        if name not in non_polymers: non_polymers[name] = {}
-        non_polymers[name]["name"] = " ".join([l[15:70].strip() for l in lines if l[11:14].strip() == name])
-
-    # Parse HETSYN
-    lines = re.findall(r"^HETSYN.+", filestring, re.M)
-    names = [l[11:14].strip() for l in lines]
-    for name in names:
-        if name not in non_polymers: non_polymers[name] = {}
-        non_polymers[name]["synonyms"] = " ".join([l[15:70].strip() for l in lines if l[11:14].strip() == name]).split(";")
-
-    # Parse FORMUL
-    lines = re.findall(r"^FORMUL.+", filestring, re.M)
-    names = [l[12:15].strip() for l in lines]
-    for name in names:
-        if name not in non_polymers: non_polymers[name] = {}
-        match = [l for l in lines if l[12:15].strip() == name]
-        non_polymers[name]["formula"] = {
-            "water": match[0][18] == "*",
-            "formula": "".join([l[19:70].strip() for l in match])
-        }
-    
-    # Look for more in atoms
-    lines = re.findall(r"^ATOM.+|^HETATM.+|^TER", filestring, re.M)
-    chain_id = ""
-    het_names = set()
-    residue_sigs = []
-    for line in lines:
-        if line == "TER":
-            if chain_id not in polymers:
-                polymers[chain_id] = {}
-            elif "residues" not in polymers[chain_id]:
-                polymers[chain_id]["residues"] = [r[1] for r in residue_sigs]
-            polymers[chain_id]["observed_sigs"] = list(residue_sigs)
-            polymers[chain_id]["align"] = align(polymers[chain_id]["residues"], [r[1] for r in residue_sigs])
-            for entity in polymer_entities.values():
-                if chain_id in entity["CHAIN"]: break
-            else:
-                new_entity_id = int(list(polymer_entities)[-1]) + 1
-                polymer_entities[str(new_entity_id)] = {"CHAIN": (chain_id,)}
-            het_names = set()
-            residue_sigs = []
-        else:
-            chain_id = line[21]
-            het_names.add(line[17:20].strip())
-            sig = residue_sig(line)
-            if sig not in residue_sigs: residue_sigs.append(sig)
-    for name in het_names:
-        if name not in non_polymers:
-            non_polymers[name] = {}
-        non_polymers[name]["observed_sigs"] = [sig for sig in residue_sigs if sig[1] == name]
-        
-    
-    # Make entity table
-    mmcif["entity"] = []
-    entity_template = entity_template = {
-        "id": "?", "type": "?", "src_method": "?", "pdbx_description": "?",
-        "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
-        "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
-    }
-    for entity in polymer_entities.values():
-        mmcif["entity"].append({**entity_template})
-        mmcif["entity"][-1]["id"] = str(len(mmcif["entity"]))
-        mmcif["entity"][-1]["type"] = "polymer"
-        mmcif["entity"][-1]["pdbx_description"] = entity.get("MOLECULE", "?")
-        mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["CHAIN"]))
-        mmcif["entity"][-1]["pdbx_ec"] = entity.get("EC", "?")
-        mmcif["entity"][-1]["pdbx_mutation"] = entity.get("MUTATION", "?")
-        mmcif["entity"][-1]["pdbx_fragment"] = entity.get("FRAGMENT", "?")
-        mmcif["entity"][-1]["details"] = entity.get("OTHER_DETAILS", "?")
-        mmcif["entity"][-1]["src_method"] = "syn" if entity.get("SYNTHETIC") else "man" if entity.get("ENGINEERED") else "nat"
-
-    for name, entity in non_polymers.items():
-        mmcif["entity"].append({**entity_template})
-        mmcif["entity"][-1]["id"] = entity["id"] = str(len(mmcif["entity"]))
-        if "formula" in entity:
-            mmcif["entity"][-1]["type"] = "water" if entity["formula"]["water"] else "non-polymer"
-        else:
-            mmcif["entity"][-1]["type"] = "water" if name in WATER_NAMES else "non-polymer"
-        mmcif["entity"][-1]["pdbx_description"] = entity.get("name", "?")
-        if mmcif["entity"][-1]["pdbx_description"] == "?" and mmcif["entity"][-1]["type"] == "water":
-            mmcif["entity"][-1]["pdbx_description"] = "water"
-        mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["observed_sigs"]))
-        mmcif["entity"][-1]["src_method"] = "nat" if entity["formula"]["water"] else "syn"
-    
-    # Common name
-    mmcif["entity_name_com"] = [{
-        "id": entity["MOL_ID"], "name": entity.get("SYNONYM", "?")
-    } for entity in polymer_entities.values()]
-
-    # Entity poly
-    mmcif["entity_poly"] = []
-    for entity in polymer_entities.values():
-        sequence = "?"
-        for polymer_id, polymer in polymers.items():
-            if polymer_id in entity["CHAIN"]:
-                sequence = "".join([CODES.get(r, "X") for r in polymer.get("residues", [])]) or "?"
-                break
-        mmcif["entity_poly"].append({
-            "id": entity["MOL_ID"],
-            "type": "polypeptide(L)",
-            "nstd_linkage": "no", "nstd_monomer": "no",
-            "pdbx_seq_one_letter_code": sequence,
-            "pdbx_seq_one_letter_code_can": sequence,
-            "pdbx_strand_id": ",".join(entity["CHAIN"]),
-            "pdbx_target_identifier": "?"
-        })
-    
-    # Entity poly seq
-    mmcif["entity_poly_seq"] = []
-    for entity in polymer_entities.values():
-        for polymer_id, polymer in polymers.items():
-            if polymer_id in entity["CHAIN"]:
-                for i, residue in enumerate(polymer["residues"], start=1):
-                    mmcif["entity_poly_seq"].append({
-                        "entity_id": entity["MOL_ID"],
-                        "num": str(i),
-                        "mon_id": residue,
-                        "hetero": "no"
-                    })
-    
-    
-    # Make polymer entity sister tables
-
-    # Make non-polymer entity sister tables
-    mmcif["pdbx_entity_nonpoly"] = []
-    for entity in non_polymers.values():
-        entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
-        mmcif["pdbx_entity_nonpoly"].append({
-            "entity_id": entity["id"],
-            "name": entity_row["pdbx_description"],
-            "comp_id": entity["observed_sigs"][0][1],
-        })
-    residues = []
-    for row in mmcif["entity_poly_seq"]:
-        if row["mon_id"] not in residues: residues.append(row["mon_id"])
-    mmcif["chem_comp"] = []
-    for res in sorted(residues):
-        weight = RESIDUE_MASSES.get(res)
-        weight = f"{weight:.3f}" if weight else "?"
-        mmcif["chem_comp"].append({
-            "id": res,
-            "type": "L-peptide linking",
-            "mon_nstd_flag": "y" if res in FORMULAE else "n",
-            "name": FULL_NAMES.get(res, "?").upper(),
-            "pdbx_synonyms": "?",
-            "formula": FORMULAE.get(res, "?"),
-            "formula_weight": weight
-        })
-    for entity in non_polymers.values():
-        entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
-        formula = entity.get("formula", {}).get("formula", "?")
-        if re.match(r"^\d+\(", formula): formula = formula[formula.find("(") + 1:-1]
-        weight = "?"
-        if formula != "?":
-            formula.split()
-        mmcif["chem_comp"].append({
-            "id": entity["observed_sigs"][0][1],
-            "type": "non-polymer",
-            "mon_nstd_flag": ".",
-            "name": entity_row["pdbx_description"],
-            "pdbx_synonyms": ",".join(entity.get("synonyms", [])),
-            "formula": formula,
-            "formula_weight": f"{formula_to_weight(formula):.3f}"
-        })
-    mmcif["chem_comp"].sort(key=lambda c: c["id"])
-
-    # Add labels to unique molecules
-    label = "A"
-    for polymer in polymers.values():
-        polymer["label"] = label
-        label = chr(ord(label) + 1)
-    for non_polymer in non_polymers.values():
-        non_polymer["labels"] = {}
-        is_water = non_polymer.get("formula", {}).get("water")
-        water_lookup = {}
-        for sig in non_polymer["observed_sigs"]:
-            if is_water:
-                if sig[0] in water_lookup:
-                    non_polymer["labels"][sig] = water_lookup[sig[0]]
-                else:
-                    non_polymer["labels"][sig] = water_lookup[sig[0]] = label
-                    label = chr(ord(label) + 1)
-            else:
-                non_polymer["labels"][sig] = label
-                label = chr(ord(label) + 1)
-
-    # Make atom tables
-    lines = re.findall(r"^ATOM.+|^HETATM.+", filestring, re.M)
-    elements = sorted(set(line[76:78].strip() for line in lines))
-    mmcif["atom_type"] = [{"symbol": element} for element in elements]
-    mmcif["atom_site"] = []
-    model_index = 0
-    for line in lines:
-        if line == "ENDMDL":
-            model_index += 1
-        else:
-            chain_id = line[21].strip()
-            comp_id = line[17:20].strip()
-            non_polymer, polymer = non_polymers.get(comp_id), None
-            if not non_polymer:
-                for entity in polymer_entities.values():
-                    if chain_id in entity["CHAIN"]:
-                        polymer = entity
-                sig = residue_sig(line)
-                res_num = polymers[chain_id]["observed_sigs"].index(sig)
-                label = polymers[chain_id]["label"]
-                alignment = polymers[chain_id]["align"][res_num]
-            else:
-                sig = residue_sig(line)
-                label = non_polymer["labels"][sig]
-            mmcif["atom_site"].append({
-                "group_pdb": line[:6].strip(),
-                "id": line[6:11].strip(),
-                "type_symbol": line[76:78].strip(),
-                "label_atom_id": line[12:16].strip(),
-                "label_alt_id": line[16].strip() or ".",
-                "label_comp_id": comp_id,
-                "label_asym_id": label,
-                "label_entity_id": polymer["MOL_ID"] if polymer else non_polymer["id"],
-                "label_seq_id": str(alignment + 1) if polymer else ".",
-                "pdbx_PDB_ins_code": line[26].strip() or "?",
-                "Cartn_x": line[30:38].strip(),
-                "Cartn_y": line[38:46].strip(),
-                "Cartn_z": line[46:54].strip(),
-                "occupancy": line[54:60].strip(),
-                "B_iso_or_equiv": line[60:66].strip(),
-                "pdbx_formal_charge": line[78:80].strip() or "?",
-                "auth_seq_id": line[22:26].strip(),
-                "auth_comp_id": line[17:20].strip(),
-                "auth_asym_id": chain_id,
-                "auth_atom_id": line[12:16].strip(),
-                "pdbx_PDB_model_num": str(model_index + 1)
-            })
-    print(mmcif["atom_site"][0])
-    anisou = re.findall(r"^ANISOU.+", filestring, re.M)
-    if not anisou: return
-    mmcif["atom_site_anisotrop"] = []
-    atoms_by_id = {a["id"]: a for a in mmcif["atom_site"]}
-    for a in anisou:
-        atom_id = a[6:11].strip()
-        atom = atoms_by_id[atom_id]
-        convert = lambda s: str(float(s) / 10000)
-        mmcif["atom_site_anisotrop"].append({
-        "id": atom_id, 
-        "type_symbol": atom["type_symbol"], 
-        "pdbx_label_atom_id": atom["label_atom_id"], 
-        "pdbx_label_alt_id": atom["label_alt_id"], 
-        "pdbx_label_comp_id": atom["label_comp_id"], 
-        "pdbx_label_asym_id": atom["label_asym_id"], 
-        "pdbx_label_seq_id": atom["label_seq_id"], 
-        "pdbx_PDB_ins_code": atom["pdbx_PDB_ins_code"], 
-        "U[1][1]": convert(a[28:35].strip()),
-        "U[2][2]": convert(a[35:42].strip()), 
-        "U[3][3]": convert(a[42:49].strip()), 
-        "U[1][2]": convert(a[49:56].strip()), 
-        "U[1][3]": convert(a[56:63].strip()), 
-        "U[2][3]": convert(a[63:70].strip()), 
-        "pdbx_auth_seq_id": atom["auth_seq_id"], 
-        "pdbx_auth_comp_id": atom["auth_comp_id"], 
-        "pdbx_auth_asym_id": atom["auth_asym_id"], 
-        "pdbx_auth_atom_id ": atom["auth_atom_id"], 
-    })
-
-
-
     return mmcif
 
 
+def get_entities(filestring):
+    polymer_entities = parse_compnd_and_source(filestring)
+    polymers = parse_dbref(filestring)
+    parse_seqadv(filestring, polymers)
+    parse_seqres(filestring, polymers)
+
+    non_polymer_entities, non_polymers = parse_het(filestring)
+    parse_hetnam(filestring, non_polymer_entities)
+    parse_hetsyn(filestring, non_polymer_entities)
+    parse_formul(filestring, non_polymer_entities)
+
+    update_entities_from_atoms(
+        filestring, polymer_entities, polymers, non_polymer_entities,
+        non_polymers
+    )
+    finalize_entities(polymer_entities, non_polymer_entities)
+    finalize_polymers(polymers)
+    add_molecules_to_entities(
+        polymer_entities, polymers, non_polymer_entities, non_polymers
+    )
+    return polymer_entities, non_polymer_entities
 
 
-
-
-def residue_sig(atom):
-    return (atom[21], atom[17:20].strip(), atom[22:26].strip(), atom[26].strip())
-
-
-
-
-
-
+def build_structure_categories(filestring, polymer_entities, non_polymer_entities, mmcif):
+    build_entity_category(polymer_entities, non_polymer_entities, mmcif)
+    build_entity_poly(polymer_entities, mmcif)
+    build_entity_poly_seq(polymer_entities, mmcif)
+    build_pdbx_entity_nonpoly(non_polymer_entities, mmcif)
+    build_atom_type(filestring, mmcif)
+    build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif)
+    build_atom_site_anisotrop(filestring, mmcif)
 
 
 def parse_header(filestring, mmcif):
@@ -845,6 +502,29 @@ def parse_mtrixn(filestring, mmcif):
     } for n, matrix in enumerate(matrices, start=1)]
 
 
+def parse_compnd_and_source(filestring):
+    """Gets a dictionary of polymer entities as defined by COMPND and SOURCE
+    records. Each entity object should have a CHAINS key, along with other
+    information about the entity."""
+
+    polymer_entities = {}
+    for record_name in ["COMPND", "SOURCE"]:
+        records = re.findall(rf"^{record_name}.+", filestring, re.M)
+        molecules, molecule = [], ""
+        for record in records:
+            if "MOL_ID" in record:
+                if molecule: molecules.append(molecule)
+                molecule = ""
+            molecule += record[10:] + " "
+        if molecule: molecules.append(molecule)
+        molecules = [parse_entity_string(mol) for mol in molecules]
+        for molecule in molecules:
+            molecule["id"] = molecule["MOL_ID"]
+            del molecule["MOL_ID"]
+            if molecule["id"] not in polymer_entities:
+                polymer_entities[molecule["id"]] = {}
+            polymer_entities[molecule["id"]].update(molecule)
+    return polymer_entities
 
 
 def parse_entity_string(s):
@@ -854,7 +534,7 @@ def parse_entity_string(s):
     :param str s: the string to convert.
     :rtype: ``dict``"""
 
-    molecule = {}
+    molecule = {"molecules": {}}
     entries = [entry.strip() for entry in s.split(";")]
     for entry in entries:
         key =  entry.split(":")[0].strip()
@@ -868,7 +548,425 @@ def parse_entity_string(s):
     return molecule
 
 
+def parse_dbref(filestring):
+    """Parses the DBREF records to get external DB info for each polymer
+    molecule. A dictionary of polymers is started, with each being given a
+    dbrefs list here."""
 
+    lines = re.findall(r"^DBREF.+", filestring, re.M)
+    polymers = {}
+    for line in lines:
+        chain_id = line[12]
+        if chain_id not in polymers: polymers[chain_id] = {"dbrefs": []}
+        polymers[chain_id]["dbrefs"].append({
+            "start": line[14:18].strip(),
+            "start_insert": line[18:19].strip(),
+            "end": line[20:24].strip(),
+            "end_insert": line[24:25].strip(),
+            "database": line[26:32].strip(),
+            "accession": line[33:41].strip(),
+            "id": line[42:54].strip(),
+            "db_start": line[55:60].strip(),
+            "db_start_insert": line[60:61].strip(),
+            "db_end": line[62:67].strip(),
+            "db_end_insert": line[67:68].strip(),
+        })
+    return polymers
+
+
+def parse_seqadv(filestring, polymers):
+    """Parses the SEQADV records and updates a polymers dictionary with any
+    sequence modifications for each polymer, in a 'differences' list."""
+
+    lines = re.findall(r"^SEQADV.+", filestring, re.M)
+    for line in lines:
+        chain_id = line[16]
+        if chain_id not in polymers: polymers[chain_id] = {}
+        if "differences" not in polymers[chain_id]:
+            polymers[chain_id]["differences"] = []
+        polymers[chain_id]["differences"].append({
+            "name": line[12:15].strip(),
+            "number": line[18:22].strip(),
+            "insert": line[22].strip(),
+            "database": line[24:28].strip(),
+            "accession": line[29:38].strip(),
+            "db_name": line[39:42].strip(),
+            "db_number": line[43:48].strip(),
+            "comment": line[49:70].strip(),
+        })
+
+
+def parse_seqres(filestring, polymers):
+    """Parses the SEQRES records to get the list of residue names for each
+    polymer molecule in a polymers dictionary, adding them to a 'residues'
+    list."""
+
+    lines = re.findall(r"^SEQRES.+", filestring, re.M)
+    for line in lines:
+        chain_id = line[11]
+        if chain_id not in polymers: polymers[chain_id] = {}
+        if "residues" not in polymers[chain_id]:
+            polymers[chain_id]["residues"] = []
+        polymers[chain_id]["residues"] += line[19:70].strip().split()
+
+
+def parse_het(filestring):
+    non_polymer_entities, non_polymers = {}, {}
+    lines = re.findall(r"^HET .+", filestring, re.M)
+    for line in lines:
+        name = line[7:10].strip()
+        non_polymer_entities[name] = {}
+        sig = (line[12], name, line[13:17].strip(), line[17].strip())
+        non_polymers[sig] = {}
+    return non_polymer_entities, non_polymers
+
+
+def parse_hetnam(filestring, non_polymer_entities):
+    lines = re.findall(r"^HETNAM.+", filestring, re.M)
+    names = [l[11:14].strip() for l in lines]
+    for name in names:
+        if name not in non_polymer_entities: non_polymer_entities[name] = {}
+        non_polymer_entities[name]["name"] = " ".join([
+            l[15:70].strip() for l in lines if l[11:14].strip() == name
+        ])
+
+
+def parse_hetsyn(filestring, non_polymer_entities):
+    lines = re.findall(r"^HETSYN.+", filestring, re.M)
+    names = [l[11:14].strip() for l in lines]
+    for name in names:
+        if name not in non_polymer_entities:
+            non_polymer_entities[name] = {"name": ""}
+        non_polymer_entities[name]["synonyms"] = " ".join([
+            l[15:70].strip() for l in lines if l[11:14].strip() == name
+        ]).split(";")
+
+
+def parse_formul(filestring, non_polymer_entities):
+    lines = re.findall(r"^FORMUL.+", filestring, re.M)
+    names = [l[12:15].strip() for l in lines]
+    for name in names:
+        if name not in non_polymer_entities:
+            non_polymer_entities[name] = {"name": "", "synonyms": []}
+        match = [l for l in lines if l[12:15].strip() == name]
+        non_polymer_entities[name]["formula"] = "".join(
+            [l[19:70].strip() for l in match]
+        )
+        non_polymer_entities[name]["is_water"] = match[0][18] == "*"
+
+
+def update_entities_from_atoms(filestring, polymer_entities, polymers, non_polymer_entities, non_polymers):
+    lines = re.findall(r"^ATOM.+|^HETATM.+|^TER", filestring, re.M)
+    sig, sigs, chain_id = None, [], ""
+    for line in lines:
+        if line == "TER":
+            # All residues so far have been for a polymer
+            if chain_id not in polymers:
+                polymers[chain_id] = {}
+            polymers[chain_id]["observed_residues"] = [r[1] for r in sigs]
+            for entity in polymer_entities.values():
+                if chain_id in entity["CHAIN"]: break
+            else:
+                new_entity_id = int(list(polymer_entities.keys())[-1]) + 1
+                polymer_entities[str(new_entity_id)] = {"CHAIN": (chain_id,)}
+            sig, sigs = None, []
+        else:
+            # Make a note of this residue
+            line_sig = residue_sig(line)
+            if line_sig != sig: sigs.append(line_sig)
+            sig = line_sig
+            chain_id = line[21]
+    # Any residues left are non-polymers
+    for order, sig in enumerate(sigs):
+        if sig[1] not in non_polymer_entities:
+            non_polymer_entities[sig[1]] = {"order": order}
+        else:
+             non_polymer_entities[sig[1]]["order"] = order
+        if sig not in non_polymers: non_polymers[sig] = {}
+
+
+def finalize_entities(polymer_entities, non_polymer_entities):
+    entity_id = 1
+    holding = []
+    non_pol_fields = {
+        "name": str, "formula": str, "synonyms": list,
+        "molecules": dict
+    }
+    for entity in polymer_entities.values():
+        entity["id"] = str(entity_id)
+        entity_id += 1
+        holding.append(entity)
+    for name, entity in non_polymer_entities.items():
+        entity["id"] = str(entity_id)
+        entity_id += 1
+        for key, func in non_pol_fields.items():
+            if key not in entity: entity[key] = func()
+            if "is_water" not in entity: entity["is_water"] = name not in WATER_NAMES
+    for key in list(polymer_entities.keys()):
+        del polymer_entities[key]
+    for entity in holding:
+        polymer_entities[entity["id"]] = entity
+
+
+def finalize_polymers(polymers):
+    polymer_fields = {"dbrefs": list, "differences": list, "residues": list}
+    for polymer in polymers.values():
+        for key, func in polymer_fields.items():
+            if key not in polymer: polymer[key] = func()
+            if polymer["residues"] == []:
+                polymer["residues"] = polymer["observed_residues"]
+            polymer["alignment"] = align(polymer["residues"], polymer["observed_residues"])
+    
+
+def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities, non_polymers):
+    for chain_id, polymer in polymers.items():
+        for entity in polymer_entities.values():
+            if chain_id in entity["CHAIN"]:
+                entity["molecules"][chain_id] = polymer
+                break
+    for sig, non_polymer in non_polymers.items():
+        for name, entity in non_polymer_entities.items():
+            if name == sig[1]:
+                entity["molecules"][sig] = non_polymer
+                break
+
+
+
+
+def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
+    mmcif["entity"] = []
+    entity_template = {
+        "id": "?", "type": "?", "src_method": "?", "pdbx_description": "?",
+        "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+        "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+    }
+    for entity in polymer_entities.values():
+        mmcif["entity"].append({**entity_template})
+        mmcif["entity"][-1]["id"] = entity["id"]
+        mmcif["entity"][-1]["type"] = "polymer"
+        mmcif["entity"][-1]["pdbx_description"] = entity.get("MOLECULE", "?")
+        mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["CHAIN"]))
+        mmcif["entity"][-1]["pdbx_ec"] = entity.get("EC", "?")
+        mmcif["entity"][-1]["pdbx_mutation"] = entity.get("MUTATION", "?")
+        mmcif["entity"][-1]["pdbx_fragment"] = entity.get("FRAGMENT", "?")
+        mmcif["entity"][-1]["details"] = entity.get("OTHER_DETAILS", "?")
+        mmcif["entity"][-1]["src_method"] = "syn" if entity.get("SYNTHETIC") \
+            else "man" if entity.get("ENGINEERED") else "nat"
+    for entity in non_polymer_entities.values():
+        mmcif["entity"].append({**entity_template})
+        mmcif["entity"][-1]["id"] = entity["id"]
+        mmcif["entity"][-1]["type"] = "water" if entity["is_water"] else "non-polymer"
+        mmcif["entity"][-1]["pdbx_description"] = entity.get("name") or "?"
+        if mmcif["entity"][-1]["pdbx_description"] == "?" and mmcif["entity"][-1]["type"] == "water":
+            mmcif["entity"][-1]["pdbx_description"] = "water"
+        mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["molecules"]))
+        mmcif["entity"][-1]["src_method"] = "nat" if entity["is_water"] else "syn"
+    mmcif["entity_name_com"] = [{
+        "entity_id": entity["id"], "name": entity.get("SYNONYM", "?")
+    } for entity in polymer_entities.values()]
+
+
+def build_entity_poly(polymer_entities, mmcif):
+    mmcif["entity_poly"] = []
+    for entity in polymer_entities.values():
+        polymer = list(entity["molecules"].values())[0]
+        sequence = "".join([CODES.get(r, "X") for r in polymer["residues"]]) or "?"
+        mmcif["entity_poly"].append({
+            "id": entity["id"],
+            "type": "polypeptide(L)",
+            "nstd_linkage": "no", "nstd_monomer": "no",
+            "pdbx_seq_one_letter_code": sequence,
+            "pdbx_seq_one_letter_code_can": sequence,
+            "pdbx_strand_id": ",".join(entity["CHAIN"]),
+            "pdbx_target_identifier": "?"
+        })
+
+
+def build_entity_poly_seq(polymer_entities, mmcif):
+    mmcif["entity_poly_seq"] = []
+    for entity in polymer_entities.values():
+        polymer = list(entity["molecules"].values())[0]
+        for i, residue in enumerate(polymer["residues"], start=1):
+            mmcif["entity_poly_seq"].append({
+                "entity_id": entity["id"],
+                "num": str(i),
+                "mon_id": residue,
+                "hetero": "no"
+            })
+
+
+def build_pdbx_entity_nonpoly(non_polymer_entities, mmcif):
+    mmcif["pdbx_entity_nonpoly"] = []
+    for sig, entity in non_polymer_entities.items():
+        entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
+        mmcif["pdbx_entity_nonpoly"].append({
+            "entity_id": entity["id"],
+            "name": entity_row["pdbx_description"],
+            "comp_id": sig[1],
+        })
+
+
+def build_chem_comp(non_polymer_entities, mmcif):
+    mmcif["chem_comp"] = []
+    residues = {r["mon_id"] for r in mmcif["entity_poly_seq"]}
+    for res in residues:
+        weight = RESIDUE_MASSES.get(res)
+        weight = f"{weight:.3f}" if weight else "?"
+        mmcif["chem_comp"].append({
+            "id": res, "type": "L-peptide linking",
+            "mon_nstd_flag": "y" if res in FORMULAE else "n",
+            "name": FULL_NAMES.get(res, "?").upper(),
+            "pdbx_synonyms": "?", "formula": FORMULAE.get(res, "?"),
+            "formula_weight": weight
+        })
+    for entity in non_polymer_entities.values():
+        entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
+        formula = entity["formula"] or "?"
+        if re.match(r"^\d+\(", formula): formula = formula[formula.find("(") + 1:-1]
+        weight = "?"
+        mmcif["chem_comp"].append({
+            "id": entity["observed_sigs"][0][1], "type": "non-polymer",
+            "mon_nstd_flag": ".", "name": entity_row["pdbx_description"],
+            "pdbx_synonyms": ",".join(entity.get("synonyms", [])),
+            "formula": formula,
+            "formula_weight": f"{formula_to_weight(formula):.3f}"
+        })
+    mmcif["chem_comp"].sort(key=lambda c: c["id"])
+
+
+def formula_to_weight(formula):
+    weight = 0
+    atoms = formula.split()
+    for atom in atoms:
+        symbol, count, in_count = "", "", False
+        for char in atom:
+            if char in "+-": continue
+            if char.isdigit(): in_count = True
+            if in_count:
+                count += char
+            else:
+                symbol += char
+        mass = PERIODIC_TABLE.get(symbol, 0)
+        weight += (mass * int(count or "1"))
+    return weight
+
+
+def build_atom_type(filestring, mmcif):
+    lines = re.findall(r"^ATOM.+|^HETATM.+", filestring, re.M)
+    elements = sorted(set(line[76:78].strip() for line in lines))
+    mmcif["atom_type"] = [{"symbol": element} for element in elements]
+
+
+def build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif):
+    lines = re.findall(r"^ATOM.+|^HETATM.+", filestring, re.M)
+    mmcif["atom_site"] = []
+    labels = {}
+    model_index, residue_index, current_sig, current_chain_id = 0, -1, None, None
+    for line in lines:
+        if line == "ENDMDL":
+            model_index += 1
+        else:
+            sig = residue_sig(line)
+            if sig != current_sig: residue_index += 1
+            current_sig = sig
+            if sig[0] != current_chain_id: residue_index = 0
+            current_chain_id = sig[0]
+            polymer_entity, polymer, non_polymer_entity = get_atom_entity(
+                sig, polymer_entities, non_polymer_entities
+            )
+            label = get_atom_label(sig, polymer, non_polymer_entity, labels)
+            mmcif["atom_site"].append({
+                "group_pdb": line[:6].strip(),
+                "id": line[6:11].strip(),
+                "type_symbol": line[76:78].strip(),
+                "label_atom_id": line[12:16].strip(),
+                "label_alt_id": line[16].strip() or ".",
+                "label_comp_id": sig[1],
+                "label_asym_id": label,
+                "label_entity_id": (polymer_entity or non_polymer_entity)["id"],
+                "label_seq_id": str(polymer["alignment"][residue_index] + 1) if polymer else ".",
+                "pdbx_PDB_ins_code": line[26].strip() or "?",
+                "Cartn_x": line[30:38].strip(),
+                "Cartn_y": line[38:46].strip(),
+                "Cartn_z": line[46:54].strip(),
+                "occupancy": line[54:60].strip(),
+                "B_iso_or_equiv": line[60:66].strip(),
+                "pdbx_formal_charge": line[78:80].strip() or "?",
+                "auth_seq_id": line[22:26].strip(),
+                "auth_comp_id": line[17:20].strip(),
+                "auth_asym_id": sig[0],
+                "auth_atom_id": line[12:16].strip(),
+                "pdbx_PDB_model_num": str(model_index + 1)
+            })
+
+
+def get_atom_entity(sig, polymer_entities, non_polymer_entities):
+    polymer_entity, polymer, non_polymer_entity = None, None, None
+    for entity in non_polymer_entities.values():
+        if sig in entity["molecules"]:
+            non_polymer_entity = entity
+            break
+    else:
+        for entity in polymer_entities.values():
+            if sig[0] in entity["molecules"]:
+                polymer_entity = entity
+                polymer = entity["molecules"][sig[0]]
+                break
+    return polymer_entity, polymer, non_polymer_entity
+
+
+def get_atom_label(sig, polymer, non_polymer, labels):
+    next_label = chr(ord(max(labels.values())) + 1) if labels else "A"
+    if polymer:
+        if sig[0] in labels:
+            label = labels[sig[0]]
+        else:
+            label = next_label
+            labels[sig[0]] = next_label
+    elif not non_polymer["is_water"]:
+        if sig in labels:
+            label = labels[sig]
+        else:
+            label = next_label
+            labels[sig] = next_label
+    else:
+        chain_id = (sig[0], "W")
+        if chain_id in labels:
+            label = labels[chain_id]
+        else:
+            label = next_label
+            labels[chain_id] = next_label
+    return label
+
+
+def build_atom_site_anisotrop(filestring, mmcif):
+    anisou = re.findall(r"^ANISOU.+", filestring, re.M)
+    mmcif["atom_site_anisotrop"] = []
+    atoms_by_id = {a["id"]: a for a in mmcif["atom_site"]}
+    for a in anisou:
+        atom_id = a[6:11].strip()
+        atom = atoms_by_id[atom_id]
+        convert = lambda s: str(float(s) / 10000)
+        mmcif["atom_site_anisotrop"].append({
+            "id": atom_id, 
+            "type_symbol": atom["type_symbol"], 
+            "pdbx_label_atom_id": atom["label_atom_id"], 
+            "pdbx_label_alt_id": atom["label_alt_id"], 
+            "pdbx_label_comp_id": atom["label_comp_id"], 
+            "pdbx_label_asym_id": atom["label_asym_id"], 
+            "pdbx_label_seq_id": atom["label_seq_id"], 
+            "pdbx_PDB_ins_code": atom["pdbx_PDB_ins_code"], 
+            "U[1][1]": convert(a[28:35].strip()),
+            "U[2][2]": convert(a[35:42].strip()), 
+            "U[3][3]": convert(a[42:49].strip()), 
+            "U[1][2]": convert(a[49:56].strip()), 
+            "U[1][3]": convert(a[56:63].strip()), 
+            "U[2][3]": convert(a[63:70].strip()), 
+            "pdbx_auth_seq_id": atom["auth_seq_id"], 
+            "pdbx_auth_comp_id": atom["auth_comp_id"], 
+            "pdbx_auth_asym_id": atom["auth_asym_id"], 
+            "pdbx_auth_atom_id ": atom["auth_atom_id"], 
+        })
 
 
 def pdb_date_to_mmcif_date(date):
@@ -891,3 +989,5 @@ def process_names(lines):
     return processed_names
 
 
+def residue_sig(atom):
+    return (atom[21], atom[17:20].strip(), atom[22:26].strip(), atom[26].strip())

@@ -55,3 +55,7 @@ class DictSavingTests(TestCase):
 
     def test_6xlu_saving(self):
         self.save("6xlu")
+
+
+    def test_6uaj_saving(self):
+        self.save("6uaj")

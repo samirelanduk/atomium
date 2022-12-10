@@ -61,11 +61,24 @@ class NonLoopSectionTests(TestCase):
         self.assertEqual(mmcif["atoms"], [{"name1": "N1'", "name2": "N1\""}])
     
 
-    def test_value_on_next_line(self):
+    def test_value_on_next_line_with_quotes(self):
         mmcif = {}
         add_non_loop_section([
             "_cat.key1 1234",
             "_cat.key2", "'5678'",
+            "_cat.key3 ABCD",
+            "_cat.key4", "\"EFGHIJKL\"",
+        ], mmcif)
+        self.assertEqual(mmcif, {"cat": [
+            {"key1": "1234", "key2": "5678", "key3": "ABCD", "key4": "EFGHIJKL"}
+        ]})
+    
+
+    def test_value_on_next_line_without_quotes(self):
+        mmcif = {}
+        add_non_loop_section([
+            "_cat.key1 1234",
+            "_cat.key2", "5678",
             "_cat.key3 ABCD",
             "_cat.key4", "\"EFGHIJKL\"",
         ], mmcif)

@@ -32,12 +32,12 @@ def add_non_loop_section(section, mmcif_dict):
     while section:
         line = section[0]
         category_name, key = line.split()[0].split(".")
-        if len(section) > 1 and isquote(section[1]):
-            value = section[1].lstrip()
-            section.popleft()
-        elif len(section) > 2 and section[1].startswith(";"):
+        if len(section) > 2 and section[1].startswith(";"):
             section.popleft()
             value = get_semicolon_value(section)
+        elif len(section) > 1 and " " not in line:
+            value = section[1].lstrip()
+            section.popleft()
         else:
             value = line[len(category_name) + len(key) + 2:].strip()
         if isquote(value): value = value[1:-1]

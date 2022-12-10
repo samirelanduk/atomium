@@ -798,14 +798,14 @@ def build_entity_poly_seq(polymer_entities, mmcif):
             })
 
 
-def build_pdbx_entity_nonpoly(non_polymer_entities, mmcif):
+def build_pdbx_entity_nonpoly(non_polymers, mmcif):
     mmcif["pdbx_entity_nonpoly"] = []
-    for sig, entity in non_polymer_entities.items():
+    for name, entity in non_polymers.items():
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
         mmcif["pdbx_entity_nonpoly"].append({
             "entity_id": entity["id"],
             "name": entity_row["pdbx_description"],
-            "comp_id": sig[1],
+            "comp_id": name,
         })
 
 

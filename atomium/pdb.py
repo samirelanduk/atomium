@@ -481,7 +481,7 @@ def parse_scalen(filestring, mmcif):
 
 
 def parse_mtrixn(filestring, mmcif):
-    lines = re.findall(r"MTRIX\d.+", filestring, re.M)
+    lines = re.findall(r"^MTRIX\d.+", filestring, re.M)
     if len(lines) == 0: return
     matrices = [lines[n * 3:(n + 1) * 3] for n in range(len(lines) // 3)]
     mmcif["struct_ncs_oper"] = [{

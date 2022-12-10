@@ -127,9 +127,9 @@ def get_non_list_lines(name, rows):
     max_length = max(len(k) for k in keys)
     for key in keys:
         value = format_value(rows[0][key])
-        if value[0] == ";":
+        if isinstance(value, list):
             lines.append(f"_{name}.{key.ljust(max_length)}")
-            lines.append(value)
+            lines += value
         else:
             lines.append(f"_{name}.{key.ljust(max_length)} {value}")
     return lines
@@ -142,18 +142,20 @@ def get_list_lines(name, rows):
     for key in keys:
         lines.append(f"_{name}.{key}")
     grid = [[ format_value(row[key]) for key in keys] for row in rows]
-    max_lengths = [max([len(row[col_num]) for row in grid if row[col_num][0] != ";"])
-        for col_num in range(len(keys))]
+    max_lengths = [max([
+        len(row[col_num]) for row in grid if row[col_num][0] != ";"
+    ] or [0]) for col_num in range(len(keys))]
     for row in grid:
         line = []
         for i, cell in enumerate(row):
-            if cell[0] == ";":
+            if isinstance(cell, list):
                 lines.append(" ".join(line))
-                lines.append(cell)
+                lines += cell
                 line = []
             else:
                 line.append(cell.ljust(max_lengths[i]))
-        lines.append(" ".join(line))
+        if line: lines.append(" ".join(line))
+    
     return lines
 
 
@@ -162,7 +164,7 @@ def format_value(s):
         lines = s.split("\n")
         lines[0] = f";{lines[0]}"
         lines.append(";")
-        return "\n".join(lines)
+        return lines
     if " " in s:
         return f'"{s}"' if "'" in s else f"'{s}'"
     elif "'" in s:

@@ -47,11 +47,11 @@ class NonLoopSectionTests(TestCase):
     def test_spaces_in_values(self):
         mmcif = {}
         add_non_loop_section([
-            "_refine.pdbx_refine_id 'X-RAY DIFFRACTION'",
+            "_refine.pdbx_refine_id 'X-RAY  DIFFRACTION'",
             "_refine.name       \"XANTHOSINE-5'-MONOPHOSPHATE\""
         ], mmcif)
         self.assertEqual(mmcif["refine"], [
-            {"pdbx_refine_id": "X-RAY DIFFRACTION", "name": "XANTHOSINE-5'-MONOPHOSPHATE"}
+            {"pdbx_refine_id": "X-RAY  DIFFRACTION", "name": "XANTHOSINE-5'-MONOPHOSPHATE"}
         ])
     
 

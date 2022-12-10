@@ -39,7 +39,7 @@ def add_non_loop_section(section, mmcif_dict):
             section.popleft()
             value = get_semicolon_value(section)
         else:
-            value = " ".join(line.split()[1:]).strip()
+            value = line[len(category_name) + len(key) + 2:].strip()
         if isquote(value): value = value[1:-1]
         row[key] = value
         section.popleft()

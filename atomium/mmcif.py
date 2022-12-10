@@ -2,7 +2,7 @@ from collections import deque
 
 def mmcif_string_to_mmcif_dict(filestring):
     mmcif_dict = {}
-    sections = get_sections_from_filestring(filestring)
+    sections = get_sections_from_filestring(filestring.strip())
     for section in sections:
         if section[0] == "loop_":
             add_loop_section(section, mmcif_dict)
@@ -15,7 +15,7 @@ def get_sections_from_filestring(filestring):
     lines = filestring.split("\n")
     section, sections = [], []
     for line in lines:
-        if line.startswith("data_") or not line: continue
+        if line.startswith("data_"): continue
         if line.rstrip() == "#":
             if section: sections.append(section)
             section = []
@@ -90,7 +90,7 @@ def get_semicolon_value(lines):
     Returns the full semi-colon value over however many lines it is over, and
     pops lines off the deque so that the first line is the single semi-colon at
     the end."""
-
+    
     values = []
     values.append(lines[0])
     lines.popleft()
@@ -148,10 +148,10 @@ def get_list_lines(name, rows):
 
 def format_value(s):
     if "\n" in s:
-        lines = s.splitlines()
+        lines = s.split("\n")
         lines[0] = f";{lines[0]}"
         lines.append(";")
-        return "\n" + "\n".join(lines) + "\n"
+        return "\n" + "\n".join(lines)
     if " " in s:
         return f'"{s}"' if "'" in s else f"'{s}'"
     elif "'" in s:

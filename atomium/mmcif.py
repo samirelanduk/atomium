@@ -12,6 +12,12 @@ def mmcif_string_to_mmcif_dict(filestring):
 
 
 def get_sections_from_filestring(filestring):
+    sections = filestring.split("\n#")[1:-1]
+    sections = [[line.rstrip() for line in s.strip().split("\n")] for s in sections]
+    return sections
+
+
+
     lines = filestring.split("\n")
     section, sections = [], []
     for line in lines:
@@ -136,12 +142,17 @@ def get_list_lines(name, rows):
     for key in keys:
         lines.append(f"_{name}.{key}")
     grid = [[ format_value(row[key]) for key in keys] for row in rows]
-    max_lengths = [max([len(row[col_num]) for row in grid])
+    max_lengths = [max([len(row[col_num]) for row in grid if row[col_num][0] != ";"])
         for col_num in range(len(keys))]
     for row in grid:
         line = []
         for i, cell in enumerate(row):
-            line.append(cell.ljust(max_lengths[i]))
+            if cell[0] == ";":
+                lines.append(" ".join(line))
+                lines.append(cell)
+                line = []
+            else:
+                line.append(cell.ljust(max_lengths[i]))
         lines.append(" ".join(line))
     return lines
 
@@ -151,7 +162,7 @@ def format_value(s):
         lines = s.split("\n")
         lines[0] = f";{lines[0]}"
         lines.append(";")
-        return "\n" + "\n".join(lines)
+        return "\n".join(lines)
     if " " in s:
         return f'"{s}"' if "'" in s else f"'{s}'"
     elif "'" in s:

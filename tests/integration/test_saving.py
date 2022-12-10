@@ -63,3 +63,7 @@ class DictSavingTests(TestCase):
     
     def test_4jtd_saving(self):
         self.save("4jtd")
+    
+
+    def test_3cvx_saving(self):
+        self.save("3cvx")

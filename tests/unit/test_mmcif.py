@@ -157,6 +157,10 @@ class LineValuesTests(TestCase):
 
     def test_can_get_double_quote_values(self):
         self.assertEqual(get_line_values("AAA \"B ' B\" CCC"), ["AAA", "B ' B", "CCC"])
+    
+
+    def test_can_handle_multiple_spaces(self):
+        self.assertEqual(get_line_values("AAA 'BX    B' CCC"), ["AAA", "BX    B", "CCC"])
 
 
 

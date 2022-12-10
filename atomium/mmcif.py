@@ -71,16 +71,15 @@ def get_line_values(line):
 
     if "'" not in line and '"' not in line: return line.split()
     values = []
-    words = deque(line.split())
-    while words:
-        value = words[0]
+    while line.strip():
+        value = line.split()[0]
         if value[0] in "'\"":
-            while value[-1] != value[0]:
-                words.popleft()
-                value = value + " " + words[0]
-            value = value[1:-1]
-        values.append(value)
-        words.popleft()
+            end = line[1:].find(value[0])
+            values.append(line[1:end + 1])
+            line = line[len(values[-1]) + 2:].lstrip()
+        else:
+            values.append(value)
+            line = line[len(value):].lstrip()
     return values
 
 

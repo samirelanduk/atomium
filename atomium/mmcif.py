@@ -151,12 +151,9 @@ def format_value(s):
         lines = s.splitlines()
         lines[0] = f";{lines[0]}"
         lines.append(";")
-        return "\n".join(lines)
+        return "\n" + "\n".join(lines) + "\n"
     if " " in s:
-        if "'" in s:
-            return f'"{s}"'
-        else:
-            return f"'{s}'"
+        return f'"{s}"' if "'" in s else f"'{s}'"
     elif "'" in s:
         return f'"{s}"'
     elif '"' in s:

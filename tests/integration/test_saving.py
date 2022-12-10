@@ -6,14 +6,12 @@ from unittest import TestCase
 class DictSavingTests(TestCase):
 
     def setUp(self):
-        try:
-            os.mkdir("tests/integration/files/output")
-        except: pass
+        os.mkdir("tests/integration/files/output")
 
 
     def tearDown(self):
-        '''if os.path.exists("tests/integration/files/output/"):
-            shutil.rmtree("tests/integration/files/output/")'''
+        if os.path.exists("tests/integration/files/output/"):
+            shutil.rmtree("tests/integration/files/output/")
     
 
     def save(self, code):
@@ -25,3 +23,35 @@ class DictSavingTests(TestCase):
 
     def test_1lol_saving(self):
         self.save("1lol")
+    
+
+    def test_1xda_saving(self):
+        self.save("1xda")
+    
+
+    def test_1m4x_saving(self):
+        self.save("1m4x")
+    
+
+    def test_12ca_saving(self):
+        self.save("12ca")
+    
+
+    def test_1cbn_saving(self):
+        self.save("1cbn")
+    
+
+    def test_2bfb_saving(self):
+        self.save("2bfb")
+    
+
+    def test_2igd_saving(self):
+        self.save("2igd")
+    
+
+    def test_3jbp_saving(self):
+        self.save("3jbp")
+    
+
+    def test_6xlu_saving(self):
+        self.save("6xlu")

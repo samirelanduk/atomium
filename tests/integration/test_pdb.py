@@ -404,6 +404,18 @@ class DictParsingTests(TestCase):
         self.assertNotIn("pdbx_coordinate_model", d)
     
 
+    def test_1YGT_pdb(self):
+        # Tests REMARK 200
+        d = atomium.open("tests/integration/files/1ygt.pdb", dictionary=True)
+        self.assertEqual(d["diffrn"], [{
+            "id": "1", "ambient_temp": "100", "ambient_temp_details": "?", "crystal_id": "1"
+        }])
+        self.assertEqual(d["diffrn_detector"], [{
+            "diffrn_id": "1", "detector": "CCD", "type": "ADSC QUANTUM 4",
+            "pdbx_collection_date": "2000-09-04", "details": "NULL"
+        }])
+    
+
     def test_1COJ_pdb(self):
         # Tests JRNL
         d = atomium.open("tests/integration/files/1coj.pdb", dictionary=True)

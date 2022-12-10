@@ -329,11 +329,11 @@ def parse_remark_200(filestring, mmcif):
     }]
     mmcif["diffrn_detector"] = [{
         "diffrn_id": "1",
-        "detector": detector[1].strip() if detector else "?",
-        "type": type_[1].strip() if type_ else "?",
-        "pdbx_collection_date": pdb_date_to_mmcif_date(collection[1].strip())\
+        "detector": detector[1].strip().split(";")[0] if detector else "?",
+        "type": type_[1].strip().split(";")[0] if type_ else "?",
+        "pdbx_collection_date": pdb_date_to_mmcif_date(collection[1].strip().split(";")[0])\
             if collection and collection[1].strip() != "NULL" else "?",
-        "details": details[1].strip() if details else "?"
+        "details": details[1].strip().split(";")[0] if details else "?"
     }]
 
 

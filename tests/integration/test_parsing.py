@@ -47,6 +47,19 @@ class DictParsingTests(TestCase):
         self.assertEqual(d["entry"], [{"id": "1LOL"}])
     
 
+    def test_2bfb(self):
+        d = atomium.open("tests/integration/files/2bfb.cif", dictionary=True)
+        self.assertEqual(d["pdbx_database_related"][0], {
+            "db_name": "PDB", "db_id": "1DTW", "content_type": "unspecified",
+            "details": "HUMAN BRANCHED-CHAIN ALPHA-KETO ACID DEHYDROGENASE"
+        })
+        self.assertEqual(d["pdbx_database_related"][1], {
+            "db_name": "PDB", "db_id": "1OLS", "content_type": "unspecified",
+            "details": "ROLES OF HIS291-ALPHA AND HIS146-BETA' IN THE REDUCTIVE ACYLATION REACTION CATALYZED BY HUMAN BRANCHED-CHAIN ALPHA-KETOACID DEHYDROGENASE"
+        })
+        
+    
+
 
 
 class ParsingTests(TestCase):

@@ -1,179 +1,105 @@
 from collections import deque
-import re
 
 def mmcif_string_to_mmcif_dict(filestring):
-    """Takes a .cif filestring and turns into a ``dict`` which represents its
-    table structure. Only lines which aren't empty and which don't begin with
-    ``#`` are used.
-
-    Multi-line strings are consolidated onto one line, and the whole thing is
-    then split into the blocks that will become table lists. At the end, quote
-    marks are removed from any string which retains them.
-
-    :param str filestring: the .cif filestring to process.
-    :rtype: ``dict``"""
-
-    lines = deque(filter(lambda l: l and l[0] != "#", filestring.split("\n")))
-    lines = consolidate_strings(lines)
-    blocks = mmcif_lines_to_mmcif_blocks(lines)
     mmcif_dict = {}
-    for block in blocks:
-        if block["lines"][0] == "loop_":
-            mmcif_dict[block["category"]] = loop_block_to_list(block)
+    sections = get_sections_from_filestring(filestring)
+    for section in sections:
+        if section[0] == "loop_":
+            add_loop_section(section, mmcif_dict)
         else:
-            mmcif_dict[block["category"]] = non_loop_block_to_list(block)
-    strip_quotes(mmcif_dict)
+            add_non_loop_section(section, mmcif_dict)
     return mmcif_dict
 
 
-def consolidate_strings(lines):
-    """Generally, .cif files have a one file line to one table row
-    correspondence. Sometimes however, a string cell is given a line of its own,
-    breaking the row over several lines. This function takes the lines of a .cif
-    file and puts all table rows on a single line.
-
-    :param deque lines: the .cif file lines.
-    :rtype: ``deque``"""
-
-    new_lines = deque()
-    while lines:
-        line = lines.popleft()
-        if line.startswith(";"):
-            string = [line[1:].strip()]
-            while not lines[0].startswith(";"):
-                string.append(lines.popleft())
-            lines.popleft()
-            join = "\x00" if len(string) > 1 and " " in "".join(string) else ""
-            string = join.join(string).replace('"', "\x1a")
-            new_lines.append("\"{}\"".format(string))
-        else:
-            new_lines.append(line)
-    return new_lines
-
-
-def mmcif_lines_to_mmcif_blocks(lines):
-    """A .cif file is ultimately a list of tables. This function takes a list of
-    .cif file lines and splits them into these table blocks. Each block will be
-    a ``dict`` containing a category name and a list of lines.
-
-    :param deque lines: the .cif file lines.
-    :rtype: ``list``"""
-
-    category = None
-    block, blocks = [], []
-    while lines:
-        line = lines.popleft()
-        if line.startswith("data_"): continue
-        if line.startswith("_"):
-            line_category = line.split(".")[0]
-            if line_category != category:
-                if category:
-                    blocks.append({"category": category[1:], "lines": block})
-                category = line_category
-                block = []
-        if line.startswith("loop_"):
-            if category:
-                blocks.append({"category": category[1:], "lines": block})
-            category = lines[0].split(".")[0]
-            block = []
-        block.append(line)
-    if block: blocks.append({"category": category[1:], "lines": block})
-    return blocks
-
-
-def non_loop_block_to_list(block):
-    """Takes a simple block ``dict`` with no loop and turns it into a table
-    ``list``.
-
-    :param dict block: the .cif block to process.
-    :rtype: ``list``"""
-
-    d = {}
-    for index in range(len(block["lines"]) - 1):
-        if block["lines"][index + 1][0] != "_":
-            block["lines"][index] += " " + block["lines"][index + 1]
-    block["lines"] = [l for l in block["lines"] if l[0] == "_"]
-    for line in block["lines"]:
-        name = line.split(".")[1].split()[0]
-        value = line
-        if line.startswith("_"):
-            value = " ".join(line.split()[1:])
-        d[name] = value
-    return [d]
-
-
-def loop_block_to_list(block):
-    """Takes a loop block ``dict`` where the initial lines are table headers and
-    turns it into a table ``list``. Sometimes a row is broken over several lines
-    so this function deals with that too.
-
-    :param dict block: the .cif block to process.
-    :rtype: ``list``"""
-
-    names, lines = [], []
-    body_start = 0
-    for index, line in enumerate(block["lines"][1:], start=1):
-        if not line.startswith("_" + block["category"]):
-            body_start = index
-            break
-    names = [l.split(".")[1].rstrip() for l in block["lines"][1:body_start]]
-    lines = [split_values(l) for l in block["lines"][body_start:]]
-    l = []
-    for n in range(len(lines) - 1):
-        while n < len(lines) - 1 and\
-         len(lines[n]) + len(lines[n + 1]) <= len(names):
-            lines[n] += lines[n + 1]
-            lines.pop(n + 1)
+def get_sections_from_filestring(filestring):
+    lines = filestring.split("\n")
+    section, sections = [], []
     for line in lines:
-        l.append({
-            name: value for name, value in zip(names, line)
-        })
-    return l
-
-
-def split_values(line):
-    """The body of a .cif table is a series of lines, with each cell divided by
-    whitespace. This function takes a string line and breaks it into cells.
-
-    There are a few peculiarities to handle. Sometimes a cell is a string
-    enclosed in quote marks, and spaces within this string obviously shouldn't
-    be used to break the line. This function handles all of that.
-
-    :param str line: the .cif line to split.
-    :rtype: ``list``"""
-
-    if not re.search("[\'\"]", line): return line.split()
-    chars = deque(line.strip())
-    values, value, in_string = [], [], False
-    while chars:
-        char = chars.popleft()
-        if char == " " and not in_string:
-            values.append(value)
-            value = []
-        elif char in "'\"":
-            if in_string and chars and chars[0] != " ":
-                value.append(char)
-            else:
-                in_string = not in_string
+        if line.startswith("data_") or not line: continue
+        if line.rstrip() == "#":
+            if section: sections.append(section)
+            section = []
         else:
-            value.append(char)
-    values.append(value)
-    return ["".join(v) for v in values if v]
+            section.append(line.strip())
+    if section: sections.append(section)
+    return sections
 
 
-def strip_quotes(mmcif_dict):
-    """Goes through each table in the mmcif ``dict`` and removes any unneeded
-    quote marks from the cells.
+def add_non_loop_section(section, mmcif_dict):
+    row = {}
+    section = deque(section)
+    isquote = lambda s: any(s[0] == c and s[-1] == c for c in "'\"")
+    while section:
+        line = section[0]
+        category_name, key = line.split()[0].split(".")
+        if len(section) > 1 and isquote(section[1]):
+            value = section[1].lstrip()
+            section.popleft()
+        elif len(section) > 2 and section[1].startswith(";"):
+            section.popleft()
+            value = get_semicolon_value(section)
+        else:
+            value = " ".join(line.split()[1:]).strip()
+        if isquote(value): value = value[1:-1]
+        row[key] = value
+        section.popleft()
+    mmcif_dict[category_name[1:]] = [row]
 
-    :param dict mmcif_dict: the almost finished .mmcif dictionary to clean."""
 
-    for table in mmcif_dict.values():
-        for row in table:
-            for k, value in row.items():
-                for char in "'\"":
-                    if value[0] == char and value[-1] == char:
-                        row[k] = value[1:-1]
-                    row[k] = row[k].replace("\x1a", '"').replace("\x1b", "'").replace("\x00", "\n")
+def add_loop_section(section, mmcif_dict):
+    keys, values = [], []
+    section = deque(section[1:])
+    while section:
+        line = section[0]
+        if line[0] == "_":
+            category_name, key = line.strip().split(".")
+            keys.append(key)
+        elif line[0] == ";":
+            values.append(get_semicolon_value(section))
+        else:
+            values += get_line_values(line)
+        section.popleft()
+    row_count = len(values) // len(keys)
+    mmcif_dict[category_name[1:]] = [{
+        key: values[n * len(keys) + i] for i, key in enumerate(keys)
+    } for n in range(row_count)]
+
+
+def get_line_values(line):
+    """Takes an mmCIF lines representing a category table row and breaks into
+    individual cells. Quote strings are handled."""
+
+    if "'" not in line and '"' not in line: return line.split()
+    values = []
+    words = deque(line.split())
+    while words:
+        value = words[0]
+        if value[0] in "'\"":
+            while value[-1] != value[0]:
+                words.popleft()
+                value = value + " " + words[0]
+            value = value[1:-1]
+        values.append(value)
+        words.popleft()
+    return values
+
+
+def get_semicolon_value(lines):
+    """Takes a list of lines (as deque) where the first line is a semicolon
+    value.
+    
+    Returns the full semi-colon value over however many lines it is over, and
+    pops lines off the deque so that the first line is the single semi-colon at
+    the end."""
+
+    values = []
+    values.append(lines[0])
+    lines.popleft()
+    while lines[0] != ";":
+        values.append(lines[0])
+        lines.popleft()
+    join = "\n" if any(" " in val for val in values) else ""
+    return join.join(values)[1:].strip()
 
 
 def save_mmcif_dict(mmcif_dict, path):

@@ -81,7 +81,7 @@ def parse_header(filestring, mmcif):
     mmcif["entry"] = [{"id": code}]
     date = header[50:59].strip()
     mmcif["pdbx_database_status"] = [{
-        "status_code": "REL", "entry_id": "1LOL",
+        "status_code": "REL", "entry_id": code,
         "recvd_initial_deposition_date": pdb_date_to_mmcif_date(date) or "?"
     }]
     keyword = (header[10:50].strip() or "?") if header else "?"

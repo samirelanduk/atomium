@@ -711,7 +711,7 @@ def finalize_entities(polymer_entities, non_polymer_entities):
         entity_id += 1
         for key, func in non_pol_fields.items():
             if key not in entity: entity[key] = func()
-            if "is_water" not in entity: entity["is_water"] = name not in WATER_NAMES
+            if "is_water" not in entity: entity["is_water"] = name in WATER_NAMES
     for key in list(polymer_entities.keys()):
         del polymer_entities[key]
     for entity in holding:

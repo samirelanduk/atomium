@@ -17,20 +17,6 @@ def get_sections_from_filestring(filestring):
     return sections
 
 
-
-    lines = filestring.split("\n")
-    section, sections = [], []
-    for line in lines:
-        if line.startswith("data_"): continue
-        if line.rstrip() == "#":
-            if section: sections.append(section)
-            section = []
-        else:
-            section.append(line.strip())
-    if section: sections.append(section)
-    return sections
-
-
 def add_non_loop_section(section, mmcif_dict):
     row = {}
     section = deque(section)
@@ -111,7 +97,7 @@ def save_mmcif_dict(mmcif_dict, path):
     code = mmcif_dict.get("entry", [{"id": ""}])[0]["id"]
     lines = [f"data_{code}" if code else "data_XXXX"]
     for category_name, rows in mmcif_dict.items():
-        lines.append("#")
+        if len(rows): lines.append("#")
         if len(rows) == 1:
             lines += get_non_list_lines(category_name, rows)
         else:

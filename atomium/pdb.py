@@ -127,6 +127,7 @@ def parse_split(filestring, mmcif):
 
 def parse_caveat(filestring, mmcif):    
     caveat_lines = re.findall(r"^CAVEAT.+", filestring, re.M)
+    if not caveat_lines: return
     caveat = " ".join([l[19:80] for l in caveat_lines]).strip()
     mmcif["database_PDB_caveat"] = [{"text": " ".join(caveat.split())}]
 
@@ -907,7 +908,7 @@ def formula_to_weight(formula):
 
 def build_atom_type(filestring, mmcif):
     lines = re.findall(r"^ATOM.+|^HETATM.+", filestring, re.M)
-    elements = sorted(set(line[76:78].strip() for line in lines))
+    elements = sorted(set(line[76:78].strip() or "?" for line in lines))
     mmcif["atom_type"] = [{"symbol": element} for element in elements]
 
 

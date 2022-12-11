@@ -61,6 +61,7 @@ def build_structure_categories(filestring, polymer_entities, non_polymer_entitie
     build_entity_poly(polymer_entities, mmcif)
     build_entity_poly_seq(polymer_entities, mmcif)
     build_pdbx_entity_nonpoly(non_polymer_entities, mmcif)
+    build_chem_comp(non_polymer_entities, mmcif)
     build_atom_type(filestring, mmcif)
     build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif)
     build_atom_site_anisotrop(filestring, mmcif)
@@ -794,7 +795,7 @@ def build_entity_poly_seq(polymer_entities, mmcif):
                 "entity_id": entity["id"],
                 "num": str(i),
                 "mon_id": residue,
-                "hetero": "no"
+                "hetero": "n"
             })
 
 
@@ -822,15 +823,15 @@ def build_chem_comp(non_polymer_entities, mmcif):
             "pdbx_synonyms": "?", "formula": FORMULAE.get(res, "?"),
             "formula_weight": weight
         })
-    for entity in non_polymer_entities.values():
+    for name, entity in non_polymer_entities.items():
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
         formula = entity["formula"] or "?"
         if re.match(r"^\d+\(", formula): formula = formula[formula.find("(") + 1:-1]
         weight = "?"
         mmcif["chem_comp"].append({
-            "id": entity["observed_sigs"][0][1], "type": "non-polymer",
-            "mon_nstd_flag": ".", "name": entity_row["pdbx_description"],
-            "pdbx_synonyms": ",".join(entity.get("synonyms", [])),
+            "id": name, "type": "non-polymer",
+            "mon_nstd_flag": ".", "name": entity_row["pdbx_description"].upper(),
+            "pdbx_synonyms": ",".join(entity.get("synonyms", [])) or "?",
             "formula": formula,
             "formula_weight": f"{formula_to_weight(formula):.3f}"
         })

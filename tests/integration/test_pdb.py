@@ -175,6 +175,51 @@ class DictParsingTests(TestCase):
             "entity_id": "1", "name": "OMP DECARBOXYLASE, OMPDCASE, OMPDECASE"
         }])
 
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1", "type": "polypeptide(L)", "nstd_linkage": "no", "nstd_monomer": "no",
+            "pdbx_seq_one_letter_code": "LRSRRVDVMDVMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICRATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRPERLSRLREIIGQDSFLISPGVGAQGGDPGETLRFADAIIVGRSIYLADNPAAAAAGIIESIKDLLIPE",
+            "pdbx_seq_one_letter_code_can": "LRSRRVDVMDVMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICRATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRPERLSRLREIIGQDSFLISPGVGAQGGDPGETLRFADAIIVGRSIYLADNPAAAAAGIIESIKDLLIPE",
+            "pdbx_strand_id": "A,B", "pdbx_target_identifier": "?"
+        }])
+
+        self.assertEqual(d["entity_poly_seq"][0], {
+            "entity_id": "1", "num": "1", "mon_id": "LEU", "hetero": "n"
+        })
+        self.assertEqual(d["entity_poly_seq"][1], {
+            "entity_id": "1", "num": "2", "mon_id": "ARG", "hetero": "n"
+        })
+        self.assertEqual(d["entity_poly_seq"][-1], {
+            "entity_id": "1", "num": "229", "mon_id": "GLU", "hetero": "n"
+        })
+
+        self.assertEqual(d["pdbx_entity_nonpoly"], [
+            {"entity_id": "2", "name": "1,3-BUTANEDIOL", "comp_id": "BU2"},
+            {"entity_id": "3", "name": "XANTHOSINE-5'-MONOPHOSPHATE", "comp_id": "XMP"},
+            {"entity_id": "4", "name": "water", "comp_id": "HOH"},
+        ])
+
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ALA", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "ALANINE",
+            "pdbx_synonyms": "?", "formula": "C3 H7 N O2", "formula_weight": "89.093"
+        })
+        self.assertEqual(d["chem_comp"][1], {
+            "id": "ARG", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "ARGININE",
+            "pdbx_synonyms": "?", "formula": "C6 H15 N4 O2 1", "formula_weight": "175.209"
+        })
+        self.assertEqual(d["chem_comp"][4], {
+            "id": "BU2", "type": "non-polymer", "mon_nstd_flag": ".", "name": "1,3-BUTANEDIOL",
+            "pdbx_synonyms": "?", "formula": "C4 H10 O2", "formula_weight": "90.121"
+        })
+        self.assertEqual(d["chem_comp"][10], {
+            "id": "HOH", "type": "non-polymer", "mon_nstd_flag": ".", "name": "WATER",
+            "pdbx_synonyms": "?", "formula": "H2 O", "formula_weight": "18.015"
+        })
+        self.assertEqual(d["chem_comp"][21], {
+            "id": "XMP", "type": "non-polymer", "mon_nstd_flag": ".", "name": "XANTHOSINE-5'-MONOPHOSPHATE",
+            "pdbx_synonyms": "5-MONOPHOSPHATE-9-BETA-D-RIBOFURANOSYL XANTHINE",
+            "formula": "C10 H14 N4 O9 P 1+", "formula_weight": "365.213"
+        })
+
         self.assertEqual(d["atom_type"], [
             {"symbol": "C"}, {"symbol": "N"}, {"symbol": "O"}, {"symbol": "P"}, {"symbol": "S"}
         ])

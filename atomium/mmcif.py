@@ -144,7 +144,7 @@ def get_list_lines(name, rows):
         lines.append(f"_{name}.{key}")
     grid = [[ format_value(row[key]) for key in keys] for row in rows]
     max_lengths = [max([
-        len(row[col_num]) for row in grid if row[col_num][0] != ";"
+        len(row[col_num]) for row in grid if not row[col_num] or row[col_num][0] != ";"
     ] or [0]) for col_num in range(len(keys))]
     for row in grid:
         line = []

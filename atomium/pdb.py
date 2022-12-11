@@ -71,14 +71,18 @@ def build_structure_categories(filestring, polymer_entities, non_polymer_entitie
 
 
 def parse_header(filestring, mmcif):
-    header = re.search(f"HEADER.+", filestring, re.M).group(0)
+    header = re.search(f"HEADER.+", filestring, re.M)
+    if not header:
+        mmcif["entry"] = [{"id": "1XXX"}]
+        return
+    header = header.group(0)
     code = (header[62:66].strip() or "1XXX") if header else "1XXX"
     if set(code) == {"-"}: code = "1XXX"
     mmcif["entry"] = [{"id": code}]
     date = header[50:59].strip()
     mmcif["pdbx_database_status"] = [{
         "status_code": "REL", "entry_id": "1LOL",
-        "recvd_initial_deposition_date": pdb_date_to_mmcif_date(date)
+        "recvd_initial_deposition_date": pdb_date_to_mmcif_date(date) or "?"
     }]
     keyword = (header[10:50].strip() or "?") if header else "?"
     if set(keyword) == {"-"} or keyword in ["NULL", "NONE"]: keyword = "?"
@@ -528,6 +532,7 @@ def parse_compnd_and_source(filestring):
             if molecule["id"] not in polymer_entities:
                 polymer_entities[molecule["id"]] = {}
             polymer_entities[molecule["id"]].update(molecule)
+    polymer_entities = {k: v for k, v in polymer_entities.items() if "CHAIN" in v}
     return polymer_entities
 
 
@@ -671,7 +676,7 @@ def update_entities_from_atoms(filestring, polymer_entities, polymers, non_polym
             for entity in polymer_entities.values():
                 if chain_id in entity["CHAIN"]: break
             else:
-                new_entity_id = int(list(polymer_entities.keys())[-1]) + 1
+                new_entity_id = int(list(polymer_entities.keys() or [0])[-1]) + 1
                 polymer_entities[str(new_entity_id)] = {"CHAIN": (chain_id,)}
             sig, sigs = None, []
         else:
@@ -697,6 +702,7 @@ def finalize_entities(polymer_entities, non_polymer_entities):
     }
     for entity in polymer_entities.values():
         entity["id"] = str(entity_id)
+        if "molecules" not in entity: entity["molecules"] = {}
         entity_id += 1
         holding.append(entity)
     for name, entity in non_polymer_entities.items():
@@ -1030,6 +1036,7 @@ def update_atom_ids(mmcif):
 
 
 def pdb_date_to_mmcif_date(date):
+    if not date.strip(): return
     day, month, year = date.split("-")
     month = str(list(calendar.month_abbr).index(month.title())).zfill(2)
     if len(year) == 2:

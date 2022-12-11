@@ -136,6 +136,7 @@ def get_non_list_lines(name, rows):
 
 
 def get_list_lines(name, rows):
+    if len(rows) == 0: return []
     lines = []
     lines.append("loop_")
     keys = list(rows[0].keys())

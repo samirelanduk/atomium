@@ -1,5 +1,5 @@
 
-from .io import open, fetch, fetch_over_ssh
+from .io import open, fetch, fetch_over_ssh, save_dictionary
 from .mmcif import save_mmcif_dict
 
 __author__ = "Sam Ireland"

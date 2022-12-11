@@ -60,6 +60,8 @@ def build_structure_categories(filestring, polymer_entities, non_polymer_entitie
     build_entity_category(polymer_entities, non_polymer_entities, mmcif)
     build_entity_poly(polymer_entities, mmcif)
     build_entity_poly_seq(polymer_entities, mmcif)
+    build_struct_ref(polymer_entities, mmcif)
+    build_struct_ref_seq(polymer_entities, mmcif)
     build_pdbx_entity_nonpoly(non_polymer_entities, mmcif)
     build_chem_comp(non_polymer_entities, mmcif)
     build_atom_type(filestring, mmcif)
@@ -797,6 +799,48 @@ def build_entity_poly_seq(polymer_entities, mmcif):
                 "mon_id": residue,
                 "hetero": "n"
             })
+
+
+def build_struct_ref(polymer_entities, mmcif):
+    mmcif["struct_ref"] = []
+    for entity in polymer_entities.values():
+        dbrefs = []
+        for molecule in entity["molecules"].values():
+            for dbref in molecule["dbrefs"]:
+                if dbref["id"] not in [d["id"] for d in dbrefs]:
+                    dbrefs.append(dbref)
+            dbrefs += molecule["dbrefs"]
+        for i, dbref in enumerate(dbrefs, start=1):
+            mmcif["struct_ref"].append({
+                "id": str(i), "db_name": dbref["database"], "db_code": dbref["id"],
+                "entity_id": entity["id"], "pdbx_seq_one_letter_code": "?",
+                "pdbx_align_begin": dbref["start"],
+                "pdbx_db_accession": dbref["accession"], "pdbx_db_isoform": "?"
+            })
+
+
+def build_struct_ref_seq(polymer_entities, mmcif):
+    mmcif["struct_ref_seq"] = []
+    for entity in polymer_entities.values():
+        for i, molecule in enumerate(entity["molecules"].items(), start=1):
+            chain_id, molecule = molecule
+            for dbref in molecule["dbrefs"]:
+                mmcif["struct_ref_seq"].append({
+                    "align_id": str(i), "ref_id": "1",
+                    "pdbx_PDB_id_code": mmcif.get("entry", [{"id": ""}])[0]["id"] or "?",
+                    "pdbx_strand_id": chain_id,
+                    "seq_align_beg": "?",
+                    "pdbx_seq_align_beg_ins_code": dbref["start_insert"] or "?",
+                    "seq_align_end": "?",
+                    "pdbx_seq_align_end_ins_code": dbref["end_insert"] or "?",
+                    "pdbx_db_accession": dbref["accession"],
+                    "db_align_beg": dbref["db_start"],
+                    "pdbx_db_align_beg_ins_code": dbref["db_start_insert"] or "?",
+                    "db_align_end": dbref["db_end"],
+                    "pdbx_db_align_end_ins_code": dbref["db_end_insert"] or "?",
+                    "pdbx_auth_seq_align_beg": dbref["start"],
+                    "pdbx_auth_seq_align_end": dbref["end"]
+                })
 
 
 def build_pdbx_entity_nonpoly(non_polymers, mmcif):

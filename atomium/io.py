@@ -2,7 +2,7 @@ import builtins
 import requests
 import gzip
 import paramiko
-from .mmcif import mmcif_string_to_mmcif_dict
+from .mmcif import mmcif_string_to_mmcif_dict, save_mmcif_dict
 from .bcif import bcif_string_to_mmcif_dict
 from .mmtf import mmtf_string_to_mmcif_dict
 from .pdb import pdb_string_to_mmcif_dict
@@ -75,3 +75,7 @@ def determine_filetype(filestring, filename):
     if isinstance(filestring, bytes):
         return "mmtf" if filename.endswith("mmtf") else "bcif"
     return "pdb" if filename.endswith("pdb") else "mmcif"
+
+
+def save_dictionary(d, path):
+    save_mmcif_dict(d, path)

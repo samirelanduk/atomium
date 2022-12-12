@@ -572,6 +572,17 @@ class DictParsingTests(TestCase):
         }])
     
 
+    def test_1GSG_pdb(self):
+        # Tests MODRES
+        d = atomium.open("tests/integration/files/1gsg.pdb", dictionary=True)
+        self.assertEqual(d["entry"], [{"id": "1GSG"}])
+        self.assertEqual(d["pdbx_struct_mod_residue"][0], {
+            "id": "1", "label_asym_id": "?", "label_comp_id": "4SU", "label_seq_id": "?",
+            "auth_asym_id": "T", "auth_comp_id": "4SU", "auth_seq_id": "8", "PDB_ins_code": "?",
+            "parent_comp_id": "U", "details": "4-THIOURIDINE-5'-MONOPHOSPHATE"
+        })
+    
+
     def test_4y60_pdb(self):
         # Test ANISOU
         d = atomium.open("tests/integration/files/4y60.pdb", dictionary=True)

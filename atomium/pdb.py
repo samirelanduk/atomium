@@ -38,6 +38,7 @@ def get_entities(filestring):
     polymers = parse_dbref(filestring)
     parse_seqadv(filestring, polymers)
     parse_seqres(filestring, polymers)
+    parse_modres(filestring, polymers)
 
     non_polymer_entities, non_polymers = parse_het(filestring)
     parse_hetnam(filestring, non_polymer_entities)
@@ -63,6 +64,7 @@ def build_structure_categories(filestring, polymer_entities, non_polymer_entitie
     build_struct_ref(polymer_entities, mmcif)
     build_struct_ref_seq(polymer_entities, mmcif)
     build_struct_ref_seq_dif(polymer_entities, mmcif)
+    build_pdbx_struct_mod_residue(polymer_entities, mmcif)
     build_pdbx_entity_nonpoly(non_polymer_entities, mmcif)
     build_chem_comp(non_polymer_entities, mmcif)
     build_atom_type(filestring, mmcif)
@@ -621,6 +623,22 @@ def parse_seqres(filestring, polymers):
         polymers[chain_id]["residues"] += line[19:70].strip().split()
 
 
+def parse_modres(filestring, polymers):
+    lines = re.findall(r"^MODRES.+", filestring, re.M)
+    for line in lines:
+        chain_id = line[16]
+        if chain_id not in polymers: polymers[chain_id] = {}
+        if "modified" not in polymers[chain_id]:
+            polymers[chain_id]["modified"] = []
+        polymers[chain_id]["modified"].append({
+            "name": line[12:15].strip(),
+            "number": line[18:22].strip(),
+            "insert": line[22].strip(),
+            "standard_name": line[24:27].strip(),
+            "comment": line[29:70].strip(),
+        })
+
+
 def parse_het(filestring):
     non_polymer_entities, non_polymers = {}, {}
     lines = re.findall(r"^HET .+", filestring, re.M)
@@ -721,7 +739,7 @@ def finalize_entities(polymer_entities, non_polymer_entities):
 
 def finalize_polymers(polymers):
     polymer_fields = {
-        "dbrefs": list, "differences": list,
+        "dbrefs": list, "differences": list, "modified": list,
         "residues": list, "observed_residues": list
     }
     for polymer in polymers.values():
@@ -877,6 +895,26 @@ def build_struct_ref_seq_dif(polymer_entities, mmcif):
                     "pdbx_auth_seq_num": diff["number"] or "?",
                     "pdbx_ordinal": str(len(mmcif["struct_ref_seq_dif"]) + 1),
                 })
+
+
+def build_pdbx_struct_mod_residue(polymer_entities, mmcif):
+    mmcif["pdbx_struct_mod_residue"] = []
+    for entity in polymer_entities.values():
+        for mol_id, molecule in entity["molecules"].items():
+            for mod in molecule["modified"]:
+                mmcif["pdbx_struct_mod_residue"].append({
+                    "id": str(len(mmcif["pdbx_struct_mod_residue"]) + 1),
+                    "label_asym_id": "?",
+                    "label_comp_id": mod["name"],
+                    "label_seq_id": "?",
+                    "auth_asym_id": mol_id,
+                    "auth_comp_id": mod["name"],
+                    "auth_seq_id": mod["number"],
+                    "PDB_ins_code": mod["insert"] or "?",
+                    "parent_comp_id": mod["standard_name"],
+                    "details": mod["comment"] or "?",
+                })
+
 
 
 def build_pdbx_entity_nonpoly(non_polymers, mmcif):

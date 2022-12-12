@@ -62,6 +62,7 @@ def build_structure_categories(filestring, polymer_entities, non_polymer_entitie
     build_entity_poly_seq(polymer_entities, mmcif)
     build_struct_ref(polymer_entities, mmcif)
     build_struct_ref_seq(polymer_entities, mmcif)
+    build_struct_ref_seq_dif(polymer_entities, mmcif)
     build_pdbx_entity_nonpoly(non_polymer_entities, mmcif)
     build_chem_comp(non_polymer_entities, mmcif)
     build_atom_type(filestring, mmcif)
@@ -816,10 +817,10 @@ def build_struct_ref(polymer_entities, mmcif):
             for dbref in molecule["dbrefs"]:
                 if dbref["id"] not in [d["id"] for d in dbrefs]:
                     dbrefs.append(dbref)
-            dbrefs += molecule["dbrefs"]
-        for i, dbref in enumerate(dbrefs, start=1):
+        for dbref in dbrefs:
             mmcif["struct_ref"].append({
-                "id": str(i), "db_name": dbref["database"], "db_code": dbref["id"],
+                "id": str(len(mmcif["struct_ref"]) + 1),
+                "db_name": dbref["database"], "db_code": dbref["id"],
                 "entity_id": entity["id"], "pdbx_seq_one_letter_code": "?",
                 "pdbx_align_begin": dbref["start"],
                 "pdbx_db_accession": dbref["accession"], "pdbx_db_isoform": "?"
@@ -829,11 +830,11 @@ def build_struct_ref(polymer_entities, mmcif):
 def build_struct_ref_seq(polymer_entities, mmcif):
     mmcif["struct_ref_seq"] = []
     for entity in polymer_entities.values():
-        for i, molecule in enumerate(entity["molecules"].items(), start=1):
+        for molecule in entity["molecules"].items():
             chain_id, molecule = molecule
             for dbref in molecule["dbrefs"]:
                 mmcif["struct_ref_seq"].append({
-                    "align_id": str(i), "ref_id": "1",
+                    "align_id": str(len(mmcif["struct_ref_seq"]) + 1), "ref_id": "1",
                     "pdbx_PDB_id_code": mmcif.get("entry", [{"id": ""}])[0]["id"] or "?",
                     "pdbx_strand_id": chain_id,
                     "seq_align_beg": "?",
@@ -847,6 +848,34 @@ def build_struct_ref_seq(polymer_entities, mmcif):
                     "pdbx_db_align_end_ins_code": dbref["db_end_insert"] or "?",
                     "pdbx_auth_seq_align_beg": dbref["start"],
                     "pdbx_auth_seq_align_end": dbref["end"]
+                })
+
+
+def build_struct_ref_seq_dif(polymer_entities, mmcif):
+    mmcif["struct_ref_seq_dif"] = []
+    for entity in polymer_entities.values():
+        for mol_id, molecule in entity["molecules"].items():
+            for diff in molecule["differences"]:
+                for align in mmcif["struct_ref_seq"]:
+                    if align["pdbx_strand_id"] == mol_id:
+                        align_id = align["align_id"]
+                        break
+                else:
+                    align_id = "?"
+                mmcif["struct_ref_seq_dif"].append({
+                    "align_id": align_id,
+                    "pdbx_pdb_id_code":  mmcif.get("entry", [{"id": ""}])[0]["id"] or "?",
+                    "mon_id": diff["name"] or "?",
+                    "pdbx_pdb_strand_id": mol_id,
+                    "seq_num": "?",
+                    "pdbx_pdb_ins_code": diff["insert"] or "?",
+                    "pdbx_seq_db_name": diff["database"] or "?",
+                    "pdbx_seq_db_accession_code": diff["accession"] or "?",
+                    "db_mon_id": diff["db_name"] or "?",
+                    "pdbx_seq_db_seq_num": diff["db_number"] or "?",
+                    "details": diff["comment"] or "?",
+                    "pdbx_auth_seq_num": diff["number"] or "?",
+                    "pdbx_ordinal": str(len(mmcif["struct_ref_seq_dif"]) + 1),
                 })
 
 

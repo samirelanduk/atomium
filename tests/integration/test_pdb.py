@@ -197,7 +197,7 @@ class DictParsingTests(TestCase):
             "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "1",
             "pdbx_db_accession": "O26232", "pdbx_db_isoform": "?"
         })
-
+        
         self.assertEqual(d["struct_ref_seq"], [{
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1LOL", "pdbx_strand_id": "A",
             "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
@@ -211,6 +211,22 @@ class DictParsingTests(TestCase):
             "pdbx_db_align_beg_ins_code": "?", "db_align_end": "228", "pdbx_db_align_end_ins_code": "?",
             "pdbx_auth_seq_align_beg": "1001", "pdbx_auth_seq_align_end": "1229"
         }])
+
+        self.assertEqual(len(d["struct_ref_seq_dif"]), 8)
+        self.assertEqual(d["struct_ref_seq_dif"][0], {
+            "align_id": "1", "pdbx_pdb_id_code": "1LOL", "mon_id": "LEU",
+            "pdbx_pdb_strand_id": "A", "seq_num": "?", "pdbx_pdb_ins_code": "?",
+            "pdbx_seq_db_name": "UNP", "pdbx_seq_db_accession_code": "O26232",
+            "db_mon_id": "MET", "pdbx_seq_db_seq_num": "1",
+            "details": "SEE REMARK 999", "pdbx_auth_seq_num": "1", "pdbx_ordinal": "1"
+        })
+        self.assertEqual(d["struct_ref_seq_dif"][-1], {
+            "align_id": "2", "pdbx_pdb_id_code": "1LOL", "mon_id": "GLU",
+            "pdbx_pdb_strand_id": "B", "seq_num": "?", "pdbx_pdb_ins_code": "?",
+            "pdbx_seq_db_name": "UNP", "pdbx_seq_db_accession_code": "O26232",
+            "db_mon_id": "?", "pdbx_seq_db_seq_num": "?", "details": "INSERTION",
+            "pdbx_auth_seq_num": "1229", "pdbx_ordinal": "8"
+        })
 
         self.assertEqual(d["pdbx_entity_nonpoly"], [
             {"entity_id": "2", "name": "1,3-BUTANEDIOL", "comp_id": "BU2"},

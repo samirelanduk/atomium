@@ -260,6 +260,17 @@ class DictParsingTests(TestCase):
             {"symbol": "C"}, {"symbol": "N"}, {"symbol": "O"}, {"symbol": "P"}, {"symbol": "S"}
         ])
 
+        self.assertEqual(d["struct_asym"], [
+            {"asym_id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"asym_id": "B", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"asym_id": "C", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "2", "details": "?"},
+            {"asym_id": "D", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "3", "details": "?"},
+            {"asym_id": "E", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "2", "details": "?"},
+            {"asym_id": "F", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "3", "details": "?"},
+            {"asym_id": "G", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "4", "details": "?"},
+            {"asym_id": "H", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "4", "details": "?"}
+        ])
+
         self.assertEqual(d["atom_site"][0], {
             "group_pdb": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
             "label_alt_id": ".", "label_comp_id": "VAL", "label_asym_id": "A",

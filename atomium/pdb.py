@@ -71,6 +71,7 @@ def build_structure_categories(filestring, polymer_entities, non_polymer_entitie
     build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif)
     build_atom_site_anisotrop(filestring, mmcif)
     update_atom_ids(mmcif)
+    build_struct_asym(mmcif)
 
 
 def parse_header(filestring, mmcif):
@@ -1100,6 +1101,16 @@ def update_atom_ids(mmcif):
         atom["id"] = str(i)
     for aniso in mmcif.get("atom_site_anisotrop", []):
         aniso["id"] = lookup[aniso["id"]]
+
+
+def build_struct_asym(mmcif):
+    lookup = {}
+    for atom in mmcif["atom_site"]:
+        lookup[atom["label_asym_id"]] = atom["label_entity_id"]
+    mmcif["struct_asym"] = [{
+        "asym_id": asym_id, "pdbx_blank_PDB_chainid_flag": "N",
+        "pdbx_modified": "N", "entity_id": entity_id, "details": "?"
+    } for asym_id, entity_id in lookup.items()]
 
 
 

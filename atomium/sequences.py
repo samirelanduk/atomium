@@ -1,8 +1,16 @@
-def align(long, short):
+def get_alignment_indices(long, short):
     matrix = create_nw_matrix(long, short)
     back_directions = calculate_matrix_scores(matrix, long, short)
-    return calculate_aligment_indices(long, short, back_directions)
-    
+    line2 = get_alignment_lines(long, short, back_directions)[1]
+    return calculate_aligment_indices(line2)
+
+
+def get_alignment_score(long, short):
+    matrix = create_nw_matrix(long, short)
+    back_directions = calculate_matrix_scores(matrix, long, short)
+    line1, line2 = get_alignment_lines(long, short, back_directions)
+    return calculate_identity_score(line1, line2)
+
 
 def create_nw_matrix(long, short):
     matrix = [[
@@ -35,7 +43,7 @@ def calculate_matrix_scores(matrix, long, short, match=1, mismatch=-1, gap=-5):
     return back_directions
 
 
-def calculate_aligment_indices(long, short, back_directions):
+def get_alignment_lines(long, short, back_directions):
     row_num, col_num = len(short), len(long)
     path = [[row_num, col_num]]
     line1, line2 = [], []
@@ -53,7 +61,18 @@ def calculate_aligment_indices(long, short, back_directions):
         if direction in (2, 3): row_num -= 1
         if direction in (1, 2): col_num -= 1
         path.append([row_num, col_num])
-    indexes = []
+    return line1, line2
+
+
+def calculate_aligment_indices(line2):
+    indices = []
     for n, char in enumerate(line2[::-1]):
-        if char != "-": indexes.append(n)
-    return indexes
+        if char != "-": indices.append(n)
+    return indices
+
+
+def calculate_identity_score(line1, line2):
+    identity = 0
+    for res1, res2 in zip(line1, line2):
+        if res1 == res2: identity += 1
+    return identity / len(line1)

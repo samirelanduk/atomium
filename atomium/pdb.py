@@ -1,6 +1,6 @@
 import re
 import calendar
-from atomium.sequences import align
+from atomium.sequences import get_alignment_indices
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
 from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
 
@@ -748,7 +748,9 @@ def finalize_polymers(polymers):
             if key not in polymer: polymer[key] = func()
         if polymer["residues"] == []:
             polymer["residues"] = polymer["observed_residues"]
-        polymer["alignment"] = align(polymer["residues"], polymer["observed_residues"])
+        polymer["alignment"] = get_alignment_indices(
+            polymer["residues"], polymer["observed_residues"]
+        )
     
 
 def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities, non_polymers):

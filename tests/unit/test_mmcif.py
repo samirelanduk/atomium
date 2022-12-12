@@ -2,6 +2,21 @@ from unittest import TestCase
 from unittest.mock import patch
 from atomium.mmcif import *
 
+class MmcifStringToDictTests(TestCase):
+
+    @patch("atomium.mmcif.get_sections_from_filestring")
+    @patch("atomium.mmcif.add_loop_section")
+    @patch("atomium.mmcif.add_non_loop_section")
+    def test_can_get_dict(self, mock_non, mock_loop, mock_sections):
+        mock_sections.return_value = [[""], ["loop_"], [""]]
+        d = mmcif_string_to_mmcif_dict("filestring\n\n")
+        mock_sections.assert_called_with("filestring")
+        mock_loop.assert_called_with(["loop_"], d)
+        mock_non.assert_any_call([""], d)
+        mock_non.assert_any_call([""], d)
+
+
+
 class SectionsFromFilestringTests(TestCase):
 
     def test_can_get_sections(self):
@@ -195,3 +210,198 @@ class SemicolonValueTests(TestCase):
         lines = deque([";ABCDE", "FGEH", ";", "Next line"])
         self.assertEqual(get_semicolon_value(lines), "ABCDEFGEH")
         self.assertEqual(lines, deque([";", "Next line"]))
+
+
+
+class MmcifDictSavingTests(TestCase):
+
+    @patch("atomium.mmcif.get_non_loop_lines")
+    @patch("atomium.mmcif.get_loop_lines")
+    @patch("builtins.open")
+    def test_can_save_mmcif_dict(self, mock_open, mock_loop, mock_non):
+        mock_loop.side_effect = [[], ["loop1", "loop2"]]
+        mock_non.return_value = ["nonloop1", "nonloop2"]
+        mmcif = {"cat1": [], "cat2": [1], "cat3": [1, 2]}
+        save_mmcif_dict(mmcif, "/path")
+        mock_loop.assert_any_call("cat1", [])
+        mock_loop.assert_any_call("cat3", [1, 2])
+        mock_non.assert_called_with("cat2", [1])
+        mock_open.assert_called_with("/path", "w")
+        output = [
+            "data_XXXX",
+            "#", "nonloop1", "nonloop2", "#", "loop1", "loop2", "#"
+        ]
+        mock_open.return_value.__enter__.return_value.write.assert_called_with(
+            "\n".join(output)
+        )
+    
+
+    @patch("atomium.mmcif.get_non_loop_lines")
+    @patch("atomium.mmcif.get_loop_lines")
+    @patch("builtins.open")
+    def test_can_save_mmcif_dict_with_entry_id(self, mock_open, mock_loop, mock_non):
+        mock_loop.side_effect = [[], ["loop1", "loop2"]]
+        mock_non.return_value = ["nonloop1", "nonloop2"]
+        mmcif = {"cat1": [], "entry": [{"id": ".."}], "cat3": [1, 2]}
+        save_mmcif_dict(mmcif, "/path")
+        mock_loop.assert_any_call("cat1", [])
+        mock_loop.assert_any_call("cat3", [1, 2])
+        mock_non.assert_called_with("entry", [{"id": ".."}])
+        mock_open.assert_called_with("/path", "w")
+        output = [
+            "data_..",
+            "#", "nonloop1", "nonloop2", "#", "loop1", "loop2", "#"
+        ]
+        mock_open.return_value.__enter__.return_value.write.assert_called_with(
+            "\n".join(output)
+        )
+
+
+
+class NonLoopLineGenerationTests(TestCase):
+
+    @patch("atomium.mmcif.format_value")
+    def test_lines_from_normal_values(self, mock_format):
+        mock_format.side_effect = lambda l: l
+        lines = get_non_loop_lines("cat1", [{"attr1": "xxx", "mod_attr2": "yyy"}])
+        self.assertEqual(lines, [
+            "_cat1.attr1     xxx",
+            "_cat1.mod_attr2 yyy"
+        ])
+        mock_format.assert_any_call("xxx")
+        mock_format.assert_any_call("yyy")
+    
+
+    @patch("atomium.mmcif.format_value")
+    def test_lines_from_list_values(self, mock_format):
+        mock_format.side_effect = ["xxx", [";line1", "line2", ";"], "zzz"]
+        lines = get_non_loop_lines("cat1", [
+            {"attr1": "xxx", "mod_attr2": "yyy", "attr_2": "zzz"}
+        ])
+        self.assertEqual(lines, [
+            "_cat1.attr1     xxx",
+            "_cat1.mod_attr2",
+            ";line1", "line2", ";",
+            "_cat1.attr_2    zzz",
+        ])
+        mock_format.assert_any_call("xxx")
+        mock_format.assert_any_call("yyy")
+        mock_format.assert_any_call("zzz")
+
+
+
+class LoopLineGenerationTests(TestCase):
+
+    def test_can_handle_empty_section(self):
+        self.assertEqual(get_loop_lines("cat", []), [])
+
+
+    @patch("atomium.mmcif.format_value")
+    def test_lines_from_normal_values(self, mock_format):
+        mock_format.side_effect = lambda l: l
+        category = [
+            {"attr1": "1111", "attr2": "2", "attr3": "3"},
+            {"attr1": "444", "attr2": "555", "attr3": "66"},
+        ]
+        lines = get_loop_lines("cat1", category)
+        self.assertEqual(lines, [
+            "loop_", "_cat1.attr1", "_cat1.attr2", "_cat1.attr3",
+            "1111 2   3 ", "444  555 66"
+        ])
+        for val in ["1111", "2", "3", "444", "555", "66"]:
+            mock_format.assert_any_call(val)
+        
+    
+    @patch("atomium.mmcif.format_value")
+    def test_semicolon_value_at_start(self, mock_format):
+        mock_format.side_effect = [[";line1", "line2", ";"], "2", "3", [";line3", "line4", ";"], "555", "66"]
+        category = [
+            {"attr1": "1111", "attr2": "2", "attr3": "3"},
+            {"attr1": "444", "attr2": "555", "attr3": "66"},
+        ]
+        lines = get_loop_lines("cat1", category)
+        self.assertEqual(lines, [
+            "loop_", "_cat1.attr1", "_cat1.attr2", "_cat1.attr3",
+            ";line1", "line2", ";", "2   3 ",
+            ";line3", "line4", ";", "555 66"
+        ])
+        for val in ["1111", "2", "3", "444", "555", "66"]:
+            mock_format.assert_any_call(val)
+    
+
+    @patch("atomium.mmcif.format_value")
+    def test_semicolon_values_in_middle(self, mock_format):
+        mock_format.side_effect = ["1111", [";line1", "line2", ";"], "3", "444", [";line3", "line4", ";"], "66"]
+        category = [
+            {"attr1": "1111", "attr2": "2", "attr3": "3"},
+            {"attr1": "444", "attr2": "555", "attr3": "66"},
+        ]
+        lines = get_loop_lines("cat1", category)
+        self.assertEqual(lines, [
+            "loop_", "_cat1.attr1", "_cat1.attr2", "_cat1.attr3",
+            "1111", ";line1", "line2", ";", "3 ",
+            "444 ", ";line3", "line4", ";", "66"
+        ])
+        for val in ["1111", "2", "3", "444", "555", "66"]:
+            mock_format.assert_any_call(val)
+    
+
+    @patch("atomium.mmcif.format_value")
+    def test_semicolon_values_at_end(self, mock_format):
+        mock_format.side_effect = ["1111", "2", [";line1", "line2", ";"], "444", "555", [";line3", "line4", ";"]]
+        category = [
+            {"attr1": "1111", "attr2": "2", "attr3": "3"},
+            {"attr1": "444", "attr2": "555", "attr3": "66"},
+        ]
+        lines = get_loop_lines("cat1", category)
+        self.assertEqual(lines, [
+            "loop_", "_cat1.attr1", "_cat1.attr2", "_cat1.attr3",
+            "1111 2  ", ";line1", "line2", ";",
+            "444  555", ";line3", "line4", ";",
+        ])
+        for val in ["1111", "2", "3", "444", "555", "66"]:
+            mock_format.assert_any_call(val)
+    
+
+    @patch("atomium.mmcif.format_value")
+    def test_semicolon_values_at_different_locations(self, mock_format):
+        mock_format.side_effect = [[";line1", "line2", ";"], "2", "3", "444", [";line3", "line4", ";"], "66"]
+        category = [
+            {"attr1": "1111", "attr2": "2", "attr3": "3"},
+            {"attr1": "444", "attr2": "555", "attr3": "66"},
+        ]
+        lines = get_loop_lines("cat1", category)
+        self.assertEqual(lines, [
+            "loop_", "_cat1.attr1", "_cat1.attr2", "_cat1.attr3",
+            ";line1", "line2", ";", "2 3 ",
+            "444", ";line3", "line4", ";", "66"
+        ])
+        for val in ["1111", "2", "3", "444", "555", "66"]:
+            mock_format.assert_any_call(val)
+
+
+
+class ValueFormattingTests(TestCase):
+
+    def test_can_return_unchanged(self):
+        self.assertEqual(format_value("xxx"), "xxx")
+        self.assertEqual(format_value("-ABC;"), "-ABC;")
+    
+
+    def test_can_escape_quotes(self):
+        self.assertEqual(format_value("x\"xx"), "'x\"xx'")
+        self.assertEqual(format_value("x'xx"), "\"x'xx\"")
+    
+
+    def test_can_handle_spaces(self):
+        self.assertEqual(format_value("x x x"), "'x x x'")
+        self.assertEqual(format_value("x x\"x"), "'x x\"x'")
+        self.assertEqual(format_value("x x'x"), "\"x x'x\"")
+    
+
+    def test_can_handle_line_breaks(self):
+        self.assertEqual(format_value("xx\nx\nxy"), [";xx", "x", "xy", ";"])
+    
+
+    def test_can_handle_multiple_quotes(self):
+        self.assertEqual(format_value("x\"x'x"), [";x\"x'x", ";"])

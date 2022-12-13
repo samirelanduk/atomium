@@ -7,6 +7,7 @@ from .bcif import bcif_string_to_mmcif_dict
 from .mmtf import mmtf_string_to_mmcif_dict
 from .pdb import pdb_string_to_mmcif_dict
 from .mmcif import save_mmcif_dict as save_mmcif_dict_to_mmcif
+from .bcif import save_mmcif_dict as save_mmcif_dict_to_bcif
 from .pdb import save_mmcif_dict as save_mmcif_dict_to_pdb
 from .file import File
 
@@ -83,5 +84,6 @@ def save_dictionary(d, path):
     ext = str(path).split(".")[-1]
     {
         "cif": save_mmcif_dict_to_mmcif,
+        "bcif": save_mmcif_dict_to_bcif,
         "pdb": save_mmcif_dict_to_pdb,
     }[ext](d, path)

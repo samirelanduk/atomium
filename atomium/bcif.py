@@ -124,3 +124,27 @@ def decode_string_array(data, encoding):
     for start, end in zip(offsets, offsets[1:]):
         unique_strings.append(encoding[b"stringData"][start:end].decode())
     return [unique_strings[n] if n >= 0 else None for n in data]
+
+
+def save_mmcif_dict(mmcif_dict, path):
+    """Saves an mmCIF dictionary to a .bcif file.
+
+    :param dict mmcif_dict: the dictionary to save.
+    :param Path path: the location to save to."""
+
+
+    from atomium import __version__
+    code = mmcif_dict["entry"][0]["id"]
+    bcif = {
+        b"encoder": b"atomium " + __version__.encode(),
+        b"version": b"0.3.0",
+        b"dataBlocks": [{
+            b"header": code.encode(),
+            b"categories": [{
+                b"name": name.encode(), b"columns": [], b"rowCount": len(rows)
+            } for name, rows in mmcif_dict.items()]
+        }]
+    }
+    data = msgpack.packb(bcif)
+    with open(path, "wb") as f:
+        f.write(data)

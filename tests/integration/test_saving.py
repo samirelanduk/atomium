@@ -3,7 +3,7 @@ import shutil
 import atomium
 from unittest import TestCase
 
-class DictSavingTests(TestCase):
+class SaveTest(TestCase):
 
     def setUp(self):
         os.mkdir("tests/integration/files/output")
@@ -12,7 +12,10 @@ class DictSavingTests(TestCase):
     def tearDown(self):
         if os.path.exists("tests/integration/files/output/"):
             shutil.rmtree("tests/integration/files/output/")
-    
+
+
+
+class MmcifDictSavingTests(SaveTest):
 
     def save(self, code):
         original = atomium.open(f"tests/integration/files/{code}.cif", dictionary=True)
@@ -71,3 +74,17 @@ class DictSavingTests(TestCase):
 
     def test_2fur_saving(self):
         self.save("2fur")
+
+
+
+class BcifDictSavingTests(SaveTest):
+
+    def save(self, code):
+        original = atomium.open(f"tests/integration/files/{code}.bcif", dictionary=True)
+        atomium.save_mmcif_dict(original, f"tests/integration/files/output/{code}.bcif")
+        saved = atomium.open(f"tests/integration/files/output/{code}.bcif", dictionary=True)
+        self.assertEqual(original, saved)
+
+
+    def test_1lol_saving(self):
+        self.save("1lol")

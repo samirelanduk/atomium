@@ -1151,6 +1151,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_header_line(mmcif_dict)
     lines += create_title_lines(mmcif_dict)
     lines += create_compnd_lines(mmcif_dict)
+    lines += create_keywds_lines(mmcif_dict)
     lines.append("END")
     with open(path, "w") as f:
         f.write("\n".join(lines))
@@ -1202,6 +1203,19 @@ def create_compnd_lines(mmcif):
                     lines.append(f"COMPND    {line}")
                 else:
                     lines.append(f"COMPND  {len(lines):>2} {line}")
+    return lines
+
+
+def create_keywds_lines(mmcif):
+    lines = []
+    keywords = mmcif["struct_keywords"][0]["text"]
+    if keywords == "?": return lines
+    keywds = split_lines(keywords.upper(), 69)
+    for line in keywds:
+        if len(lines) == 0:
+            lines.append(f"KEYWDS    {line}")
+        else:
+            lines.append(f"KEYWDS  {len(lines):>2} {line}")
     return lines
 
 

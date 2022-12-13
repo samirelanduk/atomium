@@ -1110,7 +1110,7 @@ def build_struct_asym(mmcif):
     for atom in mmcif["atom_site"]:
         lookup[atom["label_asym_id"]] = atom["label_entity_id"]
     mmcif["struct_asym"] = [{
-        "asym_id": asym_id, "pdbx_blank_PDB_chainid_flag": "N",
+        "id": asym_id, "pdbx_blank_PDB_chainid_flag": "N",
         "pdbx_modified": "N", "entity_id": entity_id, "details": "?"
     } for asym_id, entity_id in lookup.items()]
 

@@ -1149,6 +1149,7 @@ def save_mmcif_dict(mmcif_dict, path):
 
     lines = []
     lines += create_header_line(mmcif_dict)
+    lines += create_title_lines(mmcif_dict)
     lines.append("END")
     with open(path, "w") as f:
         f.write("\n".join(lines))
@@ -1162,6 +1163,29 @@ def create_header_line(mmcif):
     keyword = (" " * 40) if keyword == "?" else keyword.ljust(40)
     date = (" " * 9) if date == "?" else create_pdb_date(date)
     return ["HEADER" + (" " * 4) + keyword + date + (" " * 3) + code]
+
+
+def create_title_lines(mmcif):
+    lines = []
+    title = mmcif["struct"][0]["title"]
+    if not title or title == "?": return []
+    if len(title) <= 70:
+        lines.append("TITLE     " + title.upper())
+    else:
+        cutoff = 60
+        strings = []
+        while title:
+            first = title[:cutoff]
+            last_space = first[::-1].find(" ")
+            first = title[:cutoff - last_space]
+            title = title[cutoff - last_space:].lstrip()
+            strings.append(first)
+        for n, title in enumerate(strings, start=1):
+            if n == 1:
+                lines.append("TITLE     " + title.upper())
+            else:
+                lines.append("TITLE   " + str(n).rjust(2) + " " + title.upper())
+    return lines
 
 
 def create_pdb_date(date):

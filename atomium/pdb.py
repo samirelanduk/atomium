@@ -1150,6 +1150,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines = []
     lines += create_header_line(mmcif_dict)
     lines += create_title_lines(mmcif_dict)
+    lines += create_compnd_lines(mmcif_dict)
     lines.append("END")
     with open(path, "w") as f:
         f.write("\n".join(lines))
@@ -1169,22 +1170,38 @@ def create_title_lines(mmcif):
     lines = []
     title = mmcif["struct"][0]["title"]
     if not title or title == "?": return []
-    if len(title) <= 70:
-        lines.append("TITLE     " + title.upper())
-    else:
-        cutoff = 60
-        strings = []
-        while title:
-            first = title[:cutoff]
-            last_space = first[::-1].find(" ")
-            first = title[:cutoff - last_space]
-            title = title[cutoff - last_space:].lstrip()
-            strings.append(first)
-        for n, title in enumerate(strings, start=1):
-            if n == 1:
-                lines.append("TITLE     " + title.upper())
-            else:
-                lines.append("TITLE   " + str(n).rjust(2) + " " + title.upper())
+    strings = split_lines(title.upper(), 60)
+    for n, title in enumerate(strings, start=1):
+        if n == 1:
+            lines.append("TITLE     " + title.upper())
+        else:
+            lines.append("TITLE   " + str(n).rjust(2) + " " + title.upper())
+    return lines
+
+
+def create_compnd_lines(mmcif):
+    lines = []
+    for entity in mmcif["entity"]:
+        if entity["type"] != "polymer": continue
+        name_com = [e for e in mmcif["entity_name_com"] if e["entity_id"] == entity["id"]]
+        asym_lookup = {a["label_asym_id"]: a["auth_asym_id"] for a in mmcif["atom_site"]}
+        asyms = [a["id"] for a in mmcif["struct_asym"] if a["entity_id"] == entity["id"]]
+        mol = {
+            "MOL_ID": entity["id"],
+            "MOLECULE": entity["pdbx_description"].upper(),
+            "CHAIN": ", ".join([asym_lookup[id] for id in asyms]),
+            "SYNONYM": name_com[0]["name"].upper() if name_com else "?",
+            "EC": entity["pdbx_ec"],
+            "ENGINEERED": "YES" if entity["src_method"] == "man" else "?"
+        }
+        for key, value in mol.items():
+            if value == "?": continue
+            compnd = split_lines(f"{key}: {value};", 70)
+            for line in compnd:
+                if len(lines) == 0:
+                    lines.append(f"COMPND    {line}")
+                else:
+                    lines.append(f"COMPND  {len(lines):>2} {line}")
     return lines
 
 
@@ -1193,3 +1210,15 @@ def create_pdb_date(date):
     year, month, day = date.split("-")
     month = list(calendar.month_abbr)[int(month)].upper()
     return f"{day}-{month}-{year[2:]}"
+
+
+def split_lines(string, length):
+    if len(string) <= length: return [string]
+    strings = []
+    while string:
+        first = string[:length]
+        last_space = first[::-1].find(" ")
+        first = string[:length - last_space]
+        string = string[length - last_space:].lstrip()
+        strings.append(first)
+    return strings

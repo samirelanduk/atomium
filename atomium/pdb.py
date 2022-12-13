@@ -1139,3 +1139,15 @@ def process_names(lines):
 
 def residue_sig(atom):
     return (atom[21], atom[17:20].strip(), atom[22:26].strip(), atom[26].strip())
+
+
+def save_mmcif_dict(mmcif_dict, path):
+    """Saves an mmCIF dictionary to a .pdb file.
+
+    :param dict mmcif_dict: the dictionary to save.
+    :param Path path: the location to save to."""
+
+    lines = []
+    lines.append("END")
+    with open(path, "w") as f:
+        f.write("\n".join(lines))

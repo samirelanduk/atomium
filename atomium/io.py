@@ -2,10 +2,12 @@ import builtins
 import requests
 import gzip
 import paramiko
-from .mmcif import mmcif_string_to_mmcif_dict, save_mmcif_dict
+from .mmcif import mmcif_string_to_mmcif_dict
 from .bcif import bcif_string_to_mmcif_dict
 from .mmtf import mmtf_string_to_mmcif_dict
 from .pdb import pdb_string_to_mmcif_dict
+from .mmcif import save_mmcif_dict as save_mmcif_dict_to_mmcif
+from .pdb import save_mmcif_dict as save_mmcif_dict_to_pdb
 from .file import File
 
 def open(path, dictionary=False):
@@ -78,4 +80,8 @@ def determine_filetype(filestring, filename):
 
 
 def save_dictionary(d, path):
-    save_mmcif_dict(d, path)
+    ext = str(path).split(".")[-1]
+    {
+        "cif": save_mmcif_dict_to_mmcif,
+        "pdb": save_mmcif_dict_to_pdb,
+    }[ext](d, path)

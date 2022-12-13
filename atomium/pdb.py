@@ -1148,6 +1148,24 @@ def save_mmcif_dict(mmcif_dict, path):
     :param Path path: the location to save to."""
 
     lines = []
+    lines += create_header_line(mmcif_dict)
     lines.append("END")
     with open(path, "w") as f:
         f.write("\n".join(lines))
+
+
+def create_header_line(mmcif):
+    code = mmcif["entry"][0]["id"]
+    keyword = mmcif["struct_keywords"][0]["pdbx_keywords"][:40].upper()
+    date = mmcif["pdbx_database_status"][0]["recvd_initial_deposition_date"]
+    code = "    " if code == "?" else code[:4]
+    keyword = (" " * 40) if keyword == "?" else keyword.ljust(40)
+    date = (" " * 9) if date == "?" else create_pdb_date(date)
+    return ["HEADER" + (" " * 4) + keyword + date + (" " * 3) + code]
+
+
+def create_pdb_date(date):
+    if not date.strip(): return
+    year, month, day = date.split("-")
+    month = list(calendar.month_abbr)[int(month)].upper()
+    return f"{day}-{month}-{year[2:]}"

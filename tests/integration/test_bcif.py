@@ -18,6 +18,21 @@ class DictParsingTests(TestCase):
             d["pdbx_database_related"][0]["details"],
             "orotidine monophosphate decarboxylase complexed with UMP"
         )
+
+        self.assertEqual(d["entity"][0], {
+            "id": "1", "type": "polymer", "src_method": "man",
+            "pdbx_description": "orotidine 5'-monophosphate decarboxylase",
+            "formula_weight": "24994.83", "pdbx_number_of_molecules": "2",
+            "pdbx_ec": "4.1.1.23", "pdbx_mutation": "?", "pdbx_fragment": "?",
+            "details": "?"
+        })
+        self.assertEqual(d["entity"][1], {
+            "id": "2", "type": "non-polymer", "src_method": "syn",
+            "pdbx_description": "1,3-BUTANEDIOL", "formula_weight": "90.121",
+            "pdbx_number_of_molecules": "2", "pdbx_ec": "?", "pdbx_mutation": "?",
+            "pdbx_fragment": "?", "details": "?"
+        })
+
         self.assertEqual(d["entity"][2]["pdbx_description"], "XANTHOSINE-5'-MONOPHOSPHATE")
         self.assertEqual(
             d["entity_poly"][0]["pdbx_seq_one_letter_code"],

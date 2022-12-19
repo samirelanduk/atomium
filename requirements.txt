@@ -5,6 +5,5 @@ valerius==0.2
 python-coveralls
 sphinx
 sphinx_rtd_theme
-paramiko
 tqdm
 scipy

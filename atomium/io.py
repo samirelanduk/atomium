@@ -1,15 +1,14 @@
+import gzip
 import builtins
 import requests
-import gzip
-import paramiko
-from .mmcif import mmcif_string_to_mmcif_dict
-from .bcif import bcif_string_to_mmcif_dict
-from .mmtf import mmtf_string_to_mmcif_dict
-from .pdb import pdb_string_to_mmcif_dict
-from .mmcif import save_mmcif_dict as save_mmcif_dict_to_mmcif
-from .bcif import save_mmcif_dict as save_mmcif_dict_to_bcif
-from .pdb import save_mmcif_dict as save_mmcif_dict_to_pdb
-from .file import File
+from atomium.mmcif import mmcif_string_to_mmcif_dict
+from atomium.mmcif import save_mmcif_dict as save_mmcif_dict_to_mmcif
+from atomium.bcif import bcif_string_to_mmcif_dict
+from atomium.bcif import save_mmcif_dict as save_mmcif_dict_to_bcif
+from atomium.pdb import pdb_string_to_mmcif_dict
+from atomium.pdb import save_mmcif_dict as save_mmcif_dict_to_pdb
+from atomium.mmtf import mmtf_string_to_mmcif_dict
+from atomium.file import File
 
 def open(path, dictionary=False):
     if str(path)[-3:] == ".gz":
@@ -24,7 +23,7 @@ def open(path, dictionary=False):
     except:
         with builtins.open(path, "rb") as f:
             filestring = f.read()
-    return parse_filestring(filestring, path, dictionary=dictionary)
+    return parse_filestring(filestring, str(path), dictionary=dictionary)
 
 
 def fetch(code, dictionary=False):
@@ -42,24 +41,6 @@ def fetch(code, dictionary=False):
         text = response.content if code.endswith(".bcif") or code.endswith(".mmtf") else response.text
         return parse_filestring(text, code, dictionary=dictionary)
     raise ValueError("Could not find anything at {}".format(url))
-
-
-def fetch_over_ssh(hostname, username, path, password=None, dictionary=False):
-    client = paramiko.SSHClient()
-    try:
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        if not password:
-            client.load_system_host_keys()
-            client.connect(hostname=hostname, username=username)
-        else:
-            client.connect(
-                hostname=hostname, username=username, password=password 
-            )
-        stdout = client.exec_command("less " + path)[1]
-        filestring = stdout.read().decode()
-    finally:
-        client.close()
-    return parse_filestring(filestring, path, dictionary=dictionary)
 
 
 def parse_filestring(filestring, filename, dictionary=False):

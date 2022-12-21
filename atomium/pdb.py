@@ -5,13 +5,30 @@ from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
 from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
 
 def pdb_string_to_mmcif_dict(filestring):
+    """Takes the contents of a .pdb file and returns a fully parsed dictionary
+    representation of it. First the metadata is parsed to create the initial
+    mmCIF dictionary, Then a description of the entities involved is obtained,
+    which are then incorporated into the mmCIF.
+    
+    :param str filestring: the contents of the .pdb file.
+    :rtype: ``dict``"""
+
     mmcif = parse_metadata(filestring)
     polymer_entities, non_polymer_entities = get_entities(filestring)
-    build_structure_categories(filestring, polymer_entities, non_polymer_entities, mmcif)
+    build_structure_categories(
+        filestring, polymer_entities, non_polymer_entities, mmcif
+    )
     return mmcif
 
 
 def parse_metadata(filestring):
+    """Creates an initial mmCIF dictionary with information about metadata from
+    thr PDB filestring - that is, descriptions of the experiment etc., rather
+    than details of the structure contained.
+    
+    :param str filestring: the contents of the .pdb file.
+    :rtype: ``dict``"""
+
     mmcif = {}
     parse_header(filestring, mmcif)
     parse_obslte(filestring, mmcif)
@@ -34,20 +51,27 @@ def parse_metadata(filestring):
 
 
 def get_entities(filestring):
+    """Gets a description of the polymer and non-polymer entities in a PDB file,
+    based on descriptive records and the actual contents of the ATOM/HETATM
+    records. Each entity contains all the descriptive information needed to
+    incorporate them into the mmCIF dictionary, and a list of the actual polymer
+    molecules that represent the entity.
+
+    :param str filestring: the contents of the .pdb file.
+    :rtype: ``tuple``"""
+
     polymer_entities = parse_compnd_and_source(filestring)
     polymers = parse_dbref(filestring)
     parse_seqadv(filestring, polymers)
     parse_seqres(filestring, polymers)
     parse_modres(filestring, polymers)
-
     non_polymer_entities, non_polymers = parse_het(filestring)
     parse_hetnam(filestring, non_polymer_entities)
     parse_hetsyn(filestring, non_polymer_entities)
     parse_formul(filestring, non_polymer_entities)
-
     update_entities_from_atoms(
-        filestring, polymer_entities, polymers, non_polymer_entities,
-        non_polymers
+        filestring, polymer_entities, polymers,
+        non_polymer_entities, non_polymers
     )
     finalize_entities(polymer_entities, non_polymer_entities)
     finalize_polymers(polymers)
@@ -57,7 +81,16 @@ def get_entities(filestring):
     return polymer_entities, non_polymer_entities
 
 
-def build_structure_categories(filestring, polymer_entities, non_polymer_entities, mmcif):
+def build_structure_categories(filestring, polymer_entities,
+                               non_polymer_entities, mmcif):
+    """Builds the structure categories in an mmCIF dictionary, based on the PDB
+    file contents and the pre-calculated entity information.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict polymer_entities: the polymer entity information.
+    :param dict non_polymer_entities: the non-polymer entity information.
+    :param dict mmcif: the dictionary to update."""
+    
     build_entity_category(polymer_entities, non_polymer_entities, mmcif)
     build_entity_poly(polymer_entities, mmcif)
     build_entity_poly_seq(polymer_entities, mmcif)

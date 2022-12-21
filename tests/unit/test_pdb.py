@@ -223,3 +223,51 @@ class ObslteParsingTests(TestCase):
             "id": "OBSLTE", "details": "?", "date": "1994-01-21",
             "pdb_id": "2MBP 3MBP", "replace_pdb_id": "1MBP"
         }]})
+
+
+
+class TitleParsingTests(TestCase):
+
+    def test_can_handle_no_title(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_title("", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "struct": [{
+                "entry_id": "1XXX", "title": "?", "pdbx_descriptor": "?",
+                "pdbx_model_details": "?", "pdbx_CASP_flag": "?",
+                "pdbx_model_type_details": "?"
+            }]
+        })
+    
+
+    def test_can_handle_single_line_title(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_title("TITLE     RHIZOPUSPEPSIN COMPLEXED WITH REDUCED PEPTIDE INHIBITOR   ", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "struct": [{
+                "entry_id": "1XXX", "pdbx_descriptor": "?",
+                "pdbx_model_details": "?", "pdbx_CASP_flag": "?",
+                "pdbx_model_type_details": "?",
+                "title": "RHIZOPUSPEPSIN COMPLEXED WITH REDUCED PEPTIDE INHIBITOR"
+            }]
+        })
+    
+
+    def test_can_handle_multi_line_title(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_title(
+            "TITLE     STRUCTURE OF THE TRANSFORMED MONOCLINIC LYSOZYME BY         \n"
+            "TITLE    2 CONTROLLED DEHYDRATION  ",
+            mmcif
+        )
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "struct": [{
+                "entry_id": "1XXX", "pdbx_descriptor": "?",
+                "pdbx_model_details": "?", "pdbx_CASP_flag": "?",
+                "pdbx_model_type_details": "?",
+                "title": "STRUCTURE OF THE TRANSFORMED MONOCLINIC LYSOZYME BY CONTROLLED DEHYDRATION"
+            }]
+        })

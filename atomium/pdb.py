@@ -148,7 +148,13 @@ def parse_obslte(filestring, mmcif):
     }]
 
 
-def parse_title(filestring, mmcif):    
+def parse_title(filestring, mmcif):   
+    """Parses the TITLE records and makes the ``struct`` table as a result if
+    needed.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["struct"] = [{"entry_id": mmcif["entry"][0]["id"], **{
         k: "?" for k in [
             "title", "pdbx_descriptor", "pdbx_model_details", "pdbx_CASP_flag",
@@ -156,8 +162,8 @@ def parse_title(filestring, mmcif):
         ]
     }}]
     title_lines = re.findall(r"^TITLE.+", filestring, re.M)
-    title = " ".join([l[10:80] for l in title_lines]).strip()
-    mmcif["struct"][0]["title"] = " ".join(title.split())
+    title = " ".join([l[10:80].strip() for l in title_lines]).strip()
+    mmcif["struct"][0]["title"] = title or "?"
 
 
 def parse_split(filestring, mmcif):

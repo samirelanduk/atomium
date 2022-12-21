@@ -108,21 +108,23 @@ def build_structure_categories(filestring, polymer_entities,
 
 
 def parse_header(filestring, mmcif):
+    """Parses the HEADER record of a PDB and creates the three mmCIF categories
+    that contain its information.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+    
     header = re.search(f"HEADER.+", filestring, re.M)
-    if not header:
-        mmcif["entry"] = [{"id": "1XXX"}]
-        return
-    header = header.group(0)
-    code = (header[62:66].strip() or "1XXX") if header else "1XXX"
-    if set(code) == {"-"}: code = "1XXX"
+    header = header.group(0) if header else None
+    code = (header[62:66].strip() or "XXXX") if header else "XXXX"
+    date = header[50:59].strip() if header else ""
+    date = pdb_date_to_mmcif_date(date) or "?"
+    keyword = (header[10:50].strip() or "?") if header else "?"
     mmcif["entry"] = [{"id": code}]
-    date = header[50:59].strip()
     mmcif["pdbx_database_status"] = [{
         "status_code": "REL", "entry_id": code,
-        "recvd_initial_deposition_date": pdb_date_to_mmcif_date(date) or "?"
+        "recvd_initial_deposition_date": date
     }]
-    keyword = (header[10:50].strip() or "?") if header else "?"
-    if set(keyword) == {"-"} or keyword in ["NULL", "NONE"]: keyword = "?"
     mmcif["struct_keywords"] = [{
         "entry_id": code, "pdbx_keywords": keyword, "text": "?"
     }]

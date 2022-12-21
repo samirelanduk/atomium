@@ -117,3 +117,78 @@ class StructureCategoryBuildingTests(TestCase):
         mocks[11].assert_called_with("filestring", {"mmcif": 1})
         mocks[12].assert_called_with({"mmcif": 1})
         mocks[13].assert_called_with({"mmcif": 1})
+    
+
+
+class HeaderParsingTests(TestCase):
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_handle_no_header(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = None
+        parse_header("", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "XXXX"}],
+            "pdbx_database_status": [{"status_code": "REL", "entry_id": "XXXX", "recvd_initial_deposition_date": "?"}],
+            "struct_keywords": [{"entry_id": "XXXX", "pdbx_keywords": "?", "text": "?"}]
+        })
+    
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_handle_empty_header(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = None
+        parse_header("HEADER  ", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "XXXX"}],
+            "pdbx_database_status": [{"status_code": "REL", "entry_id": "XXXX", "recvd_initial_deposition_date": "?"}],
+            "struct_keywords": [{"entry_id": "XXXX", "pdbx_keywords": "?", "text": "?"}]
+        })
+
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_keywords(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = None
+        parse_header("HEADER    LYASE        ", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "XXXX"}],
+            "pdbx_database_status": [{"status_code": "REL", "entry_id": "XXXX", "recvd_initial_deposition_date": "?"}],
+            "struct_keywords": [{"entry_id": "XXXX", "pdbx_keywords": "LYASE", "text": "?"}]
+        })
+
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_date(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = "2002-05-06"
+        parse_header("HEADER                                            06-MAY-02  ", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "XXXX"}],
+            "pdbx_database_status": [{"status_code": "REL", "entry_id": "XXXX", "recvd_initial_deposition_date": "2002-05-06"}],
+            "struct_keywords": [{"entry_id": "XXXX", "pdbx_keywords": "?", "text": "?"}]
+        })
+
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_code(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = None
+        parse_header("HEADER                                                        1LOL", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1LOL"}],
+            "pdbx_database_status": [{"status_code": "REL", "entry_id": "1LOL", "recvd_initial_deposition_date": "?"}],
+            "struct_keywords": [{"entry_id": "1LOL", "pdbx_keywords": "?", "text": "?"}]
+        })
+    
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_full_header(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = "2002-05-06"
+        parse_header("HEADER    LYASE                                   06-MAY-02   1LOL", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1LOL"}],
+            "pdbx_database_status": [{"status_code": "REL", "entry_id": "1LOL", "recvd_initial_deposition_date": "2002-05-06"}],
+            "struct_keywords": [{"entry_id": "1LOL", "pdbx_keywords": "LYASE", "text": "?"}]
+        })

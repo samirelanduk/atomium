@@ -192,3 +192,34 @@ class HeaderParsingTests(TestCase):
             "pdbx_database_status": [{"status_code": "REL", "entry_id": "1LOL", "recvd_initial_deposition_date": "2002-05-06"}],
             "struct_keywords": [{"entry_id": "1LOL", "pdbx_keywords": "LYASE", "text": "?"}]
         })
+
+
+
+class ObslteParsingTests(TestCase):
+
+    def test_can_handle_no_obslte(self):
+        mmcif = {}
+        parse_obslte("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_single_code(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = "1994-01-21"
+        parse_obslte("OBSLTE     31-JAN-94 1MBP      2MBP", mmcif)
+        self.assertEqual(mmcif, {"pdbx_database_PDB_obs_spr": [{
+            "id": "OBSLTE", "details": "?", "date": "1994-01-21",
+            "pdb_id": "2MBP", "replace_pdb_id": "1MBP"
+        }]})
+    
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_multiple_codes(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = "1994-01-21"
+        parse_obslte("OBSLTE     31-JAN-94 1MBP      2MBP      3MBP", mmcif)
+        self.assertEqual(mmcif, {"pdbx_database_PDB_obs_spr": [{
+            "id": "OBSLTE", "details": "?", "date": "1994-01-21",
+            "pdb_id": "2MBP 3MBP", "replace_pdb_id": "1MBP"
+        }]})

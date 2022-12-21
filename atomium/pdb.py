@@ -131,15 +131,21 @@ def parse_header(filestring, mmcif):
 
 
 def parse_obslte(filestring, mmcif):
+    """Parses the OBSLTE records and makes the ``pdbx_database_PDB_obs_spr``
+    table as a result if needed. Only the first OBSTLE record is used.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     obslte_lines = re.findall(r"^OBSLTE.+", filestring, re.M)
-    if obslte_lines:
-        codes = [code for l in obslte_lines for code in l[31:].strip().split()]
-        mmcif["pdbx_database_PDB_obs_spr"] = [{
-            "id": "OBSLTE", "details": "?",
-            "date": pdb_date_to_mmcif_date(obslte_lines[0][11:20].strip()),
-            "pdb_id": " ".join(codes),
-            "replace_pdb_id": obslte_lines[0][21:25].strip()
-        }]
+    if not obslte_lines: return
+    codes = [code for l in obslte_lines for code in l[31:].strip().split()]
+    mmcif["pdbx_database_PDB_obs_spr"] = [{
+        "id": "OBSLTE", "details": "?",
+        "date": pdb_date_to_mmcif_date(obslte_lines[0][11:20].strip()),
+        "pdb_id": " ".join(codes),
+        "replace_pdb_id": obslte_lines[0][21:25].strip()
+    }]
 
 
 def parse_title(filestring, mmcif):    

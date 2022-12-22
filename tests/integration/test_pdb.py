@@ -371,7 +371,7 @@ class DictParsingTests(TestCase):
             "replace_pdb_id": "1CK8", "details": "?"
         }])
         self.assertEqual(d["database_PDB_caveat"], [{
-            "text": "THERE ARE CHIRALITY ERRORS IN C-ALPHA CENTERS"
+            "id": "1", "text": "THERE ARE CHIRALITY ERRORS IN C-ALPHA CENTERS"
         }])
         self.assertEqual(d["audit_author"], [
             {"name": "Mao, H", "pdbx_ordinal": "1"},
@@ -388,6 +388,7 @@ class DictParsingTests(TestCase):
             "replace_pdb_id": "1HHB", "details": "?"
         }])
         self.assertEqual(d["database_PDB_caveat"], [{
+            "id": "1",
             "text": "THR A 137 HAS WRONG CHIRALITY AT ATOM CB "
             "THR B 12 HAS WRONG CHIRALITY AT ATOM CB "
             "THR B 50 HAS WRONG CHIRALITY AT ATOM CB "

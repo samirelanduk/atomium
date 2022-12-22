@@ -271,3 +271,66 @@ class TitleParsingTests(TestCase):
                 "title": "STRUCTURE OF THE TRANSFORMED MONOCLINIC LYSOZYME BY CONTROLLED DEHYDRATION"
             }]
         })
+
+
+
+class SplitParsingTests(TestCase):
+
+    def test_can_handle_no_split(self):
+        mmcif = {}
+        parse_split("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_handle_split(self):
+        mmcif = {}
+        parse_split("SPLIT      1VOQ 1VOR 1VOS 1VOU 1VOV", mmcif)
+        self.assertEqual(mmcif, {"pdbx_database_related": [
+            {"db_name": "PDB", "db_id": "1VOQ", "content_type": "split", "details": "Split 1"},
+            {"db_name": "PDB", "db_id": "1VOR", "content_type": "split", "details": "Split 2"},
+            {"db_name": "PDB", "db_id": "1VOS", "content_type": "split", "details": "Split 3"},
+            {"db_name": "PDB", "db_id": "1VOU", "content_type": "split", "details": "Split 4"},
+            {"db_name": "PDB", "db_id": "1VOV", "content_type": "split", "details": "Split 5"},
+        ]})
+    
+
+    def test_can_handle_multi_line_split(self):
+        mmcif = {}
+        parse_split("SPLIT      1VOQ 1VOR 1VOS   \nSPLIT      1VOU 1VOV", mmcif)
+        self.assertEqual(mmcif, {"pdbx_database_related": [
+            {"db_name": "PDB", "db_id": "1VOQ", "content_type": "split", "details": "Split 1"},
+            {"db_name": "PDB", "db_id": "1VOR", "content_type": "split", "details": "Split 2"},
+            {"db_name": "PDB", "db_id": "1VOS", "content_type": "split", "details": "Split 3"},
+            {"db_name": "PDB", "db_id": "1VOU", "content_type": "split", "details": "Split 4"},
+            {"db_name": "PDB", "db_id": "1VOV", "content_type": "split", "details": "Split 5"},
+        ]})
+
+
+
+class CaveatParsingTests(TestCase):
+
+    def test_can_handle_no_caveat(self):
+        mmcif = {}
+        parse_caveat("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_handle_caveat(self):
+        mmcif = {}
+        parse_caveat("CAVEAT     1CK8    THERE ARE CHIRALITY ERRORS IN C-ALPHA CENTERS       ", mmcif)
+        self.assertEqual(mmcif, {"database_PDB_caveat": [
+            {"id": "1", "text": "THERE ARE CHIRALITY ERRORS IN C-ALPHA CENTERS"},
+        ]})
+    
+
+    def test_can_handle_multi_line_caveat(self):
+        mmcif = {}
+        parse_caveat(
+            "CAVEAT     4HHB    THR A 137 HAS WRONG CHIRALITY AT ATOM CB THR B 12 HAS WRONG  \n"
+            "CAVEAT   2 4HHB    CHIRALITY AT ATOM CB THR B 50 HAS WRONG CHIRALITY AT ATOM   \n"
+            "CAVEAT   3 4HHB    CB",
+            mmcif
+        )
+        self.assertEqual(mmcif, {"database_PDB_caveat": [
+            {"id": "1", "text": "THR A 137 HAS WRONG CHIRALITY AT ATOM CB THR B 12 HAS WRONG CHIRALITY AT ATOM CB THR B 50 HAS WRONG CHIRALITY AT ATOM CB"},
+        ]})

@@ -167,6 +167,13 @@ def parse_title(filestring, mmcif):
 
 
 def parse_split(filestring, mmcif):
+    """Parses the SPLIT records and creates the ``pdbx_database_related`` table
+    as a result if needed. The contents here may be enhanced by the contents of
+    REMARK 900.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     split_lines = re.findall(r"^SPLIT.+", filestring, re.M)
     if split_lines:
         codes = [code for l in split_lines for code in l[11:].strip().split()]
@@ -176,11 +183,17 @@ def parse_split(filestring, mmcif):
         } for n, code in enumerate(codes, start=1)]
 
 
-def parse_caveat(filestring, mmcif):    
+def parse_caveat(filestring, mmcif):
+    """Parses the CAVEAT records and creates the ``database_PDB_caveat`` table
+    as a result if needed.
+
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+    
     caveat_lines = re.findall(r"^CAVEAT.+", filestring, re.M)
     if not caveat_lines: return
     caveat = " ".join([l[19:80] for l in caveat_lines]).strip()
-    mmcif["database_PDB_caveat"] = [{"text": " ".join(caveat.split())}]
+    mmcif["database_PDB_caveat"] = [{"id": "1", "text": " ".join(caveat.split())}]
 
 
 def parse_keywds(filestring, mmcif):

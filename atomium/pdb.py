@@ -228,7 +228,7 @@ def parse_mdltyp(filestring, mmcif):
     
     :param str filestring: the contents of the .pdb file.
     :param dict mmcif: the dictionary to update."""
-    
+
     mdltyp = re.findall(f"^MDLTYP.+", filestring, re.M)
     if not mdltyp: return
     mmcif["pdbx_coordinate_model"] = []
@@ -250,6 +250,12 @@ def parse_mdltyp(filestring, mmcif):
 
 
 def parse_author(filestring, mmcif):
+    """Parses the AUTHOR records and creates the ``audit_author`` table from it.
+    Names will be lightly reformatted.
+
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^AUTHOR.+", filestring, re.M)
     if not lines: return
     author_lines = [line[10:].strip() for line in lines]

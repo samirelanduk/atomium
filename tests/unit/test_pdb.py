@@ -414,7 +414,7 @@ class MdltypParsingTests(TestCase):
         })
         
 
-    def test_can_parse_multu_line_mdltyp_with_asyms(self):
+    def test_can_parse_multi_line_mdltyp_with_asyms(self):
         mmcif = {"struct": [{"pdbx_model_type_details": "?"}]}
         parse_mdltyp(
             "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
@@ -440,3 +440,37 @@ class MdltypParsingTests(TestCase):
                 {"asym_id": "Z", "type": "P ATOMS ONLY"},
             ]
         })
+
+
+
+class AuthorParsingTests(TestCase):
+
+    def test_can_handle_no_author(self):
+        mmcif = {}
+        parse_author("", mmcif)
+        self.assertEqual(mmcif, {})
+
+
+    @patch("atomium.pdb.process_names")
+    def test_can_parse_author(self, mock_names):
+        mock_names.return_value = ["Berry, M.B"]
+        mmcif = {}
+        parse_author("AUTHOR    M.B.BERRY  ", mmcif)
+        self.assertEqual(mmcif, {
+            "audit_author": [{"name": "Berry, M.B", "pdbx_ordinal": "1"}]
+        })
+        mock_names.assert_called_with(["M.B.BERRY"])
+    
+
+    @patch("atomium.pdb.process_names")
+    def test_can_parse_multi_line_author(self, mock_names):
+        mock_names.return_value = ["Berry, M.B", "Phillips, G.N"]
+        mmcif = {}
+        parse_author("AUTHOR    M.B.BERRY  \nAUTHOR   2 G.N.PHILLIPS", mmcif)
+        self.assertEqual(mmcif, {
+            "audit_author": [
+                {"name": "Berry, M.B", "pdbx_ordinal": "1"},
+                {"name": "Phillips, G.N", "pdbx_ordinal": "2"},
+            ]
+        })
+        mock_names.assert_called_with(["M.B.BERRY", "G.N.PHILLIPS"])

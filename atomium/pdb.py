@@ -266,6 +266,13 @@ def parse_author(filestring, mmcif):
 
 
 def parse_revdat(filestring, mmcif):
+    """Parses the REVDAT records and creates the basic
+    ``pdbx_audit_revision_history`` table. Each is treated as a major release as
+    there is no way of distinguishing them.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+    
     lines = re.findall(r"^REVDAT.+", filestring, re.M)
     if not lines: return
     mod_nums = sorted(set([int(line[7:10].strip()) for line in lines]))

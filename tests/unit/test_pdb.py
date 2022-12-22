@@ -168,6 +168,7 @@ class HeaderParsingTests(TestCase):
             "pdbx_database_status": [{"status_code": "REL", "entry_id": "XXXX", "recvd_initial_deposition_date": "2002-05-06"}],
             "struct_keywords": [{"entry_id": "XXXX", "pdbx_keywords": "?", "text": "?"}]
         })
+        mock_date.assert_called_with("06-MAY-02")
 
 
     @patch("atomium.pdb.pdb_date_to_mmcif_date")
@@ -192,6 +193,7 @@ class HeaderParsingTests(TestCase):
             "pdbx_database_status": [{"status_code": "REL", "entry_id": "1LOL", "recvd_initial_deposition_date": "2002-05-06"}],
             "struct_keywords": [{"entry_id": "1LOL", "pdbx_keywords": "LYASE", "text": "?"}]
         })
+        mock_date.assert_called_with("06-MAY-02")
 
 
 
@@ -212,6 +214,7 @@ class ObslteParsingTests(TestCase):
             "id": "OBSLTE", "details": "?", "date": "1994-01-21",
             "pdb_id": "2MBP", "replace_pdb_id": "1MBP"
         }]})
+        mock_date.assert_called_with("31-JAN-94")
     
 
     @patch("atomium.pdb.pdb_date_to_mmcif_date")
@@ -223,6 +226,7 @@ class ObslteParsingTests(TestCase):
             "id": "OBSLTE", "details": "?", "date": "1994-01-21",
             "pdb_id": "2MBP 3MBP", "replace_pdb_id": "1MBP"
         }]})
+        mock_date.assert_called_with("31-JAN-94")
 
 
 
@@ -474,3 +478,49 @@ class AuthorParsingTests(TestCase):
             ]
         })
         mock_names.assert_called_with(["M.B.BERRY", "G.N.PHILLIPS"])
+
+
+
+class RevdatParsingTests(TestCase):
+
+    def test_can_handle_no_revdat(self):
+        mmcif = {}
+        parse_revdat("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_revdat(self, mock_date):
+        mmcif = {}
+        mock_date.side_effect = ["1984-07-17", "2011-07-13","2020-06-17",  "2021-03-31"]
+        parse_revdat(
+            "REVDAT   4   31-MAR-21 4HHB    1       REMARK ATOM\n"
+            "REVDAT   3   17-JUN-20 4HHB    1       CAVEAT COMPND SOURCE DBREF\n"
+            "REVDAT   3 2                   1       ATOM\n"
+            "REVDAT   2   13-JUL-11 4HHB    1       VERSN\n"
+            "REVDAT   1   17-JUL-84 4HHB    0\n",
+            mmcif
+        )
+        self.assertEqual(mmcif, {
+            "pdbx_audit_revision_history": [{
+                "ordinal": "1", "data_content_type": "Structure model",
+                "major_revision": "1", "minor_revision": "0",
+                "revision_date": "1984-07-17"
+            }, {
+                "ordinal": "2", "data_content_type": "Structure model",
+                "major_revision": "2", "minor_revision": "0",
+                "revision_date": "2011-07-13"
+            }, {
+                "ordinal": "3", "data_content_type": "Structure model",
+                "major_revision": "3", "minor_revision": "0",
+                "revision_date": "2020-06-17"
+            }, {
+                "ordinal": "4", "data_content_type": "Structure model",
+                "major_revision": "4", "minor_revision": "0",
+                "revision_date": "2021-03-31"
+            }]
+        })
+        mock_date.assert_any_call("17-JUL-84")
+        mock_date.assert_any_call("13-JUL-11")
+        mock_date.assert_any_call("17-JUN-20")
+        mock_date.assert_any_call("31-MAR-21")

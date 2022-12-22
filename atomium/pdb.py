@@ -308,6 +308,12 @@ def parse_sprsde(filestring, mmcif):
 
 
 def parse_jrnl(filestring, mmcif):
+    """Parses the JRNL records, and creates the ``citation_author``,
+    ``citation_editor`` and ``citation`` tables if needed.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     journal_lines = re.findall(f"^JRNL.+", filestring, re.M)
     if not journal_lines: return
     for record, table in [["AUTH", "author"], ["EDIT", "editor"]]:
@@ -329,6 +335,11 @@ def parse_jrnl(filestring, mmcif):
 
 
 def parse_journal_title(journal_lines, mmcif):
+    """Parses JRNL TITL records and updates the ``citation`` table.
+    
+    :param list journal_lines: lines beginning with JRNL.
+    :param dict mmcif: the dictionary to update."""
+
     title_lines = [l for l in journal_lines if l[12:16] == "TITL"]
     if not title_lines: return
     title = " ".join([l[19:80] for l in title_lines])
@@ -336,6 +347,12 @@ def parse_journal_title(journal_lines, mmcif):
 
 
 def parse_journal_references(journal_lines, mmcif):
+    """Parses the JRNL records which pertain to references, updating the
+    ``citation`` table.
+    
+    :param list journal_lines: lines beginning with JRNL.
+    :param dict mmcif: the dictionary to update."""
+
     lines = [l for l in journal_lines if l[12:16].strip() == "REF"]
     if lines:
         mmcif["citation"][0]["journal_abbrev"] = " ".join(
@@ -349,10 +366,18 @@ def parse_journal_references(journal_lines, mmcif):
         mmcif["citation"][0]["journal_id_ISSN"] = lines[0][40:65].strip() or "?"
     lines = [l for l in journal_lines if l[12:16] == "PUBL"]
     if lines:
-        mmcif["citation"][0]["book_publisher"] = lines[0][19:80].strip() or "?"
+        mmcif["citation"][0]["book_publisher"] = " ".join(
+            [l[19:].strip() for l in lines]
+        ).strip() or "?"
 
 
 def parse_journal_ids(journal_lines, mmcif):
+    """Parses the JRNL records which pertain to paper IDs, updating the
+    ``citation`` table.
+    
+    :param list journal_lines: lines beginning with JRNL.
+    :param dict mmcif: the dictionary to update."""
+
     pmid_lines = [l for l in journal_lines if l[12:16] == "PMID"]
     if pmid_lines:
         mmcif["citation"][0]["pdbx_database_id_PubMed"] = "".join(

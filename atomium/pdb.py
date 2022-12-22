@@ -189,7 +189,7 @@ def parse_caveat(filestring, mmcif):
 
     :param str filestring: the contents of the .pdb file.
     :param dict mmcif: the dictionary to update."""
-    
+
     caveat_lines = re.findall(r"^CAVEAT.+", filestring, re.M)
     if not caveat_lines: return
     caveat = " ".join([l[19:80] for l in caveat_lines]).strip()
@@ -197,6 +197,12 @@ def parse_caveat(filestring, mmcif):
 
 
 def parse_keywds(filestring, mmcif):
+    """Parses the KEYWDS records and updates the ``struct_keywords`` table,
+    which it expects to exist.
+
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^KEYWDS.+", filestring, re.M)
     if not lines: return
     keywords = " ".join([l[10:].strip() for l in lines]).strip()

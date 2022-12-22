@@ -334,3 +334,32 @@ class CaveatParsingTests(TestCase):
         self.assertEqual(mmcif, {"database_PDB_caveat": [
             {"id": "1", "text": "THR A 137 HAS WRONG CHIRALITY AT ATOM CB THR B 12 HAS WRONG CHIRALITY AT ATOM CB THR B 50 HAS WRONG CHIRALITY AT ATOM CB"},
         ]})
+
+
+
+class KeywdsParsingTests(TestCase):
+
+    def test_can_handle_no_keywds(self):
+        mmcif = {"struct_keywords": [{"text": "?"}]}
+        parse_keywds("", mmcif)
+        self.assertEqual(mmcif, {"struct_keywords": [{"text": "?"}]})
+    
+
+    def test_can_handle_keywds(self):
+        mmcif = {"struct_keywords": [{"text": "?"}]}
+        parse_keywds("KEYWDS    LYASE,  TRICARBOXYLIC ACID CYCLE       ", mmcif)
+        self.assertEqual(mmcif, {"struct_keywords": [
+            {"text": "LYASE,  TRICARBOXYLIC ACID CYCLE"},
+        ]})
+    
+
+    def test_can_handle_multi_line_keywds(self):
+        mmcif = {"struct_keywords": [{"text": "?"}]}
+        parse_keywds(
+            "KEYWDS    LYASE,  TRICARBOXYLIC ACID CYCLE, MITOCHONDRION, OXIDATIVE \n"
+            "KEYWDS   2 METABOLISM",
+            mmcif
+        )
+        self.assertEqual(mmcif, {"struct_keywords": [
+            {"text": "LYASE,  TRICARBOXYLIC ACID CYCLE, MITOCHONDRION, OXIDATIVE METABOLISM"},
+        ]})

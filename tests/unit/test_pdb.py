@@ -363,3 +363,23 @@ class KeywdsParsingTests(TestCase):
         self.assertEqual(mmcif, {"struct_keywords": [
             {"text": "LYASE,  TRICARBOXYLIC ACID CYCLE, MITOCHONDRION, OXIDATIVE METABOLISM"},
         ]})
+
+
+
+class ExpdtaParsingTests(TestCase):
+
+    def test_can_handle_no_expdta(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_expdta("", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}], "exptl": [{"entry_id": "1XXX", "method": "?"}]
+        })
+    
+
+    def test_can_parse_expdta(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_expdta("EXPDTA    NEUTRON DIFFRACTION; X-RAY DIFFRACTION  ", mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "exptl": [{"entry_id": "1XXX", "method": "NEUTRON DIFFRACTION; X-RAY DIFFRACTION"}]
+        })

@@ -210,6 +210,11 @@ def parse_keywds(filestring, mmcif):
 
 
 def parse_expdta(filestring, mmcif):
+    """Parses the EXPDTA records and creates the ``exptl`` table from it.
+
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["exptl"] = [{"entry_id": mmcif["entry"][0]["id"], "method": "?"}]
     exptl = re.findall(f"^EXPDTA.+", filestring, re.M)
     if not exptl: return

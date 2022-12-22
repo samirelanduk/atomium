@@ -272,7 +272,7 @@ def parse_revdat(filestring, mmcif):
     
     :param str filestring: the contents of the .pdb file.
     :param dict mmcif: the dictionary to update."""
-    
+
     lines = re.findall(r"^REVDAT.+", filestring, re.M)
     if not lines: return
     mod_nums = sorted(set([int(line[7:10].strip()) for line in lines]))
@@ -286,18 +286,25 @@ def parse_revdat(filestring, mmcif):
 
 
 def parse_sprsde(filestring, mmcif):
+    """Parses the SPRSDE records and makes or updates the 
+    ``pdbx_database_PDB_obs_spr`` table as a result if needed. Only the first
+    SPRSDE record is used.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     sprsde_lines = re.findall(r"^SPRSDE.+", filestring, re.M)
-    if sprsde_lines:
-        codes = [code for l in sprsde_lines for code in l[31:].strip().split()]
-        sprsde = [{
-            "id": "SPRSDE", "details": "?",
-            "date": pdb_date_to_mmcif_date(sprsde_lines[0][11:20].strip()),
-            "pdb_id": sprsde_lines[0][21:25].strip(),
-            "replace_pdb_id": " ".join(codes),
-        }]
-        mmcif["pdbx_database_PDB_obs_spr"] = [
-            *sprsde, *mmcif.get("pdbx_database_PDB_obs_spr", [])
-        ]
+    if not sprsde_lines: return
+    codes = [code for l in sprsde_lines for code in l[31:].strip().split()]
+    sprsde = [{
+        "id": "SPRSDE", "details": "?",
+        "date": pdb_date_to_mmcif_date(sprsde_lines[0][11:20].strip()),
+        "pdb_id": sprsde_lines[0][21:25].strip(),
+        "replace_pdb_id": " ".join(codes),
+    }]
+    mmcif["pdbx_database_PDB_obs_spr"] = [
+        *sprsde, *mmcif.get("pdbx_database_PDB_obs_spr", [])
+    ]
 
 
 def parse_jrnl(filestring, mmcif):

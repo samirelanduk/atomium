@@ -524,3 +524,36 @@ class RevdatParsingTests(TestCase):
         mock_date.assert_any_call("13-JUL-11")
         mock_date.assert_any_call("17-JUN-20")
         mock_date.assert_any_call("31-MAR-21")
+
+
+
+class SprsdeParsingTests(TestCase):
+
+    def test_can_handle_no_sprsde(self):
+        mmcif = {}
+        parse_sprsde("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_single_code(self, mock_date):
+        mmcif = {}
+        mock_date.return_value = "1994-01-21"
+        parse_sprsde("SPRSDE     31-JAN-94 4HHB      1HHB", mmcif)
+        self.assertEqual(mmcif, {"pdbx_database_PDB_obs_spr": [{
+            "id": "SPRSDE", "details": "?", "date": "1994-01-21",
+            "pdb_id": "4HHB", "replace_pdb_id": "1HHB"
+        }]})
+        mock_date.assert_called_with("31-JAN-94")
+    
+
+    @patch("atomium.pdb.pdb_date_to_mmcif_date")
+    def test_can_parse_multiple_codes(self, mock_date):
+        mmcif = {"pdbx_database_PDB_obs_spr": [1]}
+        mock_date.return_value = "1994-01-21"
+        parse_sprsde("SPRSDE     31-JAN-94 1GDJ      1LH4 2LH4", mmcif)
+        self.assertEqual(mmcif, {"pdbx_database_PDB_obs_spr": [{
+            "id": "SPRSDE", "details": "?", "date": "1994-01-21",
+            "pdb_id": "1GDJ", "replace_pdb_id": "1LH4 2LH4"
+        }, 1]})
+        mock_date.assert_called_with("31-JAN-94")

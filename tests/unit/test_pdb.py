@@ -383,3 +383,60 @@ class ExpdtaParsingTests(TestCase):
             "entry": [{"id": "1XXX"}],
             "exptl": [{"entry_id": "1XXX", "method": "NEUTRON DIFFRACTION; X-RAY DIFFRACTION"}]
         })
+
+
+
+class MdltypParsingTests(TestCase):
+
+    def test_can_handle_no_mdltyp(self):
+        mmcif = {"struct": [{"pdbx_model_type_details": "?"}]}
+        parse_mdltyp("", mmcif)
+        self.assertEqual(mmcif, {"struct": [{"pdbx_model_type_details": "?"}]})
+    
+
+    def test_can_parse_mdltyp(self):
+        mmcif = {"struct": [{"pdbx_model_type_details": "?"}]}
+        parse_mdltyp("MDLTYP    MINIMIZED AVERAGE", mmcif)
+        self.assertEqual(mmcif, {
+            "struct": [{"pdbx_model_type_details": "MINIMIZED AVERAGE"}]
+        })
+
+
+    def test_can_parse_mdltyp_with_asyms(self):
+        mmcif = {"struct": [{"pdbx_model_type_details": "?"}]}
+        parse_mdltyp("MDLTYP    MINIMIZED AVERAGE ; OTHER ; CA ATOMS ONLY, CHAIN A, B", mmcif)
+        self.assertEqual(mmcif, {
+            "struct": [{"pdbx_model_type_details": "MINIMIZED AVERAGE ; OTHER"}],
+            "pdbx_coordinate_model": [
+                {"asym_id": "A", "type": "CA ATOMS ONLY"},
+                {"asym_id": "B", "type": "CA ATOMS ONLY"},
+            ]
+        })
+        
+
+    def test_can_parse_multu_line_mdltyp_with_asyms(self):
+        mmcif = {"struct": [{"pdbx_model_type_details": "?"}]}
+        parse_mdltyp(
+            "MDLTYP    CA ATOMS ONLY, CHAIN A, B, C, D, E, F, G, H, I, J, K ; P ATOMS ONLY,\n"
+            "MDLTYP   2 CHAIN X, Y, Z",
+            mmcif
+        )
+        self.assertEqual(mmcif, {
+            "struct": [{"pdbx_model_type_details": "?"}],
+            "pdbx_coordinate_model": [
+                {"asym_id": "A", "type": "CA ATOMS ONLY"},
+                {"asym_id": "B", "type": "CA ATOMS ONLY"},
+                {"asym_id": "C", "type": "CA ATOMS ONLY"},
+                {"asym_id": "D", "type": "CA ATOMS ONLY"},
+                {"asym_id": "E", "type": "CA ATOMS ONLY"},
+                {"asym_id": "F", "type": "CA ATOMS ONLY"},
+                {"asym_id": "G", "type": "CA ATOMS ONLY"},
+                {"asym_id": "H", "type": "CA ATOMS ONLY"},
+                {"asym_id": "I", "type": "CA ATOMS ONLY"},
+                {"asym_id": "J", "type": "CA ATOMS ONLY"},
+                {"asym_id": "K", "type": "CA ATOMS ONLY"},
+                {"asym_id": "X", "type": "P ATOMS ONLY"},
+                {"asym_id": "Y", "type": "P ATOMS ONLY"},
+                {"asym_id": "Z", "type": "P ATOMS ONLY"},
+            ]
+        })

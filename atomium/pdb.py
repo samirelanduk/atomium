@@ -222,16 +222,22 @@ def parse_expdta(filestring, mmcif):
 
 
 def parse_mdltyp(filestring, mmcif):
+    """Parses the MDLTYP records. The ``pdbx_coordinate_model`` table will be
+    created if there are any comments about specific chains, and anything else
+    will be added to the ``struct`` table, which is expected to exist.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+    
     mdltyp = re.findall(f"^MDLTYP.+", filestring, re.M)
     if not mdltyp: return
+    mmcif["pdbx_coordinate_model"] = []
     text = " ".join([l[10:80].strip() for l in mdltyp]).strip()
     features = text.split(";")
     sections = []
     for feature in features:
         match = re.match(r"(.+?), CHAIN (.+)", feature)
         if match:
-            if "pdbx_coordinate_model" not in mmcif:
-                mmcif["pdbx_coordinate_model"] = []
             for chain in match[2].split(","):
                 mmcif["pdbx_coordinate_model"].append({
                     "asym_id": chain.strip(), "type": match[1].strip()
@@ -240,6 +246,7 @@ def parse_mdltyp(filestring, mmcif):
             sections.append(feature.strip())
     if sections:
         mmcif["struct"][0]["pdbx_model_type_details"] = " ; ".join(sections)
+    if not mmcif["pdbx_coordinate_model"]: del mmcif["pdbx_coordinate_model"]
 
 
 def parse_author(filestring, mmcif):

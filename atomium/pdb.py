@@ -1136,7 +1136,7 @@ def build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif):
             )
             label = get_atom_label(sig, polymer, non_polymer_entity, labels)
             mmcif["atom_site"].append({
-                "group_pdb": line[:6].strip(),
+                "group_PDB": line[:6].strip(),
                 "id": line[6:11].strip(),
                 "type_symbol": line[76:78].strip(),
                 "label_atom_id": line[12:16].strip(),
@@ -1285,6 +1285,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_title_lines(mmcif_dict)
     lines += create_compnd_lines(mmcif_dict)
     lines += create_keywds_lines(mmcif_dict)
+    lines += create_atom_lines(mmcif_dict)
     lines.append("END")
     with open(path, "w") as f:
         f.write("\n".join(lines))
@@ -1350,6 +1351,69 @@ def create_keywds_lines(mmcif):
         else:
             lines.append(f"KEYWDS  {len(lines):>2} {line}")
     return lines
+
+
+def create_atom_lines(mmcif):
+    lines = []
+    model_num = 0
+    atom_id, asym_id, entity_id = 1, mmcif["atom_site"][0]["label_asym_id"], ""
+    aniso_lookup = {a["id"]: a for a in mmcif["atom_site_anisotrop"]}
+    model_nums = set(a["pdbx_PDB_model_num"] for a in  mmcif["atom_site"])
+    lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
+    for atom in mmcif["atom_site"]:
+        if int(atom["pdbx_PDB_model_num"]) > model_num and len(model_nums) > 1:
+            if model_num != 0: lines.append("ENDMDL")
+            model_num += 1
+            lines.append(f"MODEL     {model_num:>4}")
+            atom_id = 1
+        if atom["label_asym_id"] != asym_id and lookup[entity_id] == "polymer":
+            lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
+            atom_id += 1
+        asym_id = atom["label_asym_id"]
+        entity_id = atom["label_entity_id"]
+        lines.append(create_atom_line(atom, atom_id))
+        line = create_aniso_line(atom, aniso_lookup.get(atom["id"]), atom_id)
+        if line: lines.append(line)
+        atom_id += 1
+    return lines
+
+
+def create_atom_line(atom, atom_id):
+    line = "{:6}{:>5} {:<4} {:3} {:1}{:>4}{:1}   "
+    line += "{:>8}{:>8}{:>8}  1.00{:>6}          {:>2}{:2}"
+    line = line.format(
+        atom["group_PDB"],
+        atom_id,
+        f"{'' if len(atom['label_atom_id']) == 4 else ' '}{atom['label_atom_id']}",
+        atom["auth_comp_id"],
+        atom["auth_asym_id"], atom["auth_seq_id"], atom["pdbx_PDB_ins_code"],
+        "{:.3f}".format(float(atom["Cartn_x"])),
+        "{:.3f}".format(float(atom["Cartn_y"])),
+        "{:.3f}".format(float(atom["Cartn_z"])),
+        "{:.2f}".format(float(atom["B_iso_or_equiv"])),
+        atom["type_symbol"] or "", atom["pdbx_formal_charge"][::-1],
+    )
+    return line.replace("?", " ")
+
+
+def create_aniso_line(atom, aniso, atom_id):
+    if not aniso: return
+    line = "ANISOU{:5} {:4} {:3} {:1}{:>4}{:1} "
+    line += "{:>7}{:>7}{:>7}{:>7}{:>7}{:>7}      {:>2}{:2}"
+    line = line.format(
+        atom_id, f"{'' if len(atom['label_atom_id']) == 4 else ' '}{atom['label_atom_id']}",
+        atom["auth_comp_id"],
+        atom["auth_asym_id"], atom["auth_seq_id"], atom["pdbx_PDB_ins_code"],
+        int(float(aniso["U[1][1]"]) * 10000),
+        int(float(aniso["U[2][2]"]) * 10000),
+        int(float(aniso["U[3][3]"]) * 10000),
+        int(float(aniso["U[1][2]"]) * 10000),
+        int(float(aniso["U[1][3]"]) * 10000),
+        int(float(aniso["U[2][3]"]) * 10000),
+        atom["type_symbol"] or "",
+        atom["pdbx_formal_charge"][::-1],
+    )
+    return line.replace("?", " ")
 
 
 def create_pdb_date(date):

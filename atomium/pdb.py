@@ -391,6 +391,11 @@ def parse_journal_ids(journal_lines, mmcif):
 
 
 def parse_remarks(filestring, mmcif):
+    """Parses the various REMARK records.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     parse_remark_2(filestring, mmcif)
     parse_remark_3(filestring, mmcif)
     parse_remark_200(filestring, mmcif)
@@ -401,8 +406,15 @@ def parse_remarks(filestring, mmcif):
 
 
 def parse_remark_2(filestring, mmcif):
+    """Parses REMARK 2 records. The ``reflns`` table will be created even if
+    there is nothing to parse, but if REMARK 3 is also empty, it will get
+    removed.
+
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     reflns = [
-        "B_iso_Wilson_estimate", "entry_id", "data_reduction_details",
+        "B_iso_Wilson_estimate", "data_reduction_details",
         "data_reduction_method", "d_resolution_high", "d_resolution_low",
         "details", "limit_h_max", "limit_h_min", "limit_k_max", "limit_k_min",
         "limit_l_max", "limit_l_min", "number_all", "number_obs",
@@ -423,11 +435,9 @@ def parse_remark_2(filestring, mmcif):
     mmcif["reflns"] = [{
         **{key: "?" for key in reflns}, "entry_id": mmcif["entry"][0]["id"]
     }]
-    records = re.findall(r"^REMARK   2 .+", filestring, re.M)
-    for r in records:
-        if "RESOLUTION" in r:
-            mmcif["reflns"][0]["d_resolution_high"] = r[10:].strip().split()[1]
-            break
+    rec = re.search(r"^REMARK   2 RESOLUTION.    (\d+\.\d+)", filestring, re.M)
+    if rec: mmcif["reflns"][0]["d_resolution_high"] = rec[1]
+
 
 
 def parse_remark_3(filestring, mmcif):

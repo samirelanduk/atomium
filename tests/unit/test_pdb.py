@@ -799,3 +799,103 @@ class JournalidsParsingTests(TestCase):
             "pdbx_database_id_PubMed": "6726807",
             "pdbx_database_id_DOI": "10.1016/0022-2836(84)90472-8"
         }]})
+
+
+
+class RemarkParsingTests(TestCase):
+
+    @patch("atomium.pdb.parse_remark_2")
+    @patch("atomium.pdb.parse_remark_3")
+    @patch("atomium.pdb.parse_remark_200")
+    @patch("atomium.pdb.parse_remark_465")
+    @patch("atomium.pdb.parse_remark_470")
+    @patch("atomium.pdb.parse_remark_480")
+    @patch("atomium.pdb.parse_remark_800")
+    def test_can_parse_remark_records(self, *mocks):
+        parse_remarks("filestring", {"mmicf": 1})
+        for mock in mocks:
+            mock.assert_called_with("filestring", {"mmicf": 1})
+
+
+
+class Remark2ParsingTests(TestCase):
+
+    def test_can_handle_no_remark_2(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_remark_2("", mmcif)
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}], "reflns": [{
+            "entry_id": "1XXX", "B_iso_Wilson_estimate": "?", "data_reduction_details": "?",
+            "data_reduction_method": "?", "d_resolution_high": "?", "d_resolution_low": "?",
+            "details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?",
+            "limit_l_max": "?", "limit_l_min": "?", "number_all": "?", "number_obs": "?",
+            "observed_criterion": "?", "observed_criterion_F_max": "?",
+            "observed_criterion_F_min": "?", "observed_criterion_I_max": "?",
+            "observed_criterion_I_min": "?", "observed_criterion_sigma_F": "?",
+            "observed_criterion_sigma_I": "?", "percent_possible_obs": "?", "R_free_details": "?",
+            "Rmerge_F_all": "?", "Rmerge_F_obs": "?", "Friedel_coverage": "?", "number_gt": "?",
+            "threshold_expression": "?", "pdbx_redundancy": "?", "pdbx_Rmerge_I_obs": "?",
+            "pdbx_Rmerge_I_all": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_av_sigmaI": "?",
+            "pdbx_netI_over_sigmaI": "?", "pdbx_res_netI_over_av_sigmaI_2": "?",
+            "pdbx_res_netI_over_sigmaI_2": "?", "pdbx_chi_squared": "?",
+            "pdbx_scaling_rejects": "?", "pdbx_d_res_high_opt": "?", "pdbx_d_res_low_opt": "?",
+            "pdbx_d_res_opt_method": "?", "phase_calculation_details": "?", "pdbx_Rrim_I_all": "?",
+            "pdbx_Rpim_I_all": "?", "pdbx_d_opt": "?", "pdbx_number_measured_all": "?",
+            "pdbx_diffrn_id": "?", "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?"
+        }]})
+    
+
+    def test_can_get_resolution(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_remark_2("REMARK   2   \nREMARK   2 RESOLUTION.    1.74 ANGSTROMS.", mmcif)
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}], "reflns": [{
+            "entry_id": "1XXX", "B_iso_Wilson_estimate": "?", "data_reduction_details": "?",
+            "data_reduction_method": "?", "d_resolution_high": "1.74", "d_resolution_low": "?",
+            "details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?",
+            "limit_l_max": "?", "limit_l_min": "?", "number_all": "?", "number_obs": "?",
+            "observed_criterion": "?", "observed_criterion_F_max": "?",
+            "observed_criterion_F_min": "?", "observed_criterion_I_max": "?",
+            "observed_criterion_I_min": "?", "observed_criterion_sigma_F": "?",
+            "observed_criterion_sigma_I": "?", "percent_possible_obs": "?", "R_free_details": "?",
+            "Rmerge_F_all": "?", "Rmerge_F_obs": "?", "Friedel_coverage": "?", "number_gt": "?",
+            "threshold_expression": "?", "pdbx_redundancy": "?", "pdbx_Rmerge_I_obs": "?",
+            "pdbx_Rmerge_I_all": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_av_sigmaI": "?",
+            "pdbx_netI_over_sigmaI": "?", "pdbx_res_netI_over_av_sigmaI_2": "?",
+            "pdbx_res_netI_over_sigmaI_2": "?", "pdbx_chi_squared": "?",
+            "pdbx_scaling_rejects": "?", "pdbx_d_res_high_opt": "?", "pdbx_d_res_low_opt": "?",
+            "pdbx_d_res_opt_method": "?", "phase_calculation_details": "?", "pdbx_Rrim_I_all": "?",
+            "pdbx_Rpim_I_all": "?", "pdbx_d_opt": "?", "pdbx_number_measured_all": "?",
+            "pdbx_diffrn_id": "?", "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?"
+        }]})
+    
+
+    def test_can_get_na_resolution(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_remark_2("REMARK   2   \nREMARK   2 RESOLUTION.   NOT APPLICABLE. ", mmcif)
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}], "reflns": [{
+            "entry_id": "1XXX", "B_iso_Wilson_estimate": "?", "data_reduction_details": "?",
+            "data_reduction_method": "?", "d_resolution_high": "?", "d_resolution_low": "?",
+            "details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?",
+            "limit_l_max": "?", "limit_l_min": "?", "number_all": "?", "number_obs": "?",
+            "observed_criterion": "?", "observed_criterion_F_max": "?",
+            "observed_criterion_F_min": "?", "observed_criterion_I_max": "?",
+            "observed_criterion_I_min": "?", "observed_criterion_sigma_F": "?",
+            "observed_criterion_sigma_I": "?", "percent_possible_obs": "?", "R_free_details": "?",
+            "Rmerge_F_all": "?", "Rmerge_F_obs": "?", "Friedel_coverage": "?", "number_gt": "?",
+            "threshold_expression": "?", "pdbx_redundancy": "?", "pdbx_Rmerge_I_obs": "?",
+            "pdbx_Rmerge_I_all": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_av_sigmaI": "?",
+            "pdbx_netI_over_sigmaI": "?", "pdbx_res_netI_over_av_sigmaI_2": "?",
+            "pdbx_res_netI_over_sigmaI_2": "?", "pdbx_chi_squared": "?",
+            "pdbx_scaling_rejects": "?", "pdbx_d_res_high_opt": "?", "pdbx_d_res_low_opt": "?",
+            "pdbx_d_res_opt_method": "?", "phase_calculation_details": "?", "pdbx_Rrim_I_all": "?",
+            "pdbx_Rpim_I_all": "?", "pdbx_d_opt": "?", "pdbx_number_measured_all": "?",
+            "pdbx_diffrn_id": "?", "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?"
+        }]})
+
+
+
+class Remark3ParsingTests(TestCase):
+
+    def test_can_handle_no_remark_3(self):
+        mmcif = {"reflns": [{}]}
+        parse_remark_3("", mmcif)
+        self.assertEqual(mmcif, {"reflns": [{}]})

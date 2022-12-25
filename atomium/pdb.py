@@ -1285,6 +1285,10 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_title_lines(mmcif_dict)
     lines += create_compnd_lines(mmcif_dict)
     lines += create_keywds_lines(mmcif_dict)
+    lines += create_cryst1_line(mmcif_dict)
+    lines += create_origix_lines(mmcif_dict)
+    lines += create_scalen_lines(mmcif_dict)
+    lines += create_mtrixn_lines(mmcif_dict)
     lines += create_atom_lines(mmcif_dict)
     lines.append("END")
     with open(path, "w") as f:
@@ -1353,7 +1357,67 @@ def create_keywds_lines(mmcif):
     return lines
 
 
+def create_cryst1_line(mmcif):
+    if "cell" not in mmcif: return []
+    line = "CRYST1{:>9}{:>9}{:>9}{:>7}{:>7}{:>7} {:<11}{:>4}"
+    line = line.format(
+        mmcif["cell"][0].get("length_a", "?"),
+        mmcif["cell"][0].get("length_b", "?"),
+        mmcif["cell"][0].get("length_c", "?"),
+        mmcif["cell"][0].get("angle_alpha", "?"),
+        mmcif["cell"][0].get("angle_beta", "?"),
+        mmcif["cell"][0].get("angle_gamma", "?"),
+        mmcif.get("symmetry", [{}])[0].get("space_group_name_H-M", "?"),
+        mmcif["cell"][0].get("Z_pdb", "?"),
+    ).replace("?", " ")
+    return [line]
+
+
+def create_origix_lines(mmcif):
+    if "database_PDB_matrix" not in mmcif: return []
+    lines = []
+    line = "ORIGX{:1}    {:>10}{:>10}{:>10}     {:>10}"
+    for n in range(1, 4):
+        lines.append(line.format(
+            n, mmcif["database_PDB_matrix"][0][f"origx[{n}][1]"],
+            mmcif["database_PDB_matrix"][0][f"origx[{n}][2]"],
+            mmcif["database_PDB_matrix"][0][f"origx[{n}][3]"],
+            mmcif["database_PDB_matrix"][0][f"origx_vector[{n}]"],
+        ).replace("?", " "))
+    return lines
+
+
+def create_scalen_lines(mmcif):
+    if "atom_sites" not in mmcif: return []
+    lines = []
+    line = "SCALE{:1}    {:>10}{:>10}{:>10}     {:>10}"
+    for n in range(1, 4):
+        lines.append(line.format(
+            n, mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][1]"],
+            mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][2]"],
+            mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][3]"],
+            mmcif["atom_sites"][0][f"fract_transf_vector[{n}]"],
+        ).replace("?", " "))
+    return lines
+
+
+def create_mtrixn_lines(mmcif):
+    lines = []
+    line = "MTRIX{:1} {:3}{:>10}{:>10}{:>10}     {:>10}    {:1}"
+    for i, row in enumerate(mmcif.get("struct_ncs_oper", []), start=1):
+        for n in range(1, 4):
+            lines.append(line.format(
+                n, i, row[f"matrix[{n}][1]"],
+                row[f"matrix[{n}][2]"],
+                row[f"matrix[{n}][3]"],
+                row[f"vector[{n}]"],
+                "1" if row["code"] == "given" else " "
+            ).replace("?", " "))
+    return lines
+
+
 def create_atom_lines(mmcif):
+    if not mmcif.get("atom_site", []): return []
     lines = []
     model_num = 0
     atom_id, asym_id, entity_id = 1, mmcif["atom_site"][0]["label_asym_id"], ""

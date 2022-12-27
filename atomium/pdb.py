@@ -1,5 +1,6 @@
 import re
 import calendar
+from collections import Counter
 from atomium.sequences import get_alignment_indices
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
 from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
@@ -1285,6 +1286,10 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_title_lines(mmcif_dict)
     lines += create_compnd_lines(mmcif_dict)
     lines += create_keywds_lines(mmcif_dict)
+    lines += create_het_lines(mmcif_dict)
+    lines += create_hetnam_lines(mmcif_dict)
+    lines += create_hetsyn_lines(mmcif_dict)
+    lines += create_formul_lines(mmcif_dict)
     lines += create_cryst1_line(mmcif_dict)
     lines += create_origix_lines(mmcif_dict)
     lines += create_scalen_lines(mmcif_dict)
@@ -1355,6 +1360,88 @@ def create_keywds_lines(mmcif):
         else:
             lines.append(f"KEYWDS  {len(lines):>2} {line}")
     return lines
+
+
+def create_het_lines(mmcif):
+    lines = []
+    sig_counts = get_sig_counts(mmcif)
+    for sig, count in sorted(sig_counts.items(), key=lambda s: s[0][3]):
+        lines.append(f"HET    {sig[3]:3}  {sig[0]:1}{sig[1]:>4}{sig[2]:1}  {count:>5}")
+    return lines
+
+
+def create_hetnam_lines(mmcif):
+    lines = []
+    chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
+    lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif["pdbx_entity_nonpoly"]}
+    for chem in chem_comp:
+        if chem["name"] != "?" and lookup[chem["id"]] != "water":
+            strings = split_lines(chem["name"], 55)
+            for n, hetnam in enumerate(strings, start=1):
+                if n == 1:
+                    lines.append(f"HETNAM     {chem['id']:3} " + hetnam)
+                else:
+                    lines.append(f"HETNAM  {n:2} {chem['id']:3}  " + hetnam)
+    return lines
+
+
+def create_hetsyn_lines(mmcif):
+    lines = []
+    chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
+    lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif["pdbx_entity_nonpoly"]}
+    for chem in chem_comp:
+        if chem["pdbx_synonyms"] != "?" and lookup[chem["id"]] != "water":
+            strings = split_lines(chem["pdbx_synonyms"].replace(", ", "; "), 55)
+            for n, hetsyn in enumerate(strings, start=1):
+                if n == 1:
+                    lines.append(f"HETSYN     {chem['id']:3} " + hetsyn)
+                else:
+                    lines.append(f"HETSYN  {n:2} {chem['id']:3}  " + hetsyn)
+    return lines
+
+
+def create_formul_lines(mmcif):
+    lines = []
+    chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
+    lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif["pdbx_entity_nonpoly"]}
+    name_to_entity_id = {s["comp_id"]: s["entity_id"] for s in mmcif["pdbx_entity_nonpoly"]}
+    entity_ids = sorted(s["entity_id"] for s in mmcif["struct_asym"])
+    sig_counts = get_sig_counts(mmcif, include_water=True, representative=True)
+    name_counts = {sig[3]: sum(
+        v for k, v in sig_counts.items() if k[3] == sig[3]
+    ) for sig in sig_counts}
+    for chem in sorted(chem_comp, key=lambda c: list(name_counts.keys()).index(c["id"])):
+        if chem["formula"] != "?":
+            entity_id = name_to_entity_id[chem["id"]]
+            number = entity_ids.index(entity_id) + 1
+            char = "*" if lookup[chem["id"]] == "water" else " "
+            formula = f"{name_counts[chem['id']]}({chem['formula']})"
+            strings = split_lines(formula, 50)
+            for n, formul in enumerate(strings, start=1):
+                if n == 1:
+                    lines.append(f"FORMUL  {number:2}  {chem['id']:3}   {char}{formul}")
+                else:
+                    lines.append(f"FORMUL  {number:2}  {chem['id']:3} {n:2}{char}{formul}")
+    return lines
+
+
+def get_sig_counts(mmcif, include_water=False, representative=False):
+    sigs = []
+    names = [c["id"] for c in mmcif["chem_comp"]  if c["mon_nstd_flag"] != "y"]
+    lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
+    for line in mmcif["atom_site"]:
+        sig = (
+            line["auth_asym_id"], line["auth_seq_id"],
+            line["pdbx_PDB_ins_code"].replace("?", ""), line["auth_comp_id"]
+        )
+        if not include_water and lookup[line["label_entity_id"]] == "water":
+            continue
+        if representative and sig in sigs: continue
+        if sig[3] in names: sigs.append(sig)
+    return Counter(sigs)
 
 
 def create_cryst1_line(mmcif):

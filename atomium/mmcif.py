@@ -45,6 +45,9 @@ def add_non_loop_section(section, mmcif_dict):
     isquote = lambda s: any(s[0] == c and s[-1] == c for c in "'\"")
     while section:
         line = section[0]
+        if not line.strip():
+            section.popleft()
+            continue
         category_name, key = line.split()[0].split(".")
         if len(section) > 2 and section[1].startswith(";"):
             section.popleft()
@@ -71,6 +74,9 @@ def add_loop_section(section, mmcif_dict):
     section = deque(section[1:])
     while section:
         line = section[0]
+        if not line.strip():
+            section.popleft()
+            continue
         if line[0] == "_":
             category_name, key = line.strip().split(".")
             keys.append(key)

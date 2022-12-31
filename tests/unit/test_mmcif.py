@@ -59,6 +59,18 @@ class NonLoopSectionTests(TestCase):
         ])
     
 
+    def test_blank_lines_row(self):
+        mmcif = {}
+        add_non_loop_section([
+            "_audit_conform.dict_name       mmcif_pdbx.dic",
+            "\n ",
+            "_audit_conform.dict_version    5.347"
+        ], mmcif)
+        self.assertEqual(mmcif["audit_conform"], [
+            {"dict_name": "mmcif_pdbx.dic", "dict_version": "5.347"}
+        ])
+    
+
     def test_spaces_in_values(self):
         mmcif = {}
         add_non_loop_section([
@@ -134,6 +146,20 @@ class LoopSectionTests(TestCase):
         add_loop_section([
             "loop_", "_db2.id", "_db2.code",
             "PDB   2BFB", "PDBE  EBI-21880", "DB3 XXX"
+        ], mmcif)
+        self.assertEqual(mmcif, {"db2": [
+            {"id": "1", "code": "2"},
+            {"id": "3", "code": "4"},
+            {"id": "5", "code": "6"}
+        ]})
+    
+
+    def test_blank_lines_row(self):
+        mmcif = {}
+        self.mock_values.side_effect = [["1", "2"], ["3", "4"], ["5", "6"]]
+        add_loop_section([
+            "loop_", "_db2.id", "_db2.code",
+            "PDB   2BFB", " ", "PDBE  EBI-21880", "", "DB3 XXX"
         ], mmcif)
         self.assertEqual(mmcif, {"db2": [
             {"id": "1", "code": "2"},

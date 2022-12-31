@@ -80,6 +80,36 @@ class FileToDictTests(TestCase):
             "RESIDUES 133-144 IN CHAIN B WAS BUILT AS A POLYGLYCINE CHAIN BECAUSE\n"
             "OF LACK OF ADEQUATE ELECTRON DENSITY FOR THE SIDE CHAINS."
         ))
+    
+
+    def test_2kg4(self):
+        # Handle spaces
+        d = atomium.open("tests/integration/files/2kg4.cif", dictionary=True)
+        self.assertEqual(d["pdbx_nmr_sample_details"], [{
+            "contents": "0.45mM [U-99% 13C; U-99% 15N] gadd45a-1, 20mM sodium phosphate-2, 100mM potassium chloride-3, 2mM DTT-4, 2mM EDTA-5, 0.03% sodium azide-6, 93% H2O/7% D2O",
+            "solution_id": "1", "solvent_system": "93% H2O/7% D2O"
+        }, {
+            "contents": "0.45mM [U-99% 15N] gadd45a-7, 20mM sodium phosphate-8, 100mM potassium chloride-9, 2mM DTT-10, 2mM EDTA-11, 0.03% sodium azide-12, 93% H2O/7% D2O",
+            "solution_id": "2", "solvent_system": "93% H2O/7% D2O"
+        }, {
+            "contents": "0.195mM gadd45a-13, 20mM sodium phosphate-14, 100mM potassium chloride-15, 2mM DTT-16, 2mM EDTA-17, 0.03% sodium azide-18, 100% D2O",
+            "solution_id": "3", "solvent_system": "100% D2O"
+        }, {
+            "contents": "0.45mM [U-15N]-Leu gadd45a-19, 20mM sodium phosphate-20, 100mM potassium chloride-21, 2mM DTT-22, 2mM EDTA-23, 0.03% sodium azide-24, 93% H2O/7% D2O",
+            "solution_id": "4", "solvent_system": "93% H2O/7% D2O"
+        }, {
+            "contents": "0.45mM [U-15N]-Val gadd45a-25, 20mM sodium phosphate-26, 100mM potassium chloride-27, 2mM DTT-28, 2mM EDTA-29, 0.03% sodium azide-30, 93% H2O/7% D2O",
+            "solution_id": "5", "solvent_system": "93% H2O/7% D2O"
+        }, {
+            "contents": "0.45mM [U-15N]-Ile gadd45a-31, 20mM sodium phosphate-32, 100mM potassium chloride-33, 2mM DTT-34, 2mM EDTA-35, 0.03% sodium azide-36, 93% H2O/7% D2O",
+            "solution_id": "6", "solvent_system": "93% H2O/7% D2O"
+        }, {
+            "contents": "0.45mM [U-15N]-Phe/Tyr gadd45a-37, 20mM sodium phosphate-38, 100mM potassium chloride-39, 2mM DTT-40, 2mM EDTA-41, 0.03% sodium azide-42, 93% H2O/7% D2O",
+            "solution_id": "7", "solvent_system": "93% H2O/7% D2O"
+        }, {
+            "contents": "0.45mM [U-99% 15N] gadd45a-43, 20mM sodium phosphate-44, 100mM potassium chloride-45, 2mM DTT-46, 2mM EDTA-47, 0.03% sodium azide-48, 10 mg/mL Pf1 phage-49, 93% H2O/7% D2O",
+            "solution_id": "8", "solvent_system": "93% H2O/7% D2O"
+        }])
 
 
 
@@ -153,3 +183,7 @@ class DictToFileTests(TestCase):
 
     def test_2fur(self):
         self.save("2fur")
+    
+
+    def test_2fur(self):
+        self.save("2kg4")

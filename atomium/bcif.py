@@ -100,7 +100,7 @@ def decode_byte_array(data, encoding):
         5: ["H", 2], 6: ["I", 4], 32: ["f", 4], 33: ["d", 8]
     }[encoding[b"type"]]
     buffer = buffer * int(len(data) / bytesize)
-    return struct.unpack(buffer, data)
+    return tuple(round(i, 13) for i in struct.unpack(buffer, data))
 
 
 def decode_fixed_point(data, encoding):
@@ -153,7 +153,7 @@ def decode_delta(data, encoding):
 
     values = [encoding[b"origin"]]
     for diff in data[1:]:
-        values.append(values[-1] + diff)
+        values.append(round(values[-1] + diff))
     return values
 
 
@@ -351,7 +351,7 @@ def encode_delta(values):
     encoding = {b"kind": b"Delta", b"origin": values[0], b"srcType": 3}
     result = [0]
     for val1, val2 in zip(values[:-1], values[1:]):
-        result.append(val2 - val1)
+        result.append(round(val2 - val1))
     return result, encoding
 
 
@@ -401,7 +401,7 @@ def encode_string_array(values):
             indices.append(strings.index(value))
         else:
             strings.append(value)
-            offsets.append(offsets[-1] + len(value))
+            offsets.append(offsets[-1] + len(value.encode()))
             indices.append(len(strings) - 1)
     indices, indices_encoding = encode_run_length(indices)
     encoding = {

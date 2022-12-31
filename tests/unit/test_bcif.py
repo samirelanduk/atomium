@@ -506,3 +506,14 @@ class StringArrayEncodingTests(TestCase):
         })
         mock_run.assert_called_with([0, 1, 0, 2, 3, 4, 3])
         self.assertEqual(encoded, "encoded_indices")
+    
+
+    @patch("atomium.bcif.encode_run_length")
+    def test_can_encode_unicode_characters(self, mock_run):
+        mock_run.return_value = ("encoded_indices", "indices_encoding")
+        encoded, encoding = encode_string_array(["a", "A😬B", "a"])
+        self.assertEqual(encoding, {
+            b"stringData": b"aA\xf0\x9f\x98\xacB", b"dataEncoding": ["indices_encoding"], b"kind": b"StringArray",
+            b"offsets": [0, 1, 7], b"offsetEncoding": []
+        })
+        self.assertEqual(encoded, "encoded_indices")

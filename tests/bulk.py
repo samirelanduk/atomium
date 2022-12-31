@@ -8,13 +8,17 @@ import pdbsearch
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument("count", help="Number of structures", type=int)
+parser.add_argument("--count", help="Number of structures", type=int, required=False)
+parser.add_argument("--code", help="Specific code to check", type=str, required=False)
 args = parser.parse_args()
 
-print("Getting PDB codes in random order...")
-codes = pdbsearch.search(limit=None)
-random.shuffle(codes)
-codes = codes[:args.count]
+if args.code:
+    codes = [args.code]
+else:
+    print("Getting PDB codes in random order...")
+    codes = pdbsearch.search(limit=None)
+    random.shuffle(codes)
+    codes = codes[:args.count or len(codes)]
 
 print("Checking...")
 for code in tqdm(codes):
@@ -29,3 +33,15 @@ for code in tqdm(codes):
         raise e
     finally:
         if os.path.exists("saved.cif"): os.remove("saved.cif")
+    
+    # BinaryCIF parse/save
+    try:
+        mmcif = atomium.fetch(f"{code}.bcif", dictionary=True)
+        atomium.save_dictionary(mmcif, "saved.bcif")
+        saved = atomium.open("saved.bcif", dictionary=True)
+        assert mmcif == saved
+    except Exception as e:
+        print(code)
+        raise e
+    finally:
+        if os.path.exists("saved.bcif"): os.remove("saved.bcif")

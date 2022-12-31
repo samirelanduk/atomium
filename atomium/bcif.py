@@ -100,7 +100,7 @@ def decode_byte_array(data, encoding):
         5: ["H", 2], 6: ["I", 4], 32: ["f", 4], 33: ["d", 8]
     }[encoding[b"type"]]
     buffer = buffer * int(len(data) / bytesize)
-    return tuple(round(i, 13) for i in struct.unpack(buffer, data))
+    return tuple(round(i, 12) for i in struct.unpack(buffer, data))
 
 
 def decode_fixed_point(data, encoding):

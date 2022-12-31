@@ -29,7 +29,7 @@ for code in tqdm(codes):
         saved = atomium.open("saved.cif", dictionary=True)
         assert mmcif == saved
     except Exception as e:
-        print(code)
+        print("mmCIF", code)
         raise e
     finally:
         if os.path.exists("saved.cif"): os.remove("saved.cif")
@@ -41,7 +41,7 @@ for code in tqdm(codes):
         saved = atomium.open("saved.bcif", dictionary=True)
         assert mmcif == saved
     except Exception as e:
-        print(code)
+        print("BinaryCIF", code)
         raise e
     finally:
         if os.path.exists("saved.bcif"): os.remove("saved.bcif")

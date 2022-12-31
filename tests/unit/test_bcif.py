@@ -174,7 +174,7 @@ class ByteArrayDecodingTests(TestCase):
 
     def test_float32_decoding(self):
         decoded = decode_byte_array(b"AbcD", {b"type": 32})
-        self.assertEqual(decoded, (909.5352172851562,))
+        self.assertEqual(decoded, (909.535217285156,))
     
 
     def test_ufloat64_decoding(self):

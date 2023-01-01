@@ -1,4 +1,5 @@
 import re
+import math
 import calendar
 from collections import Counter
 from atomium.sequences import get_alignment_indices
@@ -20,6 +21,7 @@ def pdb_string_to_mmcif_dict(filestring):
         filestring, polymer_entities, non_polymer_entities, mmcif
     )
     parse_helix(filestring, mmcif)
+    parse_site(filestring, mmcif)
     return mmcif
 
 
@@ -48,6 +50,33 @@ def parse_helix(filestring, mmcif):
         "details": "?", 
         "pdbx_PDB_helix_length": line[71:76].strip(), 
     } for i, line in enumerate(lines, start=1)]
+
+
+def parse_site(filestring, mmcif):
+    lines = re.findall(r"^SITE.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_site_gen"] = []
+    for line in lines:
+        for n in range(4):
+            start = 18 + (11 * n)
+            section = line[start:start + 10].ljust(10)
+            if not section.strip(): continue
+            mmcif["struct_site_gen"].append({
+                "id": str(len(mmcif["struct_site_gen"]) + 1), 
+                "site_id": line[11:14].strip(), 
+                "pdbx_num_res": line[15:17].strip(), 
+                "label_comp_id": section[:3].strip(), 
+                "label_asym_id": section[4].strip(), 
+                "label_seq_id": section[5:9].strip(), 
+                "pdbx_auth_ins_code": section[9].strip() or "?", 
+                "auth_comp_id": section[:3].strip(), 
+                "auth_asym_id": section[4].strip(), 
+                "auth_seq_id": section[5:9].strip(), 
+                "label_atom_id": ".", 
+                "label_alt_id": "?", 
+                "symmetry": "1_555", 
+                "details": "?",
+            })
 
 
 def parse_metadata(filestring):
@@ -1319,6 +1348,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_hetsyn_lines(mmcif_dict)
     lines += create_formul_lines(mmcif_dict)
     lines += create_helix_lines(mmcif_dict)
+    lines += create_site_lines(mmcif_dict)
     lines += create_cryst1_line(mmcif_dict)
     lines += create_origix_lines(mmcif_dict)
     lines += create_scalen_lines(mmcif_dict)
@@ -1488,7 +1518,31 @@ def create_helix_lines(mmcif):
         helix["pdbx_end_PDB_ins_code"].replace("?", ""),
         helix["pdbx_PDB_helix_class"],
         "", helix["pdbx_PDB_helix_length"]
-    ) for helix in mmcif["struct_conf"]]
+    ) for helix in mmcif.get("struct_conf", [])]
+
+
+def create_site_lines(mmcif):
+    line = "SITE   {:>3} {:>3} {:>2} {:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1}"
+    lines = []
+    site_ids = []
+    for row in mmcif.get("struct_site_gen", []):
+        if row["site_id"] not in site_ids: site_ids.append(row["site_id"])
+    for site_id in site_ids:
+        rows = [r for r in mmcif["struct_site_gen"] if r["site_id"] == site_id]
+        row_count = math.ceil(len(rows) / 4)
+        for line_num in range(row_count):
+            line_rows = rows[line_num * 4:line_num * 4 + 4]
+            values = [line_num + 1, site_id, line_rows[0]["pdbx_num_res"]]
+            for row in line_rows:
+                values += [
+                    row["auth_comp_id"],
+                    row["auth_asym_id"],
+                    row["auth_seq_id"],
+                    row["pdbx_auth_ins_code"].replace("?", ""),
+                ]
+            values += [""] * (19 - len(values))
+            lines.append(line.format(*values))
+    return lines
 
 
 def create_cryst1_line(mmcif):

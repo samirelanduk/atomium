@@ -272,7 +272,7 @@ class DictParsingTests(TestCase):
         ])
 
         self.assertEqual(d["atom_site"][0], {
-            "group_pdb": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
             "label_alt_id": ".", "label_comp_id": "VAL", "label_asym_id": "A",
             "label_entity_id": "1", "label_seq_id": "11", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "3.696", "Cartn_y": "33.898", "Cartn_z": "63.219",
@@ -281,7 +281,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "N", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][1557], {
-            "group_pdb": "ATOM", "id": "1558", "type_symbol": "N", "label_atom_id": "N",
+            "group_PDB": "ATOM", "id": "1558", "type_symbol": "N", "label_atom_id": "N",
             "label_alt_id": ".", "label_comp_id": "VAL", "label_asym_id": "B",
             "label_entity_id": "1", "label_seq_id": "11", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-26.384", "Cartn_y": "61.433", "Cartn_z": "36.898",
@@ -290,7 +290,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "N", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3191], {
-            "group_pdb": "HETATM", "id": "3192", "type_symbol": "C", "label_atom_id": "C1",
+            "group_PDB": "HETATM", "id": "3192", "type_symbol": "C", "label_atom_id": "C1",
             "label_alt_id": ".", "label_comp_id": "BU2", "label_asym_id": "C",
             "label_entity_id": "2", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "2.646", "Cartn_y": "45.112", "Cartn_z": "48.995",
@@ -299,7 +299,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "C1", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3197], {
-            "group_pdb": "HETATM", "id": "3198", "type_symbol": "P", "label_atom_id": "P",
+            "group_PDB": "HETATM", "id": "3198", "type_symbol": "P", "label_atom_id": "P",
             "label_alt_id": ".", "label_comp_id": "XMP", "label_asym_id": "D",
             "label_entity_id": "3", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "3.293", "Cartn_y": "36.948", "Cartn_z": "44.605",
@@ -308,7 +308,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "P", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3221], {
-            "group_pdb": "HETATM", "id": "3222", "type_symbol": "C", "label_atom_id": "C1",
+            "group_PDB": "HETATM", "id": "3222", "type_symbol": "C", "label_atom_id": "C1",
             "label_alt_id": ".", "label_comp_id": "BU2", "label_asym_id": "E",
             "label_entity_id": "2", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-14.563", "Cartn_y": "61.208", "Cartn_z": "49.005",
@@ -317,7 +317,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "C1", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3227], {
-            "group_pdb": "HETATM", "id": "3228", "type_symbol": "P", "label_atom_id": "P",
+            "group_PDB": "HETATM", "id": "3228", "type_symbol": "P", "label_atom_id": "P",
             "label_alt_id": ".", "label_comp_id": "XMP", "label_asym_id": "F",
             "label_entity_id": "3", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-23.846", "Cartn_y": "63.007", "Cartn_z": "53.020",
@@ -326,7 +326,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "P", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3251], {
-            "group_pdb": "HETATM", "id": "3252", "type_symbol": "O", "label_atom_id": "O",
+            "group_PDB": "HETATM", "id": "3252", "type_symbol": "O", "label_atom_id": "O",
             "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "G",
             "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-7.624", "Cartn_y": "43.710", "Cartn_z": "47.691",
@@ -335,7 +335,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3252], {
-            "group_pdb": "HETATM", "id": "3253", "type_symbol": "O", "label_atom_id": "O",
+            "group_PDB": "HETATM", "id": "3253", "type_symbol": "O", "label_atom_id": "O",
             "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "G",
             "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-8.138", "Cartn_y": "37.776", "Cartn_z": "46.819",
@@ -344,7 +344,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3347], {
-            "group_pdb": "HETATM", "id": "3348", "type_symbol": "O", "label_atom_id": "O",
+            "group_PDB": "HETATM", "id": "3348", "type_symbol": "O", "label_atom_id": "O",
             "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "H",
             "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-9.220", "Cartn_y": "50.800", "Cartn_z": "49.092",
@@ -353,7 +353,7 @@ class DictParsingTests(TestCase):
             "auth_atom_id": "O", "pdbx_PDB_model_num": "1"
         })
         self.assertEqual(d["atom_site"][3348], {
-            "group_pdb": "HETATM", "id": "3349", "type_symbol": "O", "label_atom_id": "O",
+            "group_PDB": "HETATM", "id": "3349", "type_symbol": "O", "label_atom_id": "O",
             "label_alt_id": ".", "label_comp_id": "HOH", "label_asym_id": "H",
             "label_entity_id": "4", "label_seq_id": ".", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "-8.391", "Cartn_y": "48.561", "Cartn_z": "47.191",
@@ -602,7 +602,7 @@ class DictParsingTests(TestCase):
         self.assertEqual(d["entry"], [{"id": "4Y60"}])
 
         self.assertEqual(d["atom_site"][0], {
-            "group_pdb": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
             "label_alt_id": ".", "label_comp_id": "GLY", "label_asym_id": "A",
             "label_entity_id": "1", "label_seq_id": "1", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "43.447", "Cartn_y": "-56.622", "Cartn_z": "-20.561",
@@ -638,7 +638,7 @@ class DictParsingTests(TestCase):
 
         
         self.assertEqual(d["atom_site"][0], {
-            "group_pdb": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
             "label_alt_id": ".", "label_comp_id": "ALA", "label_asym_id": "A",
             "label_entity_id": "1", "label_seq_id": "14", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "33.969", "Cartn_y": "-8.430", "Cartn_z": "-0.271",
@@ -648,7 +648,7 @@ class DictParsingTests(TestCase):
         })
 
         self.assertEqual(d["atom_site"][1827], {
-            "group_pdb": "ATOM", "id": "1828", "type_symbol": "N", "label_atom_id": "N",
+            "group_PDB": "ATOM", "id": "1828", "type_symbol": "N", "label_atom_id": "N",
             "label_alt_id": ".", "label_comp_id": "ALA", "label_asym_id": "A",
             "label_entity_id": "1", "label_seq_id": "14", "pdbx_PDB_ins_code": "?",
             "Cartn_x": "34.064", "Cartn_y": "-8.092", "Cartn_z": "-0.062",

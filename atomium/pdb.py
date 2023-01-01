@@ -19,7 +19,35 @@ def pdb_string_to_mmcif_dict(filestring):
     build_structure_categories(
         filestring, polymer_entities, non_polymer_entities, mmcif
     )
+    parse_helix(filestring, mmcif)
     return mmcif
+
+
+def parse_helix(filestring, mmcif):
+    lines = re.findall(r"^HELIX.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_conf"] = [{
+        "conf_type_id": "HELIX_P", 
+        "id": f"HELIX_P{str(i)}", 
+        "pdbx_PDB_helix_id": str(i), 
+        "beg_label_comp_id": line[15:18].strip(), 
+        "beg_label_asym_id": line[19].strip(), 
+        "beg_label_seq_id": line[21:25].strip(), 
+        "pdbx_beg_PDB_ins_code": line[24].strip() or "?", 
+        "end_label_comp_id": line[27:30].strip(), 
+        "end_label_asym_id": line[31].strip(), 
+        "end_label_seq_id": line[33:37].strip(), 
+        "pdbx_end_PDB_ins_code": line[37].strip() or "?", 
+        "beg_auth_comp_id": line[15:18].strip(),
+        "beg_auth_asym_id": line[19].strip(), 
+        "beg_auth_seq_id": line[21:25].strip(), 
+        "end_auth_comp_id": line[27:30].strip(), 
+        "end_auth_asym_id": line[31].strip(), 
+        "end_auth_seq_id": line[33:37].strip(), 
+        "pdbx_PDB_helix_class": line[38:40].strip(), 
+        "details": "?", 
+        "pdbx_PDB_helix_length": line[71:76].strip(), 
+    } for i, line in enumerate(lines, start=1)]
 
 
 def parse_metadata(filestring):
@@ -1290,6 +1318,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_hetnam_lines(mmcif_dict)
     lines += create_hetsyn_lines(mmcif_dict)
     lines += create_formul_lines(mmcif_dict)
+    lines += create_helix_lines(mmcif_dict)
     lines += create_cryst1_line(mmcif_dict)
     lines += create_origix_lines(mmcif_dict)
     lines += create_scalen_lines(mmcif_dict)
@@ -1444,6 +1473,24 @@ def get_sig_counts(mmcif, include_water=False, representative=False):
     return Counter(sigs)
 
 
+def create_helix_lines(mmcif):
+    line = "HELIX  {:>3} {:>3} {:3} {:1} {:>4}{:1} {:3} {:1} {:>4}{:1}{:>2}{:30} {:>5}"
+    return [line.format(
+        helix["pdbx_PDB_helix_id"],
+        helix["pdbx_PDB_helix_id"],
+        helix["beg_auth_comp_id"],
+        helix["beg_auth_asym_id"],
+        helix["beg_auth_seq_id"],
+        helix["pdbx_beg_PDB_ins_code"].replace("?", ""),
+        helix["end_auth_comp_id"],
+        helix["end_auth_asym_id"],
+        helix["end_auth_seq_id"],
+        helix["pdbx_end_PDB_ins_code"].replace("?", ""),
+        helix["pdbx_PDB_helix_class"],
+        "", helix["pdbx_PDB_helix_length"]
+    ) for helix in mmcif["struct_conf"]]
+
+
 def create_cryst1_line(mmcif):
     if "cell" not in mmcif: return []
     line = "CRYST1{:>9}{:>9}{:>9}{:>7}{:>7}{:>7} {:<11}{:>4}"
@@ -1508,7 +1555,7 @@ def create_atom_lines(mmcif):
     lines = []
     model_num = 0
     atom_id, asym_id, entity_id = 1, mmcif["atom_site"][0]["label_asym_id"], ""
-    aniso_lookup = {a["id"]: a for a in mmcif["atom_site_anisotrop"]}
+    aniso_lookup = {a["id"]: a for a in mmcif.get("atom_site_anisotrop", [])}
     model_nums = set(a["pdbx_PDB_model_num"] for a in  mmcif["atom_site"])
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
     for atom in mmcif["atom_site"]:

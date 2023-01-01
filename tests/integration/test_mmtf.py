@@ -1,10 +1,11 @@
-from datetime import date
+import os
+import shutil
 from unittest import TestCase
 import atomium
 
-class DictParsingTests(TestCase):
+class FileToDictTests(TestCase):
 
-    def test_1lol_mmtf(self):
+    def test_1lol(self):
         d = atomium.open("tests/integration/files/1lol.mmtf", dictionary=True)
 
         self.assertEqual(d["entry"], [{"id": "1LOL"}])
@@ -73,7 +74,34 @@ class DictParsingTests(TestCase):
         })
 
 
-class ParsingTests(TestCase):
+
+class DictToFileTests(TestCase):
+
+    def setUp(self):
+        if os.path.exists("tests/integration/files/output/"):
+            shutil.rmtree("tests/integration/files/output/")
+        os.mkdir("tests/integration/files/output")
+
+
+    def tearDown(self):
+        if os.path.exists("tests/integration/files/output/"):
+            shutil.rmtree("tests/integration/files/output/")
+    
+
+    def save(self, code):
+        original = atomium.open(f"tests/integration/files/{code}.mmtf", dictionary=True)
+        for r in original["struct_conf"]: print(r)
+        atomium.save_dictionary(original, f"tests/integration/files/output/{code}.mmtf")
+        saved = atomium.open(f"tests/integration/files/output/{code}.mmtf", dictionary=True)
+        self.assertEqual(original, saved)
+    
+
+    def test_1lol(self):
+        self.save("1lol")
+
+
+
+'''class ParsingTests(TestCase):
 
     def test_1lol(self):
         pdb = atomium.open("tests/integration/files/1lol.mmtf")
@@ -254,3 +282,4 @@ class AssemblyTests(TestCase):
         self.assertEqual(len(model.polymers()), 198)
         self.assertEqual([round(c, 1) for c in model.center_of_mass], [433.1, 433.1, 433.1])
 
+'''

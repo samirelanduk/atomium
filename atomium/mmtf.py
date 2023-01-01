@@ -1,5 +1,6 @@
 import msgpack
 import struct
+from atomium.data import FULL_NAMES, CODES
 
 def mmtf_string_to_mmcif_dict(bytestring):
     """Takes the raw bytestring of a .mmtf file and turns it into a normal,
@@ -15,7 +16,7 @@ def mmtf_string_to_mmcif_dict(bytestring):
 
 def decode_dict(d):
     """Takes a dictionary that might have bytestring keys, lists of bytestring
-    values, .mmtf binary values, or other weirdness, and returns a dully decoded
+    values, .mmtf binary values, or other weirdness, and returns a fully decoded
     version of it which is a JSON-valid dictionary.
 
     :param dict d: the dictionary to read.
@@ -137,6 +138,7 @@ def mmtf_dict_to_mmcif_dict(mmtf_dict):
     parse_mmtf_crystal(mmtf_dict, mmcif_dict)
     parse_mmtf_assemblies(mmtf_dict, mmcif_dict)
     parse_mmtf_entities(mmtf_dict, mmcif_dict)
+    parse_mmtf_compounds(mmtf_dict, mmcif_dict)
     parse_mmtf_models(mmtf_dict, mmcif_dict)
     return mmcif_dict
 
@@ -217,6 +219,7 @@ def parse_mmtf_assemblies(mmtf_dict, mmcif_dict):
 
 def parse_mmtf_entities(mmtf_dict, mmcif_dict):
     mmcif_dict["entity"] = []
+    mmcif_dict["struct_asym"] = []
     for entity in mmtf_dict["entityList"]:
         mmcif_dict["entity"].append({
             "id": str(len(mmcif_dict["entity"]) + 1),
@@ -224,6 +227,13 @@ def parse_mmtf_entities(mmtf_dict, mmcif_dict):
             "pdbx_description": entity["description"],
             "pdbx_number_of_molecules": str(len(entity["chainIndexList"]))
         })
+        for id in entity["chainIndexList"]:
+            mmcif_dict["struct_asym"].append({
+                "id": mmtf_dict["chainIdList"][id], "pdbx_blank_PDB_chainid_flag": "N",
+                "pdbx_modified": "N", "entity_id": mmcif_dict["entity"][-1]["id"],
+                "details": "?"
+            })
+        mmcif_dict["struct_asym"].sort(key=lambda row: mmtf_dict["chainIdList"].index(row["id"]))
         if entity["type"] == "polymer":
             if "entity_poly" not in mmcif_dict: mmcif_dict["entity_poly"] = []
             mmcif_dict["entity_poly"].append({
@@ -231,6 +241,23 @@ def parse_mmtf_entities(mmtf_dict, mmcif_dict):
                 "pdbx_seq_one_letter_code": entity["sequence"],
                 "pdbx_seq_one_letter_code_can": entity["sequence"],
             })
+
+
+def parse_mmtf_compounds(mmtf_dict, mmcif_dict):
+    names, mmcif_dict["chem_comp"] = [], []
+    for group in mmtf_dict["groupList"]:
+        if group["groupName"] in names: continue
+        mmcif_dict["chem_comp"].append({
+            "id": group["groupName"],
+            "type": group["chemCompType"],
+            "mon_nstd_flag": "y" if "peptide linking" in group["chemCompType"].lower() else ".",
+            "name": FULL_NAMES.get(group["groupName"], "?"),
+            "pdbx_synonyms": "?",
+            "formula": "?",
+            "formula_weight": "?",
+        })
+        names.append(group["groupName"])
+    mmcif_dict["chem_comp"].sort(key=lambda c: c["id"])
 
 
 def parse_mmtf_models(mmtf_dict, mmcif_dict):
@@ -282,10 +309,6 @@ def parse_chain(mmtf_dict, mmcif_dict, model_num, chain_index, group_count, atom
                 "auth_atom_id": atom_name,
                 "pdbx_PDB_model_num": str(model_num)
             })
-
-
-    helices, strands = get_chain_secondary_structure(mmtf_dict, groups, chain_index)
-    add_secondary_structure_to_mmcif(helices, strands, mmcif_dict)
     
 
 def get_chain_entity_id(mmtf_dict, chain_index):
@@ -309,79 +332,229 @@ def get_chain_groups(mmtf_dict, group_count):
     return list(zip(group_types, group_ids, insert_codes, ss_codes))
 
 
-def get_chain_secondary_structure(mmtf_dict, groups, chain_index):
-    in_helix, helices, helix = False, [], []
-    in_strand, strands, strand = False, [], []
-    for group_type, group_id, insert, ss_code in groups:
-        group = mmtf_dict["groupList"][group_type]
-        ss_type = [
-            "helices", None, "helices", "strands",
-            "helices", "strands", None, None
-        ][ss_code]
-        if ss_type == "helices":
-            helix.append([
-                mmtf_dict["chainIdList"][chain_index],
-                mmtf_dict["chainNameList"][chain_index],
-                group["groupName"], group_id, insert
-            ])
-        elif in_helix:
-            helices.append(helix)
-            helix = []
-        in_helix = ss_type == "helices"
-        if ss_type == "strands":
-            strand.append([
-                mmtf_dict["chainIdList"][chain_index],
-                mmtf_dict["chainNameList"][chain_index],
-                group["groupName"], group_id, insert
-            ])
-        elif in_strand:
-            strands.append(strand)
-            strand = []
-        in_strand = ss_type == "strands"
-    if helix: helices.append(helix)
-    if strand: strands.append(strand)
-    return helices, strands
+def save_mmcif_dict(mmcif_dict, path):
+    """Saves an mmCIF dictionary to a .mmtf file.
+
+    :param dict mmcif_dict: the dictionary to save.
+    :param Path path: the location to save to."""
+
+    # Make basic dict
+    mmtf = make_base_mmtf_dict(mmcif_dict)
+
+    # Get 'chain' info
+    chain_ids, chains_per_model, chain_names = get_chain_info(mmcif_dict)
+    mmtf["chainIdList"] = chain_ids
+    mmtf["chainNameList"] = chain_names
+    mmtf["chainsPerModel"] = chains_per_model
+
+    # Add assembly info
+    mmtf["bioAssemblyList"] = make_bio_assembly_list(mmcif_dict, chain_ids)
+
+    # Add entity info
+    mmtf["entityList"] = make_entities(mmcif_dict, chain_ids)
+
+    # Need to:
+    # (1) Get the 7 atom lists
+    # (2) Get the 3 group lists
+    # (3) Get the group type list
+    # (4) Get groupsPerChain
+    atom_ids, atom_x, atom_y, atom_z, atom_alts, atom_occupancy, atom_b = (
+        [], [], [], [], [], [], []
+    )
+    group_ids, group_types, group_ins = [], [], []
+    group_atoms = []
+    groups = []
+    groups_per_chain = []
+    group_count = 0
+    for i, atom in enumerate(mmcif_dict["atom_site"]):
+        # Get atom values
+        atom_ids.append("" if atom["id"] in ".?" else int(atom["id"]))
+        atom_x.append("" if atom["Cartn_x"] in ".?" else float(atom["Cartn_x"]))
+        atom_y.append("" if atom["Cartn_y"] in ".?" else float(atom["Cartn_y"]))
+        atom_z.append("" if atom["Cartn_z"] in ".?" else float(atom["Cartn_z"]))
+        atom_alts.append("" if atom["label_alt_id"] in ".?" else float(atom["label_alt_id"]))
+        atom_occupancy.append("" if atom["occupancy"] in ".?" else float(atom["occupancy"]))
+        atom_b.append("" if atom["B_iso_or_equiv"] in ".?" else float(atom["B_iso_or_equiv"]))
+
+        # Add atom to group_atoms
+        group_atoms.append(atom)
+
+        # Is this the last atom in the group?
+        this_sig = atom_sig(atom)
+        last_atom = i == len(mmcif_dict["atom_site"]) - 1
+        next_sig = None if last_atom else atom_sig(mmcif_dict["atom_site"][i + 1])
+        is_last = last_atom or this_sig != next_sig
+
+        if is_last:
+            # Make new group
+            group = make_mmtf_group(group_atoms, mmcif_dict)
+            for group_index, existing in enumerate(groups):
+                if group["atomNameList"] == existing["atomNameList"] and \
+                    group["elementList"] == existing["elementList"] and \
+                        group["formalChargeList"] == existing["formalChargeList"]:
+                    break
+            else:
+                groups.append(group)
+                group_index = len(groups) - 1
+            
+            # Get group values
+            group_ids.append(this_sig[1])
+            group_ins.append(this_sig[2])
+            group_types.append(group_index)
+
+            # Last of chain?
+            group_count += 1
+            if last_atom or this_sig[0] != next_sig[0]:
+                groups_per_chain.append(group_count)
+                group_count = 0
 
 
-def add_secondary_structure_to_mmcif(helices, strands, mmcif_dict):
-    for helix in helices:
-        mmcif_dict["struct_conf"].append({
-            "id": f"HELIX_P{len(mmcif_dict['struct_conf'])}",
-            "pdbx_PDB_helix_id": str(len(mmcif_dict["struct_conf"])),
-            "beg_label_comp_id": helix[0][2],
-            "beg_label_asym_id": helix[0][0],
-            "beg_label_seq_id": str(helix[0][3]),
-            "pdbx_beg_PDB_ins_code": helix[0][4] or "?",
-            "end_label_comp_id": helix[-1][2],
-            "end_label_asym_id": helix[-1][0],
-            "end_label_seq_id": str(helix[-1][3]),
-            "pdbx_end_PDB_ins_code": helix[-1][4] or "?",
-            "beg_auth_comp_id": helix[0][2],
-            "beg_auth_asym_id": helix[0][1],
-            "beg_auth_seq_id": str(helix[0][3]),
-            "end_auth_comp_id": helix[-1][2],
-            "end_auth_asym_id": helix[-1][1],
-            "end_auth_seq_id": str(helix[-1][3]),
-            "pdbx_PDB_helix_class": "?",
-            "details": "?",
-            "pdbx_PDB_helix_length": str(len(helix))
-        })
-    for strand in strands:
-        mmcif_dict["struct_sheet_range"].append({
-            "sheet_id": strand[0][1],
-            "id": str(len(mmcif_dict["struct_sheet_range"])),
-            "beg_label_comp_id": strand[0][2],
-            "beg_label_asym_id": strand[0][0],
-            "beg_label_seq_id": str(strand[0][3]),
-            "pdbx_beg_PDB_ins_code": strand[0][4] or "?",
-            "end_label_comp_id": strand[-1][2],
-            "end_label_asym_id": strand[-1][0],
-            "end_label_seq_id": str(strand[-1][3]),
-            "pdbx_end_PDB_ins_code": strand[-1][4] or "?",
-            "beg_auth_comp_id": strand[0][2],
-            "beg_auth_asym_id": strand[0][1],
-            "beg_auth_seq_id": str(strand[0][3]),
-            "end_auth_comp_id": strand[-1][2],
-            "end_auth_asym_id": strand[-1][1],
-            "end_auth_seq_id": str(strand[-1][3]),
-        })
+
+            # Reset group
+            group_atoms = []
+            
+
+    
+    # Update atom lists
+    mmtf["atomIdList"] = atom_ids
+    mmtf["xCoordList"] = atom_x
+    mmtf["yCoordList"] = atom_y
+    mmtf["zCoordList"] = atom_z
+    mmtf["altLocList"] = atom_alts
+    mmtf["occupancyList"] = atom_occupancy
+    mmtf["bFactorList"] = atom_b
+    mmtf["numAtoms"] = len(atom_ids)
+
+    # Update group lists
+    mmtf["groupIdList"] = group_ids
+    mmtf["insCodeList"] = group_ins
+    mmtf["groupTypeList"] = group_types
+    mmtf["secStructList"] = [-1 for _ in group_ids]
+    mmtf["groupList"] = groups
+    mmtf["groupsPerChain"] = groups_per_chain
+    mmtf["numGroups"] = len(group_ids)
+    mmtf["numChains"] = len(chain_ids)
+    mmtf["numModels"] = len(chains_per_model)
+
+
+
+    # Save
+    data = msgpack.packb(mmtf)
+    with open(path, "wb") as f:
+        f.write(data)
+
+
+def make_base_mmtf_dict(mmcif):
+    from atomium import __version__
+    code = mmcif["entry"][0]["id"]
+    return {
+        "mmtfVersion": b"1.0.0",
+        "mmtfProducer": b"atomium " + __version__.encode(),
+        "structureId": code,
+        "title": mmcif["struct"][0]["title"],
+        "depositionDate": mmcif["pdbx_database_status"][0]["recvd_initial_deposition_date"],
+        "experimentalMethods": mmcif["exptl"][0]["method"].split(","),
+        "spaceGroup": mmcif["symmetry"][0]["space_group_name_H-M"],
+        "resolution": float(mmcif["refine"][0]["ls_d_res_high"]),
+        "rFree": float(mmcif["refine"][0]["ls_R_factor_R_free"]),
+        "rWork": float(mmcif["refine"][0]["ls_R_factor_R_work"]),
+        "unitCell": [
+            float(mmcif["cell"][0]["length_a"]),
+            float(mmcif["cell"][0]["length_b"]),
+            float(mmcif["cell"][0]["length_c"]),
+            float(mmcif["cell"][0]["length_alpha"]),
+            float(mmcif["cell"][0]["length_beta"]),
+            float(mmcif["cell"][0]["length_gamma"]),
+        ],
+        "numBonds": 0,
+        "bondAtomList": [],
+        "bondOrderList": [],
+        "sequenceIndexList": [],
+        "ncsOperatorList": [],
+    }
+
+
+def make_bio_assembly_list(mmcif, chain_ids):
+    assemblies = []
+    for assembly in mmcif["pdbx_struct_assembly"]:
+        gens = [gen for gen in mmcif["pdbx_struct_assembly_gen"]
+            if gen["assembly_id"] == assembly["id"]]
+        assembly = {"name": assembly["id"], "transformList": []}
+        for gen in gens:
+            ops = [op for op in mmcif["pdbx_struct_oper_list"]
+                if op["id"] in gen["oper_expression"].split(",")]
+            for op in ops:
+                assembly["transformList"].append({
+                    "chainIndexList": [chain_ids.index(n)
+                        for n in gen["asym_id_list"].split(",")],
+                    "matrix": [
+                        float(op["matrix[1][1]"]), float(op["matrix[1][2]"]),
+                        float(op["matrix[1][3]"]), float(op["vector[1]"]),
+                        float(op["matrix[2][1]"]), float(op["matrix[2][2]"]),
+                        float(op["matrix[2][3]"]), float(op["vector[2]"]),
+                        float(op["matrix[3][1]"]), float(op["matrix[3][2]"]),
+                        float(op["matrix[3][3]"]), float(op["vector[3]"]),
+                    ]
+                })
+        assemblies.append(assembly)
+    return assemblies
+
+
+def make_entities(mmcif, chain_ids):
+    entities = []
+    for e in mmcif["entity"]:
+        index_list = [chain_ids.index(asym["id"])
+            for asym in mmcif["struct_asym"] if asym["entity_id"] == e["id"]]
+        poly_seqs = [
+            pol for pol in mmcif["entity_poly"] if pol["entity_id"] == e["id"]
+        ]
+        sequence = poly_seqs[0]["pdbx_seq_one_letter_code"] if poly_seqs else ""
+        entity = {
+            "description": e["pdbx_description"], "type": e["type"],
+            "chainIndexList": index_list, "sequence": sequence
+        }
+        entities.append(entity)
+    return entities
+
+
+def get_chain_info(mmcif):
+    chain_ids = [asym["id"] for asym in mmcif["struct_asym"]]
+    model_ids = sorted(set(a["pdbx_PDB_model_num"] for a in mmcif["atom_site"]))
+    chains_per_model = [len(set(
+        a["label_asym_id"] for a in mmcif["atom_site"]
+            if a["pdbx_PDB_model_num"] == model
+    )) for model in model_ids]
+    chain_names = []
+    for asym_id in chain_ids:
+        for atom in mmcif["atom_site"]:
+            if atom["label_asym_id"] == asym_id:
+                chain_names.append(atom["auth_asym_id"])
+                break
+    return chain_ids, chains_per_model, chain_names
+
+
+def atom_sig(atom):
+    return (
+        atom["label_asym_id"], atom["auth_seq_id"],
+        atom["pdbx_PDB_ins_code"].replace("?", ""), atom["auth_comp_id"]
+    )
+
+
+def make_mmtf_group(atoms, mmcif):
+    lookup = {c["id"]: c["type"] for c in mmcif["chem_comp"]}
+    names, elements, charges = [], [], []
+    for atom in atoms:
+        names.append(atom["label_atom_id"])
+        elements.append(atom["type_symbol"])
+        charges.append(atom["pdbx_formal_charge"])
+    group = {
+        "groupName": atoms[0]["label_comp_id"],
+        "atomNameList": names,
+        "elementList": elements,
+        "bondOrderList": [],
+        "bondAtomList": [],
+        "formalChargeList": charges,
+        "singleLetterCode": CODES.get(atoms[0]["label_comp_id"], "?"),
+        "chemCompType": lookup[atoms[0]["label_comp_id"]]
+    }
+    return group

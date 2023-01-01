@@ -10,6 +10,7 @@ from atomium.bcif import save_mmcif_dict as save_mmcif_dict_to_bcif
 from atomium.pdb import pdb_string_to_mmcif_dict
 from atomium.pdb import save_mmcif_dict as save_mmcif_dict_to_pdb
 from atomium.mmtf import mmtf_string_to_mmcif_dict
+from atomium.mmtf import save_mmcif_dict as save_mmcif_dict_to_mmtf
 from atomium.file import File
 
 def open(path, dictionary=False):
@@ -106,4 +107,5 @@ def save_dictionary(mmcif, path):
         "cif": save_mmcif_dict_to_mmcif,
         "bcif": save_mmcif_dict_to_bcif,
         "pdb": save_mmcif_dict_to_pdb,
+        "mmtf": save_mmcif_dict_to_mmtf,
     }[ext](mmcif, path)

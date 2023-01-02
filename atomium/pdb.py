@@ -53,6 +53,76 @@ def parse_helix(filestring, mmcif):
     } for i, line in enumerate(lines, start=1)]
 
 
+def parse_helix(filestring, mmcif):
+    lines = re.findall(r"^SHEET.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_sheet"] = []
+    mmcif["struct_sheet_range"] = []
+    for line in lines:
+        strand_id, sheet_id = line[7:10].strip(), line[11:14].strip()
+        strand_count = line[14:16].strip()
+        if sheet_id not in [s["id"] for s in mmcif["struct_sheet"]]:
+            mmcif["struct_sheet"].append({
+                "id": sheet_id, "type": "?", "number_strands": strand_count,
+                "details": "?"
+            })
+        mmcif["struct_sheet_range"].append({
+            "sheet_id": sheet_id, "id": strand_id, 
+            "beg_label_comp_id": line[17:20].strip(), 
+            "beg_label_asym_id": line[21].strip(), 
+            "beg_label_seq_id": line[22:26].strip(),
+            "pdbx_beg_PDB_ins_code": line[26].strip() or "?", 
+            "end_label_comp_id": line[28:31].strip(),
+            "end_label_asym_id": line[32].strip(),
+            "end_label_seq_id": line[33:37].strip(),
+            "pdbx_end_PDB_ins_code": line[37].strip() or "?", 
+            "beg_auth_comp_id": line[17:20].strip(),
+            "beg_auth_asym_id": line[21].strip(),
+            "beg_auth_seq_id": line[22:26].strip(),
+            "end_auth_comp_id": line[28:31].strip(),
+            "end_auth_asym_id": line[32].strip(),
+            "end_auth_seq_id": line[33:37].strip(),
+        })
+    parse_inter_strand(lines, mmcif)
+
+
+def parse_inter_strand(lines, mmcif):
+    mmcif["struct_sheet_order"] = []
+    mmcif["pdbx_struct_sheet_hbond"] = []
+    for line in lines:
+        line = line.ljust(80)
+        strand_id, sheet_id = line[7:10].strip(), line[11:14].strip()
+        if strand_id != "1":
+            mmcif["struct_sheet_order"].append({
+                "sheet_id": sheet_id,
+                "range_id_1": str(int(strand_id) - 1), "range_id_2": strand_id,
+                "offset": "?",
+                "sense": "parallel" if line[38:40].strip() == "1" else "anti-parallel"
+            })
+            mmcif["pdbx_struct_sheet_hbond"].append({
+                "sheet_id": sheet_id,
+                "range_id_1": str(int(strand_id) - 1),  "range_id_2": strand_id, 
+                "range_1_label_atom_id": line[56:60].strip(), 
+                "range_1_label_comp_id": line[60:63].strip(), 
+                "range_1_label_asym_id": line[64].strip(), 
+                "range_1_label_seq_id": line[65:69].strip(), 
+                "range_1_PDB_ins_code": line[69].strip() or "?", 
+                "range_1_auth_atom_id": line[56:60].strip(), 
+                "range_1_auth_comp_id": line[60:63].strip(), 
+                "range_1_auth_asym_id": line[64].strip(), 
+                "range_1_auth_seq_id": line[65:69].strip(), 
+                "range_2_label_atom_id": line[41:45].strip(), 
+                "range_2_label_comp_id": line[45:48].strip(), 
+                "range_2_label_asym_id": line[49].strip(), 
+                "range_2_label_seq_id": line[33:37].strip(), 
+                "range_2_PDB_ins_code": line[54].strip() or "?", 
+                "range_2_auth_atom_id": line[41:45].strip(), 
+                "range_2_auth_comp_id": line[45:48].strip(), 
+                "range_2_auth_asym_id": line[49].strip(), 
+                "range_2_auth_seq_id": line[33:37].strip(), 
+            })
+
+
 def parse_site(filestring, mmcif):
     lines = re.findall(r"^SITE.+", filestring, re.M)
     if not lines: return
@@ -1374,6 +1444,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_hetsyn_lines(mmcif_dict)
     lines += create_formul_lines(mmcif_dict)
     lines += create_helix_lines(mmcif_dict)
+    lines += create_sheet_lines(mmcif_dict)
     lines += create_cispep_lines(mmcif_dict)
     lines += create_site_lines(mmcif_dict)
     lines += create_cryst1_line(mmcif_dict)
@@ -1546,6 +1617,41 @@ def create_helix_lines(mmcif):
         helix["pdbx_PDB_helix_class"],
         "", helix["pdbx_PDB_helix_length"]
     ) for helix in mmcif.get("struct_conf", [])]
+
+
+def create_sheet_lines(mmcif):
+    lines = []
+    line = "SHEET  {:>3} {:>3}{:>2} {:>3} {:1}{:>4}{:1} {:>3} {:1}{:>4}{:1}{:>2} {:<4}{:>3} {:1}{:>4}{:1} {:<4}{:>3} {:1}{:>4}{:1}"
+    for strand in mmcif.get("struct_sheet_range", []):
+        order = [r for r in mmcif["struct_sheet_order"] if r["sheet_id"] == strand["sheet_id"] and r["range_id_2"] == strand["id"]]
+        order = order[0] if order else None
+        hbond = [r for r in mmcif["pdbx_struct_sheet_hbond"] if r["sheet_id"] == strand["sheet_id"] and r["range_id_2"] == strand["id"]]
+        hbond = hbond[0] if hbond else None
+        lines.append(line.format(
+            strand["id"],
+            strand["sheet_id"],
+            str(len([r for r in mmcif["struct_sheet_range"] if r["sheet_id"] == strand["sheet_id"]])),
+            strand["beg_auth_comp_id"],
+            strand["beg_auth_asym_id"],
+            strand["beg_auth_seq_id"],
+            strand["pdbx_beg_PDB_ins_code"].replace("?", ""),
+            strand["end_auth_comp_id"],
+            strand["end_auth_asym_id"],
+            strand["end_auth_seq_id"],
+            strand["pdbx_end_PDB_ins_code"].replace("?", ""),
+            0 if not order else 1 if order["sense"] == "parallel" else -1,
+            f"{'' if len(hbond['range_2_auth_atom_id']) == 4 else ' '}{hbond['range_2_auth_atom_id']}" if hbond else "",
+            hbond["range_2_auth_comp_id"] if hbond else "",
+            hbond["range_2_auth_asym_id"] if hbond else "",
+            hbond["range_2_auth_seq_id"] if hbond else "",
+            hbond["range_2_PDB_ins_code"].replace("?", "") if hbond else "",
+            f"{'' if len(hbond['range_1_auth_atom_id']) == 4 else ' '}{hbond['range_1_auth_atom_id']}" if hbond else "",
+            hbond["range_1_auth_comp_id"] if hbond else "",
+            hbond["range_1_auth_asym_id"] if hbond else "",
+            hbond["range_1_auth_seq_id"] if hbond else "",
+            hbond["range_1_PDB_ins_code"].replace("?", "") if hbond else "",
+        ))
+    return lines
 
 
 def create_cispep_lines(mmcif):

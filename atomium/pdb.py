@@ -21,8 +21,9 @@ def pdb_string_to_mmcif_dict(filestring):
         filestring, polymer_entities, non_polymer_entities, mmcif
     )
     parse_helix(filestring, mmcif)
-    parse_cispep(filestring, mmcif)
     parse_ssbond(filestring, mmcif)
+    parse_link(filestring, mmcif)
+    parse_cispep(filestring, mmcif)
     parse_site(filestring, mmcif)
     return mmcif
 
@@ -154,6 +155,49 @@ def parse_ssbond(filestring, mmcif):
             "ptnr2_auth_asym_id": line[29].strip(), 
             "ptnr2_auth_comp_id": line[25:28].strip(), 
             "ptnr2_auth_seq_id": line[31:35].strip(), 
+            "ptnr2_symmetry": line[66:72].strip(), 
+            "pdbx_ptnr3_label_atom_id": "?", 
+            "pdbx_ptnr3_label_seq_id": "?", 
+            "pdbx_ptnr3_label_comp_id": "?", 
+            "pdbx_ptnr3_label_asym_id": "?", 
+            "pdbx_ptnr3_label_alt_id": "?", 
+            "pdbx_ptnr3_PDB_ins_code": "?", 
+            "details": "?", 
+            "pdbx_dist_value": line[73:78].strip(), 
+            "pdbx_value_order": "?",
+        })
+
+
+def parse_link(filestring, mmcif):
+    lines = re.findall(r"^LINK.+", filestring, re.M)
+    if not lines: return
+    if "struct_conn" not in mmcif: mmcif["struct_conn"] = []
+    for n, line in enumerate(lines, start=1):
+        mmcif["struct_conn"].append({
+            "id": f"covale{n}", 
+            "conn_type_id": "covale", 
+            "pdbx_leaving_atom_flag": "?", 
+            "pdbx_PDB_id": "?", 
+            "ptnr1_label_asym_id": line[21].strip(), 
+            "ptnr1_label_comp_id": line[17:20].strip(), 
+            "ptnr1_label_seq_id": line[22:26].strip(), 
+            "ptnr1_label_atom_id": line[12:16].strip(), 
+            "pdbx_ptnr1_label_alt_id": line[16].strip() or "?", 
+            "pdbx_ptnr1_PDB_ins_code": line[26].strip() or "?", 
+            "pdbx_ptnr1_standard_comp_id": "?", 
+            "ptnr1_symmetry": line[59:65].strip(), 
+            "ptnr2_label_asym_id": line[51].strip(), 
+            "ptnr2_label_comp_id": line[47:50].strip(), 
+            "ptnr2_label_seq_id": line[52:56].strip(), 
+            "ptnr2_label_atom_id": line[42:46].strip(), 
+            "pdbx_ptnr2_label_alt_id": line[46].strip() or "?", 
+            "pdbx_ptnr2_PDB_ins_code": line[56].strip() or "?", 
+            "ptnr1_auth_asym_id": line[21].strip(), 
+            "ptnr1_auth_comp_id": line[17:20].strip(), 
+            "ptnr1_auth_seq_id": line[22:26].strip(), 
+            "ptnr2_auth_asym_id": line[51].strip(), 
+            "ptnr2_auth_comp_id": line[47:50].strip(), 
+            "ptnr2_auth_seq_id": line[52:56].strip(), 
             "ptnr2_symmetry": line[66:72].strip(), 
             "pdbx_ptnr3_label_atom_id": "?", 
             "pdbx_ptnr3_label_seq_id": "?", 
@@ -765,7 +809,7 @@ def parse_remark_800(filestring, mmcif):
 
 
 def parse_cryst1(filestring, mmcif):
-    cryst1 = re.search(r"CRYST1.+", filestring, re.M)
+    cryst1 = re.search(r"^CRYST1.+", filestring, re.M)
     mmcif["cell"] = [{**{k: "?" for k in [
         "entry_id", "length_a", "length_b", "length_c", "angle_alpha",
         "angle_beta", "angle_gamma", "Z_pdb", "pdbx_unique_axis"
@@ -1490,6 +1534,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_helix_lines(mmcif_dict)
     lines += create_sheet_lines(mmcif_dict)
     lines += create_ssbond_lines(mmcif_dict)
+    lines += create_link_lines(mmcif_dict)
     lines += create_cispep_lines(mmcif_dict)
     lines += create_site_lines(mmcif_dict)
     lines += create_cryst1_line(mmcif_dict)
@@ -1717,6 +1762,31 @@ def create_ssbond_lines(mmcif):
             ssbond["ptnr1_symmetry"],
             ssbond["ptnr2_symmetry"],
             ssbond["pdbx_dist_value"],
+        ))
+    return lines
+
+
+def create_link_lines(mmcif):
+    line = "LINK        {:>4}{:1}{:>3} {:1}{:>4}{:1}               {:>4}{:1}{:>3} {:1}{:>4}{:1}  {:>6} {:>6} {:>5}"
+    lines = []
+    for link in mmcif.get("struct_conn", []):
+        if link["conn_type_id"] != "covale": continue
+        lines.append(line.format(
+            link["ptnr1_label_atom_id"],
+            link["pdbx_ptnr1_label_alt_id"].replace("?", ""),
+            link["ptnr1_auth_comp_id"],
+            link["ptnr1_auth_asym_id"],
+            link["ptnr1_auth_seq_id"],
+            link["pdbx_ptnr1_PDB_ins_code"].replace("?", ""),
+            link["ptnr2_label_atom_id"],
+            link["pdbx_ptnr2_label_alt_id"].replace("?", ""),
+            link["ptnr2_auth_comp_id"],
+            link["ptnr2_auth_asym_id"],
+            link["ptnr2_auth_seq_id"],
+            link["pdbx_ptnr2_PDB_ins_code"].replace("?", ""),
+            link["ptnr1_symmetry"],
+            link["ptnr2_symmetry"],
+            link["pdbx_dist_value"],
         ))
     return lines
     

@@ -22,6 +22,7 @@ def pdb_string_to_mmcif_dict(filestring):
     )
     parse_helix(filestring, mmcif)
     parse_site(filestring, mmcif)
+    parse_cispep(filestring, mmcif)
     return mmcif
 
 
@@ -77,6 +78,31 @@ def parse_site(filestring, mmcif):
                 "symmetry": "1_555", 
                 "details": "?",
             })
+
+
+def parse_cispep(filestring, mmcif):
+    lines = re.findall(r"^CISPEP.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_mon_prot_cis"] = [{
+        "pdbx_id": line[7:10].strip(),
+        "label_comp_id": line[11:14].strip(),
+        "label_seq_id": line[17:21].strip(),
+        "label_asym_id": line[15].strip(),
+        "label_alt_id": ".",
+        "pdbx_PDB_ins_code": line[21].strip() or "?",
+        "auth_comp_id": line[11:14].strip(),
+        "auth_seq_id": line[17:21].strip(),
+        "auth_asym_id": line[15].strip(),
+        "pdbx_label_comp_id_2": line[25:28].strip(),
+        "pdbx_label_seq_id_2": line[31:35].strip(),
+        "pdbx_label_asym_id_2": line[29].strip(),
+        "pdbx_PDB_ins_code_2": line[35].strip() or "?",
+        "pdbx_auth_comp_id_2": line[25:28].strip(),
+        "pdbx_auth_seq_id_2": line[31:35].strip(),
+        "pdbx_auth_asym_id_2": line[29].strip(),
+        "pdbx_PDB_model_num": str(int(line[43:46].strip()) + 1),
+        "pdbx_omega_angle": line[53:59].strip()
+    } for line in lines]
 
 
 def parse_metadata(filestring):
@@ -1348,6 +1374,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_hetsyn_lines(mmcif_dict)
     lines += create_formul_lines(mmcif_dict)
     lines += create_helix_lines(mmcif_dict)
+    lines += create_cispep_lines(mmcif_dict)
     lines += create_site_lines(mmcif_dict)
     lines += create_cryst1_line(mmcif_dict)
     lines += create_origix_lines(mmcif_dict)
@@ -1519,6 +1546,23 @@ def create_helix_lines(mmcif):
         helix["pdbx_PDB_helix_class"],
         "", helix["pdbx_PDB_helix_length"]
     ) for helix in mmcif.get("struct_conf", [])]
+
+
+def create_cispep_lines(mmcif):
+    line = "CISPEP {:>3} {:>3} {:1} {:>4}{:1}   {:>3} {:1} {:>4}{:1}       {:>3}       {:>6}"
+    return [line.format(
+        cispep["pdbx_id"],
+        cispep["auth_comp_id"],
+        cispep["auth_asym_id"],
+        cispep["auth_seq_id"],
+        cispep["pdbx_PDB_ins_code"].replace("?", ""),
+        cispep["pdbx_auth_comp_id_2"],
+        cispep["pdbx_auth_asym_id_2"],
+        cispep["pdbx_auth_seq_id_2"],
+        cispep["pdbx_PDB_ins_code_2"].replace("?", ""),
+        str(int(cispep["pdbx_PDB_model_num"]) - 1),
+        cispep["pdbx_omega_angle"],
+    ) for cispep in mmcif.get("struct_mon_prot_cis", [])]
 
 
 def create_site_lines(mmcif):

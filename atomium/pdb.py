@@ -1469,6 +1469,7 @@ def build_atom_site_anisotrop(filestring, mmcif):
             "pdbx_auth_asym_id": atom["auth_asym_id"], 
             "pdbx_auth_atom_id ": atom["auth_atom_id"], 
         })
+    if not mmcif["atom_site_anisotrop"]: del mmcif["atom_site_anisotrop"]
 
 
 def update_atom_ids(mmcif):
@@ -1660,7 +1661,7 @@ def create_formul_lines(mmcif):
     name_counts = {sig[3]: sum(
         v for k, v in sig_counts.items() if k[3] == sig[3]
     ) for sig in sig_counts}
-    for chem in sorted(chem_comp, key=lambda c: list(name_counts.keys()).index(c["id"])):
+    for chem in sorted(chem_comp, key=lambda c: list(name_counts.keys()).index(c["id"]) if c["id"] in name_counts else 0):
         if chem["formula"] != "?":
             entity_id = name_to_entity_id[chem["id"]]
             number = entity_ids.index(entity_id) + 1

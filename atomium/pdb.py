@@ -425,11 +425,12 @@ def parse_remark_2(filestring, mmcif):
         "observed_criterion_F_min", "pdbx_chi_squared", "pdbx_scaling_rejects", 
         "pdbx_diffrn_id", "pdbx_ordinal", 
     ]
+    rec = re.search(r"^REMARK   2 RESOLUTION.    (\d+\.\d+)", filestring, re.M)
+    if not rec: return
     mmcif["reflns"] = [{
         **{key: "?" for key in reflns}, "entry_id": mmcif["entry"][0]["id"]
     }]
-    rec = re.search(r"^REMARK   2 RESOLUTION.    (\d+\.\d+)", filestring, re.M)
-    if rec: mmcif["reflns"][0]["d_resolution_high"] = rec[1]
+    mmcif["reflns"][0]["d_resolution_high"] = rec[1]
 
 
 def parse_remark_3(filestring, mmcif):
@@ -471,6 +472,7 @@ def parse_remark_3(filestring, mmcif):
         "pdbx_TLS_residual_ADP_flag", "pdbx_overall_SU_R_free_Cruickshank_DPI",
         "pdbx_overall_SU_R_Blow_DPI", "pdbx_overall_SU_R_free_Blow_DPI",
     ]
+    keep = False
     mmcif["refine"] = [{
         **{key: "?" for key in refine}, "entry_id": mmcif["entry"][0]["id"]
     }]
@@ -506,6 +508,8 @@ def parse_remark_3(filestring, mmcif):
     ]:
         value = re.search(regex, string)
         mmcif["refine"][0][key] = value[1].strip() if value else "?"
+        if value: keep
+    if not keep: del mmcif["refine"]
 
 
 def parse_remark_465(filestring, mmcif):
@@ -687,7 +691,7 @@ def parse_compnd_and_source(filestring):
             if "MOL_ID" in record:
                 if molecule: molecules.append(molecule)
                 molecule = ""
-            molecule += record[10:] + " "
+            molecule += record[10:].strip() + " "
         if molecule: molecules.append(molecule)
         molecules = [parse_entity_string(mol) for mol in molecules]
         for molecule in molecules:
@@ -1088,6 +1092,7 @@ def build_pdbx_entity_nonpoly(non_polymers, mmcif):
             "name": entity_row["pdbx_description"],
             "comp_id": name,
         })
+    if not mmcif["pdbx_entity_nonpoly"]: del mmcif["pdbx_entity_nonpoly"]
 
 
 def build_chem_comp(non_polymer_entities, mmcif):
@@ -1294,7 +1299,7 @@ def parse_helix(filestring, mmcif):
         "beg_label_comp_id": line[15:18].strip(), 
         "beg_label_asym_id": line[19].strip(), 
         "beg_label_seq_id": line[21:25].strip(), 
-        "pdbx_beg_PDB_ins_code": line[24].strip() or "?", 
+        "pdbx_beg_PDB_ins_code": line[25].strip() or "?", 
         "end_label_comp_id": line[27:30].strip(), 
         "end_label_asym_id": line[31].strip(), 
         "end_label_seq_id": line[33:37].strip(), 

@@ -253,7 +253,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][0], {
             "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1",
             "beg_label_comp_id": "VAL", "beg_label_asym_id": "A", "beg_label_seq_id": "11",
-            "pdbx_beg_PDB_ins_code": "1", "end_label_comp_id": "ASN", "end_label_asym_id": "A",
+            "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "ASN", "end_label_asym_id": "A",
             "end_label_seq_id": "13", "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "VAL",
             "beg_auth_asym_id": "A", "beg_auth_seq_id": "11", "end_auth_comp_id": "ASN",
             "end_auth_asym_id": "A", "end_auth_seq_id": "13", "pdbx_PDB_helix_class": "5",
@@ -262,7 +262,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][-1], {
             "conf_type_id": "HELX_P", "id": "HELX_P22", "pdbx_PDB_helix_id": "22",
             "beg_label_comp_id": "ASN", "beg_label_asym_id": "B", "beg_label_seq_id": "1210",
-            "pdbx_beg_PDB_ins_code": "0", "end_label_comp_id": "LEU", "end_label_asym_id": "B",
+            "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "LEU", "end_label_asym_id": "B",
             "end_label_seq_id": "1225", "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "ASN",
             "beg_auth_asym_id": "B", "beg_auth_seq_id": "1210", "end_auth_comp_id": "LEU",
             "end_auth_asym_id": "B", "end_auth_seq_id": "1225", "pdbx_PDB_helix_class": "1",
@@ -451,6 +451,227 @@ class FileToDictTests(TestCase):
             "auth_asym_id": "B", "auth_comp_id": "GLY", "auth_seq_id": "1186", "PDB_ins_code": "?",
             "label_asym_id": "B", "label_comp_id": "GLY", "label_seq_id": "1186"
         })
+    
+
+    def test_5xme(self):
+        d = atomium.open("tests/integration/files/5xme.pdb", dictionary=True)
+        self.assertEqual(len(d.keys()), 31)
+
+        # Metadata categories
+        self.assertEqual(d["entry"], [{"id": "5XME"}])
+        self.assertEqual(d["struct_keywords"], [
+            {"entry_id": "5XME", "pdbx_keywords": "APOPTOSIS", "text": "TRADD, DEATH DOMAIN, APOPTOSIS"}
+        ])
+        self.assertEqual(d["pdbx_database_status"], [{
+            "status_code": "REL", "entry_id": "5XME",
+            "recvd_initial_deposition_date": "2017-05-15"
+        }])
+        self.assertEqual(d["struct"], [{
+            "entry_id": "5XME", "pdbx_CASP_flag": "?", "pdbx_descriptor": "?",
+            "pdbx_model_details": "?", "pdbx_model_type_details": "?",
+            "title": "SOLUTION STRUCTURE OF C-TERMINAL DOMAIN OF TRADD"
+        }])
+        self.assertEqual(d["exptl"], [{"entry_id": "5XME", "method": "SOLUTION NMR"}])
+        self.assertEqual(d["pdbx_audit_revision_history"], [{
+            "ordinal": "1", "data_content_type": "Structure model",
+            "major_revision": "1", "minor_revision": "0", "revision_date": "2017-09-06"
+        }])
+
+        # Entity categories
+        self.assertEqual(d["entity"], [{
+            "id": "1", "type": "polymer", "src_method": "man",
+            "pdbx_description": "TUMOR NECROSIS FACTOR RECEPTOR TYPE 1-ASSOCIATED DEATH DOMAIN PROTEIN",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1",
+            "pdbx_ec": "?", "pdbx_mutation": "?", "pdbx_fragment": "UNP RESIDUES 199-312",
+            "details": "?"
+        }])
+        self.assertEqual(d["entity_name_com"], [{
+            "entity_id": "1", "name": "TNFR1-ASSOCIATED DEATH DOMAIN PROTEIN,TNFRSF1A-ASSOCIATED VIA DEATH DOMAIN"
+        }])
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1", "type": "polypeptide(L)", "nstd_linkage": "no", "nstd_monomer": "no",
+            "pdbx_seq_one_letter_code": "MHHHHHHSSGRGSAQTFLFQGQPVVNRPLSLKDQQTFARSVGLKWRKVGRSLQRGCRALRDPALDSLAYEYEREGLYEQAFQLLRRFVQAEGRRATLQRLVEALEENELTSLAEDLLGLTDPNGGLA",
+            "pdbx_seq_one_letter_code_can": "MHHHHHHSSGRGSAQTFLFQGQPVVNRPLSLKDQQTFARSVGLKWRKVGRSLQRGCRALRDPALDSLAYEYEREGLYEQAFQLLRRFVQAEGRRATLQRLVEALEENELTSLAEDLLGLTDPNGGLA",
+            "pdbx_strand_id": "A", "pdbx_target_identifier": "?"
+        }])
+        self.assertEqual(len(d["entity_poly_seq"]), 127)
+        self.assertEqual(d["entity_poly_seq"][0], {
+            "entity_id": "1", "num": "1", "mon_id": "MET", "hetero": "n"
+        })
+        self.assertEqual(d["entity_poly_seq"][1], {
+            "entity_id": "1", "num": "2", "mon_id": "HIS", "hetero": "n"
+        })
+        self.assertEqual(d["entity_poly_seq"][-1], {
+            "entity_id": "1", "num": "127", "mon_id": "ALA", "hetero": "n"
+        })
+        self.assertEqual(d["struct_ref"][0], {
+            "id": "1", "db_name": "UNP", "db_code": "TRADD_HUMAN", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "199",
+            "pdbx_db_accession": "Q15628", "pdbx_db_isoform": "?"
+        })
+        self.assertEqual(d["struct_ref_seq"], [{
+            "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "5XME", "pdbx_strand_id": "A",
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "Q15628", "db_align_beg": "199",
+            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "312", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "199", "pdbx_auth_seq_align_end": "312"
+        }])
+        self.assertEqual(len(d["struct_ref_seq_dif"]), 13)
+        self.assertEqual(d["struct_ref_seq_dif"][0], {
+            "align_id": "1", "pdbx_pdb_id_code": "5XME", "mon_id": "MET", "pdbx_pdb_strand_id": "A",
+            "seq_num": "?", "pdbx_pdb_ins_code": "?", "pdbx_seq_db_name": "UNP", "pdbx_seq_db_accession_code": "Q15628",
+            "db_mon_id": "?", "pdbx_seq_db_seq_num": "?", "details": "EXPRESSION TAG", "pdbx_auth_seq_num": "186",
+            "pdbx_ordinal": "1"
+        })
+        self.assertEqual(d["struct_ref_seq_dif"][-1], {
+            "align_id": "1", "pdbx_pdb_id_code": "5XME", "mon_id": "SER", "pdbx_pdb_strand_id": "A",
+            "seq_num": "?", "pdbx_pdb_ins_code": "?", "pdbx_seq_db_name": "UNP", "pdbx_seq_db_accession_code": "Q15628",
+            "db_mon_id": "?", "pdbx_seq_db_seq_num": "?", "details": "EXPRESSION TAG", "pdbx_auth_seq_num": "198",
+            "pdbx_ordinal": "13"
+        })
+        self.assertEqual(len(d["chem_comp"]), 19)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ALA", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "ALANINE",
+            "pdbx_synonyms": "?", "formula": "C3 H7 N O2", "formula_weight": "89.093"
+        })
+        self.assertEqual(d["chem_comp"][18], {
+            "id": "VAL", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "VALINE",
+            "pdbx_synonyms": "?", "formula": "C5 H11 N O2", "formula_weight": "117.146"
+        })
+        self.assertNotIn("pdbx_entity_nonpoly", d)
+        self.assertEqual(d["struct_asym"], [
+            {"id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+        ])
+
+        # Atom categories
+        self.assertEqual(d["atom_type"], [
+            {"symbol": "C"}, {"symbol": "H"}, {"symbol": "N"}, {"symbol": "O"}, {"symbol": "S"}
+        ])
+        self.assertEqual(len(d["atom_site"]), 18270)
+        self.assertEqual(d["atom_site"][0], {
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "label_alt_id": ".", "label_comp_id": "ALA", "label_asym_id": "A",
+            "label_entity_id": "1", "label_seq_id": "14", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "33.969", "Cartn_y": "-8.430", "Cartn_z": "-0.271",
+            "occupancy": "1.00", "B_iso_or_equiv": "0.00", "pdbx_formal_charge": "?",
+            "auth_seq_id": "199", "auth_comp_id": "ALA", "auth_asym_id": "A",
+            "auth_atom_id": "N", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][1827], {
+            "group_PDB": "ATOM", "id": "1828", "type_symbol": "N", "label_atom_id": "N",
+            "label_alt_id": ".", "label_comp_id": "ALA", "label_asym_id": "A",
+            "label_entity_id": "1", "label_seq_id": "14", "pdbx_PDB_ins_code": "?",
+            "Cartn_x": "34.064", "Cartn_y": "-8.092", "Cartn_z": "-0.062",
+            "occupancy": "1.00", "B_iso_or_equiv": "0.00", "pdbx_formal_charge": "?",
+            "auth_seq_id": "199", "auth_comp_id": "ALA", "auth_asym_id": "A",
+            "auth_atom_id": "N", "pdbx_PDB_model_num": "2"
+        })
+
+        # Annotation categories
+        self.assertEqual(len(d["struct_conf"]), 7)
+        self.assertEqual(d["struct_conf"][0], {
+            "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1", "beg_label_comp_id": "SER",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "215", "pdbx_beg_PDB_ins_code": "?",
+            "end_label_comp_id": "GLY", "end_label_asym_id": "A", "end_label_seq_id": "227",
+            "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "SER", "beg_auth_asym_id": "A",
+            "beg_auth_seq_id": "215", "end_auth_comp_id": "GLY", "end_auth_asym_id": "A", "end_auth_seq_id": "227",
+            "pdbx_PDB_helix_class": "1", "details": "?", "pdbx_PDB_helix_length": "13"
+        })
+        self.assertEqual(d["struct_conf"][-1], {
+            "conf_type_id": "HELX_P", "id": "HELX_P7", "pdbx_PDB_helix_id": "7", "beg_label_comp_id": "LEU",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "294", "pdbx_beg_PDB_ins_code": "?",
+            "end_label_comp_id": "LEU", "end_label_asym_id": "A", "end_label_seq_id": "302",
+            "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "LEU", "beg_auth_asym_id": "A",
+            "beg_auth_seq_id": "294", "end_auth_comp_id": "LEU", "end_auth_asym_id": "A",
+            "end_auth_seq_id": "302", "pdbx_PDB_helix_class": "1", "details": "?",
+            "pdbx_PDB_helix_length": "9"
+        })
+        self.assertEqual(d["struct_sheet"], [
+            {"id": "AA1", "type": "?", "number_strands": "2", "details": "?"}
+        ])
+        self.assertEqual(d["struct_sheet_order"], [{
+            "sheet_id": "AA1", "range_id_1": "1", "range_id_2": "2", "offset": "?", "sense": "anti-parallel"
+        }])
+        self.assertEqual(d["struct_sheet_range"], [{
+            "sheet_id": "AA1", "id": "1", "beg_label_comp_id": "THR", "beg_label_asym_id": "A",
+            "beg_label_seq_id": "201", "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "PHE",
+            "end_label_asym_id": "A", "end_label_seq_id": "204", "pdbx_end_PDB_ins_code": "?",
+            "beg_auth_comp_id": "THR", "beg_auth_asym_id": "A", "beg_auth_seq_id": "201",
+            "end_auth_comp_id": "PHE", "end_auth_asym_id": "A", "end_auth_seq_id": "204"
+        }, {
+            "sheet_id": "AA1", "id": "2", "beg_label_comp_id": "GLN", "beg_label_asym_id": "A",
+            "beg_label_seq_id": "207", "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "VAL",
+            "end_label_asym_id": "A", "end_label_seq_id": "210", "pdbx_end_PDB_ins_code": "?",
+            "beg_auth_comp_id": "GLN", "beg_auth_asym_id": "A", "beg_auth_seq_id": "207",
+            "end_auth_comp_id": "VAL", "end_auth_asym_id": "A", "end_auth_seq_id": "210"
+        }])
+        self.assertEqual(len(d["pdbx_struct_sheet_hbond"]), 1)
+        self.assertEqual(d["pdbx_struct_sheet_hbond"], [{
+            "sheet_id": "AA1", "range_id_1": "1", "range_id_2": "2", "range_1_label_atom_id": "N",
+            "range_1_label_comp_id": "PHE", "range_1_label_asym_id": "A", "range_1_label_seq_id": "204",
+            "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N", "range_1_auth_comp_id": "PHE",
+            "range_1_auth_asym_id": "A", "range_1_auth_seq_id": "204", "range_2_label_atom_id": "O",
+            "range_2_label_comp_id": "GLN", "range_2_label_asym_id": "A", "range_2_label_seq_id": "210",
+            "range_2_PDB_ins_code": "?", "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "GLN",
+            "range_2_auth_asym_id": "A", "range_2_auth_seq_id": "210"
+        }])
+        self.assertNotIn("struct_mon_prot_cis", d)
+        self.assertNotIn("struct_site", d)
+        self.assertNotIn("struct_site_gen", d)
+
+        # Crystal categories
+        self.assertEqual(d["cell"], [{
+            "entry_id": "5XME", "length_a": "1.000", "length_b": "1.000", 
+            "length_c": "1.000", "angle_alpha": "90.00", "angle_beta": "90.00",
+            "angle_gamma": "90.00", "Z_pdb": "1", "pdbx_unique_axis": "?"
+        }])
+        self.assertEqual(d["symmetry"], [{
+            "entry_id": "5XME", "space_group_name_H-M": "P 1", 
+            "pdbx_full_space_group_name_H-M": "?",
+            "cell_setting": "?", "Int_Tables_number": "?"
+        }])
+        self.assertEqual(d["database_PDB_matrix"], [{
+            "entry_id": "5XME", "origx[1][1]": "1.000000", "origx[2][1]": "0.000000",
+            "origx[3][1]": "0.000000", "origx[1][2]": "0.000000", "origx[2][2]": "1.000000",
+            "origx[3][2]": "0.000000", "origx[1][3]": "0.000000", "origx[2][3]": "0.000000",
+            "origx[3][3]": "1.000000", "origx_vector[1]": "0.00000",
+            "origx_vector[2]": "0.00000", "origx_vector[3]": "0.00000"
+        }])
+        self.assertEqual(d["atom_sites"], [{
+            "entry_id": "5XME", "fract_transf_matrix[1][1]": "1.000000",
+            "fract_transf_matrix[2][1]": "0.000000", "fract_transf_matrix[3][1]": "0.000000",
+            "fract_transf_matrix[1][2]": "0.000000", "fract_transf_matrix[2][2]": "1.000000",
+            "fract_transf_matrix[3][2]": "0.000000", "fract_transf_matrix[1][3]": "0.000000",
+            "fract_transf_matrix[2][3]": "0.000000", "fract_transf_matrix[3][3]": "1.000000",
+            "fract_transf_vector[1]": "0.00000", "fract_transf_vector[2]": "0.00000",
+            "fract_transf_vector[3]": "0.00000"
+        }])
+
+        # Citation categories
+        self.assertEqual(d["audit_author"], [
+            {"name": "Lin, Z", "pdbx_ordinal": "1"},
+            {"name": "Zhang, N", "pdbx_ordinal": "2"},
+        ])
+        self.assertEqual(d["citation"], [{
+            "id": "primary",
+            "title": "STRUCTURE OF THE C-TERMINAL DOMAIN OF TRADD REVEALS A NOVEL FOLD IN THE DEATH DOMAIN SUPERFAMILY.",
+            "journal_abbrev": "Sci Rep", "journal_volume": "7",
+            "page_first": "7073", "page_last": "?", "year": "2017", "journal_id_ASTM": "?",
+            "country": "?", "journal_id_ISSN": "2045-2322", "journal_id_CSD": "?",
+            "book_publisher": "?", "pdbx_database_id_PubMed": "28765645",
+            "pdbx_database_id_DOI": "10.1038/s41598-017-07348-9"
+        }])
+        self.assertEqual(d["citation_author"], [
+            {"citation_id": "primary", "name": "Zhang, N", "pdbx_ordinal": "1"},
+            {"citation_id": "primary", "name": "Yuan, W", "pdbx_ordinal": "2"},
+            {"citation_id": "primary", "name": "Fan, J.S", "pdbx_ordinal": "3"},
+            {"citation_id": "primary", "name": "Lin, Z", "pdbx_ordinal": "4"},
+        ])
+
+        self.assertNotIn("reflns", d)
+        self.assertNotIn("refine", d)
+
+
 
 
     '''

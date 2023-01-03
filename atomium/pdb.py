@@ -20,247 +20,8 @@ def pdb_string_to_mmcif_dict(filestring):
     build_structure_categories(
         filestring, polymer_entities, non_polymer_entities, mmcif
     )
-    parse_helix(filestring, mmcif)
-    parse_ssbond(filestring, mmcif)
-    parse_link(filestring, mmcif)
-    parse_cispep(filestring, mmcif)
-    parse_site(filestring, mmcif)
+    parse_annotation(filestring, mmcif)
     return mmcif
-
-
-def parse_helix(filestring, mmcif):
-    lines = re.findall(r"^HELIX.+", filestring, re.M)
-    if not lines: return
-    mmcif["struct_conf"] = [{
-        "conf_type_id": "HELIX_P", 
-        "id": f"HELIX_P{str(i)}", 
-        "pdbx_PDB_helix_id": str(i), 
-        "beg_label_comp_id": line[15:18].strip(), 
-        "beg_label_asym_id": line[19].strip(), 
-        "beg_label_seq_id": line[21:25].strip(), 
-        "pdbx_beg_PDB_ins_code": line[24].strip() or "?", 
-        "end_label_comp_id": line[27:30].strip(), 
-        "end_label_asym_id": line[31].strip(), 
-        "end_label_seq_id": line[33:37].strip(), 
-        "pdbx_end_PDB_ins_code": line[37].strip() or "?", 
-        "beg_auth_comp_id": line[15:18].strip(),
-        "beg_auth_asym_id": line[19].strip(), 
-        "beg_auth_seq_id": line[21:25].strip(), 
-        "end_auth_comp_id": line[27:30].strip(), 
-        "end_auth_asym_id": line[31].strip(), 
-        "end_auth_seq_id": line[33:37].strip(), 
-        "pdbx_PDB_helix_class": line[38:40].strip(), 
-        "details": "?", 
-        "pdbx_PDB_helix_length": line[71:76].strip(), 
-    } for i, line in enumerate(lines, start=1)]
-
-
-def parse_helix(filestring, mmcif):
-    lines = re.findall(r"^SHEET.+", filestring, re.M)
-    if not lines: return
-    mmcif["struct_sheet"] = []
-    mmcif["struct_sheet_range"] = []
-    for line in lines:
-        strand_id, sheet_id = line[7:10].strip(), line[11:14].strip()
-        strand_count = line[14:16].strip()
-        if sheet_id not in [s["id"] for s in mmcif["struct_sheet"]]:
-            mmcif["struct_sheet"].append({
-                "id": sheet_id, "type": "?", "number_strands": strand_count,
-                "details": "?"
-            })
-        mmcif["struct_sheet_range"].append({
-            "sheet_id": sheet_id, "id": strand_id, 
-            "beg_label_comp_id": line[17:20].strip(), 
-            "beg_label_asym_id": line[21].strip(), 
-            "beg_label_seq_id": line[22:26].strip(),
-            "pdbx_beg_PDB_ins_code": line[26].strip() or "?", 
-            "end_label_comp_id": line[28:31].strip(),
-            "end_label_asym_id": line[32].strip(),
-            "end_label_seq_id": line[33:37].strip(),
-            "pdbx_end_PDB_ins_code": line[37].strip() or "?", 
-            "beg_auth_comp_id": line[17:20].strip(),
-            "beg_auth_asym_id": line[21].strip(),
-            "beg_auth_seq_id": line[22:26].strip(),
-            "end_auth_comp_id": line[28:31].strip(),
-            "end_auth_asym_id": line[32].strip(),
-            "end_auth_seq_id": line[33:37].strip(),
-        })
-    parse_inter_strand(lines, mmcif)
-
-
-def parse_inter_strand(lines, mmcif):
-    mmcif["struct_sheet_order"] = []
-    mmcif["pdbx_struct_sheet_hbond"] = []
-    for line in lines:
-        line = line.ljust(80)
-        strand_id, sheet_id = line[7:10].strip(), line[11:14].strip()
-        if strand_id != "1":
-            mmcif["struct_sheet_order"].append({
-                "sheet_id": sheet_id,
-                "range_id_1": str(int(strand_id) - 1), "range_id_2": strand_id,
-                "offset": "?",
-                "sense": "parallel" if line[38:40].strip() == "1" else "anti-parallel"
-            })
-            mmcif["pdbx_struct_sheet_hbond"].append({
-                "sheet_id": sheet_id,
-                "range_id_1": str(int(strand_id) - 1),  "range_id_2": strand_id, 
-                "range_1_label_atom_id": line[56:60].strip(), 
-                "range_1_label_comp_id": line[60:63].strip(), 
-                "range_1_label_asym_id": line[64].strip(), 
-                "range_1_label_seq_id": line[65:69].strip(), 
-                "range_1_PDB_ins_code": line[69].strip() or "?", 
-                "range_1_auth_atom_id": line[56:60].strip(), 
-                "range_1_auth_comp_id": line[60:63].strip(), 
-                "range_1_auth_asym_id": line[64].strip(), 
-                "range_1_auth_seq_id": line[65:69].strip(), 
-                "range_2_label_atom_id": line[41:45].strip(), 
-                "range_2_label_comp_id": line[45:48].strip(), 
-                "range_2_label_asym_id": line[49].strip(), 
-                "range_2_label_seq_id": line[33:37].strip(), 
-                "range_2_PDB_ins_code": line[54].strip() or "?", 
-                "range_2_auth_atom_id": line[41:45].strip(), 
-                "range_2_auth_comp_id": line[45:48].strip(), 
-                "range_2_auth_asym_id": line[49].strip(), 
-                "range_2_auth_seq_id": line[33:37].strip(), 
-            })
-
-
-def parse_ssbond(filestring, mmcif):
-    lines = re.findall(r"^SSBOND.+", filestring, re.M)
-    if not lines: return
-    mmcif["struct_conn"] = []
-    for n, line in enumerate(lines, start=1):
-        mmcif["struct_conn"].append({
-            "id": f"disulf{n}", 
-            "conn_type_id": "disulf", 
-            "pdbx_leaving_atom_flag": "?", 
-            "pdbx_PDB_id": "?", 
-            "ptnr1_label_asym_id": line[15].strip(), 
-            "ptnr1_label_comp_id": line[11:14].strip(), 
-            "ptnr1_label_seq_id": line[17:21].strip(), 
-            "ptnr1_label_atom_id": "?", 
-            "pdbx_ptnr1_label_alt_id": "?", 
-            "pdbx_ptnr1_PDB_ins_code": line[21].strip() or "?", 
-            "pdbx_ptnr1_standard_comp_id": "?", 
-            "ptnr1_symmetry": line[59:65].strip(), 
-            "ptnr2_label_asym_id": line[29].strip(), 
-            "ptnr2_label_comp_id": line[25:28].strip(), 
-            "ptnr2_label_seq_id": line[31:35].strip(), 
-            "ptnr2_label_atom_id": "?", 
-            "pdbx_ptnr2_label_alt_id": "?", 
-            "pdbx_ptnr2_PDB_ins_code": line[36].strip() or "?", 
-            "ptnr1_auth_asym_id": line[15].strip(), 
-            "ptnr1_auth_comp_id": line[11:14].strip(), 
-            "ptnr1_auth_seq_id": line[17:21].strip(), 
-            "ptnr2_auth_asym_id": line[29].strip(), 
-            "ptnr2_auth_comp_id": line[25:28].strip(), 
-            "ptnr2_auth_seq_id": line[31:35].strip(), 
-            "ptnr2_symmetry": line[66:72].strip(), 
-            "pdbx_ptnr3_label_atom_id": "?", 
-            "pdbx_ptnr3_label_seq_id": "?", 
-            "pdbx_ptnr3_label_comp_id": "?", 
-            "pdbx_ptnr3_label_asym_id": "?", 
-            "pdbx_ptnr3_label_alt_id": "?", 
-            "pdbx_ptnr3_PDB_ins_code": "?", 
-            "details": "?", 
-            "pdbx_dist_value": line[73:78].strip(), 
-            "pdbx_value_order": "?",
-        })
-
-
-def parse_link(filestring, mmcif):
-    lines = re.findall(r"^LINK.+", filestring, re.M)
-    if not lines: return
-    if "struct_conn" not in mmcif: mmcif["struct_conn"] = []
-    for n, line in enumerate(lines, start=1):
-        mmcif["struct_conn"].append({
-            "id": f"covale{n}", 
-            "conn_type_id": "covale", 
-            "pdbx_leaving_atom_flag": "?", 
-            "pdbx_PDB_id": "?", 
-            "ptnr1_label_asym_id": line[21].strip(), 
-            "ptnr1_label_comp_id": line[17:20].strip(), 
-            "ptnr1_label_seq_id": line[22:26].strip(), 
-            "ptnr1_label_atom_id": line[12:16].strip(), 
-            "pdbx_ptnr1_label_alt_id": line[16].strip() or "?", 
-            "pdbx_ptnr1_PDB_ins_code": line[26].strip() or "?", 
-            "pdbx_ptnr1_standard_comp_id": "?", 
-            "ptnr1_symmetry": line[59:65].strip(), 
-            "ptnr2_label_asym_id": line[51].strip(), 
-            "ptnr2_label_comp_id": line[47:50].strip(), 
-            "ptnr2_label_seq_id": line[52:56].strip(), 
-            "ptnr2_label_atom_id": line[42:46].strip(), 
-            "pdbx_ptnr2_label_alt_id": line[46].strip() or "?", 
-            "pdbx_ptnr2_PDB_ins_code": line[56].strip() or "?", 
-            "ptnr1_auth_asym_id": line[21].strip(), 
-            "ptnr1_auth_comp_id": line[17:20].strip(), 
-            "ptnr1_auth_seq_id": line[22:26].strip(), 
-            "ptnr2_auth_asym_id": line[51].strip(), 
-            "ptnr2_auth_comp_id": line[47:50].strip(), 
-            "ptnr2_auth_seq_id": line[52:56].strip(), 
-            "ptnr2_symmetry": line[66:72].strip(), 
-            "pdbx_ptnr3_label_atom_id": "?", 
-            "pdbx_ptnr3_label_seq_id": "?", 
-            "pdbx_ptnr3_label_comp_id": "?", 
-            "pdbx_ptnr3_label_asym_id": "?", 
-            "pdbx_ptnr3_label_alt_id": "?", 
-            "pdbx_ptnr3_PDB_ins_code": "?", 
-            "details": "?", 
-            "pdbx_dist_value": line[73:78].strip(), 
-            "pdbx_value_order": "?",
-        })
-
-
-def parse_site(filestring, mmcif):
-    lines = re.findall(r"^SITE.+", filestring, re.M)
-    if not lines: return
-    mmcif["struct_site_gen"] = []
-    for line in lines:
-        for n in range(4):
-            start = 18 + (11 * n)
-            section = line[start:start + 10].ljust(10)
-            if not section.strip(): continue
-            mmcif["struct_site_gen"].append({
-                "id": str(len(mmcif["struct_site_gen"]) + 1), 
-                "site_id": line[11:14].strip(), 
-                "pdbx_num_res": line[15:17].strip(), 
-                "label_comp_id": section[:3].strip(), 
-                "label_asym_id": section[4].strip(), 
-                "label_seq_id": section[5:9].strip(), 
-                "pdbx_auth_ins_code": section[9].strip() or "?", 
-                "auth_comp_id": section[:3].strip(), 
-                "auth_asym_id": section[4].strip(), 
-                "auth_seq_id": section[5:9].strip(), 
-                "label_atom_id": ".", 
-                "label_alt_id": "?", 
-                "symmetry": "1_555", 
-                "details": "?",
-            })
-
-
-def parse_cispep(filestring, mmcif):
-    lines = re.findall(r"^CISPEP.+", filestring, re.M)
-    if not lines: return
-    mmcif["struct_mon_prot_cis"] = [{
-        "pdbx_id": line[7:10].strip(),
-        "label_comp_id": line[11:14].strip(),
-        "label_seq_id": line[17:21].strip(),
-        "label_asym_id": line[15].strip(),
-        "label_alt_id": ".",
-        "pdbx_PDB_ins_code": line[21].strip() or "?",
-        "auth_comp_id": line[11:14].strip(),
-        "auth_seq_id": line[17:21].strip(),
-        "auth_asym_id": line[15].strip(),
-        "pdbx_label_comp_id_2": line[25:28].strip(),
-        "pdbx_label_seq_id_2": line[31:35].strip(),
-        "pdbx_label_asym_id_2": line[29].strip(),
-        "pdbx_PDB_ins_code_2": line[35].strip() or "?",
-        "pdbx_auth_comp_id_2": line[25:28].strip(),
-        "pdbx_auth_seq_id_2": line[31:35].strip(),
-        "pdbx_auth_asym_id_2": line[29].strip(),
-        "pdbx_PDB_model_num": str(int(line[43:46].strip()) + 1),
-        "pdbx_omega_angle": line[53:59].strip()
-    } for line in lines]
 
 
 def parse_metadata(filestring):
@@ -640,7 +401,6 @@ def parse_remarks(filestring, mmcif):
 
     parse_remark_2(filestring, mmcif)
     parse_remark_3(filestring, mmcif)
-    parse_remark_200(filestring, mmcif)
     parse_remark_465(filestring, mmcif)
     parse_remark_470(filestring, mmcif)
     parse_remark_480(filestring, mmcif)
@@ -656,23 +416,14 @@ def parse_remark_2(filestring, mmcif):
     :param dict mmcif: the dictionary to update."""
 
     reflns = [
-        "B_iso_Wilson_estimate", "data_reduction_details",
-        "data_reduction_method", "d_resolution_high", "d_resolution_low",
-        "details", "limit_h_max", "limit_h_min", "limit_k_max", "limit_k_min",
-        "limit_l_max", "limit_l_min", "number_all", "number_obs",
-        "observed_criterion", "observed_criterion_F_max",
-        "observed_criterion_F_min", "observed_criterion_I_max",
-        "observed_criterion_I_min", "observed_criterion_sigma_F",
-        "observed_criterion_sigma_I", "percent_possible_obs", "R_free_details",
-        "Rmerge_F_all", "Rmerge_F_obs", "Friedel_coverage", "number_gt",
-        "threshold_expression", "pdbx_redundancy", "pdbx_Rmerge_I_obs",
-        "pdbx_Rmerge_I_all", "pdbx_Rsym_value", "pdbx_netI_over_av_sigmaI",
-        "pdbx_netI_over_sigmaI", "pdbx_res_netI_over_av_sigmaI_2",
-        "pdbx_res_netI_over_sigmaI_2", "pdbx_chi_squared",
-        "pdbx_scaling_rejects", "pdbx_d_res_high_opt", "pdbx_d_res_low_opt",
-        "pdbx_d_res_opt_method", "phase_calculation_details", "pdbx_Rrim_I_all",
-        "pdbx_Rpim_I_all", "pdbx_d_opt", "pdbx_number_measured_all",
-        "pdbx_diffrn_id", "pdbx_ordinal", "pdbx_CC_half", "pdbx_R_split"
+        "entry_id", "observed_criterion_sigma_I", "observed_criterion_sigma_F", 
+        "d_resolution_low", "d_resolution_high", "number_obs", "number_all", 
+        "percent_possible_obs", "pdbx_Rmerge_I_obs", "pdbx_Rsym_value", 
+        "pdbx_netI_over_sigmaI", "B_iso_Wilson_estimate", "pdbx_redundancy", 
+        "R_free_details", "limit_h_max", "limit_h_min", "limit_k_max", 
+        "limit_k_min", "limit_l_max", "limit_l_min", "observed_criterion_F_max", 
+        "observed_criterion_F_min", "pdbx_chi_squared", "pdbx_scaling_rejects", 
+        "pdbx_diffrn_id", "pdbx_ordinal", 
     ]
     mmcif["reflns"] = [{
         **{key: "?" for key in reflns}, "entry_id": mmcif["entry"][0]["id"]
@@ -681,47 +432,80 @@ def parse_remark_2(filestring, mmcif):
     if rec: mmcif["reflns"][0]["d_resolution_high"] = rec[1]
 
 
-
 def parse_remark_3(filestring, mmcif):
     records = re.findall(r"^REMARK   3 .+", filestring, re.M)
     if not records: return
     string = "\n".join(records)
+    if "reflns" in mmcif:
+        for regex, key in [
+            (r"FROM WILSON PLOT.+?\(A\*\*2\).+?\:(.+)", "B_iso_Wilson_estimate")
+        ]:
+            value = re.search(regex, string)
+            mmcif["reflns"][0][key] = value[1].strip() if value else "?"
+    refine = [
+        "entry_id", "ls_number_reflns_obs", "ls_number_reflns_all",
+        "pdbx_ls_sigma_I", "pdbx_ls_sigma_F", "pdbx_data_cutoff_high_absF",
+        "pdbx_data_cutoff_low_absF", "ls_d_res_low", "ls_d_res_high",
+        "ls_percent_reflns_obs", "ls_R_factor_obs", "ls_R_factor_all",
+        "ls_R_factor_R_work", "ls_R_factor_R_free", "ls_R_factor_R_free_error",
+        "ls_R_factor_R_free_error_details", "ls_percent_reflns_R_free",
+        "ls_number_reflns_R_free", "ls_number_parameters",
+        "ls_number_restraints", "occupancy_min", "occupancy_max",
+        "correlation_coeff_Fo_to_Fc", "correlation_coeff_Fo_to_Fc_free",
+        "B_iso_mean", "aniso_B[1][1]", "aniso_B[2][2]", "aniso_B[3][3]",
+        "aniso_B[1][2]", "aniso_B[1][3]", "aniso_B[2][3]",
+        "solvent_model_details", "solvent_model_param_ksol",
+        "solvent_model_param_bsol", "pdbx_solvent_vdw_probe_radii",
+        "pdbx_solvent_ion_probe_radii", "pdbx_solvent_shrinkage_radii",
+        "pdbx_ls_cross_valid_method", "details", "pdbx_starting_model",
+        "pdbx_method_to_determine_struct", "pdbx_isotropic_thermal_model",
+        "pdbx_stereochemistry_target_values",
+        "pdbx_stereochem_target_val_spec_case", "pdbx_R_Free_selection_details",
+        "pdbx_overall_ESU_R_Free", "overall_SU_B", "ls_redundancy_reflns_obs",
+        "B_iso_min", "B_iso_max", "overall_SU_R_Cruickshank_DPI",
+        "overall_SU_R_free", "overall_SU_ML", "pdbx_overall_ESU_R",
+        "pdbx_data_cutoff_high_rms_absF", "pdbx_refine_id",
+        "pdbx_overall_phase_error", "ls_wR_factor_R_free",
+        "ls_wR_factor_R_work", "overall_FOM_free_R_set",
+        "overall_FOM_work_R_set", "pdbx_diffrn_id",
+        "pdbx_TLS_residual_ADP_flag", "pdbx_overall_SU_R_free_Cruickshank_DPI",
+        "pdbx_overall_SU_R_Blow_DPI", "pdbx_overall_SU_R_free_Blow_DPI",
+    ]
+    mmcif["refine"] = [{
+        **{key: "?" for key in refine}, "entry_id": mmcif["entry"][0]["id"]
+    }]
     for regex, key in [
-        [r"RESOLUTION RANGE LOW.+?\:(.+)", "d_resolution_low"],
-        [r"RESOLUTION RANGE HIGH.+?\:(.+)", "d_resolution_high"],
-        [r"R VALUE[ ]+?\(WORKING SET\) \: (.+)", "ls_R_factor_R_work"],
-        [r"FREE R VALUE[ ]+?\:(.+)", "ls_R_factor_R_free"],
-        [
-            r"FREE R VALUE TEST SET SIZE[ ]+?\(%\)[ ]+?\:(.+)",
-            "ls_percent_reflns_R_free"
-        ],
-        [r"FREE R VALUE TEST SET COUNT.+?\:(.+)", "ls_number_reflns_R_free"],
+        (r"NUMBER OF REFLECTIONS.+?\:(.+)", "ls_number_reflns_obs"),
+        (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_absF"),
+        (r"DATA CUTOFF LOW.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_low_absF"),
+        (r"RESOLUTION RANGE LOW.+?\(ANGSTROMS\).+?\:(.+)", "ls_d_res_low"),
+        (r"RESOLUTION RANGE HIGH.+?\(ANGSTROMS\).+?\:(.+)", "ls_d_res_high"),
+        (r"COMPLETENESS \(WORKING\+TEST\).+?\(%\).+?\:(.+)", "ls_percent_reflns_obs"),
+        (r"R VALUE[ ]+?\(WORKING SET\)[ ]+?\:(.+)", "ls_R_factor_obs"),
+        (r"R VALUE[ ]+?\(WORKING SET\)[ ]+?\:(.+)", "ls_R_factor_all"),
+        (r"R VALUE[ ]+?\(WORKING SET\)[ ]+?\:(.+)", "ls_R_factor_R_work"),
+        (r"FREE R VALUE[ ]+?\:(.+)", "ls_R_factor_R_free"),
+        (r"ESTIMATED ERROR OF FREE R VALUE[ ]+?\:(.+)", "ls_R_factor_R_free_error"),
+        (r"FREE R VALUE TEST SET SIZE[ ]+?\(%\)[ ]+?\:(.+)", "ls_percent_reflns_R_free"),
+        (r"FREE R VALUE TEST SET COUNT[ ]+?\:(.+)", "ls_number_reflns_R_free"),
+        (r"MEAN B VALUE[ ]+?\(OVERALL, A\*\*2\)[ ]+?\:(.+)", "B_iso_mean"),
+        (r"B11[ ]+?\(A\*\*2\)[ ]+?\:(.+)", "aniso_B[1][1]"),
+        (r"B22[ ]+?\(A\*\*2\)[ ]+?\:(.+)", "aniso_B[2][2]"),
+        (r"B33[ ]+?\(A\*\*2\)[ ]+?\:(.+)", "aniso_B[3][3]"),
+        (r"B12[ ]+?\(A\*\*2\)[ ]+?\:(.+)", "aniso_B[1][2]"),
+        (r"B13[ ]+?\(A\*\*2\)[ ]+?\:(.+)", "aniso_B[1][3]"),
+        (r"B23[ ]+?\(A\*\*2\)[ ]+?\:(.+)", "aniso_B[2][3]"),
+        (r"METHOD USED[ ]+?\:(.+)", "solvent_model_details"),
+        (r"KSOL[ ]+?\:(.+)", "solvent_model_param_ksol"),
+        (r"BSOL[ ]+?\:(.+)", "solvent_model_param_bsol"),
+        (r"CROSS-VALIDATION METHOD[ ]+?\:(.+)", "pdbx_ls_cross_valid_method"),
+        (r"ISOTROPIC THERMAL MODEL[ ]+?\:(.+)", "pdbx_isotropic_thermal_model"),
+        (r"REFINEMENT TARGET[ ]+?\:(.+)", "pdbx_stereochemistry_target_values"),
+        (r"FREE R VALUE TEST SET SELECTION[ ]+?\:(.+)", "pdbx_R_Free_selection_details"),
+        (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_rms_absF"),
     ]:
         value = re.search(regex, string)
-        mmcif["reflns"][0][key] = value[1].strip() if value else "?"
-
-
-def parse_remark_200(filestring, mmcif):
-    records = re.findall(r"^REMARK 200 .+", filestring, re.M)
-    if not records: return
-    string = "\n".join(records)
-    temp = re.search(r"TEMPERATURE.+?\: (\d+)", string)
-    detector = re.search(r"DETECTOR TYPE[ ]+\:[ ]+(.+)", string)
-    type_ = re.search(r"DETECTOR MANUFACTURER.+?\:[ ]+(.+)", string)
-    collection = re.search(r"DATE OF DATA COLLECTION.+?\:[ ]+(.+)", string)
-    details = re.search(r"OPTICS.+?\:(.+?)  ", string)
-    mmcif["diffrn"] = [{
-        "id": "1", "ambient_temp": temp[1].strip() if temp else "?",
-        "ambient_temp_details": "?", "crystal_id": "1"
-    }]
-    mmcif["diffrn_detector"] = [{
-        "diffrn_id": "1",
-        "detector": detector[1].strip().split(";")[0] if detector else "?",
-        "type": type_[1].strip().split(";")[0] if type_ else "?",
-        "pdbx_collection_date": pdb_date_to_mmcif_date(collection[1].strip().split(";")[0])\
-            if collection and collection[1].strip() != "NULL" else "?",
-        "details": details[1].strip().split(";")[0] if details else "?"
-    }]
+        mmcif["refine"][0][key] = value[1].strip() if value else "?"
 
 
 def parse_remark_465(filestring, mmcif):
@@ -1490,6 +1274,249 @@ def build_struct_asym(mmcif):
         "pdbx_modified": "N", "entity_id": entity_id, "details": "?"
     } for asym_id, entity_id in lookup.items()]
 
+
+def parse_annotation(filestring, mmcif):
+    parse_helix(filestring, mmcif)
+    parse_sheet(filestring, mmcif)
+    parse_ssbond(filestring, mmcif)
+    parse_link(filestring, mmcif)
+    parse_cispep(filestring, mmcif)
+    parse_site(filestring, mmcif)
+
+
+def parse_helix(filestring, mmcif):
+    lines = re.findall(r"^HELIX.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_conf"] = [{
+        "conf_type_id": "HELX_P", 
+        "id": f"HELX_P{str(i)}", 
+        "pdbx_PDB_helix_id": str(i), 
+        "beg_label_comp_id": line[15:18].strip(), 
+        "beg_label_asym_id": line[19].strip(), 
+        "beg_label_seq_id": line[21:25].strip(), 
+        "pdbx_beg_PDB_ins_code": line[24].strip() or "?", 
+        "end_label_comp_id": line[27:30].strip(), 
+        "end_label_asym_id": line[31].strip(), 
+        "end_label_seq_id": line[33:37].strip(), 
+        "pdbx_end_PDB_ins_code": line[37].strip() or "?", 
+        "beg_auth_comp_id": line[15:18].strip(),
+        "beg_auth_asym_id": line[19].strip(), 
+        "beg_auth_seq_id": line[21:25].strip(), 
+        "end_auth_comp_id": line[27:30].strip(), 
+        "end_auth_asym_id": line[31].strip(), 
+        "end_auth_seq_id": line[33:37].strip(), 
+        "pdbx_PDB_helix_class": line[38:40].strip(), 
+        "details": "?", 
+        "pdbx_PDB_helix_length": line[71:76].strip(), 
+    } for i, line in enumerate(lines, start=1)]
+
+
+def parse_sheet(filestring, mmcif):
+    lines = re.findall(r"^SHEET.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_sheet"] = []
+    mmcif["struct_sheet_range"] = []
+    for line in lines:
+        strand_id, sheet_id = line[7:10].strip(), line[11:14].strip()
+        strand_count = line[14:16].strip()
+        if sheet_id not in [s["id"] for s in mmcif["struct_sheet"]]:
+            mmcif["struct_sheet"].append({
+                "id": sheet_id, "type": "?", "number_strands": strand_count,
+                "details": "?"
+            })
+        mmcif["struct_sheet_range"].append({
+            "sheet_id": sheet_id, "id": strand_id, 
+            "beg_label_comp_id": line[17:20].strip(), 
+            "beg_label_asym_id": line[21].strip(), 
+            "beg_label_seq_id": line[22:26].strip(),
+            "pdbx_beg_PDB_ins_code": line[26].strip() or "?", 
+            "end_label_comp_id": line[28:31].strip(),
+            "end_label_asym_id": line[32].strip(),
+            "end_label_seq_id": line[33:37].strip(),
+            "pdbx_end_PDB_ins_code": line[37].strip() or "?", 
+            "beg_auth_comp_id": line[17:20].strip(),
+            "beg_auth_asym_id": line[21].strip(),
+            "beg_auth_seq_id": line[22:26].strip(),
+            "end_auth_comp_id": line[28:31].strip(),
+            "end_auth_asym_id": line[32].strip(),
+            "end_auth_seq_id": line[33:37].strip(),
+        })
+    parse_inter_strand(lines, mmcif)
+
+
+def parse_inter_strand(lines, mmcif):
+    mmcif["struct_sheet_order"] = []
+    mmcif["pdbx_struct_sheet_hbond"] = []
+    for line in lines:
+        line = line.ljust(80)
+        strand_id, sheet_id = line[7:10].strip(), line[11:14].strip()
+        if strand_id != "1":
+            mmcif["struct_sheet_order"].append({
+                "sheet_id": sheet_id,
+                "range_id_1": str(int(strand_id) - 1), "range_id_2": strand_id,
+                "offset": "?",
+                "sense": "parallel" if line[38:40].strip() == "1" else "anti-parallel"
+            })
+            mmcif["pdbx_struct_sheet_hbond"].append({
+                "sheet_id": sheet_id,
+                "range_id_1": str(int(strand_id) - 1),  "range_id_2": strand_id, 
+                "range_1_label_atom_id": line[56:60].strip(), 
+                "range_1_label_comp_id": line[60:63].strip(), 
+                "range_1_label_asym_id": line[64].strip(), 
+                "range_1_label_seq_id": line[65:69].strip(), 
+                "range_1_PDB_ins_code": line[69].strip() or "?", 
+                "range_1_auth_atom_id": line[56:60].strip(), 
+                "range_1_auth_comp_id": line[60:63].strip(), 
+                "range_1_auth_asym_id": line[64].strip(), 
+                "range_1_auth_seq_id": line[65:69].strip(), 
+                "range_2_label_atom_id": line[41:45].strip(), 
+                "range_2_label_comp_id": line[45:48].strip(), 
+                "range_2_label_asym_id": line[49].strip(), 
+                "range_2_label_seq_id": line[33:37].strip(), 
+                "range_2_PDB_ins_code": line[54].strip() or "?", 
+                "range_2_auth_atom_id": line[41:45].strip(), 
+                "range_2_auth_comp_id": line[45:48].strip(), 
+                "range_2_auth_asym_id": line[49].strip(), 
+                "range_2_auth_seq_id": line[33:37].strip(), 
+            })
+
+
+def parse_ssbond(filestring, mmcif):
+    lines = re.findall(r"^SSBOND.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_conn"] = []
+    for n, line in enumerate(lines, start=1):
+        mmcif["struct_conn"].append({
+            "id": f"disulf{n}", 
+            "conn_type_id": "disulf", 
+            "pdbx_leaving_atom_flag": "?", 
+            "pdbx_PDB_id": "?", 
+            "ptnr1_label_asym_id": line[15].strip(), 
+            "ptnr1_label_comp_id": line[11:14].strip(), 
+            "ptnr1_label_seq_id": line[17:21].strip(), 
+            "ptnr1_label_atom_id": "?", 
+            "pdbx_ptnr1_label_alt_id": "?", 
+            "pdbx_ptnr1_PDB_ins_code": line[21].strip() or "?", 
+            "pdbx_ptnr1_standard_comp_id": "?", 
+            "ptnr1_symmetry": line[59:65].strip(), 
+            "ptnr2_label_asym_id": line[29].strip(), 
+            "ptnr2_label_comp_id": line[25:28].strip(), 
+            "ptnr2_label_seq_id": line[31:35].strip(), 
+            "ptnr2_label_atom_id": "?", 
+            "pdbx_ptnr2_label_alt_id": "?", 
+            "pdbx_ptnr2_PDB_ins_code": line[36].strip() or "?", 
+            "ptnr1_auth_asym_id": line[15].strip(), 
+            "ptnr1_auth_comp_id": line[11:14].strip(), 
+            "ptnr1_auth_seq_id": line[17:21].strip(), 
+            "ptnr2_auth_asym_id": line[29].strip(), 
+            "ptnr2_auth_comp_id": line[25:28].strip(), 
+            "ptnr2_auth_seq_id": line[31:35].strip(), 
+            "ptnr2_symmetry": line[66:72].strip(), 
+            "pdbx_ptnr3_label_atom_id": "?", 
+            "pdbx_ptnr3_label_seq_id": "?", 
+            "pdbx_ptnr3_label_comp_id": "?", 
+            "pdbx_ptnr3_label_asym_id": "?", 
+            "pdbx_ptnr3_label_alt_id": "?", 
+            "pdbx_ptnr3_PDB_ins_code": "?", 
+            "details": "?", 
+            "pdbx_dist_value": line[73:78].strip(), 
+            "pdbx_value_order": "?",
+        })
+
+
+def parse_link(filestring, mmcif):
+    lines = re.findall(r"^LINK.+", filestring, re.M)
+    if not lines: return
+    if "struct_conn" not in mmcif: mmcif["struct_conn"] = []
+    for n, line in enumerate(lines, start=1):
+        mmcif["struct_conn"].append({
+            "id": f"covale{n}", 
+            "conn_type_id": "covale", 
+            "pdbx_leaving_atom_flag": "?", 
+            "pdbx_PDB_id": "?", 
+            "ptnr1_label_asym_id": line[21].strip(), 
+            "ptnr1_label_comp_id": line[17:20].strip(), 
+            "ptnr1_label_seq_id": line[22:26].strip(), 
+            "ptnr1_label_atom_id": line[12:16].strip(), 
+            "pdbx_ptnr1_label_alt_id": line[16].strip() or "?", 
+            "pdbx_ptnr1_PDB_ins_code": line[26].strip() or "?", 
+            "pdbx_ptnr1_standard_comp_id": "?", 
+            "ptnr1_symmetry": line[59:65].strip(), 
+            "ptnr2_label_asym_id": line[51].strip(), 
+            "ptnr2_label_comp_id": line[47:50].strip(), 
+            "ptnr2_label_seq_id": line[52:56].strip(), 
+            "ptnr2_label_atom_id": line[42:46].strip(), 
+            "pdbx_ptnr2_label_alt_id": line[46].strip() or "?", 
+            "pdbx_ptnr2_PDB_ins_code": line[56].strip() or "?", 
+            "ptnr1_auth_asym_id": line[21].strip(), 
+            "ptnr1_auth_comp_id": line[17:20].strip(), 
+            "ptnr1_auth_seq_id": line[22:26].strip(), 
+            "ptnr2_auth_asym_id": line[51].strip(), 
+            "ptnr2_auth_comp_id": line[47:50].strip(), 
+            "ptnr2_auth_seq_id": line[52:56].strip(), 
+            "ptnr2_symmetry": line[66:72].strip(), 
+            "pdbx_ptnr3_label_atom_id": "?", 
+            "pdbx_ptnr3_label_seq_id": "?", 
+            "pdbx_ptnr3_label_comp_id": "?", 
+            "pdbx_ptnr3_label_asym_id": "?", 
+            "pdbx_ptnr3_label_alt_id": "?", 
+            "pdbx_ptnr3_PDB_ins_code": "?", 
+            "details": "?", 
+            "pdbx_dist_value": line[73:78].strip(), 
+            "pdbx_value_order": "?",
+        })
+
+
+def parse_site(filestring, mmcif):
+    lines = re.findall(r"^SITE.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_site_gen"] = []
+    for line in lines:
+        for n in range(4):
+            start = 18 + (11 * n)
+            section = line[start:start + 10].ljust(10)
+            if not section.strip(): continue
+            mmcif["struct_site_gen"].append({
+                "id": str(len(mmcif["struct_site_gen"]) + 1), 
+                "site_id": line[11:14].strip(), 
+                "pdbx_num_res": line[15:17].strip(), 
+                "label_comp_id": section[:3].strip(), 
+                "label_asym_id": section[4].strip(), 
+                "label_seq_id": section[5:9].strip(), 
+                "pdbx_auth_ins_code": section[9].strip() or "?", 
+                "auth_comp_id": section[:3].strip(), 
+                "auth_asym_id": section[4].strip(), 
+                "auth_seq_id": section[5:9].strip(), 
+                "label_atom_id": ".", 
+                "label_alt_id": "?", 
+                "symmetry": "1_555", 
+                "details": "?",
+            })
+
+
+def parse_cispep(filestring, mmcif):
+    lines = re.findall(r"^CISPEP.+", filestring, re.M)
+    if not lines: return
+    mmcif["struct_mon_prot_cis"] = [{
+        "pdbx_id": line[7:10].strip(),
+        "label_comp_id": line[11:14].strip(),
+        "label_seq_id": line[17:21].strip(),
+        "label_asym_id": line[15].strip(),
+        "label_alt_id": ".",
+        "pdbx_PDB_ins_code": line[21].strip() or "?",
+        "auth_comp_id": line[11:14].strip(),
+        "auth_seq_id": line[17:21].strip(),
+        "auth_asym_id": line[15].strip(),
+        "pdbx_label_comp_id_2": line[25:28].strip(),
+        "pdbx_label_seq_id_2": line[31:35].strip(),
+        "pdbx_label_asym_id_2": line[29].strip(),
+        "pdbx_PDB_ins_code_2": line[35].strip() or "?",
+        "pdbx_auth_comp_id_2": line[25:28].strip(),
+        "pdbx_auth_seq_id_2": line[31:35].strip(),
+        "pdbx_auth_asym_id_2": line[29].strip(),
+        "pdbx_PDB_model_num": str(int(line[43:46].strip()) + 1),
+        "pdbx_omega_angle": line[53:59].strip()
+    } for line in lines]
 
 
 def pdb_date_to_mmcif_date(date):

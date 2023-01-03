@@ -447,24 +447,25 @@ def save_mmcif_dict(mmcif_dict, path):
 def make_base_mmtf_dict(mmcif):
     from atomium import __version__
     code = mmcif["entry"][0]["id"]
+    get = lambda t, c: mmcif[t][0][c] if t in mmcif and c in mmcif[t][0] else ""
     return {
         "mmtfVersion": b"1.0.0",
         "mmtfProducer": b"atomium " + __version__.encode(),
         "structureId": code,
         "title": mmcif["struct"][0]["title"],
-        "depositionDate": mmcif["pdbx_database_status"][0]["recvd_initial_deposition_date"],
-        "experimentalMethods": mmcif["exptl"][0]["method"].split(","),
-        "spaceGroup": mmcif["symmetry"][0]["space_group_name_H-M"],
-        "resolution": float(mmcif["refine"][0]["ls_d_res_high"]),
-        "rFree": float(mmcif["refine"][0]["ls_R_factor_R_free"]),
-        "rWork": float(mmcif["refine"][0]["ls_R_factor_R_work"]),
+        "depositionDate": get("pdbx_database_status", "recvd_initial_deposition_date"),
+        "experimentalMethods":  get("exptl", "method"),
+        "spaceGroup":  get("symmetry", "space_group_name_H-M"),
+        "resolution": get("refine", "ls_d_res_high"),
+        "rFree": get("refine", "ls_R_factor_R_free"), 
+        "rWork": get("refine", "ls_R_factor_R_work"),
         "unitCell": [
-            float(mmcif["cell"][0]["length_a"]),
-            float(mmcif["cell"][0]["length_b"]),
-            float(mmcif["cell"][0]["length_c"]),
-            float(mmcif["cell"][0]["length_alpha"]),
-            float(mmcif["cell"][0]["length_beta"]),
-            float(mmcif["cell"][0]["length_gamma"]),
+            get("cell", "length_a"),
+            get("cell", "length_b"),
+            get("cell", "length_c"),
+            get("cell", "length_alpha"),
+            get("cell", "length_beta"),
+            get("cell", "length_gamma"),
         ],
         "numBonds": 0,
         "bondAtomList": [],
@@ -476,6 +477,7 @@ def make_base_mmtf_dict(mmcif):
 
 def make_bio_assembly_list(mmcif, chain_ids):
     assemblies = []
+    if "pdbx_struct_assembly" not in mmcif: return []
     for assembly in mmcif["pdbx_struct_assembly"]:
         gens = [gen for gen in mmcif["pdbx_struct_assembly_gen"]
             if gen["assembly_id"] == assembly["id"]]

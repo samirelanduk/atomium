@@ -442,7 +442,7 @@ def parse_remark_3(filestring, mmcif):
             (r"FROM WILSON PLOT.+?\(A\*\*2\).+?\:(.+)", "B_iso_Wilson_estimate")
         ]:
             value = re.search(regex, string)
-            mmcif["reflns"][0][key] = value[1].strip() if value else "?"
+            mmcif["reflns"][0][key] = value[1].strip().replace("NULL", "?") if value else "?"
     refine = [
         "entry_id", "ls_number_reflns_obs", "ls_number_reflns_all",
         "pdbx_ls_sigma_I", "pdbx_ls_sigma_F", "pdbx_data_cutoff_high_absF",
@@ -507,8 +507,8 @@ def parse_remark_3(filestring, mmcif):
         (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_rms_absF"),
     ]:
         value = re.search(regex, string)
-        mmcif["refine"][0][key] = value[1].strip() if value else "?"
-        if value: keep
+        mmcif["refine"][0][key] = value[1].strip().replace("NULL", "?") if value else "?"
+        if value: keep = True
     if not keep: del mmcif["refine"]
 
 
@@ -646,7 +646,7 @@ def parse_scalen(filestring, mmcif):
         "fract_transf_matrix[3][3]", "fract_transf_vector[1]",
         "fract_transf_vector[2]", "fract_transf_vector[3]", 
     ]}}]
-    for rec in re.findall(r"SCALE.+", filestring, re.M):
+    for rec in re.findall(r"^SCALE.+", filestring, re.M):
         n = rec[5]
         if not n.strip(): continue
         mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][1]"] = rec[10:20].strip() or "?"
@@ -862,6 +862,8 @@ def update_entities_from_atoms(filestring, polymer_entities, polymers, non_polym
             else:
                 new_entity_id = int(list(polymer_entities.keys() or [0])[-1]) + 1
                 polymer_entities[str(new_entity_id)] = {"CHAIN": (chain_id,)}
+            for sig in sigs:
+                if sig in non_polymers: del non_polymers[sig]
             sig, sigs = None, []
         else:
             # Make a note of this residue
@@ -927,6 +929,10 @@ def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities, 
             if name == sig[1]:
                 entity["molecules"][sig] = non_polymer
                 break
+    '''non_pol_without_molecules = []
+    for id, entity in non_polymer_entities.items():
+        if not entity["molecules"]: non_pol_without_molecules.append(id)
+    for id in non_pol_without_molecules: del non_polymer_entities[id]'''
 
 
 def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
@@ -949,6 +955,7 @@ def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
         mmcif["entity"][-1]["src_method"] = "syn" if entity.get("SYNTHETIC") \
             else "man" if entity.get("ENGINEERED") else "nat"
     for entity in non_polymer_entities.values():
+        if not entity["molecules"]: continue
         mmcif["entity"].append({**entity_template})
         mmcif["entity"][-1]["id"] = entity["id"]
         mmcif["entity"][-1]["type"] = "water" if entity["is_water"] else "non-polymer"
@@ -957,9 +964,10 @@ def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
             mmcif["entity"][-1]["pdbx_description"] = "water"
         mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["molecules"]))
         mmcif["entity"][-1]["src_method"] = "nat" if entity["is_water"] else "syn"
-    mmcif["entity_name_com"] = [{
-        "entity_id": entity["id"], "name": entity.get("SYNONYM", "?")
-    } for entity in polymer_entities.values()]
+    if any(e.get("SYNONYM") for e in polymer_entities.values()):
+        mmcif["entity_name_com"] = [{
+            "entity_id": entity["id"], "name": entity.get("SYNONYM", "?")
+        } for entity in polymer_entities.values()]
 
 
 def build_entity_poly(polymer_entities, mmcif):
@@ -967,13 +975,23 @@ def build_entity_poly(polymer_entities, mmcif):
     for entity in polymer_entities.values():
         if not entity["molecules"]: continue
         polymer = list(entity["molecules"].values())[0]
-        sequence = "".join([CODES.get(r, "X") for r in polymer["residues"]]) or "?"
+        nucleocount = len([r for r in polymer["residues"] if r in "ACGTU"])
+        is_nucleotide = nucleocount / len(polymer["residues"]) > 0.75
+        sequence, can_sequence = [], []
+        modified_lookup = {m["name"]: m["standard_name"] for m in polymer["modified"]}
+        for res in polymer["residues"]:
+            if res in modified_lookup:
+                sequence.append(f"({res})")
+                can_sequence.append(modified_lookup[res])
+            else:
+                sequence.append(CODES.get(res, f"({res})"))
+                can_sequence.append(CODES.get(res, "?"))
         mmcif["entity_poly"].append({
             "entity_id": entity["id"],
-            "type": "polypeptide(L)",
-            "nstd_linkage": "no", "nstd_monomer": "no",
-            "pdbx_seq_one_letter_code": sequence,
-            "pdbx_seq_one_letter_code_can": sequence,
+            "type": "polyribonucleotide" if is_nucleotide else "polypeptide(L)",
+            "nstd_linkage": "no", "nstd_monomer": "yes" if polymer["modified"] else "no",
+            "pdbx_seq_one_letter_code": "".join(sequence),
+            "pdbx_seq_one_letter_code_can": "".join(can_sequence),
             "pdbx_strand_id": ",".join(entity["CHAIN"]),
             "pdbx_target_identifier": "?"
         })
@@ -1061,6 +1079,7 @@ def build_struct_ref_seq_dif(polymer_entities, mmcif):
                     "pdbx_auth_seq_num": diff["number"] or "?",
                     "pdbx_ordinal": str(len(mmcif["struct_ref_seq_dif"]) + 1),
                 })
+    if not mmcif["struct_ref_seq_dif"]: del mmcif["struct_ref_seq_dif"]
 
 
 def build_pdbx_struct_mod_residue(polymer_entities, mmcif):
@@ -1086,6 +1105,7 @@ def build_pdbx_struct_mod_residue(polymer_entities, mmcif):
 def build_pdbx_entity_nonpoly(non_polymers, mmcif):
     mmcif["pdbx_entity_nonpoly"] = []
     for name, entity in non_polymers.items():
+        if not entity["molecules"]: continue
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
         mmcif["pdbx_entity_nonpoly"].append({
             "entity_id": entity["id"],
@@ -1109,6 +1129,7 @@ def build_chem_comp(non_polymer_entities, mmcif):
             "formula_weight": weight
         })
     for name, entity in non_polymer_entities.items():
+        if not entity["molecules"]: continue
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
         formula = entity["formula"] or "?"
         if re.match(r"^\d+\(", formula): formula = formula[formula.find("(") + 1:-1]

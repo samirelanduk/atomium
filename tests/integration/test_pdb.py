@@ -377,9 +377,7 @@ class FileToDictTests(TestCase):
             "fract_transf_matrix[3][2]": "0.000000", "fract_transf_matrix[1][3]": "0.001301",
             "fract_transf_matrix[2][3]": "0.000000", "fract_transf_matrix[3][3]": "0.015164",
             "fract_transf_vector[1]": "0.00000", "fract_transf_vector[2]": "0.00000",
-            "fract_transf_vector[3]": "0.00000", "fract_transf_matrix[P][1]": "?",
-            "fract_transf_matrix[P][2]": "?", "fract_transf_matrix[P][3]": "?",
-            "fract_transf_vector[P]": "?"
+            "fract_transf_vector[3]": "0.00000"
         }])
 
         # Citation categories
@@ -668,8 +666,280 @@ class FileToDictTests(TestCase):
             {"citation_id": "primary", "name": "Lin, Z", "pdbx_ordinal": "4"},
         ])
 
+        # Experimental categories
         self.assertNotIn("reflns", d)
         self.assertNotIn("refine", d)
+
+        # Missing items categories
+        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
+        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_residues"]), 13)
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][0], {
+            "id": "1", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "MET", "auth_seq_id": "186", "PDB_ins_code": "?",
+            "label_asym_id": "A", "label_comp_id": "MET", "label_seq_id": "186"
+        })
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][-1], {
+            "id": "13", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "SER", "auth_seq_id": "198", "PDB_ins_code": "?",
+            "label_asym_id": "A", "label_comp_id": "SER", "label_seq_id": "198"
+        })
+    
+
+    def test_1gsg(self):
+        d = atomium.open("tests/integration/files/1gsg.pdb", dictionary=True)
+        self.assertEqual(len(d.keys()), 27)
+
+        # Metadata categories
+        self.assertEqual(d["entry"], [{"id": "1GSG"}])
+        self.assertEqual(d["struct_keywords"], [
+            {"entry_id": "1GSG", "pdbx_keywords": "LIGASE/RNA", "text": "PROTEIN-T-RNA COMPLEX, SINGLE STRAND, PROTEIN/RNA, LIGASE-RNA COMPLEX"}
+        ])
+        self.assertEqual(d["pdbx_database_status"], [{
+            "status_code": "REL", "entry_id": "1GSG",
+            "recvd_initial_deposition_date": "1990-04-03"
+        }])
+        self.assertEqual(d["struct"], [{
+            "entry_id": "1GSG", "pdbx_CASP_flag": "?", "pdbx_descriptor": "?",
+            "pdbx_model_details": "?", "pdbx_model_type_details": "?",
+            "title": "STRUCTURE OF E.COLI GLUTAMINYL-TRNA SYNTHETASE COMPLEXED WITH TRNAGLN AND ATP AT 2.8 ANGSTROMS RESOLUTION"
+        }])
+        self.assertEqual(d["exptl"], [{"entry_id": "1GSG", "method": "X-RAY DIFFRACTION"}])
+        self.assertEqual(d["pdbx_audit_revision_history"], [{
+            "ordinal": "1", "data_content_type": "Structure model",
+            "major_revision": "1", "minor_revision": "0", "revision_date": "1992-02-24"
+        }, {
+            "ordinal": "2", "data_content_type": "Structure model", 
+            "major_revision": "2","minor_revision": "0", "revision_date": "2001-09-21"
+        }, {
+            "ordinal": "3", "data_content_type": "Structure model",
+            "major_revision": "3", "minor_revision": "0", "revision_date": "2003-04-01"
+        }, {
+            "ordinal": "4", "data_content_type": "Structure model", 
+            "major_revision": "4","minor_revision": "0", "revision_date": "2009-02-24"
+        }, {
+            "ordinal": "5", "data_content_type": "Structure model",
+            "major_revision": "5", "minor_revision": "0", "revision_date": "2011-12-07"
+        }, {
+            "ordinal": "6", "data_content_type": "Structure model", 
+            "major_revision": "6","minor_revision": "0", "revision_date": "2012-05-09"
+        }])
+        self.assertEqual(d["pdbx_coordinate_model"], [
+            {"asym_id": "P", "type": "CA ATOMS ONLY"}, {"asym_id": "T", "type": "P ATOMS ONLY"}
+        ])
+
+        # Entity categories
+        self.assertEqual(d["entity"], [{
+            "id": "1", "type": "polymer", "src_method": "syn",
+            "pdbx_description": "TRNAGLN",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1",
+            "pdbx_ec": "?", "pdbx_mutation": "?", "pdbx_fragment": "?",
+            "details": "?"
+        }, {
+            "id": "2", "type": "polymer", "src_method": "nat",
+            "pdbx_description": "GLUTAMINYL-TRNA SYNTHETASE",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1",
+            "pdbx_ec": "6.1.1.18", "pdbx_mutation": "?", "pdbx_fragment": "?",
+            "details": "?"
+        }])
+        self.assertNotIn("entity_name_com", d)
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1", "type": "polyribonucleotide", "nstd_linkage": "no", "nstd_monomer": "yes",
+            "pdbx_seq_one_letter_code": "UGGGGUA(4SU)CGCCAAGC(OMG)G(H2U)AAGGCACCGGA(OMU)UCUG(2MA)(PSU)(PSU)CCGGCAUUCCGAGG(5MU)(PSU)CGAAUCCUCGUACCCCAGCCA",
+            "pdbx_seq_one_letter_code_can": "UGGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGCAUUCCGAGGUUCGAAUCCUCGUACCCCAGCCA",
+            "pdbx_strand_id": "T", "pdbx_target_identifier": "?"
+        }, {
+            "entity_id": "2", "type": "polypeptide(L)", "nstd_linkage": "no", "nstd_monomer": "no",
+            "pdbx_seq_one_letter_code": "SEAEARPTNFIRQIIDEDLASGKHTTVHTRFPPEPNGYLHIGHAKSICLNFGIAQDYKGQCNLRFDDTNPVKEDIEYVESIKNDVEWLGFHWSGNVRYSSDYFDQLHAYAIELINKGLAYVDELTPEQIREYRGTLTQPGKNSPYRDRSVEENLALFEKMRAGGFEEGKACLRAKIDMASPFIVMRDPVLYRIKFAEHHQTGNKWCIYPMYDFTHCISDALEGITHSLCTLEFQDNRRLYDWVLDNITIPVHPRQYEFSRLNLEYTVMSKRKLNLLVTDKHVEGWDDPRMPTISGLRRRGYTAASIREFCKRIGVTKQDNTIEMASLESCIREDLNENAPRAMAVIDPVKLVIENYQGEGEMVTMPNHPNKPEMGSRQVPFSGEIWIDRADFREEANKQYKRLVLGKEVRLRNAYVIKAERVEKDAEGNITTIFCTYDADTLSKDPADGRKVKGVIHWVSAAHALPVEIRLYDRLFSVPNPGAADDFLSVINPESLVIKQGFAEPSLKDAVAGKAFQFEREGYFCLDSRHSTAEKPVFNRTVGLRDTWAKVGE",
+            "pdbx_seq_one_letter_code_can": "SEAEARPTNFIRQIIDEDLASGKHTTVHTRFPPEPNGYLHIGHAKSICLNFGIAQDYKGQCNLRFDDTNPVKEDIEYVESIKNDVEWLGFHWSGNVRYSSDYFDQLHAYAIELINKGLAYVDELTPEQIREYRGTLTQPGKNSPYRDRSVEENLALFEKMRAGGFEEGKACLRAKIDMASPFIVMRDPVLYRIKFAEHHQTGNKWCIYPMYDFTHCISDALEGITHSLCTLEFQDNRRLYDWVLDNITIPVHPRQYEFSRLNLEYTVMSKRKLNLLVTDKHVEGWDDPRMPTISGLRRRGYTAASIREFCKRIGVTKQDNTIEMASLESCIREDLNENAPRAMAVIDPVKLVIENYQGEGEMVTMPNHPNKPEMGSRQVPFSGEIWIDRADFREEANKQYKRLVLGKEVRLRNAYVIKAERVEKDAEGNITTIFCTYDADTLSKDPADGRKVKGVIHWVSAAHALPVEIRLYDRLFSVPNPGAADDFLSVINPESLVIKQGFAEPSLKDAVAGKAFQFEREGYFCLDSRHSTAEKPVFNRTVGLRDTWAKVGE",
+            "pdbx_strand_id": "P", "pdbx_target_identifier": "?"
+        }])
+        self.assertEqual(len(d["entity_poly_seq"]), 628)
+        self.assertEqual(d["entity_poly_seq"][0], {
+            "entity_id": "1", "num": "1", "mon_id": "U", "hetero": "n"
+        })
+        self.assertEqual(d["entity_poly_seq"][1], {
+            "entity_id": "1", "num": "2", "mon_id": "G", "hetero": "n"
+        })
+        self.assertEqual(d["entity_poly_seq"][7], {
+            "entity_id": "1", "num": "8", "mon_id": "4SU", "hetero": "n"
+        })
+        self.assertEqual(d["struct_ref"], [{
+            "id": "1", "db_name": "PDB", "db_code": "1GSG", "entity_id": "1", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "1", "pdbx_db_accession": "1GSG", "pdbx_db_isoform": "?"
+        }, {
+            "id": "2", "db_name": "UNP", "db_code": "SYQ_ECOLI", "entity_id": "2", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "1", "pdbx_db_accession": "P00962", "pdbx_db_isoform": "?"
+        }])
+        self.assertEqual(d["struct_ref_seq"], [{
+            "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1GSG", "pdbx_strand_id": "T",
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "1GSG", "db_align_beg": "1",
+            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "76", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "76"
+        }, {
+            "align_id": "2", "ref_id": "1", "pdbx_PDB_id_code": "1GSG", "pdbx_strand_id": "P", "seq_align_beg": "?",
+            "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_db_accession": "P00962", "db_align_beg": "1", "pdbx_db_align_beg_ins_code": "?",
+            "db_align_end": "553", "pdbx_db_align_end_ins_code": "?", "pdbx_auth_seq_align_beg": "1",
+            "pdbx_auth_seq_align_end": "553"
+        }])
+        self.assertNotIn("struct_ref_seq_dif", d)
+        self.assertEqual(len(d["chem_comp"]), 31)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "2MA", "type": "L-peptide linking", "mon_nstd_flag": "n", "name": "?",
+            "pdbx_synonyms": "?", "formula": "?", "formula_weight": "?"
+        })
+        self.assertEqual(d["chem_comp"][1], {
+            "id": "4SU", "type": "L-peptide linking", "mon_nstd_flag": "n", "name": "?",
+            "pdbx_synonyms": "?", "formula": "?", "formula_weight": "?"
+        })
+        self.assertEqual(d["chem_comp"][3], {
+            "id": "A", "type": "L-peptide linking", "mon_nstd_flag": "n", "name": "?",
+            "pdbx_synonyms": "?", "formula": "?", "formula_weight": "?"
+        })
+        self.assertNotIn("pdbx_entity_nonpoly", d)
+        self.assertEqual(d["struct_asym"], [
+            {"id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"id": "B", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "2", "details": "?"}
+        ])
+
+        # Atom categories
+        self.assertEqual(d["atom_type"], [{"symbol": "C"}, {"symbol": "P"}])
+        self.assertEqual(len(d["atom_site"]), 601)
+        self.assertEqual(d["atom_site"][0], {
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "P", "label_atom_id": "P", "label_alt_id": ".",
+            "label_comp_id": "U", "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "41.703", "Cartn_y": "40.142", "Cartn_z": "39.963",
+            "occupancy": "1.00", "B_iso_or_equiv": "71.49", "pdbx_formal_charge": "?", "auth_seq_id": "1",
+            "auth_comp_id": "U", "auth_asym_id": "T", "auth_atom_id": "P", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][7], {
+            "group_PDB": "HETATM", "id": "8", "type_symbol": "P", "label_atom_id": "P", "label_alt_id": ".",
+            "label_comp_id": "4SU", "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "8",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "26.038", "Cartn_y": "27.770", "Cartn_z": "32.507",
+            "occupancy": "1.00", "B_iso_or_equiv": "25.49", "pdbx_formal_charge": "?", "auth_seq_id": "8",
+            "auth_comp_id": "4SU", "auth_asym_id": "T", "auth_atom_id": "P", "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][-1], {
+            "group_PDB": "ATOM", "id": "601", "type_symbol": "C", "label_atom_id": "CA", "label_alt_id": ".",
+            "label_comp_id": "THR", "label_asym_id": "B", "label_entity_id": "2", "label_seq_id": "547",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "26.659", "Cartn_y": "-2.959", "Cartn_z": "28.778",
+            "occupancy": "1.00", "B_iso_or_equiv": "49.48", "pdbx_formal_charge": "?", "auth_seq_id": "547",
+            "auth_comp_id": "THR", "auth_asym_id": "P", "auth_atom_id": "CA", "pdbx_PDB_model_num": "1"
+        })
+
+        # Annotation categories
+        for category in [
+            "struct_conf", "struct_sheet", "struct_sheet_range", "struct_sheet_order", "pdbx_struct_sheet_hbond",
+            "struct_conn", "struct_mon_prot_cis", "struct_site", "struct_site_gen",
+        ]:
+            self.assertNotIn(category, d)
+        
+        # Crystal categories
+        self.assertEqual(d["cell"], [{
+            "entry_id": "1GSG", "length_a": "242.800", "length_b": "93.600", 
+            "length_c": "115.700", "angle_alpha": "90.00", "angle_beta": "90.00",
+            "angle_gamma": "90.00", "Z_pdb": "8", "pdbx_unique_axis": "?"
+        }])
+        self.assertEqual(d["symmetry"], [{
+            "entry_id": "1GSG", "space_group_name_H-M": "C 2 2 21", 
+            "pdbx_full_space_group_name_H-M": "?",
+            "cell_setting": "?", "Int_Tables_number": "?"
+        }])
+        self.assertEqual(d["database_PDB_matrix"], [{
+            "entry_id": "1GSG", "origx[1][1]": "1.000000", "origx[2][1]": "0.000000",
+            "origx[3][1]": "0.000000", "origx[1][2]": "0.000000", "origx[2][2]": "1.000000",
+            "origx[3][2]": "0.000000", "origx[1][3]": "0.000000", "origx[2][3]": "0.000000",
+            "origx[3][3]": "1.000000", "origx_vector[1]": "0.00000",
+            "origx_vector[2]": "0.00000", "origx_vector[3]": "0.00000"
+        }])
+        self.assertEqual(d["atom_sites"], [{
+            "entry_id": "1GSG", "fract_transf_matrix[1][1]": "0.004119",
+            "fract_transf_matrix[2][1]": "0.000000", "fract_transf_matrix[3][1]": "0.000000",
+            "fract_transf_matrix[1][2]": "0.000000", "fract_transf_matrix[2][2]": "0.010684",
+            "fract_transf_matrix[3][2]": "0.000000", "fract_transf_matrix[1][3]": "0.000000",
+            "fract_transf_matrix[2][3]": "0.000000", "fract_transf_matrix[3][3]": "0.008643",
+            "fract_transf_vector[1]": "0.00000", "fract_transf_vector[2]": "0.00000",
+            "fract_transf_vector[3]": "0.00000"
+        }])
+
+        # Citation categories
+        self.assertEqual(d["audit_author"], [
+            {"name": "Rould, M.A", "pdbx_ordinal": "1"},
+            {"name": "Perona, J.J", "pdbx_ordinal": "2"},
+            {"name": "Soell, D", "pdbx_ordinal": "3"},
+            {"name": "Steitz, T.A", "pdbx_ordinal": "4"},
+        ])
+        self.assertEqual(d["citation"], [{
+            "id": "primary",
+            "title": "STRUCTURE OF E. COLI GLUTAMINYL-TRNA SYNTHETASE COMPLEXED WITH TRNA(GLN) AND ATP AT 2.8 A RESOLUTION.",
+            "journal_abbrev": "Science", "journal_volume": "246",
+            "page_first": "1135", "page_last": "?", "year": "1989", "journal_id_ASTM": "?",
+            "country": "?", "journal_id_ISSN": "0036-8075", "journal_id_CSD": "?",
+            "book_publisher": "?", "pdbx_database_id_PubMed": "2479982",
+            "pdbx_database_id_DOI": "?"
+        }])
+        self.assertEqual(d["citation_author"], [
+            {"citation_id": "primary", "name": "Rould, M.A", "pdbx_ordinal": "1"},
+            {"citation_id": "primary", "name": "Perona, J.J", "pdbx_ordinal": "2"},
+            {"citation_id": "primary", "name": "Soll, D", "pdbx_ordinal": "3"},
+            {"citation_id": "primary", "name": "Steitz, T.A", "pdbx_ordinal": "4"},
+        ])
+
+        # Experimental categories
+        self.assertEqual(d["reflns"], [{
+            "entry_id": "1GSG", "observed_criterion_sigma_I": "?", "observed_criterion_sigma_F": "?",
+            "d_resolution_low": "?", "d_resolution_high": "2.80", "number_obs": "?", "number_all": "?",
+            "percent_possible_obs": "?", "pdbx_Rmerge_I_obs": "?", "pdbx_Rsym_value": "?",
+            "pdbx_netI_over_sigmaI": "?", "B_iso_Wilson_estimate": "?", "pdbx_redundancy": "?",
+            "R_free_details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?",
+            "limit_k_min": "?", "limit_l_max": "?", "limit_l_min": "?", "observed_criterion_F_max": "?",
+            "observed_criterion_F_min": "?", "pdbx_chi_squared": "?", "pdbx_scaling_rejects": "?",
+            "pdbx_diffrn_id": "?", "pdbx_ordinal": "?"
+        }])
+        self.assertEqual(d["refine"], [{
+            "entry_id": "1GSG", "ls_number_reflns_obs": "?", "ls_number_reflns_all": "?",
+            "pdbx_ls_sigma_I": "?", "pdbx_ls_sigma_F": "?", "pdbx_data_cutoff_high_absF": "?",
+            "pdbx_data_cutoff_low_absF": "?", "ls_d_res_low": "7.00", "ls_d_res_high": "2.80",
+            "ls_percent_reflns_obs": "?", "ls_R_factor_obs": "0.279", "ls_R_factor_all": "0.279",
+            "ls_R_factor_R_work": "0.279", "ls_R_factor_R_free": "?", "ls_R_factor_R_free_error": "?",
+            "ls_R_factor_R_free_error_details": "?", "ls_percent_reflns_R_free": "?",
+            "ls_number_reflns_R_free": "?", "ls_number_parameters": "?", "ls_number_restraints": "?",
+            "occupancy_min": "?", "occupancy_max": "?", "correlation_coeff_Fo_to_Fc": "?",
+            "correlation_coeff_Fo_to_Fc_free": "?", "B_iso_mean": "?", "aniso_B[1][1]": "?",
+            "aniso_B[2][2]": "?", "aniso_B[3][3]": "?", "aniso_B[1][2]": "?", "aniso_B[1][3]": "?",
+            "aniso_B[2][3]": "?", "solvent_model_details": "?", "solvent_model_param_ksol": "?",
+            "solvent_model_param_bsol": "?", "pdbx_solvent_vdw_probe_radii": "?",
+            "pdbx_solvent_ion_probe_radii": "?", "pdbx_solvent_shrinkage_radii": "?",
+            "pdbx_ls_cross_valid_method": "?", "details": "?", "pdbx_starting_model": "?",
+            "pdbx_method_to_determine_struct": "?", "pdbx_isotropic_thermal_model": "?",
+            "pdbx_stereochemistry_target_values": "?", "pdbx_stereochem_target_val_spec_case": "?",
+            "pdbx_R_Free_selection_details": "?", "pdbx_overall_ESU_R_Free": "?", "overall_SU_B": "?",
+            "ls_redundancy_reflns_obs": "?", "B_iso_min": "?", "B_iso_max": "?", "overall_SU_R_Cruickshank_DPI": "?",
+            "overall_SU_R_free": "?", "overall_SU_ML": "?", "pdbx_overall_ESU_R": "?",
+            "pdbx_data_cutoff_high_rms_absF": "?", "pdbx_refine_id": "?", "pdbx_overall_phase_error": "?", 
+            "ls_wR_factor_R_free": "?", "ls_wR_factor_R_work": "?", "overall_FOM_free_R_set": "?",
+            "overall_FOM_work_R_set": "?", "pdbx_diffrn_id": "?", "pdbx_TLS_residual_ADP_flag": "?",
+            "pdbx_overall_SU_R_free_Cruickshank_DPI": "?", "pdbx_overall_SU_R_Blow_DPI": "?",
+            "pdbx_overall_SU_R_free_Blow_DPI": "?"
+        }])
+
+        # Missing items categories
+        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_residues"]), 27)
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][0], {
+            "id": "1", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1", "auth_asym_id": "P",
+            "auth_comp_id": "SER", "auth_seq_id": "1", "PDB_ins_code": "?", "label_asym_id": "P",
+            "label_comp_id": "SER", "label_seq_id": "1"
+        })
+        self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][-1], {
+            "id": "27", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1", "auth_asym_id": "P",
+            "auth_comp_id": "GLU", "auth_seq_id": "553", "PDB_ins_code": "?", "label_asym_id": "P",
+            "label_comp_id": "GLU", "label_seq_id": "553"
+        })
+        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
+
+
+        
 
 
 

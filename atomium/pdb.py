@@ -21,6 +21,7 @@ def pdb_string_to_mmcif_dict(filestring):
         filestring, polymer_entities, non_polymer_entities, mmcif
     )
     parse_annotation(filestring, mmcif)
+    update_auth_and_label(mmcif)
     return mmcif
 
 
@@ -401,6 +402,7 @@ def parse_remarks(filestring, mmcif):
 
     parse_remark_2(filestring, mmcif)
     parse_remark_3(filestring, mmcif)
+    parse_remark_350(filestring, mmcif)
     parse_remark_465(filestring, mmcif)
     parse_remark_470(filestring, mmcif)
     parse_remark_480(filestring, mmcif)
@@ -511,6 +513,132 @@ def parse_remark_3(filestring, mmcif):
         if value: keep = True
     if not keep: del mmcif["refine"]
 
+
+def parse_remark_350(filestring, mmcif):
+    records = re.findall(r"^REMARK 350 .+", filestring, re.M)
+    if not records: return
+    from itertools import groupby, chain
+    groups = [list(g) for k, g in groupby(records, lambda x: "ECULE:" in x)][1:]
+    assemblies = [list(chain(*a)) for a in zip(groups[::2], groups[1::2])]
+    names = [
+        "pdbx_struct_assembly", "pdbx_struct_assembly_gen",
+        "pdbx_struct_assembly_prop", "pdbx_struct_oper_list"
+    ]
+    for name in names:
+        mmcif[name] = []
+    for assembly in assemblies:
+        parse_assembly(assembly, mmcif)
+    for name in names:
+        if not mmcif[name]: del mmcif[name]
+    
+
+
+def parse_assembly(lines, mmcif):
+    assembly = {
+        "gens": [], "software": None, "buried_surface_area": None,
+        "surface_area": None, "delta_energy": None, "id": 0
+    }
+    patterns = [
+        [r"(.+)SOFTWARE USED: (.+)", "software"],
+        [r"(.+)BIOMOLECULE: (.+)", "id"],
+        [r"(.+)SURFACE AREA: (.+) [A-Z]", "ABSA (A^2)"],
+        [r"(.+)AREA OF THE COMPLEX: (.+) [A-Z]", "SSA (A^2)"],
+        [r"(.+)FREE ENERGY: (.+) [A-Z]", "MORE"]
+    ]
+    gen = None
+    for line in lines:
+        for p in patterns:
+            matches = re.findall(p[0], line)
+            if matches: assembly[p[1]] = matches[0][1].strip()
+        if "APPLY THE FOLLOWING" in line:
+            if gen: assembly["gens"].append(gen)
+            gen = {"chains": line.split(":")[1].strip().split(", "), "transformations": []}
+
+        if "BIOMT1" in line:
+            transformation = {"matrix": [], "vector": []}
+        if "BIOMT" in line:
+            values = [float(x) for x in line.split()[4:]]
+            transformation["matrix"].append(values[:3])
+            transformation["vector"].append(values[-1])
+        if "BIOMT3" in line:
+            gen["transformations"].append(transformation)
+    if gen: assembly["gens"].append(gen)
+
+    assembly_id = str(len(mmcif["pdbx_struct_assembly"]) + 1)
+    mmcif["pdbx_struct_assembly"].append({
+        "id": assembly_id, "details": "?",
+        "method_details": assembly.get("software", "?") or "?", "oligomeric_details": "?", "oligomeric_count": "?"
+    })
+    for prop in ["ABSA (A^2)", "MORE", "SSA (A^2)"]:
+        if assembly.get(prop):
+            mmcif["pdbx_struct_assembly_prop"].append({
+                "biol_id": assembly_id, "type": prop,
+                "value": assembly[prop], "details": "?"
+            })
+    for gen in assembly["gens"]:
+        operation_ids = []
+        for transformation in gen["transformations"]:
+            operation = {
+                "type": "?",
+                "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
+                "pdbx_struct_oper_list.symmetry_operation": "x,y,z", 
+                "pdbx_struct_oper_list.matrix[1][1]": str(transformation["matrix"][0][0]),
+                "pdbx_struct_oper_list.matrix[1][2]": str(transformation["matrix"][0][1]),
+                "pdbx_struct_oper_list.matrix[1][3]": str(transformation["matrix"][0][2]),
+                "pdbx_struct_oper_list.vector[1]": str(transformation["vector"][0]),
+                "pdbx_struct_oper_list.matrix[2][1]": str(transformation["matrix"][1][0]),
+                "pdbx_struct_oper_list.matrix[2][2]": str(transformation["matrix"][1][1]),
+                "pdbx_struct_oper_list.matrix[2][3]": str(transformation["matrix"][1][2]),
+                "pdbx_struct_oper_list.vector[2]": str(transformation["vector"][1]),
+                "pdbx_struct_oper_list.matrix[3][1]": str(transformation["matrix"][2][0]),
+                "pdbx_struct_oper_list.matrix[3][2]": str(transformation["matrix"][2][1]),
+                "pdbx_struct_oper_list.matrix[3][3]": str(transformation["matrix"][2][2]),
+                "pdbx_struct_oper_list.vector[3]": str(transformation["vector"][2]),
+            }
+            for op in mmcif["pdbx_struct_oper_list"]:
+                if {k: v for k, v in op.items() if k != "id"} == operation:
+                    operation_ids.append(op["id"])
+                    break
+            else:
+                op_id = str(len(mmcif["pdbx_struct_oper_list"]) + 1)
+                mmcif["pdbx_struct_oper_list"].append({"id": op_id, **operation})
+                operation_ids.append(op_id)
+        mmcif["pdbx_struct_assembly_gen"].append({
+            "assembly_id": assembly_id, "oper_expression": ",".join(operation_ids),
+            "asym_id": ",".join(gen["chains"])
+        })
+    '''
+    
+
+    for transformation in assembly["transformations"]:
+        oper_id = str(len(mmcif["pdbx_struct_oper_list"]) + 1)
+        mmcif["pdbx_struct_assembly_gen"].append({
+            "assembly_id": assembly_id, "oper_expression": oper_id,
+            "asym_id": ",".join(transformation["chains"])
+        })
+        operation = {
+            "type": "?",
+            "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
+            "pdbx_struct_oper_list.symmetry_operation": "x,y,z", 
+            "pdbx_struct_oper_list.matrix[1][1]": str(transformation["matrix"][0][0]),
+            "pdbx_struct_oper_list.matrix[1][2]": str(transformation["matrix"][0][1]),
+            "pdbx_struct_oper_list.matrix[1][3]": str(transformation["matrix"][0][2]),
+            "pdbx_struct_oper_list.vector[1]": str(transformation["vector"][0]),
+            "pdbx_struct_oper_list.matrix[2][1]": str(transformation["matrix"][1][0]),
+            "pdbx_struct_oper_list.matrix[2][2]": str(transformation["matrix"][1][1]),
+            "pdbx_struct_oper_list.matrix[2][3]": str(transformation["matrix"][1][2]),
+            "pdbx_struct_oper_list.vector[2]": str(transformation["vector"][1]),
+            "pdbx_struct_oper_list.matrix[3][1]": str(transformation["matrix"][2][0]),
+            "pdbx_struct_oper_list.matrix[3][2]": str(transformation["matrix"][2][1]),
+            "pdbx_struct_oper_list.matrix[3][3]": str(transformation["matrix"][2][2]),
+            "pdbx_struct_oper_list.vector[3]": str(transformation["vector"][2]),
+        }
+        for op in mmcif["pdbx_struct_oper_list"]:
+            if {k: v for k, v in op.items() if k != "id"} == operation:
+                pass
+
+        #mmcif["pdbx_struct_oper_list"].append()'''
+    
 
 def parse_remark_465(filestring, mmcif):
     records = re.findall(r"^REMARK 465 .+", filestring, re.M)
@@ -943,21 +1071,23 @@ def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
         "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
     }
     for entity in polymer_entities.values():
+        entity_id = str(len(mmcif["entity"]) + 1)
         mmcif["entity"].append({**entity_template})
-        mmcif["entity"][-1]["id"] = entity["id"]
+        mmcif["entity"][-1]["id"] = entity["id"] = entity_id
         mmcif["entity"][-1]["type"] = "polymer"
         mmcif["entity"][-1]["pdbx_description"] = entity.get("MOLECULE", "?")
         mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["CHAIN"]))
         mmcif["entity"][-1]["pdbx_ec"] = entity.get("EC", "?")
-        mmcif["entity"][-1]["pdbx_mutation"] = entity.get("MUTATION", "?")
+        mmcif["entity"][-1]["pdbx_mutation"] = "?"
         mmcif["entity"][-1]["pdbx_fragment"] = entity.get("FRAGMENT", "?")
         mmcif["entity"][-1]["details"] = entity.get("OTHER_DETAILS", "?")
         mmcif["entity"][-1]["src_method"] = "syn" if entity.get("SYNTHETIC") \
             else "man" if entity.get("ENGINEERED") else "nat"
     for entity in non_polymer_entities.values():
         if not entity["molecules"]: continue
+        entity_id = str(len(mmcif["entity"]) + 1)
         mmcif["entity"].append({**entity_template})
-        mmcif["entity"][-1]["id"] = entity["id"]
+        mmcif["entity"][-1]["id"] = entity["id"] = entity_id
         mmcif["entity"][-1]["type"] = "water" if entity["is_water"] else "non-polymer"
         mmcif["entity"][-1]["pdbx_description"] = entity.get("name") or "?"
         if mmcif["entity"][-1]["pdbx_description"] == "?" and mmcif["entity"][-1]["type"] == "water":
@@ -1099,6 +1229,7 @@ def build_pdbx_struct_mod_residue(polymer_entities, mmcif):
                     "parent_comp_id": mod["standard_name"],
                     "details": mod["comment"] or "?",
                 })
+    if not mmcif["pdbx_struct_mod_residue"]: del mmcif["pdbx_struct_mod_residue"]
 
 
 
@@ -1118,18 +1249,11 @@ def build_pdbx_entity_nonpoly(non_polymers, mmcif):
 def build_chem_comp(non_polymer_entities, mmcif):
     mmcif["chem_comp"] = []
     residues = {r["mon_id"] for r in mmcif["entity_poly_seq"]}
-    for res in residues:
-        weight = RESIDUE_MASSES.get(res)
-        weight = f"{weight:.3f}" if weight else "?"
-        mmcif["chem_comp"].append({
-            "id": res, "type": "L-peptide linking",
-            "mon_nstd_flag": "y" if res in FORMULAE else "n",
-            "name": FULL_NAMES.get(res, "?").upper(),
-            "pdbx_synonyms": "?", "formula": FORMULAE.get(res, "?"),
-            "formula_weight": weight
-        })
+    formulae_lookup = {}
     for name, entity in non_polymer_entities.items():
-        if not entity["molecules"]: continue
+        if not entity["molecules"]:
+            formulae_lookup[name] = entity["formula"]
+            continue
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
         formula = entity["formula"] or "?"
         if re.match(r"^\d+\(", formula): formula = formula[formula.find("(") + 1:-1]
@@ -1140,6 +1264,16 @@ def build_chem_comp(non_polymer_entities, mmcif):
             "pdbx_synonyms": ",".join(entity.get("synonyms", [])) or "?",
             "formula": formula,
             "formula_weight": f"{formula_to_weight(formula):.3f}"
+        })
+    for res in residues:
+        weight = RESIDUE_MASSES.get(res)
+        weight = f"{weight:.3f}" if weight else "?"
+        mmcif["chem_comp"].append({
+            "id": res, "type": "L-peptide linking",
+            "mon_nstd_flag": "y" if res in FORMULAE else "n",
+            "name": FULL_NAMES.get(res, "?").upper(),
+            "pdbx_synonyms": "?", "formula": FORMULAE.get(res, formulae_lookup.get(res, "?")),
+            "formula_weight": weight
         })
     mmcif["chem_comp"].sort(key=lambda c: c["id"])
 
@@ -1228,7 +1362,9 @@ def get_atom_entity(sig, polymer_entities, non_polymer_entities):
 
 
 def get_atom_label(sig, polymer, non_polymer, labels):
-    next_label = chr(ord(max(labels.values())) + 1) if labels else "A"
+    next_label = next_id(sorted(
+        labels.values(), key=lambda l: (len(l), l)
+    )[-1] if labels else "@")
     if polymer:
         if sig[0] in labels:
             label = labels[sig[0]]
@@ -1249,6 +1385,20 @@ def get_atom_label(sig, polymer, non_polymer, labels):
             label = next_label
             labels[chain_id] = next_label
     return label
+
+
+def next_id(id):
+    if all(char == "Z" for char in id):
+        return "A" * (len(id) + 1)
+    a_indices = []
+    for i, char in enumerate(id):
+        if char == "Z":
+            a_indices.append(i)
+        else:
+            return "".join([
+                "A" if n in a_indices else chr(ord(c) + 1) if n == i else c
+                for n, c in enumerate(id)
+            ])
 
 
 def build_atom_site_anisotrop(filestring, mmcif):
@@ -1543,6 +1693,20 @@ def parse_cispep(filestring, mmcif):
         "pdbx_PDB_model_num": str(int(line[43:46].strip()) + 1),
         "pdbx_omega_angle": line[53:59].strip()
     } for line in lines]
+
+
+def update_auth_and_label(mmcif):
+    auth_asym_to_label_asym = {}
+    label_asym_to_auth_asym = {}
+    for atom in mmcif["atom_site"]:
+        label_asym_to_auth_asym[atom["label_asym_id"]] = atom["auth_asym_id"]
+    auth_asym_to_label_asym = {a: [
+        k for k, v in label_asym_to_auth_asym.items() if v == a
+    ] for a in label_asym_to_auth_asym.values()}
+    for row in mmcif.get("pdbx_struct_assembly_gen", []):
+        auths = row["asym_id"].split(",")
+        labels = [id for auth in auths for id in auth_asym_to_label_asym[auth]]
+        row["asym_id"] = ",".join(sorted(labels, key=lambda l: list(label_asym_to_auth_asym.keys()).index(l)))
 
 
 def pdb_date_to_mmcif_date(date):

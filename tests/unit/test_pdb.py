@@ -760,7 +760,7 @@ class JournalReferencesParsingTests(TestCase):
 
 
 
-class JournalidsParsingTests(TestCase):
+class JournalIdsParsingTests(TestCase):
 
     def test_can_handle_no_ids(self):
         mmcif = {}
@@ -899,3 +899,36 @@ class Remark3ParsingTests(TestCase):
         mmcif = {"reflns": [{}]}
         parse_remark_3("", mmcif)
         self.assertEqual(mmcif, {"reflns": [{}]})
+
+
+
+class NextIdTests(TestCase):
+
+    def test_can_get_first_id(self):
+        self.assertEqual(next_id("@"), "A")
+    
+
+    def test_can_get_single_letter_id(self):
+        self.assertEqual(next_id("A"), "B")
+        self.assertEqual(next_id("B"), "C")
+        self.assertEqual(next_id("M"), "N")
+        self.assertEqual(next_id("Y"), "Z")
+    
+
+    def test_can_get_two_letter_id(self):
+        self.assertEqual(next_id("Z"), "AA")
+        self.assertEqual(next_id("AA"), "BA")
+        self.assertEqual(next_id("BA"), "CA")
+        self.assertEqual(next_id("ZA"), "AB")
+        self.assertEqual(next_id("AB"), "BB")
+        self.assertEqual(next_id("BB"), "CB")
+    
+
+    def test_can_get_three_letter_id(self):
+        self.assertEqual(next_id("ZZ"), "AAA")
+        self.assertEqual(next_id("AAA"), "BAA")
+        self.assertEqual(next_id("BAA"), "CAA")
+        self.assertEqual(next_id("ZAA"), "ABA")
+        self.assertEqual(next_id("ABA"), "BBA")
+        self.assertEqual(next_id("ZBA"), "ACA")
+        self.assertEqual(next_id("ZZA"), "AAB")

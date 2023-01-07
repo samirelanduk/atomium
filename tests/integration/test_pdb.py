@@ -266,9 +266,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][-1], {
             "conf_type_id": "HELX_P", "id": "HELX_P22", "pdbx_PDB_helix_id": "22",
             "beg_label_comp_id": "ASN", "beg_label_asym_id": "B",
-            "beg_label_seq_id": "1210", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "210", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "LEU", "end_label_asym_id": "B",
-            "end_label_seq_id": "1225", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "225", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "ASN", "beg_auth_asym_id": "B",
             "beg_auth_seq_id": "1210", "end_auth_comp_id": "LEU",
             "end_auth_asym_id": "B", "end_auth_seq_id": "1225",
@@ -292,9 +292,9 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(d["struct_sheet_range"][-1], {
             "sheet_id": "B", "id": "9", "beg_label_comp_id": "LEU",
-            "beg_label_asym_id": "B", "beg_label_seq_id": "1015",
+            "beg_label_asym_id": "B", "beg_label_seq_id": "15",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "ALA",
-            "end_label_asym_id": "B", "end_label_seq_id": "1018",
+            "end_label_asym_id": "B", "end_label_seq_id": "18",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "LEU",
             "beg_auth_asym_id": "B", "beg_auth_seq_id": "1015",
             "end_auth_comp_id": "ALA", "end_auth_asym_id": "B",
@@ -325,21 +325,21 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["pdbx_struct_sheet_hbond"][-1], {
             "sheet_id": "B", "range_id_1": "8", "range_id_2": "9",
             "range_1_label_atom_id": "O", "range_1_label_comp_id": "VAL",
-            "range_1_label_asym_id": "B", "range_1_label_seq_id": "1201",
+            "range_1_label_asym_id": "B", "range_1_label_seq_id": "201",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "O",
             "range_1_auth_comp_id": "VAL", "range_1_auth_asym_id": "B",
             "range_1_auth_seq_id": "1201", "range_2_label_atom_id": "N",
             "range_2_label_comp_id": "ILE", "range_2_label_asym_id": "B",
-            "range_2_label_seq_id": "1018", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "18", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "N", "range_2_auth_comp_id": "ILE",
             "range_2_auth_asym_id": "B", "range_2_auth_seq_id": "1018",
         })
         self.assertNotIn("struct_conn", d)
         self.assertEqual(d["struct_mon_prot_cis"], [{
-            "pdbx_id": "1", "label_comp_id": "ASP", "label_seq_id": "1188",
+            "pdbx_id": "1", "label_comp_id": "ASP", "label_seq_id": "188",
             "label_asym_id": "B", "label_alt_id": ".", "pdbx_PDB_ins_code": "?",
             "auth_comp_id": "ASP", "auth_seq_id": "1188", "auth_asym_id": "B",
-            "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "1189",
+            "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "189",
             "pdbx_label_asym_id_2": "B", "pdbx_PDB_ins_code_2": "?",
             "pdbx_auth_comp_id_2": "PRO", "pdbx_auth_seq_id_2": "1189",
             "pdbx_auth_asym_id_2": "B", "pdbx_PDB_model_num": "1",
@@ -376,7 +376,7 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(d["struct_site_gen"][-1], {
             "id": "46", "site_id": "AC4", "pdbx_num_res": "16",
-            "label_comp_id": "BU2", "label_asym_id": "B", "label_seq_id": "5002",
+            "label_comp_id": "BU2", "label_asym_id": "E", "label_seq_id": ".",
             "pdbx_auth_ins_code": "?", "auth_comp_id": "BU2", "auth_asym_id": "B",
             "auth_seq_id": "5002", "label_atom_id": ".", "label_alt_id": "?",
             "symmetry": "1_555", "details": "?",
@@ -758,9 +758,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][0], {
             "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1",
             "beg_label_comp_id": "SER", "beg_label_asym_id": "A",
-            "beg_label_seq_id": "215", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "30", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "GLY", "end_label_asym_id": "A",
-            "end_label_seq_id": "227", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "42", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "SER", "beg_auth_asym_id": "A",
             "beg_auth_seq_id": "215", "end_auth_comp_id": "GLY",
             "end_auth_asym_id": "A", "end_auth_seq_id": "227",
@@ -770,9 +770,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][-1], {
             "conf_type_id": "HELX_P", "id": "HELX_P7", "pdbx_PDB_helix_id": "7",
             "beg_label_comp_id": "LEU", "beg_label_asym_id": "A",
-            "beg_label_seq_id": "294", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "109", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "LEU", "end_label_asym_id": "A",
-            "end_label_seq_id": "302", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "117", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "LEU", "beg_auth_asym_id": "A",
             "beg_auth_seq_id": "294", "end_auth_comp_id": "LEU",
             "end_auth_asym_id": "A", "end_auth_seq_id": "302",
@@ -782,18 +782,18 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_sheet"], [{"id": "AA1", "type": "?", "number_strands": "2", "details": "?"}])
         self.assertEqual(d["struct_sheet_range"], [{
             "sheet_id": "AA1", "id": "1", "beg_label_comp_id": "THR",
-            "beg_label_asym_id": "A", "beg_label_seq_id": "201",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "16",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "PHE",
-            "end_label_asym_id": "A", "end_label_seq_id": "204",
+            "end_label_asym_id": "A", "end_label_seq_id": "19",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "THR",
             "beg_auth_asym_id": "A", "beg_auth_seq_id": "201",
             "end_auth_comp_id": "PHE", "end_auth_asym_id": "A",
             "end_auth_seq_id": "204",
         }, {
             "sheet_id": "AA1", "id": "2", "beg_label_comp_id": "GLN",
-            "beg_label_asym_id": "A", "beg_label_seq_id": "207",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "22",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "VAL",
-            "end_label_asym_id": "A", "end_label_seq_id": "210",
+            "end_label_asym_id": "A", "end_label_seq_id": "25",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "GLN",
             "beg_auth_asym_id": "A", "beg_auth_seq_id": "207",
             "end_auth_comp_id": "VAL", "end_auth_asym_id": "A",
@@ -805,12 +805,12 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["pdbx_struct_sheet_hbond"], [{
             "sheet_id": "AA1", "range_id_1": "1", "range_id_2": "2",
             "range_1_label_atom_id": "N", "range_1_label_comp_id": "PHE",
-            "range_1_label_asym_id": "A", "range_1_label_seq_id": "204",
+            "range_1_label_asym_id": "A", "range_1_label_seq_id": "19",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N",
             "range_1_auth_comp_id": "PHE", "range_1_auth_asym_id": "A",
             "range_1_auth_seq_id": "204", "range_2_label_atom_id": "O",
             "range_2_label_comp_id": "GLN", "range_2_label_asym_id": "A",
-            "range_2_label_seq_id": "210", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "25", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "GLN",
             "range_2_auth_asym_id": "A", "range_2_auth_seq_id": "210",
         }])
@@ -989,21 +989,19 @@ class FileToDictTests(TestCase):
             "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
         }])
         self.assertNotIn("entity_name_com", d)
-        self.assertEqual(len(d["entity_poly"]), 2)
-        self.assertEqual(d["entity_poly"][0], {
+        self.assertEqual(d["entity_poly"], [{
             "entity_id": "1", "type": "polyribonucleotide", "nstd_linkage": "no",
             "nstd_monomer": "yes",
             "pdbx_seq_one_letter_code": "UGGGGUA(4SU)CGCCAAGC(OMG)G(H2U)AAGGCACCGGA(OMU)UCUG(2MA)(PSU)(PSU)CCGGCAUUCCGAGG(5MU)(PSU)CGAAUCCUCGUACCCCAGCCA",
             "pdbx_seq_one_letter_code_can": "UGGGGUAUCGCCAAGCGGUAAGGCACCGGAUUCUGAUUCCGGCAUUCCGAGGUUCGAAUCCUCGUACCCCAGCCA",
             "pdbx_strand_id": "T", "pdbx_target_identifier": "?",
-        })
-        self.assertEqual(d["entity_poly"][-1], {
+        }, {
             "entity_id": "2", "type": "polypeptide(L)", "nstd_linkage": "no",
             "nstd_monomer": "no",
             "pdbx_seq_one_letter_code": "SEAEARPTNFIRQIIDEDLASGKHTTVHTRFPPEPNGYLHIGHAKSICLNFGIAQDYKGQCNLRFDDTNPVKEDIEYVESIKNDVEWLGFHWSGNVRYSSDYFDQLHAYAIELINKGLAYVDELTPEQIREYRGTLTQPGKNSPYRDRSVEENLALFEKMRAGGFEEGKACLRAKIDMASPFIVMRDPVLYRIKFAEHHQTGNKWCIYPMYDFTHCISDALEGITHSLCTLEFQDNRRLYDWVLDNITIPVHPRQYEFSRLNLEYTVMSKRKLNLLVTDKHVEGWDDPRMPTISGLRRRGYTAASIREFCKRIGVTKQDNTIEMASLESCIREDLNENAPRAMAVIDPVKLVIENYQGEGEMVTMPNHPNKPEMGSRQVPFSGEIWIDRADFREEANKQYKRLVLGKEVRLRNAYVIKAERVEKDAEGNITTIFCTYDADTLSKDPADGRKVKGVIHWVSAAHALPVEIRLYDRLFSVPNPGAADDFLSVINPESLVIKQGFAEPSLKDAVAGKAFQFEREGYFCLDSRHSTAEKPVFNRTVGLRDTWAKVGE",
             "pdbx_seq_one_letter_code_can": "SEAEARPTNFIRQIIDEDLASGKHTTVHTRFPPEPNGYLHIGHAKSICLNFGIAQDYKGQCNLRFDDTNPVKEDIEYVESIKNDVEWLGFHWSGNVRYSSDYFDQLHAYAIELINKGLAYVDELTPEQIREYRGTLTQPGKNSPYRDRSVEENLALFEKMRAGGFEEGKACLRAKIDMASPFIVMRDPVLYRIKFAEHHQTGNKWCIYPMYDFTHCISDALEGITHSLCTLEFQDNRRLYDWVLDNITIPVHPRQYEFSRLNLEYTVMSKRKLNLLVTDKHVEGWDDPRMPTISGLRRRGYTAASIREFCKRIGVTKQDNTIEMASLESCIREDLNENAPRAMAVIDPVKLVIENYQGEGEMVTMPNHPNKPEMGSRQVPFSGEIWIDRADFREEANKQYKRLVLGKEVRLRNAYVIKAERVEKDAEGNITTIFCTYDADTLSKDPADGRKVKGVIHWVSAAHALPVEIRLYDRLFSVPNPGAADDFLSVINPESLVIKQGFAEPSLKDAVAGKAFQFEREGYFCLDSRHSTAEKPVFNRTVGLRDTWAKVGE",
             "pdbx_strand_id": "P", "pdbx_target_identifier": "?",
-        })
+        }])
         self.assertEqual(len(d["entity_poly_seq"]), 628)
         self.assertEqual(d["entity_poly_seq"][0], {
             "entity_id": "1", "num": "1", "mon_id": "U", "hetero": "n",
@@ -1040,14 +1038,14 @@ class FileToDictTests(TestCase):
         self.assertNotIn("struct_ref_seq_dif", d)
         self.assertEqual(len(d["pdbx_struct_mod_residue"]), 9)
         self.assertEqual(d["pdbx_struct_mod_residue"][0], {
-            "id": "1", "label_asym_id": "?", "label_comp_id": "4SU",
-            "label_seq_id": "?", "auth_asym_id": "T", "auth_comp_id": "4SU",
+            "id": "1", "label_asym_id": "A", "label_comp_id": "4SU",
+            "label_seq_id": "8", "auth_asym_id": "T", "auth_comp_id": "4SU",
             "auth_seq_id": "8", "PDB_ins_code": "?", "parent_comp_id": "U",
             "details": "4-THIOURIDINE-5'-MONOPHOSPHATE",
         })
         self.assertEqual(d["pdbx_struct_mod_residue"][-1], {
-            "id": "9", "label_asym_id": "?", "label_comp_id": "PSU",
-            "label_seq_id": "?", "auth_asym_id": "T", "auth_comp_id": "PSU",
+            "id": "9", "label_asym_id": "A", "label_comp_id": "PSU",
+            "label_seq_id": "54", "auth_asym_id": "T", "auth_comp_id": "PSU",
             "auth_seq_id": "55", "PDB_ins_code": "?", "parent_comp_id": "U",
             "details": "PSEUDOURIDINE-5'-MONOPHOSPHATE",
         })
@@ -1314,6 +1312,7 @@ class FileToDictTests(TestCase):
             "pdbx_struct_oper_list.matrix[3][3]": "1.0",
             "pdbx_struct_oper_list.vector[3]": "0.0",
         }])
+
 
     def test_1xda(self):
         d = atomium.open("tests/integration/files/1xda.pdb", dictionary=True)
@@ -1874,8 +1873,8 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conn"][-1], {
             "id": "covale29", "conn_type_id": "covale",
             "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
-            "ptnr1_label_asym_id": "H", "ptnr1_label_comp_id": "ZN",
-            "ptnr1_label_seq_id": "30", "ptnr1_label_atom_id": "ZN",
+            "ptnr1_label_asym_id": "V", "ptnr1_label_comp_id": "ZN",
+            "ptnr1_label_seq_id": ".", "ptnr1_label_atom_id": "ZN",
             "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
             "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555",
             "ptnr2_label_asym_id": "H", "ptnr2_label_comp_id": "HIS",
@@ -2310,9 +2309,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][0], {
             "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1",
             "beg_label_comp_id": "TYR", "beg_label_asym_id": "A",
-            "beg_label_seq_id": "87", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "63", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "LEU", "end_label_asym_id": "A",
-            "end_label_seq_id": "92", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "68", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "TYR", "beg_auth_asym_id": "A",
             "beg_auth_seq_id": "87", "end_auth_comp_id": "LEU",
             "end_auth_asym_id": "A", "end_auth_seq_id": "92",
@@ -2322,9 +2321,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][-1], {
             "conf_type_id": "HELX_P", "id": "HELX_P42", "pdbx_PDB_helix_id": "42",
             "beg_label_comp_id": "THR", "beg_label_asym_id": "C",
-            "beg_label_seq_id": "407", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "383", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "LEU", "end_label_asym_id": "C",
-            "end_label_seq_id": "411", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "387", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "THR", "beg_auth_asym_id": "C",
             "beg_auth_seq_id": "407", "end_auth_comp_id": "LEU",
             "end_auth_asym_id": "C", "end_auth_seq_id": "411",
@@ -2341,9 +2340,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(len(d["struct_sheet_range"]), 84)
         self.assertEqual(d["struct_sheet_range"][0], {
             "sheet_id": "A", "id": "1", "beg_label_comp_id": "PHE",
-            "beg_label_asym_id": "A", "beg_label_seq_id": "37",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "13",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "GLN",
-            "end_label_asym_id": "A", "end_label_seq_id": "43",
+            "end_label_asym_id": "A", "end_label_seq_id": "19",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "PHE",
             "beg_auth_asym_id": "A", "beg_auth_seq_id": "37",
             "end_auth_comp_id": "GLN", "end_auth_asym_id": "A",
@@ -2351,9 +2350,9 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(d["struct_sheet_range"][-1], {
             "sheet_id": "R", "id": "2", "beg_label_comp_id": "VAL",
-            "beg_label_asym_id": "C", "beg_label_seq_id": "403",
+            "beg_label_asym_id": "C", "beg_label_seq_id": "379",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "ALA",
-            "end_label_asym_id": "C", "end_label_seq_id": "405",
+            "end_label_asym_id": "C", "end_label_seq_id": "381",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "VAL",
             "beg_auth_asym_id": "C", "beg_auth_seq_id": "403",
             "end_auth_comp_id": "ALA", "end_auth_asym_id": "C",
@@ -2372,24 +2371,24 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["pdbx_struct_sheet_hbond"][0], {
             "sheet_id": "A", "range_id_1": "1", "range_id_2": "2",
             "range_1_label_atom_id": "N", "range_1_label_comp_id": "ILE",
-            "range_1_label_asym_id": "A", "range_1_label_seq_id": "42",
+            "range_1_label_asym_id": "A", "range_1_label_seq_id": "18",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N",
             "range_1_auth_comp_id": "ILE", "range_1_auth_asym_id": "A",
             "range_1_auth_seq_id": "42", "range_2_label_atom_id": "O",
             "range_2_label_comp_id": "VAL", "range_2_label_asym_id": "A",
-            "range_2_label_seq_id": "211", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "187", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "VAL",
             "range_2_auth_asym_id": "A", "range_2_auth_seq_id": "211",
         })
         self.assertEqual(d["pdbx_struct_sheet_hbond"][-1], {
             "sheet_id": "R", "range_id_1": "1", "range_id_2": "2",
             "range_1_label_atom_id": "N", "range_1_label_comp_id": "ILE",
-            "range_1_label_asym_id": "C", "range_1_label_seq_id": "388",
+            "range_1_label_asym_id": "C", "range_1_label_seq_id": "364",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N",
             "range_1_auth_comp_id": "ILE", "range_1_auth_asym_id": "C",
             "range_1_auth_seq_id": "388", "range_2_label_atom_id": "O",
             "range_2_label_comp_id": "THR", "range_2_label_asym_id": "C",
-            "range_2_label_seq_id": "405", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "381", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "THR",
             "range_2_auth_asym_id": "C", "range_2_auth_seq_id": "405",
         })
@@ -2683,13 +2682,13 @@ class FileToDictTests(TestCase):
             "pdbx_ordinal": "10",
         })
         self.assertEqual(d["pdbx_struct_mod_residue"], [{
-            "id": "1", "label_asym_id": "?", "label_comp_id": "TCY",
-            "label_seq_id": "?", "auth_asym_id": "B", "auth_comp_id": "TCY",
+            "id": "1", "label_asym_id": "B", "label_comp_id": "TCY",
+            "label_seq_id": "6", "auth_asym_id": "B", "auth_comp_id": "TCY",
             "auth_seq_id": "6", "PDB_ins_code": "?", "parent_comp_id": "DA",
             "details": "?",
         }, {
-            "id": "2", "label_asym_id": "?", "label_comp_id": "TCY",
-            "label_seq_id": "?", "auth_asym_id": "D", "auth_comp_id": "TCY",
+            "id": "2", "label_asym_id": "D", "label_comp_id": "TCY",
+            "label_seq_id": "6", "auth_asym_id": "D", "auth_comp_id": "TCY",
             "auth_seq_id": "6", "PDB_ins_code": "?", "parent_comp_id": "DA",
             "details": "?",
         }])
@@ -2888,9 +2887,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][0], {
             "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1",
             "beg_label_comp_id": "THR", "beg_label_asym_id": "A",
-            "beg_label_seq_id": "104", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "50", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "ARG", "end_label_asym_id": "A",
-            "end_label_seq_id": "123", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "69", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "THR", "beg_auth_asym_id": "A",
             "beg_auth_seq_id": "104", "end_auth_comp_id": "ARG",
             "end_auth_asym_id": "A", "end_auth_seq_id": "123",
@@ -2900,9 +2899,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][-1], {
             "conf_type_id": "HELX_P", "id": "HELX_P8", "pdbx_PDB_helix_id": "8",
             "beg_label_comp_id": "GLN", "beg_label_asym_id": "C",
-            "beg_label_seq_id": "182", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "128", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "GLY", "end_label_asym_id": "C",
-            "end_label_seq_id": "187", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "133", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "GLN", "beg_auth_asym_id": "C",
             "beg_auth_seq_id": "182", "end_auth_comp_id": "GLY",
             "end_auth_asym_id": "C", "end_auth_seq_id": "187",
@@ -2916,9 +2915,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(len(d["struct_sheet_range"]), 10)
         self.assertEqual(d["struct_sheet_range"][0], {
             "sheet_id": "A", "id": "1", "beg_label_comp_id": "VAL",
-            "beg_label_asym_id": "A", "beg_label_seq_id": "93",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "39",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "GLY",
-            "end_label_asym_id": "A", "end_label_seq_id": "103",
+            "end_label_asym_id": "A", "end_label_seq_id": "49",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "VAL",
             "beg_auth_asym_id": "A", "beg_auth_seq_id": "93",
             "end_auth_comp_id": "GLY", "end_auth_asym_id": "A",
@@ -2926,9 +2925,9 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(d["struct_sheet_range"][-1], {
             "sheet_id": "B", "id": "5", "beg_label_comp_id": "ILE",
-            "beg_label_asym_id": "C", "beg_label_seq_id": "178",
+            "beg_label_asym_id": "C", "beg_label_seq_id": "124",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "LYS",
-            "end_label_asym_id": "C", "end_label_seq_id": "180",
+            "end_label_asym_id": "C", "end_label_seq_id": "126",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "ILE",
             "beg_auth_asym_id": "C", "beg_auth_seq_id": "178",
             "end_auth_comp_id": "LYS", "end_auth_asym_id": "C",
@@ -2948,24 +2947,24 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["pdbx_struct_sheet_hbond"][0], {
             "sheet_id": "A", "range_id_1": "1", "range_id_2": "2",
             "range_1_label_atom_id": "O", "range_1_label_comp_id": "ARG",
-            "range_1_label_asym_id": "A", "range_1_label_seq_id": "97",
+            "range_1_label_asym_id": "A", "range_1_label_seq_id": "43",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "O",
             "range_1_auth_comp_id": "ARG", "range_1_auth_asym_id": "A",
             "range_1_auth_seq_id": "97", "range_2_label_atom_id": "N",
             "range_2_label_comp_id": "TYR", "range_2_label_asym_id": "A",
-            "range_2_label_seq_id": "87", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "33", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "N", "range_2_auth_comp_id": "TYR",
             "range_2_auth_asym_id": "A", "range_2_auth_seq_id": "87",
         })
         self.assertEqual(d["pdbx_struct_sheet_hbond"][-1], {
             "sheet_id": "B", "range_id_1": "4", "range_id_2": "5",
             "range_1_label_atom_id": "N", "range_1_label_comp_id": "ILE",
-            "range_1_label_asym_id": "C", "range_1_label_seq_id": "129",
+            "range_1_label_asym_id": "C", "range_1_label_seq_id": "75",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N",
             "range_1_auth_comp_id": "ILE", "range_1_auth_asym_id": "C",
             "range_1_auth_seq_id": "129", "range_2_label_atom_id": "O",
             "range_2_label_comp_id": "LEU", "range_2_label_asym_id": "C",
-            "range_2_label_seq_id": "180", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "126", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "LEU",
             "range_2_auth_asym_id": "C", "range_2_auth_seq_id": "180",
         })
@@ -3009,19 +3008,19 @@ class FileToDictTests(TestCase):
             "pdbx_dist_value": "1.66", "pdbx_value_order": "?",
         })
         self.assertEqual(d["struct_mon_prot_cis"], [{
-            "pdbx_id": "1", "label_comp_id": "ASN", "label_seq_id": "77",
+            "pdbx_id": "1", "label_comp_id": "ASN", "label_seq_id": "23",
             "label_asym_id": "A", "label_alt_id": ".", "pdbx_PDB_ins_code": "?",
             "auth_comp_id": "ASN", "auth_seq_id": "77", "auth_asym_id": "A",
-            "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "78",
+            "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "24",
             "pdbx_label_asym_id_2": "A", "pdbx_PDB_ins_code_2": "?",
             "pdbx_auth_comp_id_2": "PRO", "pdbx_auth_seq_id_2": "78",
             "pdbx_auth_asym_id_2": "A", "pdbx_PDB_model_num": "1",
             "pdbx_omega_angle": "1.58",
         }, {
-            "pdbx_id": "2", "label_comp_id": "ASN", "label_seq_id": "77",
+            "pdbx_id": "2", "label_comp_id": "ASN", "label_seq_id": "23",
             "label_asym_id": "C", "label_alt_id": ".", "pdbx_PDB_ins_code": "?",
             "auth_comp_id": "ASN", "auth_seq_id": "77", "auth_asym_id": "C",
-            "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "78",
+            "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "24",
             "pdbx_label_asym_id_2": "C", "pdbx_PDB_ins_code_2": "?",
             "pdbx_auth_comp_id_2": "PRO", "pdbx_auth_seq_id_2": "78",
             "pdbx_auth_asym_id_2": "C", "pdbx_PDB_model_num": "1",
@@ -3170,7 +3169,7 @@ class FileToDictTests(TestCase):
             "occupancy_flag": "0", "auth_asym_id": "A", "auth_comp_id": "GLY",
             "auth_seq_id": "194", "PDB_ins_code": "?", "auth_atom_id": "O",
             "label_alt_id": "?", "label_asym_id": "A", "label_comp_id": "GLY",
-            "label_seq_id": "194", "label_atom_id": "O",
+            "label_seq_id": "140", "label_atom_id": "O",
         })
 
         # Assembly categories
@@ -3241,7 +3240,7 @@ class FileToDictTests(TestCase):
             "pdbx_struct_oper_list.matrix[3][3]": "1.0",
             "pdbx_struct_oper_list.vector[3]": "0.0",
         }])
-    
+
 
     def test_3oaq(self):
         d = atomium.open("tests/integration/files/3oaq.pdb", dictionary=True)
@@ -4065,9 +4064,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][0], {
             "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1",
             "beg_label_comp_id": "ASN", "beg_label_asym_id": "B",
-            "beg_label_seq_id": "23", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "16", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "LYS", "end_label_asym_id": "B",
-            "end_label_seq_id": "27", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "20", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "ASN", "beg_auth_asym_id": "B",
             "beg_auth_seq_id": "23", "end_auth_comp_id": "LYS",
             "end_auth_asym_id": "B", "end_auth_seq_id": "27",
@@ -4077,9 +4076,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conf"][-1], {
             "conf_type_id": "HELX_P", "id": "HELX_P80", "pdbx_PDB_helix_id": "80",
             "beg_label_comp_id": "LYS", "beg_label_asym_id": "U",
-            "beg_label_seq_id": "39", "pdbx_beg_PDB_ins_code": "?",
+            "beg_label_seq_id": "37", "pdbx_beg_PDB_ins_code": "?",
             "end_label_comp_id": "SER", "end_label_asym_id": "U",
-            "end_label_seq_id": "50", "pdbx_end_PDB_ins_code": "?",
+            "end_label_seq_id": "48", "pdbx_end_PDB_ins_code": "?",
             "beg_auth_comp_id": "LYS", "beg_auth_asym_id": "U",
             "beg_auth_seq_id": "39", "end_auth_comp_id": "SER",
             "end_auth_asym_id": "U", "end_auth_seq_id": "50",
@@ -4096,9 +4095,9 @@ class FileToDictTests(TestCase):
         self.assertEqual(len(d["struct_sheet_range"]), 76)
         self.assertEqual(d["struct_sheet_range"][0], {
             "sheet_id": "A", "id": "1", "beg_label_comp_id": "PHE",
-            "beg_label_asym_id": "B", "beg_label_seq_id": "90",
+            "beg_label_asym_id": "B", "beg_label_seq_id": "83",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "VAL",
-            "end_label_asym_id": "B", "end_label_seq_id": "91",
+            "end_label_asym_id": "B", "end_label_seq_id": "84",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "PHE",
             "beg_auth_asym_id": "B", "beg_auth_seq_id": "90",
             "end_auth_comp_id": "VAL", "end_auth_asym_id": "B",
@@ -4106,9 +4105,9 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(d["struct_sheet_range"][-1], {
             "sheet_id": "X", "id": "3", "beg_label_comp_id": "HIS",
-            "beg_label_asym_id": "S", "beg_label_seq_id": "56",
+            "beg_label_asym_id": "S", "beg_label_seq_id": "55",
             "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "PRO",
-            "end_label_asym_id": "S", "end_label_seq_id": "58",
+            "end_label_asym_id": "S", "end_label_seq_id": "57",
             "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "HIS",
             "beg_auth_asym_id": "S", "beg_auth_seq_id": "56",
             "end_auth_comp_id": "PRO", "end_auth_asym_id": "S",
@@ -4127,24 +4126,24 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["pdbx_struct_sheet_hbond"][0], {
             "sheet_id": "A", "range_id_1": "1", "range_id_2": "2",
             "range_1_label_atom_id": "O", "range_1_label_comp_id": "VAL",
-            "range_1_label_asym_id": "B", "range_1_label_seq_id": "91",
+            "range_1_label_asym_id": "B", "range_1_label_seq_id": "84",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "O",
             "range_1_auth_comp_id": "VAL", "range_1_auth_asym_id": "B",
             "range_1_auth_seq_id": "91", "range_2_label_atom_id": "N",
             "range_2_label_comp_id": "PHE", "range_2_label_asym_id": "B",
-            "range_2_label_seq_id": "69", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "62", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "N", "range_2_auth_comp_id": "PHE",
             "range_2_auth_asym_id": "B", "range_2_auth_seq_id": "69",
         })
         self.assertEqual(d["pdbx_struct_sheet_hbond"][-1], {
             "sheet_id": "X", "range_id_1": "2", "range_id_2": "3",
             "range_1_label_atom_id": "N", "range_1_label_comp_id": "VAL",
-            "range_1_label_asym_id": "S", "range_1_label_seq_id": "50",
+            "range_1_label_asym_id": "S", "range_1_label_seq_id": "49",
             "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N",
             "range_1_auth_comp_id": "VAL", "range_1_auth_asym_id": "S",
             "range_1_auth_seq_id": "50", "range_2_label_atom_id": "O",
             "range_2_label_comp_id": "VAL", "range_2_label_asym_id": "S",
-            "range_2_label_seq_id": "58", "range_2_PDB_ins_code": "?",
+            "range_2_label_seq_id": "57", "range_2_PDB_ins_code": "?",
             "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "VAL",
             "range_2_auth_asym_id": "S", "range_2_auth_seq_id": "58",
         })
@@ -4152,12 +4151,12 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["struct_conn"][0], {
             "id": "covale1", "conn_type_id": "covale",
             "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
-            "ptnr1_label_asym_id": "A", "ptnr1_label_comp_id": "MG",
-            "ptnr1_label_seq_id": "1538", "ptnr1_label_atom_id": "MG",
+            "ptnr1_label_asym_id": "Z", "ptnr1_label_comp_id": "MG",
+            "ptnr1_label_seq_id": ".", "ptnr1_label_atom_id": "MG",
             "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
             "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555",
-            "ptnr2_label_asym_id": "A", "ptnr2_label_comp_id": "HOH",
-            "ptnr2_label_seq_id": "1599", "ptnr2_label_atom_id": "O",
+            "ptnr2_label_asym_id": "MB", "ptnr2_label_comp_id": "HOH",
+            "ptnr2_label_seq_id": ".", "ptnr2_label_atom_id": "O",
             "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?",
             "ptnr1_auth_asym_id": "A", "ptnr1_auth_comp_id": "MG",
             "ptnr1_auth_seq_id": "1538", "ptnr2_auth_asym_id": "A",
@@ -4172,11 +4171,11 @@ class FileToDictTests(TestCase):
             "id": "covale250", "conn_type_id": "covale",
             "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
             "ptnr1_label_asym_id": "A", "ptnr1_label_comp_id": "C",
-            "ptnr1_label_seq_id": "352", "ptnr1_label_atom_id": "OP2",
+            "ptnr1_label_seq_id": "351", "ptnr1_label_atom_id": "OP2",
             "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
             "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555",
-            "ptnr2_label_asym_id": "A", "ptnr2_label_comp_id": "MG",
-            "ptnr2_label_seq_id": "1576", "ptnr2_label_atom_id": "MG",
+            "ptnr2_label_asym_id": "LB", "ptnr2_label_comp_id": "MG",
+            "ptnr2_label_seq_id": ".", "ptnr2_label_atom_id": "MG",
             "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?",
             "ptnr1_auth_asym_id": "A", "ptnr1_auth_comp_id": "C",
             "ptnr1_auth_seq_id": "352", "ptnr2_auth_asym_id": "A",
@@ -4204,14 +4203,14 @@ class FileToDictTests(TestCase):
         self.assertEqual(len(d["struct_site_gen"]), 271)
         self.assertEqual(d["struct_site_gen"][0], {
             "id": "1", "site_id": "AC1", "pdbx_num_res": "6",
-            "label_comp_id": "HOH", "label_asym_id": "A", "label_seq_id": "1577",
+            "label_comp_id": "HOH", "label_asym_id": "MB", "label_seq_id": ".",
             "pdbx_auth_ins_code": "?", "auth_comp_id": "HOH", "auth_asym_id": "A",
             "auth_seq_id": "1577", "label_atom_id": ".", "label_alt_id": "?",
             "symmetry": "1_555", "details": "?",
         })
         self.assertEqual(d["struct_site_gen"][-1], {
             "id": "271", "site_id": "EC7", "pdbx_num_res": "7",
-            "label_comp_id": "HOH", "label_asym_id": "A", "label_seq_id": "1777",
+            "label_comp_id": "HOH", "label_asym_id": "MB", "label_seq_id": ".",
             "pdbx_auth_ins_code": "?", "auth_comp_id": "HOH", "auth_asym_id": "A",
             "auth_seq_id": "1777", "label_atom_id": ".", "label_alt_id": "?",
             "symmetry": "1_555", "details": "?",
@@ -4384,11 +4383,7 @@ class FileToDictTests(TestCase):
             "pdbx_struct_oper_list.matrix[3][3]": "1.0",
             "pdbx_struct_oper_list.vector[3]": "0.0",
         }])
-
-
-
-
-        
+    
 
 
 

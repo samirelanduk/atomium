@@ -1698,8 +1698,12 @@ def parse_cispep(filestring, mmcif):
 def update_auth_and_label(mmcif):
     auth_asym_to_label_asym = {}
     label_asym_to_auth_asym = {}
+    auth_res_to_label_res = {}
     for atom in mmcif["atom_site"]:
         label_asym_to_auth_asym[atom["label_asym_id"]] = atom["auth_asym_id"]
+        auth_res = (atom["auth_asym_id"], atom["auth_seq_id"], atom["pdbx_PDB_ins_code"])
+        label_res = (atom["label_asym_id"], atom["label_seq_id"])
+        auth_res_to_label_res[auth_res] = label_res
     auth_asym_to_label_asym = {a: [
         k for k, v in label_asym_to_auth_asym.items() if v == a
     ] for a in label_asym_to_auth_asym.values()}
@@ -1707,6 +1711,30 @@ def update_auth_and_label(mmcif):
         auths = row["asym_id"].split(",")
         labels = [id for auth in auths for id in auth_asym_to_label_asym[auth]]
         row["asym_id"] = ",".join(sorted(labels, key=lambda l: list(label_asym_to_auth_asym.keys()).index(l)))
+    
+    for name, rows in mmcif.items():
+        keys = list(rows[0].keys())
+        templates = []
+        if name == "atom_site": continue
+        for key in keys:
+            for label in ["label_asym_id", "label_seq_id"]:
+                if label in key:
+                    template = key.split(label)
+                    if template in templates: continue
+                    templates.append(template)
+                    label_asym_key = key.replace("seq", "asym")
+                    label_seq_key = key.replace("asym", "seq")
+                    auth_asym_key = label_asym_key.replace("label", "auth")
+                    auth_seq_key = label_seq_key.replace("label", "auth")
+                    auth_ins_key = [k for k in keys if "ins" in k and template[0] in k and template[1] in k][0]
+                    if auth_ins_key not in keys or auth_seq_key not in keys or auth_asym_key not in keys: continue
+
+                    for row in mmcif[name]:
+                        sig = (row[auth_asym_key], row[auth_seq_key], row[auth_ins_key])
+                        if sig in auth_res_to_label_res:
+                            row[label_asym_key], row[label_seq_key] = auth_res_to_label_res[
+                                (row[auth_asym_key], row[auth_seq_key], row[auth_ins_key])
+                            ]
 
 
 def pdb_date_to_mmcif_date(date):

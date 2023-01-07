@@ -552,8 +552,9 @@ def parse_assembly(lines, mmcif):
             if matches: assembly[p[1]] = matches[0][1].strip()
         if "APPLY THE FOLLOWING" in line:
             if gen: assembly["gens"].append(gen)
-            gen = {"chains": line.split(":")[1].strip().split(", "), "transformations": []}
-
+            gen = {"chains": [c.strip()for c in line.split(":")[1].strip().split(",") if c.strip()], "transformations": []}
+        if "AND CHAINS: " in line:
+            gen["chains"] += [c.strip() for c in line.split(":")[1].strip().split(",") if c.strip()]
         if "BIOMT1" in line:
             transformation = {"matrix": [], "vector": []}
         if "BIOMT" in line:
@@ -1362,9 +1363,8 @@ def get_atom_entity(sig, polymer_entities, non_polymer_entities):
 
 
 def get_atom_label(sig, polymer, non_polymer, labels):
-    next_label = next_id(sorted(
-        labels.values(), key=lambda l: (len(l), l)
-    )[-1] if labels else "@")
+    sorted_labels = sorted(labels.values(), key=lambda l: (len(l), [ord(c) for c in l][::-1]))
+    next_label = next_id(sorted_labels[-1] if labels else "@")
     if polymer:
         if sig[0] in labels:
             label = labels[sig[0]]

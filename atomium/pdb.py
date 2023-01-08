@@ -751,13 +751,15 @@ def parse_cryst1(filestring, mmcif):
 
 
 def parse_origx(filestring, mmcif):
+    lines = re.findall(r"ORIGX.+", filestring, re.M)
+    if len(lines) == 0: return
     mmcif["database_PDB_matrix"] = [{"entry_id": mmcif["entry"][0]["id"], **{
         k: "?" for k in [
         "origx[1][1]", "origx[2][1]", "origx[3][1]", "origx[1][2]", 
         "origx[2][2]", "origx[3][2]", "origx[1][3]", "origx[2][3]", 
         "origx[3][3]", "origx_vector[1]", "origx_vector[2]", "origx_vector[3]", 
     ]}}]
-    for rec in re.findall(r"ORIGX.+", filestring, re.M):
+    for rec in lines:
         n = rec[5]
         mmcif["database_PDB_matrix"][0][f"origx[{n}][1]"] = rec[10:20].strip() or "?"
         mmcif["database_PDB_matrix"][0][f"origx[{n}][2]"] = rec[20:30].strip() or "?"
@@ -766,6 +768,8 @@ def parse_origx(filestring, mmcif):
 
 
 def parse_scalen(filestring, mmcif):
+    lines = re.findall(r"^SCALE.+", filestring, re.M)
+    if len(lines) == 0: return
     mmcif["atom_sites"] = [{"entry_id": mmcif["entry"][0]["id"], **{
         k: "?" for k in [
         "fract_transf_matrix[1][1]", "fract_transf_matrix[2][1]",
@@ -775,7 +779,7 @@ def parse_scalen(filestring, mmcif):
         "fract_transf_matrix[3][3]", "fract_transf_vector[1]",
         "fract_transf_vector[2]", "fract_transf_vector[3]", 
     ]}}]
-    for rec in re.findall(r"^SCALE.+", filestring, re.M):
+    for rec in lines:
         n = rec[5]
         if not n.strip(): continue
         mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][1]"] = rec[10:20].strip() or "?"

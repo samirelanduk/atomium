@@ -34,7 +34,7 @@ RESIDUE_MASSES = {
     "GLU": 147.129, "LYS": 147.195, "ARG": 175.209, "HIS": 156.162,
 }
 
-WATER_NAMES = ["HOH"]
+WATER_NAMES = ["HOH", "WAT"]
 
 PERIODIC_TABLE = {
     "H": 1.0079, "HE": 4.0026, "LI": 6.941, "BE": 9.0122, "B": 10.811,

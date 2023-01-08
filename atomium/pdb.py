@@ -1781,6 +1781,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_title_lines(mmcif_dict)
     lines += create_compnd_lines(mmcif_dict)
     lines += create_keywds_lines(mmcif_dict)
+    lines += create_seqres_lines(mmcif_dict)
     lines += create_het_lines(mmcif_dict)
     lines += create_hetnam_lines(mmcif_dict)
     lines += create_hetsyn_lines(mmcif_dict)
@@ -1862,6 +1863,21 @@ def create_keywds_lines(mmcif):
             lines.append(f"KEYWDS  {len(lines):>2} {line}")
     return lines
 
+
+def create_seqres_lines(mmcif):
+    lines = []
+    line = "SEQRES {:3} {:1} {:4}  {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3}"
+    for entity in mmcif.get("entity_poly", []):
+        chain_ids = entity["pdbx_strand_id"].split(",")
+        residues = [r for r in mmcif.get("entity_poly_seq", []) if r["entity_id"] == entity["entity_id"]]
+        line_count = math.ceil(len(residues) / 13)
+        for chain_id in chain_ids:
+            for n in range(line_count):
+                line_res = residues[n * 13:(n + 1) * 13]
+                names = [r["mon_id"] for r in line_res] + [""] * (13 - len(line_res))
+                lines.append(line.format(n + 1, chain_id, len(residues), *names))
+    return lines
+    
 
 def create_het_lines(mmcif):
     lines = []

@@ -45,3 +45,13 @@ for code in tqdm(codes):
         raise e
     finally:
         if os.path.exists("saved.bcif"): os.remove("saved.bcif")
+    
+    # PDB parse/save
+    try:
+        mmcif = atomium.fetch(f"{code}.pdb", dictionary=True)
+        atomium.save_dictionary(mmcif, "saved.pdb")
+    except Exception as e:
+        print("PDB", code)
+        raise e
+    finally:
+        if os.path.exists("saved.pdb"): os.remove("saved.pdb")

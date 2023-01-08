@@ -1116,7 +1116,7 @@ def build_entity_poly(polymer_entities, mmcif):
                 can_sequence.append(modified_lookup[res])
             else:
                 sequence.append(CODES.get(res, f"({res})"))
-                can_sequence.append(CODES.get(res, "?"))
+                can_sequence.append(CODES.get(res, "X"))
         mmcif["entity_poly"].append({
             "entity_id": entity["id"],
             "type": "polyribonucleotide" if is_nucleotide else "polypeptide(L)",
@@ -1126,6 +1126,7 @@ def build_entity_poly(polymer_entities, mmcif):
             "pdbx_strand_id": ",".join(entity["CHAIN"]),
             "pdbx_target_identifier": "?"
         })
+    if not mmcif["entity_poly"]: del mmcif["entity_poly"]
 
 
 def build_entity_poly_seq(polymer_entities, mmcif):
@@ -1140,6 +1141,7 @@ def build_entity_poly_seq(polymer_entities, mmcif):
                 "mon_id": residue,
                 "hetero": "n"
             })
+    if not mmcif["entity_poly_seq"]: del mmcif["entity_poly_seq"]
 
 
 def build_struct_ref(polymer_entities, mmcif):
@@ -1251,7 +1253,7 @@ def build_pdbx_entity_nonpoly(non_polymers, mmcif):
 
 def build_chem_comp(non_polymer_entities, mmcif):
     mmcif["chem_comp"] = []
-    residues = {r["mon_id"] for r in mmcif["entity_poly_seq"]}
+    residues = {r["mon_id"] for r in mmcif.get("entity_poly_seq", [])}
     formulae_lookup = {}
     for name, entity in non_polymer_entities.items():
         if not entity["molecules"]:
@@ -1822,7 +1824,7 @@ def create_compnd_lines(mmcif):
     lines = []
     for entity in mmcif["entity"]:
         if entity["type"] != "polymer": continue
-        name_com = [e for e in mmcif["entity_name_com"] if e["entity_id"] == entity["id"]]
+        name_com = [e for e in mmcif.get("entity_name_com", []) if e["entity_id"] == entity["id"]]
         asym_lookup = {a["label_asym_id"]: a["auth_asym_id"] for a in mmcif["atom_site"]}
         asyms = [a["id"] for a in mmcif["struct_asym"] if a["entity_id"] == entity["id"]]
         mol = {
@@ -1869,7 +1871,7 @@ def create_hetnam_lines(mmcif):
     lines = []
     chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
-    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif["pdbx_entity_nonpoly"]}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif.get("pdbx_entity_nonpoly", [])}
     for chem in chem_comp:
         if chem["name"] != "?" and lookup[chem["id"]] != "water":
             strings = split_lines(chem["name"], 55)
@@ -1885,7 +1887,7 @@ def create_hetsyn_lines(mmcif):
     lines = []
     chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
-    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif["pdbx_entity_nonpoly"]}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif.get("pdbx_entity_nonpoly", [])}
     for chem in chem_comp:
         if chem["pdbx_synonyms"] != "?" and lookup[chem["id"]] != "water":
             strings = split_lines(chem["pdbx_synonyms"].replace(", ", "; "), 55)
@@ -1901,8 +1903,8 @@ def create_formul_lines(mmcif):
     lines = []
     chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
-    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif["pdbx_entity_nonpoly"]}
-    name_to_entity_id = {s["comp_id"]: s["entity_id"] for s in mmcif["pdbx_entity_nonpoly"]}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif.get("pdbx_entity_nonpoly", [])}
+    name_to_entity_id = {s["comp_id"]: s["entity_id"] for s in mmcif.get("pdbx_entity_nonpoly", [])}
     entity_ids = sorted(s["entity_id"] for s in mmcif["struct_asym"])
     sig_counts = get_sig_counts(mmcif, include_water=True, representative=True)
     name_counts = {sig[3]: sum(
@@ -1910,7 +1912,8 @@ def create_formul_lines(mmcif):
     ) for sig in sig_counts}
     for chem in sorted(chem_comp, key=lambda c: list(name_counts.keys()).index(c["id"]) if c["id"] in name_counts else 0):
         if chem["formula"] != "?":
-            entity_id = name_to_entity_id[chem["id"]]
+            entity_id = name_to_entity_id.get(chem["id"])
+            if not entity_id: continue
             number = entity_ids.index(entity_id) + 1
             char = "*" if lookup[chem["id"]] == "water" else " "
             formula = f"{name_counts[chem['id']]}({chem['formula']})"

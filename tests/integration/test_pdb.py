@@ -4385,6 +4385,388 @@ class FileToDictTests(TestCase):
         }])
     
 
+    def test_2ldc(self):
+        d = atomium.open("tests/integration/files/2ldc.pdb", dictionary=True)
+        self.assertEqual(len(d.keys()), 28)
+
+        # Metadata categories
+        self.assertEqual(d["entry"], [{"id": "2LDC"}])
+        self.assertEqual(d["pdbx_database_status"], [
+            {"status_code": "REL", "entry_id": "2LDC", "recvd_initial_deposition_date": "2011-05-20"},
+        ])
+        self.assertEqual(d["struct_keywords"], [
+            {"entry_id": "2LDC", "pdbx_keywords": "DE NOVO PROTEIN", "text": "DE NOVO PROTEIN"},
+        ])
+        self.assertNotIn("pdbx_database_PDB_obs_spr", d)
+        self.assertEqual(d["struct"], [{
+            "entry_id": "2LDC",
+            "title": "SOLUTION STRUCTURE OF THE ESTROGEN RECEPTOR-BINDING STAPLED PEPTIDE SP1 (AC-HXILHXLLQDS-NH2)",
+            "pdbx_descriptor": "?", "pdbx_model_details": "?",
+            "pdbx_CASP_flag": "?", "pdbx_model_type_details": "?",
+        }])
+        self.assertNotIn("pdbx_database_related", d)
+        self.assertNotIn("database_PDB_caveat", d)
+        self.assertEqual(d["exptl"], [{"entry_id": "2LDC", "method": "SOLUTION NMR"}])
+        self.assertNotIn("pdbx_coordinate_model", d)
+        self.assertEqual(d["pdbx_audit_revision_history"], [{
+            "ordinal": "1", "data_content_type": "Structure model",
+            "major_revision": "1", "minor_revision": "0",
+            "revision_date": "2011-07-06",
+        }])
+
+        # Entity categories
+        self.assertEqual(d["entity"], [{
+            "id": "1", "type": "polymer", "src_method": "syn",
+            "pdbx_description": "ESTROGEN RECEPTOR-BINDING STAPLED PEPTIDE SP1",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }])
+        self.assertNotIn("entity_name_com", d)
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1", "type": "polypeptide(L)", "nstd_linkage": "no",
+            "nstd_monomer": "yes",
+            "pdbx_seq_one_letter_code": "(ACE)H(MK8)ILH(MK8)LLQDS(NH2)",
+            "pdbx_seq_one_letter_code_can": "XHLEUILHLEULLQDSX",
+            "pdbx_strand_id": "A", "pdbx_target_identifier": "?",
+        }])
+        self.assertEqual(d["entity_poly_seq"], [
+            {"entity_id": "1", "num": "1", "mon_id": "ACE", "hetero": "n"},
+            {"entity_id": "1", "num": "2", "mon_id": "HIS", "hetero": "n"},
+            {"entity_id": "1", "num": "3", "mon_id": "MK8", "hetero": "n"},
+            {"entity_id": "1", "num": "4", "mon_id": "ILE", "hetero": "n"},
+            {"entity_id": "1", "num": "5", "mon_id": "LEU", "hetero": "n"},
+            {"entity_id": "1", "num": "6", "mon_id": "HIS", "hetero": "n"},
+            {"entity_id": "1", "num": "7", "mon_id": "MK8", "hetero": "n"},
+            {"entity_id": "1", "num": "8", "mon_id": "LEU", "hetero": "n"},
+            {"entity_id": "1", "num": "9", "mon_id": "LEU", "hetero": "n"},
+            {"entity_id": "1", "num": "10", "mon_id": "GLN", "hetero": "n"},
+            {"entity_id": "1", "num": "11", "mon_id": "ASP", "hetero": "n"},
+            {"entity_id": "1", "num": "12", "mon_id": "SER", "hetero": "n"},
+            {"entity_id": "1", "num": "13", "mon_id": "NH2", "hetero": "n"},
+        ])
+        self.assertEqual(d["struct_ref"], [{
+            "id": "1", "db_name": "PDB", "db_code": "2LDC", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "0",
+            "pdbx_db_accession": "2LDC", "pdbx_db_isoform": "?",
+        }])
+        self.assertEqual(d["struct_ref_seq"], [{
+            "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "2LDC",
+            "pdbx_strand_id": "A", "seq_align_beg": "?",
+            "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "2LDC",
+            "db_align_beg": "0", "pdbx_db_align_beg_ins_code": "?",
+            "db_align_end": "12", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "0", "pdbx_auth_seq_align_end": "12",
+        }])
+        self.assertNotIn("struct_ref_seq_dif", d)
+        self.assertEqual(d["pdbx_struct_mod_residue"], [{
+            "id": "1", "label_asym_id": "A", "label_comp_id": "MK8",
+            "label_seq_id": "3", "auth_asym_id": "A", "auth_comp_id": "MK8",
+            "auth_seq_id": "2", "PDB_ins_code": "?", "parent_comp_id": "LEU",
+            "details": "2-METHYL-L-NORLEUCINE",
+        }, {
+            "id": "2", "label_asym_id": "A", "label_comp_id": "MK8",
+            "label_seq_id": "7", "auth_asym_id": "A", "auth_comp_id": "MK8",
+            "auth_seq_id": "6", "PDB_ins_code": "?", "parent_comp_id": "LEU",
+            "details": "2-METHYL-L-NORLEUCINE",
+        }])
+        self.assertEqual(len(d["chem_comp"]), 9)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ACE", "type": "L-peptide linking", "mon_nstd_flag": "n",
+            "name": "?", "pdbx_synonyms": "?", "formula": "C2 H4 O",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][6], {
+            "id": "MK8", "type": "L-peptide linking", "mon_nstd_flag": "n",
+            "name": "?", "pdbx_synonyms": "?", "formula": "2(C7 H15 N O2)",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][7], {
+            "id": "NH2", "type": "L-peptide linking", "mon_nstd_flag": "n",
+            "name": "?", "pdbx_synonyms": "?", "formula": "H2 N",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][-1], {
+            "id": "SER", "type": "L-peptide linking", "mon_nstd_flag": "y",
+            "name": "SERINE", "pdbx_synonyms": "?", "formula": "C3 H7 N O3",
+            "formula_weight": "115.130",
+        })
+        self.assertNotIn("pdbx_entity_nonpoly", d)
+        self.assertEqual(d["struct_asym"], [
+            {"id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+        ])
+
+        # Atom categories
+        self.assertEqual(d["atom_type"], [{"symbol": "C"}, {"symbol": "H"}, {"symbol": "N"}, {"symbol": "O"}])
+        self.assertEqual(len(d["atom_site"]), 2010)
+        self.assertEqual(d["atom_site"][0], {
+            "group_PDB": "HETATM", "id": "1", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.378", "Cartn_y": "-3.101",
+            "Cartn_z": "7.021", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][201], {
+            "group_PDB": "HETATM", "id": "202", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.166", "Cartn_y": "-2.498",
+            "Cartn_z": "6.924", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "2",
+        })
+        self.assertEqual(d["atom_site"][402], {
+            "group_PDB": "HETATM", "id": "403", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.269", "Cartn_y": "-2.772",
+            "Cartn_z": "6.874", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "3",
+        })
+        self.assertEqual(d["atom_site"][603], {
+            "group_PDB": "HETATM", "id": "604", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.290", "Cartn_y": "-2.872",
+            "Cartn_z": "7.516", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "4",
+        })
+        self.assertEqual(d["atom_site"][804], {
+            "group_PDB": "HETATM", "id": "805", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-2.757", "Cartn_y": "-2.786",
+            "Cartn_z": "7.770", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "5",
+        })
+        self.assertEqual(d["atom_site"][1005], {
+            "group_PDB": "HETATM", "id": "1006", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-2.885", "Cartn_y": "-2.441",
+            "Cartn_z": "7.465", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "6",
+        })
+        self.assertEqual(d["atom_site"][1206], {
+            "group_PDB": "HETATM", "id": "1207", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.097", "Cartn_y": "-2.892",
+            "Cartn_z": "7.467", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "7",
+        })
+        self.assertEqual(d["atom_site"][1407], {
+            "group_PDB": "HETATM", "id": "1408", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.373", "Cartn_y": "-2.603",
+            "Cartn_z": "6.700", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "8",
+        })
+        self.assertEqual(d["atom_site"][1608], {
+            "group_PDB": "HETATM", "id": "1609", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.230", "Cartn_y": "-2.552",
+            "Cartn_z": "6.751", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "9",
+        })
+        self.assertEqual(d["atom_site"][1809], {
+            "group_PDB": "HETATM", "id": "1810", "type_symbol": "C",
+            "label_atom_id": "C", "label_alt_id": ".", "label_comp_id": "ACE",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-3.371", "Cartn_y": "-3.096",
+            "Cartn_z": "6.994", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "0", "auth_comp_id": "ACE",
+            "auth_asym_id": "A", "auth_atom_id": "C", "pdbx_PDB_model_num": "10",
+        })
+        self.assertEqual(d["atom_site"][-1], {
+            "group_PDB": "HETATM", "id": "2010", "type_symbol": "H",
+            "label_atom_id": "HN2", "label_alt_id": ".", "label_comp_id": "NH2",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "13",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "2.870", "Cartn_y": "3.746",
+            "Cartn_z": "-9.328", "occupancy": "1.00", "B_iso_or_equiv": "0.00",
+            "pdbx_formal_charge": "?", "auth_seq_id": "12", "auth_comp_id": "NH2",
+            "auth_asym_id": "A", "auth_atom_id": "HN2", "pdbx_PDB_model_num": "10",
+        })
+        self.assertNotIn("atom_site_anisotrop", d)
+
+        # Annotation categories
+        self.assertEqual(d["struct_conf"], [{
+            "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1",
+            "beg_label_comp_id": "HIS", "beg_label_asym_id": "A",
+            "beg_label_seq_id": "2", "pdbx_beg_PDB_ins_code": "?",
+            "end_label_comp_id": "GLN", "end_label_asym_id": "A",
+            "end_label_seq_id": "10", "pdbx_end_PDB_ins_code": "?",
+            "beg_auth_comp_id": "HIS", "beg_auth_asym_id": "A",
+            "beg_auth_seq_id": "1", "end_auth_comp_id": "GLN",
+            "end_auth_asym_id": "A", "end_auth_seq_id": "9",
+            "pdbx_PDB_helix_class": "1", "details": "?",
+            "pdbx_PDB_helix_length": "9",
+        }])
+        self.assertNotIn("struct_sheet", d)
+        self.assertNotIn("struct_sheet_range", d)
+        self.assertNotIn("struct_sheet_order", d)
+        self.assertNotIn("pdbx_struct_sheet_hbond", d)
+        self.assertEqual(len(d["struct_conn"]), 7)
+        self.assertEqual(d["struct_conn"][0], {
+            "id": "covale1", "conn_type_id": "covale",
+            "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+            "ptnr1_label_asym_id": "A", "ptnr1_label_comp_id": "ACE",
+            "ptnr1_label_seq_id": "1", "ptnr1_label_atom_id": "C",
+            "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
+            "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555",
+            "ptnr2_label_asym_id": "A", "ptnr2_label_comp_id": "HIS",
+            "ptnr2_label_seq_id": "2", "ptnr2_label_atom_id": "N",
+            "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?",
+            "ptnr1_auth_asym_id": "A", "ptnr1_auth_comp_id": "ACE",
+            "ptnr1_auth_seq_id": "0", "ptnr2_auth_asym_id": "A",
+            "ptnr2_auth_comp_id": "HIS", "ptnr2_auth_seq_id": "1",
+            "ptnr2_symmetry": "1555", "pdbx_ptnr3_label_atom_id": "?",
+            "pdbx_ptnr3_label_seq_id": "?", "pdbx_ptnr3_label_comp_id": "?",
+            "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?",
+            "pdbx_ptnr3_PDB_ins_code": "?", "details": "?",
+            "pdbx_dist_value": "1.38", "pdbx_value_order": "?",
+        })
+        self.assertEqual(d["struct_conn"][-1], {
+            "id": "covale7", "conn_type_id": "covale",
+            "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+            "ptnr1_label_asym_id": "A", "ptnr1_label_comp_id": "MK8",
+            "ptnr1_label_seq_id": "3", "ptnr1_label_atom_id": "CE",
+            "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
+            "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555",
+            "ptnr2_label_asym_id": "A", "ptnr2_label_comp_id": "MK8",
+            "ptnr2_label_seq_id": "7", "ptnr2_label_atom_id": "CE",
+            "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?",
+            "ptnr1_auth_asym_id": "A", "ptnr1_auth_comp_id": "MK8",
+            "ptnr1_auth_seq_id": "2", "ptnr2_auth_asym_id": "A",
+            "ptnr2_auth_comp_id": "MK8", "ptnr2_auth_seq_id": "6",
+            "ptnr2_symmetry": "1555", "pdbx_ptnr3_label_atom_id": "?",
+            "pdbx_ptnr3_label_seq_id": "?", "pdbx_ptnr3_label_comp_id": "?",
+            "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?",
+            "pdbx_ptnr3_PDB_ins_code": "?", "details": "?",
+            "pdbx_dist_value": "1.39", "pdbx_value_order": "?",
+        })
+        self.assertNotIn("struct_mon_prot_cis", d)
+        self.assertNotIn("struct_site", d)
+        self.assertNotIn("struct_site_gen", d)
+
+        # Crystal categories
+        self.assertEqual(d["cell"], [{
+            "entry_id": "2LDC", "length_a": "1.000", "length_b": "1.000",
+            "length_c": "1.000", "angle_alpha": "90.00", "angle_beta": "90.00",
+            "angle_gamma": "90.00", "Z_pdb": "1", "pdbx_unique_axis": "?",
+        }])
+        self.assertEqual(d["symmetry"], [{
+            "entry_id": "2LDC", "space_group_name_H-M": "P 1",
+            "pdbx_full_space_group_name_H-M": "?", "cell_setting": "?",
+            "Int_Tables_number": "?",
+        }])
+        self.assertEqual(d["atom_sites"], [{
+            "entry_id": "2LDC", "fract_transf_matrix[1][1]": "1.000000",
+            "fract_transf_matrix[2][1]": "0.000000",
+            "fract_transf_matrix[3][1]": "0.000000",
+            "fract_transf_matrix[1][2]": "0.000000",
+            "fract_transf_matrix[2][2]": "1.000000",
+            "fract_transf_matrix[3][2]": "0.000000",
+            "fract_transf_matrix[1][3]": "0.000000",
+            "fract_transf_matrix[2][3]": "0.000000",
+            "fract_transf_matrix[3][3]": "1.000000",
+            "fract_transf_vector[1]": "0.00000",
+            "fract_transf_vector[2]": "0.00000",
+            "fract_transf_vector[3]": "0.00000",
+        }])
+        self.assertEqual(d["database_PDB_matrix"], [{
+            "entry_id": "2LDC", "origx[1][1]": "1.000000",
+            "origx[2][1]": "0.000000", "origx[3][1]": "0.000000",
+            "origx[1][2]": "0.000000", "origx[2][2]": "1.000000",
+            "origx[3][2]": "0.000000", "origx[1][3]": "0.000000",
+            "origx[2][3]": "0.000000", "origx[3][3]": "1.000000",
+            "origx_vector[1]": "0.00000", "origx_vector[2]": "0.00000",
+            "origx_vector[3]": "0.00000",
+        }])
+        self.assertNotIn("struct_ncs_oper", d)
+
+        # Citation categories
+        self.assertEqual(d["audit_author"], [
+            {"name": "Phillips, C", "pdbx_ordinal": "1"},
+            {"name": "Bazin, R", "pdbx_ordinal": "2"},
+            {"name": "Bent, A", "pdbx_ordinal": "3"},
+            {"name": "Davies, N", "pdbx_ordinal": "4"},
+            {"name": "Moore, R", "pdbx_ordinal": "5"},
+            {"name": "Pannifer, A", "pdbx_ordinal": "6"},
+            {"name": "Pickford, A", "pdbx_ordinal": "7"},
+            {"name": "Prior, S", "pdbx_ordinal": "8"},
+            {"name": "Read, C", "pdbx_ordinal": "9"},
+            {"name": "Roberts, L", "pdbx_ordinal": "10"},
+            {"name": "Schade, M", "pdbx_ordinal": "11"},
+            {"name": "Scott, A", "pdbx_ordinal": "12"},
+            {"name": "Brown, D", "pdbx_ordinal": "13"},
+            {"name": "Xu, B", "pdbx_ordinal": "14"},
+            {"name": "Irving, S", "pdbx_ordinal": "15"},
+        ])
+        self.assertEqual(len(d["citation_author"]), 15)
+        self.assertEqual(d["citation_author"][0], {
+            "citation_id": "primary", "name": "Phillips, C", "pdbx_ordinal": "1",
+        })
+        self.assertEqual(d["citation_author"][-1], {
+            "citation_id": "primary", "name": "Irving, S.L", "pdbx_ordinal": "15",
+        })
+        self.assertNotIn("citation_editor", d)
+        self.assertEqual(d["citation"], [{
+            "id": "primary",
+            "title": "DESIGN AND STRUCTURE OF STAPLED PEPTIDES BINDING TO ESTROGEN RECEPTORS.",
+            "journal_abbrev": "J.Am.Chem.Soc.", "journal_volume": "133",
+            "page_first": "9696", "page_last": "?", "year": "2011",
+            "journal_id_ASTM": "?", "country": "?", "journal_id_ISSN": "0002-7863",
+            "journal_id_CSD": "?", "book_publisher": "?",
+            "pdbx_database_id_PubMed": "21612236",
+            "pdbx_database_id_DOI": "10.1021/ja202946k",
+        }])
+
+        # Experimental categories
+        self.assertNotIn("reflns", d)
+        self.assertNotIn("refine", d)
+
+        # Missing items categories
+        self.assertNotIn("pdbx_unobs_or_zero_occ_residues", d)
+        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
+
+        # Assembly categories
+        self.assertEqual(d["pdbx_struct_assembly"], [
+            {"id": "1", "details": "?", "method_details": "?", "oligomeric_details": "?", "oligomeric_count": "?"},
+        ])
+        self.assertEqual(d["pdbx_struct_assembly_gen"], [{"assembly_id": "1", "oper_expression": "1", "asym_id": "A"}])
+        self.assertNotIn("pdbx_struct_assembly_prop", d)
+        self.assertEqual(d["pdbx_struct_oper_list"], [{
+            "id": "1", "type": "?", "pdbx_struct_oper_list.type": "?",
+            "pdbx_struct_oper_list.name": "?",
+            "pdbx_struct_oper_list.symmetry_operation": "x,y,z",
+            "pdbx_struct_oper_list.matrix[1][1]": "1.0",
+            "pdbx_struct_oper_list.matrix[1][2]": "0.0",
+            "pdbx_struct_oper_list.matrix[1][3]": "0.0",
+            "pdbx_struct_oper_list.vector[1]": "0.0",
+            "pdbx_struct_oper_list.matrix[2][1]": "0.0",
+            "pdbx_struct_oper_list.matrix[2][2]": "1.0",
+            "pdbx_struct_oper_list.matrix[2][3]": "0.0",
+            "pdbx_struct_oper_list.vector[2]": "0.0",
+            "pdbx_struct_oper_list.matrix[3][1]": "0.0",
+            "pdbx_struct_oper_list.matrix[3][2]": "0.0",
+            "pdbx_struct_oper_list.matrix[3][3]": "1.0",
+            "pdbx_struct_oper_list.vector[3]": "0.0",
+        }])
+
+    
+
 
 
 

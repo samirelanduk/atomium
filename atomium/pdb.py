@@ -1158,6 +1158,7 @@ def build_struct_ref(polymer_entities, mmcif):
                 "pdbx_align_begin": dbref["start"],
                 "pdbx_db_accession": dbref["accession"], "pdbx_db_isoform": "?"
             })
+    if not mmcif["struct_ref"]: del mmcif["struct_ref"]
 
 
 def build_struct_ref_seq(polymer_entities, mmcif):
@@ -1182,6 +1183,7 @@ def build_struct_ref_seq(polymer_entities, mmcif):
                     "pdbx_auth_seq_align_beg": dbref["start"],
                     "pdbx_auth_seq_align_end": dbref["end"]
                 })
+    if not mmcif["struct_ref_seq"]: del mmcif["struct_ref_seq"]
 
 
 def build_struct_ref_seq_dif(polymer_entities, mmcif):
@@ -1690,7 +1692,7 @@ def parse_cispep(filestring, mmcif):
         "pdbx_auth_comp_id_2": line[25:28].strip(),
         "pdbx_auth_seq_id_2": line[31:35].strip(),
         "pdbx_auth_asym_id_2": line[29].strip(),
-        "pdbx_PDB_model_num": str(int(line[43:46].strip()) + 1),
+        "pdbx_PDB_model_num": str(int(line[43:46].strip() or 0) + 1),
         "pdbx_omega_angle": line[53:59].strip()
     } for line in lines]
 

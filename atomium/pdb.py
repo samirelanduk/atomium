@@ -5,12 +5,14 @@ from collections import Counter
 from atomium.sequences import get_alignment_indices
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
 from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
+from atomium.categories import REFLNS, REFINE
 
 def pdb_string_to_mmcif_dict(filestring):
     """Takes the contents of a .pdb file and returns a fully parsed dictionary
     representation of it. First the metadata is parsed to create the initial
     mmCIF dictionary, Then a description of the entities involved is obtained,
-    which are then incorporated into the mmCIF.
+    which are then incorporated into the mmCIF. Structural annotations are then
+    added, and then IDs are updated globally.
     
     :param str filestring: the contents of the .pdb file.
     :rtype: ``dict``"""
@@ -410,74 +412,66 @@ def parse_remarks(filestring, mmcif):
 
 
 def parse_remark_2(filestring, mmcif):
-    """Parses REMARK 2 records. The ``reflns`` table will be created even if
-    there is nothing to parse, but if REMARK 3 is also empty, it will get
-    removed.
+    """Parses REMARK 2 records. This creates the full ``reflns`` category if
+    needed.
 
     :param str filestring: the contents of the .pdb file.
     :param dict mmcif: the dictionary to update."""
 
-    reflns = [
-        "entry_id", "observed_criterion_sigma_I", "observed_criterion_sigma_F", 
-        "d_resolution_low", "d_resolution_high", "number_obs", "number_all", 
-        "percent_possible_obs", "pdbx_Rmerge_I_obs", "pdbx_Rsym_value", 
-        "pdbx_netI_over_sigmaI", "B_iso_Wilson_estimate", "pdbx_redundancy", 
-        "R_free_details", "limit_h_max", "limit_h_min", "limit_k_max", 
-        "limit_k_min", "limit_l_max", "limit_l_min", "observed_criterion_F_max", 
-        "observed_criterion_F_min", "pdbx_chi_squared", "pdbx_scaling_rejects", 
-        "pdbx_diffrn_id", "pdbx_ordinal", 
-    ]
     rec = re.search(r"^REMARK   2 RESOLUTION.    (\d+\.\d+)", filestring, re.M)
     if not rec: return
     mmcif["reflns"] = [{
-        **{key: "?" for key in reflns}, "entry_id": mmcif["entry"][0]["id"]
+        **{key: "?" for key in REFLNS}, "entry_id": mmcif["entry"][0]["id"]
     }]
     mmcif["reflns"][0]["d_resolution_high"] = rec[1]
 
 
 def parse_remark_3(filestring, mmcif):
+    """Parses REMARK 3 records. The ``reflns`` and ``refine`` table are updated
+    from values here.
+
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     records = re.findall(r"^REMARK   3 .+", filestring, re.M)
     if not records: return
-    string = "\n".join(records)
-    if "reflns" in mmcif:
-        for regex, key in [
-            (r"FROM WILSON PLOT.+?\(A\*\*2\).+?\:(.+)", "B_iso_Wilson_estimate")
-        ]:
-            value = re.search(regex, string)
-            mmcif["reflns"][0][key] = value[1].strip().replace("NULL", "?") if value else "?"
-    refine = [
-        "entry_id", "ls_number_reflns_obs", "ls_number_reflns_all",
-        "pdbx_ls_sigma_I", "pdbx_ls_sigma_F", "pdbx_data_cutoff_high_absF",
-        "pdbx_data_cutoff_low_absF", "ls_d_res_low", "ls_d_res_high",
-        "ls_percent_reflns_obs", "ls_R_factor_obs", "ls_R_factor_all",
-        "ls_R_factor_R_work", "ls_R_factor_R_free", "ls_R_factor_R_free_error",
-        "ls_R_factor_R_free_error_details", "ls_percent_reflns_R_free",
-        "ls_number_reflns_R_free", "ls_number_parameters",
-        "ls_number_restraints", "occupancy_min", "occupancy_max",
-        "correlation_coeff_Fo_to_Fc", "correlation_coeff_Fo_to_Fc_free",
-        "B_iso_mean", "aniso_B[1][1]", "aniso_B[2][2]", "aniso_B[3][3]",
-        "aniso_B[1][2]", "aniso_B[1][3]", "aniso_B[2][3]",
-        "solvent_model_details", "solvent_model_param_ksol",
-        "solvent_model_param_bsol", "pdbx_solvent_vdw_probe_radii",
-        "pdbx_solvent_ion_probe_radii", "pdbx_solvent_shrinkage_radii",
-        "pdbx_ls_cross_valid_method", "details", "pdbx_starting_model",
-        "pdbx_method_to_determine_struct", "pdbx_isotropic_thermal_model",
-        "pdbx_stereochemistry_target_values",
-        "pdbx_stereochem_target_val_spec_case", "pdbx_R_Free_selection_details",
-        "pdbx_overall_ESU_R_Free", "overall_SU_B", "ls_redundancy_reflns_obs",
-        "B_iso_min", "B_iso_max", "overall_SU_R_Cruickshank_DPI",
-        "overall_SU_R_free", "overall_SU_ML", "pdbx_overall_ESU_R",
-        "pdbx_data_cutoff_high_rms_absF", "pdbx_refine_id",
-        "pdbx_overall_phase_error", "ls_wR_factor_R_free",
-        "ls_wR_factor_R_work", "overall_FOM_free_R_set",
-        "overall_FOM_work_R_set", "pdbx_diffrn_id",
-        "pdbx_TLS_residual_ADP_flag", "pdbx_overall_SU_R_free_Cruickshank_DPI",
-        "pdbx_overall_SU_R_Blow_DPI", "pdbx_overall_SU_R_free_Blow_DPI",
-    ]
-    keep = False
+    update_reflns_from_remark_3(records, mmcif)
+    update_refine_from_remark_3(records, mmcif)
+    
+    
+def update_reflns_from_remark_3(lines, mmcif):
+    """Creates or updates the ``reflns`` table from REMARK 3 contents.
+    
+    :param list lines: REMARK 3 lines.
+    :param dict mmcif: the dictionary to update."""
+
+    string = "\n".join(lines)
+    for regex, key in [
+        (r"FROM WILSON PLOT.+?\(A\*\*2\).+?\:(.+)", "B_iso_Wilson_estimate")
+    ]:
+        match = re.search(regex, string)
+        if match:
+            value = match[1].strip().replace("NULL", "?")
+            if not value or value == "?": continue
+            if "reflns" not in mmcif:
+                mmcif["reflns"] = [{
+                    **{key: "?" for key in REFLNS},
+                    "entry_id": mmcif["entry"][0]["id"]
+                }]
+            mmcif["reflns"][0][key] = value
+
+
+def update_refine_from_remark_3(lines, mmcif):
+    """Creates the ``reflns`` table from REMARK 3 contents.
+    
+    :param list lines: REMARK 3 lines.
+    :param dict mmcif: the dictionary to update."""
+
+    string = "\n".join(lines)
     mmcif["refine"] = [{
-        **{key: "?" for key in refine}, "entry_id": mmcif["entry"][0]["id"]
+        **{key: "?" for key in REFINE}, "entry_id": mmcif["entry"][0]["id"]
     }]
+    keep = False
     for regex, key in [
         (r"NUMBER OF REFLECTIONS.+?\:(.+)", "ls_number_reflns_obs"),
         (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_absF"),
@@ -508,9 +502,11 @@ def parse_remark_3(filestring, mmcif):
         (r"FREE R VALUE TEST SET SELECTION[ ]+?\:(.+)", "pdbx_R_Free_selection_details"),
         (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_rms_absF"),
     ]:
-        value = re.search(regex, string)
-        mmcif["refine"][0][key] = value[1].strip().replace("NULL", "?") if value else "?"
-        if value: keep = True
+        match = re.search(regex, string)
+        value = match[1].strip().replace("NULL", "?") if match else "?"
+        if not match or value == "?": continue
+        keep = True
+        mmcif["refine"][0][key] = value
     if not keep: del mmcif["refine"]
 
 

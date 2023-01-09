@@ -7,7 +7,9 @@ class PdbStringToDictTests(TestCase):
     @patch("atomium.pdb.parse_metadata")
     @patch("atomium.pdb.get_entities")
     @patch("atomium.pdb.build_structure_categories")
-    def test_can_get_dict(self, mock_build, mock_get, mock_parse):
+    @patch("atomium.pdb.parse_annotation")
+    @patch("atomium.pdb.update_auth_and_label")
+    def test_can_get_dict(self, mock_auth, mock_ann, mock_build, mock_get, mock_parse):
         mock_parse.return_value = {"mmcif": 1}
         mock_get.return_value = ["polymers", "nonpolymers"]
         d = pdb_string_to_mmcif_dict("filestring\n\n")
@@ -15,6 +17,8 @@ class PdbStringToDictTests(TestCase):
         mock_parse.assert_called_with("filestring\n\n")
         mock_get.assert_called_with("filestring\n\n")
         mock_build.assert_called_with("filestring\n\n", "polymers", "nonpolymers", {"mmcif": 1})
+        mock_ann.assert_called_with("filestring\n\n", {"mmcif": 1})
+        mock_auth.assert_called_with({"mmcif": 1})
 
 
 
@@ -806,7 +810,7 @@ class RemarkParsingTests(TestCase):
 
     @patch("atomium.pdb.parse_remark_2")
     @patch("atomium.pdb.parse_remark_3")
-    @patch("atomium.pdb.parse_remark_200")
+    @patch("atomium.pdb.parse_remark_350")
     @patch("atomium.pdb.parse_remark_465")
     @patch("atomium.pdb.parse_remark_470")
     @patch("atomium.pdb.parse_remark_480")
@@ -823,73 +827,27 @@ class Remark2ParsingTests(TestCase):
     def test_can_handle_no_remark_2(self):
         mmcif = {"entry": [{"id": "1XXX"}]}
         parse_remark_2("", mmcif)
-        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}], "reflns": [{
-            "entry_id": "1XXX", "B_iso_Wilson_estimate": "?", "data_reduction_details": "?",
-            "data_reduction_method": "?", "d_resolution_high": "?", "d_resolution_low": "?",
-            "details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?",
-            "limit_l_max": "?", "limit_l_min": "?", "number_all": "?", "number_obs": "?",
-            "observed_criterion": "?", "observed_criterion_F_max": "?",
-            "observed_criterion_F_min": "?", "observed_criterion_I_max": "?",
-            "observed_criterion_I_min": "?", "observed_criterion_sigma_F": "?",
-            "observed_criterion_sigma_I": "?", "percent_possible_obs": "?", "R_free_details": "?",
-            "Rmerge_F_all": "?", "Rmerge_F_obs": "?", "Friedel_coverage": "?", "number_gt": "?",
-            "threshold_expression": "?", "pdbx_redundancy": "?", "pdbx_Rmerge_I_obs": "?",
-            "pdbx_Rmerge_I_all": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_av_sigmaI": "?",
-            "pdbx_netI_over_sigmaI": "?", "pdbx_res_netI_over_av_sigmaI_2": "?",
-            "pdbx_res_netI_over_sigmaI_2": "?", "pdbx_chi_squared": "?",
-            "pdbx_scaling_rejects": "?", "pdbx_d_res_high_opt": "?", "pdbx_d_res_low_opt": "?",
-            "pdbx_d_res_opt_method": "?", "phase_calculation_details": "?", "pdbx_Rrim_I_all": "?",
-            "pdbx_Rpim_I_all": "?", "pdbx_d_opt": "?", "pdbx_number_measured_all": "?",
-            "pdbx_diffrn_id": "?", "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?"
-        }]})
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}]})
     
 
     def test_can_get_resolution(self):
         mmcif = {"entry": [{"id": "1XXX"}]}
         parse_remark_2("REMARK   2   \nREMARK   2 RESOLUTION.    1.74 ANGSTROMS.", mmcif)
         self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}], "reflns": [{
-            "entry_id": "1XXX", "B_iso_Wilson_estimate": "?", "data_reduction_details": "?",
-            "data_reduction_method": "?", "d_resolution_high": "1.74", "d_resolution_low": "?",
-            "details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?",
-            "limit_l_max": "?", "limit_l_min": "?", "number_all": "?", "number_obs": "?",
-            "observed_criterion": "?", "observed_criterion_F_max": "?",
-            "observed_criterion_F_min": "?", "observed_criterion_I_max": "?",
-            "observed_criterion_I_min": "?", "observed_criterion_sigma_F": "?",
-            "observed_criterion_sigma_I": "?", "percent_possible_obs": "?", "R_free_details": "?",
-            "Rmerge_F_all": "?", "Rmerge_F_obs": "?", "Friedel_coverage": "?", "number_gt": "?",
-            "threshold_expression": "?", "pdbx_redundancy": "?", "pdbx_Rmerge_I_obs": "?",
-            "pdbx_Rmerge_I_all": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_av_sigmaI": "?",
-            "pdbx_netI_over_sigmaI": "?", "pdbx_res_netI_over_av_sigmaI_2": "?",
-            "pdbx_res_netI_over_sigmaI_2": "?", "pdbx_chi_squared": "?",
-            "pdbx_scaling_rejects": "?", "pdbx_d_res_high_opt": "?", "pdbx_d_res_low_opt": "?",
-            "pdbx_d_res_opt_method": "?", "phase_calculation_details": "?", "pdbx_Rrim_I_all": "?",
-            "pdbx_Rpim_I_all": "?", "pdbx_d_opt": "?", "pdbx_number_measured_all": "?",
-            "pdbx_diffrn_id": "?", "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?"
+            "entry_id": "1XXX", "observed_criterion_sigma_I": "?", "observed_criterion_sigma_F": "?",
+            "d_resolution_low": "?", "d_resolution_high": "1.74", "number_obs": "?", "number_all": "?",
+            "percent_possible_obs": "?", "pdbx_Rmerge_I_obs": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_sigmaI": "?",
+            "B_iso_Wilson_estimate": "?", "pdbx_redundancy": "?", "R_free_details": "?", "limit_h_max": "?",
+            "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?", "limit_l_max": "?", "limit_l_min": "?",
+            "observed_criterion_F_max": "?", "observed_criterion_F_min": "?", "pdbx_chi_squared": "?",
+            "pdbx_scaling_rejects": "?", "pdbx_diffrn_id": "?", "pdbx_ordinal": "?"
         }]})
     
 
     def test_can_get_na_resolution(self):
         mmcif = {"entry": [{"id": "1XXX"}]}
         parse_remark_2("REMARK   2   \nREMARK   2 RESOLUTION.   NOT APPLICABLE. ", mmcif)
-        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}], "reflns": [{
-            "entry_id": "1XXX", "B_iso_Wilson_estimate": "?", "data_reduction_details": "?",
-            "data_reduction_method": "?", "d_resolution_high": "?", "d_resolution_low": "?",
-            "details": "?", "limit_h_max": "?", "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?",
-            "limit_l_max": "?", "limit_l_min": "?", "number_all": "?", "number_obs": "?",
-            "observed_criterion": "?", "observed_criterion_F_max": "?",
-            "observed_criterion_F_min": "?", "observed_criterion_I_max": "?",
-            "observed_criterion_I_min": "?", "observed_criterion_sigma_F": "?",
-            "observed_criterion_sigma_I": "?", "percent_possible_obs": "?", "R_free_details": "?",
-            "Rmerge_F_all": "?", "Rmerge_F_obs": "?", "Friedel_coverage": "?", "number_gt": "?",
-            "threshold_expression": "?", "pdbx_redundancy": "?", "pdbx_Rmerge_I_obs": "?",
-            "pdbx_Rmerge_I_all": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_av_sigmaI": "?",
-            "pdbx_netI_over_sigmaI": "?", "pdbx_res_netI_over_av_sigmaI_2": "?",
-            "pdbx_res_netI_over_sigmaI_2": "?", "pdbx_chi_squared": "?",
-            "pdbx_scaling_rejects": "?", "pdbx_d_res_high_opt": "?", "pdbx_d_res_low_opt": "?",
-            "pdbx_d_res_opt_method": "?", "phase_calculation_details": "?", "pdbx_Rrim_I_all": "?",
-            "pdbx_Rpim_I_all": "?", "pdbx_d_opt": "?", "pdbx_number_measured_all": "?",
-            "pdbx_diffrn_id": "?", "pdbx_ordinal": "?", "pdbx_CC_half": "?", "pdbx_R_split": "?"
-        }]})
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}]})
 
 
 
@@ -899,6 +857,225 @@ class Remark3ParsingTests(TestCase):
         mmcif = {"reflns": [{}]}
         parse_remark_3("", mmcif)
         self.assertEqual(mmcif, {"reflns": [{}]})
+    
+
+    @patch("atomium.pdb.update_reflns_from_remark_3")
+    @patch("atomium.pdb.update_refine_from_remark_3")
+    def test_can_parse_remark_3(self, mock_refine, mock_reflns):
+        mmcif = {"reflns": [{}]}
+        parse_remark_3("HEADER \nREMARK   3   \nREMARK   3 XXX.\nATOM", mmcif)
+        mock_refine.assert_called_with(["REMARK   3   ", "REMARK   3 XXX."], {"reflns": [{}]})
+        mock_reflns.assert_called_with(["REMARK   3   ", "REMARK   3 XXX."], {"reflns": [{}]})
+
+
+
+class ReflnsFromRemark3Tests(TestCase):
+
+    def test_nothing_to_get(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        update_reflns_from_remark_3([
+            "REMARK   3  B VALUES.    ",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.       "
+        ], mmcif)
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}]})
+    
+
+    def test_null_value(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        update_reflns_from_remark_3([
+            "REMARK   3  B VALUES.    ",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : NULL   ",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : 24.20    ",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.       "
+        ], mmcif)
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}]})
+    
+
+    def test_can_create_table(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        update_reflns_from_remark_3([
+            "REMARK   3  B VALUES.    ",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : 11.20   ",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : 24.20    ",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.       "
+        ], mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}], "reflns": [{
+                "entry_id": "1XXX", "observed_criterion_sigma_I": "?", "observed_criterion_sigma_F": "?",
+                "d_resolution_low": "?", "d_resolution_high": "?", "number_obs": "?", "number_all": "?",
+                "percent_possible_obs": "?", "pdbx_Rmerge_I_obs": "?", "pdbx_Rsym_value": "?", "pdbx_netI_over_sigmaI": "?",
+                "B_iso_Wilson_estimate": "11.20", "pdbx_redundancy": "?", "R_free_details": "?", "limit_h_max": "?",
+                "limit_h_min": "?", "limit_k_max": "?", "limit_k_min": "?", "limit_l_max": "?", "limit_l_min": "?",
+                "observed_criterion_F_max": "?", "observed_criterion_F_min": "?", "pdbx_chi_squared": "?",
+                "pdbx_scaling_rejects": "?", "pdbx_diffrn_id": "?", "pdbx_ordinal": "?"
+            }]
+        })
+
+
+    def test_can_update_table(self):
+        mmcif = {"entry": [{"id": "1XXX"}], "reflns": [{}]}
+        update_reflns_from_remark_3([
+            "REMARK   3  B VALUES.    ",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : 11.20   ",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : 24.20    ",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.       "
+        ], mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}], "reflns": [{"B_iso_Wilson_estimate": "11.20"}]
+        })
+
+
+
+class RefineFromRemark3Tests(TestCase):
+
+    def test_nothing_to_get(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        update_refine_from_remark_3([
+            "REMARK   3  B VALUES.    ",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.       "
+        ], mmcif)
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}]})
+    
+
+    def test_can_get_values(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        lines = [
+            "REMARK   3                                                      ",
+            "REMARK   3  REFINEMENT TARGET : ENGH & HUBER                    ",
+            "REMARK   3                                                      ",
+            "REMARK   3  DATA USED IN REFINEMENT.                            ",
+            "REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) : 1.90           ",
+            "REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) : 27.07          ",
+            "REMARK   3   DATA CUTOFF HIGH         (ABS(F)) : 679650.230     ",
+            "REMARK   3   DATA CUTOFF LOW          (ABS(F)) : 0.0000         ",
+            "REMARK   3   COMPLETENESS (WORKING+TEST)   (%) : 97.2           ",
+            "REMARK   3   NUMBER OF REFLECTIONS             : 32092          ",
+            "REMARK   3                                                      ",
+            "REMARK   3  FIT TO DATA USED IN REFINEMENT.                     ",
+            "REMARK   3   CROSS-VALIDATION METHOD          : THROUGHOUT      ",
+            "REMARK   3   FREE R VALUE TEST SET SELECTION  : RANDOM          ",
+            "REMARK   3   R VALUE            (WORKING SET) : 0.193           ",
+            "REMARK   3   FREE R VALUE                     : 0.229           ",
+            "REMARK   3   FREE R VALUE TEST SET SIZE   (%) : 4.900           ",
+            "REMARK   3   FREE R VALUE TEST SET COUNT      : 1583            ",
+            "REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : 0.006           ",
+            "REMARK   3                                                      ",
+            "REMARK   3  FIT IN THE HIGHEST RESOLUTION BIN.                  ",
+            "REMARK   3   BIN RESOLUTION RANGE HIGH       (A) : 1.90         ",
+            "REMARK   3   BIN RESOLUTION RANGE LOW        (A) : 2.02         ",
+            "REMARK   3   BIN COMPLETENESS (WORKING+TEST) (%) : 96.40        ",
+            "REMARK   3   REFLECTIONS IN BIN    (WORKING SET) : 4989         ",
+            "REMARK   3   BIN R VALUE           (WORKING SET) : 0.2340       ",
+            "REMARK   3   BIN FREE R VALUE                    : 0.2620       ",
+            "REMARK   3   BIN FREE R VALUE TEST SET SIZE  (%) : 5.30         ",
+            "REMARK   3   BIN FREE R VALUE TEST SET COUNT     : 279          ",
+            "REMARK   3   ESTIMATED ERROR OF BIN FREE R VALUE : 0.016        ",
+            "REMARK   3                                                      ",
+            "REMARK   3  B VALUES.                                           ",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : 11.20          ",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : 24.20          ",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.                       ",
+            "REMARK   3    B11 (A**2) : 7.19000                              ",
+            "REMARK   3    B22 (A**2) : -3.85000                             ",
+            "REMARK   3    B33 (A**2) : -3.34000                             ",
+            "REMARK   3    B12 (A**2) : 0.00000                              ",
+            "REMARK   3    B13 (A**2) : 3.48000                              ",
+            "REMARK   3    B23 (A**2) : 0.00000                              ",
+            "REMARK   3                                                      ",
+            "REMARK   3  ISOTROPIC THERMAL MODEL : RESTRAINED                ",
+            "REMARK   3                                                      ",
+            "REMARK   3  BULK SOLVENT MODELING.                              ",
+            "REMARK   3   METHOD USED : FLAT MODEL                           ",
+            "REMARK   3   KSOL        : 0.39                                 ",
+            "REMARK   3   BSOL        : 54.02                                ",
+        ]
+        update_refine_from_remark_3(lines, mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}], "refine": [{
+                "entry_id": "1XXX", "ls_number_reflns_obs": "32092", "ls_number_reflns_all": "?",
+                "pdbx_ls_sigma_I": "?", "pdbx_ls_sigma_F": "?", "pdbx_data_cutoff_high_absF": "679650.230",
+                "pdbx_data_cutoff_low_absF": "0.0000", "ls_d_res_low": "27.07", "ls_d_res_high": "1.90",
+                "ls_percent_reflns_obs": "97.2", "ls_R_factor_obs": "0.193", "ls_R_factor_all": "0.193",
+                "ls_R_factor_R_work": "0.193", "ls_R_factor_R_free": "0.229", "ls_R_factor_R_free_error": "0.006",
+                "ls_R_factor_R_free_error_details": "?", "ls_percent_reflns_R_free": "4.900",
+                "ls_number_reflns_R_free": "1583", "ls_number_parameters": "?", "ls_number_restraints": "?",
+                "occupancy_min": "?", "occupancy_max": "?", "correlation_coeff_Fo_to_Fc": "?",
+                "correlation_coeff_Fo_to_Fc_free": "?", "B_iso_mean": "24.20", "aniso_B[1][1]": "7.19000",
+                "aniso_B[2][2]": "-3.85000", "aniso_B[3][3]": "-3.34000", "aniso_B[1][2]": "0.00000",
+                "aniso_B[1][3]": "3.48000", "aniso_B[2][3]": "0.00000", "solvent_model_details": "FLAT MODEL",
+                "solvent_model_param_ksol": "0.39", "solvent_model_param_bsol": "54.02",
+                "pdbx_solvent_vdw_probe_radii": "?", "pdbx_solvent_ion_probe_radii": "?",
+                "pdbx_solvent_shrinkage_radii": "?", "pdbx_ls_cross_valid_method": "THROUGHOUT",
+                "details": "?", "pdbx_starting_model": "?", "pdbx_method_to_determine_struct": "?",
+                "pdbx_isotropic_thermal_model": "RESTRAINED", "pdbx_stereochemistry_target_values": "ENGH & HUBER",
+                "pdbx_stereochem_target_val_spec_case": "?", "pdbx_R_Free_selection_details": "RANDOM",
+                "pdbx_overall_ESU_R_Free": "?", "overall_SU_B": "?", "ls_redundancy_reflns_obs": "?",
+                "B_iso_min": "?", "B_iso_max": "?", "overall_SU_R_Cruickshank_DPI": "?", "overall_SU_R_free": "?",
+                "overall_SU_ML": "?", "pdbx_overall_ESU_R": "?", "pdbx_data_cutoff_high_rms_absF": "679650.230",
+                "pdbx_refine_id": "?", "pdbx_overall_phase_error": "?", "ls_wR_factor_R_free": "?",
+                "ls_wR_factor_R_work": "?", "overall_FOM_free_R_set": "?", "overall_FOM_work_R_set": "?",
+                "pdbx_diffrn_id": "?", "pdbx_TLS_residual_ADP_flag": "?", "pdbx_overall_SU_R_free_Cruickshank_DPI": "?",
+                "pdbx_overall_SU_R_Blow_DPI": "?", "pdbx_overall_SU_R_free_Blow_DPI": "?"
+            }]
+        })
+
+
+    def test_nothing_to_get(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        lines = [
+            "REMARK   3                                                 ",
+            "REMARK   3  REFINEMENT TARGET : NULL                       ",
+            "REMARK   3                                                 ",
+            "REMARK   3  DATA USED IN REFINEMENT.                       ",
+            "REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) : NULL      ",
+            "REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) : NULL      ",
+            "REMARK   3   DATA CUTOFF HIGH         (ABS(F)) : NULL      ",
+            "REMARK   3   DATA CUTOFF LOW          (ABS(F)) : NULL      ",
+            "REMARK   3   COMPLETENESS (WORKING+TEST)   (%) : NULL      ",
+            "REMARK   3   NUMBER OF REFLECTIONS             : NULL      ",
+            "REMARK   3                                                 ",
+            "REMARK   3  FIT TO DATA USED IN REFINEMENT.                ",
+            "REMARK   3   CROSS-VALIDATION METHOD          : NULL       ",
+            "REMARK   3   FREE R VALUE TEST SET SELECTION  : NULL       ",
+            "REMARK   3   R VALUE            (WORKING SET) : NULL       ",
+            "REMARK   3   FREE R VALUE                     : NULL       ",
+            "REMARK   3   FREE R VALUE TEST SET SIZE   (%) : NULL       ",
+            "REMARK   3   FREE R VALUE TEST SET COUNT      : NULL       ",
+            "REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : NULL       ",
+            "REMARK   3                                                 ",
+            "REMARK   3  FIT IN THE HIGHEST RESOLUTION BIN.             ",
+            "REMARK   3   BIN RESOLUTION RANGE HIGH       (A) : 1.90    ",
+            "REMARK   3   BIN RESOLUTION RANGE LOW        (A) : 2.02    ",
+            "REMARK   3   BIN COMPLETENESS (WORKING+TEST) (%) : 96.40   ",
+            "REMARK   3   REFLECTIONS IN BIN    (WORKING SET) : 4989    ",
+            "REMARK   3   BIN R VALUE           (WORKING SET) : 0.2340  ",
+            "REMARK   3   BIN FREE R VALUE                    : 0.2620  ",
+            "REMARK   3   BIN FREE R VALUE TEST SET SIZE  (%) : 5.30    ",
+            "REMARK   3   BIN FREE R VALUE TEST SET COUNT     : 279     ",
+            "REMARK   3   ESTIMATED ERROR OF BIN FREE R VALUE : 0.016   ",
+            "REMARK   3                                                 ",
+            "REMARK   3  B VALUES.                                      ",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : 11.20     ",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : NULL      ",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.                  ",
+            "REMARK   3    B11 (A**2) : NULL                            ",
+            "REMARK   3    B22 (A**2) : NULL                            ",
+            "REMARK   3    B33 (A**2) : NULL                            ",
+            "REMARK   3    B12 (A**2) : NULL                            ",
+            "REMARK   3    B13 (A**2) : NULL                            ",
+            "REMARK   3    B23 (A**2) : NULL                            ",
+            "REMARK   3                                                 ",
+            "REMARK   3  ISOTROPIC THERMAL MODEL : NULL                 ",
+            "REMARK   3                                                 ",
+            "REMARK   3  BULK SOLVENT MODELING.                         ",
+            "REMARK   3   METHOD USED : NULL                            ",
+            "REMARK   3   KSOL        : NULL                            ",
+            "REMARK   3   BSOL        : NULL                            ",
+        ]
+        update_refine_from_remark_3(lines, mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}]
+        })
 
 
 

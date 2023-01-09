@@ -1783,6 +1783,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_keywds_lines(mmcif_dict)
     lines += create_seqadv_lines(mmcif_dict)
     lines += create_seqres_lines(mmcif_dict)
+    lines += create_modres_lines(mmcif_dict)
     lines += create_het_lines(mmcif_dict)
     lines += create_hetnam_lines(mmcif_dict)
     lines += create_hetsyn_lines(mmcif_dict)
@@ -1866,7 +1867,6 @@ def create_keywds_lines(mmcif):
 
 
 def create_seqadv_lines(mmcif):
-
     lines = []
     line = "SEQADV {:4} {:>3} {:1} {:>4}{:1} {:4} {:9} {:>3} {:>5} {:20}"
     for seqadv in mmcif.get("struct_ref_seq_dif", []):
@@ -1882,7 +1882,7 @@ def create_seqadv_lines(mmcif):
 
 def create_seqres_lines(mmcif):
     lines = []
-    line = "SEQRES {:3} {:1} {:4}  {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3} {:3}"
+    line = "SEQRES {:3} {:1} {:4}  {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3}"
     for entity in mmcif.get("entity_poly", []):
         chain_ids = entity["pdbx_strand_id"].split(",")
         residues = [r for r in mmcif.get("entity_poly_seq", []) if r["entity_id"] == entity["entity_id"]]
@@ -1892,6 +1892,18 @@ def create_seqres_lines(mmcif):
                 line_res = residues[n * 13:(n + 1) * 13]
                 names = [r["mon_id"] for r in line_res] + [""] * (13 - len(line_res))
                 lines.append(line.format(n + 1, chain_id, len(residues), *names))
+    return lines
+
+
+def create_modres_lines(mmcif):
+    lines = []
+    line = "MODRES {:3} {:>3} {:1} {:>4}{:1} {:>3}  {:40}"
+    for modres in mmcif.get("pdbx_struct_mod_residue", []):
+        lines.append(line.format(
+            mmcif["entry"][0]["id"], modres["auth_comp_id"], modres["auth_asym_id"],
+            modres["auth_seq_id"], modres["PDB_ins_code"].replace("?", ""),
+            modres["parent_comp_id"], modres["details"].replace("?", ""),
+        ))
     return lines
     
 

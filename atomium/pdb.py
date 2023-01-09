@@ -1,6 +1,7 @@
 import re
 import math
 import calendar
+import itertools
 from collections import Counter
 from atomium.sequences import get_alignment_indices
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
@@ -511,60 +512,92 @@ def update_refine_from_remark_3(lines, mmcif):
 
 
 def parse_remark_350(filestring, mmcif):
+    """Parses REMARK 350 records to create the four biological assembly
+    categories.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     records = re.findall(r"^REMARK 350 .+", filestring, re.M)
     if not records: return
-    from itertools import groupby, chain
-    groups = [list(g) for k, g in groupby(records, lambda x: "ECULE:" in x)][1:]
-    assemblies = [list(chain(*a)) for a in zip(groups[::2], groups[1::2])]
+    groups = [list(g) for _, g in itertools.groupby(
+        records, lambda x: "MOLECULE:" in x
+    )][1:]
+    assemblies = [list(itertools.chain(*a))
+        for a in zip(groups[::2], groups[1::2])]
     names = [
         "pdbx_struct_assembly", "pdbx_struct_assembly_gen",
         "pdbx_struct_assembly_prop", "pdbx_struct_oper_list"
     ]
-    for name in names:
-        mmcif[name] = []
-    for assembly in assemblies:
-        parse_assembly(assembly, mmcif)
+    for name in names: mmcif[name] = []
+    for assembly in assemblies: parse_assembly(assembly, mmcif)
     for name in names:
         if not mmcif[name]: del mmcif[name]
     
 
-
 def parse_assembly(lines, mmcif):
-    assembly = {
-        "gens": [], "software": None, "buried_surface_area": None,
-        "surface_area": None, "delta_energy": None, "id": 0
-    }
+    """Takes the REMARK lines of a single biological assembly and adds the
+    information to an mmcif dictionary.
+    
+    :param list lines: the REMARK lines of one assembly.
+    :rtype: ``dict``"""
+    
+    assembly = create_assembly_dict(lines)
+    add_assembly_info_to_mmcif(assembly, mmcif)
+    for gen in assembly["gens"]:
+        add_assembly_gen_to_mmcif(gen, mmcif)
+
+
+def create_assembly_dict(lines):
+    """Creates a dictionary representation of a biological assembly. As well as
+    metadata, it contains an ID and a list of 'gens', each of which is a list of
+    transformations and a list of chain IDs to apply to.
+    
+    :param list lines: the REMARK lines of one assembly.
+    :rtype: ``dict``"""
+
     patterns = [
         [r"(.+)SOFTWARE USED: (.+)", "software"],
-        [r"(.+)BIOMOLECULE: (.+)", "id"],
         [r"(.+)SURFACE AREA: (.+) [A-Z]", "ABSA (A^2)"],
         [r"(.+)AREA OF THE COMPLEX: (.+) [A-Z]", "SSA (A^2)"],
         [r"(.+)FREE ENERGY: (.+) [A-Z]", "MORE"]
     ]
-    gen = None
+    assembly, gen = {"gens": []}, None
     for line in lines:
+        value = line.split(":")[-1].strip()
         for p in patterns:
             matches = re.findall(p[0], line)
             if matches: assembly[p[1]] = matches[0][1].strip()
         if "APPLY THE FOLLOWING" in line:
             if gen: assembly["gens"].append(gen)
-            gen = {"chains": [c.strip()for c in line.split(":")[1].strip().split(",") if c.strip()], "transformations": []}
+            gen = {
+                "chains": [c.strip() for c in value.split(",") if c.strip()],
+                "transformations": []
+            }
         if "AND CHAINS: " in line:
-            gen["chains"] += [c.strip() for c in line.split(":")[1].strip().split(",") if c.strip()]
-        if "BIOMT1" in line:
-            transformation = {"matrix": [], "vector": []}
+            gen["chains"] += [c.strip() for c in value.split(",") if c.strip()]
         if "BIOMT" in line:
+            if "BIOMT1" in line: transformation = {"matrix": [], "vector": []}
             values = [float(x) for x in line.split()[4:]]
             transformation["matrix"].append(values[:3])
             transformation["vector"].append(values[-1])
-        if "BIOMT3" in line:
-            gen["transformations"].append(transformation)
+            if "BIOMT3" in line: gen["transformations"].append(transformation)
     if gen: assembly["gens"].append(gen)
+    return assembly
+
+
+def add_assembly_info_to_mmcif(assembly, mmcif):
+    """Takes an assembly ``dict`` and adds rows for ``pdbx_struct_assembly`` and
+    ``pdbx_struct_assembly_prop`` to an mmcif.
+    
+    :param dict assembly: a dictionary describing an assembly.
+    :param dict mmcif: the dictionary to update."""
 
     assembly_id = str(len(mmcif["pdbx_struct_assembly"]) + 1)
     mmcif["pdbx_struct_assembly"].append({
         "id": assembly_id, "details": "?",
-        "method_details": assembly.get("software", "?") or "?", "oligomeric_details": "?", "oligomeric_count": "?"
+        "method_details": assembly.get("software", "?") or "?",
+        "oligomeric_details": "?", "oligomeric_count": "?"
     })
     for prop in ["ABSA (A^2)", "MORE", "SSA (A^2)"]:
         if assembly.get(prop):
@@ -572,69 +605,41 @@ def parse_assembly(lines, mmcif):
                 "biol_id": assembly_id, "type": prop,
                 "value": assembly[prop], "details": "?"
             })
-    for gen in assembly["gens"]:
-        operation_ids = []
-        for transformation in gen["transformations"]:
-            operation = {
-                "type": "?",
-                "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
-                "pdbx_struct_oper_list.symmetry_operation": "x,y,z", 
-                "pdbx_struct_oper_list.matrix[1][1]": str(transformation["matrix"][0][0]),
-                "pdbx_struct_oper_list.matrix[1][2]": str(transformation["matrix"][0][1]),
-                "pdbx_struct_oper_list.matrix[1][3]": str(transformation["matrix"][0][2]),
-                "pdbx_struct_oper_list.vector[1]": str(transformation["vector"][0]),
-                "pdbx_struct_oper_list.matrix[2][1]": str(transformation["matrix"][1][0]),
-                "pdbx_struct_oper_list.matrix[2][2]": str(transformation["matrix"][1][1]),
-                "pdbx_struct_oper_list.matrix[2][3]": str(transformation["matrix"][1][2]),
-                "pdbx_struct_oper_list.vector[2]": str(transformation["vector"][1]),
-                "pdbx_struct_oper_list.matrix[3][1]": str(transformation["matrix"][2][0]),
-                "pdbx_struct_oper_list.matrix[3][2]": str(transformation["matrix"][2][1]),
-                "pdbx_struct_oper_list.matrix[3][3]": str(transformation["matrix"][2][2]),
-                "pdbx_struct_oper_list.vector[3]": str(transformation["vector"][2]),
-            }
-            for op in mmcif["pdbx_struct_oper_list"]:
-                if {k: v for k, v in op.items() if k != "id"} == operation:
-                    operation_ids.append(op["id"])
-                    break
-            else:
-                op_id = str(len(mmcif["pdbx_struct_oper_list"]) + 1)
-                mmcif["pdbx_struct_oper_list"].append({"id": op_id, **operation})
-                operation_ids.append(op_id)
-        mmcif["pdbx_struct_assembly_gen"].append({
-            "assembly_id": assembly_id, "oper_expression": ",".join(operation_ids),
-            "asym_id": ",".join(gen["chains"])
-        })
-    '''
+
+
+def add_assembly_gen_to_mmcif(gen, mmcif):
+    """Adds a biological assembly 'gen' to an mmcif dictionary. Any
+    transformations not in ``pdbx_struct_oper_list`` will be added, and a
+    record for the gen will be added to ``pdbx_struct_assembly_gen``.
     
+    :param dict gen: a dictionary describing an assembly.
+    :param dict mmcif: the dictionary to update."""
 
-    for transformation in assembly["transformations"]:
-        oper_id = str(len(mmcif["pdbx_struct_oper_list"]) + 1)
-        mmcif["pdbx_struct_assembly_gen"].append({
-            "assembly_id": assembly_id, "oper_expression": oper_id,
-            "asym_id": ",".join(transformation["chains"])
-        })
-        operation = {
-            "type": "?",
-            "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
-            "pdbx_struct_oper_list.symmetry_operation": "x,y,z", 
-            "pdbx_struct_oper_list.matrix[1][1]": str(transformation["matrix"][0][0]),
-            "pdbx_struct_oper_list.matrix[1][2]": str(transformation["matrix"][0][1]),
-            "pdbx_struct_oper_list.matrix[1][3]": str(transformation["matrix"][0][2]),
-            "pdbx_struct_oper_list.vector[1]": str(transformation["vector"][0]),
-            "pdbx_struct_oper_list.matrix[2][1]": str(transformation["matrix"][1][0]),
-            "pdbx_struct_oper_list.matrix[2][2]": str(transformation["matrix"][1][1]),
-            "pdbx_struct_oper_list.matrix[2][3]": str(transformation["matrix"][1][2]),
-            "pdbx_struct_oper_list.vector[2]": str(transformation["vector"][1]),
-            "pdbx_struct_oper_list.matrix[3][1]": str(transformation["matrix"][2][0]),
-            "pdbx_struct_oper_list.matrix[3][2]": str(transformation["matrix"][2][1]),
-            "pdbx_struct_oper_list.matrix[3][3]": str(transformation["matrix"][2][2]),
-            "pdbx_struct_oper_list.vector[3]": str(transformation["vector"][2]),
+    operation_ids = []
+    assembly_id = mmcif["pdbx_struct_assembly"][-1]["id"] 
+    oper = "pdbx_struct_oper_list"
+    for tf in gen["transformations"]:
+        op = {
+            "type": "?", "pdbx_struct_oper_list.type": "?",
+            "pdbx_struct_oper_list.name": "?",
+            "pdbx_struct_oper_list.symmetry_operation": "x,y,z",
         }
-        for op in mmcif["pdbx_struct_oper_list"]:
-            if {k: v for k, v in op.items() if k != "id"} == operation:
-                pass
-
-        #mmcif["pdbx_struct_oper_list"].append()'''
+        for i in range(3):
+            for j in range(3):
+                op[f"{oper}.matrix[{i + 1}][{j + 1}]"] = str(tf["matrix"][i][j])
+            op[f"{oper}.vector[{i + 1}]"] = str(tf["vector"][i])
+        for o in mmcif["pdbx_struct_oper_list"]:
+            if {k: v for k, v in o.items() if k != "id"} == op:
+                operation_ids.append(o["id"])
+                break
+        else:
+            op_id = str(len(mmcif["pdbx_struct_oper_list"]) + 1)
+            mmcif["pdbx_struct_oper_list"].append({"id": op_id, **op})
+            operation_ids.append(op_id)
+    mmcif["pdbx_struct_assembly_gen"].append({
+        "assembly_id": assembly_id, "oper_expression": ",".join(operation_ids),
+        "asym_id": ",".join(gen["chains"])
+    })
     
 
 def parse_remark_465(filestring, mmcif):

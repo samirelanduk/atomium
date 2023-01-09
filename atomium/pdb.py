@@ -1781,6 +1781,7 @@ def save_mmcif_dict(mmcif_dict, path):
     lines += create_title_lines(mmcif_dict)
     lines += create_compnd_lines(mmcif_dict)
     lines += create_keywds_lines(mmcif_dict)
+    lines += create_seqadv_lines(mmcif_dict)
     lines += create_seqres_lines(mmcif_dict)
     lines += create_het_lines(mmcif_dict)
     lines += create_hetnam_lines(mmcif_dict)
@@ -1861,6 +1862,21 @@ def create_keywds_lines(mmcif):
             lines.append(f"KEYWDS    {line}")
         else:
             lines.append(f"KEYWDS  {len(lines):>2} {line}")
+    return lines
+
+
+def create_seqadv_lines(mmcif):
+
+    lines = []
+    line = "SEQADV {:4} {:>3} {:1} {:>4}{:1} {:4} {:9} {:>3} {:>5} {:20}"
+    for seqadv in mmcif.get("struct_ref_seq_dif", []):
+        lines.append(line.format(
+            seqadv["pdbx_pdb_id_code"], seqadv["mon_id"],
+            seqadv["pdbx_pdb_strand_id"], seqadv["pdbx_auth_seq_num"],
+            seqadv["pdbx_pdb_ins_code"].replace("?", ""), seqadv["pdbx_seq_db_name"],
+            seqadv["pdbx_seq_db_accession_code"], seqadv["db_mon_id"].replace("?", ""),
+            seqadv["pdbx_seq_db_seq_num"].replace("?", ""), seqadv["details"].replace("?", ""),
+        ))
     return lines
 
 

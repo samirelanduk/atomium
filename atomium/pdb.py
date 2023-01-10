@@ -662,6 +662,11 @@ def parse_remark_465(filestring, mmcif):
 
 
 def parse_remark_800(filestring, mmcif):
+    """Parses REMARK 800 records to produce the ``struct_site`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     records = re.findall(r"^REMARK 800 .+", filestring, re.M)
     records = [r for r in records if r[15:].strip()]
     if not records: return
@@ -1615,6 +1620,7 @@ def parse_site(filestring, mmcif):
     if not lines: return
     mmcif["struct_site_gen"] = []
     for line in lines:
+        # TODO: UPDATE struct_site table too
         for n in range(4):
             start = 18 + (11 * n)
             section = line[start:start + 10].ljust(10)

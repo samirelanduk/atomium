@@ -1406,6 +1406,49 @@ class Remark465ParsingTests(TestCase):
 
 
 
+class Remark800ParsingTests(TestCase):
+
+    def test_can_handle_no_remark_800(self):
+        mmcif = {}
+        parse_remark_800("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_handle_empty_remark_800(self):
+        mmcif = {}
+        filestring = (
+            "REMARK 800                                                      \n"
+            "REMARK 800 SITE                                                 \n"
+        )
+        parse_remark_800(filestring, mmcif)
+        self.assertEqual(mmcif, {})
+
+
+    def test_can_parse_remark_800(self):
+        mmcif = {}
+        filestring = (
+            "REMARK 800                                                      \n"
+            "REMARK 800 SITE                                                 \n"
+            "REMARK 800 SITE_IDENTIFIER: AC1                                 \n"             
+            "REMARK 800 EVIDENCE_CODE: SOFTWARE                              \n"             
+            "REMARK 800 SITE_DESCRIPTION: BINDING SITE FOR RESIDUE BU2 A 5001\n"             
+            "REMARK 800 SITE_IDENTIFIER: AC2                                 \n"             
+            "REMARK 800 EVIDENCE_CODE: SOFTWARE                              \n"             
+            "REMARK 800 SITE_DESCRIPTION: BINDING SITE FOR RESIDUE BU2 B 5002\n"
+        )
+        parse_remark_800(filestring, mmcif)
+        self.assertEqual(mmcif, {"struct_site": [{
+            "id": "AC1", "pdbx_evidence_code": "Software", "pdbx_auth_asym_id": "?",
+            "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
+            "pdbx_num_residues": "?",  "details": "BINDING SITE FOR RESIDUE BU2 A 5001"
+        }, {
+            "id": "AC2", "pdbx_evidence_code": "Software", "pdbx_auth_asym_id": "?",
+            "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
+            "pdbx_num_residues": "?",  "details": "BINDING SITE FOR RESIDUE BU2 B 5002"
+        }]})
+
+
+
 class NextIdTests(TestCase):
 
     def test_can_get_first_id(self):

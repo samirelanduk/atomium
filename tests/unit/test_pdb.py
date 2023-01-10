@@ -811,9 +811,6 @@ class RemarkParsingTests(TestCase):
     @patch("atomium.pdb.parse_remark_2")
     @patch("atomium.pdb.parse_remark_3")
     @patch("atomium.pdb.parse_remark_350")
-    @patch("atomium.pdb.parse_remark_465")
-    @patch("atomium.pdb.parse_remark_470")
-    @patch("atomium.pdb.parse_remark_480")
     @patch("atomium.pdb.parse_remark_800")
     def test_can_parse_remark_records(self, *mocks):
         parse_remarks("filestring", {"mmicf": 1})
@@ -1343,6 +1340,69 @@ class AssemblyGenTests(TestCase):
                 "pdbx_struct_oper_list.vector[3]": "1"
             }]
         })
+
+
+
+class Remark465ParsingTests(TestCase):
+
+    def test_can_handle_no_remark_465(self):
+        mmcif = {}
+        parse_remark_465("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_handle_empty_remark_465(self):
+        filestring = (
+            "REMARK 465                                                          \n"
+            "REMARK 465 MISSING  RESIDUES                                        \n"
+            "REMARK 465 THE FOLLOWING  RESIDUES WERE NOT LOCATED IN THE          \n"
+            "REMARK 465 EXPERIMENT.  (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN  \n"
+            "REMARK 465 IDENTIFIER;  SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)   \n"
+            "REMARK 465                                                          \n"
+        )
+        mmcif = {}
+        parse_remark_465(filestring, mmcif)
+        self.assertEqual(mmcif, {})
+
+
+    def test_can_parse_remark_465(self):
+        filestring = (
+            "REMARK 465                                                          \n"             
+            "REMARK 465 MISSING  RESIDUES                                        \n"             
+            "REMARK 465 THE FOLLOWING  RESIDUES WERE NOT LOCATED IN THE          \n"             
+            "REMARK 465 EXPERIMENT.  (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN  \n"             
+            "REMARK 465 IDENTIFIER;  SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)   \n"             
+            "REMARK 465                                                          \n"            
+            "REMARK 465   M RES C SSSEQI                                         \n"            
+            "REMARK 465     ARG A    46                                          \n"            
+            "REMARK 465     GLY A    47                                          \n"            
+            "REMARK 465     ALA A    48                                          \n"            
+            "REMARK 465     ARG A    49                                          \n"            
+            "REMARK 465     MET A    49A     "
+        )
+        mmcif = {}
+        parse_remark_465(filestring, mmcif)
+        self.assertEqual(mmcif, {"pdbx_unobs_or_zero_occ_residues": [{
+            "id": "1", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "ARG", "auth_seq_id": "46", "PDB_ins_code": "?",
+            "label_asym_id": "A", "label_comp_id": "ARG", "label_seq_id": "46",
+        }, {
+            "id": "2", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "GLY", "auth_seq_id": "47", "PDB_ins_code": "?",
+            "label_asym_id": "A", "label_comp_id": "GLY", "label_seq_id": "47",
+        }, {
+            "id": "3", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "ALA", "auth_seq_id": "48", "PDB_ins_code": "?",
+            "label_asym_id": "A", "label_comp_id": "ALA", "label_seq_id": "48",
+        }, {
+            "id": "4", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "ARG", "auth_seq_id": "49", "PDB_ins_code": "?",
+            "label_asym_id": "A", "label_comp_id": "ARG", "label_seq_id": "49",
+        }, {
+            "id": "5", "PDB_model_num": "1", "polymer_flag": "Y", "occupancy_flag": "1",
+            "auth_asym_id": "A", "auth_comp_id": "MET", "auth_seq_id": "49", "PDB_ins_code": "A",
+            "label_asym_id": "A", "label_comp_id": "MET", "label_seq_id": "49",
+        }]})
 
 
 

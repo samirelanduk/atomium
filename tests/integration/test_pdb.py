@@ -510,7 +510,6 @@ class FileToDictTests(TestCase):
             "auth_seq_id": "1186", "PDB_ins_code": "?", "label_asym_id": "B",
             "label_comp_id": "GLY", "label_seq_id": "1186",
         })
-        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
 
         # Assembly categories
         self.assertEqual(d["pdbx_struct_assembly"], [
@@ -896,7 +895,6 @@ class FileToDictTests(TestCase):
             "auth_seq_id": "198", "PDB_ins_code": "?", "label_asym_id": "A",
             "label_comp_id": "SER", "label_seq_id": "198",
         })
-        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
 
         # Assembly categories
         self.assertEqual(d["pdbx_struct_assembly"], [
@@ -1287,7 +1285,6 @@ class FileToDictTests(TestCase):
             "auth_seq_id": "553", "PDB_ins_code": "?", "label_asym_id": "P",
             "label_comp_id": "GLU", "label_seq_id": "553",
         })
-        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
 
         # Assembly categories
         self.assertEqual(d["pdbx_struct_assembly"], [
@@ -1316,7 +1313,7 @@ class FileToDictTests(TestCase):
 
     def test_1xda(self):
         d = atomium.open("tests/integration/files/1xda.pdb", dictionary=True)
-        self.assertEqual(len(d.keys()), 39)
+        self.assertEqual(len(d.keys()), 38)
 
         # Metadata categories
         self.assertEqual(d["entry"], [{"id": "1XDA"}])
@@ -2034,21 +2031,6 @@ class FileToDictTests(TestCase):
 
         # Missing items categories
         self.assertNotIn("pdbx_unobs_or_zero_occ_residues", d)
-        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_atoms"]), 59)
-        self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][0], {
-            "id": "1", "PDB_model_num": "1", "polymer_flag": "Y",
-            "occupancy_flag": "0", "auth_asym_id": "C", "auth_comp_id": "GLU",
-            "auth_seq_id": "4", "PDB_ins_code": "?", "auth_atom_id": "CG",
-            "label_alt_id": "?", "label_asym_id": "C", "label_comp_id": "GLU",
-            "label_seq_id": "4", "label_atom_id": "CG",
-        })
-        self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][-1], {
-            "id": "59", "PDB_model_num": "1", "polymer_flag": "Y",
-            "occupancy_flag": "0", "auth_asym_id": "H", "auth_comp_id": "LYS",
-            "auth_seq_id": "29", "PDB_ins_code": "?", "auth_atom_id": "OXT",
-            "label_alt_id": "?", "label_asym_id": "H", "label_comp_id": "LYS",
-            "label_seq_id": "29", "label_atom_id": "OXT",
-        })
 
         # Assembly categories
         self.assertEqual(len(d["pdbx_struct_assembly"]), 12)
@@ -2510,7 +2492,6 @@ class FileToDictTests(TestCase):
 
         # Missing items categories
         self.assertNotIn("pdbx_unobs_or_zero_occ_residues", d)
-        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
 
         # Assembly categories
         self.assertEqual(d["pdbx_struct_assembly"], [
@@ -2561,7 +2542,7 @@ class FileToDictTests(TestCase):
 
     def test_4opj(self):
         d = atomium.open("tests/integration/files/4opj.pdb", dictionary=True)
-        self.assertEqual(len(d.keys()), 42)
+        self.assertEqual(len(d.keys()), 41)
 
         # Metadata categories
         self.assertEqual(d["entry"], [{"id": "4OPJ"}])
@@ -3155,21 +3136,6 @@ class FileToDictTests(TestCase):
             "occupancy_flag": "1", "auth_asym_id": "C", "auth_comp_id": "LYS",
             "auth_seq_id": "196", "PDB_ins_code": "?", "label_asym_id": "C",
             "label_comp_id": "LYS", "label_seq_id": "196",
-        })
-        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_atoms"]), 63)
-        self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][0], {
-            "id": "1", "PDB_model_num": "1", "polymer_flag": "Y",
-            "occupancy_flag": "0", "auth_asym_id": "B", "auth_comp_id": "DC",
-            "auth_seq_id": "1", "PDB_ins_code": "?", "auth_atom_id": "C6",
-            "label_alt_id": "?", "label_asym_id": "B", "label_comp_id": "DC",
-            "label_seq_id": "1", "label_atom_id": "C6",
-        })
-        self.assertEqual(d["pdbx_unobs_or_zero_occ_atoms"][-1], {
-            "id": "63", "PDB_model_num": "1", "polymer_flag": "Y",
-            "occupancy_flag": "0", "auth_asym_id": "A", "auth_comp_id": "GLY",
-            "auth_seq_id": "194", "PDB_ins_code": "?", "auth_atom_id": "O",
-            "label_alt_id": "?", "label_asym_id": "A", "label_comp_id": "GLY",
-            "label_seq_id": "140", "label_atom_id": "O",
         })
 
         # Assembly categories
@@ -4355,7 +4321,6 @@ class FileToDictTests(TestCase):
             "auth_seq_id": "39", "PDB_ins_code": "?", "label_asym_id": "N",
             "label_comp_id": "ASP", "label_seq_id": "39",
         }])
-        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
 
         # Assembly categories
         self.assertEqual(d["pdbx_struct_assembly"], [
@@ -4383,7 +4348,7 @@ class FileToDictTests(TestCase):
             "pdbx_struct_oper_list.matrix[3][3]": "1.0",
             "pdbx_struct_oper_list.vector[3]": "0.0",
         }])
-    
+
 
     def test_2ldc(self):
         d = atomium.open("tests/integration/files/2ldc.pdb", dictionary=True)
@@ -4739,7 +4704,6 @@ class FileToDictTests(TestCase):
 
         # Missing items categories
         self.assertNotIn("pdbx_unobs_or_zero_occ_residues", d)
-        self.assertNotIn("pdbx_unobs_or_zero_occ_atoms", d)
 
         # Assembly categories
         self.assertEqual(d["pdbx_struct_assembly"], [
@@ -4764,9 +4728,6 @@ class FileToDictTests(TestCase):
             "pdbx_struct_oper_list.matrix[3][3]": "1.0",
             "pdbx_struct_oper_list.vector[3]": "0.0",
         }])
-
-    
-
 
 
 

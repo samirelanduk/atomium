@@ -1795,13 +1795,23 @@ def save_mmcif_dict(mmcif, path):
 
 
 def create_header_line(mmcif):
-    code = mmcif["entry"][0]["id"]
-    keyword = mmcif["struct_keywords"][0]["pdbx_keywords"][:40].upper()
-    date = mmcif["pdbx_database_status"][0]["recvd_initial_deposition_date"]
+    """Creates the HEADER line from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+    
+    code = mmcif.get("entry", [{"id": ""}])[0]["id"]
+    keyword = mmcif.get(
+        "struct_keywords", [{"pdbx_keywords": ""}]
+    )[0]["pdbx_keywords"][:40].upper()
+    date = mmcif.get(
+        "pdbx_database_status", [{"recvd_initial_deposition_date": ""}]
+    )[0]["recvd_initial_deposition_date"]
     code = "    " if code == "?" else code[:4]
     keyword = (" " * 40) if keyword == "?" else keyword.ljust(40)
-    date = (" " * 9) if date == "?" else create_pdb_date(date)
-    return ["HEADER" + (" " * 4) + keyword + date + (" " * 3) + code]
+    date = (" " * 9) if date == "?" else create_pdb_date(date) or ""
+    line = "HEADER" + (" " * 4) + keyword + date + (" " * 3) + code
+    return [line] if line[6:].strip() else []
 
 
 def create_title_lines(mmcif):

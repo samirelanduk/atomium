@@ -1641,6 +1641,71 @@ class MmcifDictSavingTests(TestCase):
 
 
 
+class HeaderLineSavingTests(TestCase):
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_handle_no_categories(self, mock_date):
+        mock_date.return_value = None
+        self.assertEqual(create_header_line({}), [])
+        mock_date.assert_called_with("")
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_handle_no_values(self, mock_date):
+        mock_date.return_value = None
+        self.assertEqual(create_header_line({
+            "entry": [{"id": "?"}],
+            "struct_keywords": [{"pdbx_keywords": "?"}],
+            "pdbx_database_status": [{"recvd_initial_deposition_date": "?"}],
+        }), [])
+        self.assertFalse(mock_date.called)
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_parse_code(self, mock_date):
+        mock_date.return_value = None
+        self.assertEqual(create_header_line({
+            "entry": [{"id": "1XXX"}],
+            "struct_keywords": [{"pdbx_keywords": "?"}],
+            "pdbx_database_status": [{"recvd_initial_deposition_date": "?"}],
+        }), ["HEADER                                                        1XXX"])
+        self.assertFalse(mock_date.called)
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_parse_keywords(self, mock_date):
+        mock_date.return_value = None
+        self.assertEqual(create_header_line({
+            "entry": [{"id": "?"}],
+            "struct_keywords": [{"pdbx_keywords": "APOPTOSIS"}],
+            "pdbx_database_status": [{"recvd_initial_deposition_date": "?"}],
+        }), ["HEADER    APOPTOSIS                                               "])
+        self.assertFalse(mock_date.called)
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_parse_date(self, mock_date):
+        mock_date.return_value = "02-FEB-02"
+        self.assertEqual(create_header_line({
+            "entry": [{"id": "?"}],
+            "struct_keywords": [{"pdbx_keywords": "?"}],
+            "pdbx_database_status": [{"recvd_initial_deposition_date": "2002-01-01"}],
+        }), ["HEADER                                            02-FEB-02       "])
+        mock_date.assert_called_with("2002-01-01")
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_parse_all_values(self, mock_date):
+        mock_date.return_value = "02-FEB-02"
+        self.assertEqual(create_header_line({
+            "entry": [{"id": "1XXX"}],
+            "struct_keywords": [{"pdbx_keywords": "-123456789" * 5}],
+            "pdbx_database_status": [{"recvd_initial_deposition_date": "2002-01-01"}],
+        }), ["HEADER    -123456789-123456789-123456789-12345678902-FEB-02   1XXX"])
+        mock_date.assert_called_with("2002-01-01")
+
+
+
 class NextIdTests(TestCase):
 
     def test_can_get_first_id(self):

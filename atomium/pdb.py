@@ -52,8 +52,8 @@ def parse_metadata(filestring):
     parse_remarks(filestring, mmcif)
     parse_cryst1(filestring, mmcif)
     parse_origx(filestring, mmcif)
-    parse_scalen(filestring, mmcif)
-    parse_mtrixn(filestring, mmcif)
+    parse_scale(filestring, mmcif)
+    parse_mtrix(filestring, mmcif)
     return mmcif
 
 
@@ -690,7 +690,14 @@ def parse_remark_800(filestring, mmcif):
 
 
 def parse_cryst1(filestring, mmcif):
+    """Parses the CRYST1 record to create the ``symmetry`` and `cell``
+    categories.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     cryst1 = re.search(r"^CRYST1.+", filestring, re.M)
+    if not cryst1: return
     mmcif["cell"] = [{**{k: "?" for k in [
         "entry_id", "length_a", "length_b", "length_c", "angle_alpha",
         "angle_beta", "angle_gamma", "Z_pdb", "pdbx_unique_axis"
@@ -698,61 +705,79 @@ def parse_cryst1(filestring, mmcif):
     mmcif["symmetry"] = [{
         **{k: "?" for k in [
             "entry_id", "space_group_name_H-M",
-            "pdbx_full_space_group_name_H-M", "cell_setting", "Int_Tables_number"
+            "pdbx_full_space_group_name_H-M", "cell_setting",
+            "Int_Tables_number"
         ]},
         "entry_id": mmcif["entry"][0]["id"],
     }]
-    if cryst1:
-        rec = cryst1.group(0)
-        mmcif["cell"][0]["length_a"] = rec[6:15].strip() or "?"
-        mmcif["cell"][0]["length_b"] = rec[15:24].strip() or "?"
-        mmcif["cell"][0]["length_c"] = rec[24:33].strip() or "?"
-        mmcif["cell"][0]["angle_alpha"] = rec[33:40].strip() or "?"
-        mmcif["cell"][0]["angle_beta"] = rec[40:47].strip() or "?"
-        mmcif["cell"][0]["angle_gamma"] = rec[47:54].strip() or "?"
-        mmcif["cell"][0]["Z_pdb"] = rec[66:70].strip() or "?"
-        mmcif["symmetry"][0]["space_group_name_H-M"] = rec[55:66].strip() or "?"
+    rec = cryst1.group(0)
+    mmcif["cell"][0]["length_a"] = rec[6:15].strip() or "?"
+    mmcif["cell"][0]["length_b"] = rec[15:24].strip() or "?"
+    mmcif["cell"][0]["length_c"] = rec[24:33].strip() or "?"
+    mmcif["cell"][0]["angle_alpha"] = rec[33:40].strip() or "?"
+    mmcif["cell"][0]["angle_beta"] = rec[40:47].strip() or "?"
+    mmcif["cell"][0]["angle_gamma"] = rec[47:54].strip() or "?"
+    mmcif["cell"][0]["Z_pdb"] = rec[66:70].strip() or "?"
+    mmcif["symmetry"][0]["space_group_name_H-M"] = rec[55:66].strip() or "?"
 
 
 def parse_origx(filestring, mmcif):
+    """Parses the ORIGXx records tom produce the ``database_PDB_matrix``
+    category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"ORIGX.+", filestring, re.M)
     if len(lines) == 0: return
-    mmcif["database_PDB_matrix"] = [{"entry_id": mmcif["entry"][0]["id"], **{
+    key = "database_PDB_matrix"
+    mmcif[key] = [{"entry_id": mmcif["entry"][0]["id"], **{
         k: "?" for k in [
-        "origx[1][1]", "origx[2][1]", "origx[3][1]", "origx[1][2]", 
-        "origx[2][2]", "origx[3][2]", "origx[1][3]", "origx[2][3]", 
+        "origx[1][1]", "origx[1][2]", "origx[1][3]", "origx[2][1]", 
+        "origx[2][2]", "origx[2][3]", "origx[3][1]", "origx[3][2]", 
         "origx[3][3]", "origx_vector[1]", "origx_vector[2]", "origx_vector[3]", 
     ]}}]
     for rec in lines:
         n = rec[5]
-        mmcif["database_PDB_matrix"][0][f"origx[{n}][1]"] = rec[10:20].strip() or "?"
-        mmcif["database_PDB_matrix"][0][f"origx[{n}][2]"] = rec[20:30].strip() or "?"
-        mmcif["database_PDB_matrix"][0][f"origx[{n}][3]"] = rec[30:40].strip() or "?"
-        mmcif["database_PDB_matrix"][0][f"origx_vector[{n}]"] = rec[45:55].strip() or "?"
+        mmcif[key][0][f"origx[{n}][1]"] = rec[10:20].strip() or "?"
+        mmcif[key][0][f"origx[{n}][2]"] = rec[20:30].strip() or "?"
+        mmcif[key][0][f"origx[{n}][3]"] = rec[30:40].strip() or "?"
+        mmcif[key][0][f"origx_vector[{n}]"] = rec[45:55].strip() or "?"
 
 
-def parse_scalen(filestring, mmcif):
+def parse_scale(filestring, mmcif):
+    """Parses the SCALEn records to produce the ``atom_sites`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^SCALE.+", filestring, re.M)
     if len(lines) == 0: return
-    mmcif["atom_sites"] = [{"entry_id": mmcif["entry"][0]["id"], **{
+    key = "atom_sites"
+    mmcif[key] = [{"entry_id": mmcif["entry"][0]["id"], **{
         k: "?" for k in [
-        "fract_transf_matrix[1][1]", "fract_transf_matrix[2][1]",
-        "fract_transf_matrix[3][1]", "fract_transf_matrix[1][2]", 
-        "fract_transf_matrix[2][2]", "fract_transf_matrix[3][2]",
-        "fract_transf_matrix[1][3]", "fract_transf_matrix[2][3]", 
+        "fract_transf_matrix[1][1]", "fract_transf_matrix[1][2]",
+        "fract_transf_matrix[1][3]", "fract_transf_matrix[2][1]", 
+        "fract_transf_matrix[2][2]", "fract_transf_matrix[2][3]",
+        "fract_transf_matrix[3][1]", "fract_transf_matrix[3][2]", 
         "fract_transf_matrix[3][3]", "fract_transf_vector[1]",
         "fract_transf_vector[2]", "fract_transf_vector[3]", 
     ]}}]
-    for rec in lines:
-        n = rec[5]
+    for r in lines:
+        n = r[5]
         if not n.strip(): continue
-        mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][1]"] = rec[10:20].strip() or "?"
-        mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][2]"] = rec[20:30].strip() or "?"
-        mmcif["atom_sites"][0][f"fract_transf_matrix[{n}][3]"] = rec[30:40].strip() or "?"
-        mmcif["atom_sites"][0][f"fract_transf_vector[{n}]"] = rec[45:55].strip() or "?"
+        mmcif[key][0][f"fract_transf_matrix[{n}][1]"] = r[10:20].strip() or "?"
+        mmcif[key][0][f"fract_transf_matrix[{n}][2]"] = r[20:30].strip() or "?"
+        mmcif[key][0][f"fract_transf_matrix[{n}][3]"] = r[30:40].strip() or "?"
+        mmcif[key][0][f"fract_transf_vector[{n}]"] = r[45:55].strip() or "?"
 
 
-def parse_mtrixn(filestring, mmcif):
+def parse_mtrix(filestring, mmcif):
+    """Parses the MTRIXn records to produce the ``struct_ncs_oper`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^MTRIX\d.+", filestring, re.M)
     if len(lines) == 0: return
     matrices = [lines[n * 3:(n + 1) * 3] for n in range(len(lines) // 3)]

@@ -39,8 +39,8 @@ class ParseMetadataTests(TestCase):
     @patch("atomium.pdb.parse_remarks")
     @patch("atomium.pdb.parse_cryst1")
     @patch("atomium.pdb.parse_origx")
-    @patch("atomium.pdb.parse_scalen")
-    @patch("atomium.pdb.parse_mtrixn")
+    @patch("atomium.pdb.parse_scale")
+    @patch("atomium.pdb.parse_mtrix")
     def test_can_parse_metadata(self, *mocks):
         mmcif = parse_metadata("filestring")
         self.assertEqual(mmcif, {})
@@ -1446,6 +1446,157 @@ class Remark800ParsingTests(TestCase):
             "pdbx_auth_comp_id": "?", "pdbx_auth_seq_id": "?", "pdbx_auth_ins_code": "?",
             "pdbx_num_residues": "?",  "details": "BINDING SITE FOR RESIDUE BU2 B 5002"
         }]})
+
+
+
+class Cryst1ParsingTests(TestCase):
+
+    def test_can_handle_no_cryst1(self):
+        mmcif = {}
+        parse_cryst1("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_parse_cryst1(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        filestring = "HEADER\nCRYST1   52.000   58.600   61.900  90.00  94.28  80.00 P 21 21 21    8"
+        parse_cryst1(filestring, mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "symmetry": [{
+                "entry_id": "1XXX", "space_group_name_H-M": "P 21 21 21",
+                "pdbx_full_space_group_name_H-M": "?", "cell_setting": "?",
+                "Int_Tables_number": "?"
+            }],
+            "cell": [{
+                "entry_id": "1XXX", "length_a": "52.000", "length_b": "58.600", "length_c": "61.900",
+                "angle_alpha": "90.00", "angle_beta": "94.28", "angle_gamma": "80.00", "Z_pdb": "8",
+                "pdbx_unique_axis": "?"
+            }]
+        })
+
+
+
+class OrigxParsingTests(TestCase):
+
+    def test_can_handle_no_origix(self):
+        mmcif = {}
+        parse_origx("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_parse_origx(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        filestring = (
+            "ORIGX1      0.963457  0.136613  0.230424       16.61000          \n"     
+            "ORIGX2     -0.158977  0.983924  0.081383       13.72000          \n"     
+            "ORIGX3     -0.215598 -0.115048  0.969683       37.65000          \n"
+        )
+        parse_origx(filestring, mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "database_PDB_matrix": [{
+                "entry_id": "1XXX", "origx[1][1]": "0.963457", "origx[1][2]": "0.136613",
+                "origx[1][3]": "0.230424", "origx[2][1]": "-0.158977", "origx[2][2]": "0.983924",
+                "origx[2][3]": "0.081383", "origx[3][1]": "-0.215598", "origx[3][2]": "-0.115048", 
+                "origx[3][3]": "0.969683", "origx_vector[1]": "16.61000", "origx_vector[2]": "13.72000",
+                "origx_vector[3]": "37.65000", 
+            }]
+        })
+
+
+
+class ScaleParsingTests(TestCase):
+
+    def test_can_handle_no_scale(self):
+        mmcif = {}
+        parse_scale("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_parse_scale(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        filestring = (
+            "SCALE1      0.963457  0.136613  0.230424       16.61000          \n"     
+            "SCALE2     -0.158977  0.983924  0.081383       13.72000          \n"     
+            "SCALE3     -0.215598 -0.115048  0.969683       37.65000          \n"
+        )
+        parse_scale(filestring, mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "atom_sites": [{
+                "entry_id": "1XXX", "fract_transf_matrix[1][1]": "0.963457", "fract_transf_matrix[1][2]": "0.136613",
+                "fract_transf_matrix[1][3]": "0.230424", "fract_transf_matrix[2][1]": "-0.158977",
+                "fract_transf_matrix[2][2]": "0.983924", "fract_transf_matrix[2][3]": "0.081383",
+                "fract_transf_matrix[3][1]": "-0.215598", "fract_transf_matrix[3][2]": "-0.115048", 
+                "fract_transf_matrix[3][3]": "0.969683", "fract_transf_vector[1]": "16.61000",
+                "fract_transf_vector[2]": "13.72000", "fract_transf_vector[3]": "37.65000", 
+            }]
+        })
+
+
+
+class MtrixParsingTests(TestCase):
+
+    def test_can_handle_no_mtrix(self):
+        mmcif = {}
+        parse_mtrix("", mmcif)
+        self.assertEqual(mmcif, {})
+    
+
+    def test_can_parse_single_mtrix(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        filestring = (
+            "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1        \n"  
+            "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1        \n"  
+            "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1        \n"
+        )
+        parse_mtrix(filestring, mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "struct_ncs_oper": [{
+                "id": "1", "code": "given", "details": "?",
+                "matrix[1][1]": "-1.000000", "matrix[1][2]": "0.000000",
+                "matrix[1][3]": "0.000000", "matrix[2][1]": "0.000000",
+                "matrix[2][2]": "1.000000", "matrix[2][3]": "0.000000",
+                "matrix[3][1]": "0.000000", "matrix[3][2]": "0.000000", 
+                "matrix[3][3]": "-1.000000", "vector[1]": "0.00000",
+                "vector[2]": "0.00000", "vector[3]": "0.00000", 
+            }]
+        })
+    
+
+    def test_can_parse_multiple_mtrix(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        filestring = (
+            "MTRIX1   1 -1.000000  0.000000  0.000000        0.00000    1        \n"  
+            "MTRIX2   1  0.000000  1.000000  0.000000        0.00000    1        \n"  
+            "MTRIX3   1  0.000000  0.000000 -1.000000        0.00000    1        \n"
+            "MTRIX1   2  0.963457  0.136613  0.230424       16.61000             \n"     
+            "MTRIX2   2 -0.158977  0.983924  0.081383       13.72000             \n"     
+            "MTRIX3   2 -0.215598 -0.115048  0.969683       37.65000             \n"
+        )
+        parse_mtrix(filestring, mmcif)
+        self.assertEqual(mmcif, {
+            "entry": [{"id": "1XXX"}],
+            "struct_ncs_oper": [{
+                "id": "1", "code": "given", "details": "?",
+                "matrix[1][1]": "-1.000000", "matrix[1][2]": "0.000000",
+                "matrix[1][3]": "0.000000", "matrix[2][1]": "0.000000",
+                "matrix[2][2]": "1.000000", "matrix[2][3]": "0.000000",
+                "matrix[3][1]": "0.000000", "matrix[3][2]": "0.000000", 
+                "matrix[3][3]": "-1.000000", "vector[1]": "0.00000",
+                "vector[2]": "0.00000", "vector[3]": "0.00000", 
+            }, {
+                "id": "2", "code": "generate", "details": "?",
+                "matrix[1][1]": "0.963457", "matrix[1][2]": "0.136613",
+                "matrix[1][3]": "0.230424", "matrix[2][1]": "-0.158977",
+                "matrix[2][2]": "0.983924", "matrix[2][3]": "0.081383",
+                "matrix[3][1]": "-0.215598", "matrix[3][2]": "-0.115048", 
+                "matrix[3][3]": "0.969683", "vector[1]": "16.61000",
+                "vector[2]": "13.72000", "vector[3]": "37.65000", 
+            }]
+        })
 
 
 

@@ -1607,6 +1607,7 @@ class MtrixParsingTests(TestCase):
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")
+    @patch("atomium.pdb.create_obslte_lines")
     @patch("atomium.pdb.create_title_lines")
     @patch("atomium.pdb.create_compnd_lines")
     @patch("atomium.pdb.create_keywds_lines")
@@ -1636,7 +1637,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(22))) + "\nEND"
+            "\n".join(map(str, range(23))) + "\nEND"
         )
 
 
@@ -1703,6 +1704,33 @@ class HeaderLineSavingTests(TestCase):
             "pdbx_database_status": [{"recvd_initial_deposition_date": "2002-01-01"}],
         }), ["HEADER    -123456789-123456789-123456789-12345678902-FEB-02   1XXX"])
         mock_date.assert_called_with("2002-01-01")
+
+
+
+class ObslteLinesSavingTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_obslte_lines({}), [])
+    
+
+    def test_can_handle_no_obslte(self):
+        self.assertEqual(create_obslte_lines({
+            "pdbx_database_PDB_obs_spr": [
+                {"id": "SPRSDE", "pdb_id": "2XXX", "replace_pdb_id": "1XXX", "date": "2002"},
+            ]
+        }), [])
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_create_obslte(self, mock_date):
+        mock_date.return_value = "25-JUL-06"
+        self.assertEqual(create_obslte_lines({
+            "pdbx_database_PDB_obs_spr": [
+                {"id": "SPRSDE", "pdb_id": "XXXX", "replace_pdb_id": "YXXX", "date": "2002"},
+                {"id": "OBSLTE", "pdb_id": "2XXX", "replace_pdb_id": "1XXX", "date": "2002"},
+            ]
+        }), ["OBSLTE     25-JUL-06 1XXX      2XXX"])
+        mock_date.assert_called_with("2002")
 
 
 

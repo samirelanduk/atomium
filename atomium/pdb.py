@@ -1768,6 +1768,7 @@ def save_mmcif_dict(mmcif, path):
 
     lines = []
     lines += create_header_line(mmcif)
+    lines += create_obslte_lines(mmcif)
     lines += create_title_lines(mmcif)
     lines += create_compnd_lines(mmcif)
     lines += create_keywds_lines(mmcif)
@@ -1812,6 +1813,21 @@ def create_header_line(mmcif):
     date = (" " * 9) if date == "?" else create_pdb_date(date) or ""
     line = "HEADER" + (" " * 4) + keyword + date + (" " * 3) + code
     return [line] if line[6:].strip() else []
+
+
+def create_obslte_lines(mmcif):
+    """Creates the OBSLTE line from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    for row in mmcif.get("pdbx_database_PDB_obs_spr", []):
+        if row["id"] == "OBSLTE":
+            return ["OBSLTE     {:9} {:4}      {:4}".format(
+                create_pdb_date(row["date"]),
+                row["replace_pdb_id"], row["pdb_id"]
+            )]
+    return []
 
 
 def create_title_lines(mmcif):

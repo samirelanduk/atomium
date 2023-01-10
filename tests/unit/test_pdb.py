@@ -1600,6 +1600,47 @@ class MtrixParsingTests(TestCase):
 
 
 
+
+
+
+
+class MmcifDictSavingTests(TestCase):
+
+    @patch("atomium.pdb.create_header_line")
+    @patch("atomium.pdb.create_title_lines")
+    @patch("atomium.pdb.create_compnd_lines")
+    @patch("atomium.pdb.create_keywds_lines")
+    @patch("atomium.pdb.create_seqadv_lines")
+    @patch("atomium.pdb.create_seqres_lines")
+    @patch("atomium.pdb.create_modres_lines")
+    @patch("atomium.pdb.create_het_lines")
+    @patch("atomium.pdb.create_hetnam_lines")
+    @patch("atomium.pdb.create_hetsyn_lines")
+    @patch("atomium.pdb.create_formul_lines")
+    @patch("atomium.pdb.create_helix_lines")
+    @patch("atomium.pdb.create_sheet_lines")
+    @patch("atomium.pdb.create_ssbond_lines")
+    @patch("atomium.pdb.create_link_lines")
+    @patch("atomium.pdb.create_cispep_lines")
+    @patch("atomium.pdb.create_site_lines")
+    @patch("atomium.pdb.create_cryst1_line")
+    @patch("atomium.pdb.create_origix_lines")
+    @patch("atomium.pdb.create_scalen_lines")
+    @patch("atomium.pdb.create_mtrixn_lines")
+    @patch("atomium.pdb.create_atom_lines")
+    @patch("builtins.open")
+    def test_can_save_dict(self, mock_open, *mocks):
+        mmcif = {"mmcif": 1}
+        for i, mock in enumerate(mocks[::-1]):
+            mock.return_value = [str(i)]
+        save_mmcif_dict(mmcif, "/path")
+        mock_open.assert_called_with("/path", "w")
+        mock_open.return_value.__enter__.return_value.write.assert_called_with(
+            "\n".join(map(str, range(22))) + "\nEND"
+        )
+
+
+
 class NextIdTests(TestCase):
 
     def test_can_get_first_id(self):

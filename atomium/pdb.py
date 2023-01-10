@@ -1760,35 +1760,35 @@ def residue_sig(atom):
     return (atom[21], atom[17:20].strip(), atom[22:26].strip(), atom[26].strip())
 
 
-def save_mmcif_dict(mmcif_dict, path):
+def save_mmcif_dict(mmcif, path):
     """Saves an mmCIF dictionary to a .pdb file.
 
-    :param dict mmcif_dict: the dictionary to save.
+    :param dict mmcif: the dictionary to save.
     :param Path path: the location to save to."""
 
     lines = []
-    lines += create_header_line(mmcif_dict)
-    lines += create_title_lines(mmcif_dict)
-    lines += create_compnd_lines(mmcif_dict)
-    lines += create_keywds_lines(mmcif_dict)
-    lines += create_seqadv_lines(mmcif_dict)
-    lines += create_seqres_lines(mmcif_dict)
-    lines += create_modres_lines(mmcif_dict)
-    lines += create_het_lines(mmcif_dict)
-    lines += create_hetnam_lines(mmcif_dict)
-    lines += create_hetsyn_lines(mmcif_dict)
-    lines += create_formul_lines(mmcif_dict)
-    lines += create_helix_lines(mmcif_dict)
-    lines += create_sheet_lines(mmcif_dict)
-    lines += create_ssbond_lines(mmcif_dict)
-    lines += create_link_lines(mmcif_dict)
-    lines += create_cispep_lines(mmcif_dict)
-    lines += create_site_lines(mmcif_dict)
-    lines += create_cryst1_line(mmcif_dict)
-    lines += create_origix_lines(mmcif_dict)
-    lines += create_scalen_lines(mmcif_dict)
-    lines += create_mtrixn_lines(mmcif_dict)
-    lines += create_atom_lines(mmcif_dict)
+    lines += create_header_line(mmcif)
+    lines += create_title_lines(mmcif)
+    lines += create_compnd_lines(mmcif)
+    lines += create_keywds_lines(mmcif)
+    lines += create_seqadv_lines(mmcif)
+    lines += create_seqres_lines(mmcif)
+    lines += create_modres_lines(mmcif)
+    lines += create_het_lines(mmcif)
+    lines += create_hetnam_lines(mmcif)
+    lines += create_hetsyn_lines(mmcif)
+    lines += create_formul_lines(mmcif)
+    lines += create_helix_lines(mmcif)
+    lines += create_sheet_lines(mmcif)
+    lines += create_ssbond_lines(mmcif)
+    lines += create_link_lines(mmcif)
+    lines += create_cispep_lines(mmcif)
+    lines += create_site_lines(mmcif)
+    lines += create_cryst1_line(mmcif)
+    lines += create_origix_lines(mmcif)
+    lines += create_scalen_lines(mmcif)
+    lines += create_mtrixn_lines(mmcif)
+    lines += create_atom_lines(mmcif)
     lines.append("END")
     with open(path, "w") as f:
         f.write("\n".join(lines))

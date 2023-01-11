@@ -222,10 +222,11 @@ def parse_expdta(filestring, mmcif):
     :param str filestring: the contents of the .pdb file.
     :param dict mmcif: the dictionary to update."""
 
-    mmcif["exptl"] = [{"entry_id": mmcif["entry"][0]["id"], "method": "?"}]
     exptl = re.findall(f"^EXPDTA.+", filestring, re.M)
     if not exptl: return
-    mmcif["exptl"][0]["method"] = " ".join([l[10:79].strip() for l in exptl])
+    mmcif["exptl"] = [{
+        "entry_id": mmcif["entry"][0]["id"], "method": method
+    } for method in " ".join([l[10:79].strip() for l in exptl]).split("; ")]
 
 
 def parse_mdltyp(filestring, mmcif):
@@ -1775,6 +1776,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_compnd_lines(mmcif)
     lines += create_source_lines(mmcif)
     lines += create_keywds_lines(mmcif)
+    lines += create_expdta_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -1960,6 +1962,25 @@ def create_keywds_lines(mmcif):
             lines.append(f"KEYWDS    {line}")
         else:
             lines.append(f"KEYWDS  {len(lines):>2} {line}")
+    return lines
+
+
+def create_expdta_lines(mmcif):
+    """Creates the EXPDTA lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    values = [r["method"] for r in mmcif.get("exptl", []) if r["method"] != "?"]
+    if not values: return []
+    text = "; ".join(values)
+    expdta = split_lines(text.upper(), 69)
+    lines = []
+    for line in expdta:
+        if len(lines) == 0:
+            lines.append(f"EXPDTA    {line}")
+        else:
+            lines.append(f"EXPDTA  {len(lines):>2} {line}")
     return lines
 
 

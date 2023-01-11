@@ -379,8 +379,15 @@ class ExpdtaParsingTests(TestCase):
     def test_can_handle_no_expdta(self):
         mmcif = {"entry": [{"id": "1XXX"}]}
         parse_expdta("", mmcif)
+        self.assertEqual(mmcif, {"entry": [{"id": "1XXX"}]})
+    
+
+    def test_can_parse_expdta(self):
+        mmcif = {"entry": [{"id": "1XXX"}]}
+        parse_expdta("EXPDTA    NEUTRON DIFFRACTION  ", mmcif)
         self.assertEqual(mmcif, {
-            "entry": [{"id": "1XXX"}], "exptl": [{"entry_id": "1XXX", "method": "?"}]
+            "entry": [{"id": "1XXX"}],
+            "exptl": [{"entry_id": "1XXX", "method": "NEUTRON DIFFRACTION"}]
         })
     
 
@@ -389,7 +396,10 @@ class ExpdtaParsingTests(TestCase):
         parse_expdta("EXPDTA    NEUTRON DIFFRACTION; X-RAY DIFFRACTION  ", mmcif)
         self.assertEqual(mmcif, {
             "entry": [{"id": "1XXX"}],
-            "exptl": [{"entry_id": "1XXX", "method": "NEUTRON DIFFRACTION; X-RAY DIFFRACTION"}]
+            "exptl": [
+                {"entry_id": "1XXX", "method": "NEUTRON DIFFRACTION"},
+                {"entry_id": "1XXX", "method": "X-RAY DIFFRACTION"}
+            ]
         })
 
 
@@ -1614,6 +1624,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_compnd_lines")
     @patch("atomium.pdb.create_source_lines")
     @patch("atomium.pdb.create_keywds_lines")
+    @patch("atomium.pdb.create_expdta_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
     @patch("atomium.pdb.create_modres_lines")
@@ -1640,7 +1651,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(26))) + "\nEND"
+            "\n".join(map(str, range(27))) + "\nEND"
         )
 
 
@@ -2035,6 +2046,37 @@ class KeywdsLinesTests(TestCase):
         ])
         mock_split.assert_called_with("KEYWORDS", 69)
 
+
+
+class ExpdtaLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_expdta_lines({}), [])
+    
+
+    def test_can_handle_no_methods(self):
+        mmcif = {"exptl": [{"method": "?"}]}
+        self.assertEqual(create_expdta_lines(mmcif), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_one_methods(self, mock_split):
+        mmcif = {"exptl": [{"method": "X-ray"}, {"method": "?"}]}
+        mock_split.return_value = ["X-RAY"]
+        self.assertEqual(create_expdta_lines(mmcif), [
+            "EXPDTA    X-RAY"
+        ])
+        mock_split.assert_called_with("X-RAY", 69)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_multiple_methods(self, mock_split):
+        mmcif = {"exptl": [{"method": "X-ray"}, {"method": "NMR"}]}
+        mock_split.return_value = ["X-RAY; NMR", "OTHER LINE"]
+        self.assertEqual(create_expdta_lines(mmcif), [
+            "EXPDTA    X-RAY; NMR", "EXPDTA   1 OTHER LINE"
+        ])
+        mock_split.assert_called_with("X-RAY; NMR", 69)
 
 
 class NextIdTests(TestCase):

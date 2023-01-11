@@ -2006,6 +2006,36 @@ class SourceLinesTests(TestCase):
     
 
 
+class KeywdsLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_keywds_lines({}), [])
+    
+
+    def test_can_handle_no_keywds(self):
+        self.assertEqual(create_keywds_lines({"struct_keywords": [{"text": "?"}]}), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_to_one_line(self, mock_split):
+        mock_split.return_value = ["KEYWORD 1, 2", "KEYWORD 3"]
+        mmcif = {"struct_keywords": [{"text": "keywords"}]}
+        self.assertEqual(create_keywds_lines(mmcif), [
+            "KEYWDS    KEYWORD 1, 2", "KEYWDS   1 KEYWORD 3"
+        ])
+        mock_split.assert_called_with("KEYWORDS", 69)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_to_multiple_lines(self, mock_split):
+        mock_split.return_value = ["KEYWORD 1, 2"]
+        mmcif = {"struct_keywords": [{"text": "keywords"}]}
+        self.assertEqual(create_keywds_lines(mmcif), [
+            "KEYWDS    KEYWORD 1, 2",
+        ])
+        mock_split.assert_called_with("KEYWORDS", 69)
+
+
 
 class NextIdTests(TestCase):
 

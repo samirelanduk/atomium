@@ -1946,8 +1946,13 @@ def create_source_lines(mmcif):
 
 
 def create_keywds_lines(mmcif):
+    """Creates the KEYWDS lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
     lines = []
-    keywords = mmcif["struct_keywords"][0]["text"]
+    keywords = mmcif.get("struct_keywords", [{"text": "?"}])[0]["text"]
     if keywords == "?": return lines
     keywds = split_lines(keywords.upper(), 69)
     for line in keywds:

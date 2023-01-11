@@ -1734,6 +1734,36 @@ class ObslteLinesSavingTests(TestCase):
 
 
 
+class TitleLinesSavingTests(TestCase):
+
+    def test_can_handle_no_struct(self):
+        self.assertEqual(create_title_lines({}), [])
+    
+
+    def test_can_handle_no_title(self):
+        mmcif = {"struct": [{"title": "?"}]}
+        self.assertEqual(create_title_lines(mmcif), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_line_title(self, mock_split):
+        mmcif = {"struct": [{"title": "TTT"}]}
+        mock_split.return_value = ["The title"]
+        self.assertEqual(create_title_lines(mmcif), ["TITLE     THE TITLE"])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_multi_line_title(self, mock_split):
+        mmcif = {"struct": [{"title": "TTT"}]}
+        mock_split.return_value = ["The title", "and the rest", "of the title"]
+        self.assertEqual(create_title_lines(mmcif), [
+            "TITLE     THE TITLE",
+            "TITLE    2 AND THE REST",
+            "TITLE    3 OF THE TITLE",
+        ])
+
+
+
 class NextIdTests(TestCase):
 
     def test_can_get_first_id(self):

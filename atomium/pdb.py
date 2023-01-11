@@ -1831,8 +1831,13 @@ def create_obslte_lines(mmcif):
 
 
 def create_title_lines(mmcif):
+    """Creates the TITLE lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+    
     lines = []
-    title = mmcif["struct"][0]["title"]
+    title = mmcif.get("struct", [{"title": "?"}])[0]["title"]
     if not title or title == "?": return []
     strings = split_lines(title.upper(), 60)
     for n, title in enumerate(strings, start=1):

@@ -1770,6 +1770,8 @@ def save_mmcif_dict(mmcif, path):
     lines += create_header_line(mmcif)
     lines += create_obslte_lines(mmcif)
     lines += create_title_lines(mmcif)
+    lines += create_split_lines(mmcif)
+    lines += create_caveat_lines(mmcif)
     lines += create_compnd_lines(mmcif)
     lines += create_keywds_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
@@ -1835,7 +1837,7 @@ def create_title_lines(mmcif):
 
     :param dict mmcif: the dictionary to update.
     :rtye: ``list``"""
-    
+
     lines = []
     title = mmcif.get("struct", [{"title": "?"}])[0]["title"]
     if not title or title == "?": return []
@@ -1845,6 +1847,39 @@ def create_title_lines(mmcif):
             lines.append("TITLE     " + title.upper())
         else:
             lines.append("TITLE   " + str(n).rjust(2) + " " + title.upper())
+    return lines
+
+
+def create_split_lines(mmcif):
+    """Creates the SPLIT lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    lines = []
+    codes = [s["db_id"][:4] for s in mmcif.get("pdbx_database_related", [])]
+    line_count = math.ceil(len(codes) / 14)
+    for n in range(line_count):
+        lines.append("SPLIT   {:>2} {}".format(
+            n + 1 if n else "", " ".join(codes[n * 14: (n + 1) * 14])
+        ))
+    return lines
+
+
+def create_caveat_lines(mmcif):
+    """Creates the CAVEAT lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    lines = []
+    if "database_PDB_caveat" not in mmcif: return []
+    text = " ".join([r["text"] for r in mmcif["database_PDB_caveat"]]).upper()
+    caveat_lines = split_lines(text, 60)
+    for n, line in enumerate(caveat_lines):
+        lines.append("CAVEAT  {:>2} {:4}    {}".format(
+            "" if n == 0 else n + 1, mmcif["entry"][0]["id"], line
+        ))
     return lines
 
 

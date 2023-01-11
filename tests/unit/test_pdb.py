@@ -1609,6 +1609,8 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_header_line")
     @patch("atomium.pdb.create_obslte_lines")
     @patch("atomium.pdb.create_title_lines")
+    @patch("atomium.pdb.create_split_lines")
+    @patch("atomium.pdb.create_caveat_lines")
     @patch("atomium.pdb.create_compnd_lines")
     @patch("atomium.pdb.create_keywds_lines")
     @patch("atomium.pdb.create_seqadv_lines")
@@ -1637,7 +1639,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(23))) + "\nEND"
+            "\n".join(map(str, range(25))) + "\nEND"
         )
 
 
@@ -1761,6 +1763,89 @@ class TitleLinesSavingTests(TestCase):
             "TITLE    2 AND THE REST",
             "TITLE    3 OF THE TITLE",
         ])
+
+
+
+class SplitLinesSavingTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_split_lines({}), [])
+    
+
+    def test_can_get_single_line(self):
+        mmcif = {"pdbx_database_related": [
+            {"db_id": "1XXX"}, {"db_id": "2XXX"}, {"db_id": "3XXX"}
+        ]}
+        self.assertEqual(create_split_lines(mmcif), [
+            "SPLIT      1XXX 2XXX 3XXX"
+        ])
+    
+
+    def test_can_get_multiple_lines(self):
+        mmcif = {"pdbx_database_related": [
+            {"db_id": "1VUU"}, {"db_id": "1VUV"}, {"db_id": "1VUW"},
+            {"db_id": "1VUX"}, {"db_id": "1VUY"}, {"db_id": "1VUZ"},
+            {"db_id": "1VV0"}, {"db_id": "1VV1"}, {"db_id": "1VV2"},
+            {"db_id": "1VV3"}, {"db_id": "1VV4"}, {"db_id": "1VV5"},
+            {"db_id": "1VV6"}, {"db_id": "1VV7"}, {"db_id": "1VV8"},
+            {"db_id": "1VV9"}, {"db_id": "1VVA"}, {"db_id": "1VVB"},
+        ]}
+        self.assertEqual(create_split_lines(mmcif), [
+            "SPLIT      1VUU 1VUV 1VUW 1VUX 1VUY 1VUZ 1VV0 1VV1 1VV2 1VV3 1VV4 1VV5 1VV6 1VV7",
+            "SPLIT    2 1VV8 1VV9 1VVA 1VVB"
+        ])
+
+
+
+class CaveatLinesSavingTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_caveat_lines({}), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_row_to_single_line(self, mock_split):
+        mock_split.return_value = ["A CAVEAT"]
+        mmcif = {"database_PDB_caveat": [{"text": "A caveat"}], "entry": [{"id": "1XXX"}]}
+        self.assertEqual(create_caveat_lines(mmcif), [
+            "CAVEAT     1XXX    A CAVEAT",
+        ])
+        mock_split.assert_called_with("A CAVEAT", 60)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_multiple_rows_to_single_line(self, mock_split):
+        mock_split.return_value = ["A CAVEAT ANOTHER CAVEAT"]
+        mmcif = {
+            "database_PDB_caveat": [{"text": "A caveat"}, {"text": "Another caveat"}],
+            "entry": [{"id": "1XXX"}]
+        }
+        self.assertEqual(create_caveat_lines(mmcif), [
+            "CAVEAT     1XXX    A CAVEAT ANOTHER CAVEAT",
+        ])
+        mock_split.assert_called_with("A CAVEAT ANOTHER CAVEAT", 60)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_row_to_multiple_lines(self, mock_split):
+        mock_split.return_value = ["A CAVEAT", "ANOTHER"]
+        mmcif = {"database_PDB_caveat": [{"text": "Aaah"}], "entry": [{"id": "1XXX"}]}
+        self.assertEqual(create_caveat_lines(mmcif), [
+            "CAVEAT     1XXX    A CAVEAT",
+            "CAVEAT   2 1XXX    ANOTHER",
+        ])
+        mock_split.assert_called_with("AAAH", 60)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_multiple_rows_to_multiple_lines(self, mock_split):
+        mock_split.return_value = ["A CAVEAT", "ANOTHER"]
+        mmcif = {"database_PDB_caveat": [{"text": "wow"}, {"text": "Aaah"}], "entry": [{"id": "1XXX"}]}
+        self.assertEqual(create_caveat_lines(mmcif), [
+            "CAVEAT     1XXX    A CAVEAT",
+            "CAVEAT   2 1XXX    ANOTHER",
+        ])
+        mock_split.assert_called_with("WOW AAAH", 60)
 
 
 

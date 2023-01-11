@@ -1777,6 +1777,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_source_lines(mmcif)
     lines += create_keywds_lines(mmcif)
     lines += create_expdta_lines(mmcif)
+    lines += create_nummdl_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -1982,6 +1983,16 @@ def create_expdta_lines(mmcif):
         else:
             lines.append(f"EXPDTA  {len(lines):>2} {line}")
     return lines
+
+
+def create_nummdl_lines(mmcif):
+    """Creates the EXPDTA lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    model_ids = set(a["pdbx_PDB_model_num"] for a in mmcif.get("atom_site", []))
+    return [] if len(model_ids) == 1 else [f"NUMMDL    {len(model_ids)}"]
 
 
 def create_seqadv_lines(mmcif):

@@ -1625,6 +1625,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_source_lines")
     @patch("atomium.pdb.create_keywds_lines")
     @patch("atomium.pdb.create_expdta_lines")
+    @patch("atomium.pdb.create_nummdl_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
     @patch("atomium.pdb.create_modres_lines")
@@ -1651,7 +1652,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(27))) + "\nEND"
+            "\n".join(map(str, range(28))) + "\nEND"
         )
 
 
@@ -2077,6 +2078,31 @@ class ExpdtaLinesTests(TestCase):
             "EXPDTA    X-RAY; NMR", "EXPDTA   1 OTHER LINE"
         ])
         mock_split.assert_called_with("X-RAY; NMR", 69)
+
+
+
+class NummdlLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_nummdl_lines({}), ["NUMMDL    0"])
+    
+
+    def test_can_handle_one_model(self):
+        mmcif = {"atom_site": [
+            {"pdbx_PDB_model_num": "1"}, {"pdbx_PDB_model_num": "1"}
+        ]}
+        self.assertEqual(create_nummdl_lines(mmcif), [])
+    
+
+    def test_can_handle_multiple_models(self):
+        mmcif = {"atom_site": [
+            {"pdbx_PDB_model_num": "1"}, {"pdbx_PDB_model_num": "1"},
+            {"pdbx_PDB_model_num": "2"}, {"pdbx_PDB_model_num": "2"},
+            {"pdbx_PDB_model_num": "3"}, {"pdbx_PDB_model_num": "3"},
+        ]}
+        self.assertEqual(create_nummdl_lines(mmcif), ["NUMMDL    3"])
+
+
 
 
 class NextIdTests(TestCase):

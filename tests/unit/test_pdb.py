@@ -1612,6 +1612,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_split_lines")
     @patch("atomium.pdb.create_caveat_lines")
     @patch("atomium.pdb.create_compnd_lines")
+    @patch("atomium.pdb.create_source_lines")
     @patch("atomium.pdb.create_keywds_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
@@ -1639,7 +1640,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(25))) + "\nEND"
+            "\n".join(map(str, range(26))) + "\nEND"
         )
 
 
@@ -1846,6 +1847,163 @@ class CaveatLinesSavingTests(TestCase):
             "CAVEAT   2 1XXX    ANOTHER",
         ])
         mock_split.assert_called_with("WOW AAAH", 60)
+
+
+
+class CompndLinesTests(TestCase):
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_produce_minimal_compnd(self, mock_split):
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat"},
+                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ],
+            "struct_asym": [
+                {"id": "A", "entity_id": "1"},
+                {"id": "B", "entity_id": "1"},
+                {"id": "C", "entity_id": "1"},
+                {"id": "D", "entity_id": "2"},
+                {"id": "E", "entity_id": "2"},
+                {"id": "F", "entity_id": "3"},
+                {"id": "G", "entity_id": "4"},
+            ],
+            "atom_site": [
+                {"label_asym_id": "A", "auth_asym_id": "T"},
+                {"label_asym_id": "B", "auth_asym_id": "U"},
+                {"label_asym_id": "C", "auth_asym_id": "V"},
+                {"label_asym_id": "D", "auth_asym_id": "X"},
+                {"label_asym_id": "E", "auth_asym_id": "Y"},
+                {"label_asym_id": "F", "auth_asym_id": "T"},
+                {"label_asym_id": "G", "auth_asym_id": "U"},
+            ]
+        }
+        mock_split.side_effect = lambda l, n: [l]
+        lines = create_compnd_lines(mmcif)
+        self.assertEqual([c[0] for c in mock_split.call_args_list], [
+            ("MOL_ID: 1;", 70),
+            ("CHAIN: T, U, V;", 70),
+            ("MOL_ID: 2;", 70),
+            ("CHAIN: X, Y;", 70),
+        ])
+        self.assertEqual(lines, [
+            "COMPND    MOL_ID: 1;",
+            "COMPND   2 CHAIN: T, U, V;",
+            "COMPND   3 MOL_ID: 2;",
+            "COMPND   4 CHAIN: X, Y;"
+        ])
+
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_produce_full_compnd(self, mock_split):
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer", "pdbx_description": "Insulin", "pdbx_ec": "1.2.3", "src_method": "man"},
+                {"id": "2", "type": "polymer", "pdbx_description": "Kinesin", "pdbx_ec": "4.5.6", "src_method": "syn"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ],
+            "entity_name_com": [
+                {"entity_id": "1", "name": "Asucrium"},
+                {"entity_id": "2", "name": "Springy"},
+            ],
+            "struct_asym": [
+                {"id": "A", "entity_id": "1"},
+                {"id": "B", "entity_id": "1"},
+                {"id": "C", "entity_id": "1"},
+                {"id": "D", "entity_id": "2"},
+                {"id": "E", "entity_id": "2"},
+                {"id": "F", "entity_id": "3"},
+                {"id": "G", "entity_id": "4"},
+            ],
+            "atom_site": [
+                {"label_asym_id": "A", "auth_asym_id": "T"},
+                {"label_asym_id": "B", "auth_asym_id": "U"},
+                {"label_asym_id": "C", "auth_asym_id": "V"},
+                {"label_asym_id": "D", "auth_asym_id": "X"},
+                {"label_asym_id": "E", "auth_asym_id": "Y"},
+                {"label_asym_id": "F", "auth_asym_id": "T"},
+                {"label_asym_id": "G", "auth_asym_id": "U"},
+            ]
+        }
+        mock_split.side_effect = lambda l, n: [l]
+        lines = create_compnd_lines(mmcif)
+        self.assertEqual([c[0] for c in mock_split.call_args_list], [
+            ("MOL_ID: 1;", 70),
+            ("MOLECULE: INSULIN;", 70),
+            ("CHAIN: T, U, V;", 70),
+            ("SYNONYM: ASUCRIUM;", 70),
+            ("EC: 1.2.3;", 70),
+            ("ENGINEERED: YES;", 70),
+            ("MOL_ID: 2;", 70),
+            ("MOLECULE: KINESIN;", 70),
+            ("CHAIN: X, Y;", 70),
+            ("SYNONYM: SPRINGY;", 70),
+            ("EC: 4.5.6;", 70),
+        ])
+        self.assertEqual(lines, [
+            "COMPND    MOL_ID: 1;",
+            "COMPND   2 MOLECULE: INSULIN;",
+            "COMPND   3 CHAIN: T, U, V;",
+            "COMPND   4 SYNONYM: ASUCRIUM;",
+            "COMPND   5 EC: 1.2.3;",
+            "COMPND   6 ENGINEERED: YES;",
+            "COMPND   7 MOL_ID: 2;",
+            "COMPND   8 MOLECULE: KINESIN;",
+            "COMPND   9 CHAIN: X, Y;",
+            "COMPND  10 SYNONYM: SPRINGY;",
+            "COMPND  11 EC: 4.5.6;",
+        ])
+
+
+
+class SourceLinesTests(TestCase):
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_produce_full_source(self, mock_split):
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn"},
+                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "man"},
+                {"id": "3", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn"},
+                {"id": "4", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat"},
+                {"id": "5", "type": "non-polymer"},
+                {"id": "6", "type": "water"},
+            ]
+        }
+        mock_split.side_effect = lambda l, n: [l]
+        lines = create_source_lines(mmcif)
+        self.assertEqual([c[0] for c in mock_split.call_args_list], [
+            ("MOL_ID: 1;", 70),
+            ("SYNTHETIC: YES;", 70),
+            ("MOL_ID: 3;", 70),
+            ("SYNTHETIC: YES;", 70),
+        ])
+        self.assertEqual(lines, [
+            "SOURCE    MOL_ID: 1;",
+            "SOURCE   2 SYNTHETIC: YES;",
+            "SOURCE   3 MOL_ID: 3;",
+            "SOURCE   4 SYNTHETIC: YES;"
+        ])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_produce_no_source(self, mock_split):
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "man"},
+                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ]
+        }
+        mock_split.side_effect = lambda l, n: [l]
+        lines = create_source_lines(mmcif)
+        self.assertEqual([c[0] for c in mock_split.call_args_list], [])
+        self.assertEqual(lines, [])
+    
 
 
 

@@ -1773,6 +1773,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_split_lines(mmcif)
     lines += create_caveat_lines(mmcif)
     lines += create_compnd_lines(mmcif)
+    lines += create_source_lines(mmcif)
     lines += create_keywds_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
@@ -1884,12 +1885,20 @@ def create_caveat_lines(mmcif):
 
 
 def create_compnd_lines(mmcif):
+    """Creates the COMPND lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
     lines = []
     for entity in mmcif["entity"]:
         if entity["type"] != "polymer": continue
-        name_com = [e for e in mmcif.get("entity_name_com", []) if e["entity_id"] == entity["id"]]
-        asym_lookup = {a["label_asym_id"]: a["auth_asym_id"] for a in mmcif["atom_site"]}
-        asyms = [a["id"] for a in mmcif["struct_asym"] if a["entity_id"] == entity["id"]]
+        name_com = [e for e in mmcif.get("entity_name_com", [])
+            if e["entity_id"] == entity["id"]]
+        asym_lookup = {a["label_asym_id"]: a["auth_asym_id"]
+            for a in mmcif["atom_site"]}
+        asyms = [a["id"] for a in mmcif["struct_asym"]
+            if a["entity_id"] == entity["id"]]
         mol = {
             "MOL_ID": entity["id"],
             "MOLECULE": entity["pdbx_description"].upper(),
@@ -1905,7 +1914,34 @@ def create_compnd_lines(mmcif):
                 if len(lines) == 0:
                     lines.append(f"COMPND    {line}")
                 else:
-                    lines.append(f"COMPND  {len(lines):>2} {line}")
+                    lines.append(f"COMPND  {len(lines) + 1:>2} {line}")
+    return lines
+
+
+def create_source_lines(mmcif):
+    """Creates the SOURCE lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    lines = []
+    for entity in mmcif["entity"]:
+        if entity["type"] != "polymer": continue
+        mol = {
+            "MOL_ID": entity["id"],
+            "SYNTHETIC": "YES" if entity["src_method"] == "syn" else "?"
+        }
+        if any(val != "?" for val in {
+            k: v for k, v in mol.items() if k != "MOL_ID"
+        }.values()):
+            for key, value in mol.items():
+                if value == "?": continue
+                source = split_lines(f"{key}: {value};", 70)
+                for line in source:
+                    if len(lines) == 0:
+                        lines.append(f"SOURCE    {line}")
+                    else:
+                        lines.append(f"SOURCE  {len(lines) + 1:>2} {line}")
     return lines
 
 

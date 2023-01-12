@@ -1628,6 +1628,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_nummdl_lines")
     @patch("atomium.pdb.create_mdltyp_lines")
     @patch("atomium.pdb.create_author_lines")
+    @patch("atomium.pdb.create_revdat_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
     @patch("atomium.pdb.create_modres_lines")
@@ -1654,7 +1655,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(30))) + "\nEND"
+            "\n".join(map(str, range(31))) + "\nEND"
         )
 
 
@@ -2192,6 +2193,44 @@ class AuthorLinesTests(TestCase):
         ])
         mock_names.assert_called_with(["John", "Flo"])
         mock_split.assert_called_with("X,Y,Z", 65)
+
+
+
+class RevdatLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_revdat_lines({}), [])
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_parse_table(self, mock_date):
+        mock_date.side_effect = ["01-JAN-02", "02-JUN-02", "03-FEB-03"]
+        mmcif = {
+            "entry": [{"id": "1XXX"}],
+            "pdbx_audit_revision_history": [
+                {"revision_date": "2001"}, {"revision_date": "2002"}, {"revision_date": "2003"}
+            ]
+        }
+        self.assertEqual(create_revdat_lines(mmcif), [
+            "REVDAT   3   03-FEB-03 1XXX",
+            "REVDAT   2   02-JUN-02 1XXX",
+            "REVDAT   1   01-JAN-02 1XXX",
+        ])
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_handle_no_id(self, mock_date):
+        mock_date.side_effect = ["01-JAN-02", "02-JUN-02", "03-FEB-03"]
+        mmcif = {
+            "pdbx_audit_revision_history": [
+                {"revision_date": "2001"}, {"revision_date": "2002"}, {"revision_date": "2003"}
+            ]
+        }
+        self.assertEqual(create_revdat_lines(mmcif), [
+            "REVDAT   3   03-FEB-03     ",
+            "REVDAT   2   02-JUN-02     ",
+            "REVDAT   1   01-JAN-02     ",
+        ])
 
 
 

@@ -1780,6 +1780,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_nummdl_lines(mmcif)
     lines += create_mdltyp_lines(mmcif)
     lines += create_author_lines(mmcif)
+    lines += create_revdat_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -2045,6 +2046,22 @@ def create_author_lines(mmcif):
         else:
             lines.append(f"AUTHOR  {len(lines) + 1:>2} {line}")
     return lines
+
+
+def create_revdat_lines(mmcif):
+    """Creates the REVDAT lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    lines = []
+    for row in mmcif.get("pdbx_audit_revision_history", []):
+        lines.append("REVDAT {:>3}   {:9} {:4}".format(
+            len(lines) + 1,
+            create_pdb_date(row["revision_date"]),
+            mmcif.get("entry", [{"id": ""}])[0]["id"]
+        ))
+    return lines[::-1]
 
 
 def create_seqadv_lines(mmcif):

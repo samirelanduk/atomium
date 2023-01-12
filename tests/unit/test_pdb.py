@@ -1629,6 +1629,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_mdltyp_lines")
     @patch("atomium.pdb.create_author_lines")
     @patch("atomium.pdb.create_revdat_lines")
+    @patch("atomium.pdb.create_sprsde_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
     @patch("atomium.pdb.create_modres_lines")
@@ -1655,7 +1656,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(31))) + "\nEND"
+            "\n".join(map(str, range(32))) + "\nEND"
         )
 
 
@@ -2231,6 +2232,33 @@ class RevdatLinesTests(TestCase):
             "REVDAT   2   02-JUN-02     ",
             "REVDAT   1   01-JAN-02     ",
         ])
+
+
+
+class SprsdeLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_sprsde_lines({}), [])
+    
+
+    def test_can_handle_no_sprsde(self):
+        self.assertEqual(create_sprsde_lines({
+            "pdbx_database_PDB_obs_spr": [
+                {"id": "OBSLTE", "pdb_id": "2XXX", "replace_pdb_id": "1XXX", "date": "2002"},
+            ]
+        }), [])
+    
+
+    @patch("atomium.pdb.create_pdb_date")
+    def test_can_create_obslte(self, mock_date):
+        mock_date.return_value = "25-JUL-06"
+        self.assertEqual(create_sprsde_lines({
+            "pdbx_database_PDB_obs_spr": [
+                {"id": "OBSLTE", "pdb_id": "XXXX", "replace_pdb_id": "YXXX", "date": "2002"},
+                {"id": "SPRSDE", "pdb_id": "2XXX", "replace_pdb_id": "1XXX", "date": "2002"},
+            ]
+        }), ["SPRSDE     25-JUL-06 1XXX      2XXX"])
+        mock_date.assert_called_with("2002")
 
 
 

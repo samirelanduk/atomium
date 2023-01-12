@@ -1781,6 +1781,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_mdltyp_lines(mmcif)
     lines += create_author_lines(mmcif)
     lines += create_revdat_lines(mmcif)
+    lines += create_sprsde_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -1808,7 +1809,7 @@ def create_header_line(mmcif):
     """Creates the HEADER line from a mmCIF dictionary.
     
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
     
     code = mmcif.get("entry", [{"id": ""}])[0]["id"]
     keyword = mmcif.get(
@@ -1828,7 +1829,7 @@ def create_obslte_lines(mmcif):
     """Creates the OBSLTE line from a mmCIF dictionary.
     
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     for row in mmcif.get("pdbx_database_PDB_obs_spr", []):
         if row["id"] == "OBSLTE":
@@ -1843,7 +1844,7 @@ def create_title_lines(mmcif):
     """Creates the TITLE lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     title = mmcif.get("struct", [{"title": "?"}])[0]["title"]
@@ -1861,7 +1862,7 @@ def create_split_lines(mmcif):
     """Creates the SPLIT lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     codes = [s["db_id"][:4] for s in mmcif.get("pdbx_database_related", [])]
@@ -1877,7 +1878,7 @@ def create_caveat_lines(mmcif):
     """Creates the CAVEAT lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     if "database_PDB_caveat" not in mmcif: return []
@@ -1894,7 +1895,7 @@ def create_compnd_lines(mmcif):
     """Creates the COMPND lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     for entity in mmcif["entity"]:
@@ -1928,7 +1929,7 @@ def create_source_lines(mmcif):
     """Creates the SOURCE lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     for entity in mmcif["entity"]:
@@ -1955,7 +1956,7 @@ def create_keywds_lines(mmcif):
     """Creates the KEYWDS lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     keywords = mmcif.get("struct_keywords", [{"text": "?"}])[0]["text"]
@@ -1973,7 +1974,7 @@ def create_expdta_lines(mmcif):
     """Creates the EXPDTA lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     values = [r["method"] for r in mmcif.get("exptl", []) if r["method"] != "?"]
     if not values: return []
@@ -1992,7 +1993,7 @@ def create_nummdl_lines(mmcif):
     """Creates the EXPDTA lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     model_ids = set(a["pdbx_PDB_model_num"] for a in mmcif.get("atom_site", []))
     return [] if len(model_ids) == 1 else [f"NUMMDL    {len(model_ids)}"]
@@ -2002,7 +2003,7 @@ def create_mdltyp_lines(mmcif):
     """Creates the MDLTYP lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     messages, lines = [], []
     message = mmcif.get(
@@ -2033,7 +2034,7 @@ def create_author_lines(mmcif):
     """Creates the AUTHOR lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     names = [r["name"] for r in mmcif.get("audit_author", [])]
@@ -2052,7 +2053,7 @@ def create_revdat_lines(mmcif):
     """Creates the REVDAT lines from a mmCIF dictionary.
 
     :param dict mmcif: the dictionary to update.
-    :rtye: ``list``"""
+    :rtype: ``list``"""
 
     lines = []
     for row in mmcif.get("pdbx_audit_revision_history", []):
@@ -2062,6 +2063,21 @@ def create_revdat_lines(mmcif):
             mmcif.get("entry", [{"id": ""}])[0]["id"]
         ))
     return lines[::-1]
+
+
+def create_sprsde_lines(mmcif):
+    """Creates the SPRSDE line from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    for row in mmcif.get("pdbx_database_PDB_obs_spr", []):
+        if row["id"] == "SPRSDE":
+            return ["SPRSDE     {:9} {:4}      {:4}".format(
+                create_pdb_date(row["date"]),
+                row["replace_pdb_id"], row["pdb_id"]
+            )]
+    return []
 
 
 def create_seqadv_lines(mmcif):

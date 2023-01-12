@@ -469,7 +469,7 @@ class AuthorParsingTests(TestCase):
         self.assertEqual(mmcif, {})
 
 
-    @patch("atomium.pdb.process_names")
+    @patch("atomium.pdb.pdb_names_to_mmcif_names")
     def test_can_parse_author(self, mock_names):
         mock_names.return_value = ["Berry, M.B"]
         mmcif = {}
@@ -480,7 +480,7 @@ class AuthorParsingTests(TestCase):
         mock_names.assert_called_with(["M.B.BERRY"])
     
 
-    @patch("atomium.pdb.process_names")
+    @patch("atomium.pdb.pdb_names_to_mmcif_names")
     def test_can_parse_multi_line_author(self, mock_names):
         mock_names.return_value = ["Berry, M.B", "Phillips, G.N"]
         mmcif = {}
@@ -577,7 +577,7 @@ class SprsdeParsingTests(TestCase):
 class JrnlParsingTests(TestCase):
 
     def setUp(self):
-        self.patch1 = patch("atomium.pdb.process_names")
+        self.patch1 = patch("atomium.pdb.pdb_names_to_mmcif_names")
         self.patch2 = patch("atomium.pdb.parse_journal_title")
         self.patch3 = patch("atomium.pdb.parse_journal_references")
         self.patch4 = patch("atomium.pdb.parse_journal_ids")
@@ -1627,6 +1627,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_expdta_lines")
     @patch("atomium.pdb.create_nummdl_lines")
     @patch("atomium.pdb.create_mdltyp_lines")
+    @patch("atomium.pdb.create_author_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
     @patch("atomium.pdb.create_modres_lines")
@@ -1653,7 +1654,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(29))) + "\nEND"
+            "\n".join(map(str, range(30))) + "\nEND"
         )
 
 
@@ -2160,6 +2161,37 @@ class MdlTypeLinesTests(TestCase):
             "MDLTYP   3 MINIMIZED 3",
         ])
         mock_split.assert_called_with("MINIMIZED; CA ATOMS ONLY, CHAIN A, B, D, F; P ATOMS ONLY, CHAIN C, E", 60)
+
+
+
+class AuthorLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_author_lines({}), [])
+    
+
+    @patch("atomium.pdb.mmcif_names_to_pdb_names")
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_one_name(self, mock_split, mock_names):
+        mmcif = {"audit_author": [{"name": "John"}]}
+        mock_names.return_value = "X,Y,Z"
+        mock_split.return_value = ["NAMES1"]
+        self.assertEqual(create_author_lines(mmcif), ["AUTHOR    NAMES1"])
+        mock_names.assert_called_with(["John"])
+        mock_split.assert_called_with("X,Y,Z", 65)
+    
+
+    @patch("atomium.pdb.mmcif_names_to_pdb_names")
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_multi_name(self, mock_split, mock_names):
+        mmcif = {"audit_author": [{"name": "John"}, {"name": "Flo"}]}
+        mock_names.return_value = "X,Y,Z"
+        mock_split.return_value = ["NAMES1", "NAMES2", "NAMES3"]
+        self.assertEqual(create_author_lines(mmcif), [
+            "AUTHOR    NAMES1", "AUTHOR   2 NAMES2", "AUTHOR   3 NAMES3"
+        ])
+        mock_names.assert_called_with(["John", "Flo"])
+        mock_split.assert_called_with("X,Y,Z", 65)
 
 
 

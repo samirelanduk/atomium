@@ -267,7 +267,7 @@ def parse_author(filestring, mmcif):
     lines = re.findall(r"^AUTHOR.+", filestring, re.M)
     if not lines: return
     author_lines = [line[10:].strip() for line in lines]
-    authors = process_names(author_lines)
+    authors = pdb_names_to_mmcif_names(author_lines)
     mmcif["audit_author"] = [{
         "name": author, "pdbx_ordinal": str(num)
     }  for num, author in enumerate(authors, start=1)]
@@ -326,7 +326,7 @@ def parse_jrnl(filestring, mmcif):
     if not journal_lines: return
     for record, table in [["AUTH", "author"], ["EDIT", "editor"]]:
         lines = [l[19:].strip() for l in journal_lines if l[12:16] == record]
-        names = process_names(lines)
+        names = pdb_names_to_mmcif_names(lines)
         if names:
             mmcif[f"citation_{table}"] = [{
                 "citation_id": "primary", "name": name, "pdbx_ordinal": str(num)
@@ -1746,7 +1746,7 @@ def pdb_date_to_mmcif_date(date):
     return f"{year}-{month}-{day}"
 
 
-def process_names(lines):
+def pdb_names_to_mmcif_names(lines):
     all_names = [name for line in lines for name in line.split(",") if name]
     processed_names = []
     for name in all_names:
@@ -1779,6 +1779,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_expdta_lines(mmcif)
     lines += create_nummdl_lines(mmcif)
     lines += create_mdltyp_lines(mmcif)
+    lines += create_author_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -2024,6 +2025,25 @@ def create_mdltyp_lines(mmcif):
             lines.append(f"MDLTYP    {line}")
         else:
             lines.append(f"MDLTYP  {len(lines) + 1:>2} {line}")
+    return lines
+
+
+def create_author_lines(mmcif):
+    """Creates the AUTHOR lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    lines = []
+    names = [r["name"] for r in mmcif.get("audit_author", [])]
+    if not names: return lines
+    pdb_names = mmcif_names_to_pdb_names(names)
+    author = split_lines(pdb_names, 65)
+    for line in author:
+        if len(lines) == 0:
+            lines.append(f"AUTHOR    {line}")
+        else:
+            lines.append(f"AUTHOR  {len(lines) + 1:>2} {line}")
     return lines
 
 
@@ -2427,8 +2447,16 @@ def split_lines(string, length):
     strings = []
     while string:
         first = string[:length]
-        last_space = first[::-1].find(" ")
+        last_space = first[::-1].find(" " if " " in string else ",")
         first = string[:length - last_space]
         string = string[length - last_space:].lstrip()
         strings.append(first)
     return strings
+
+
+def mmcif_names_to_pdb_names(names):
+    pdb_names = []
+    for name in names:
+        surname, initials = name.split(", ")
+        pdb_names.append(f"{initials}.{surname}".upper())
+    return ",".join(pdb_names)

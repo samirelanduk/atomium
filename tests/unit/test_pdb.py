@@ -1626,6 +1626,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_keywds_lines")
     @patch("atomium.pdb.create_expdta_lines")
     @patch("atomium.pdb.create_nummdl_lines")
+    @patch("atomium.pdb.create_mdltyp_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
     @patch("atomium.pdb.create_modres_lines")
@@ -1652,7 +1653,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(28))) + "\nEND"
+            "\n".join(map(str, range(29))) + "\nEND"
         )
 
 
@@ -2102,6 +2103,63 @@ class NummdlLinesTests(TestCase):
         ]}
         self.assertEqual(create_nummdl_lines(mmcif), ["NUMMDL    3"])
 
+
+class MdlTypeLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_mdltyp_lines({}), [])
+    
+
+    def test_can_handle_no_values(self):
+        mmcif = {"struct": [{"pdbx_model_type_details": "?"}]}
+        self.assertEqual(create_mdltyp_lines(mmcif), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_parse_struct_mdltyp(self, mock_split):
+        mmcif = {"struct": [{"pdbx_model_type_details": "Minimized"}]}
+        mock_split.return_value = ["MINIMIZED"]
+        self.assertEqual(create_mdltyp_lines(mmcif), ["MDLTYP    MINIMIZED"])
+        mock_split.assert_called_with("MINIMIZED", 60)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_parse_coordinate_mdltyp(self, mock_split):
+        mmcif = {
+            "pdbx_coordinate_model": [
+                {"asym_id": "A", "type": "CA atoms ONLY"},
+                {"asym_id": "B", "type": "CA atoms ONLY"},
+                {"asym_id": "C", "type": "P atoms ONLY"},
+                {"asym_id": "D", "type": "CA atoms ONLY"},
+                {"asym_id": "E", "type": "P atoms ONLY"},
+                {"asym_id": "F", "type": "CA atoms ONLY"},
+            ]
+        }
+        mock_split.return_value = ["MINIMIZED"]
+        self.assertEqual(create_mdltyp_lines(mmcif), ["MDLTYP    MINIMIZED"])
+        mock_split.assert_called_with("CA ATOMS ONLY, CHAIN A, B, D, F; P ATOMS ONLY, CHAIN C, E", 60)
+
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_parse_full(self, mock_split):
+        mmcif = {
+            "pdbx_coordinate_model": [
+                {"asym_id": "A", "type": "CA ATOMS ONLY"},
+                {"asym_id": "B", "type": "CA ATOMS ONLY"},
+                {"asym_id": "C", "type": "P ATOMS ONLY"},
+                {"asym_id": "D", "type": "CA ATOMS ONLY"},
+                {"asym_id": "E", "type": "P ATOMS ONLY"},
+                {"asym_id": "F", "type": "CA ATOMS ONLY"},
+            ],
+            "struct": [{"pdbx_model_type_details": "Minimized"}]
+        }
+        mock_split.return_value = ["MINIMIZED 1", "MINIMIZED 2", "MINIMIZED 3"]
+        self.assertEqual(create_mdltyp_lines(mmcif), [
+            "MDLTYP    MINIMIZED 1",
+            "MDLTYP   2 MINIMIZED 2",
+            "MDLTYP   3 MINIMIZED 3",
+        ])
+        mock_split.assert_called_with("MINIMIZED; CA ATOMS ONLY, CHAIN A, B, D, F; P ATOMS ONLY, CHAIN C, E", 60)
 
 
 

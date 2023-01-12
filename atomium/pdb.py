@@ -1778,6 +1778,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_keywds_lines(mmcif)
     lines += create_expdta_lines(mmcif)
     lines += create_nummdl_lines(mmcif)
+    lines += create_mdltyp_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -1993,6 +1994,37 @@ def create_nummdl_lines(mmcif):
 
     model_ids = set(a["pdbx_PDB_model_num"] for a in mmcif.get("atom_site", []))
     return [] if len(model_ids) == 1 else [f"NUMMDL    {len(model_ids)}"]
+
+
+def create_mdltyp_lines(mmcif):
+    """Creates the MDLTYP lines from a mmCIF dictionary.
+
+    :param dict mmcif: the dictionary to update.
+    :rtye: ``list``"""
+
+    messages, lines = [], []
+    message = mmcif.get(
+        "struct", [{"pdbx_model_type_details": "?"}]
+    )[0]["pdbx_model_type_details"]
+    if message and message != "?": messages.append(message.upper())
+    minimal_chains = []
+    for row in  mmcif.get("pdbx_coordinate_model", []):
+        if row["type"] not in minimal_chains:
+            minimal_chains.append(row["type"])
+    for minimal in minimal_chains:
+        asyms = ", ".join([
+            r["asym_id"] for r in mmcif.get("pdbx_coordinate_model", [])
+                if r["type"] == minimal
+        ])
+        messages.append(f"{minimal.upper()}, CHAIN {asyms}")
+    if not messages: return []
+    mdltyp = split_lines("; ".join(messages), 60)
+    for line in mdltyp:
+        if len(lines) == 0:
+            lines.append(f"MDLTYP    {line}")
+        else:
+            lines.append(f"MDLTYP  {len(lines) + 1:>2} {line}")
+    return lines
 
 
 def create_seqadv_lines(mmcif):

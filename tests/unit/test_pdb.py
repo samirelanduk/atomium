@@ -2560,6 +2560,38 @@ class JrnlDoiLinesTests(TestCase):
 
 
 
+class RemarkLinesTests(TestCase):
+
+    @patch("atomium.pdb.create_remark_2_lines")
+    def test_can_produce_jrnl_lines(self, *mocks):
+        mmcif = {"mmcif": 1}
+        for i, mock in enumerate(mocks[::-1]):
+            mock.return_value = [i]
+        lines = create_remark_lines(mmcif)
+        self.assertEqual(lines, [0])
+
+
+
+class Remark2LinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_remark_2_lines({}), [])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"reflns": [{"d_resolution_high": "?"}]}
+        self.assertEqual(create_remark_2_lines(mmcif), [])
+    
+
+    def test_can_get_remark_2(self):
+        mmcif = {"reflns": [{"d_resolution_high": "2.3"}]}
+        self.assertEqual(create_remark_2_lines(mmcif), [
+             "REMARK   2",  "REMARK   2 RESOLUTION.    2.30 ANGSTROMS."
+        ])
+
+
+
+
 class NextIdTests(TestCase):
 
     def test_can_get_first_id(self):

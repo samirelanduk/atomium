@@ -1783,6 +1783,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_revdat_lines(mmcif)
     lines += create_sprsde_lines(mmcif)
     lines += create_jrnl_lines(mmcif)
+    lines += create_remark_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -2220,6 +2221,32 @@ def create_jrnl_doi_lines(mmcif):
     )[0]["pdbx_database_id_DOI"]
     if not doi or doi == "?": return []
     return ["JRNL        DOI    " + doi]
+
+
+def create_remark_lines(mmcif):
+    """Creates the REMARK lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    lines = []
+    lines += create_remark_2_lines(mmcif)
+    return lines
+
+
+def create_remark_2_lines(mmcif):
+    """Creates the REMARK 2 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    r = mmcif.get("reflns", [{"d_resolution_high": ""}])[0]["d_resolution_high"]
+    try:
+        return [
+            "REMARK   2",
+            "REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(float(r))
+        ]
+    except ValueError: return []
 
 
 def create_seqadv_lines(mmcif):

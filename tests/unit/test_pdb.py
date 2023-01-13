@@ -1630,6 +1630,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_author_lines")
     @patch("atomium.pdb.create_revdat_lines")
     @patch("atomium.pdb.create_sprsde_lines")
+    @patch("atomium.pdb.create_jrnl_lines")
     @patch("atomium.pdb.create_seqadv_lines")
     @patch("atomium.pdb.create_seqres_lines")
     @patch("atomium.pdb.create_modres_lines")
@@ -1656,7 +1657,7 @@ class MmcifDictSavingTests(TestCase):
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(32))) + "\nEND"
+            "\n".join(map(str, range(33))) + "\nEND"
         )
 
 
@@ -1769,6 +1770,7 @@ class TitleLinesSavingTests(TestCase):
         mmcif = {"struct": [{"title": "TTT"}]}
         mock_split.return_value = ["The title"]
         self.assertEqual(create_title_lines(mmcif), ["TITLE     THE TITLE"])
+        mock_split.assert_called_with("TTT", 60)
     
 
     @patch("atomium.pdb.split_lines")
@@ -1780,6 +1782,7 @@ class TitleLinesSavingTests(TestCase):
             "TITLE    2 AND THE REST",
             "TITLE    3 OF THE TITLE",
         ])
+        mock_split.assert_called_with("TTT", 60)
 
 
 
@@ -2259,6 +2262,301 @@ class SprsdeLinesTests(TestCase):
             ]
         }), ["SPRSDE     25-JUL-06 1XXX      2XXX"])
         mock_date.assert_called_with("2002")
+
+
+
+class JrnlLinesTests(TestCase):
+
+    @patch("atomium.pdb.create_jrnl_auth_lines")
+    @patch("atomium.pdb.create_jrnl_titl_lines")
+    @patch("atomium.pdb.create_jrnl_edit_lines")
+    @patch("atomium.pdb.create_jrnl_ref_lines")
+    @patch("atomium.pdb.create_jrnl_publ_lines")
+    @patch("atomium.pdb.create_jrnl_refn_lines")
+    @patch("atomium.pdb.create_jrnl_pmid_lines")
+    @patch("atomium.pdb.create_jrnl_doi_lines")
+    def test_can_produce_jrnl_lines(self, *mocks):
+        mmcif = {"mmcif": 1}
+        for i, mock in enumerate(mocks[::-1]):
+            mock.return_value = [i]
+        lines = create_jrnl_lines(mmcif)
+        self.assertEqual(lines, [0, 1, 2, 3, 4, 5, 6, 7])
+
+
+
+class JrnlAuthLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_jrnl_auth_lines({}), [])
+    
+
+    @patch("atomium.pdb.mmcif_names_to_pdb_names")
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_one_name(self, mock_split, mock_names):
+        mmcif = {"citation_author": [{"name": "John"}]}
+        mock_names.return_value = "X,Y,Z"
+        mock_split.return_value = ["NAMES1"]
+        self.assertEqual(create_jrnl_auth_lines(mmcif), ["JRNL        AUTH   NAMES1"])
+        mock_names.assert_called_with(["John"])
+        mock_split.assert_called_with("X,Y,Z", 60)
+    
+
+    @patch("atomium.pdb.mmcif_names_to_pdb_names")
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_multi_name(self, mock_split, mock_names):
+        mmcif = {"citation_author": [{"name": "John"}, {"name": "Flo"}]}
+        mock_names.return_value = "X,Y,Z"
+        mock_split.return_value = ["NAMES1", "NAMES2", "NAMES3"]
+        self.assertEqual(create_jrnl_auth_lines(mmcif), [
+            "JRNL        AUTH   NAMES1",
+            "JRNL        AUTH 2 NAMES2",
+            "JRNL        AUTH 3 NAMES3"
+        ])
+        mock_names.assert_called_with(["John", "Flo"])
+        mock_split.assert_called_with("X,Y,Z", 60)
+
+
+
+class JrnlTitlLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_jrnl_titl_lines({}), [])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"citation": [{"title": "?"}]}
+        self.assertEqual(create_jrnl_titl_lines(mmcif), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_line_title(self, mock_split):
+        mmcif = {"citation": [{"title": "ttt"}]}
+        mock_split.return_value = ["THE TITLE"]
+        self.assertEqual(create_jrnl_titl_lines(mmcif), ["JRNL        TITL   THE TITLE"])
+        mock_split.assert_called_with("TTT", 50)
+
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_multi_line_title(self, mock_split):
+        mmcif = {"citation": [{"title": "title"}]}
+        mock_split.return_value = ["THE TITLE", "AND THE REST", "OF THE TITLE"]
+        self.assertEqual(create_jrnl_titl_lines(mmcif), [
+            "JRNL        TITL   THE TITLE",
+            "JRNL        TITL 2 AND THE REST",
+            "JRNL        TITL 3 OF THE TITLE",
+        ])
+        mock_split.assert_called_with("TITLE", 50)
+
+
+
+class JrnlEditLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_jrnl_edit_lines({}), [])
+    
+
+    @patch("atomium.pdb.mmcif_names_to_pdb_names")
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_one_name(self, mock_split, mock_names):
+        mmcif = {"citation_editor": [{"name": "John"}]}
+        mock_names.return_value = "X,Y,Z"
+        mock_split.return_value = ["NAMES1"]
+        self.assertEqual(create_jrnl_edit_lines(mmcif), ["JRNL        EDIT   NAMES1"])
+        mock_names.assert_called_with(["John"])
+        mock_split.assert_called_with("X,Y,Z", 60)
+    
+
+    @patch("atomium.pdb.mmcif_names_to_pdb_names")
+    @patch("atomium.pdb.split_lines")
+    def test_can_handle_multi_name(self, mock_split, mock_names):
+        mmcif = {"citation_editor": [{"name": "John"}, {"name": "Flo"}]}
+        mock_names.return_value = "X,Y,Z"
+        mock_split.return_value = ["NAMES1", "NAMES2", "NAMES3"]
+        self.assertEqual(create_jrnl_edit_lines(mmcif), [
+            "JRNL        EDIT   NAMES1",
+            "JRNL        EDIT 2 NAMES2",
+            "JRNL        EDIT 3 NAMES3"
+        ])
+        mock_names.assert_called_with(["John", "Flo"])
+        mock_split.assert_called_with("X,Y,Z", 60)
+
+
+
+class JrnlRefLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_jrnl_ref_lines({}), [])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"citation": [
+            {"journal_abbrev": "?", "journal_volume": "?", "page_first": "?", "year": "?"}
+        ]}
+        self.assertEqual(create_jrnl_ref_lines(mmcif), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_journal(self, mock_split):
+        mmcif = {"citation": [
+            {"journal_abbrev": "jname", "journal_volume": "?", "page_first": "?", "year": "?"}
+        ]}
+        mock_split.return_value = ["VOLUME NAME"]
+        self.assertEqual(create_jrnl_ref_lines(mmcif), [
+            "JRNL        REF    VOLUME NAME"
+        ])
+        mock_split.assert_called_with("JNAME", 28)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_journal_multiple_lines(self, mock_split):
+        mmcif = {"citation": [
+            {"journal_abbrev": "jname", "journal_volume": "?", "page_first": "?", "year": "?"}
+        ]}
+        mock_split.return_value = ["VOLUME NAME A", "VOLUME NAME B"]
+        self.assertEqual(create_jrnl_ref_lines(mmcif), [
+            "JRNL        REF    VOLUME NAME A",
+            "JRNL        REF  2 VOLUME NAME B",
+        ])
+        mock_split.assert_called_with("JNAME", 28)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_volume(self, mock_split):
+        mmcif = {"citation": [
+            {"journal_abbrev": "?", "journal_volume": "277", "page_first": "?", "year": "?"}
+        ]}
+        mock_split.return_value = [""]
+        self.assertEqual(create_jrnl_ref_lines(mmcif), [
+            "JRNL        REF                                  V. 277"
+        ])
+        mock_split.assert_called_with("", 28)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_page(self, mock_split):
+        mmcif = {"citation": [
+            {"journal_abbrev": "?", "journal_volume": "?", "page_first": "100", "year": "?"}
+        ]}
+        mock_split.return_value = [""]
+        self.assertEqual(create_jrnl_ref_lines(mmcif), [
+            "JRNL        REF                                           100"
+        ])
+        mock_split.assert_called_with("", 28)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_year(self, mock_split):
+        mmcif = {"citation": [
+            {"journal_abbrev": "?", "journal_volume": "?", "page_first": "?", "year": "2002"}
+        ]}
+        mock_split.return_value = [""]
+        self.assertEqual(create_jrnl_ref_lines(mmcif), [
+            "JRNL        REF                                               2002"
+        ])
+        mock_split.assert_called_with("", 28)
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_full_ref(self, mock_split):
+        mmcif = {"citation": [
+            {"journal_abbrev": "jname", "journal_volume": "277", "page_first": "28080", "year": "2002"}
+        ]}
+        mock_split.return_value = ["J.BIOL.CHEM.", "P.BIOL.CHEM."]
+        self.assertEqual(create_jrnl_ref_lines(mmcif), [
+            "JRNL        REF    J.BIOL.CHEM.                  V. 277 28080 2002",
+            "JRNL        REF  2 P.BIOL.CHEM.",
+        ])
+        mock_split.assert_called_with("JNAME", 28)
+
+
+
+
+class JrnlPublLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_jrnl_publ_lines({}), [])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"citation": [{"book_publisher": "?"}]}
+        self.assertEqual(create_jrnl_publ_lines(mmcif), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_line_publ(self, mock_split):
+        mmcif = {"citation": [{"book_publisher": "ppp"}]}
+        mock_split.return_value = ["THE PUBLISHER"]
+        self.assertEqual(create_jrnl_publ_lines(mmcif), ["JRNL        PUBL   THE PUBLISHER"])
+        mock_split.assert_called_with("PPP", 60)
+
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_save_single_multi_line_publ(self, mock_split):
+        mmcif = {"citation": [{"book_publisher": "publi"}]}
+        mock_split.return_value = ["THE PUBLISHER", "AND THE REST", "OF THE PUBLISHER"]
+        self.assertEqual(create_jrnl_publ_lines(mmcif), [
+            "JRNL        PUBL   THE PUBLISHER",
+            "JRNL        PUBL 2 AND THE REST",
+            "JRNL        PUBL 3 OF THE PUBLISHER",
+        ])
+        mock_split.assert_called_with("PUBLI", 60)
+
+
+
+class JrnlRefnLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_jrnl_refn_lines({}), [])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"citation": [{"journal_id_ISSN": "?"}]}
+        self.assertEqual(create_jrnl_refn_lines(mmcif), [])
+    
+
+    def test_can_produce_line(self):
+        mmcif = {"citation": [{"journal_id_ISSN": "10026008"}]}
+        self.assertEqual(create_jrnl_refn_lines(mmcif), [
+            "JRNL        REFN                   ISSN 10026008"
+        ])
+
+
+
+class JrnlPmidLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_jrnl_pmid_lines({}), [])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"citation": [{"pdbx_database_id_PubMed": "?"}]}
+        self.assertEqual(create_jrnl_pmid_lines(mmcif), [])
+    
+
+    def test_can_produce_line(self):
+        mmcif = {"citation": [{"pdbx_database_id_PubMed": "70008"}]}
+        self.assertEqual(create_jrnl_pmid_lines(mmcif), [
+            "JRNL        PMID   70008"
+        ])
+
+
+
+class JrnlDoiLinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_jrnl_doi_lines({}), [])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"citation": [{"pdbx_database_id_DOI": "?"}]}
+        self.assertEqual(create_jrnl_doi_lines(mmcif), [])
+    
+
+    def test_can_produce_line(self):
+        mmcif = {"citation": [{"pdbx_database_id_DOI": "ddd.100"}]}
+        self.assertEqual(create_jrnl_doi_lines(mmcif), [
+            "JRNL        DOI    ddd.100"
+        ])
 
 
 

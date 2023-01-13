@@ -1782,6 +1782,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_author_lines(mmcif)
     lines += create_revdat_lines(mmcif)
     lines += create_sprsde_lines(mmcif)
+    lines += create_jrnl_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -2066,7 +2067,7 @@ def create_revdat_lines(mmcif):
 
 
 def create_sprsde_lines(mmcif):
-    """Creates the SPRSDE line from a mmCIF dictionary.
+    """Creates the SPRSDE lines from a mmCIF dictionary.
     
     :param dict mmcif: the dictionary to update.
     :rtype: ``list``"""
@@ -2078,6 +2079,147 @@ def create_sprsde_lines(mmcif):
                 row["replace_pdb_id"], row["pdb_id"]
             )]
     return []
+
+
+def create_jrnl_lines(mmcif):
+    """Creates the JRNL lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    lines = []
+    lines += create_jrnl_auth_lines(mmcif)
+    lines += create_jrnl_titl_lines(mmcif)
+    lines += create_jrnl_edit_lines(mmcif)
+    lines += create_jrnl_ref_lines(mmcif)
+    lines += create_jrnl_publ_lines(mmcif)
+    lines += create_jrnl_refn_lines(mmcif)
+    lines += create_jrnl_pmid_lines(mmcif)
+    lines += create_jrnl_doi_lines(mmcif)
+    return lines
+
+
+def create_jrnl_auth_lines(mmcif):
+    """Creates the JRNL AUTH lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    lines = []
+    names = [r["name"] for r in mmcif.get("citation_author", [])]
+    if not names: return lines
+    pdb_names = mmcif_names_to_pdb_names(names)
+    author = split_lines(pdb_names, 60)
+    for i, line in enumerate(author, start=1):
+        lines.append(f"JRNL        AUTH{'' if i == 1 else i:>2} {line}")
+    return lines
+
+
+def create_jrnl_titl_lines(mmcif):
+    """Creates the JRNL TITL lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    lines = []
+    title = mmcif.get("citation", [{"title": "?"}])[0]["title"]
+    if not title or title == "?": return lines
+    title_lines = split_lines(title.upper(), 50)
+    for i, line in enumerate(title_lines, start=1):
+        lines.append(f"JRNL        TITL{'' if i == 1 else i:>2} {line}")
+    return lines
+
+
+def create_jrnl_edit_lines(mmcif):
+    """Creates the JRNL EDIT lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    lines = []
+    names = [r["name"] for r in mmcif.get("citation_editor", [])]
+    if not names: return lines
+    pdb_names = mmcif_names_to_pdb_names(names)
+    author = split_lines(pdb_names, 60)
+    for i, line in enumerate(author, start=1):
+        lines.append(f"JRNL        EDIT{'' if i == 1 else i:>2} {line}")
+    return lines
+
+
+def create_jrnl_ref_lines(mmcif):
+    """Creates the JRNL REF lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    lines = []
+    citation = mmcif.get("citation", [{}])[0]
+    journal = citation.get("journal_abbrev", "").replace("?", "")
+    volume = citation.get("journal_volume", "").replace("?", "")
+    page = citation.get("page_first", "").replace("?", "")
+    year = citation.get("year", "").replace("?", "")
+    if not (journal or volume or page or year): return lines
+    line = "JRNL        REF {:2} {:28}  {:2}{:>4} {:>5} {:4}"
+    pub_title_lines = split_lines(journal.upper(), 28)
+    for i, title_line in enumerate(pub_title_lines, start=1):
+        lines.append(line.format(
+            "" if i == 1 else i, title_line,
+            "V." if i == 1 and volume else "", volume.upper() if i == 1 else "",
+            page if i == 1 else "", year if i == 1 else "",
+        ).strip())
+    return lines
+
+
+def create_jrnl_publ_lines(mmcif):
+    """Creates the JRNL PUBL lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    lines = []
+    publ = mmcif.get("citation", [{"book_publisher": ""}])[0]["book_publisher"]
+    if not publ or publ == "?": return lines
+    publ_lines = split_lines(publ.upper(), 60)
+    for i, line in enumerate(publ_lines, start=1):
+        lines.append(f"JRNL        PUBL{'' if i == 1 else i:>2} {line}")
+    return lines
+
+
+def create_jrnl_refn_lines(mmcif):
+    """Creates the JRNL REFN lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    ref = mmcif.get("citation", [{"journal_id_ISSN": ""}])[0]["journal_id_ISSN"]
+    if not ref or ref == "?": return []
+    return ["JRNL        REFN                   ISSN " + ref]
+
+
+def create_jrnl_pmid_lines(mmcif):
+    """Creates the JRNL PMID lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    pmid = mmcif.get(
+        "citation", [{"pdbx_database_id_PubMed": ""}]
+    )[0]["pdbx_database_id_PubMed"]
+    if not pmid or pmid == "?": return []
+    return ["JRNL        PMID   " + pmid]
+
+
+def create_jrnl_doi_lines(mmcif):
+    """Creates the JRNL DOI lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    doi = mmcif.get(
+        "citation", [{"pdbx_database_id_DOI": ""}]
+    )[0]["pdbx_database_id_DOI"]
+    if not doi or doi == "?": return []
+    return ["JRNL        DOI    " + doi]
 
 
 def create_seqadv_lines(mmcif):
@@ -2476,11 +2618,12 @@ def create_pdb_date(date):
 
 
 def split_lines(string, length):
+    has_spaces = " " in string
     if len(string) <= length: return [string]
     strings = []
     while string:
         first = string[:length]
-        last_space = first[::-1].find(" " if " " in string else ",")
+        last_space = first[::-1].find(" " if has_spaces else ",")
         first = string[:length - last_space]
         string = string[length - last_space:].lstrip()
         strings.append(first)

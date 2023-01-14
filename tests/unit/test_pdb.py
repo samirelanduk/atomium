@@ -2563,13 +2563,14 @@ class JrnlDoiLinesTests(TestCase):
 class RemarkLinesTests(TestCase):
 
     @patch("atomium.pdb.create_remark_2_lines")
+    @patch("atomium.pdb.create_remark_465_lines")
     @patch("atomium.pdb.create_remark_800_lines")
     def test_can_produce_jrnl_lines(self, *mocks):
         mmcif = {"mmcif": 1}
         for i, mock in enumerate(mocks[::-1]):
             mock.return_value = [i]
         lines = create_remark_lines(mmcif)
-        self.assertEqual(lines, [0, 1])
+        self.assertEqual(lines, [0, 1, 2])
 
 
 
@@ -2588,6 +2589,35 @@ class Remark2LinesTests(TestCase):
         mmcif = {"reflns": [{"d_resolution_high": "2.3"}]}
         self.assertEqual(create_remark_2_lines(mmcif), [
              "REMARK   2",  "REMARK   2 RESOLUTION.    2.30 ANGSTROMS."
+        ])
+
+
+
+class Remark465LinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_remark_465_lines({}), [])
+    
+
+    def test_can_produce_lines(self):
+        mmcif = {"pdbx_unobs_or_zero_occ_residues": [
+            {"auth_comp_id": "MET", "auth_asym_id": "A", "auth_seq_id": "1", "PDB_ins_code": "?"},
+            {"auth_comp_id": "VAL", "auth_asym_id": "A", "auth_seq_id": "10", "PDB_ins_code": "?"},
+            {"auth_comp_id": "PRO", "auth_asym_id": "A", "auth_seq_id": "10", "PDB_ins_code": "A"},
+            {"auth_comp_id": "TYR", "auth_asym_id": "B", "auth_seq_id": "999", "PDB_ins_code": "?"},
+            {"auth_comp_id": "CYS", "auth_asym_id": "B", "auth_seq_id": "4502", "PDB_ins_code": "?"},
+        ]}
+        self.assertEqual(create_remark_465_lines(mmcif), [
+            "REMARK 465",
+            "REMARK 465 MISSING RESIDUES",
+            "REMARK 465 THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE",
+            "REMARK 465 EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN",
+            "REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)",
+            "REMARK 465     MET A     1 ",
+            "REMARK 465     VAL A    10 ",
+            "REMARK 465     PRO A    10A",
+            "REMARK 465     TYR B   999 ",
+            "REMARK 465     CYS B  4502 "
         ])
 
 

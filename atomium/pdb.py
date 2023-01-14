@@ -2231,6 +2231,7 @@ def create_remark_lines(mmcif):
 
     lines = []
     lines += create_remark_2_lines(mmcif)
+    lines += create_remark_465_lines(mmcif)
     lines += create_remark_800_lines(mmcif)
     return lines
 
@@ -2248,6 +2249,28 @@ def create_remark_2_lines(mmcif):
             "REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(float(r))
         ]
     except ValueError: return []
+
+
+def create_remark_465_lines(mmcif):
+    """Creates the REMARK 465 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    residues = mmcif.get("pdbx_unobs_or_zero_occ_residues", [])
+    if not residues: return []
+    lines = [
+        "REMARK 465", "REMARK 465 MISSING RESIDUES",
+        "REMARK 465 THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE",
+        "REMARK 465 EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN",
+        "REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)"
+    ]
+    for residue in residues:
+        lines.append("REMARK 465     {:3} {:1} {:>5}{:1}".format(
+            residue["auth_comp_id"], residue["auth_asym_id"],
+            residue["auth_seq_id"], residue["PDB_ins_code"].replace("?", ""),
+        ))
+    return lines
 
 
 def create_remark_800_lines(mmcif):

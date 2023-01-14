@@ -2563,12 +2563,13 @@ class JrnlDoiLinesTests(TestCase):
 class RemarkLinesTests(TestCase):
 
     @patch("atomium.pdb.create_remark_2_lines")
+    @patch("atomium.pdb.create_remark_800_lines")
     def test_can_produce_jrnl_lines(self, *mocks):
         mmcif = {"mmcif": 1}
         for i, mock in enumerate(mocks[::-1]):
             mock.return_value = [i]
         lines = create_remark_lines(mmcif)
-        self.assertEqual(lines, [0])
+        self.assertEqual(lines, [0, 1])
 
 
 
@@ -2589,6 +2590,41 @@ class Remark2LinesTests(TestCase):
              "REMARK   2",  "REMARK   2 RESOLUTION.    2.30 ANGSTROMS."
         ])
 
+
+
+class Remark800LinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_remark_800_lines({}), [])
+    
+
+    def test_can_produce_lines(self):
+        mmcif = {"struct_site": [
+            {"id": "s1", "pdbx_evidence_code": "Software", "details": "site for res1"},
+            {"id": "s2", "pdbx_evidence_code": "Thought", "details": "site for res2"},
+        ]}
+        self.assertEqual(create_remark_800_lines(mmcif), [
+            "REMARK 800",
+            "REMARK 800 SITE",
+            "REMARK 800 SITE_IDENTIFIER: S1",
+            "REMARK 800 EVIDENCE_CODE: SOFTWARE",
+            "REMARK 800 SITE_DESCRIPTION: SITE FOR RES1",
+            "REMARK 800 SITE_IDENTIFIER: S2",
+            "REMARK 800 EVIDENCE_CODE: THOUGHT",
+            "REMARK 800 SITE_DESCRIPTION: SITE FOR RES2"
+        ])
+    
+
+    def test_can_handle_no_values(self):
+        mmcif = {"struct_site": [
+            {"id": "s1", "pdbx_evidence_code": "?", "details": "?"},
+            {"id": "?", "pdbx_evidence_code": "Thought", "details": "site for res2"},
+        ]}
+        self.assertEqual(create_remark_800_lines(mmcif), [
+            "REMARK 800",
+            "REMARK 800 SITE",
+            "REMARK 800 SITE_IDENTIFIER: S1"
+        ])
 
 
 

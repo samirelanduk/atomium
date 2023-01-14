@@ -2231,6 +2231,7 @@ def create_remark_lines(mmcif):
 
     lines = []
     lines += create_remark_2_lines(mmcif)
+    lines += create_remark_800_lines(mmcif)
     return lines
 
 
@@ -2247,6 +2248,30 @@ def create_remark_2_lines(mmcif):
             "REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(float(r))
         ]
     except ValueError: return []
+
+
+def create_remark_800_lines(mmcif):
+    """Creates the REMARK 800 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to update.
+    :rtype: ``list``"""
+
+    sites = mmcif.get("struct_site", [])
+    if not sites: return []
+    lines = ["REMARK 800", "REMARK 800 SITE"]
+    for site in sites:
+        id = site["id"]
+        evidence = site["pdbx_evidence_code"]
+        details = site["details"]
+        if id and id != "?":
+            lines.append(f"REMARK 800 SITE_IDENTIFIER: {id.upper()}")
+        else:
+            continue
+        if evidence and evidence != "?":
+            lines.append(f"REMARK 800 EVIDENCE_CODE: {evidence.upper()}")
+        if details and details != "?":
+            lines.append(f"REMARK 800 SITE_DESCRIPTION: {details.upper()}")
+    return lines
 
 
 def create_seqadv_lines(mmcif):

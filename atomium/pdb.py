@@ -3,6 +3,7 @@ import math
 import calendar
 import itertools
 from collections import Counter
+from atomium.file import get_operations
 from atomium.sequences import get_alignment_indices
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
 from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
@@ -616,17 +617,15 @@ def add_assembly_gen_to_mmcif(gen, mmcif):
 
     operation_ids = []
     assembly_id = mmcif["pdbx_struct_assembly"][-1]["id"] 
-    oper = "pdbx_struct_oper_list"
     for tf in gen["transformations"]:
         op = {
-            "type": "?", "pdbx_struct_oper_list.type": "?",
-            "pdbx_struct_oper_list.name": "?",
-            "pdbx_struct_oper_list.symmetry_operation": "x,y,z",
+            "type": "?", "type": "?", "name": "?",
+            "symmetry_operation": "x,y,z",
         }
         for i in range(3):
             for j in range(3):
-                op[f"{oper}.matrix[{i + 1}][{j + 1}]"] = str(tf["matrix"][i][j])
-            op[f"{oper}.vector[{i + 1}]"] = str(tf["vector"][i])
+                op[f"matrix[{i + 1}][{j + 1}]"] = str(tf["matrix"][i][j])
+            op[f"vector[{i + 1}]"] = str(tf["vector"][i])
         for o in mmcif["pdbx_struct_oper_list"]:
             if {k: v for k, v in o.items() if k != "id"} == op:
                 operation_ids.append(o["id"])
@@ -637,7 +636,7 @@ def add_assembly_gen_to_mmcif(gen, mmcif):
             operation_ids.append(op_id)
     mmcif["pdbx_struct_assembly_gen"].append({
         "assembly_id": assembly_id, "oper_expression": ",".join(operation_ids),
-        "asym_id": ",".join(gen["chains"])
+        "asym_id_list": ",".join(gen["chains"])
     })
     
 
@@ -1707,9 +1706,9 @@ def update_auth_and_label(mmcif):
         k for k, v in label_asym_to_auth_asym.items() if v == a
     ] for a in label_asym_to_auth_asym.values()}
     for row in mmcif.get("pdbx_struct_assembly_gen", []):
-        auths = row["asym_id"].split(",")
+        auths = row["asym_id_list"].split(",")
         labels = [id for auth in auths for id in auth_asym_to_label_asym[auth]]
-        row["asym_id"] = ",".join(sorted(labels, key=lambda l: list(label_asym_to_auth_asym.keys()).index(l)))
+        row["asym_id_list"] = ",".join(sorted(labels, key=lambda l: list(label_asym_to_auth_asym.keys()).index(l)))
     
     for name, rows in mmcif.items():
         keys = list(rows[0].keys())
@@ -1810,7 +1809,7 @@ def save_mmcif_dict(mmcif, path):
 def create_header_line(mmcif):
     """Creates the HEADER line from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
     
     code = mmcif.get("entry", [{"id": ""}])[0]["id"]
@@ -1830,7 +1829,7 @@ def create_header_line(mmcif):
 def create_obslte_lines(mmcif):
     """Creates the OBSLTE line from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     for row in mmcif.get("pdbx_database_PDB_obs_spr", []):
@@ -1845,7 +1844,7 @@ def create_obslte_lines(mmcif):
 def create_title_lines(mmcif):
     """Creates the TITLE lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -1863,7 +1862,7 @@ def create_title_lines(mmcif):
 def create_split_lines(mmcif):
     """Creates the SPLIT lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -1879,7 +1878,7 @@ def create_split_lines(mmcif):
 def create_caveat_lines(mmcif):
     """Creates the CAVEAT lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -1896,7 +1895,7 @@ def create_caveat_lines(mmcif):
 def create_compnd_lines(mmcif):
     """Creates the COMPND lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -1930,7 +1929,7 @@ def create_compnd_lines(mmcif):
 def create_source_lines(mmcif):
     """Creates the SOURCE lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -1957,7 +1956,7 @@ def create_source_lines(mmcif):
 def create_keywds_lines(mmcif):
     """Creates the KEYWDS lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -1975,7 +1974,7 @@ def create_keywds_lines(mmcif):
 def create_expdta_lines(mmcif):
     """Creates the EXPDTA lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     values = [r["method"] for r in mmcif.get("exptl", []) if r["method"] != "?"]
@@ -1994,7 +1993,7 @@ def create_expdta_lines(mmcif):
 def create_nummdl_lines(mmcif):
     """Creates the EXPDTA lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     model_ids = set(a["pdbx_PDB_model_num"] for a in mmcif.get("atom_site", []))
@@ -2004,7 +2003,7 @@ def create_nummdl_lines(mmcif):
 def create_mdltyp_lines(mmcif):
     """Creates the MDLTYP lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     messages, lines = [], []
@@ -2035,7 +2034,7 @@ def create_mdltyp_lines(mmcif):
 def create_author_lines(mmcif):
     """Creates the AUTHOR lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2054,7 +2053,7 @@ def create_author_lines(mmcif):
 def create_revdat_lines(mmcif):
     """Creates the REVDAT lines from a mmCIF dictionary.
 
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2070,7 +2069,7 @@ def create_revdat_lines(mmcif):
 def create_sprsde_lines(mmcif):
     """Creates the SPRSDE lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     for row in mmcif.get("pdbx_database_PDB_obs_spr", []):
@@ -2085,7 +2084,7 @@ def create_sprsde_lines(mmcif):
 def create_jrnl_lines(mmcif):
     """Creates the JRNL lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2103,7 +2102,7 @@ def create_jrnl_lines(mmcif):
 def create_jrnl_auth_lines(mmcif):
     """Creates the JRNL AUTH lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2119,7 +2118,7 @@ def create_jrnl_auth_lines(mmcif):
 def create_jrnl_titl_lines(mmcif):
     """Creates the JRNL TITL lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2134,7 +2133,7 @@ def create_jrnl_titl_lines(mmcif):
 def create_jrnl_edit_lines(mmcif):
     """Creates the JRNL EDIT lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2150,7 +2149,7 @@ def create_jrnl_edit_lines(mmcif):
 def create_jrnl_ref_lines(mmcif):
     """Creates the JRNL REF lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2174,7 +2173,7 @@ def create_jrnl_ref_lines(mmcif):
 def create_jrnl_publ_lines(mmcif):
     """Creates the JRNL PUBL lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
@@ -2189,7 +2188,7 @@ def create_jrnl_publ_lines(mmcif):
 def create_jrnl_refn_lines(mmcif):
     """Creates the JRNL REFN lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     ref = mmcif.get("citation", [{"journal_id_ISSN": ""}])[0]["journal_id_ISSN"]
@@ -2200,7 +2199,7 @@ def create_jrnl_refn_lines(mmcif):
 def create_jrnl_pmid_lines(mmcif):
     """Creates the JRNL PMID lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     pmid = mmcif.get(
@@ -2213,7 +2212,7 @@ def create_jrnl_pmid_lines(mmcif):
 def create_jrnl_doi_lines(mmcif):
     """Creates the JRNL DOI lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     doi = mmcif.get(
@@ -2226,11 +2225,12 @@ def create_jrnl_doi_lines(mmcif):
 def create_remark_lines(mmcif):
     """Creates the REMARK lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     lines = []
     lines += create_remark_2_lines(mmcif)
+    lines += create_remark_350_lines(mmcif)
     lines += create_remark_465_lines(mmcif)
     lines += create_remark_800_lines(mmcif)
     return lines
@@ -2239,7 +2239,7 @@ def create_remark_lines(mmcif):
 def create_remark_2_lines(mmcif):
     """Creates the REMARK 2 lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     r = mmcif.get("reflns", [{"d_resolution_high": ""}])[0]["d_resolution_high"]
@@ -2251,10 +2251,86 @@ def create_remark_2_lines(mmcif):
     except ValueError: return []
 
 
+def create_remark_350_lines(mmcif):
+    """Creates the REMARK 350 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    lines = []
+    assemblies = mmcif.get("pdbx_struct_assembly", [])
+    if not assemblies: return []
+    asym_lookup = {
+        a["label_asym_id"]: a["auth_asym_id"] for a in mmcif["atom_site"]
+    }
+    r3 = "REMARK 350"
+    lines = [
+        r3, f"{r3} COORDINATES FOR A COMPLETE MULTIMER REPRESENTING THE KNOWN",
+        f"{r3} BIOLOGICALLY SIGNIFICANT OLIGOMERIZATION STATE OF THE",
+        f"{r3} MOLECULE CAN BE GENERATED BY APPLYING BIOMT TRANSFORMATIONS",
+        f"{r3} GIVEN BELOW.  BOTH NON-CRYSTALLOGRAPHIC AND",
+        f"{r3} CRYSTALLOGRAPHIC OPERATIONS ARE GIVEN."
+    ]
+    for assembly in mmcif.get("pdbx_struct_assembly", []):
+        lines += create_single_assembly_lines(assembly, mmcif, asym_lookup)
+    return lines
+
+
+def create_single_assembly_lines(assembly, mmcif, asym_lookup):
+    """Creates the REMARK 350 lines for a single assembly, from an assembly row
+    dictionary, the full mmCIF dictionary, and a mapping of label_asym_ids to
+    auth_asym_ids.
+    
+    :param dict assembly: the assembly dictionary to parse.
+    :param dict mmcif: the full dictionary to parse.
+    :param dict asym_lookup: mapping of label_asym_ids to auth_asym_ids.
+    :rtype: ``list``"""
+
+    lines = []
+    lines.append("REMARK 350")
+    lines.append("REMARK 350 BIOMOLECULE: " + str(assembly["id"]))
+    if assembly.get("method_details", "?") != "?":
+        lines.append("REMARK 350 SOFTWARE USED: " + assembly["method_details"])
+    properties = [
+        ["ABSA (A^2)", "TOTAL BURIED SURFACE AREA", "ANGSTROM**2"],
+        ["SSA (A^2)", "SURFACE AREA OF THE COMPLEX", "ANGSTROM**2"],
+        ["MORE", "CHANGE IN SOLVENT FREE ENERGY", "KCAL/MOL"],
+    ]
+    for type, text, units in properties:
+        for row in mmcif.get("pdbx_struct_assembly_prop", []):
+            if row["biol_id"] == assembly["id"] and row["type"] == type:
+                lines.append(f"REMARK 350 {text}: {row['value']} {units}")
+    for row in mmcif.get("pdbx_struct_assembly_gen", []):
+        if row["assembly_id"] == assembly["id"]:
+            lines += create_assembly_gen_lines(row, mmcif, asym_lookup)
+    return lines
+
+
+def create_assembly_gen_lines(gen, mmcif, asym_lookup):
+    lines = []
+    asym_ids = gen["asym_id_list"].split(",")
+    chain_ids = sorted(set(asym_lookup[id] for id in asym_ids))
+    chain_lines = split_lines(", ".join(chain_ids), 27)
+    for i, line in enumerate(chain_lines):
+        if i == 0:
+            lines.append(f"REMARK 350 APPLY THE FOLLOWING TO CHAINS: {line},")
+        else:
+            lines.append(f"REMARK 350                    AND CHAINS: {line},")
+    line = "REMARK 350   BIOMT{:<2} {:>2} {} {} {}       {}"
+    for op_num, operation in enumerate(get_operations(mmcif, gen), start=1):
+        for row_num, row in enumerate(operation[:3], start=1):
+            values = [
+                ("-" if v < 0 else " ") + "{0:.10f}".format(abs(v))[:8]
+                for v in row
+            ]
+            lines.append(line.format(row_num, op_num, *values))
+    return lines
+
+
 def create_remark_465_lines(mmcif):
     """Creates the REMARK 465 lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     residues = mmcif.get("pdbx_unobs_or_zero_occ_residues", [])
@@ -2276,7 +2352,7 @@ def create_remark_465_lines(mmcif):
 def create_remark_800_lines(mmcif):
     """Creates the REMARK 800 lines from a mmCIF dictionary.
     
-    :param dict mmcif: the dictionary to update.
+    :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
     sites = mmcif.get("struct_site", [])

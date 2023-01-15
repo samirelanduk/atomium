@@ -1268,24 +1268,21 @@ class AssemblyGenTests(TestCase):
         }]}
         mmcif = {
             "pdbx_struct_assembly": [{"id": "1"}, {"id": "2"}],
-            "pdbx_struct_assembly_gen": [],
-            "pdbx_struct_oper_list": [],
+            "pdbx_struct_assembly_gen": [], "pdbx_struct_oper_list": [],
         }
         add_assembly_gen_to_mmcif(gen, mmcif)
         self.assertEqual(mmcif, {
             "pdbx_struct_assembly": [{"id": "1"}, {"id": "2"}],
             "pdbx_struct_assembly_gen": [{
-                "assembly_id": "2", "oper_expression": "1", "asym_id": "A"
+                "assembly_id": "2", "oper_expression": "1", "asym_id_list": "A"
             }],
             "pdbx_struct_oper_list": [{
-                "id": "1", "type": "?", "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
-                "pdbx_struct_oper_list.symmetry_operation": "x,y,z", "pdbx_struct_oper_list.matrix[1][1]": "1",
-                "pdbx_struct_oper_list.matrix[1][2]": "0", "pdbx_struct_oper_list.matrix[1][3]": "0",
-                "pdbx_struct_oper_list.vector[1]": "42.387", "pdbx_struct_oper_list.matrix[2][1]": "0",
-                "pdbx_struct_oper_list.matrix[2][2]": "1", "pdbx_struct_oper_list.matrix[2][3]": "0",
-                "pdbx_struct_oper_list.vector[2]": "0", "pdbx_struct_oper_list.matrix[3][1]": "0",
-                "pdbx_struct_oper_list.matrix[3][2]": "0", "pdbx_struct_oper_list.matrix[3][3]": "1",
-                "pdbx_struct_oper_list.vector[3]": "0"
+                "id": "1", "type": "?", "type": "?", "name": "?",
+                "symmetry_operation": "x,y,z", "matrix[1][1]": "1", "matrix[1][2]": "0",
+                "matrix[1][3]": "0", "vector[1]": "42.387", "matrix[2][1]": "0",
+                "matrix[2][2]": "1", "matrix[2][3]": "0", "vector[2]": "0",
+                "matrix[3][1]": "0", "matrix[3][2]": "0", "matrix[3][3]": "1",
+                "vector[3]": "0"
             }]
         })
     
@@ -1305,49 +1302,47 @@ class AssemblyGenTests(TestCase):
             "pdbx_struct_assembly": [{"id": "1"}, {"id": "2"}],
             "pdbx_struct_assembly_gen": [],
             "pdbx_struct_oper_list": [{
-                "id": "1", "type": "?", "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
-                "pdbx_struct_oper_list.symmetry_operation": "x,y,z", "pdbx_struct_oper_list.matrix[1][1]": "1",
-                "pdbx_struct_oper_list.matrix[1][2]": "0", "pdbx_struct_oper_list.matrix[1][3]": "0",
-                "pdbx_struct_oper_list.vector[1]": "42.387", "pdbx_struct_oper_list.matrix[2][1]": "0",
-                "pdbx_struct_oper_list.matrix[2][2]": "1", "pdbx_struct_oper_list.matrix[2][3]": "0",
-                "pdbx_struct_oper_list.vector[2]": "0", "pdbx_struct_oper_list.matrix[3][1]": "0",
-                "pdbx_struct_oper_list.matrix[3][2]": "0", "pdbx_struct_oper_list.matrix[3][3]": "1",
-                "pdbx_struct_oper_list.vector[3]": "0"
+                "id": "1", "type": "?", "type": "?", "name": "?",
+                "symmetry_operation": "x,y,z", "matrix[1][1]": "1", "matrix[1][2]": "0",
+                "matrix[1][3]": "0", "vector[1]": "42.387", "matrix[2][1]": "0",
+                "matrix[2][2]": "1", "matrix[2][3]": "0", "vector[2]": "0",
+                "matrix[3][1]": "0", "matrix[3][2]": "0", "matrix[3][3]": "1",
+                "vector[3]": "0"
             }]
         }
         add_assembly_gen_to_mmcif(gen, mmcif)
         self.assertEqual(mmcif, {
             "pdbx_struct_assembly": [{"id": "1"}, {"id": "2"}],
             "pdbx_struct_assembly_gen": [{
-                "assembly_id": "2", "oper_expression": "2,1,3", "asym_id": "A,B,C"
+                "assembly_id": "2", "oper_expression": "2,1,3", "asym_id_list": "A,B,C"
             }],
             "pdbx_struct_oper_list": [{
-                "id": "1", "type": "?", "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
-                "pdbx_struct_oper_list.symmetry_operation": "x,y,z", "pdbx_struct_oper_list.matrix[1][1]": "1",
-                "pdbx_struct_oper_list.matrix[1][2]": "0", "pdbx_struct_oper_list.matrix[1][3]": "0",
-                "pdbx_struct_oper_list.vector[1]": "42.387", "pdbx_struct_oper_list.matrix[2][1]": "0",
-                "pdbx_struct_oper_list.matrix[2][2]": "1", "pdbx_struct_oper_list.matrix[2][3]": "0",
-                "pdbx_struct_oper_list.vector[2]": "0", "pdbx_struct_oper_list.matrix[3][1]": "0",
-                "pdbx_struct_oper_list.matrix[3][2]": "0", "pdbx_struct_oper_list.matrix[3][3]": "1",
-                "pdbx_struct_oper_list.vector[3]": "0"
+                "id": "1", "type": "?", "type": "?", "name": "?",
+                "symmetry_operation": "x,y,z", "matrix[1][1]": "1",
+                "matrix[1][2]": "0", "matrix[1][3]": "0",
+                "vector[1]": "42.387", "matrix[2][1]": "0",
+                "matrix[2][2]": "1", "matrix[2][3]": "0",
+                "vector[2]": "0", "matrix[3][1]": "0",
+                "matrix[3][2]": "0", "matrix[3][3]": "1",
+                "vector[3]": "0"
             }, {
-                "id": "2", "type": "?", "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
-                "pdbx_struct_oper_list.symmetry_operation": "x,y,z", "pdbx_struct_oper_list.matrix[1][1]": "2",
-                "pdbx_struct_oper_list.matrix[1][2]": "0", "pdbx_struct_oper_list.matrix[1][3]": "0",
-                "pdbx_struct_oper_list.vector[1]": "1", "pdbx_struct_oper_list.matrix[2][1]": "0",
-                "pdbx_struct_oper_list.matrix[2][2]": "3", "pdbx_struct_oper_list.matrix[2][3]": "0",
-                "pdbx_struct_oper_list.vector[2]": "0", "pdbx_struct_oper_list.matrix[3][1]": "0",
-                "pdbx_struct_oper_list.matrix[3][2]": "0", "pdbx_struct_oper_list.matrix[3][3]": "4",
-                "pdbx_struct_oper_list.vector[3]": "5"
+                "id": "2", "type": "?", "type": "?", "name": "?",
+                "symmetry_operation": "x,y,z", "matrix[1][1]": "2",
+                "matrix[1][2]": "0", "matrix[1][3]": "0",
+                "vector[1]": "1", "matrix[2][1]": "0",
+                "matrix[2][2]": "3", "matrix[2][3]": "0",
+                "vector[2]": "0", "matrix[3][1]": "0",
+                "matrix[3][2]": "0", "matrix[3][3]": "4",
+                "vector[3]": "5"
             }, {
-                "id": "3", "type": "?", "pdbx_struct_oper_list.type": "?", "pdbx_struct_oper_list.name": "?",
-                "pdbx_struct_oper_list.symmetry_operation": "x,y,z", "pdbx_struct_oper_list.matrix[1][1]": "1",
-                "pdbx_struct_oper_list.matrix[1][2]": "0", "pdbx_struct_oper_list.matrix[1][3]": "0",
-                "pdbx_struct_oper_list.vector[1]": "1", "pdbx_struct_oper_list.matrix[2][1]": "0",
-                "pdbx_struct_oper_list.matrix[2][2]": "1", "pdbx_struct_oper_list.matrix[2][3]": "0",
-                "pdbx_struct_oper_list.vector[2]": "1", "pdbx_struct_oper_list.matrix[3][1]": "0",
-                "pdbx_struct_oper_list.matrix[3][2]": "0", "pdbx_struct_oper_list.matrix[3][3]": "1",
-                "pdbx_struct_oper_list.vector[3]": "1"
+                "id": "3", "type": "?", "type": "?", "name": "?",
+                "symmetry_operation": "x,y,z", "matrix[1][1]": "1",
+                "matrix[1][2]": "0", "matrix[1][3]": "0",
+                "vector[1]": "1", "matrix[2][1]": "0",
+                "matrix[2][2]": "1", "matrix[2][3]": "0",
+                "vector[2]": "1", "matrix[3][1]": "0",
+                "matrix[3][2]": "0", "matrix[3][3]": "1",
+                "vector[3]": "1"
             }]
         })
 
@@ -2656,6 +2651,171 @@ class Remark800LinesTests(TestCase):
             "REMARK 800 SITE_IDENTIFIER: S1"
         ])
 
+
+
+class Remark350LinesTests(TestCase):
+
+    def test_can_handle_no_category(self):
+        self.assertEqual(create_remark_350_lines({}), [])
+
+
+    @patch("atomium.pdb.create_single_assembly_lines")
+    def test_can_parse_assemblies(self, mock_lines):
+        mmcif = {"pdbx_struct_assembly": [1, 2, 3], "atom_site": [
+            {"label_asym_id": "A", "auth_asym_id": "A"},
+            {"label_asym_id": "A", "auth_asym_id": "A"},
+            {"label_asym_id": "B", "auth_asym_id": "B"},
+            {"label_asym_id": "B", "auth_asym_id": "B"},
+            {"label_asym_id": "C", "auth_asym_id": "A"},
+            {"label_asym_id": "C", "auth_asym_id": "A"},
+            {"label_asym_id": "D", "auth_asym_id": "B"},
+            {"label_asym_id": "D", "auth_asym_id": "B"},
+        ]}
+        mock_lines.side_effect = lambda a, m, l: [a] * 2
+        self.assertEqual(create_remark_350_lines(mmcif), [
+            "REMARK 350",
+            "REMARK 350 COORDINATES FOR A COMPLETE MULTIMER REPRESENTING THE KNOWN",
+            "REMARK 350 BIOLOGICALLY SIGNIFICANT OLIGOMERIZATION STATE OF THE",
+            "REMARK 350 MOLECULE CAN BE GENERATED BY APPLYING BIOMT TRANSFORMATIONS",
+            "REMARK 350 GIVEN BELOW.  BOTH NON-CRYSTALLOGRAPHIC AND",
+            "REMARK 350 CRYSTALLOGRAPHIC OPERATIONS ARE GIVEN.", 1, 1, 2, 2, 3, 3
+        ])
+        mock_lines.assert_any_call(1, mmcif, {"A": "A", "B": "B", "C": "A", "D": "B"})
+        mock_lines.assert_any_call(2, mmcif, {"A": "A", "B": "B", "C": "A", "D": "B"})
+        mock_lines.assert_any_call(3, mmcif, {"A": "A", "B": "B", "C": "A", "D": "B"})
+
+
+
+class SingleAssemblyLinesTests(TestCase):
+
+    def test_can_get_minimal_assembly(self):
+        assembly = {"id": "1"}
+        mmcif = {}
+        asym_lookup = {1: 2}
+        self.assertEqual(create_single_assembly_lines(assembly, mmcif, asym_lookup), [
+            "REMARK 350",
+            "REMARK 350 BIOMOLECULE: 1"
+        ])
+    
+
+    def test_can_get_assembly_with_properties(self):
+        assembly = {"id": "1", "method_details": "PISA"}
+        mmcif = {"pdbx_struct_assembly_prop": [
+            {"biol_id": "1", "type": "MORE", "value": "2.3"},
+            {"biol_id": "1", "type": "SSA (A^2)", "value": "123"},
+            {"biol_id": "1", "type": "ABSA (A^2)", "value": "5674"},
+            {"biol_id": "1", "type": "XYZ", "value": "999"},
+            {"biol_id": "2", "type": "MORE", "value": "3.4"},
+            {"biol_id": "2", "type": "SSA (A^2)", "value": "777"},
+        ]}
+        asym_lookup = {1: 2}
+        self.assertEqual(create_single_assembly_lines(assembly, mmcif, asym_lookup), [
+            "REMARK 350",
+            "REMARK 350 BIOMOLECULE: 1",
+            "REMARK 350 SOFTWARE USED: PISA",
+            "REMARK 350 TOTAL BURIED SURFACE AREA: 5674 ANGSTROM**2",
+            "REMARK 350 SURFACE AREA OF THE COMPLEX: 123 ANGSTROM**2",
+            "REMARK 350 CHANGE IN SOLVENT FREE ENERGY: 2.3 KCAL/MOL"
+        ])
+    
+
+    @patch("atomium.pdb.create_assembly_gen_lines")
+    def test_can_produce_gen_lines(self, mock_lines):
+        assembly = {"id": "1", "method_details": "?"}
+        mmcif = {"pdbx_struct_assembly_gen": [
+            {"assembly_id": "1", "gen": "1"},
+            {"assembly_id": "1", "gen": "2"},
+            {"assembly_id": "2", "gen": "3"},
+            {"assembly_id": "2", "gen": "4"},
+        ]}
+        mock_lines.side_effect = [["LINE 1", "LINE 2"], ["LINE 3", "LINE 4"]]
+        asym_lookup = {1: 2}
+        self.assertEqual(create_single_assembly_lines(assembly, mmcif, asym_lookup), [
+            "REMARK 350",
+            "REMARK 350 BIOMOLECULE: 1",
+            "LINE 1", "LINE 2", "LINE 3", "LINE 4",
+        ])
+    
+
+    @patch("atomium.pdb.create_assembly_gen_lines")
+    def test_can_produce_full_assembly_lines(self, mock_lines):
+        assembly = {"id": "1", "method_details": "PISA"}
+        mmcif = {"pdbx_struct_assembly_gen": [
+            {"assembly_id": "1", "gen": "1"},
+            {"assembly_id": "1", "gen": "2"},
+            {"assembly_id": "2", "gen": "3"},
+            {"assembly_id": "2", "gen": "4"},
+        ], "pdbx_struct_assembly_prop": [
+            {"biol_id": "1", "type": "MORE", "value": "2.3"},
+            {"biol_id": "1", "type": "SSA (A^2)", "value": "123"},
+            {"biol_id": "1", "type": "ABSA (A^2)", "value": "5674"},
+            {"biol_id": "1", "type": "XYZ", "value": "999"},
+            {"biol_id": "2", "type": "MORE", "value": "3.4"},
+            {"biol_id": "2", "type": "SSA (A^2)", "value": "777"},
+        ]}
+        mock_lines.side_effect = [["LINE 1", "LINE 2"], ["LINE 3", "LINE 4"]]
+        asym_lookup = {1: 2}
+        self.assertEqual(create_single_assembly_lines(assembly, mmcif, asym_lookup), [
+            "REMARK 350",
+            "REMARK 350 BIOMOLECULE: 1",
+            "REMARK 350 SOFTWARE USED: PISA",
+            "REMARK 350 TOTAL BURIED SURFACE AREA: 5674 ANGSTROM**2",
+            "REMARK 350 SURFACE AREA OF THE COMPLEX: 123 ANGSTROM**2",
+            "REMARK 350 CHANGE IN SOLVENT FREE ENERGY: 2.3 KCAL/MOL",
+            "LINE 1", "LINE 2", "LINE 3", "LINE 4",
+        ])
+
+
+
+class AssemblyGenLinesTests(TestCase):
+
+    @patch("atomium.pdb.split_lines")
+    @patch("atomium.pdb.get_operations")
+    def test_can_get_single_chain_line(self, mock_ops, mock_lines):
+        gen = {"asym_id_list": "A,B,C,D,E", "oper_expression": "EXP"}
+        mmcif = {1: 2}
+        asym_lookup = {"A": "A", "B": "B", "C": "C", "D": "A", "E": "B"}
+        mock_lines.return_value = ["A, B, C"]
+        mock_ops.return_value = [
+            [[1, 0, 0, 1], [0, -1, 0, 2], [0, 0, -1, 1], [1, 0, 0, 1]],
+            [[0.2234, -1009.2, 5, -2], [4.2334, -8.993, 1.999887766554433, 4.04], [0, 0, -1, 1], [1, 0, 0, 1]],
+        ]
+        self.assertEqual(create_assembly_gen_lines(gen, mmcif, asym_lookup), [
+            "REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C,",
+            "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        1.000000",
+            "REMARK 350   BIOMT2   1  0.000000 -1.000000  0.000000        2.000000",
+            "REMARK 350   BIOMT3   1  0.000000  0.000000 -1.000000        1.000000",
+            "REMARK 350   BIOMT1   2  0.223400 -1009.200  5.000000       -2.000000",
+            "REMARK 350   BIOMT2   2  4.233400 -8.993000  1.999887        4.040000",
+            "REMARK 350   BIOMT3   2  0.000000  0.000000 -1.000000        1.000000"
+        ])
+        mock_lines.assert_called_with("A, B, C", 27)
+        mock_ops.assert_called_with({1: 2}, gen)
+    
+
+    @patch("atomium.pdb.split_lines")
+    @patch("atomium.pdb.get_operations")
+    def test_can_get_single_chain_line(self, mock_ops, mock_lines):
+        gen = {"asym_id_list": "A,B,C,D,E", "oper_expression": "EXP"}
+        mmcif = {1: 2}
+        asym_lookup = {"A": "A", "B": "B", "C": "C", "D": "A", "E": "B"}
+        mock_lines.return_value = ["A, B, C", "D, E"]
+        mock_ops.return_value = [
+            [[1, 0, 0, 1], [0, -1, 0, 2], [0, 0, -1, 1], [1, 0, 0, 1]],
+            [[0.2234, -1009.2, 5, -2], [4.2334, -8.993, 1.999887766554433, 4.04], [0, 0, -1, 1], [1, 0, 0, 1]],
+        ]
+        self.assertEqual(create_assembly_gen_lines(gen, mmcif, asym_lookup), [
+            "REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C,",
+            "REMARK 350                    AND CHAINS: D, E,",
+            "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        1.000000",
+            "REMARK 350   BIOMT2   1  0.000000 -1.000000  0.000000        2.000000",
+            "REMARK 350   BIOMT3   1  0.000000  0.000000 -1.000000        1.000000",
+            "REMARK 350   BIOMT1   2  0.223400 -1009.200  5.000000       -2.000000",
+            "REMARK 350   BIOMT2   2  4.233400 -8.993000  1.999887        4.040000",
+            "REMARK 350   BIOMT3   2  0.000000  0.000000 -1.000000        1.000000"
+        ])
+        mock_lines.assert_called_with("A, B, C", 27)
+        mock_ops.assert_called_with({1: 2}, gen)
 
 
 class NextIdTests(TestCase):

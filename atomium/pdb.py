@@ -854,25 +854,36 @@ def parse_entity_string(string):
 def parse_dbref(filestring):
     """Parses the DBREF records to get external DB info for each polymer
     molecule. A dictionary of polymers is started, with each being given a
-    dbrefs list here."""
+    dbrefs list here.
 
-    lines = re.findall(r"^DBREF.+", filestring, re.M)
+    DBREF1 and DBREF2 records are also parsed.
+
+    :param str string: the string to convert.
+    :rtype: ``dict``"""
+
+    lines = re.findall(r"^DBREF .+", filestring, re.M)
     polymers = {}
     for line in lines:
         chain_id = line[12]
         if chain_id not in polymers: polymers[chain_id] = {"dbrefs": []}
         polymers[chain_id]["dbrefs"].append({
-            "start": line[14:18].strip(),
-            "start_insert": line[18:19].strip(),
-            "end": line[20:24].strip(),
-            "end_insert": line[24:25].strip(),
-            "database": line[26:32].strip(),
-            "accession": line[33:41].strip(),
-            "id": line[42:54].strip(),
-            "db_start": line[55:60].strip(),
+            "start": line[14:18].strip(), "start_insert": line[18:19].strip(),
+            "end": line[20:24].strip(), "end_insert": line[24:25].strip(),
+            "database": line[26:32].strip(), "accession": line[33:41].strip(),
+            "id": line[42:54].strip(), "db_start": line[55:60].strip(),
             "db_start_insert": line[60:61].strip(),
-            "db_end": line[62:67].strip(),
-            "db_end_insert": line[67:68].strip(),
+            "db_end": line[62:67].strip(), "db_end_insert": line[67:68].strip(),
+        })
+    for ref in re.findall("^DBREF1.+\nDBREF2.+", filestring, re.M):
+        chain_id = line[12]
+        line1, line2 = ref.split("\n")
+        polymers[chain_id]["dbrefs"].append({
+            "start": line1[14:18].strip(), "start_insert": line1[18:19].strip(),
+            "end": line1[20:24].strip(), "end_insert": line1[24:25].strip(),
+            "database": line1[26:32].strip(), "accession": line2[18:40].strip(),
+            "id": line1[47:67].strip(), "db_start": line[45:55].strip(),
+            "db_start_insert": line[55:56].strip(),
+            "db_end": line[57:67].strip(), "db_end_insert": line[67:68].strip(),
         })
     return polymers
 

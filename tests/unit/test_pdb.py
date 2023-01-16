@@ -1659,6 +1659,43 @@ class EntityStringParsingTests(TestCase):
 
 
 
+class DbrefParsingTests(TestCase):
+
+    def test_can_handle_no_dbref(self):
+        filestring = "HEADER\nDBREF1\nDBREF2"
+        self.assertEqual(parse_dbref(filestring), {})
+    
+
+    def test_can_parse_dbref(self):
+        filestring = (
+            "DBREF  4OPJ A   59   196  UNP    Q9KEI9   RNH1_BACHD      58    195\n"
+            "DBREF  4OPJ C   59A  196  UNP    Q9KEI9   RNH1_BACHD      58    195\n"
+            "DBREF1 5MLU D   29   121  UNP                  A0A1B8Y853_XENTR\n"
+            "DBREF2 5MLU D     A0A1B8Y853                         33         125\n"
+            "DBREF  4OPJ A    1    12B PDB    4OPJ     4OPJ             2P    13\n"
+            "DBREF  4OPJ D    1    12  PDB    4OPJ     4OPJ             2     13C\n"
+        )
+        self.assertEqual(parse_dbref(filestring), {
+            "A": {"dbrefs": [{
+                "start": "59", "start_insert": "", "end": "196", "end_insert": "", "database": "UNP", "accession": "Q9KEI9",
+                "id": "RNH1_BACHD", "db_start": "58", "db_start_insert": "", "db_end": "195", "db_end_insert": ""
+            }, {
+                "start": "1", "start_insert": "", "end": "12", "end_insert": "B", "database": "PDB", "accession": "4OPJ",
+                "id": "4OPJ", "db_start": "2", "db_start_insert": "P", "db_end": "13", "db_end_insert": ""
+            }]}, "C": {"dbrefs": [{
+                "start": "59", "start_insert": "A", "end": "196", "end_insert": "", "database": "UNP", "accession": "Q9KEI9",
+                "id": "RNH1_BACHD", "db_start": "58", "db_start_insert": "", "db_end": "195", "db_end_insert": ""
+            }]}, "D": {"dbrefs": [{
+                "start": "1", "start_insert": "", "end": "12", "end_insert": "", "database": "PDB", "accession": "4OPJ", "id": "4OPJ",
+                "db_start": "2", "db_start_insert": "", "db_end": "13", "db_end_insert": "C"
+            }, {
+               "start": "29", "start_insert": "", "end": "121", "end_insert": "", "database": "UNP", "accession": "A0A1B8Y853", "id":
+               "A0A1B8Y853_XENTR", "db_start": "J", "db_start_insert": "", "db_end": "2     13", "db_end_insert": "C"
+            }]}
+        })
+
+
+
 
 
 class MmcifDictSavingTests(TestCase):

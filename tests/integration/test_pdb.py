@@ -3186,36 +3186,35 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["entity_poly_seq"][-1], {
             "entity_id": "21", "num": "51", "mon_id": "LYS", "hetero": "n",
         })
-        self.assertEqual(len(d["struct_ref"]), 22)
+        self.assertEqual(len(d["struct_ref"]), 21)
         self.assertEqual(d["struct_ref"][0], {
-            "id": "1", "db_name": "GB", "db_code": "AP00904", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "2",
-            "pdbx_db_accession": "", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "UNP", "db_code": "RS2_ECOLI", "entity_id": "2",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "8",
+            "pdbx_db_accession": "P0A7V0", "pdbx_db_isoform": "?",
         })
         self.assertEqual(d["struct_ref"][-1], {
-            "id": "22", "db_name": "UNP", "db_code": "RS21_ECOLI",
-            "entity_id": "21", "pdbx_seq_one_letter_code": "?",
-            "pdbx_align_begin": "3", "pdbx_db_accession": "P68679",
-            "pdbx_db_isoform": "?",
+            "id": "21", "db_name": "GB", "db_code": "AP009048", "entity_id": "21",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "2",
+            "pdbx_db_accession": "AP009048.1", "pdbx_db_isoform": "?",
         })
-        self.assertEqual(len(d["struct_ref_seq"]), 22)
+        self.assertEqual(len(d["struct_ref_seq"]), 21)
         self.assertEqual(d["struct_ref_seq"][0], {
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "3OAQ",
-            "pdbx_strand_id": "A", "seq_align_beg": "?",
+            "pdbx_strand_id": "B", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "",
-            "db_align_beg": "", "pdbx_db_align_beg_ins_code": "?",
-            "db_align_end": "", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "2", "pdbx_auth_seq_align_end": "1534",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "P0A7V0",
+            "db_align_beg": "9", "pdbx_db_align_beg_ins_code": "?",
+            "db_align_end": "226", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "8", "pdbx_auth_seq_align_end": "225",
         })
         self.assertEqual(d["struct_ref_seq"][-1], {
-            "align_id": "22", "ref_id": "1", "pdbx_PDB_id_code": "3OAQ",
+            "align_id": "21", "ref_id": "1", "pdbx_PDB_id_code": "3OAQ",
             "pdbx_strand_id": "U", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "P68679",
-            "db_align_beg": "4", "pdbx_db_align_beg_ins_code": "?",
-            "db_align_end": "54", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "3", "pdbx_auth_seq_align_end": "53",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "AP009048.1",
+            "db_align_beg": "1_ECOLI", "pdbx_db_align_beg_ins_code": "?",
+            "db_align_end": "4     54", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "2", "pdbx_auth_seq_align_end": "1534",
         })
         self.assertNotIn("struct_ref_seq_dif", d)
         self.assertNotIn("pdbx_struct_mod_residue", d)

@@ -1605,6 +1605,58 @@ class MtrixParsingTests(TestCase):
 
 
 
+class CompndSourceParsingTests(TestCase):
+
+    def test_can_handle_no_compnd_or_source(self):
+        self.assertEqual(parse_compnd_and_source(""), {})
+
+
+    @patch("atomium.pdb.parse_entity_string")
+    def test_can_parse_compnd_and_source(self, mock_pes):
+        filestring = (
+            "COMPND    MOL_ID: 1;\n"
+            "COMPND   2 MOLECULE: FATTY ACID ACYLATED INSULIN;\n"
+            "COMPND   3 MOL_ID: 2;\n"
+            "COMPND   4 MOLECULE: DIFFERENT INSULIN;\n"
+            "COMPND   5 CHAIN: B, D, F, H;\n"
+            "COMPND   6 MOL_ID: 3;\n"
+            "SOURCE    MOL_ID: 1;\n"
+            "SOURCE   2 ORGANISM_SCIENTIFIC: HOMO SAPIENS;\n"
+            "SOURCE   3 ORGANISM_COMMON: HUMAN;\n"
+            "SOURCE   4 MOL_ID: 2;\n"
+            "SOURCE   5 ORGANISM_SCIENTIFIC: RAT RATTUS;\n"
+        )
+        mock_pes.side_effect = [
+            {"MOL_ID": "1", "PROP1": "A", "CHAIN": ["A"]},
+            {"MOL_ID": "2", "PROP1": "B", "CHAIN": ["B"]},
+            {"MOL_ID": "3", "PROP1": "X"},
+            {"MOL_ID": "1", "PROP2": "C"},
+            {"MOL_ID": "2", "PROP2": "D"},
+        ]
+        entities = parse_compnd_and_source(filestring)
+        self.assertEqual([call[0][0] for call in mock_pes.call_args_list], [
+            "MOL_ID: 1; MOLECULE: FATTY ACID ACYLATED INSULIN;",
+            "MOL_ID: 2; MOLECULE: DIFFERENT INSULIN; CHAIN: B, D, F, H;",
+            "MOL_ID: 3;",
+            "MOL_ID: 1; ORGANISM_SCIENTIFIC: HOMO SAPIENS; ORGANISM_COMMON: HUMAN;",
+            "MOL_ID: 2; ORGANISM_SCIENTIFIC: RAT RATTUS;",
+        ])
+        self.assertEqual(entities, {
+            "1": {"id": "1", "PROP1": "A", "PROP2": "C", "CHAIN": ["A"]},
+            "2": {"id": "2", "PROP1": "B", "PROP2": "D", "CHAIN": ["B"]},
+        })
+
+
+
+class EntityStringParsingTests(TestCase):
+
+    def test_can_parse_entity_string(self):
+        string = "MOL_ID: 2; MOLECULE: DIFFERENT INSULIN; CHAIN: B, D, F, H; ENGINEERED: YES; SYNTHETIC: NO;"
+        self.assertEqual(parse_entity_string(string), {
+            "MOL_ID": "2", "MOLECULE": "DIFFERENT INSULIN", "ENGINEERED": True,
+            "CHAIN": ("B", "D", "F", "H"), "SYNTHETIC": False, "molecules": {}
+        })
+
 
 
 

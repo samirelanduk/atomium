@@ -803,7 +803,10 @@ def parse_mtrix(filestring, mmcif):
 def parse_compnd_and_source(filestring):
     """Gets a dictionary of polymer entities as defined by COMPND and SOURCE
     records. Each entity object should have a CHAINS key, along with other
-    information about the entity."""
+    information about the entity.
+    
+    :param str filestring: the contents of the .pdb file.
+    :rtype: ``dict``"""
 
     polymer_entities = {}
     for record_name in ["COMPND", "SOURCE"]:
@@ -811,10 +814,10 @@ def parse_compnd_and_source(filestring):
         molecules, molecule = [], ""
         for record in records:
             if "MOL_ID" in record:
-                if molecule: molecules.append(molecule)
+                if molecule: molecules.append(molecule.rstrip())
                 molecule = ""
             molecule += record[10:].strip() + " "
-        if molecule: molecules.append(molecule)
+        if molecule: molecules.append(molecule.rstrip())
         molecules = [parse_entity_string(mol) for mol in molecules]
         for molecule in molecules:
             molecule["id"] = molecule["MOL_ID"]
@@ -826,19 +829,20 @@ def parse_compnd_and_source(filestring):
     return polymer_entities
 
 
-def parse_entity_string(s):
+def parse_entity_string(string):
     """Takes a molecule string from a COMPND or SOURCE record and parses it into
     a dict, converting values where appropriate.
 
-    :param str s: the string to convert.
+    :param str string: the string to convert.
     :rtype: ``dict``"""
 
     molecule = {"molecules": {}}
-    entries = [entry.strip() for entry in s.split(";")]
+    entries = [entry.strip() for entry in string.split(";")]
     for entry in entries:
+        if not entry.strip(): continue
         key =  entry.split(":")[0].strip()
         value = ":".join([s.strip() for s in entry.split(":")[1:]])
-        if value == "YES":value = True
+        if value == "YES": value = True
         if value == "NO": value = False
         if key == "CHAIN": value = tuple([
             c.strip() for c in value.split(",")

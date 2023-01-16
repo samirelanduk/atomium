@@ -1654,6 +1654,8 @@ class MmcifDictSavingTests(TestCase):
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
             "\n".join(map(str, range(33))) + "\nEND"
         )
+        for mock in mocks:
+            mock.assert_called_with(mmcif)
 
 
 
@@ -2558,14 +2560,18 @@ class JrnlDoiLinesTests(TestCase):
 class RemarkLinesTests(TestCase):
 
     @patch("atomium.pdb.create_remark_2_lines")
+    @patch("atomium.pdb.create_remark_3_lines")
+    @patch("atomium.pdb.create_remark_350_lines")
     @patch("atomium.pdb.create_remark_465_lines")
     @patch("atomium.pdb.create_remark_800_lines")
-    def test_can_produce_jrnl_lines(self, *mocks):
+    def test_can_produce_remark_lines(self, *mocks):
         mmcif = {"mmcif": 1}
         for i, mock in enumerate(mocks[::-1]):
             mock.return_value = [i]
         lines = create_remark_lines(mmcif)
-        self.assertEqual(lines, [0, 1, 2])
+        self.assertEqual(lines, [0, 1, 2, 3, 4])
+        for mock in mocks:
+            mock.assert_called_with(mmcif)
 
 
 
@@ -2584,6 +2590,292 @@ class Remark2LinesTests(TestCase):
         mmcif = {"reflns": [{"d_resolution_high": "2.3"}]}
         self.assertEqual(create_remark_2_lines(mmcif), [
              "REMARK   2",  "REMARK   2 RESOLUTION.    2.30 ANGSTROMS."
+        ])
+
+
+
+class Remark3LinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_remark_3_lines({}), [])
+    
+
+    @patch("atomium.pdb.create_remark_3_refinement_target_lines")
+    @patch("atomium.pdb.create_remark_3_data_used_lines")
+    @patch("atomium.pdb.create_remark_3_data_fit_lines")
+    @patch("atomium.pdb.create_remark_3_bvalue_lines")
+    @patch("atomium.pdb.create_remark_3_thermal_lines")
+    @patch("atomium.pdb.create_remark_3_solvent_lines")
+    def test_can_parse_remark_3(self, *mocks):
+        mmcif = {"refine": 1}
+        for i, mock in enumerate(mocks[::-1]):
+            mock.return_value = [i]
+        lines = create_remark_3_lines(mmcif)
+        self.assertEqual(lines, [0, 1, 2, 3, 4, 5])
+        for mock in mocks:
+            mock.assert_called_with(mmcif)
+
+
+
+class Remark3RefinementTargetLinesTests(TestCase):
+
+    def test_can_handle_no_property(self):
+        mmcif = {"refine": [{}]}
+        self.assertEqual(create_remark_3_refinement_target_lines(mmcif), [
+            "REMARK   3", "REMARK   3  REFINEMENT TARGET : NULL"
+        ])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"refine": [{"pdbx_stereochemistry_target_values": "?"}]}
+        self.assertEqual(create_remark_3_refinement_target_lines(mmcif), [
+            "REMARK   3", "REMARK   3  REFINEMENT TARGET : NULL"
+        ])
+    
+
+    def test_can_get_values(self):
+        mmcif = {"refine": [{"pdbx_stereochemistry_target_values": "EH"}]}
+        self.assertEqual(create_remark_3_refinement_target_lines(mmcif), [
+            "REMARK   3", "REMARK   3  REFINEMENT TARGET : EH"
+        ])
+
+
+
+class Remark3DataUsedLinesTests(TestCase):
+
+    def test_can_handle_no_property(self):
+        mmcif = {"refine": [{}]}
+        self.assertEqual(create_remark_3_data_used_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  DATA USED IN REFINEMENT.",
+            "REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) : NULL",
+            "REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) : NULL",
+            "REMARK   3   DATA CUTOFF            (SIGMA(F)) : NULL",
+            "REMARK   3   DATA CUTOFF HIGH         (ABS(F)) : NULL",
+            "REMARK   3   DATA CUTOFF LOW          (ABS(F)) : NULL",
+            "REMARK   3   COMPLETENESS (WORKING+TEST)   (%) : NULL",
+            "REMARK   3   NUMBER OF REFLECTIONS             : NULL"
+        ])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"refine": [{
+            "ls_d_res_high": "?", "ls_d_res_low": "?", "pdbx_data_cutoff_high_absF": "?", 
+            "pdbx_data_cutoff_low_absF": "?", "ls_percent_reflns_obs": "?", "ls_number_reflns_obs": "?", 
+        }]}
+        self.assertEqual(create_remark_3_data_used_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  DATA USED IN REFINEMENT.",
+            "REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) : NULL",
+            "REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) : NULL",
+            "REMARK   3   DATA CUTOFF            (SIGMA(F)) : NULL",
+            "REMARK   3   DATA CUTOFF HIGH         (ABS(F)) : NULL",
+            "REMARK   3   DATA CUTOFF LOW          (ABS(F)) : NULL",
+            "REMARK   3   COMPLETENESS (WORKING+TEST)   (%) : NULL",
+            "REMARK   3   NUMBER OF REFLECTIONS             : NULL"
+        ])
+    
+
+    def test_can_get_values(self):
+        mmcif = {"refine": [{
+            "ls_d_res_high": "1.2", "ls_d_res_low": "1.1", "pdbx_data_cutoff_high_absF": "22.1", 
+            "pdbx_data_cutoff_low_absF": "100.3", "ls_percent_reflns_obs": "17", "ls_number_reflns_obs": "4000", 
+        }]}
+        self.assertEqual(create_remark_3_data_used_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  DATA USED IN REFINEMENT.",
+            "REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) : 1.2",
+            "REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) : 1.1",
+            "REMARK   3   DATA CUTOFF            (SIGMA(F)) : 100.3",
+            "REMARK   3   DATA CUTOFF HIGH         (ABS(F)) : 22.1",
+            "REMARK   3   DATA CUTOFF LOW          (ABS(F)) : 100.3",
+            "REMARK   3   COMPLETENESS (WORKING+TEST)   (%) : 17",
+            "REMARK   3   NUMBER OF REFLECTIONS             : 4000"
+        ])
+
+
+
+class Remark3DataFitLinesTests(TestCase):
+
+    def test_can_handle_no_property(self):
+        mmcif = {"refine": [{}]}
+        self.assertEqual(create_remark_3_data_fit_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  FIT TO DATA USED IN REFINEMENT.", 
+            "REMARK   3   CROSS-VALIDATION METHOD          : NULL",
+            "REMARK   3   FREE R VALUE TEST SET SELECTION  : NULL",
+            "REMARK   3   R VALUE            (WORKING SET) : NULL",
+            "REMARK   3   FREE R VALUE                     : NULL",
+            "REMARK   3   FREE R VALUE TEST SET SIZE   (%) : NULL",
+            "REMARK   3   FREE R VALUE TEST SET COUNT      : NULL",
+            "REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : NULL",
+        ])
+    
+
+    def test_can_handle_no_values(self):
+        mmcif = {"refine": [{
+            "pdbx_ls_cross_valid_method": "?", "pdbx_R_Free_selection_details": "?",
+            "ls_R_factor_R_work": "?", "ls_R_factor_R_free": "?", "ls_percent_reflns_R_free": "?",
+            "ls_number_reflns_R_free": "?", "ls_R_factor_R_free_error": "?"
+        }]}
+        self.assertEqual(create_remark_3_data_fit_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  FIT TO DATA USED IN REFINEMENT.", 
+            "REMARK   3   CROSS-VALIDATION METHOD          : NULL",
+            "REMARK   3   FREE R VALUE TEST SET SELECTION  : NULL",
+            "REMARK   3   R VALUE            (WORKING SET) : NULL",
+            "REMARK   3   FREE R VALUE                     : NULL",
+            "REMARK   3   FREE R VALUE TEST SET SIZE   (%) : NULL",
+            "REMARK   3   FREE R VALUE TEST SET COUNT      : NULL",
+            "REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : NULL",
+        ])
+    
+
+    def test_can_get_values(self):
+        mmcif = {"refine": [{
+            "pdbx_ls_cross_valid_method": "THROUGH", "pdbx_R_Free_selection_details": "RAND",
+            "ls_R_factor_R_work": "0.3", "ls_R_factor_R_free": "0.4", "ls_percent_reflns_R_free": "50",
+            "ls_number_reflns_R_free": "4.5", "ls_R_factor_R_free_error": "3.2"
+        }]}
+        self.assertEqual(create_remark_3_data_fit_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  FIT TO DATA USED IN REFINEMENT.", 
+            "REMARK   3   CROSS-VALIDATION METHOD          : THROUGH",
+            "REMARK   3   FREE R VALUE TEST SET SELECTION  : RAND",
+            "REMARK   3   R VALUE            (WORKING SET) : 0.3",
+            "REMARK   3   FREE R VALUE                     : 0.4",
+            "REMARK   3   FREE R VALUE TEST SET SIZE   (%) : 50",
+            "REMARK   3   FREE R VALUE TEST SET COUNT      : 4.5",
+            "REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : 3.2",
+        ])
+
+
+
+class Remark3BvalueLinesTests(TestCase):
+
+    def test_can_handle_no_property(self):
+        mmcif = {"refine": [{}]}
+        self.assertEqual(create_remark_3_bvalue_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  B VALUES.",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : NULL",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : NULL",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.",
+            "REMARK   3    B11 (A**2) : NULL",
+            "REMARK   3    B22 (A**2) : NULL",
+            "REMARK   3    B33 (A**2) : NULL",
+            "REMARK   3    B12 (A**2) : NULL",
+            "REMARK   3    B13 (A**2) : NULL",
+            "REMARK   3    B23 (A**2) : NULL"
+        ])
+    
+
+    def test_can_handle_no_values(self):
+        mmcif = {"reflns": [{"B_iso_Wilson_estimate": "?"}], "refine": [{
+            "B_iso_mean": "?", "aniso_B[1][1]": "?", "aniso_B[2][2]": "?", "aniso_B[3][3]": "?",
+            "aniso_B[1][2]": "?", "aniso_B[1][3]": "?", "aniso_B[2][3]": "?"
+        }]}
+        self.assertEqual(create_remark_3_bvalue_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  B VALUES.",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : NULL",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : NULL",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.",
+            "REMARK   3    B11 (A**2) : NULL",
+            "REMARK   3    B22 (A**2) : NULL",
+            "REMARK   3    B33 (A**2) : NULL",
+            "REMARK   3    B12 (A**2) : NULL",
+            "REMARK   3    B13 (A**2) : NULL",
+            "REMARK   3    B23 (A**2) : NULL"
+        ])
+    
+
+    def test_can_handle_get_values(self):
+        mmcif = {"reflns": [{"B_iso_Wilson_estimate": "12.2"}], "refine": [{
+            "B_iso_mean": "24.2", "aniso_B[1][1]": "1", "aniso_B[2][2]": "2", "aniso_B[3][3]": "3",
+            "aniso_B[1][2]": "4", "aniso_B[1][3]": "5", "aniso_B[2][3]": "6"
+        }]}
+        self.assertEqual(create_remark_3_bvalue_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  B VALUES.",
+            "REMARK   3   FROM WILSON PLOT           (A**2) : 12.2",
+            "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : 24.2",
+            "REMARK   3   OVERALL ANISOTROPIC B VALUE.",
+            "REMARK   3    B11 (A**2) : 1",
+            "REMARK   3    B22 (A**2) : 2",
+            "REMARK   3    B33 (A**2) : 3",
+            "REMARK   3    B12 (A**2) : 4",
+            "REMARK   3    B13 (A**2) : 5",
+            "REMARK   3    B23 (A**2) : 6"
+        ])
+
+
+
+class Remark3ThermalLinesTests(TestCase):
+
+    def test_can_handle_no_property(self):
+        mmcif = {"refine": [{}]}
+        self.assertEqual(create_remark_3_thermal_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  ISOTROPIC THERMAL MODEL : NULL",
+        ])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"refine": [{"pdbx_isotropic_thermal_model": "?"}]}
+        self.assertEqual(create_remark_3_thermal_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  ISOTROPIC THERMAL MODEL : NULL",
+        ])
+    
+
+    def test_can_get_value(self):
+        mmcif = {"refine": [{"pdbx_isotropic_thermal_model": "REST"}]}
+        self.assertEqual(create_remark_3_thermal_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  ISOTROPIC THERMAL MODEL : REST",
+        ])
+
+
+
+class Remark3SolventLinesTests(TestCase):
+
+    def test_can_handle_no_property(self):
+        mmcif = {"refine": [{}]}
+        self.assertEqual(create_remark_3_solvent_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  BULK SOLVENT MODELING.",
+            "REMARK   3   METHOD USED : NULL",
+            "REMARK   3   KSOL        : NULL",
+            "REMARK   3   BSOL        : NULL"
+        ])
+    
+
+    def test_can_handle_no_value(self):
+        mmcif = {"refine": [{
+            "solvent_model_details": "?",
+            "solvent_model_param_ksol": "?", "solvent_model_param_bsol": "?"
+        }]}
+        self.assertEqual(create_remark_3_solvent_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  BULK SOLVENT MODELING.",
+            "REMARK   3   METHOD USED : NULL",
+            "REMARK   3   KSOL        : NULL",
+            "REMARK   3   BSOL        : NULL"
+        ])
+    
+
+    def test_can_get_values(self):
+        mmcif = {"refine": [{
+            "solvent_model_details": "FLAT",
+            "solvent_model_param_ksol": "0.5", "solvent_model_param_bsol": "48"
+        }]}
+        self.assertEqual(create_remark_3_solvent_lines(mmcif), [
+            "REMARK   3",
+            "REMARK   3  BULK SOLVENT MODELING.",
+            "REMARK   3   METHOD USED : FLAT",
+            "REMARK   3   KSOL        : 0.5",
+            "REMARK   3   BSOL        : 48"
         ])
 
 

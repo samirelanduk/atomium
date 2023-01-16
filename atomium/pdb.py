@@ -476,6 +476,7 @@ def update_refine_from_remark_3(lines, mmcif):
     for regex, key in [
         (r"NUMBER OF REFLECTIONS.+?\:(.+)", "ls_number_reflns_obs"),
         (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_absF"),
+        (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_rms_absF"),
         (r"DATA CUTOFF LOW.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_low_absF"),
         (r"RESOLUTION RANGE LOW.+?\(ANGSTROMS\).+?\:(.+)", "ls_d_res_low"),
         (r"RESOLUTION RANGE HIGH.+?\(ANGSTROMS\).+?\:(.+)", "ls_d_res_high"),
@@ -501,7 +502,6 @@ def update_refine_from_remark_3(lines, mmcif):
         (r"ISOTROPIC THERMAL MODEL[ ]+?\:(.+)", "pdbx_isotropic_thermal_model"),
         (r"REFINEMENT TARGET[ ]+?\:(.+)", "pdbx_stereochemistry_target_values"),
         (r"FREE R VALUE TEST SET SELECTION[ ]+?\:(.+)", "pdbx_R_Free_selection_details"),
-        (r"DATA CUTOFF HIGH.+?\(ABS\(F\)\).+?\:(.+)", "pdbx_data_cutoff_high_rms_absF"),
     ]:
         match = re.search(regex, string)
         value = match[1].strip().replace("NULL", "?") if match else "?"
@@ -2230,6 +2230,7 @@ def create_remark_lines(mmcif):
 
     lines = []
     lines += create_remark_2_lines(mmcif)
+    lines += create_remark_3_lines(mmcif)
     lines += create_remark_350_lines(mmcif)
     lines += create_remark_465_lines(mmcif)
     lines += create_remark_800_lines(mmcif)
@@ -2249,6 +2250,148 @@ def create_remark_2_lines(mmcif):
             "REMARK   2 RESOLUTION.    {:.2f} ANGSTROMS.".format(float(r))
         ]
     except ValueError: return []
+
+
+def create_remark_3_lines(mmcif):
+    """Creates the REMARK 3 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    if "refine" not in mmcif: return []
+    lines = []
+    lines += create_remark_3_refinement_target_lines(mmcif)
+    lines += create_remark_3_data_used_lines(mmcif)
+    lines += create_remark_3_data_fit_lines(mmcif)
+    lines += create_remark_3_bvalue_lines(mmcif)
+    lines += create_remark_3_thermal_lines(mmcif)
+    lines += create_remark_3_solvent_lines(mmcif)
+    return lines
+
+
+def create_remark_3_refinement_target_lines(mmcif):
+    """Creates the refinement target REMARK 3 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    target = mmcif["refine"][0].get("pdbx_stereochemistry_target_values", "?")
+    target = "NULL" if target == "?" or not target else target
+    return ["REMARK   3", "REMARK   3  REFINEMENT TARGET : " + target]
+
+
+def create_remark_3_data_used_lines(mmcif):
+    """Creates the data used REMARK 3 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    refine = mmcif["refine"][0]
+    get = lambda k: "NULL" if refine.get(k, "?") == "?" else refine[k]
+    res_high = get("ls_d_res_high")
+    res_low = get("ls_d_res_low")
+    cutoff_high = get("pdbx_data_cutoff_high_absF")
+    cutoff_low = get("pdbx_data_cutoff_low_absF")
+    complete = get("ls_percent_reflns_obs")
+    ref = get("ls_number_reflns_obs")
+    return [
+        "REMARK   3", "REMARK   3  DATA USED IN REFINEMENT.",                     
+        "REMARK   3   RESOLUTION RANGE HIGH (ANGSTROMS) : " + res_high,                     
+        "REMARK   3   RESOLUTION RANGE LOW  (ANGSTROMS) : " + res_low,                  
+        "REMARK   3   DATA CUTOFF            (SIGMA(F)) : " + cutoff_low,                  
+        "REMARK   3   DATA CUTOFF HIGH         (ABS(F)) : " + cutoff_high,                  
+        "REMARK   3   DATA CUTOFF LOW          (ABS(F)) : " + cutoff_low,                  
+        "REMARK   3   COMPLETENESS (WORKING+TEST)   (%) : " + complete,                  
+        "REMARK   3   NUMBER OF REFLECTIONS             : " + ref,
+    ]
+
+
+def create_remark_3_data_fit_lines(mmcif):
+    """Creates the data fit REMARK 3 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    refine = mmcif["refine"][0]
+    get = lambda k: "NULL" if refine.get(k, "?") == "?" else refine[k]
+    cv = get("pdbx_ls_cross_valid_method")
+    select = get("pdbx_R_Free_selection_details")
+    rwork = get("ls_R_factor_R_work")
+    rfree = get("ls_R_factor_R_free")
+    rfreepc = get("ls_percent_reflns_R_free")
+    count = get("ls_number_reflns_R_free")
+    error = get("ls_R_factor_R_free_error")
+    return [
+        "REMARK   3", "REMARK   3  FIT TO DATA USED IN REFINEMENT.",                     
+        "REMARK   3   CROSS-VALIDATION METHOD          : " + cv,                     
+        "REMARK   3   FREE R VALUE TEST SET SELECTION  : " + select,                     
+        "REMARK   3   R VALUE            (WORKING SET) : " + rwork,                     
+        "REMARK   3   FREE R VALUE                     : " + rfree,                     
+        "REMARK   3   FREE R VALUE TEST SET SIZE   (%) : " + rfreepc,                     
+        "REMARK   3   FREE R VALUE TEST SET COUNT      : " + count,                     
+        "REMARK   3   ESTIMATED ERROR OF FREE R VALUE  : " + error,
+    ]
+
+
+def create_remark_3_bvalue_lines(mmcif):
+    """Creates the bvalue REMARK 3 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    refine = mmcif["refine"][0]
+    get = lambda k: "NULL" if refine.get(k, "?") == "?" else refine[k]
+    wilson = mmcif.get("reflns", [
+        {"B_iso_Wilson_estimate": "?"}
+    ])[0]["B_iso_Wilson_estimate"]
+    if not wilson or wilson == "?": wilson = "NULL"
+    mean = get("B_iso_mean")
+    b11, b22 = get("aniso_B[1][1]"), get("aniso_B[2][2]")
+    b33, b12 = get("aniso_B[3][3]"), get("aniso_B[1][2]")
+    b13, b23 = get("aniso_B[1][3]"), get("aniso_B[2][3]")
+    return [
+        "REMARK   3", "REMARK   3  B VALUES.",                          
+        "REMARK   3   FROM WILSON PLOT           (A**2) : " + wilson,                          
+        "REMARK   3   MEAN B VALUE      (OVERALL, A**2) : " + mean,                          
+        "REMARK   3   OVERALL ANISOTROPIC B VALUE.",                          
+        "REMARK   3    B11 (A**2) : " + b11,                          
+        "REMARK   3    B22 (A**2) : " + b22,                          
+        "REMARK   3    B33 (A**2) : " + b33,                          
+        "REMARK   3    B12 (A**2) : " + b12,                          
+        "REMARK   3    B13 (A**2) : " + b13,                          
+        "REMARK   3    B23 (A**2) : " + b23,
+    ]
+
+
+def create_remark_3_thermal_lines(mmcif):
+    """Creates the thermal REMARK 3 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    model = mmcif["refine"][0].get("pdbx_isotropic_thermal_model")
+    if not model or model == "?": model = "NULL"
+    return ["REMARK   3", "REMARK   3  ISOTROPIC THERMAL MODEL : " + model]
+
+
+def create_remark_3_solvent_lines(mmcif):
+    """Creates the solvent REMARK 3 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    refine = mmcif["refine"][0]
+    get = lambda k: "NULL" if refine.get(k, "?") == "?" else refine[k]
+    method = get("solvent_model_details")
+    ksol = get("solvent_model_param_ksol")
+    bsol = get("solvent_model_param_bsol")
+    return [
+        "REMARK   3",
+        "REMARK   3  BULK SOLVENT MODELING.",
+        "REMARK   3   METHOD USED : " + method,
+        "REMARK   3   KSOL        : " + ksol,
+        "REMARK   3   BSOL        : " + bsol,
+    ]
 
 
 def create_remark_350_lines(mmcif):

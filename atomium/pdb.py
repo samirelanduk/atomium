@@ -858,7 +858,7 @@ def parse_dbref(filestring):
 
     DBREF1 and DBREF2 records are also parsed.
 
-    :param str string: the string to convert.
+    :param str filestring: the contents of the .pdb file.
     :rtype: ``dict``"""
 
     lines = re.findall(r"^DBREF .+", filestring, re.M)
@@ -890,7 +890,10 @@ def parse_dbref(filestring):
 
 def parse_seqadv(filestring, polymers):
     """Parses the SEQADV records and updates a polymers dictionary with any
-    sequence modifications for each polymer, in a 'differences' list."""
+    sequence modifications for each polymer, in a 'differences' list.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param str filestring: the polymers dictionary to update."""
 
     lines = re.findall(r"^SEQADV.+", filestring, re.M)
     for line in lines:
@@ -899,21 +902,20 @@ def parse_seqadv(filestring, polymers):
         if "differences" not in polymers[chain_id]:
             polymers[chain_id]["differences"] = []
         polymers[chain_id]["differences"].append({
-            "name": line[12:15].strip(),
-            "number": line[18:22].strip(),
-            "insert": line[22].strip(),
-            "database": line[24:28].strip(),
-            "accession": line[29:38].strip(),
-            "db_name": line[39:42].strip(),
-            "db_number": line[43:48].strip(),
-            "comment": line[49:70].strip(),
+            "name": line[12:15].strip(), "number": line[18:22].strip(),
+            "insert": line[22].strip(), "comment": line[49:70].strip(),
+            "database": line[24:28].strip(), "accession": line[29:38].strip(),
+            "db_name": line[39:42].strip(), "db_number": line[43:48].strip(),
         })
 
 
 def parse_seqres(filestring, polymers):
     """Parses the SEQRES records to get the list of residue names for each
     polymer molecule in a polymers dictionary, adding them to a 'residues'
-    list."""
+    list.
+
+    :param str filestring: the contents of the .pdb file.
+    :param str filestring: the polymers dictionary to update."""
 
     lines = re.findall(r"^SEQRES.+", filestring, re.M)
     for line in lines:
@@ -925,6 +927,13 @@ def parse_seqres(filestring, polymers):
 
 
 def parse_modres(filestring, polymers):
+    """Parses the MODRES records to get the list of residue names for each
+    polymer molecule in a polymers dictionary, adding them to a 'modified'
+    list.
+
+    :param str filestring: the contents of the .pdb file.
+    :param str filestring: the polymers dictionary to update."""
+
     lines = re.findall(r"^MODRES.+", filestring, re.M)
     for line in lines:
         chain_id = line[16]

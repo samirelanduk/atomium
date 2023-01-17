@@ -1696,6 +1696,111 @@ class DbrefParsingTests(TestCase):
 
 
 
+class SeqadvParsingTests(TestCase):
+
+    def test_can_handle_no_seqadv(self):
+        filestring = "HEADER\nDBREF1\nDBREF2"
+        polymers = {"A": {}}
+        parse_seqadv(filestring, polymers)
+        self.assertEqual(polymers, {"A": {}})
+    
+
+    def test_can_parse_seqadv(self):
+        filestring = (
+            "SEQADV 4OPJ GLY A   55A UNP  Q9KEI9              EXPRESSION TAG\n"
+            "SEQADV 4OPJ ASN A  132  UNP  Q9KEI9    ASP   132 ENGINEERED MUTATION\n"
+            "SEQADV 4OPJ MET C   58  UNP  Q9KEI9              EXPRESSION TAG\n"
+            "SEQADV 4OPJ ASN C  132  UNP  Q9KEI9    ASP   132 ENGINEERED MUTATION\n"
+        )
+        polymers = {"A": {"dbrefs": [1, 2]}}
+        parse_seqadv(filestring, polymers)
+        self.assertEqual(polymers, {
+            "A": {"dbrefs": [1, 2], "differences": [{
+                "name": "GLY", "number": "55", "insert": "A", "database": "UNP", "accession": "Q9KEI9",
+                "db_name": "", "db_number": "", "comment": "EXPRESSION TAG"
+            }, {
+                "name": "ASN", "number": "132", "insert": "", "database": "UNP", "accession": "Q9KEI9",
+                "db_name": "ASP", "db_number": "132", "comment": "ENGINEERED MUTATION"
+            }]},
+            "C": {"differences": [{
+                "name": "MET", "number": "58", "insert": "", "database": "UNP", "accession": "Q9KEI9",
+                "db_name": "", "db_number": "", "comment": "EXPRESSION TAG"
+            }, {
+                "name": "ASN", "number": "132", "insert": "", "database": "UNP", "accession": "Q9KEI9",
+                "db_name": "ASP", "db_number": "132", "comment": "ENGINEERED MUTATION"
+            }]}
+        })
+
+
+
+class SeqresParsingTests(TestCase):
+
+    def test_can_handle_no_seqres(self):
+        filestring = "HEADER\nDBREF1\nDBREF2"
+        polymers = {"A": {}}
+        parse_seqres(filestring, polymers)
+        self.assertEqual(polymers, {"A": {}})
+    
+
+    def test_can_parse_seqres(self):
+        filestring = (
+            "SEQRES   1 A   10   DC  DC  DT  DC  DT  DA  DG  DA  DG  DG   \n"
+            "SEQRES   1 B   10   DC  DC  DT  DC  DT  DA  DG  DA  DG  DG   \n"
+            "SEQRES   1 C  229  LEU ARG SER ARG ARG VAL ASP VAL MET ASP VAL MET ASN\n"
+            "SEQRES   2 C  229  ARG LEU ILE LEU ALA MET ASP LEU MET ASN ARG ASP ASP\n"
+        )
+        polymers = {"A": {"dbrefs": [1, 2]}}
+        parse_seqres(filestring, polymers)
+        self.assertEqual(polymers, {
+            "A": {"dbrefs": [1, 2], "residues": ["DC", "DC", "DT", "DC", "DT", "DA", "DG", "DA", "DG", "DG"]},
+            "B": {"residues": ["DC", "DC", "DT", "DC", "DT", "DA", "DG", "DA", "DG", "DG"]},
+            "C": {"residues": [
+                "LEU", "ARG", "SER", "ARG", "ARG", "VAL", "ASP", "VAL", "MET", "ASP", "VAL", "MET", "ASN",
+                "ARG", "LEU", "ILE", "LEU", "ALA", "MET", "ASP", "LEU", "MET", "ASN", "ARG", "ASP", "ASP"
+            ]}
+        })
+
+
+
+class ModresParsingTests(TestCase):
+
+    def test_can_handle_no_modres(self):
+        filestring = "HEADER\nDBREF1\nDBREF2"
+        polymers = {"A": {}}
+        parse_modres(filestring, polymers)
+        self.assertEqual(polymers, {"A": {}})
+    
+
+    def test_can_parse_modres(self):
+        filestring = (
+            "MODRES 2F1M MSE A  223  MET  SELENOMETHIONINE     \n"                              
+            "MODRES 2F1M MSE A  287A MET  HYDROMETH     \n"                              
+            "MODRES 2F1M MSE A  288  MET  SELENOMETHIONINE     \n"                              
+            "MODRES 2F1M MSE A  291  MET  MEGAMETH     \n"                              
+            "MODRES 2F1M MSE B  287  MET  SELENOMETHIONINE     \n"                              
+            "MODRES 2F1M MSE B  288  MET  FERROMETH     \n"                                                          
+            "MODRES 2F1M MSE C  223  PRO  SELENOMETHIONINE     \n"                              
+            "MODRES 2F1M MSE C  224  HIS  SELENOMETHIONINE     \n"
+        )
+        polymers = {"A": {"dbrefs": [1, 2]}}
+        parse_modres(filestring, polymers)
+        self.assertEqual(polymers, {
+            "A": {"dbrefs": [1, 2], "modified": [
+                {"name": "MSE", "number": "223", "insert": "", "standard_name": "MET", "comment": "SELENOMETHIONINE"},
+                {"name": "MSE", "number": "287", "insert": "A", "standard_name": "MET", "comment": "HYDROMETH"},
+                {"name": "MSE", "number": "288", "insert": "", "standard_name": "MET", "comment": "SELENOMETHIONINE"},
+                {"name": "MSE", "number": "291", "insert": "", "standard_name": "MET", "comment": "MEGAMETH"}
+            ]},
+            "B": {"modified": [
+                {"name": "MSE", "number": "287", "insert": "", "standard_name": "MET", "comment": "SELENOMETHIONINE"},
+                {"name": "MSE", "number": "288", "insert": "", "standard_name": "MET", "comment": "FERROMETH"}
+            ]},
+            "C": {"modified": [
+                {"name": "MSE", "number": "223", "insert": "", "standard_name": "PRO", "comment": "SELENOMETHIONINE"},
+                {"name": "MSE", "number": "224", "insert": "", "standard_name": "HIS", "comment": "SELENOMETHIONINE"}
+            ]}
+        })
+
 
 
 class MmcifDictSavingTests(TestCase):

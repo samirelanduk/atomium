@@ -927,8 +927,8 @@ def parse_seqres(filestring, polymers):
 
 
 def parse_modres(filestring, polymers):
-    """Parses the MODRES records to get the list of residue names for each
-    polymer molecule in a polymers dictionary, adding them to a 'modified'
+    """Parses the MODRES records to get the list of residue modifications for
+    each polymer molecule in a polymers dictionary, adding them to a 'modified'
     list.
 
     :param str filestring: the contents of the .pdb file.
@@ -941,15 +941,21 @@ def parse_modres(filestring, polymers):
         if "modified" not in polymers[chain_id]:
             polymers[chain_id]["modified"] = []
         polymers[chain_id]["modified"].append({
-            "name": line[12:15].strip(),
-            "number": line[18:22].strip(),
-            "insert": line[22].strip(),
-            "standard_name": line[24:27].strip(),
+            "name": line[12:15].strip(), "number": line[18:22].strip(),
+            "insert": line[22].strip(), "standard_name": line[24:27].strip(),
             "comment": line[29:70].strip(),
         })
 
 
 def parse_het(filestring):
+    """Parses the HET records to get the non-polymers in the structure, and the
+    entities they belong to. Some of these will only be modified residues, but
+    these will be rectified later.
+
+    :param str filestring: the contents of the .pdb file.
+    :param str filestring: the polymers dictionary to update.
+    :rtype: ``tuple``"""
+
     non_polymer_entities, non_polymers = {}, {}
     lines = re.findall(r"^HET .+", filestring, re.M)
     for line in lines:
@@ -961,6 +967,12 @@ def parse_het(filestring):
 
 
 def parse_hetnam(filestring, non_polymer_entities):
+    """Parses the HETNAM records to get the names of non-polymers in the
+    structure.
+
+    :param str filestring: the contents of the .pdb file.
+    :param str filestring: the polymers dictionary to update."""
+
     lines = re.findall(r"^HETNAM.+", filestring, re.M)
     names = [l[11:14].strip() for l in lines]
     for name in names:
@@ -971,22 +983,32 @@ def parse_hetnam(filestring, non_polymer_entities):
 
 
 def parse_hetsyn(filestring, non_polymer_entities):
+    """Parses the HETSYN records to get the synonyms of non-polymers in the
+    structure.
+
+    :param str filestring: the contents of the .pdb file.
+    :param str filestring: the polymers dictionary to update."""
+
     lines = re.findall(r"^HETSYN.+", filestring, re.M)
     names = [l[11:14].strip() for l in lines]
     for name in names:
-        if name not in non_polymer_entities:
-            non_polymer_entities[name] = {"name": ""}
+        if name not in non_polymer_entities: non_polymer_entities[name] = {}
         non_polymer_entities[name]["synonyms"] = " ".join([
             l[15:70].strip() for l in lines if l[11:14].strip() == name
         ]).split(";")
 
 
 def parse_formul(filestring, non_polymer_entities):
+    """Parses the FORMUL records to get the formulae of non-polymers in the
+    structure. This will also determine which non-polymers are water.
+
+    :param str filestring: the contents of the .pdb file.
+    :param str filestring: the polymers dictionary to update."""
+
     lines = re.findall(r"^FORMUL.+", filestring, re.M)
     names = [l[12:15].strip() for l in lines]
     for name in names:
-        if name not in non_polymer_entities:
-            non_polymer_entities[name] = {"name": "", "synonyms": []}
+        if name not in non_polymer_entities: non_polymer_entities[name] = {}
         match = [l for l in lines if l[12:15].strip() == name]
         non_polymer_entities[name]["formula"] = "".join(
             [l[19:70].strip() for l in match]

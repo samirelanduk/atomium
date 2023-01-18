@@ -1803,6 +1803,130 @@ class ModresParsingTests(TestCase):
 
 
 
+class HetParsingTests(TestCase):
+
+    def test_can_handle_no_het(self):
+        entities, molecules = parse_het("")
+        self.assertEqual(entities, {})
+        self.assertEqual(molecules, {})
+    
+
+    def test_can_parse_het(self):
+        filestring = (
+            "HET    BU2  A5001       6         \n"
+            "HET    BU2  B5002       6         \n"
+            "HET    XMP  A2001      24         \n"
+            "HET    XMP  B2002      24\n"
+        )
+        entities, molecules = parse_het(filestring)
+        self.assertEqual(entities, {"BU2": {}, "XMP": {}})
+        self.assertEqual(molecules, {
+            ("A", "BU2", "5001", ""): {},
+            ("A", "XMP", "2001", ""): {},
+            ("B", "BU2", "5002", ""): {},
+            ("B", "XMP", "2002", ""): {},
+        })
+
+
+
+class HetnamParsingTests(TestCase):
+
+    def test_can_handle_no_hetnam(self):
+        entities = {"ABC": {}}
+        parse_hetnam("", entities)
+        self.assertEqual(entities, {"ABC": {}})
+    
+
+    def test_can_parse_hetnam(self):
+        entities = {"BU2": {}}
+        filestring = (
+            "HETNAM     BU2 1,3-BUTANEDIOL              \n"                                     
+            "HETNAM     XMP XANTHOSINE-5'-MONOPHOSPHATE   "
+        )
+        parse_hetnam(filestring, entities)
+        self.assertEqual(entities, {
+            "BU2": {"name": "1,3-BUTANEDIOL"}, "XMP": {"name": "XANTHOSINE-5'-MONOPHOSPHATE"}
+        })
+    
+
+    def test_can_parse_multiline_hetnam(self):
+        entities = {"BU2": {}}
+        filestring = (
+            "HETNAM     BU2 1,3-BUTANEDIOL              \n"                                     
+            "HETNAM     3N6 N-{(1S)-5-AMINO-1-[(4-PYRIDIN-4-YLPIPERAZIN-1-YL)      \n"
+            "HETNAM   2 3N6  CARBONYL]PENTYL}-3,5-DIBROMO-NALPHA-{[4-(2-OXO-1,4-   \n"
+            "HETNAM   3 3N6  DIHYDROQUINAZOLIN-3 (2H)-YL)PIPERIDIN-1-YL]CARBONYL}- \n"
+            "HETNAM   4 3N6  D-TYROSINAMIDE "
+        )
+        parse_hetnam(filestring, entities)
+        self.assertEqual(entities, {
+            "BU2": {"name": "1,3-BUTANEDIOL"},
+            "3N6": {"name": "N-{(1S)-5-AMINO-1-[(4-PYRIDIN-4-YLPIPERAZIN-1-YL) CARBONYL]PENTYL}-3,5-DIBROMO-NALPHA-{[4-(2-OXO-1,4- DIHYDROQUINAZOLIN-3 (2H)-YL)PIPERIDIN-1-YL]CARBONYL}- D-TYROSINAMIDE"}
+        })
+
+
+
+class HetsynParsingTests(TestCase):
+
+    def test_can_handle_no_hetsyn(self):
+        entities = {"ABC": {}}
+        parse_hetsyn("", entities)
+        self.assertEqual(entities, {"ABC": {}})
+    
+
+    def test_can_parse_hetsyn(self):
+        entities = {"BU2": {}}
+        filestring = (
+            "HETSYN     BU2 BTYLO             \n"                                     
+            "HETSYN     XMP XANAX;XANAX2   "
+        )
+        parse_hetsyn(filestring, entities)
+        self.assertEqual(entities, {
+            "BU2": {"synonyms": ["BTYLO"]}, "XMP": {"synonyms": ["XANAX", "XANAX2"]}
+        })
+    
+
+    def test_can_parse_multiline_hetsyn(self):
+        entities = {"BU2": {}}
+        filestring = (
+            "HETSYN     BU2 1,3-BUTANEDIOL              \n"                                     
+            "HETSYN     3N6 N-{(1S)-5-AMINO-1-[(4-PYRIDIN-4-YLPIPERAZIN-1-YL)      \n"
+            "HETSYN   2 3N6  CARBONYL]PENTYL}-3,5-DIBROMO-NALPHA-{[4-(2-OXO-1,4-   \n"
+            "HETSYN   3 3N6  DIHYDROQUINAZOLIN-3 (2H)-YL)PIPERIDIN-1-YL]CARBONYL}- \n"
+            "HETSYN   4 3N6  D-TYROSINAMIDE "
+        )
+        parse_hetsyn(filestring, entities)
+        self.assertEqual(entities, {
+            "BU2": {"synonyms": ["1,3-BUTANEDIOL"]},
+            "3N6": {"synonyms": ["N-{(1S)-5-AMINO-1-[(4-PYRIDIN-4-YLPIPERAZIN-1-YL) CARBONYL]PENTYL}-3,5-DIBROMO-NALPHA-{[4-(2-OXO-1,4- DIHYDROQUINAZOLIN-3 (2H)-YL)PIPERIDIN-1-YL]CARBONYL}- D-TYROSINAMIDE"]}
+        })
+
+
+
+class FormulParsingTests(TestCase):
+
+    def test_can_handle_no_formul(self):
+        entities = {"ABC": {}}
+        parse_formul("", entities)
+        self.assertEqual(entities, {"ABC": {}})
+    
+
+    def test_can_parse_formul(self):
+        entities = {"BU2": {}}
+        filestring = (
+            "FORMUL   3  BU2    2(C4 H10 O2)                 \n"                                 
+            "FORMUL   5  XMP    2(C10 H14 N4 O9 P 1+)        \n"                                 
+            "FORMUL   7  HOH   *180(H2 O) \n"
+        )
+        parse_formul(filestring, entities)
+        self.assertEqual(entities, {
+            "BU2": {"formula": "2(C4 H10 O2)", "is_water": False},
+            "XMP": {"formula": "2(C10 H14 N4 O9 P 1+)", "is_water": False},
+            "HOH": {"formula": "180(H2 O)", "is_water": True},
+        })
+
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")
@@ -2299,6 +2423,7 @@ class NummdlLinesTests(TestCase):
             {"pdbx_PDB_model_num": "3"}, {"pdbx_PDB_model_num": "3"},
         ]}
         self.assertEqual(create_nummdl_lines(mmcif), ["NUMMDL    3"])
+
 
 
 class MdlTypeLinesTests(TestCase):

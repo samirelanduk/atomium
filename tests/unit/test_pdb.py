@@ -1927,6 +1927,201 @@ class FormulParsingTests(TestCase):
 
 
 
+class EntitiesFromAtomsTests(TestCase):
+
+    def test_no_atoms(self):
+        polymer_entities, polymers, nonpoly_entities, nonpolies = {}, {}, {}, {}
+        update_entities_from_atoms("", polymer_entities, polymers, nonpoly_entities, nonpolies)
+        self.assertEqual(polymer_entities, {})
+        self.assertEqual(polymers, {})
+        self.assertEqual(nonpoly_entities, {})
+        self.assertEqual(nonpolies, {})
+    
+
+    def test_can_generate_from_scratch(self):
+        filestring = (
+            "ATOM      1  N   VAL A  11    \n"
+            "ATOM      2  CA  VAL A  11    \n"
+            "ATOM      9  CA  MET A  12    \n"
+            "TER    1558      ILE A 222\n"
+            "ATOM   1559  N   PRO B1011    \n"
+            "ATOM   1567  CA  CYS B1012    \n"
+            "TER    3193      GLU B1229\n"
+            "HETATM 3194  C1  BU2 A5001A   \n"
+            "HETATM 3195  O1  BU2 A5001A   \n"
+            "HETATM 3200  P   XMP A2001    \n"  
+            "HETATM 3201  O1P XMP A2001    \n"
+            "HETATM 3224  C1  BU2 B5002    \n"
+            "HETATM 3230  P   XMP B2002    \n"
+            "HETATM 3254  O   HOH A3005    \n"
+            "HETATM 3350  O   HOH B3001    \n"
+        )
+        polymer_entities, polymers, nonpoly_entities, nonpolies = {}, {}, {}, {}
+        update_entities_from_atoms(filestring, polymer_entities, polymers, nonpoly_entities, nonpolies)
+        self.assertEqual(polymer_entities, {"1": {"CHAIN": ("A",)}, "2": {"CHAIN": ("B",)}})
+        self.assertEqual(polymers, {
+            "A": {"observed_residues": ["VAL", "MET"]},
+            "B": {"observed_residues": ["PRO", "CYS"]},
+        })
+        self.assertEqual(nonpoly_entities, {"BU2": {}, "XMP": {}, "HOH": {}})
+        self.assertEqual(nonpolies, {
+            ("A", "BU2", "5001", "A"): {}, ("A", "XMP", "2001", ""): {},
+            ("B", "BU2", "5002", ""): {}, ("B", "XMP", "2002", ""): {},
+            ("A", "HOH", "3005", ""): {}, ("B", "HOH", "3001", ""): {},
+        })
+    
+
+    def test_can_update_existing(self):
+        filestring = (
+            "ATOM      1  N   VAL A  11    \n"
+            "ATOM      2  CA  VAL A  11    \n"
+            "ATOM      9  CA  MET A  12    \n"
+            "TER    1558      ILE A 222\n"
+            "ATOM   1559  N   PRO B1011    \n"
+            "ATOM   1567  CA  CYS B1012    \n"
+            "TER    3193      GLU B1229\n"
+            "ATOM   1559  N   PRO C1511    \n"
+            "ATOM   1567  CA  CYS C1512    \n"
+            "TER    3193      GLU C1529\n"
+            "HETATM 3194  C1  BU2 A5001A   \n"
+            "HETATM 3195  O1  BU2 A5001A   \n"
+            "HETATM 3200  P   XMP A2001    \n"  
+            "HETATM 3201  O1P XMP A2001    \n"
+            "HETATM 3224  C1  BU2 B5002    \n"
+            "HETATM 3230  P   XMP B2002    \n"
+            "HETATM 3254  O   HOH A3005    \n"
+            "HETATM 3350  O   HOH B3001    \n"
+        )
+        polymer_entities, polymers, nonpoly_entities, nonpolies = {}, {}, {}, {}
+        polymer_entities = {"1": {"CHAIN": ("A", "B")}}
+        polymers = {"A": {"name": "AA"}, "B": {"name": "BB"}}
+        nonpoly_entities = {"BU2": {"name": "BB"}}
+        nonpolies = {("A", "BU2", "5001", "A"): {}}
+        update_entities_from_atoms(filestring, polymer_entities, polymers, nonpoly_entities, nonpolies)
+        self.assertEqual(polymer_entities, {"1": {"CHAIN": ("A", "B")}, "2": {"CHAIN": ("C",)}})
+        self.assertEqual(polymers, {
+            "A": {"observed_residues": ["VAL", "MET"], "name": "AA"},
+            "B": {"observed_residues": ["PRO", "CYS"], "name": "BB"},
+            "C": {"observed_residues": ["PRO", "CYS"]},
+        })
+        self.assertEqual(nonpoly_entities, {"BU2": {"name": "BB"}, "XMP": {}, "HOH": {}})
+        self.assertEqual(nonpolies, {
+            ("A", "BU2", "5001", "A"): {}, ("A", "XMP", "2001", ""): {},
+            ("B", "BU2", "5002", ""): {}, ("B", "XMP", "2002", ""): {},
+            ("A", "HOH", "3005", ""): {}, ("B", "HOH", "3001", ""): {},
+        })
+
+
+
+class EntityFinalizationTests(TestCase):
+
+    def test_can_fully_populate_entities(self):
+        polymers = {"1": {}, "2": {}}
+        non_polymers = {"XMP": {}, "BU2": {}}
+        finalize_entities(polymers, non_polymers)
+        self.assertEqual(polymers, {
+            "1": {"id": "1", "molecules": {}}, "2": {"id": "2", "molecules": {}}
+        })
+        self.assertEqual(non_polymers, {
+            "XMP": {"id": "3", "name": "", "synonyms": [], "formula": "", "is_water": False, "molecules": {}},
+            "BU2": {"id": "4", "name": "", "synonyms": [], "formula": "", "is_water": False, "molecules": {}},
+        })
+    
+
+    def test_can_extend_populated_entities(self):
+        polymers = {"1": {"id": "2"}, "3": {"id": "4", "molecules": {1: 2}}}
+        non_polymers = {
+            "XMP": {"is_water": True},
+            "BU2": {"name": "B", "synonyms": ["S"], "formula": "B2"},
+            "HOH": {"is_water": False}
+        }
+        finalize_entities(polymers, non_polymers)
+        self.assertEqual(polymers, {
+            "1": {"id": "1", "molecules": {}}, "2": {"id": "2", "molecules": {1: 2}}
+        })
+        self.assertEqual(non_polymers, {
+            "XMP": {"id": "3", "name": "", "synonyms": [], "formula": "", "is_water": True, "molecules": {}},
+            "BU2": {"id": "4", "name": "B", "synonyms": ["S"], "formula": "B2", "is_water": False, "molecules": {}},
+            "HOH": {"id": "5", "name": "", "synonyms": [], "formula": "", "is_water": False, "molecules": {}},
+        })
+    
+
+    def test_can_determine_water(self):
+        polymers = {"1": {}, "2": {}}
+        non_polymers = {"HOH": {}, "WAT": {}}
+        finalize_entities(polymers, non_polymers)
+        self.assertEqual(polymers, {
+            "1": {"id": "1", "molecules": {}}, "2": {"id": "2", "molecules": {}}
+        })
+        self.assertEqual(non_polymers, {
+            "HOH": {"id": "3", "name": "", "synonyms": [], "formula": "", "is_water": True, "molecules": {}},
+            "WAT": {"id": "4", "name": "", "synonyms": [], "formula": "", "is_water": True, "molecules": {}},
+        })
+
+
+
+class PolymerFinalizationTests(TestCase):
+
+    @patch("atomium.pdb.get_alignment_indices")
+    def test_can_generate_all_fields(self, mock_align):
+        mock_align.side_effect = ["align1", "align2"]
+        polymers = {"A": {}, "B": {}}
+        finalize_polymers(polymers)
+        self.assertEqual(polymers, {
+            "A": {"dbrefs": [], "differences": [], "modified": [], "residues": [], "observed_residues": [], "alignment": "align1"},
+            "B": {"dbrefs": [], "differences": [], "modified": [], "residues": [], "observed_residues": [], "alignment": "align2"},
+        })
+        self.assertEqual(
+            [c[0] for c in mock_align.call_args_list],
+            [([], []), ([], [])]
+        )
+    
+
+    @patch("atomium.pdb.get_alignment_indices")
+    def test_can_update_existing_fields(self, mock_align):
+        mock_align.side_effect = ["align1", "align2"]
+        polymers = {
+            "A": {"dbrefs": [1], "observed_residues": ["P", "C"]},
+            "B": {"differences": [3], "modified": [5], "residues": ["A", "T"]}
+        }
+        finalize_polymers(polymers)
+        self.assertEqual(polymers, {
+            "A": {"dbrefs": [1], "differences": [], "modified": [], "residues": ["P", "C"], "observed_residues": ["P", "C"], "alignment": "align1"},
+            "B": {"dbrefs": [], "differences": [3], "modified": [5], "residues": ["A", "T"], "observed_residues": [], "alignment": "align2"},
+        })
+        self.assertEqual(
+            [c[0] for c in mock_align.call_args_list],
+            [(["P", "C"], ["P", "C"]), (["A", "T"], [])]
+        )
+
+
+
+class MoleculeToEntitiesTests(TestCase):
+
+    def test_can_add_molecules_to_entities(self):
+        polymer_entities, polymers, nonpoly_entities, nonpolies = {}, {}, {}, {}
+        polymer_entities = {
+            "1": {"CHAIN": ("A", "B"), "molecules": {}},
+            "2": {"CHAIN": ("C"), "molecules": {}},
+        }
+        polymers = {"A": 1, "B": 2, "C": 3}
+        nonpoly_entities = {"XMP": {"molecules": {}}, "BU2": {"molecules": {}}}
+        nonpolies = {
+            ("A", "XMP", "100", "A"): {}, ("B", "XMP", "101", ""): {},
+            ("A", "BU2", "1000", ""): {}
+        }
+        add_molecules_to_entities(polymer_entities, polymers, nonpoly_entities, nonpolies)
+        self.assertEqual(polymer_entities, {
+            "1": {"CHAIN": ("A", "B"), "molecules": {"A": 1, "B": 2}},
+            "2": {"CHAIN": ("C"), "molecules": {"C": 3}},
+        })
+        self.assertEqual(nonpoly_entities, {
+            "XMP": {"molecules": {("A", "XMP", "100", "A"): {}, ("B", "XMP", "101", ""): {}}},
+            "BU2": {"molecules": {("A", "BU2", "1000", ""): {}}}
+        })
+
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")

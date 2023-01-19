@@ -893,7 +893,7 @@ def parse_seqadv(filestring, polymers):
     sequence modifications for each polymer, in a 'differences' list.
     
     :param str filestring: the contents of the .pdb file.
-    :param str filestring: the polymers dictionary to update."""
+    :param dict polymers: the polymers dictionary to update."""
 
     lines = re.findall(r"^SEQADV.+", filestring, re.M)
     for line in lines:
@@ -915,7 +915,7 @@ def parse_seqres(filestring, polymers):
     list.
 
     :param str filestring: the contents of the .pdb file.
-    :param str filestring: the polymers dictionary to update."""
+    :param dict polymers: the polymers dictionary to update."""
 
     lines = re.findall(r"^SEQRES.+", filestring, re.M)
     for line in lines:
@@ -932,7 +932,7 @@ def parse_modres(filestring, polymers):
     list.
 
     :param str filestring: the contents of the .pdb file.
-    :param str filestring: the polymers dictionary to update."""
+    :param dict polymers: the polymers dictionary to update."""
 
     lines = re.findall(r"^MODRES.+", filestring, re.M)
     for line in lines:
@@ -953,7 +953,6 @@ def parse_het(filestring):
     these will be rectified later.
 
     :param str filestring: the contents of the .pdb file.
-    :param str filestring: the polymers dictionary to update.
     :rtype: ``tuple``"""
 
     non_polymer_entities, non_polymers = {}, {}
@@ -971,7 +970,7 @@ def parse_hetnam(filestring, non_polymer_entities):
     structure.
 
     :param str filestring: the contents of the .pdb file.
-    :param str filestring: the polymers dictionary to update."""
+    :param dict non_polymer_entities: the non-polymers dictionary to update."""
 
     lines = re.findall(r"^HETNAM.+", filestring, re.M)
     names = [l[11:14].strip() for l in lines]
@@ -987,7 +986,7 @@ def parse_hetsyn(filestring, non_polymer_entities):
     structure.
 
     :param str filestring: the contents of the .pdb file.
-    :param str filestring: the polymers dictionary to update."""
+    :param dict non_polymer_entities: the non-polymers dictionary to update."""
 
     lines = re.findall(r"^HETSYN.+", filestring, re.M)
     names = [l[11:14].strip() for l in lines]
@@ -1003,7 +1002,7 @@ def parse_formul(filestring, non_polymer_entities):
     structure. This will also determine which non-polymers are water.
 
     :param str filestring: the contents of the .pdb file.
-    :param str filestring: the polymers dictionary to update."""
+    :param dict non_polymer_entities: the non-polymers dictionary to update."""
 
     lines = re.findall(r"^FORMUL.+", filestring, re.M)
     names = [l[12:15].strip() for l in lines]
@@ -1016,39 +1015,48 @@ def parse_formul(filestring, non_polymer_entities):
         non_polymer_entities[name]["is_water"] = match[0][18] == "*"
 
 
-def update_entities_from_atoms(filestring, polymer_entities, polymers, non_polymer_entities, non_polymers):
-    lines = re.findall(r"^ATOM.+|^HETATM.+|^TER", filestring, re.M)
-    sig, sigs, chain_id = None, [], ""
-    for line in lines:
-        if line == "TER":
-            # All residues so far have been for a polymer
-            if chain_id not in polymers:
-                polymers[chain_id] = {}
+def update_entities_from_atoms(filestring, polymer_entities, polymers,
+                                non_polymer_entities, non_polymers):
+    """Takes a filestring and looks for any entities or molecules that weren't
+    in the annotation and adds them. It will also get the 'observed residues'
+    for each polymer.
+    
+    :param dict polymer_entities: the polymer entities dictionary to update.
+    :param dict polymers: the polymers dictionary to update.
+    :param dict non_polymer_entities: the non-polymer entities to update.
+    :param dict non_polymers: the non-polymers dictionary to update."""
+
+    last_sig, sigs, chain_id = None, [], ""
+    for rec in re.findall(r"^ATOM.+|^HETATM.+|^TER", filestring, re.M):
+        if rec == "TER":
+            if chain_id not in polymers: polymers[chain_id] = {}
             polymers[chain_id]["observed_residues"] = [r[1] for r in sigs]
             for entity in polymer_entities.values():
                 if chain_id in entity["CHAIN"]: break
             else:
-                new_entity_id = int(list(polymer_entities.keys() or [0])[-1]) + 1
-                polymer_entities[str(new_entity_id)] = {"CHAIN": (chain_id,)}
+                new_id = int(list(polymer_entities.keys() or [0])[-1]) + 1
+                polymer_entities[str(new_id)] = {"CHAIN": (chain_id,)}
             for sig in sigs:
                 if sig in non_polymers: del non_polymers[sig]
             sig, sigs = None, []
         else:
-            # Make a note of this residue
-            line_sig = residue_sig(line)
-            if line_sig != sig: sigs.append(line_sig)
-            sig = line_sig
-            chain_id = line[21]
-    # Any residues left are non-polymers
-    for order, sig in enumerate(sigs):
+            sig = (rec[21], rec[17:20].strip(), rec[22:26].strip(), rec[26].strip())
+            if sig != last_sig: sigs.append(sig)
+            last_sig = sig
+            chain_id = rec[21]
+    for sig in sigs:
         if sig[1] not in non_polymer_entities:
-            non_polymer_entities[sig[1]] = {"order": order}
-        else:
-             non_polymer_entities[sig[1]]["order"] = order
+            non_polymer_entities[sig[1]] = {}
         if sig not in non_polymers: non_polymers[sig] = {}
 
 
 def finalize_entities(polymer_entities, non_polymer_entities):
+    """Finalizes the determined entities by giving them all the fields they need
+    if they haven't been set, and standardising the IDs.
+    
+    :param dict polymer_entities: the polymer entities to update.
+    :param dict non_polymer_entities: the non-polymer entities to update."""
+
     entity_id = 1
     holding = []
     non_pol_fields = {
@@ -1072,6 +1080,12 @@ def finalize_entities(polymer_entities, non_polymer_entities):
 
 
 def finalize_polymers(polymers):
+    """Finalizes the determined polymers by giving them all the fields they need
+    if they haven't been set, and giving them all an alignment.
+    
+    :param dict polymer_entities: the polymer entities to update.
+    :param dict non_polymer_entities: the non-polymer entities to update."""
+
     polymer_fields = {
         "dbrefs": list, "differences": list, "modified": list,
         "residues": list, "observed_residues": list
@@ -1086,7 +1100,15 @@ def finalize_polymers(polymers):
         )
     
 
-def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities, non_polymers):
+def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities,
+                                non_polymers):
+    """Assings molecules to the entity that represents them.
+    
+    :param dict polymer_entities: the polymer entities dictionary to update.
+    :param dict polymers: the polymers dictionary to update.
+    :param dict non_polymer_entities: the non-polymer entities to update.
+    :param dict non_polymers: the non-polymers dictionary to update."""
+
     for chain_id, polymer in polymers.items():
         for entity in polymer_entities.values():
             if chain_id in entity["CHAIN"]:
@@ -1097,10 +1119,6 @@ def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities, 
             if name == sig[1]:
                 entity["molecules"][sig] = non_polymer
                 break
-    '''non_pol_without_molecules = []
-    for id, entity in non_polymer_entities.items():
-        if not entity["molecules"]: non_pol_without_molecules.append(id)
-    for id in non_pol_without_molecules: del non_polymer_entities[id]'''
 
 
 def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
@@ -1356,7 +1374,10 @@ def build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif):
             residue_index = -1
             current_chain_id = None
         else:
-            sig = residue_sig(line)
+            sig = (
+                line[21], line[17:20].strip(),
+                line[22:26].strip(), line[26].strip()
+            )
             if sig != current_sig: residue_index += 1
             current_sig = sig
             if sig[0] != current_chain_id: residue_index = 0

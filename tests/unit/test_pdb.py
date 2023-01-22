@@ -95,6 +95,7 @@ class EntityGettingTests(TestCase):
 class StructureCategoryBuildingTests(TestCase):
 
     @patch("atomium.pdb.build_entity_category")
+    @patch("atomium.pdb.build_entity_name_com")
     @patch("atomium.pdb.build_entity_poly")
     @patch("atomium.pdb.build_entity_poly_seq")
     @patch("atomium.pdb.build_struct_ref")
@@ -112,15 +113,15 @@ class StructureCategoryBuildingTests(TestCase):
         mocks = mocks[::-1]
         build_structure_categories("filestring", "polymers", "nonpolymers", {"mmcif": 1})
         mocks[0].assert_called_with("polymers", "nonpolymers", {"mmcif": 1})
-        for mock in mocks[1:7]:
+        for mock in mocks[1:8]:
             mock.assert_called_with("polymers", {"mmcif": 1})
-        for mock in mocks[7:9]:
+        for mock in mocks[8:10]:
             mock.assert_called_with("nonpolymers", {"mmcif": 1})
-        mocks[9].assert_called_with("filestring", {"mmcif": 1})
-        mocks[10].assert_called_with("filestring", "polymers", "nonpolymers", {"mmcif": 1})
-        mocks[11].assert_called_with("filestring", {"mmcif": 1})
-        mocks[12].assert_called_with({"mmcif": 1})
+        mocks[10].assert_called_with("filestring", {"mmcif": 1})
+        mocks[11].assert_called_with("filestring", "polymers", "nonpolymers", {"mmcif": 1})
+        mocks[12].assert_called_with("filestring", {"mmcif": 1})
         mocks[13].assert_called_with({"mmcif": 1})
+        mocks[14].assert_called_with({"mmcif": 1})
     
 
 
@@ -2119,6 +2120,175 @@ class MoleculeToEntitiesTests(TestCase):
             "XMP": {"molecules": {("A", "XMP", "100", "A"): {}, ("B", "XMP", "101", ""): {}}},
             "BU2": {"molecules": {("A", "BU2", "1000", ""): {}}}
         })
+
+
+
+class EntityBuildingTests(TestCase):
+
+    def test_can_handle_no_entities(self):
+        polymers = {}
+        non_polymers = {}
+        mmcif = {1: 2}
+        build_entity_category(polymers, non_polymers, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    @patch("atomium.pdb.update_polymer_entity")
+    @patch("atomium.pdb.update_non_polymer_entity")
+    def test_can_parse_entities(self, mock_nonpoly, mock_poly):
+        polymers = {"1": {"id": "1"}, "2": {"id": "3"}}
+        non_polymers = {
+            "ABC": {"A": "A", "molecules": [1, 2]},
+            "XYZ": {"X": "X", "molecules": [1]},
+            "ZZZ": {"Z": "Z", "molecules": []},
+        }
+        mmcif = {1: 2}
+        build_entity_category(polymers, non_polymers, mmcif)
+        self.assertEqual(mmcif, {1: 2, "entity": [{
+            "id": "1", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }, {
+            "id": "2", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }, {
+            "id": "3", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }, {
+            "id": "4", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }]})
+        mock_poly.assert_any_call(mmcif["entity"][0], {"id": "1"})
+        mock_poly.assert_any_call(mmcif["entity"][1], {"id": "2"})
+        mock_nonpoly.assert_any_call(mmcif["entity"][2], {"A": "A", "molecules": [1, 2], "id": "3"})
+        mock_nonpoly.assert_any_call(mmcif["entity"][3], {"X": "X", "molecules": [1], "id": "4"})
+
+
+
+class PolymerEntityUpdatingTests(TestCase):
+
+    def test_can_update_minimal_info(self):
+        entity = {
+            "id": "2", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }
+        info = {"CHAIN": ("A", "B", "C")}
+        update_polymer_entity(entity, info)
+        self.assertEqual(entity, {
+            "id": "2", "type": "polymer", "src_method": "nat", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "3", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        })
+    
+
+    def test_can_update_full_info(self):
+        entity = {
+            "id": "2", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }
+        info = {
+            "CHAIN": ("A", "B", "C"), "MOLECULE": "fullname", "EC": "1.2",
+            "FRAGMENT": "frag", "OTHER_DETAILS": "extra", "SYNTHETIC": "yes"
+        }
+        update_polymer_entity(entity, info)
+        self.assertEqual(entity, {
+            "id": "2", "type": "polymer", "src_method": "syn", "pdbx_description": "fullname",
+            "formula_weight": "?", "pdbx_number_of_molecules": "3", "pdbx_ec": "1.2",
+            "pdbx_mutation": "?", "pdbx_fragment": "frag", "details": "extra",
+        })
+    
+
+    def test_can_update_full_info_with_engineered(self):
+        entity = {
+            "id": "2", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }
+        info = {
+            "CHAIN": ("A", "B", "C"), "MOLECULE": "fullname", "EC": "1.2",
+            "FRAGMENT": "frag", "OTHER_DETAILS": "extra", "ENGINEERED": "yes"
+        }
+        update_polymer_entity(entity, info)
+        self.assertEqual(entity, {
+            "id": "2", "type": "polymer", "src_method": "man", "pdbx_description": "fullname",
+            "formula_weight": "?", "pdbx_number_of_molecules": "3", "pdbx_ec": "1.2",
+            "pdbx_mutation": "?", "pdbx_fragment": "frag", "details": "extra",
+        })
+
+
+
+class NonPolymerEntityUpdatingTests(TestCase):
+
+    def test_can_update_minimal_info(self):
+        entity = {
+            "id": "2", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }
+        info = {"molecules": {1: 2, 3: 4}, "is_water": False}
+        update_non_polymer_entity(entity, info)
+        self.assertEqual(entity, {
+            "id": "2", "type": "non-polymer", "src_method": "syn", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "2", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        })
+    
+
+    def test_can_update_full_info(self):
+        entity = {
+            "id": "2", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }
+        info = {"molecules": {1: 2, 3: 4}, "is_water": False, "name": "fullium"}
+        update_non_polymer_entity(entity, info)
+        self.assertEqual(entity, {
+            "id": "2", "type": "non-polymer", "src_method": "syn", "pdbx_description": "fullium",
+            "formula_weight": "?", "pdbx_number_of_molecules": "2", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        })
+    
+
+    def test_can_update_full_info_as_water(self):
+        entity = {
+            "id": "2", "type": "?", "src_method": "?", "pdbx_description": "?",
+            "formula_weight": "?", "pdbx_number_of_molecules": "1", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        }
+        info = {"molecules": {1: 2, 3: 4}, "is_water": True, "name": ""}
+        update_non_polymer_entity(entity, info)
+        self.assertEqual(entity, {
+            "id": "2", "type": "water", "src_method": "nat", "pdbx_description": "water",
+            "formula_weight": "?", "pdbx_number_of_molecules": "2", "pdbx_ec": "?",
+            "pdbx_mutation": "?", "pdbx_fragment": "?", "details": "?",
+        })
+
+
+
+class EntityNameComTests(TestCase):
+
+    def test_can_not_build_category(self):
+        polymers = {"1": {}, "2": {"SYNONYM": ""}}
+        mmcif = {1: 2}
+        build_entity_name_com(polymers, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_not_build_category(self):
+        polymers = {
+            "1": {"id": "1"}, "2": {"SYNONYM": "", "id": "2"},
+            "3": {"SYNONYM": "name1", "id": "3"}, "4": {"SYNONYM": "name2", "id": "4"}
+        }
+        mmcif = {1: 2}
+        build_entity_name_com(polymers, mmcif)
+        self.assertEqual(mmcif, {1: 2, "entity_name_com": [
+            {"entity_id": "3", "name": "name1"}, {"entity_id": "4", "name": "name2"}
+        ]})
 
 
 

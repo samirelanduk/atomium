@@ -2523,7 +2523,7 @@ class FileToDictTests(TestCase):
             "pdbx_number_of_molecules": "170", "pdbx_ec": "?", "pdbx_mutation": "?",
             "pdbx_fragment": "?", "details": "?",
         }])
-        self.assertEqual(d["entity_name_com"], [{"entity_id": "1", "name": "RNASE H"}, {"entity_id": "2", "name": "?"}])
+        self.assertEqual(d["entity_name_com"], [{"entity_id": "1", "name": "RNASE H"}])
         self.assertEqual(d["entity_poly"], [{
             "entity_id": "1", "type": "polypeptide(L)", "nstd_linkage": "no",
             "nstd_monomer": "no",

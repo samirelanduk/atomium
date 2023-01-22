@@ -100,6 +100,7 @@ def build_structure_categories(filestring, polymer_entities,
     :param dict mmcif: the dictionary to update."""
     
     build_entity_category(polymer_entities, non_polymer_entities, mmcif)
+    build_entity_name_com(polymer_entities, mmcif)
     build_entity_poly(polymer_entities, mmcif)
     build_entity_poly_seq(polymer_entities, mmcif)
     build_struct_ref(polymer_entities, mmcif)
@@ -1122,6 +1123,12 @@ def add_molecules_to_entities(polymer_entities, polymers, non_polymer_entities,
 
 
 def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
+    """Creates the entity category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict non_polymer_entities: the non-polymer entities.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["entity"] = []
     entity_template = {
         "id": "?", "type": "?", "src_method": "?", "pdbx_description": "?",
@@ -1132,30 +1139,58 @@ def build_entity_category(polymer_entities, non_polymer_entities, mmcif):
         entity_id = str(len(mmcif["entity"]) + 1)
         mmcif["entity"].append({**entity_template})
         mmcif["entity"][-1]["id"] = entity["id"] = entity_id
-        mmcif["entity"][-1]["type"] = "polymer"
-        mmcif["entity"][-1]["pdbx_description"] = entity.get("MOLECULE", "?")
-        mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["CHAIN"]))
-        mmcif["entity"][-1]["pdbx_ec"] = entity.get("EC", "?")
-        mmcif["entity"][-1]["pdbx_mutation"] = "?"
-        mmcif["entity"][-1]["pdbx_fragment"] = entity.get("FRAGMENT", "?")
-        mmcif["entity"][-1]["details"] = entity.get("OTHER_DETAILS", "?")
-        mmcif["entity"][-1]["src_method"] = "syn" if entity.get("SYNTHETIC") \
-            else "man" if entity.get("ENGINEERED") else "nat"
+        update_polymer_entity(mmcif["entity"][-1], entity)
     for entity in non_polymer_entities.values():
         if not entity["molecules"]: continue
         entity_id = str(len(mmcif["entity"]) + 1)
         mmcif["entity"].append({**entity_template})
         mmcif["entity"][-1]["id"] = entity["id"] = entity_id
-        mmcif["entity"][-1]["type"] = "water" if entity["is_water"] else "non-polymer"
-        mmcif["entity"][-1]["pdbx_description"] = entity.get("name") or "?"
-        if mmcif["entity"][-1]["pdbx_description"] == "?" and mmcif["entity"][-1]["type"] == "water":
-            mmcif["entity"][-1]["pdbx_description"] = "water"
-        mmcif["entity"][-1]["pdbx_number_of_molecules"] = str(len(entity["molecules"]))
-        mmcif["entity"][-1]["src_method"] = "nat" if entity["is_water"] else "syn"
+        update_non_polymer_entity(mmcif["entity"][-1], entity)
+    if not mmcif["entity"]: del mmcif["entity"]
+
+
+def update_polymer_entity(entity_row, entity_info):
+    """Updates a polymer entity with information from the PDB.
+    
+    :param dict entity_row: the mmCIF entity row.
+    :param dict entity_info: the processed PDB info for this entity."""
+
+    entity_row["type"] = "polymer"
+    entity_row["pdbx_description"] = entity_info.get("MOLECULE", "?")
+    entity_row["pdbx_number_of_molecules"] = str(len(entity_info["CHAIN"]))
+    entity_row["pdbx_ec"] = entity_info.get("EC", "?")
+    entity_row["pdbx_mutation"] = "?"
+    entity_row["pdbx_fragment"] = entity_info.get("FRAGMENT", "?")
+    entity_row["details"] = entity_info.get("OTHER_DETAILS", "?")
+    entity_row["src_method"] = "syn" if entity_info.get("SYNTHETIC") \
+        else "man" if entity_info.get("ENGINEERED") else "nat"
+
+
+def update_non_polymer_entity(entity_row, entity_info):
+    """Updates a non-polymer entity with information from the PDB.
+    
+    :param dict entity_row: the mmCIF entity row.
+    :param dict entity_info: the processed PDB info for this entity."""
+
+    entity_row["type"] = "water" if entity_info["is_water"] else "non-polymer"
+    entity_row["pdbx_description"] = entity_info.get("name") or "?"
+    if entity_row["pdbx_description"] == "?" and entity_row["type"] == "water":
+        entity_row["pdbx_description"] = "water"
+    entity_row["pdbx_number_of_molecules"] = str(len(entity_info["molecules"]))
+    entity_row["src_method"] = "nat" if entity_info["is_water"] else "syn"
+
+
+def build_entity_name_com(polymer_entities, mmcif):
+    """Creates the entity_name_com category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict non_polymer_entities: the non-polymer entities.
+    :param dict mmcif: the dictionary to update."""
+
     if any(e.get("SYNONYM") for e in polymer_entities.values()):
         mmcif["entity_name_com"] = [{
             "entity_id": entity["id"], "name": entity.get("SYNONYM", "?")
-        } for entity in polymer_entities.values()]
+        } for entity in polymer_entities.values() if entity.get("SYNONYM")]
 
 
 def build_entity_poly(polymer_entities, mmcif):

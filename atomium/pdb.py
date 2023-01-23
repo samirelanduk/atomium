@@ -1257,6 +1257,11 @@ def build_entity_poly_seq(polymer_entities, mmcif):
 
 
 def build_struct_ref(polymer_entities, mmcif):
+    """Creates the struct_ref category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["struct_ref"] = []
     for entity in polymer_entities.values():
         dbrefs = []
@@ -1267,57 +1272,66 @@ def build_struct_ref(polymer_entities, mmcif):
         for dbref in dbrefs:
             mmcif["struct_ref"].append({
                 "id": str(len(mmcif["struct_ref"]) + 1),
-                "db_name": dbref["database"], "db_code": dbref["id"],
+                "db_name": dbref["database"] or "?",
+                "db_code": dbref["id"] or "?",
                 "entity_id": entity["id"], "pdbx_seq_one_letter_code": "?",
-                "pdbx_align_begin": dbref["start"],
-                "pdbx_db_accession": dbref["accession"], "pdbx_db_isoform": "?"
+                "pdbx_align_begin": dbref["start"] or "?",
+                "pdbx_db_accession": dbref["accession"] or "?",
+                "pdbx_db_isoform": "?"
             })
     if not mmcif["struct_ref"]: del mmcif["struct_ref"]
 
 
 def build_struct_ref_seq(polymer_entities, mmcif):
+    """Creates the struct_ref_seq category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["struct_ref_seq"] = []
+    code = mmcif.get("entry", [{"id": ""}])[0]["id"] or "?"
     for entity in polymer_entities.values():
-        for molecule in entity["molecules"].items():
-            chain_id, molecule = molecule
+        for chain_id, molecule in entity["molecules"].items():
             for dbref in molecule["dbrefs"]:
                 mmcif["struct_ref_seq"].append({
-                    "align_id": str(len(mmcif["struct_ref_seq"]) + 1), "ref_id": "1",
-                    "pdbx_PDB_id_code": mmcif.get("entry", [{"id": ""}])[0]["id"] or "?",
-                    "pdbx_strand_id": chain_id,
-                    "seq_align_beg": "?",
+                    "align_id": str(len(mmcif["struct_ref_seq"]) + 1),
+                    "ref_id": "1", "pdbx_PDB_id_code": code,
+                    "pdbx_strand_id": chain_id, "seq_align_beg": "?",
                     "pdbx_seq_align_beg_ins_code": dbref["start_insert"] or "?",
                     "seq_align_end": "?",
                     "pdbx_seq_align_end_ins_code": dbref["end_insert"] or "?",
-                    "pdbx_db_accession": dbref["accession"],
-                    "db_align_beg": dbref["db_start"],
+                    "pdbx_db_accession": dbref["accession"] or "?",
+                    "db_align_beg": dbref["db_start"] or "?",
                     "pdbx_db_align_beg_ins_code": dbref["db_start_insert"] or "?",
-                    "db_align_end": dbref["db_end"],
+                    "db_align_end": dbref["db_end"] or "?",
                     "pdbx_db_align_end_ins_code": dbref["db_end_insert"] or "?",
-                    "pdbx_auth_seq_align_beg": dbref["start"],
-                    "pdbx_auth_seq_align_end": dbref["end"]
+                    "pdbx_auth_seq_align_beg": dbref["start"] or "?",
+                    "pdbx_auth_seq_align_end": dbref["end"] or "?"
                 })
     if not mmcif["struct_ref_seq"]: del mmcif["struct_ref_seq"]
 
 
 def build_struct_ref_seq_dif(polymer_entities, mmcif):
+    """Creates the struct_ref_seq_dif category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["struct_ref_seq_dif"] = []
+    code = mmcif.get("entry", [{"id": ""}])[0]["id"] or "?"
     for entity in polymer_entities.values():
         for mol_id, molecule in entity["molecules"].items():
             for diff in molecule["differences"]:
+                align_id = "?"
                 for align in mmcif["struct_ref_seq"]:
                     if align["pdbx_strand_id"] == mol_id:
-                        align_id = align["align_id"]
-                        break
-                else:
-                    align_id = "?"
+                        if align["pdbx_db_accession"] == diff["accession"]:
+                            align_id = align["align_id"]
+                            break
                 mmcif["struct_ref_seq_dif"].append({
-                    "align_id": align_id,
-                    "pdbx_pdb_id_code":  mmcif.get("entry", [{"id": ""}])[0]["id"] or "?",
-                    "mon_id": diff["name"] or "?",
-                    "pdbx_pdb_strand_id": mol_id,
-                    "seq_num": "?",
-                    "pdbx_pdb_ins_code": diff["insert"] or "?",
+                    "align_id": align_id, "pdbx_pdb_id_code": code,
+                    "mon_id": diff["name"] or "?", "pdbx_pdb_strand_id": mol_id,
+                    "seq_num": "?", "pdbx_pdb_ins_code": diff["insert"] or "?",
                     "pdbx_seq_db_name": diff["database"] or "?",
                     "pdbx_seq_db_accession_code": diff["accession"] or "?",
                     "db_mon_id": diff["db_name"] or "?",
@@ -1330,24 +1344,27 @@ def build_struct_ref_seq_dif(polymer_entities, mmcif):
 
 
 def build_pdbx_struct_mod_residue(polymer_entities, mmcif):
+    """Creates the pdbx_struct_mod_residue category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["pdbx_struct_mod_residue"] = []
     for entity in polymer_entities.values():
         for mol_id, molecule in entity["molecules"].items():
             for mod in molecule["modified"]:
                 mmcif["pdbx_struct_mod_residue"].append({
                     "id": str(len(mmcif["pdbx_struct_mod_residue"]) + 1),
-                    "label_asym_id": "?",
-                    "label_comp_id": mod["name"],
-                    "label_seq_id": "?",
-                    "auth_asym_id": mol_id,
-                    "auth_comp_id": mod["name"],
-                    "auth_seq_id": mod["number"],
+                    "label_asym_id": "?", "label_comp_id": mod["name"] or "?",
+                    "label_seq_id": "?", "auth_asym_id": mol_id,
+                    "auth_comp_id": mod["name"] or "?",
+                    "auth_seq_id": mod["number"] or "?",
                     "PDB_ins_code": mod["insert"] or "?",
-                    "parent_comp_id": mod["standard_name"],
+                    "parent_comp_id": mod["standard_name"] or "?",
                     "details": mod["comment"] or "?",
                 })
-    if not mmcif["pdbx_struct_mod_residue"]: del mmcif["pdbx_struct_mod_residue"]
-
+    if not mmcif["pdbx_struct_mod_residue"]:
+        del mmcif["pdbx_struct_mod_residue"]
 
 
 def build_pdbx_entity_nonpoly(non_polymers, mmcif):

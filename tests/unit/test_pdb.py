@@ -2342,6 +2342,29 @@ class EntityPolyTests(TestCase):
 
 
 
+class SequenceStringTests(TestCase):
+
+    def test_can_get_protein_sequence(self):
+        polymer = {"residues": ["HIS", "MET", "CYS"], "modified": []}
+        self.assertEqual(get_sequence_strings(polymer), ("HMC", "HMC"))
+    
+
+    def test_can_get_nucleotide_sequence(self):
+        polymer = {"residues": ["A", "U", "G"], "modified": []}
+        self.assertEqual(get_sequence_strings(polymer), ("AUG", "AUG"))
+    
+
+    def test_can_get_unknown_sequence(self):
+        polymer = {"residues": ["XYZ", "ABC", "UNK"], "modified": []}
+        self.assertEqual(get_sequence_strings(polymer), ("(XYZ)(ABC)(UNK)", "XXX"))
+    
+
+    def test_can_get_unknown_sequence_with_modified_lookup(self):
+        polymer = {"residues": ["XYZ", "ABC", "UNK"], "modified": [{"standard_name": "HIS", "name": "ABC"}]}
+        self.assertEqual(get_sequence_strings(polymer), ("(XYZ)(ABC)(UNK)", "XHX"))
+
+
+
 class EntityPolySeqTests(TestCase):
 
     def test_can_handle_no_polymers(self):
@@ -2377,26 +2400,380 @@ class EntityPolySeqTests(TestCase):
 
 
 
-class SequenceStringTests(TestCase):
+class StructRefTests(TestCase):
 
-    def test_can_get_protein_sequence(self):
-        polymer = {"residues": ["HIS", "MET", "CYS"], "modified": []}
-        self.assertEqual(get_sequence_strings(polymer), ("HMC", "HMC"))
+    def test_can_handle_no_entities(self):
+        mmcif = {1: 2}
+        build_struct_ref({}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
     
 
-    def test_can_get_nucleotide_sequence(self):
-        polymer = {"residues": ["A", "U", "G"], "modified": []}
-        self.assertEqual(get_sequence_strings(polymer), ("AUG", "AUG"))
+    def test_can_handle_no_valid_polymers(self):
+        mmcif = {1: 2}
+        build_struct_ref({"1": {"molecules": {}}, "2": {"molecules": {}}}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
     
 
-    def test_can_get_unknown_sequence(self):
-        polymer = {"residues": ["XYZ", "ABC", "UNK"], "modified": []}
-        self.assertEqual(get_sequence_strings(polymer), ("(XYZ)(ABC)(UNK)", "XXX"))
+    def test_can_handle_no_dbrefs(self):
+        mmcif = {1: 2}
+        build_struct_ref({
+            "1": {"molecules": {"A": {"dbrefs": []}}},
+            "2": {"molecules": {"B": {"dbrefs": []}}}
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2})
     
 
-    def test_can_get_unknown_sequence_with_modified_lookup(self):
-        polymer = {"residues": ["XYZ", "ABC", "UNK"], "modified": [{"standard_name": "HIS", "name": "ABC"}]}
-        self.assertEqual(get_sequence_strings(polymer), ("(XYZ)(ABC)(UNK)", "XHX"))
+    def test_can_build_table(self):
+        mmcif = {1: 2}
+        build_struct_ref({
+            "1": {"id": "1", "molecules": {
+                "A": {"dbrefs": [
+                    {"id": "1", "database": "UNP", "start": "2", "accession": "ABC"}
+                ]},
+                "B": {"dbrefs": [
+                    {"id": "1", "database": "UNP", "start": "3", "accession": "ABC"}
+                ]}
+            }},
+            "2": {"id": "2", "molecules": {
+                "C": {"dbrefs": [
+                    {"id": "1", "database": "UNP", "start": "4", "accession": "YYY"}
+                ]},
+                "D": {"dbrefs": [
+                    {"id": "1", "database": "RFS", "start": "5", "accession": "ZZZ"},
+                    {"id": "2", "database": "RFS", "start": "6", "accession": "ZZZ"},
+                ]}
+            }},
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_ref": [{
+            "id": "1", "db_name": "UNP", "db_code": "1", "entity_id": "1", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "2", "pdbx_db_accession": "ABC", "pdbx_db_isoform": "?"
+        }, {
+            "id": "2", "db_name": "UNP", "db_code": "1", "entity_id": "2", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "4", "pdbx_db_accession": "YYY", "pdbx_db_isoform": "?"
+        }, {
+            "id": "3", "db_name": "RFS", "db_code": "2", "entity_id": "2", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "6", "pdbx_db_accession": "ZZZ", "pdbx_db_isoform": "?"
+        }]})
+    
+
+    def test_can_build_empty_table(self):
+        mmcif = {1: 2}
+        build_struct_ref({
+            "1": {"id": "1", "molecules": {
+                "A": {"dbrefs": [
+                    {"id": "", "database": "", "start": "", "accession": ""}
+                ]}
+            }},
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_ref": [{
+            "id": "1", "db_name": "?", "db_code": "?", "entity_id": "1", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "?", "pdbx_db_accession": "?", "pdbx_db_isoform": "?"
+        }]})
+
+
+
+class StructRefSeqTests(TestCase):
+
+    def test_can_handle_no_entities(self):
+        mmcif = {1: 2}
+        build_struct_ref_seq({}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_valid_polymers(self):
+        mmcif = {1: 2}
+        build_struct_ref_seq({"1": {"molecules": {}}, "2": {"molecules": {}}}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_dbrefs(self):
+        mmcif = {1: 2}
+        build_struct_ref_seq({
+            "1": {"molecules": {"A": {"dbrefs": []}}},
+            "2": {"molecules": {"B": {"dbrefs": []}}}
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_build_table(self):
+        mmcif = {1: 2, "entry": [{"id": "1XXX"}]}
+        build_struct_ref_seq({
+            "1": {"id": "1", "molecules": {
+                "A": {"dbrefs": [{
+                    "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
+                    "db_start_insert": "", "db_end_insert": "", "start": "1", "end": "2",
+                    "db_start": "3", "db_end": "4"
+                }]},
+                "B": {"dbrefs": [{
+                    "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
+                    "db_start_insert": "", "db_end_insert": "", "start": "5", "end": "6",
+                    "db_start": "7", "db_end": "8"
+                }]}
+            }},
+            "2": {"id": "2", "molecules": {
+                "C": {"dbrefs": [{
+                    "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
+                    "db_start_insert": "", "db_end_insert": "", "start": "9", "end": "10",
+                    "db_start": "11", "db_end": "12"
+                }]},
+                "D": {"dbrefs": [{
+                    "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
+                    "db_start_insert": "", "db_end_insert": "", "start": "13", "end": "14",
+                    "db_start": "15", "db_end": "16"
+                }, {
+                    "id": "1", "start_insert": "A", "end_insert": "B", "accession": "ABC",
+                    "db_start_insert": "C", "db_end_insert": "D", "start": "17", "end": "18",
+                    "db_start": "19", "db_end": "20"
+                }]}
+            }},
+        }, mmcif)
+        
+        self.assertEqual(mmcif, {1: 2, "entry": [{"id": "1XXX"}], "struct_ref_seq": [{
+            "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "A",
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "3",
+            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "4", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "2"
+        }, {
+            "align_id": "2", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "B",
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "7",
+            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "8", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "5", "pdbx_auth_seq_align_end": "6"
+        }, {
+            "align_id": "3", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "C",
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "11",
+            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "12", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "9", "pdbx_auth_seq_align_end": "10"
+        }, {
+            "align_id": "4", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "D", 
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "15",
+            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "16", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "13", "pdbx_auth_seq_align_end": "14"
+        }, {
+            "align_id": "5", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "D",
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "A", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "B", "pdbx_db_accession": "ABC", "db_align_beg": "19",
+            "pdbx_db_align_beg_ins_code": "C", "db_align_end": "20", "pdbx_db_align_end_ins_code": "D",
+            "pdbx_auth_seq_align_beg": "17", "pdbx_auth_seq_align_end": "18"
+        }]})
+    
+
+    def test_can_build_empty_table(self):
+        mmcif = {1: 2}
+        build_struct_ref_seq({
+            "1": {"id": "1", "molecules": {
+                "A": {"dbrefs": [{
+                    "id": "", "start_insert": "", "end_insert": "", "accession": "",
+                    "db_start_insert": "", "db_end_insert": "", "start": "", "end": "",
+                    "db_start": "", "db_end": ""
+                }]}
+            }}
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_ref_seq": [{
+            "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "?", "pdbx_strand_id": "A",
+            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "?", "db_align_beg": "?",
+            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "?", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "?", "pdbx_auth_seq_align_end": "?"
+        }]})
+
+
+
+class StructRefSeqDiffTests(TestCase):
+
+    def test_can_handle_no_entities(self):
+        mmcif = {1: 2}
+        build_struct_ref_seq_dif({}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_valid_polymers(self):
+        mmcif = {1: 2}
+        build_struct_ref_seq_dif({"1": {"molecules": {}}, "2": {"molecules": {}}}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_differences(self):
+        mmcif = {1: 2}
+        build_struct_ref_seq_dif({
+            "1": {"molecules": {"A": {"differences": []}}},
+            "2": {"molecules": {"B": {"differences": []}}}
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_build_table(self):
+        mmcif = {1: 2, "entry": [{"id": "1XXX"}], "struct_ref_seq": [
+            {"align_id": "1", "pdbx_db_accession": "ABC", "pdbx_strand_id": "A"},
+            {"align_id": "2", "pdbx_db_accession": "XYZ", "pdbx_strand_id": "A"},
+            {"align_id": "3", "pdbx_db_accession": "ABC", "pdbx_strand_id": "B"},
+            {"align_id": "4", "pdbx_db_accession": "ZZZ", "pdbx_strand_id": "C"},
+            {"align_id": "5", "pdbx_db_accession": "YYY", "pdbx_strand_id": "D"},
+        ]}
+        build_struct_ref_seq_dif({
+            "1": {"id": "1", "molecules": {
+                "A": {"differences": [{
+                    "accession": "XYZ", "name": "HAS", "insert": "A", "database": "UNP",
+                    "db_number": "12", "comment": "COM1", "number": "13", "db_name": "HIS"
+                }]},
+                "B": {"differences": [{
+                    "accession": "ABC", "name": "NET", "insert": "", "database": "UNP",
+                    "db_number": "22", "comment": "COM2", "number": "23", "db_name": "MET"
+                }]}
+            }},
+            "2": {"id": "2", "molecules": {
+                "C": {"differences": [{
+                    "accession": "AAA", "name": "SIS", "insert": "", "database": "UNP",
+                    "db_number": "32", "comment": "COM3", "number": "33", "db_name": "CYS"
+                }]},
+                "D": {"differences": [{
+                    "accession": "ZZZ", "name": "CRO", "insert": "", "database": "UNP",
+                    "db_number": "42", "comment": "COM4", "number": "43", "db_name": "PRO"
+                }, {
+                    "accession": "YYY", "name": "FAL", "insert": "", "database": "REF",
+                    "db_number": "42", "comment": "COM5", "number": "43", "db_name": "VAL"
+                }]}
+            }},
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2, "entry": [{"id": "1XXX"}], "struct_ref_seq": [
+            {"align_id": "1", "pdbx_db_accession": "ABC", "pdbx_strand_id": "A"},
+            {"align_id": "2", "pdbx_db_accession": "XYZ", "pdbx_strand_id": "A"},
+            {"align_id": "3", "pdbx_db_accession": "ABC", "pdbx_strand_id": "B"},
+            {"align_id": "4", "pdbx_db_accession": "ZZZ", "pdbx_strand_id": "C"},
+            {"align_id": "5", "pdbx_db_accession": "YYY", "pdbx_strand_id": "D"}
+        ],
+        "struct_ref_seq_dif": [{
+            "align_id": "2", "pdbx_pdb_id_code": "1XXX", "mon_id": "HAS", "pdbx_pdb_strand_id": "A",
+            "seq_num": "?", "pdbx_pdb_ins_code": "A", "pdbx_seq_db_name": "UNP",
+            "pdbx_seq_db_accession_code": "XYZ", "db_mon_id": "HIS", "pdbx_seq_db_seq_num": "12",
+            "details": "COM1", "pdbx_auth_seq_num": "13", "pdbx_ordinal": "1"
+        }, {
+            "align_id": "3", "pdbx_pdb_id_code": "1XXX", "mon_id": "NET", "pdbx_pdb_strand_id": "B",
+            "seq_num": "?", "pdbx_pdb_ins_code": "?", "pdbx_seq_db_name": "UNP",
+            "pdbx_seq_db_accession_code": "ABC", "db_mon_id": "MET", "pdbx_seq_db_seq_num": "22",
+            "details": "COM2", "pdbx_auth_seq_num": "23", "pdbx_ordinal": "2"
+        }, {
+            "align_id": "?", "pdbx_pdb_id_code": "1XXX", "mon_id": "SIS", "pdbx_pdb_strand_id": "C",
+            "seq_num": "?", "pdbx_pdb_ins_code": "?", "pdbx_seq_db_name": "UNP",
+            "pdbx_seq_db_accession_code": "AAA", "db_mon_id": "CYS", "pdbx_seq_db_seq_num": "32",
+            "details": "COM3", "pdbx_auth_seq_num": "33", "pdbx_ordinal": "3"
+        }, {
+            "align_id": "?", "pdbx_pdb_id_code": "1XXX", "mon_id": "CRO", "pdbx_pdb_strand_id": "D",
+            "seq_num": "?", "pdbx_pdb_ins_code": "?", "pdbx_seq_db_name": "UNP",
+            "pdbx_seq_db_accession_code": "ZZZ", "db_mon_id": "PRO", "pdbx_seq_db_seq_num": "42",
+            "details": "COM4", "pdbx_auth_seq_num": "43", "pdbx_ordinal": "4"
+        }, {
+            "align_id": "5", "pdbx_pdb_id_code": "1XXX", "mon_id": "FAL", "pdbx_pdb_strand_id": "D",
+            "seq_num": "?", "pdbx_pdb_ins_code": "?", "pdbx_seq_db_name": "REF",
+            "pdbx_seq_db_accession_code": "YYY", "db_mon_id": "VAL", "pdbx_seq_db_seq_num": "42",
+            "details": "COM5", "pdbx_auth_seq_num": "43", "pdbx_ordinal": "5"
+        }]})
+    
+
+    def test_can_build_empty_table(self):
+        mmcif = {1: 2, "struct_ref_seq": []}
+        build_struct_ref_seq_dif({
+            "1": {"id": "1", "molecules": {
+                "A": {"differences": [{
+                    "accession": "", "name": "", "insert": "", "database": "",
+                    "db_number": "", "comment": "", "number": "", "db_name": ""
+                }]}
+            }}
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_ref_seq": [], "struct_ref_seq_dif": [{
+            "align_id": "?", "pdbx_pdb_id_code": "?", "mon_id": "?", "pdbx_pdb_strand_id": "A",
+            "seq_num": "?", "pdbx_pdb_ins_code": "?", "pdbx_seq_db_name": "?",
+            "pdbx_seq_db_accession_code": "?", "db_mon_id": "?", "pdbx_seq_db_seq_num": "?",
+            "details": "?", "pdbx_auth_seq_num": "?", "pdbx_ordinal": "1"
+        }]})
+
+
+
+
+class PdbxStructModResidueTests(TestCase):
+
+    def test_can_handle_no_entities(self):
+        mmcif = {1: 2}
+        build_pdbx_struct_mod_residue({}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_valid_polymers(self):
+        mmcif = {1: 2}
+        build_pdbx_struct_mod_residue({"1": {"molecules": {}}, "2": {"molecules": {}}}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_differences(self):
+        mmcif = {1: 2}
+        build_pdbx_struct_mod_residue({
+            "1": {"molecules": {"A": {"modified": []}}},
+            "2": {"molecules": {"B": {"modified": []}}}
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_build_table(self):
+        mmcif = {1: 2}
+        build_pdbx_struct_mod_residue({
+            "1": {"id": "1", "molecules": {
+                "A": {"modified": [
+                    {"name": "HYS", "number": "10", "insert": "", "standard_name": "HIS", "comment": "C1"}
+                ]},
+                "B": {"modified": [
+                    {"name": "CRO", "number": "20", "insert": "", "standard_name": "PRO", "comment": "C2"}
+                ]}
+            }},
+            "2": {"id": "2", "molecules": {
+                "C": {"modified": [
+                    {"name": "MAL", "number": "30", "insert": "A", "standard_name": "VAL", "comment": "C3"}
+                ]},
+                "D": {"modified": [
+                    {"name": "FEE", "number": "40", "insert": "", "standard_name": "PHE", "comment": "C4"},
+                    {"name": "SIS", "number": "50", "insert": "", "standard_name": "CYS", "comment": "C5"}
+                ]}
+            }},
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2, "pdbx_struct_mod_residue": [{
+            "id": "1", "label_asym_id": "?", "label_comp_id": "HYS", "label_seq_id": "?",
+            "auth_asym_id": "A", "auth_comp_id": "HYS", "auth_seq_id": "10", "PDB_ins_code": "?",
+            "parent_comp_id": "HIS", "details": "C1"
+        }, {
+            "id": "2", "label_asym_id": "?", "label_comp_id": "CRO", "label_seq_id": "?", 
+            "auth_asym_id": "B", "auth_comp_id": "CRO", "auth_seq_id": "20", "PDB_ins_code": "?",
+            "parent_comp_id": "PRO", "details": "C2"
+        }, {
+            "id": "3", "label_asym_id": "?", "label_comp_id": "MAL", "label_seq_id": "?",
+            "auth_asym_id": "C", "auth_comp_id": "MAL", "auth_seq_id": "30", "PDB_ins_code": "A",
+            "parent_comp_id": "VAL", "details": "C3"
+        }, {
+            "id": "4", "label_asym_id": "?", "label_comp_id": "FEE", "label_seq_id": "?",
+            "auth_asym_id": "D", "auth_comp_id": "FEE", "auth_seq_id": "40", "PDB_ins_code": "?",
+            "parent_comp_id": "PHE", "details": "C4"
+        }, {
+            "id": "5", "label_asym_id": "?", "label_comp_id": "SIS", "label_seq_id": "?",
+            "auth_asym_id": "D", "auth_comp_id": "SIS", "auth_seq_id": "50", "PDB_ins_code": "?",
+            "parent_comp_id": "CYS", "details": "C5"
+        }]})
+    
+
+    def test_can_build_empty_table(self):
+        mmcif = {1: 2}
+        build_pdbx_struct_mod_residue({
+            "1": {"id": "1", "molecules": {
+                "A": {"modified": [
+                    {"name": "", "number": "", "insert": "", "standard_name": "", "comment": ""}
+                ]}
+            }}
+        }, mmcif)
+        self.assertEqual(mmcif, {1: 2, "pdbx_struct_mod_residue": [{
+            "id": "1", "label_asym_id": "?", "label_comp_id": "?", "label_seq_id": "?",
+            "auth_asym_id": "A", "auth_comp_id": "?", "auth_seq_id": "?", "PDB_ins_code": "?",
+            "parent_comp_id": "?", "details": "?"
+        }]})
 
 
 

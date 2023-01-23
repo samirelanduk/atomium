@@ -2533,8 +2533,8 @@ class FileToDictTests(TestCase):
         }, {
             "entity_id": "2", "type": "polypeptide(L)", "nstd_linkage": "no",
             "nstd_monomer": "yes", "pdbx_seq_one_letter_code": "CGCGA(TCY)TTCGCG",
-            "pdbx_seq_one_letter_code_can": "CGCGADATTCGCG",
-            "pdbx_strand_id": "B,D", "pdbx_target_identifier": "?",
+            "pdbx_seq_one_letter_code_can": "CGCGAATTCGCG", "pdbx_strand_id": "B,D",
+            "pdbx_target_identifier": "?",
         }])
         self.assertEqual(len(d["entity_poly_seq"]), 154)
         self.assertEqual(d["entity_poly_seq"][0], {
@@ -4276,8 +4276,8 @@ class FileToDictTests(TestCase):
             "entity_id": "1", "type": "polypeptide(L)", "nstd_linkage": "no",
             "nstd_monomer": "yes",
             "pdbx_seq_one_letter_code": "(ACE)H(MK8)ILH(MK8)LLQDS(NH2)",
-            "pdbx_seq_one_letter_code_can": "XHLEUILHLEULLQDSX",
-            "pdbx_strand_id": "A", "pdbx_target_identifier": "?",
+            "pdbx_seq_one_letter_code_can": "XHLILHLLLQDSX", "pdbx_strand_id": "A",
+            "pdbx_target_identifier": "?",
         }])
         self.assertEqual(d["entity_poly_seq"], [
             {"entity_id": "1", "num": "1", "mon_id": "ACE", "hetero": "n"},

@@ -1194,44 +1194,64 @@ def build_entity_name_com(polymer_entities, mmcif):
 
 
 def build_entity_poly(polymer_entities, mmcif):
+    """Creates the entity_poly category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["entity_poly"] = []
     for entity in polymer_entities.values():
         if not entity["molecules"]: continue
         polymer = list(entity["molecules"].values())[0]
         nucleocount = len([r for r in polymer["residues"] if r in "ACGTU"])
         is_nucleotide = nucleocount / len(polymer["residues"]) > 0.75
-        sequence, can_sequence = [], []
-        modified_lookup = {m["name"]: m["standard_name"] for m in polymer["modified"]}
-        for res in polymer["residues"]:
-            if res in modified_lookup:
-                sequence.append(f"({res})")
-                can_sequence.append(modified_lookup[res])
-            else:
-                sequence.append(CODES.get(res, f"({res})"))
-                can_sequence.append(CODES.get(res, "X"))
+        sequence, can_sequence = get_sequence_strings(polymer)
         mmcif["entity_poly"].append({
             "entity_id": entity["id"],
             "type": "polyribonucleotide" if is_nucleotide else "polypeptide(L)",
-            "nstd_linkage": "no", "nstd_monomer": "yes" if polymer["modified"] else "no",
-            "pdbx_seq_one_letter_code": "".join(sequence),
-            "pdbx_seq_one_letter_code_can": "".join(can_sequence),
-            "pdbx_strand_id": ",".join(entity["CHAIN"]),
+            "nstd_linkage": "no",
+            "nstd_monomer": "yes" if polymer["modified"] else "no",
+            "pdbx_seq_one_letter_code": sequence,
+            "pdbx_seq_one_letter_code_can": can_sequence,
+            "pdbx_strand_id": ",".join(entity["molecules"].keys()),
             "pdbx_target_identifier": "?"
         })
     if not mmcif["entity_poly"]: del mmcif["entity_poly"]
 
 
+def get_sequence_strings(polymer):
+    """Generates the single-code polymer strings, in both non-canonical and
+    canonical forms.
+    
+    :param dict polymer: a parsed PDB polymer.
+    :type: ``tuple``"""
+
+    sequence, can_sequence = [], []
+    mod_lookup = {m["name"]: m["standard_name"] for m in polymer["modified"]}
+    for res in polymer["residues"]:
+        if res in mod_lookup:
+            sequence.append(f"({res})")
+            can_sequence.append(CODES.get(mod_lookup[res], "X") )
+        else:
+            sequence.append(CODES.get(res, f"({res})"))
+            can_sequence.append(CODES.get(res, "X"))
+    return "".join(sequence), "".join(can_sequence)
+
+
 def build_entity_poly_seq(polymer_entities, mmcif):
+    """Creates the entity_poly_seq category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["entity_poly_seq"] = []
     for entity in polymer_entities.values():
         if not entity["molecules"]: continue
         polymer = list(entity["molecules"].values())[0]
         for i, residue in enumerate(polymer["residues"], start=1):
             mmcif["entity_poly_seq"].append({
-                "entity_id": entity["id"],
-                "num": str(i),
-                "mon_id": residue,
-                "hetero": "n"
+                "entity_id": entity["id"], "num": str(i),
+                "mon_id": residue, "hetero": "n"
             })
     if not mmcif["entity_poly_seq"]: del mmcif["entity_poly_seq"]
 

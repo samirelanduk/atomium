@@ -2292,6 +2292,114 @@ class EntityNameComTests(TestCase):
 
 
 
+class EntityPolyTests(TestCase):
+
+    def test_can_handle_no_polymers(self):
+        mmcif = {1: 2}
+        build_entity_poly({}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_valid_polymers(self):
+        mmcif = {1: 2}
+        build_entity_poly({"1": {"molecules": {}}, "2": {"molecules": {}}}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    @patch("atomium.pdb.get_sequence_strings")
+    def test_can_build_category(self, mock_strings):
+        mmcif = {1: 2}
+        mock_strings.side_effect = [["seq1", "can1"], ["seq2", "can2"]]
+        entities = {
+            "1": {"id": "1", "molecules": {
+                "A": {"residues": ["HIS", "GLY"], "modified": []},
+                "B": {"residues": ["HIS", "GLY"], "modified": [1, 2]},
+            }},
+            "2": {"id": "2", "molecules": {
+                "C": {"residues": ["A", "T"], "modified": [1, 2]},
+            }}
+        }
+        build_entity_poly(entities, mmcif)
+        self.assertEqual(mmcif, {1: 2, "entity_poly": [{
+            "entity_id": "1",
+            "type": "polypeptide(L)",
+            "nstd_linkage": "no",
+            "nstd_monomer": "no",
+            "pdbx_seq_one_letter_code": "seq1",
+            "pdbx_seq_one_letter_code_can": "can1",
+            "pdbx_strand_id": "A,B",
+            "pdbx_target_identifier": "?"
+        }, {
+            "entity_id": "2",
+            "type": "polyribonucleotide",
+            "nstd_linkage": "no",
+            "nstd_monomer": "yes",
+            "pdbx_seq_one_letter_code": "seq2",
+            "pdbx_seq_one_letter_code_can": "can2",
+            "pdbx_strand_id": "C",
+            "pdbx_target_identifier": "?"
+        }]})
+
+
+
+class EntityPolySeqTests(TestCase):
+
+    def test_can_handle_no_polymers(self):
+        mmcif = {1: 2}
+        build_entity_poly_seq({}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_valid_polymers(self):
+        mmcif = {1: 2}
+        build_entity_poly_seq({"1": {"molecules": {}}, "2": {"molecules": {}}}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_not_build_category(self):
+        mmcif = {1: 2}
+        entities = {
+            "1": {"id": "1", "molecules": {
+                "A": {"residues": ["HIS", "GLY"], "modified": []},
+                "B": {"residues": ["HIS", "GLY"], "modified": [1, 2]},
+            }},
+            "2": {"id": "2", "molecules": {
+                "C": {"residues": ["A", "T"], "modified": [1, 2]},
+            }}
+        }
+        build_entity_poly_seq(entities, mmcif)
+        self.assertEqual(mmcif, {1: 2, "entity_poly_seq": [
+            {"entity_id": "1", "num": "1", "mon_id": "HIS", "hetero": "n"},
+            {"entity_id": "1", "num": "2", "mon_id": "GLY", "hetero": "n"},
+            {"entity_id": "2", "num": "1", "mon_id": "A", "hetero": "n"},
+            {"entity_id": "2", "num": "2", "mon_id": "T", "hetero": "n"},
+        ]})
+
+
+
+class SequenceStringTests(TestCase):
+
+    def test_can_get_protein_sequence(self):
+        polymer = {"residues": ["HIS", "MET", "CYS"], "modified": []}
+        self.assertEqual(get_sequence_strings(polymer), ("HMC", "HMC"))
+    
+
+    def test_can_get_nucleotide_sequence(self):
+        polymer = {"residues": ["A", "U", "G"], "modified": []}
+        self.assertEqual(get_sequence_strings(polymer), ("AUG", "AUG"))
+    
+
+    def test_can_get_unknown_sequence(self):
+        polymer = {"residues": ["XYZ", "ABC", "UNK"], "modified": []}
+        self.assertEqual(get_sequence_strings(polymer), ("(XYZ)(ABC)(UNK)", "XXX"))
+    
+
+    def test_can_get_unknown_sequence_with_modified_lookup(self):
+        polymer = {"residues": ["XYZ", "ABC", "UNK"], "modified": [{"standard_name": "HIS", "name": "ABC"}]}
+        self.assertEqual(get_sequence_strings(polymer), ("(XYZ)(ABC)(UNK)", "XHX"))
+
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")

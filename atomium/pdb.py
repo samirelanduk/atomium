@@ -1367,52 +1367,92 @@ def build_pdbx_struct_mod_residue(polymer_entities, mmcif):
         del mmcif["pdbx_struct_mod_residue"]
 
 
-def build_pdbx_entity_nonpoly(non_polymers, mmcif):
+def build_pdbx_entity_nonpoly(non_polymer_entities, mmcif):
+    """Creates the pdbx_entity_nonpoly category in an mmCIF dictionary.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["pdbx_entity_nonpoly"] = []
-    for name, entity in non_polymers.items():
+    for name, entity in non_polymer_entities.items():
         if not entity["molecules"]: continue
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
         mmcif["pdbx_entity_nonpoly"].append({
-            "entity_id": entity["id"],
-            "name": entity_row["pdbx_description"],
+            "entity_id": entity["id"], "name": entity_row["pdbx_description"],
             "comp_id": name,
         })
     if not mmcif["pdbx_entity_nonpoly"]: del mmcif["pdbx_entity_nonpoly"]
 
 
 def build_chem_comp(non_polymer_entities, mmcif):
+    """Creates the chem_comp category in an mmCIF dictionary. All non-polymers
+    and residues are added.
+    
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["chem_comp"] = []
-    residues = {r["mon_id"] for r in mmcif.get("entity_poly_seq", [])}
+    formulae_lookup = build_ligand_chem_comp(non_polymer_entities, mmcif)
+    build_residue_chem_comp(formulae_lookup, mmcif)
+    mmcif["chem_comp"].sort(key=lambda c: c["id"])
+    if not mmcif["chem_comp"]: del mmcif["chem_comp"]
+
+
+def build_ligand_chem_comp(non_polymer_entities, mmcif):
+    """Builds the chem_comp items corresponding to ligands. If the 'ligand' is
+    actually a modified residue that has no non-polymer representatives, its
+    formula is noted and not added here.
+
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict mmcif: the dictionary to update."""
+
     formulae_lookup = {}
     for name, entity in non_polymer_entities.items():
+        formula = entity["formula"] or "?"
+        if re.match(r"^\d+\(", formula):
+            formula = formula[formula.find("(") + 1:-1]
         if not entity["molecules"]:
-            formulae_lookup[name] = entity["formula"]
+            formulae_lookup[name] = formula
             continue
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
-        formula = entity["formula"] or "?"
-        if re.match(r"^\d+\(", formula): formula = formula[formula.find("(") + 1:-1]
-        weight = "?"
         mmcif["chem_comp"].append({
-            "id": name, "type": "non-polymer",
-            "mon_nstd_flag": ".", "name": entity_row["pdbx_description"].upper(),
+            "id": name, "type": "non-polymer", "mon_nstd_flag": ".",
+            "name": entity_row["pdbx_description"].upper(),
             "pdbx_synonyms": ",".join(entity.get("synonyms", [])) or "?",
             "formula": formula,
             "formula_weight": f"{formula_to_weight(formula):.3f}"
         })
+    return formulae_lookup
+
+
+def build_residue_chem_comp(formulae_lookup, mmcif):
+    """Builds the chem_comp items corresponding to residues. If the residue is
+    non-standard, it will use a lookup generated from the ligands to try to
+    assign the formula and weight.
+
+    :param dict formulae_lookup: a mapping of modified residue name to formulae.
+    :param dict mmcif: the dictionary to update."""
+
+    residues = sorted({r["mon_id"] for r in mmcif.get("entity_poly_seq", [])})
     for res in residues:
         weight = RESIDUE_MASSES.get(res)
+        formula = FORMULAE.get(res, formulae_lookup.get(res, "?"))
+        if formula != "?" and not weight: weight = formula_to_weight(formula)
         weight = f"{weight:.3f}" if weight else "?"
         mmcif["chem_comp"].append({
             "id": res, "type": "L-peptide linking",
             "mon_nstd_flag": "y" if res in FORMULAE else "n",
-            "name": FULL_NAMES.get(res, "?").upper(),
-            "pdbx_synonyms": "?", "formula": FORMULAE.get(res, formulae_lookup.get(res, "?")),
-            "formula_weight": weight
+            "name": FULL_NAMES.get(res, "?").upper(), "pdbx_synonyms": "?",
+            "formula": formula, "formula_weight": weight
         })
-    mmcif["chem_comp"].sort(key=lambda c: c["id"])
 
 
 def formula_to_weight(formula):
+    """Gets the weight of a formula, ignoring unrecognised symbols.
+    
+    :param str formula: the formula to calculate the mass for.
+    :rtype: ``float``"""
+
     weight = 0
     atoms = formula.split()
     for atom in atoms:

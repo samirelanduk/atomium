@@ -2777,6 +2777,160 @@ class PdbxStructModResidueTests(TestCase):
 
 
 
+class PdbxEntityNonpolyTests(TestCase):
+
+    def test_can_handle_no_entities(self):
+        mmcif = {1: 2}
+        build_pdbx_entity_nonpoly({}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_handle_no_valid_molecules(self):
+        mmcif = {1: 2}
+        build_pdbx_entity_nonpoly({"1": {"molecules": {}}, "2": {"molecules": {}}}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_build_table(self):
+        mmcif = {"entity": [
+            {"id": "1", "pdbx_description": "mol1"},
+            {"id": "2", "pdbx_description": "mol2"},
+        ]}
+        entities = {"XMP": {"id": "1", "molecules": {1: 2}}, "BU2": {"id": "2", "molecules": {1: 2}}}
+        build_pdbx_entity_nonpoly(entities, mmcif)
+        self.assertEqual(mmcif, {
+            "entity": [
+                {"id": "1", "pdbx_description": "mol1"},
+                {"id": "2", "pdbx_description": "mol2"},
+            ],
+            "pdbx_entity_nonpoly": [
+                {"entity_id": "1", "name": "mol1", "comp_id": "XMP"},
+                {"entity_id": "2", "name": "mol2", "comp_id": "BU2"},
+            ]
+        })
+
+
+
+class ChemCompTests(TestCase):
+
+    @patch("atomium.pdb.build_ligand_chem_comp")
+    @patch("atomium.pdb.build_residue_chem_comp")
+    def test_can_handle_no_chem_comp(self, mock_res, mock_lig):
+        entities = {1: 2}
+        mmcif = {3: 4}
+        build_chem_comp(entities, mmcif)
+        mock_lig.assert_called_with(entities, mmcif)
+        mock_res.assert_called_with(mock_lig.return_value, mmcif)
+        self.assertEqual(mmcif, {3: 4})
+    
+
+    @patch("atomium.pdb.build_ligand_chem_comp")
+    @patch("atomium.pdb.build_residue_chem_comp")
+    def test_can_sort_chem_comp(self, mock_res, mock_lig):
+        entities = {1: 2}
+        mmcif = {3: 4}
+        mock_res.side_effect = lambda _, m: [m["chem_comp"].append({"id": n}) for n in ["X", "A", "C"]]
+        build_chem_comp(entities, mmcif)
+        mock_lig.assert_called_with(entities, mmcif)
+        mock_res.assert_called_with(mock_lig.return_value, mmcif)
+        self.assertEqual(mmcif, {3: 4, "chem_comp": [{"id": "A"}, {"id": "C"}, {"id": "X"}]})
+
+
+
+class LigandChemCompTests(TestCase):
+
+    def test_can_handle_no_entities(self):
+        mmcif = {"chem_comp": []}
+        entities = {}
+        lookup = build_ligand_chem_comp(entities, mmcif)
+        self.assertEqual(mmcif, {"chem_comp": []})
+        self.assertEqual(lookup, {})
+    
+
+    @patch("atomium.pdb.formula_to_weight")
+    def test_can_parse_entities(self, mock_weight):
+        mock_weight.side_effect = [1.23456, 9.876543]
+        mmcif = {"chem_comp": [], "entity": [
+            {"id": "3", "pdbx_description": "x.m.p"},
+            {"id": "4", "pdbx_description": "b.u.2"},
+        ]}
+        entities = {
+            "XMP": {"id": "3", "molecules": {1: 2}, "formula": "12(C2 N)", "synonyms": ["syn1", "syn2"]},
+            "BU2": {"id": "4", "molecules": {1: 2}, "formula": "C5 N"},
+            "HOH": {"id": "5", "molecules": {}, "formula": "8(C9 CL)"},
+        }
+        lookup = build_ligand_chem_comp(entities, mmcif)
+        self.assertEqual(lookup, {"HOH": "C9 CL"})
+        self.assertEqual(mmcif, {
+            "chem_comp": [{
+                "id": "XMP", "type": "non-polymer", "mon_nstd_flag": ".",
+                "name": "X.M.P",
+                "pdbx_synonyms": "syn1,syn2",
+                "formula": "C2 N",
+                "formula_weight": f"1.235"
+            }, {
+                "id": "BU2", "type": "non-polymer", "mon_nstd_flag": ".",
+                "name": "B.U.2",
+                "pdbx_synonyms": "?",
+                "formula": "C5 N",
+                "formula_weight": f"9.877"
+            }],
+            "entity": [
+                {"id": "3", "pdbx_description": "x.m.p"},
+                {"id": "4", "pdbx_description": "b.u.2"},
+            ]
+        })
+
+
+
+class ResidueChemCompTests(TestCase):
+
+    @patch("atomium.pdb.formula_to_weight")
+    def test_can_build_residue_chem_comp(self, mock_weight):
+        mmcif = {"chem_comp": [], "entity_poly_seq": [
+            {"mon_id": "HIS"}, {"mon_id": "HIS"}, {"mon_id": "VAL"},
+            {"mon_id": "MOD"}, {"mon_id": "XYZ"}
+        ]}
+        mock_weight.return_value = 0.123456
+        formulae_lookup = {"MOD": "C2 P", "ABC": "AA"}
+        build_residue_chem_comp(formulae_lookup, mmcif)
+        self.assertEqual(mmcif, {
+            "chem_comp": [{
+                "id": "HIS", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "HISTIDINE",
+                "pdbx_synonyms": "?", "formula": "C6 H10 N3 O2 1", "formula_weight": "156.162"
+            }, {
+                "id": "MOD", "type": "L-peptide linking", "mon_nstd_flag": "n", "name": "?",
+                "pdbx_synonyms": "?", "formula": "C2 P", "formula_weight": "0.123"
+            }, {
+                "id": "VAL", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "VALINE",
+                "pdbx_synonyms": "?", "formula": "C5 H11 N O2", "formula_weight": "117.146"
+            }, {
+                "id": "XYZ", "type": "L-peptide linking", "mon_nstd_flag": "n", "name": "?",
+                "pdbx_synonyms": "?", "formula": "?", "formula_weight": "?"
+            }],
+            "entity_poly_seq": [
+                {"mon_id": "HIS"}, {"mon_id": "HIS"}, {"mon_id": "VAL"},
+                {"mon_id": "MOD"}, {"mon_id": "XYZ"}
+            ]
+        })
+
+
+
+class FormulaToWeightTests(TestCase):
+
+    def test_can_weight_of_atom(self):
+        self.assertEqual(formula_to_weight("C"), 12.0107)
+        self.assertEqual(formula_to_weight("N"), 14.0067)
+        self.assertEqual(formula_to_weight("X"), 0)
+    
+
+    def test_can_get_weight_of_molecule(self):
+        self.assertAlmostEqual(formula_to_weight("C6 H15 N4 O2 1"), 175.2083, delta=0.00001)
+        self.assertAlmostEqual(formula_to_weight("ZN2 2+"), 130.78, delta=0.00001)
+        self.assertAlmostEqual(formula_to_weight("ZN2 2-"), 130.78, delta=0.00001)
+
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")

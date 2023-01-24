@@ -1033,17 +1033,17 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["chem_comp"][0], {
             "id": "2MA", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "C11 H16 N5 O7 P",
-            "formula_weight": "?",
+            "formula_weight": "361.247",
         })
         self.assertEqual(d["chem_comp"][1], {
             "id": "4SU", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "C9 H13 N2 O8 P S",
-            "formula_weight": "?",
+            "formula_weight": "340.246",
         })
         self.assertEqual(d["chem_comp"][2], {
             "id": "5MU", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "C10 H15 N2 O9 P",
-            "formula_weight": "?",
+            "formula_weight": "338.207",
         })
         self.assertEqual(d["chem_comp"][3], {
             "id": "A", "type": "L-peptide linking", "mon_nstd_flag": "n",
@@ -1063,22 +1063,22 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["chem_comp"][14], {
             "id": "H2U", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "C9 H15 N2 O9 P",
-            "formula_weight": "?",
+            "formula_weight": "326.197",
         })
         self.assertEqual(d["chem_comp"][20], {
             "id": "OMG", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "C11 H16 N5 O8 P",
-            "formula_weight": "?",
+            "formula_weight": "377.247",
         })
         self.assertEqual(d["chem_comp"][21], {
             "id": "OMU", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "C10 H15 N2 O9 P",
-            "formula_weight": "?",
+            "formula_weight": "338.207",
         })
         self.assertEqual(d["chem_comp"][24], {
             "id": "PSU", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "3(C9 H13 N2 O9 P)",
-            "formula_weight": "?",
+            "name": "?", "pdbx_synonyms": "?", "formula": "C9 H13 N2 O9 P",
+            "formula_weight": "324.181",
         })
         self.assertEqual(d["chem_comp"][29], {
             "id": "U", "type": "L-peptide linking", "mon_nstd_flag": "n",
@@ -2637,8 +2637,8 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(d["chem_comp"][21], {
             "id": "TCY", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "2(C13 H16 N5 O6 P)",
-            "formula_weight": "?",
+            "name": "?", "pdbx_synonyms": "?", "formula": "C13 H16 N5 O6 P",
+            "formula_weight": "369.269",
         })
         self.assertEqual(d["chem_comp"][-1], {
             "id": "VAL", "type": "L-peptide linking", "mon_nstd_flag": "y",
@@ -4324,17 +4324,17 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["chem_comp"][0], {
             "id": "ACE", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "C2 H4 O",
-            "formula_weight": "?",
+            "formula_weight": "44.052",
         })
         self.assertEqual(d["chem_comp"][6], {
             "id": "MK8", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "2(C7 H15 N O2)",
-            "formula_weight": "?",
+            "name": "?", "pdbx_synonyms": "?", "formula": "C7 H15 N O2",
+            "formula_weight": "145.199",
         })
         self.assertEqual(d["chem_comp"][7], {
             "id": "NH2", "type": "L-peptide linking", "mon_nstd_flag": "n",
             "name": "?", "pdbx_synonyms": "?", "formula": "H2 N",
-            "formula_weight": "?",
+            "formula_weight": "16.023",
         })
         self.assertEqual(d["chem_comp"][-1], {
             "id": "SER", "type": "L-peptide linking", "mon_nstd_flag": "y",

@@ -2496,7 +2496,10 @@ class StructRefSeqTests(TestCase):
     
 
     def test_can_build_table(self):
-        mmcif = {1: 2, "entry": [{"id": "1XXX"}]}
+        mmcif = {
+            1: 2, "entry": [{"id": "1XXX"}],
+            "struct_ref": [{"id": "1", "pdbx_db_accession": "ABC"}, {"id": "2", "pdbx_db_accession": "XYZ"}]
+        }
         build_struct_ref_seq({
             "1": {"id": "1", "molecules": {
                 "A": {"dbrefs": [{
@@ -2517,7 +2520,7 @@ class StructRefSeqTests(TestCase):
                     "db_start": "11", "db_end": "12"
                 }]},
                 "D": {"dbrefs": [{
-                    "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
+                    "id": "1", "start_insert": "", "end_insert": "", "accession": "XYZ",
                     "db_start_insert": "", "db_end_insert": "", "start": "13", "end": "14",
                     "db_start": "15", "db_end": "16"
                 }, {
@@ -2527,42 +2530,47 @@ class StructRefSeqTests(TestCase):
                 }]}
             }},
         }, mmcif)
-        
-        self.assertEqual(mmcif, {1: 2, "entry": [{"id": "1XXX"}], "struct_ref_seq": [{
-            "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "A",
-            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "3",
-            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "4", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "2"
-        }, {
-            "align_id": "2", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "B",
-            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "7",
-            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "8", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "5", "pdbx_auth_seq_align_end": "6"
-        }, {
-            "align_id": "3", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "C",
-            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "11",
-            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "12", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "9", "pdbx_auth_seq_align_end": "10"
-        }, {
-            "align_id": "4", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "D", 
-            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "15",
-            "pdbx_db_align_beg_ins_code": "?", "db_align_end": "16", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "13", "pdbx_auth_seq_align_end": "14"
-        }, {
-            "align_id": "5", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "D",
-            "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "A", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "B", "pdbx_db_accession": "ABC", "db_align_beg": "19",
-            "pdbx_db_align_beg_ins_code": "C", "db_align_end": "20", "pdbx_db_align_end_ins_code": "D",
-            "pdbx_auth_seq_align_beg": "17", "pdbx_auth_seq_align_end": "18"
-        }]})
+        self.assertEqual(mmcif, {
+            1: 2, "entry": [{"id": "1XXX"}],
+            "struct_ref": [{"id": "1", "pdbx_db_accession": "ABC"}, {"id": "2", "pdbx_db_accession": "XYZ"}],
+            "struct_ref_seq": [{
+                "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "A",
+                "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+                "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "3",
+                "pdbx_db_align_beg_ins_code": "?", "db_align_end": "4", "pdbx_db_align_end_ins_code": "?",
+                "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "2"
+            }, {
+                "align_id": "2", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "B",
+                "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+                "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "7",
+                "pdbx_db_align_beg_ins_code": "?", "db_align_end": "8", "pdbx_db_align_end_ins_code": "?",
+                "pdbx_auth_seq_align_beg": "5", "pdbx_auth_seq_align_end": "6"
+            }, {
+                "align_id": "3", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "C",
+                "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+                "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "ABC", "db_align_beg": "11",
+                "pdbx_db_align_beg_ins_code": "?", "db_align_end": "12", "pdbx_db_align_end_ins_code": "?",
+                "pdbx_auth_seq_align_beg": "9", "pdbx_auth_seq_align_end": "10"
+            }, {
+                "align_id": "4", "ref_id": "2", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "D", 
+                "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+                "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "XYZ", "db_align_beg": "15",
+                "pdbx_db_align_beg_ins_code": "?", "db_align_end": "16", "pdbx_db_align_end_ins_code": "?",
+                "pdbx_auth_seq_align_beg": "13", "pdbx_auth_seq_align_end": "14"
+            }, {
+                "align_id": "5", "ref_id": "1", "pdbx_PDB_id_code": "1XXX", "pdbx_strand_id": "D",
+                "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "A", "seq_align_end": "?",
+                "pdbx_seq_align_end_ins_code": "B", "pdbx_db_accession": "ABC", "db_align_beg": "19",
+                "pdbx_db_align_beg_ins_code": "C", "db_align_end": "20", "pdbx_db_align_end_ins_code": "D",
+                "pdbx_auth_seq_align_beg": "17", "pdbx_auth_seq_align_end": "18"
+            }]
+        })
     
 
     def test_can_build_empty_table(self):
-        mmcif = {1: 2}
+        mmcif = {
+            1: 2, "struct_ref": [{"id": "1", "pdbx_db_accession": ""}]
+        }
         build_struct_ref_seq({
             "1": {"id": "1", "molecules": {
                 "A": {"dbrefs": [{
@@ -2572,7 +2580,7 @@ class StructRefSeqTests(TestCase):
                 }]}
             }}
         }, mmcif)
-        self.assertEqual(mmcif, {1: 2, "struct_ref_seq": [{
+        self.assertEqual(mmcif, {1: 2,"struct_ref": [{"id": "1", "pdbx_db_accession": ""}], "struct_ref_seq": [{
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "?", "pdbx_strand_id": "A",
             "seq_align_beg": "?", "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
             "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "?", "db_align_beg": "?",

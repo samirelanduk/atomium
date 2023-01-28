@@ -1293,9 +1293,14 @@ def build_struct_ref_seq(polymer_entities, mmcif):
     for entity in polymer_entities.values():
         for chain_id, molecule in entity["molecules"].items():
             for dbref in molecule["dbrefs"]:
+                refs = [r for r in mmcif.get("struct_ref", [])
+                    if r["pdbx_db_accession"] == dbref["accession"]]
+                if not refs: continue
+                ref = refs[0]
                 mmcif["struct_ref_seq"].append({
                     "align_id": str(len(mmcif["struct_ref_seq"]) + 1),
-                    "ref_id": "1", "pdbx_PDB_id_code": code,
+                    "ref_id": ref["id"],
+                    "pdbx_PDB_id_code": code,
                     "pdbx_strand_id": chain_id, "seq_align_beg": "?",
                     "pdbx_seq_align_beg_ins_code": dbref["start_insert"] or "?",
                     "seq_align_end": "?",
@@ -1962,6 +1967,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_sprsde_lines(mmcif)
     lines += create_jrnl_lines(mmcif)
     lines += create_remark_lines(mmcif)
+    lines += create_dbref_lines(mmcif)
     lines += create_seqadv_lines(mmcif)
     lines += create_seqres_lines(mmcif)
     lines += create_modres_lines(mmcif)
@@ -2692,6 +2698,26 @@ def create_remark_800_lines(mmcif):
             lines.append(f"REMARK 800 EVIDENCE_CODE: {evidence.upper()}")
         if details and details != "?":
             lines.append(f"REMARK 800 SITE_DESCRIPTION: {details.upper()}")
+    return lines
+
+
+def create_dbref_lines(mmcif):
+    lines = []
+    code = mmcif.get("entry", [{"id": ""}])[0]["id"]
+    line = "DBREF  {:4} {:1} {:>4}{:1} {:>4}{:1} {:6} {:8} {:12} {:>5}{:1} {:>5}{:1}"
+    for ref in mmcif.get("struct_ref_seq", []):
+        seqs = [r for r in mmcif.get("struct_ref", []) if r["id"] == ref["ref_id"]]
+        if not seqs: continue
+        seq = seqs[0]
+        lines.append(line.format(
+            code,
+            ref["pdbx_strand_id"],
+            ref["pdbx_auth_seq_align_beg"], "",
+            ref["pdbx_auth_seq_align_end"], "",
+            seq["db_name"], seq["pdbx_db_accession"], seq["db_code"],
+            ref["db_align_beg"], ref["pdbx_db_align_beg_ins_code"].replace("?", ""),
+            ref["db_align_end"], ref["pdbx_db_align_end_ins_code"].replace("?", ""),
+        ))
     return lines
 
 

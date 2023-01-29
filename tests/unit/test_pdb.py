@@ -2939,6 +2939,459 @@ class FormulaToWeightTests(TestCase):
 
 
 
+class AtomTypeTests(TestCase):
+
+    def test_can_handle_no_atoms(self):
+        mmcif = {1: 2}
+        build_atom_type("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_parse_atoms(self):
+        filestring = (
+            "ATOM    269  CA  GLY A  44      -8.089  40.385  49.069  1.00 13.57           C  \n"
+            "ATOM    270  N   TYR A  44      -9.857  41.667  48.097  1.00 14.09          PN  \n"
+            "ATOM    270  C   GLY A  44      -9.512  40.482  48.572  1.00 14.60           C  \n"
+            "HETATM  272  O   GLY A  45     -10.281  39.509  48.629  1.00 13.05           O  \n"
+        )
+        mmcif = {1: 2}
+        build_atom_type(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "atom_type": [
+            {"symbol": "C"}, {"symbol": "O"}, {"symbol": "PN"}
+        ]})
+
+
+
+class AtomSiteTests(TestCase):
+
+    def test_can_handle_no_atoms(self):
+        mmcif = {1: 2}
+        build_atom_site("", {}, {}, mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    @patch("atomium.pdb.get_atom_entity")
+    @patch("atomium.pdb.get_atom_label")
+    @patch("atomium.pdb.add_atom")
+    def test_can_build_single_model(self, mock_add, mock_label, mock_entity):
+        filestring = (
+            "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N  \n"
+            "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C  \n"
+            "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N  \n"
+            "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C  \n"
+            "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O \n"
+        )
+        polymers = {"1": {}}
+        non_polymers = {"XMP": {}}
+        mmcif = {1: 2}
+        mock_entity.side_effect = [
+            [{"id": "1"}, {"alignment": [1, 2, 3]}, None],
+            [{"id": "1"}, {"alignment": [4, 5, 6]}, None],
+            [{"id": "2"}, {"alignment": [7, 8, 9]}, None],
+            [None, None, {"id": "3"}],
+            [None, None, {"id": "4"}],
+        ]
+        mock_label.side_effect = ["A", "A", "B", "C", "D"]
+        build_atom_site(filestring, polymers, non_polymers, mmcif)
+        self.assertEqual([c[0] for c in mock_add.call_args_list], [
+            (mmcif, filestring.splitlines()[0], "A", "1", "2", "1"),
+            (mmcif, filestring.splitlines()[1], "A", "1", "5", "1"),
+            (mmcif, filestring.splitlines()[2], "B", "2", "9", "1"),
+            (mmcif, filestring.splitlines()[3], "C", "3", ".", "1"),
+            (mmcif, filestring.splitlines()[4], "D", "4", ".", "1"),
+        ])
+    
+
+    @patch("atomium.pdb.get_atom_entity")
+    @patch("atomium.pdb.get_atom_label")
+    @patch("atomium.pdb.add_atom")
+    def test_can_build_multi_model(self, mock_add, mock_label, mock_entity):
+        filestring = (
+            "MODEL     1\n"
+            "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N  \n"
+            "ATOM      2  CA  VAL A  11       3.198  33.218  61.983  1.00 19.76           C  \n"
+            "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N  \n"
+            "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C  \n"
+            "HETATM 3195  O1  BU2 A5001       1.781  45.484  47.929  1.00 42.82           O \n"
+            "ENDMDL  \n"
+            "MODEL     2\n"
+            "ATOM      1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N  \n"
+            "ATOM      8  N   MET A  12       3.155  30.797  61.557  1.00 17.03           N  \n"
+            "HETATM 3194  C1  BU2 A5001       2.646  45.112  48.995  1.00 43.24           C  \n"
+            "ENDMDL  \n"
+        )
+        polymers = {"1": {}}
+        non_polymers = {"XMP": {}}
+        mmcif = {1: 2}
+        mock_entity.side_effect = [
+            [{"id": "1"}, {"alignment": [1, 2, 3]}, None],
+            [{"id": "1"}, {"alignment": [4, 5, 6]}, None],
+            [{"id": "2"}, {"alignment": [7, 8, 9]}, None],
+            [None, None, {"id": "3"}],
+            [None, None, {"id": "4"}],
+            [{"id": "1"}, {"alignment": [1, 2, 3]}, None],
+            [{"id": "2"}, {"alignment": [7, 8, 9]}, None],
+            [None, None, {"id": "3"}],
+        ]
+        mock_label.side_effect = ["A", "A", "B", "C", "D", "A", "B", "C"]
+        build_atom_site(filestring, polymers, non_polymers, mmcif)
+        self.assertEqual([c[0] for c in mock_add.call_args_list], [
+            (mmcif, filestring.splitlines()[1], "A", "1", "2", "1"),
+            (mmcif, filestring.splitlines()[2], "A", "1", "5", "1"),
+            (mmcif, filestring.splitlines()[3], "B", "2", "9", "1"),
+            (mmcif, filestring.splitlines()[4], "C", "3", ".", "1"),
+            (mmcif, filestring.splitlines()[5], "D", "4", ".", "1"),
+            (mmcif, filestring.splitlines()[8], "A", "1", "2", "2"),
+            (mmcif, filestring.splitlines()[9], "B", "2", "9", "2"),
+            (mmcif, filestring.splitlines()[10], "C", "3", ".", "2"),
+        ])
+
+
+
+class AtomEntityTests(TestCase):
+
+    def test_can_get_non_polymer(self):
+        sig = ("D", "HIS", "101", "A")
+        polymers = {}
+        non_polymers = {
+            "XMP": {"molecules": {1: 2, 3: 4}},
+            "BU2": {"molecules": {1: 2, ("D", "HIS", "101", "A"): 4}},
+        }
+        polymers = {
+            "1": {"molecules": {1: 2, 3: 4}},
+            "2": {"molecules": {1: 2, "D": 4}}
+        }
+        entity = get_atom_entity(sig, polymers, non_polymers)
+        self.assertEqual(entity, (None, None, {"molecules": {1: 2, ("D", "HIS", "101", "A"): 4}}))
+    
+
+    def test_can_get_polymer(self):
+        sig = ("D", "HIS", "101", "A")
+        polymers = {}
+        non_polymers = {
+            "XMP": {"molecules": {1: 2, 3: 4}},
+            "BU2": {"molecules": {1: 2, 3: 4}},
+        }
+        polymers = {
+            "1": {"molecules": {1: 2, 3: 4}},
+            "2": {"molecules": {1: 2, "D": 4}}
+        }
+        entity = get_atom_entity(sig, polymers, non_polymers)
+        self.assertEqual(entity, ({"molecules": {1: 2, "D": 4}}, 4, None))
+
+
+
+class AtomLabelTests(TestCase):
+
+    def setUp(self):
+        self.patch1 = patch("atomium.pdb.next_id")
+        self.mock_next = self.patch1.start()
+        self.mock_next.return_value = "NEXT"
+    
+
+    def tearDown(self):
+        self.patch1.stop()
+
+
+    def test_can_get_first_polymer_label(self):
+        sig = ("D", "HIS", "101", "A")
+        polymer = {1: 2}
+        non_polymer = {}
+        labels = {}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "NEXT")
+        self.assertEqual(labels, {"D": "NEXT"})
+        self.mock_next.assert_called_with("@")
+    
+
+    def test_can_get_existing_polymer_label(self):
+        sig = ("D", "HIS", "101", "A")
+        polymer = {1: 2}
+        non_polymer = {}
+        labels = {"D": "X"}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "X")
+        self.assertEqual(labels, {"D": "X"})
+        self.mock_next.assert_called_with("X")
+    
+
+    def test_can_get_new_polymer_label(self):
+        sig = ("D", "HIS", "101", "A")
+        polymer = {1: 2}
+        non_polymer = {}
+        labels = {"A": "G", "B": "AB", "C": "BAA"}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "NEXT")
+        self.assertEqual(labels, {"A": "G", "B": "AB", "C": "BAA", "D": "NEXT"})
+        self.mock_next.assert_called_with("BAA")
+    
+
+    def test_can_get_first_non_polymer_label(self):
+        sig = ("D", "XMP", "101", "A")
+        polymer = None
+        non_polymer = {"is_water": False}
+        labels = {}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "NEXT")
+        self.assertEqual(labels, {("D", "XMP", "101", "A"): "NEXT"})
+        self.mock_next.assert_called_with("@")
+    
+
+    def test_can_get_existing_non_polymer_label(self):
+        sig = ("D", "HIS", "101", "A")
+        polymer = None
+        non_polymer = {"is_water": False}
+        labels = {("D", "HIS", "101", "A"): "X"}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "X")
+        self.assertEqual(labels, {("D", "HIS", "101", "A"): "X"})
+        self.mock_next.assert_called_with("X")
+    
+
+    def test_can_get_new_non_polymer_label(self):
+        sig = ("D", "HIS", "102", "A")
+        polymer = None
+        non_polymer = {"is_water": False}
+        labels = {"A": "G", "B": "AB", "C": "BAA"}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "NEXT")
+        self.assertEqual(labels, {"A": "G", "B": "AB", "C": "BAA", ("D", "HIS", "102", "A"): "NEXT"})
+        self.mock_next.assert_called_with("BAA")
+    
+
+    def test_can_get_first_water_label(self):
+        sig = ("D", "XMP", "101", "A")
+        polymer = None
+        non_polymer = {"is_water": True}
+        labels = {}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "NEXT")
+        self.assertEqual(labels, {("D", "W"): "NEXT"})
+        self.mock_next.assert_called_with("@")
+    
+
+    def test_can_get_existing_water_label(self):
+        sig = ("D", "HIS", "101", "A")
+        polymer = None
+        non_polymer = {"is_water": True}
+        labels = {"D": "X", ("D", "W"): "Y"}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "Y")
+        self.assertEqual(labels, {"D": "X", ("D", "W"): "Y"})
+        self.mock_next.assert_called_with("Y")
+    
+
+    def test_can_get_new_water_label(self):
+        sig = ("D", "HIS", "102", "A")
+        polymer = None
+        non_polymer = {"is_water": True}
+        labels = {"D": "X"}
+        label = get_atom_label(sig, polymer, non_polymer, labels)
+        self.assertEqual(label, "NEXT")
+        self.assertEqual(labels, {"D": "X", ("D", "W"): "NEXT"})
+        self.mock_next.assert_called_with("X")
+
+
+
+class NextIdTests(TestCase):
+
+    def test_can_get_first_id(self):
+        self.assertEqual(next_id("@"), "A")
+    
+
+    def test_can_get_single_letter_id(self):
+        self.assertEqual(next_id("A"), "B")
+        self.assertEqual(next_id("B"), "C")
+        self.assertEqual(next_id("M"), "N")
+        self.assertEqual(next_id("Y"), "Z")
+    
+
+    def test_can_get_two_letter_id(self):
+        self.assertEqual(next_id("Z"), "AA")
+        self.assertEqual(next_id("AA"), "BA")
+        self.assertEqual(next_id("BA"), "CA")
+        self.assertEqual(next_id("ZA"), "AB")
+        self.assertEqual(next_id("AB"), "BB")
+        self.assertEqual(next_id("BB"), "CB")
+    
+
+    def test_can_get_three_letter_id(self):
+        self.assertEqual(next_id("ZZ"), "AAA")
+        self.assertEqual(next_id("AAA"), "BAA")
+        self.assertEqual(next_id("BAA"), "CAA")
+        self.assertEqual(next_id("ZAA"), "ABA")
+        self.assertEqual(next_id("ABA"), "BBA")
+        self.assertEqual(next_id("ZBA"), "ACA")
+        self.assertEqual(next_id("ZZA"), "AAB")
+
+
+
+class AtomAddingTests(TestCase):
+
+    def test_can_add_full_atom(self):
+        mmcif = {"atom_site": []}
+        line = "ATOM      1  N  ZVAL A  11F      3.696  33.898  63.219  1.00 21.50           N+2"
+        add_atom(mmcif, line, "P", "4", "123", "4")   
+        self.assertEqual(mmcif, {"atom_site": [{
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "label_alt_id": "Z", "label_comp_id": "VAL", "label_asym_id": "P", "label_entity_id": "4",
+            "label_seq_id": "123", "pdbx_PDB_ins_code": "F", "Cartn_x": "3.696", "Cartn_y": "33.898",
+            "Cartn_z": "63.219", "occupancy": "1.00", "B_iso_or_equiv": "21.50",
+            "pdbx_formal_charge": "+2", "auth_seq_id": "11", "auth_comp_id": "VAL",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "4"
+        }]})
+    
+
+    def test_can_add_minimal_hetatm(self):
+        mmcif = {"atom_site": []}
+        line = "HETATM    1  N   VAL A  11       3.696  33.898  63.219  1.00 21.50           N"
+        add_atom(mmcif, line, "P", "4", "123", "4")   
+        self.assertEqual(mmcif, {"atom_site": [{
+            "group_PDB": "HETATM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
+            "label_alt_id": ".", "label_comp_id": "VAL", "label_asym_id": "P", "label_entity_id": "4",
+            "label_seq_id": "123", "pdbx_PDB_ins_code": "?", "Cartn_x": "3.696", "Cartn_y": "33.898",
+            "Cartn_z": "63.219", "occupancy": "1.00", "B_iso_or_equiv": "21.50",
+            "pdbx_formal_charge": "?", "auth_seq_id": "11", "auth_comp_id": "VAL",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "4"
+        }]})
+
+
+
+class AtomSiteAnisotropTests(TestCase):
+
+    def test_can_handle_no_anisou(self):
+        mmcif = {1: 2}
+        build_atom_site_anisotrop("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test(self):
+        filestring = (
+            "ANISOU   14  N   TYR A  74      657    661    657    178    -47     84       N  \n"
+            "ANISOU   15  CA  TYR A  74      477    497    479     92    -20    105       C  \n"
+            "ANISOU   16  C   TYR A  74      483    432    493     77     25     95       C  \n"
+        )
+        mmcif = {"atom_site": [{
+            "id": "14", "type_symbol": "N", "label_atom_id": "NN", "label_alt_id": ".",
+            "label_comp_id": "XYZ", "label_asym_id": "B", "label_seq_id": "10", "pdbx_PDB_ins_code": "?",
+            "auth_seq_id": "101", "auth_comp_id": "AAA", "auth_asym_id": "A", "auth_atom_id": "X"
+        }, {
+            "id": "15", "type_symbol": "C", "label_atom_id": "CC", "label_alt_id": "R",
+            "label_comp_id": "HIS", "label_asym_id": "C", "label_seq_id": "20", "pdbx_PDB_ins_code": "S",
+            "auth_seq_id": "200", "auth_comp_id": "PRO", "auth_asym_id": "D", "auth_atom_id": "L"
+        }]}
+        build_atom_site_anisotrop(filestring, mmcif)
+        self.assertEqual(mmcif, {
+            "atom_site": [{
+                "id": "14", "type_symbol": "N", "label_atom_id": "NN", "label_alt_id": ".",
+                "label_comp_id": "XYZ", "label_asym_id": "B", "label_seq_id": "10", "pdbx_PDB_ins_code": "?",
+                "auth_seq_id": "101", "auth_comp_id": "AAA", "auth_asym_id": "A", "auth_atom_id": "X"
+            }, {
+                "id": "15", "type_symbol": "C", "label_atom_id": "CC", "label_alt_id": "R",
+                "label_comp_id": "HIS", "label_asym_id": "C", "label_seq_id": "20", "pdbx_PDB_ins_code": "S",
+                "auth_seq_id": "200", "auth_comp_id": "PRO", "auth_asym_id": "D", "auth_atom_id": "L"
+            }],
+            "atom_site_anisotrop": [{
+                "id": "14", "type_symbol": "N", "pdbx_label_atom_id": "NN", "pdbx_label_alt_id": ".",
+                "pdbx_label_comp_id": "XYZ", "pdbx_label_asym_id": "B", "pdbx_label_seq_id": "10",
+                "pdbx_PDB_ins_code": "?", "U[1][1]": "0.0657", "U[2][2]": "0.0661", "U[3][3]": "0.0657",
+                "U[1][2]": "0.0178", "U[1][3]": "-0.0047", "U[2][3]": "0.0084", "pdbx_auth_seq_id": "101",
+                "pdbx_auth_comp_id": "AAA", "pdbx_auth_asym_id": "A", "pdbx_auth_atom_id ": "X"
+            }, {
+                "id": "15", "type_symbol": "C", "pdbx_label_atom_id": "CC", "pdbx_label_alt_id": "R",
+                "pdbx_label_comp_id": "HIS", "pdbx_label_asym_id": "C", "pdbx_label_seq_id": "20",
+                "pdbx_PDB_ins_code": "S", "U[1][1]": "0.0477", "U[2][2]": "0.0497", "U[3][3]": "0.0479",
+                "U[1][2]": "0.0092", "U[1][3]": "-0.002", "U[2][3]": "0.0105", "pdbx_auth_seq_id": "200",
+                "pdbx_auth_comp_id": "PRO", "pdbx_auth_asym_id": "D", "pdbx_auth_atom_id ": "L"
+            }]
+        })
+
+
+
+class AtomIdUpdatingTests(TestCase):
+
+    def test_can_update_atom_ids(self):
+        mmcif = {
+            "atom_site": [{"id": "2"}, {"id": "A"}, {"id": "9"}],
+            "atom_site_anisotrop": [{"id": "A"}, {"id": "2"}]
+        }
+        update_atom_ids(mmcif)
+        self.assertEqual(mmcif, {
+            "atom_site": [{"id": "1"}, {"id": "2"}, {"id": "3"}],
+            "atom_site_anisotrop": [{"id": "2"}, {"id": "1"}]
+        })
+    
+
+    def test_can_handle_no_anisotrop(self):
+        mmcif = {"atom_site": [{"id": "2"}, {"id": "A"}, {"id": "9"}]}
+        update_atom_ids(mmcif)
+        self.assertEqual(mmcif, {"atom_site": [{"id": "1"}, {"id": "2"}, {"id": "3"}]})
+    
+
+    def test_can_handle_no_atoms(self):
+        mmcif = {1: 2}
+        update_atom_ids(mmcif)
+        self.assertEqual(mmcif, {1: 2})
+
+
+
+class StructAsymTests(TestCase):
+
+    def test_can_handle_no_atoms(self):
+        mmcif = {1: 2}
+        build_struct_asym(mmcif)
+        self.assertEqual(mmcif, {1: 2})
+
+
+    def test_can_make_struct_asym(self):
+        mmcif = {"atom_site": [
+            {"label_asym_id": "A", "label_entity_id": "1"},
+            {"label_asym_id": "B", "label_entity_id": "2"},
+            {"label_asym_id": "C", "label_entity_id": "1"},
+            {"label_asym_id": "D", "label_entity_id": "2"},
+            {"label_asym_id": "E", "label_entity_id": "3"},
+            {"label_asym_id": "F", "label_entity_id": "4"},
+            {"label_asym_id": "G", "label_entity_id": "5"},
+            {"label_asym_id": "H", "label_entity_id": "5"},
+        ]}
+        build_struct_asym(mmcif)
+        self.assertEqual(mmcif, {"atom_site": [
+            {"label_asym_id": "A", "label_entity_id": "1"},
+            {"label_asym_id": "B", "label_entity_id": "2"},
+            {"label_asym_id": "C", "label_entity_id": "1"},
+            {"label_asym_id": "D", "label_entity_id": "2"},
+            {"label_asym_id": "E", "label_entity_id": "3"},
+            {"label_asym_id": "F", "label_entity_id": "4"},
+            {"label_asym_id": "G", "label_entity_id": "5"},
+            {"label_asym_id": "H", "label_entity_id": "5"},
+        ], "struct_asym": [{
+            "id": "A", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "1", "details": "?"
+        }, {
+            "id": "B", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "2", "details": "?"
+        }, {
+            "id": "C", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "1", "details": "?"
+        }, {
+            "id": "D", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "2", "details": "?"
+        }, {
+            "id": "E", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "3", "details": "?"
+        }, {
+            "id": "F", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "4", "details": "?"
+        }, {
+            "id": "G", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "5", "details": "?"
+        }, {
+            "id": "H", "pdbx_blank_PDB_chainid_flag": "N",
+            "pdbx_modified": "N", "entity_id": "5", "details": "?"
+        }]})
+
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")
@@ -4439,35 +4892,3 @@ class AssemblyGenLinesTests(TestCase):
         ])
         mock_lines.assert_called_with("A, B, C", 27)
         mock_ops.assert_called_with({1: 2}, gen)
-
-
-class NextIdTests(TestCase):
-
-    def test_can_get_first_id(self):
-        self.assertEqual(next_id("@"), "A")
-    
-
-    def test_can_get_single_letter_id(self):
-        self.assertEqual(next_id("A"), "B")
-        self.assertEqual(next_id("B"), "C")
-        self.assertEqual(next_id("M"), "N")
-        self.assertEqual(next_id("Y"), "Z")
-    
-
-    def test_can_get_two_letter_id(self):
-        self.assertEqual(next_id("Z"), "AA")
-        self.assertEqual(next_id("AA"), "BA")
-        self.assertEqual(next_id("BA"), "CA")
-        self.assertEqual(next_id("ZA"), "AB")
-        self.assertEqual(next_id("AB"), "BB")
-        self.assertEqual(next_id("BB"), "CB")
-    
-
-    def test_can_get_three_letter_id(self):
-        self.assertEqual(next_id("ZZ"), "AAA")
-        self.assertEqual(next_id("AAA"), "BAA")
-        self.assertEqual(next_id("BAA"), "CAA")
-        self.assertEqual(next_id("ZAA"), "ABA")
-        self.assertEqual(next_id("ABA"), "BBA")
-        self.assertEqual(next_id("ZBA"), "ACA")
-        self.assertEqual(next_id("ZZA"), "AAB")

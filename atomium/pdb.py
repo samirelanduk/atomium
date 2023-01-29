@@ -1475,60 +1475,60 @@ def formula_to_weight(formula):
 
 
 def build_atom_type(filestring, mmcif):
+    """Creates the atom_type category in an mmCIF dictionary.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^ATOM.+|^HETATM.+", filestring, re.M)
     elements = sorted(set(line[76:78].strip() or "?" for line in lines))
+    if not elements: return
     mmcif["atom_type"] = [{"symbol": element} for element in elements]
 
 
 def build_atom_site(filestring, polymer_entities, non_polymer_entities, mmcif):
+    """Creates the atom_site category in an mmCIF dictionary.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict polymer_entities: the polymer entities dictionary.
+    :param dict non_polymer_entities: the non-polymer entities.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^ATOM.+|^HETATM.+|^ENDMDL", filestring, re.M)
-    mmcif["atom_site"] = []
-    labels = {}
-    model_index, residue_index, current_sig, current_chain_id = 0, -1, None, None
-    for line in lines:
-        if line == "ENDMDL":
+    mmcif["atom_site"], labels = [], {}
+    model_index, residue_index, current_sig, current_chain = 0, -1, None, None
+    for rec in lines:
+        if rec == "ENDMDL":
             model_index += 1
             residue_index = -1
-            current_chain_id = None
+            current_chain = None
         else:
-            sig = (
-                line[21], line[17:20].strip(),
-                line[22:26].strip(), line[26].strip()
-            )
+            sig = (rec[21], rec[17:20].strip(), rec[22:26].strip(), rec[26].strip())
             if sig != current_sig: residue_index += 1
             current_sig = sig
-            if sig[0] != current_chain_id: residue_index = 0
-            current_chain_id = sig[0]
+            if sig[0] != current_chain: residue_index = 0
+            current_chain = sig[0]
             polymer_entity, polymer, non_polymer_entity = get_atom_entity(
                 sig, polymer_entities, non_polymer_entities
             )
             label = get_atom_label(sig, polymer, non_polymer_entity, labels)
-            mmcif["atom_site"].append({
-                "group_PDB": line[:6].strip(),
-                "id": line[6:11].strip(),
-                "type_symbol": line[76:78].strip(),
-                "label_atom_id": line[12:16].strip(),
-                "label_alt_id": line[16].strip() or ".",
-                "label_comp_id": sig[1],
-                "label_asym_id": label,
-                "label_entity_id": (polymer_entity or non_polymer_entity)["id"],
-                "label_seq_id": str(polymer["alignment"][residue_index] + 1) if polymer else ".",
-                "pdbx_PDB_ins_code": line[26].strip() or "?",
-                "Cartn_x": line[30:38].strip(),
-                "Cartn_y": line[38:46].strip(),
-                "Cartn_z": line[46:54].strip(),
-                "occupancy": line[54:60].strip(),
-                "B_iso_or_equiv": line[60:66].strip(),
-                "pdbx_formal_charge": line[78:80].strip() or "?",
-                "auth_seq_id": line[22:26].strip(),
-                "auth_comp_id": line[17:20].strip(),
-                "auth_asym_id": sig[0],
-                "auth_atom_id": line[12:16].strip(),
-                "pdbx_PDB_model_num": str(model_index + 1)
-            })
+            entity_id = (polymer_entity or non_polymer_entity)["id"]
+            seq_id = str(polymer["alignment"][residue_index] + 1) if polymer else "."
+            model_num = str(model_index + 1)
+            add_atom(mmcif, rec, label, entity_id, seq_id, model_num)
+    if not mmcif["atom_site"]: del mmcif["atom_site"]
 
 
 def get_atom_entity(sig, polymer_entities, non_polymer_entities):
+    """Takes an atom signature and the known polymer and non-polymer entities,
+    and works out what the polymer entity, polymer and non-polymer entity is for
+    that atom (some of which will be None).
+    
+    :param tuple sig: the atom signature.
+    :param dict polymer_entities: the polymer entities.
+    :param dict non_polymer_entities: the non-polymer entities.
+    :rtype: ``tuple``"""
+
     polymer_entity, polymer, non_polymer_entity = None, None, None
     for entity in non_polymer_entities.values():
         if sig in entity["molecules"]:
@@ -1544,31 +1544,50 @@ def get_atom_entity(sig, polymer_entities, non_polymer_entities):
 
 
 def get_atom_label(sig, polymer, non_polymer, labels):
-    sorted_labels = sorted(labels.values(), key=lambda l: (len(l), [ord(c) for c in l][::-1]))
+    """Works out what the label_asym_id of an atom should be. To do this we need
+    to know the signature of the atom, whether it is a polymer, non-polymer or
+    water, and what previous label_asym_ids have been set for atoms.
+    
+    If the atom is a polymer, look to see if the chain ID has been assigned a
+    label_asym_id before, and if so use that. Otherwise generate a new one based
+    on the current biggest label_asym_id.
+
+    If the atom is a non-polymer, look to see if the signature has been assigned
+    label_asym_id before, and if so use that. Otherwise generate a new one based
+    on the current biggest label_asym_id.
+
+    If the atom is a water, look to see if the chain ID has been assigned a
+    label_asym_id before in the context of water, and if so use that. Otherwise
+    generate a new one based on the current biggest label_asym_id.
+
+    The lookup of atom identifier to label_asym_id is modified when a new one is
+    created.
+    
+    :param tuple sig: the atom signature.
+    :param dict polymer: the polymer the atom belongs to.
+    :param dict non_polymer: the non-polymer the atom belongs to.
+    :rtype: ``str``"""
+    
+    sorted_labels = sorted(labels.values(), key=lambda l: (
+        len(l), [ord(c) for c in l][::-1]
+    ))
     next_label = next_id(sorted_labels[-1] if labels else "@")
-    if polymer:
-        if sig[0] in labels:
-            label = labels[sig[0]]
-        else:
-            label = next_label
-            labels[sig[0]] = next_label
-    elif not non_polymer["is_water"]:
-        if sig in labels:
-            label = labels[sig]
-        else:
-            label = next_label
-            labels[sig] = next_label
+    a = sig[0] if polymer else (sig[0], "W") if non_polymer["is_water"] else sig
+    if a in labels:
+        label = labels[a]
     else:
-        chain_id = (sig[0], "W")
-        if chain_id in labels:
-            label = labels[chain_id]
-        else:
-            label = next_label
-            labels[chain_id] = next_label
+        label = next_label
+        labels[a] = next_label
     return label
 
 
 def next_id(id):
+    """Gets the next ID after a given ID. The order goes A to Z, then AA, BA
+    etc. up to ZA, then AAA, BAA etc.
+    
+    :param str id: the current ID.
+    :rtype: ``str``"""
+
     if all(char == "Z" for char in id):
         return "A" * (len(id) + 1)
     a_indices = []
@@ -1582,17 +1601,52 @@ def next_id(id):
             ])
 
 
+def add_atom(mmcif, line, label, entity_id, seq_id, model_num):
+    """Adds an atom the ``atom_site`` category.
+    
+    :param dict mmcif: the dictionary to update.
+    :param str line: the ATOM or HETATM record.
+    :param str label: the label_asym_id to use.
+    :param str entity_id: the entity ID to use.
+    :param str seq_id: the residue mumber to use.
+    :param str model_num: the model number to use."""
+
+    sig = (line[21], line[17:20].strip(), line[22:26].strip(), line[26].strip())
+    mmcif["atom_site"].append({
+        "group_PDB": line[:6].strip(), "id": line[6:11].strip(),
+        "type_symbol": line[76:78].strip(), 
+        "label_atom_id": line[12:16].strip(),
+        "label_alt_id": line[16].strip() or ".", "label_comp_id": sig[1],
+        "label_asym_id": label, "label_entity_id": entity_id,
+        "label_seq_id": seq_id,
+        "pdbx_PDB_ins_code": line[26].strip() or "?",
+        "Cartn_x": line[30:38].strip(), "Cartn_y": line[38:46].strip(),
+        "Cartn_z": line[46:54].strip(), "occupancy": line[54:60].strip(),
+        "B_iso_or_equiv": line[60:66].strip(),
+        "pdbx_formal_charge": line[78:80].strip() or "?",
+        "auth_seq_id": line[22:26].strip(), "auth_comp_id": line[17:20].strip(),
+        "auth_asym_id": sig[0], "auth_atom_id": line[12:16].strip(),
+        "pdbx_PDB_model_num": model_num
+    })
+
+
 def build_atom_site_anisotrop(filestring, mmcif):
+    """Creates the atom_site_anisotrop category in an mmCIF dictionary.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     anisou = re.findall(r"^ANISOU.+", filestring, re.M)
+    if not anisou: return
     mmcif["atom_site_anisotrop"] = []
     atoms_by_id = {a["id"]: a for a in mmcif["atom_site"]}
     for a in anisou:
         atom_id = a[6:11].strip()
-        atom = atoms_by_id[atom_id]
+        atom = atoms_by_id.get(atom_id)
+        if not atom: continue
         convert = lambda s: str(float(s) / 10000)
         mmcif["atom_site_anisotrop"].append({
-            "id": atom_id, 
-            "type_symbol": atom["type_symbol"], 
+            "id": atom_id, "type_symbol": atom["type_symbol"], 
             "pdbx_label_atom_id": atom["label_atom_id"], 
             "pdbx_label_alt_id": atom["label_alt_id"], 
             "pdbx_label_comp_id": atom["label_comp_id"], 
@@ -1610,12 +1664,16 @@ def build_atom_site_anisotrop(filestring, mmcif):
             "pdbx_auth_asym_id": atom["auth_asym_id"], 
             "pdbx_auth_atom_id ": atom["auth_atom_id"], 
         })
-    if not mmcif["atom_site_anisotrop"]: del mmcif["atom_site_anisotrop"]
 
 
 def update_atom_ids(mmcif):
+    """Ensures every atom is numbered sequentially, and the anisotrop category
+    is updated likewise too.
+
+    :param dict mmcif: the dictionary to update."""
+
     lookup = {}
-    for i, atom in enumerate(mmcif["atom_site"], start=1):
+    for i, atom in enumerate(mmcif.get("atom_site", []), start=1):
         lookup[atom["id"]] = str(i)
         atom["id"] = str(i)
     for aniso in mmcif.get("atom_site_anisotrop", []):
@@ -1623,8 +1681,15 @@ def update_atom_ids(mmcif):
 
 
 def build_struct_asym(mmcif):
+    """Creates the struct_asym category in an mmCIF dictionary.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lookup = {}
-    for atom in mmcif["atom_site"]:
+    atoms = mmcif.get("atom_site", [])
+    if not atoms: return
+    for atom in atoms:
         lookup[atom["label_asym_id"]] = atom["label_entity_id"]
     mmcif["struct_asym"] = [{
         "id": asym_id, "pdbx_blank_PDB_chainid_flag": "N",

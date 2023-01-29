@@ -1007,7 +1007,7 @@ class FileToDictTests(TestCase):
             "db_align_end": "76", "pdbx_db_align_end_ins_code": "?",
             "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "76",
         }, {
-            "align_id": "2", "ref_id": "1", "pdbx_PDB_id_code": "1GSG",
+            "align_id": "2", "ref_id": "2", "pdbx_PDB_id_code": "1GSG",
             "pdbx_strand_id": "P", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
             "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "P00962",
@@ -2563,7 +2563,7 @@ class FileToDictTests(TestCase):
             "pdbx_auth_seq_align_beg": "59", "pdbx_auth_seq_align_end": "196",
         })
         self.assertEqual(d["struct_ref_seq"][-1], {
-            "align_id": "4", "ref_id": "1", "pdbx_PDB_id_code": "4OPJ",
+            "align_id": "4", "ref_id": "2", "pdbx_PDB_id_code": "4OPJ",
             "pdbx_strand_id": "D", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
             "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "4OPJ",
@@ -3208,7 +3208,7 @@ class FileToDictTests(TestCase):
             "pdbx_auth_seq_align_beg": "8", "pdbx_auth_seq_align_end": "225",
         })
         self.assertEqual(d["struct_ref_seq"][-1], {
-            "align_id": "21", "ref_id": "1", "pdbx_PDB_id_code": "3OAQ",
+            "align_id": "21", "ref_id": "21", "pdbx_PDB_id_code": "3OAQ",
             "pdbx_strand_id": "U", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
             "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "AP009048.1",

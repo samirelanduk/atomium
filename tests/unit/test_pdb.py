@@ -3392,6 +3392,384 @@ class StructAsymTests(TestCase):
 
 
 
+class AnnotationParsingTests(TestCase):
+
+    @patch("atomium.pdb.parse_helix")
+    @patch("atomium.pdb.parse_sheet")
+    @patch("atomium.pdb.parse_ssbond")
+    @patch("atomium.pdb.parse_link")
+    @patch("atomium.pdb.parse_cispep")
+    @patch("atomium.pdb.parse_site")
+    def test_can_parse_annotation(self, *mocks):
+        parse_annotation("filestring", {"mmcif": 1})
+        for mock in mocks:
+            mock.assert_called_with("filestring", {"mmcif": 1})
+
+
+
+class HelixParsingTests(TestCase):
+
+    def test_can_handle_no_helix(self):
+        mmcif = {1: 2}
+        parse_helix("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_parse_helix(self):
+        filestring = (
+            "HELIX    6 AE1 LYS A  130S GLY A  137Q 1CONTIGUOUS WITH HELIX AE2          8    \n"
+            "HELIX    7 AE2 ILE A  138T VAL A  154R 1CONTIGUOUS WITH HELIX AE1         17    \n"
+        )
+        mmcif = {1: 2}
+        parse_helix(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_conf": [{
+            "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1", "beg_label_comp_id": "LYS",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "130", "pdbx_beg_PDB_ins_code": "S",
+            "end_label_comp_id": "GLY", "end_label_asym_id": "A", "end_label_seq_id": "137",
+            "pdbx_end_PDB_ins_code": "Q", "beg_auth_comp_id": "LYS", "beg_auth_asym_id": "A",
+            "beg_auth_seq_id": "130", "end_auth_comp_id": "GLY", "end_auth_asym_id": "A",
+            "end_auth_seq_id": "137", "pdbx_PDB_helix_class": "1", "details": "CONTIGUOUS WITH HELIX AE2", "pdbx_PDB_helix_length": "8"
+        }, {
+            "conf_type_id": "HELX_P", "id": "HELX_P2", "pdbx_PDB_helix_id": "2", "beg_label_comp_id": "ILE",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "138", "pdbx_beg_PDB_ins_code": "T",
+            "end_label_comp_id": "VAL", "end_label_asym_id": "A", "end_label_seq_id": "154",
+            "pdbx_end_PDB_ins_code": "R", "beg_auth_comp_id": "ILE", "beg_auth_asym_id": "A",
+            "beg_auth_seq_id": "138", "end_auth_comp_id": "VAL", "end_auth_asym_id": "A",
+            "end_auth_seq_id": "154", "pdbx_PDB_helix_class": "1", "details": "CONTIGUOUS WITH HELIX AE1", "pdbx_PDB_helix_length": "17"
+        }]})
+    
+
+    def test_can_parse_empty_helix(self):
+        filestring = (
+            "HELIX    6 AE1 LYS A  130  GLY A  137                                      8    \n"
+            "HELIX    7 AE2 ILE A  138  VAL A  154                                     17    \n"
+        )
+        mmcif = {1: 2}
+        parse_helix(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_conf": [{
+            "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1", "beg_label_comp_id": "LYS",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "130", "pdbx_beg_PDB_ins_code": "?",
+            "end_label_comp_id": "GLY", "end_label_asym_id": "A", "end_label_seq_id": "137",
+            "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "LYS", "beg_auth_asym_id": "A",
+            "beg_auth_seq_id": "130", "end_auth_comp_id": "GLY", "end_auth_asym_id": "A",
+            "end_auth_seq_id": "137", "pdbx_PDB_helix_class": "?", "details": "?", "pdbx_PDB_helix_length": "8"
+        }, {
+            "conf_type_id": "HELX_P", "id": "HELX_P2", "pdbx_PDB_helix_id": "2", "beg_label_comp_id": "ILE",
+            "beg_label_asym_id": "A", "beg_label_seq_id": "138", "pdbx_beg_PDB_ins_code": "?",
+            "end_label_comp_id": "VAL", "end_label_asym_id": "A", "end_label_seq_id": "154",
+            "pdbx_end_PDB_ins_code": "?", "beg_auth_comp_id": "ILE", "beg_auth_asym_id": "A",
+            "beg_auth_seq_id": "138", "end_auth_comp_id": "VAL", "end_auth_asym_id": "A",
+            "end_auth_seq_id": "154", "pdbx_PDB_helix_class": "?", "details": "?", "pdbx_PDB_helix_length": "17"
+        }]})
+
+
+
+class SheetParsingTests(TestCase):
+
+    def test_can_handle_no_sheet(self):
+        mmcif = {1: 2}
+        parse_sheet("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    @patch("atomium.pdb.parse_inter_strand")
+    def test_can_parse_sheet(self, mock_strand):
+        filestring = (
+            "SHEET    1   A 9 LEU A  15A MET A  19B 0                              \n"          
+            "SHEET    2   A 9 THR A  40C GLY A  44D 1  O  LYS A  42E  N  LEU A  17F\n"                   
+            "SHEET    1   B 9 LEU B1015G ALA B1018H 0                              \n"          
+            "SHEET    2   B 9 THR B1040  GLY B1044  1  O  LYS B1042   N  LEU B1017 \n"
+        )
+        mmcif = {1: 2}
+        parse_sheet(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_sheet": [
+            {"id": "A", "type": "?", "number_strands": "9", "details": "?"},
+            {"id": "B", "type": "?", "number_strands": "9", "details": "?"}
+        ], "struct_sheet_range": [{
+            "sheet_id": "A", "id": "1", "beg_label_comp_id": "LEU", "beg_label_asym_id": "A",
+            "beg_label_seq_id": "15", "pdbx_beg_PDB_ins_code": "A", "end_label_comp_id": "MET",
+            "end_label_asym_id": "A", "end_label_seq_id": "19", "pdbx_end_PDB_ins_code": "B",
+            "beg_auth_comp_id": "LEU", "beg_auth_asym_id": "A", "beg_auth_seq_id": "15",
+            "end_auth_comp_id": "MET", "end_auth_asym_id": "A", "end_auth_seq_id": "19"
+        }, {
+            "sheet_id": "A", "id": "2", "beg_label_comp_id": "THR", "beg_label_asym_id": "A",
+            "beg_label_seq_id": "40", "pdbx_beg_PDB_ins_code": "C", "end_label_comp_id": "GLY",
+            "end_label_asym_id": "A", "end_label_seq_id": "44", "pdbx_end_PDB_ins_code": "D",
+            "beg_auth_comp_id": "THR", "beg_auth_asym_id": "A", "beg_auth_seq_id": "40",
+            "end_auth_comp_id": "GLY", "end_auth_asym_id": "A", "end_auth_seq_id": "44"
+        }, {
+            "sheet_id": "B", "id": "1", "beg_label_comp_id": "LEU", "beg_label_asym_id": "B",
+            "beg_label_seq_id": "1015", "pdbx_beg_PDB_ins_code": "G", "end_label_comp_id": "ALA",
+            "end_label_asym_id": "B", "end_label_seq_id": "1018", "pdbx_end_PDB_ins_code": "H",
+            "beg_auth_comp_id": "LEU", "beg_auth_asym_id": "B", "beg_auth_seq_id": "1015",
+            "end_auth_comp_id": "ALA", "end_auth_asym_id": "B", "end_auth_seq_id": "1018"
+        }, {
+            "sheet_id": "B", "id": "2", "beg_label_comp_id": "THR", "beg_label_asym_id": "B",
+            "beg_label_seq_id": "1040", "pdbx_beg_PDB_ins_code": "?", "end_label_comp_id": "GLY",
+            "end_label_asym_id": "B", "end_label_seq_id": "1044", "pdbx_end_PDB_ins_code": "?",
+            "beg_auth_comp_id": "THR", "beg_auth_asym_id": "B", "beg_auth_seq_id": "1040",
+            "end_auth_comp_id": "GLY", "end_auth_asym_id": "B", "end_auth_seq_id": "1044"
+        }]})
+        mock_strand.assert_called_with(filestring.splitlines(), mmcif)
+
+
+
+class StrandParsingTests(TestCase):
+
+    def test_can_parse_strands(self):
+        lines = [
+            "SHEET    1   A 9 LEU A  15A MET A  19B 0                              ",
+            "SHEET    2   A 9 THR A  40C GLY A  44D 1  O  LYS A  42E  N  LEU A  17F",
+            "SHEET    3   A 9 ARG A  66  VAL A  73  1  O  ILE A  68   N  VAL A  41 ",
+            "SHEET    1   B 9 LEU B1015G ALA B1018H 0                              ",
+            "SHEET    2   B 9 THR B1040  GLY B1044  -  O  LYS B1042   N  LEU B1017 ",
+            "SHEET    3   B 9 ARG B1066  VAL B1073  -  O  ARG B1066L  N  VAL B1041Q"
+        ]
+        mmcif = {1: 2}
+        parse_inter_strand(lines, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_sheet_order": [
+            {"sheet_id": "A", "range_id_1": "1", "range_id_2": "2", "offset": "?", "sense": "parallel"},
+            {"sheet_id": "A", "range_id_1": "2", "range_id_2": "3", "offset": "?", "sense": "parallel"},
+            {"sheet_id": "B", "range_id_1": "1", "range_id_2": "2", "offset": "?", "sense": "anti-parallel"},
+            {"sheet_id": "B", "range_id_1": "2", "range_id_2": "3", "offset": "?", "sense": "anti-parallel"}
+        ],
+        "pdbx_struct_sheet_hbond": [{
+            "sheet_id": "A", "range_id_1": "1", "range_id_2": "2", "range_1_label_atom_id": "N", "range_1_label_comp_id": "LEU",
+            "range_1_label_asym_id": "A", "range_1_label_seq_id": "17", "range_1_PDB_ins_code": "F", "range_1_auth_atom_id": "N",
+            "range_1_auth_comp_id": "LEU", "range_1_auth_asym_id": "A", "range_1_auth_seq_id": "17", "range_2_label_atom_id": "O",
+            "range_2_label_comp_id": "LYS", "range_2_label_asym_id": "A", "range_2_label_seq_id": "44", "range_2_PDB_ins_code": "E",
+            "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "LYS", "range_2_auth_asym_id": "A", "range_2_auth_seq_id": "44"
+        }, {
+            "sheet_id": "A", "range_id_1": "2", "range_id_2": "3", "range_1_label_atom_id": "N", "range_1_label_comp_id": "VAL",
+            "range_1_label_asym_id": "A", "range_1_label_seq_id": "41", "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N",
+            "range_1_auth_comp_id": "VAL", "range_1_auth_asym_id": "A", "range_1_auth_seq_id": "41", "range_2_label_atom_id": "O",
+            "range_2_label_comp_id": "ILE", "range_2_label_asym_id": "A", "range_2_label_seq_id": "73", "range_2_PDB_ins_code": "?",
+            "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "ILE", "range_2_auth_asym_id": "A", "range_2_auth_seq_id": "73"
+        }, {
+            "sheet_id": "B", "range_id_1": "1", "range_id_2": "2", "range_1_label_atom_id": "N", "range_1_label_comp_id": "LEU",
+            "range_1_label_asym_id": "B", "range_1_label_seq_id": "1017", "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "N",
+            "range_1_auth_comp_id": "LEU", "range_1_auth_asym_id": "B", "range_1_auth_seq_id": "1017", "range_2_label_atom_id": "O",
+            "range_2_label_comp_id": "LYS", "range_2_label_asym_id": "B", "range_2_label_seq_id": "1044", "range_2_PDB_ins_code": "?",
+            "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "LYS", "range_2_auth_asym_id": "B", "range_2_auth_seq_id": "1044"
+        }, {
+            "sheet_id": "B", "range_id_1": "2", "range_id_2": "3", "range_1_label_atom_id": "N", "range_1_label_comp_id": "VAL",
+            "range_1_label_asym_id": "B", "range_1_label_seq_id": "1041", "range_1_PDB_ins_code": "Q", "range_1_auth_atom_id": "N",
+            "range_1_auth_comp_id": "VAL", "range_1_auth_asym_id": "B", "range_1_auth_seq_id": "1041", "range_2_label_atom_id": "O",
+            "range_2_label_comp_id": "ARG", "range_2_label_asym_id": "B", "range_2_label_seq_id": "1073", "range_2_PDB_ins_code": "L",
+            "range_2_auth_atom_id": "O", "range_2_auth_comp_id": "ARG", "range_2_auth_asym_id": "B", "range_2_auth_seq_id": "1073"
+        }]})
+
+
+
+class SsbondParsingTests(TestCase):
+
+    def test_can_handle_no_ssbond(self):
+        mmcif = {1: 2}
+        parse_ssbond("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_parse_ssbond(self):
+        filestring = (
+            "SSBOND   1 CYS A    6Z   CYS A  127                          1555   1555  2.03  \n"
+            "SSBOND   2 CYS A   30    CYS A  115P                         1555   1555  2.04  \n"
+        )
+        mmcif = {1: 2}
+        parse_ssbond(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_conn": [{
+            "id": "disulf1", "conn_type_id": "disulf", "pdbx_leaving_atom_flag": "?",
+            "pdbx_PDB_id": "?", "ptnr1_label_asym_id": "A", "ptnr1_label_comp_id": "CYS",
+            "ptnr1_label_seq_id": "6", "ptnr1_label_atom_id": "?", "pdbx_ptnr1_label_alt_id": "?",
+            "pdbx_ptnr1_PDB_ins_code": "Z", "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555",
+            "ptnr2_label_asym_id": "A", "ptnr2_label_comp_id": "CYS", "ptnr2_label_seq_id": "127",
+            "ptnr2_label_atom_id": "?", "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?",
+            "ptnr1_auth_asym_id": "A", "ptnr1_auth_comp_id": "CYS", "ptnr1_auth_seq_id": "6",
+            "ptnr2_auth_asym_id": "A", "ptnr2_auth_comp_id": "CYS", "ptnr2_auth_seq_id": "127",
+            "ptnr2_symmetry": "1555", "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?",
+            "pdbx_ptnr3_label_comp_id": "?", "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?",
+            "pdbx_ptnr3_PDB_ins_code": "?", "details": "?", "pdbx_dist_value": "2.03", "pdbx_value_order": "?"
+        }, {
+            "id": "disulf2", "conn_type_id": "disulf", "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+            "ptnr1_label_asym_id": "A", "ptnr1_label_comp_id": "CYS", "ptnr1_label_seq_id": "30",
+            "ptnr1_label_atom_id": "?", "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
+            "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555", "ptnr2_label_asym_id": "A",
+            "ptnr2_label_comp_id": "CYS", "ptnr2_label_seq_id": "115", "ptnr2_label_atom_id": "?",
+            "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "P", "ptnr1_auth_asym_id": "A",
+            "ptnr1_auth_comp_id": "CYS", "ptnr1_auth_seq_id": "30", "ptnr2_auth_asym_id": "A",
+            "ptnr2_auth_comp_id": "CYS", "ptnr2_auth_seq_id": "115", "ptnr2_symmetry": "1555",
+            "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?", "pdbx_ptnr3_label_comp_id": "?",
+            "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?", "pdbx_ptnr3_PDB_ins_code": "?",
+            "details": "?", "pdbx_dist_value": "2.04", "pdbx_value_order": "?"
+        }]})
+
+
+
+class LinkParsingTests(TestCase):
+
+    def test_can_handle_no_link(self):
+        mmcif = {1: 2}
+        parse_link("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_parse_link(self):
+        filestring = (
+            "LINK         OH MOMZ D   2P                C5  GHP D   4     1555   1555  1.39 \n" 
+            "LINK         C   ASN D   3                 N  QGHP D   4Z    1555   1555  1.32 \n"
+        )
+        mmcif = {1: 2}
+        parse_link(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_conn": [{
+            "id": "covale1", "conn_type_id": "covale", "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+            "ptnr1_label_asym_id": "D", "ptnr1_label_comp_id": "OMZ", "ptnr1_label_seq_id": "2",
+            "ptnr1_label_atom_id": "OH", "pdbx_ptnr1_label_alt_id": "M", "pdbx_ptnr1_PDB_ins_code": "P",
+            "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555", "ptnr2_label_asym_id": "D",
+            "ptnr2_label_comp_id": "GHP", "ptnr2_label_seq_id": "4", "ptnr2_label_atom_id": "C5",
+            "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?", "ptnr1_auth_asym_id": "D",
+            "ptnr1_auth_comp_id": "OMZ", "ptnr1_auth_seq_id": "2", "ptnr2_auth_asym_id": "D", 
+            "ptnr2_auth_comp_id": "GHP", "ptnr2_auth_seq_id": "4", "ptnr2_symmetry": "1555",
+            "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?", "pdbx_ptnr3_label_comp_id": "?",
+            "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?", "pdbx_ptnr3_PDB_ins_code": "?",
+            "details": "?", "pdbx_dist_value": "1.39", "pdbx_value_order": "?"
+        }, {
+            "id": "covale2", "conn_type_id": "covale", "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+            "ptnr1_label_asym_id": "D", "ptnr1_label_comp_id": "ASN", "ptnr1_label_seq_id": "3",
+            "ptnr1_label_atom_id": "C", "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
+            "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555", "ptnr2_label_asym_id": "D",
+            "ptnr2_label_comp_id": "GHP", "ptnr2_label_seq_id": "4", "ptnr2_label_atom_id": "N",
+            "pdbx_ptnr2_label_alt_id": "Q", "pdbx_ptnr2_PDB_ins_code": "Z", "ptnr1_auth_asym_id": "D",
+            "ptnr1_auth_comp_id": "ASN", "ptnr1_auth_seq_id": "3", "ptnr2_auth_asym_id": "D",
+            "ptnr2_auth_comp_id": "GHP", "ptnr2_auth_seq_id": "4", "ptnr2_symmetry": "1555",
+            "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?", "pdbx_ptnr3_label_comp_id": "?",
+            "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?", "pdbx_ptnr3_PDB_ins_code": "?",
+            "details": "?", "pdbx_dist_value": "1.32", "pdbx_value_order": "?"
+        }]})
+    
+
+    def test_can_parse_link_with_existing_category(self):
+        filestring = (
+            "LINK         OH MOMZ D   2P                C5  GHP D   4     1555   1555  1.39 \n" 
+            "LINK         C   ASN D   3                 N  QGHP D   4Z    1555   1555  1.32 \n"
+        )
+        mmcif = {1: 2, "struct_conn": [3, 4]}
+        parse_link(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_conn": [3, 4, {
+            "id": "covale1", "conn_type_id": "covale", "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+            "ptnr1_label_asym_id": "D", "ptnr1_label_comp_id": "OMZ", "ptnr1_label_seq_id": "2",
+            "ptnr1_label_atom_id": "OH", "pdbx_ptnr1_label_alt_id": "M", "pdbx_ptnr1_PDB_ins_code": "P",
+            "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555", "ptnr2_label_asym_id": "D",
+            "ptnr2_label_comp_id": "GHP", "ptnr2_label_seq_id": "4", "ptnr2_label_atom_id": "C5",
+            "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?", "ptnr1_auth_asym_id": "D",
+            "ptnr1_auth_comp_id": "OMZ", "ptnr1_auth_seq_id": "2", "ptnr2_auth_asym_id": "D", 
+            "ptnr2_auth_comp_id": "GHP", "ptnr2_auth_seq_id": "4", "ptnr2_symmetry": "1555",
+            "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?", "pdbx_ptnr3_label_comp_id": "?",
+            "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?", "pdbx_ptnr3_PDB_ins_code": "?",
+            "details": "?", "pdbx_dist_value": "1.39", "pdbx_value_order": "?"
+        }, {
+            "id": "covale2", "conn_type_id": "covale", "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+            "ptnr1_label_asym_id": "D", "ptnr1_label_comp_id": "ASN", "ptnr1_label_seq_id": "3",
+            "ptnr1_label_atom_id": "C", "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
+            "pdbx_ptnr1_standard_comp_id": "?", "ptnr1_symmetry": "1555", "ptnr2_label_asym_id": "D",
+            "ptnr2_label_comp_id": "GHP", "ptnr2_label_seq_id": "4", "ptnr2_label_atom_id": "N",
+            "pdbx_ptnr2_label_alt_id": "Q", "pdbx_ptnr2_PDB_ins_code": "Z", "ptnr1_auth_asym_id": "D",
+            "ptnr1_auth_comp_id": "ASN", "ptnr1_auth_seq_id": "3", "ptnr2_auth_asym_id": "D",
+            "ptnr2_auth_comp_id": "GHP", "ptnr2_auth_seq_id": "4", "ptnr2_symmetry": "1555",
+            "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?", "pdbx_ptnr3_label_comp_id": "?",
+            "pdbx_ptnr3_label_asym_id": "?", "pdbx_ptnr3_label_alt_id": "?", "pdbx_ptnr3_PDB_ins_code": "?",
+            "details": "?", "pdbx_dist_value": "1.32", "pdbx_value_order": "?"
+        }]})
+
+
+
+class SiteParsingTests(TestCase):
+
+    def test_can_handle_no_site(self):
+        mmcif = {1: 2}
+        parse_site("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_parse_site(self):
+        filestring = (
+            "SITE     1 AC1  4 ASP A  70  LYS A  72P LEU A 123  VAL A 155    \n"
+            "SITE     1 AC2  5 LYS B1042  ASP B1070  LYS B1072  ILE B1096    \n"
+            "SITE     2 AC2  5 VAL B1155                                     \n"
+        )
+        mmcif = {1: 2}
+        parse_site(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_site_gen": [{
+            "id": "1", "site_id": "AC1", "pdbx_num_res": "4", "label_comp_id": "ASP", "label_asym_id": "A",
+            "label_seq_id": "70", "pdbx_auth_ins_code": "?", "auth_comp_id": "ASP", "auth_asym_id": "A",
+            "auth_seq_id": "70", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "2", "site_id": "AC1", "pdbx_num_res": "4", "label_comp_id": "LYS", "label_asym_id": "A",
+            "label_seq_id": "72", "pdbx_auth_ins_code": "P", "auth_comp_id": "LYS", "auth_asym_id": "A",
+            "auth_seq_id": "72", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "3", "site_id": "AC1", "pdbx_num_res": "4", "label_comp_id": "LEU", "label_asym_id": "A",
+            "label_seq_id": "123", "pdbx_auth_ins_code": "?", "auth_comp_id": "LEU", "auth_asym_id": "A",
+            "auth_seq_id": "123", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "4", "site_id": "AC1", "pdbx_num_res": "4", "label_comp_id": "VAL", "label_asym_id": "A",
+            "label_seq_id": "155", "pdbx_auth_ins_code": "?", "auth_comp_id": "VAL", "auth_asym_id": "A",
+            "auth_seq_id": "155", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "5", "site_id": "AC2", "pdbx_num_res": "5", "label_comp_id": "LYS", "label_asym_id": "B",
+            "label_seq_id": "1042", "pdbx_auth_ins_code": "?", "auth_comp_id": "LYS", "auth_asym_id": "B",
+            "auth_seq_id": "1042", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "6", "site_id": "AC2", "pdbx_num_res": "5", "label_comp_id": "ASP", "label_asym_id": "B",
+            "label_seq_id": "1070", "pdbx_auth_ins_code": "?", "auth_comp_id": "ASP", "auth_asym_id": "B",
+            "auth_seq_id": "1070", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "7", "site_id": "AC2", "pdbx_num_res": "5", "label_comp_id": "LYS", "label_asym_id": "B",
+            "label_seq_id": "1072", "pdbx_auth_ins_code": "?", "auth_comp_id": "LYS", "auth_asym_id": "B",
+            "auth_seq_id": "1072", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "8", "site_id": "AC2", "pdbx_num_res": "5", "label_comp_id": "ILE", "label_asym_id": "B",
+            "label_seq_id": "1096", "pdbx_auth_ins_code": "?", "auth_comp_id": "ILE", "auth_asym_id": "B",
+            "auth_seq_id": "1096", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }, {
+            "id": "9", "site_id": "AC2", "pdbx_num_res": "5", "label_comp_id": "VAL", "label_asym_id": "B",
+            "label_seq_id": "1155", "pdbx_auth_ins_code": "?", "auth_comp_id": "VAL", "auth_asym_id": "B",
+            "auth_seq_id": "1155", "label_atom_id": ".", "label_alt_id": "?", "symmetry": "1_555", "details": "?"
+        }]})
+
+
+
+class CispepParsingTests(TestCase):
+
+    def test_can_handle_no_cicpep(self):
+        mmcif = {1: 2}
+        parse_cispep("", mmcif)
+        self.assertEqual(mmcif, {1: 2})
+    
+
+    def test_can_parse_cispep(self):
+        filestring = (
+            "CISPEP   1 SER A    7P   PRO A    8          0        -2.43     \n"                
+            "CISPEP   2 THR A   94    PRO A   95Q         0        -3.63     \n"
+        )
+        mmcif = {1: 2}
+        parse_cispep(filestring, mmcif)
+        self.assertEqual(mmcif, {1: 2, "struct_mon_prot_cis": [{
+            "pdbx_id": "1", "label_comp_id": "SER", "label_seq_id": "7", "label_asym_id": "A",
+            "label_alt_id": ".", "pdbx_PDB_ins_code": "P", "auth_comp_id": "SER", "auth_seq_id": "7", 
+            "auth_asym_id": "A", "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "8",
+            "pdbx_label_asym_id_2": "A", "pdbx_PDB_ins_code_2": "?", "pdbx_auth_comp_id_2": "PRO",
+            "pdbx_auth_seq_id_2": "8", "pdbx_auth_asym_id_2": "A", "pdbx_PDB_model_num": "1",
+            "pdbx_omega_angle": "-2.43"
+        }, {
+            "pdbx_id": "2", "label_comp_id": "THR", "label_seq_id": "94", "label_asym_id": "A",
+            "label_alt_id": ".", "pdbx_PDB_ins_code": "?", "auth_comp_id": "THR", "auth_seq_id": "94",
+            "auth_asym_id": "A", "pdbx_label_comp_id_2": "PRO", "pdbx_label_seq_id_2": "95",
+            "pdbx_label_asym_id_2": "A", "pdbx_PDB_ins_code_2": "Q", "pdbx_auth_comp_id_2": "PRO",
+            "pdbx_auth_seq_id_2": "95", "pdbx_auth_asym_id_2": "A", "pdbx_PDB_model_num": "1",
+            "pdbx_omega_angle": "-3.63"
+        }]})
+
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")

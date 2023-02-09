@@ -1698,6 +1698,11 @@ def build_struct_asym(mmcif):
 
 
 def parse_annotation(filestring, mmcif):
+    """Parses the annotation records.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     parse_helix(filestring, mmcif)
     parse_sheet(filestring, mmcif)
     parse_ssbond(filestring, mmcif)
@@ -1707,11 +1712,15 @@ def parse_annotation(filestring, mmcif):
 
 
 def parse_helix(filestring, mmcif):
+    """Parses HELIX records to produce the ``struct_conf`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^HELIX.+", filestring, re.M)
     if not lines: return
     mmcif["struct_conf"] = [{
-        "conf_type_id": "HELX_P", 
-        "id": f"HELX_P{str(i)}", 
+        "conf_type_id": "HELX_P", "id": f"HELX_P{str(i)}", 
         "pdbx_PDB_helix_id": str(i), 
         "beg_label_comp_id": line[15:18].strip(), 
         "beg_label_asym_id": line[19].strip(), 
@@ -1727,13 +1736,18 @@ def parse_helix(filestring, mmcif):
         "end_auth_comp_id": line[27:30].strip(), 
         "end_auth_asym_id": line[31].strip(), 
         "end_auth_seq_id": line[33:37].strip(), 
-        "pdbx_PDB_helix_class": line[38:40].strip(), 
-        "details": "?", 
+        "pdbx_PDB_helix_class": line[38:40].strip() or "?", 
+        "details": line[40:70].strip() or "?",
         "pdbx_PDB_helix_length": line[71:76].strip(), 
     } for i, line in enumerate(lines, start=1)]
 
 
 def parse_sheet(filestring, mmcif):
+    """Parses SHEET records to produce the four beta sheet categories.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^SHEET.+", filestring, re.M)
     if not lines: return
     mmcif["struct_sheet"] = []
@@ -1767,17 +1781,22 @@ def parse_sheet(filestring, mmcif):
 
 
 def parse_inter_strand(lines, mmcif):
+    """Parses SHEET records to produce the two beta sheet categories which
+    describe inter-strand relations.
+    
+    :param list lines: the SHEET lines.
+    :param dict mmcif: the dictionary to update."""
+
     mmcif["struct_sheet_order"] = []
     mmcif["pdbx_struct_sheet_hbond"] = []
     for line in lines:
         line = line.ljust(80)
         strand_id, sheet_id = line[7:10].strip(), line[11:14].strip()
         if strand_id != "1":
+            sense = "parallel" if line[38:40].strip() == "1" else "anti-parallel"
             mmcif["struct_sheet_order"].append({
-                "sheet_id": sheet_id,
-                "range_id_1": str(int(strand_id) - 1), "range_id_2": strand_id,
-                "offset": "?",
-                "sense": "parallel" if line[38:40].strip() == "1" else "anti-parallel"
+                "sheet_id": sheet_id, "range_id_1": str(int(strand_id) - 1),
+                "range_id_2": strand_id, "offset": "?", "sense": sense
             })
             mmcif["pdbx_struct_sheet_hbond"].append({
                 "sheet_id": sheet_id,
@@ -1804,29 +1823,30 @@ def parse_inter_strand(lines, mmcif):
 
 
 def parse_ssbond(filestring, mmcif):
+    """Parses SSBOND records to produce the ``struct_conn`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^SSBOND.+", filestring, re.M)
     if not lines: return
     mmcif["struct_conn"] = []
     for n, line in enumerate(lines, start=1):
         mmcif["struct_conn"].append({
-            "id": f"disulf{n}", 
-            "conn_type_id": "disulf", 
-            "pdbx_leaving_atom_flag": "?", 
-            "pdbx_PDB_id": "?", 
+            "id": f"disulf{n}",  "conn_type_id": "disulf", 
+            "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?", 
             "ptnr1_label_asym_id": line[15].strip(), 
             "ptnr1_label_comp_id": line[11:14].strip(), 
             "ptnr1_label_seq_id": line[17:21].strip(), 
-            "ptnr1_label_atom_id": "?", 
-            "pdbx_ptnr1_label_alt_id": "?", 
+            "ptnr1_label_atom_id": "?", "pdbx_ptnr1_label_alt_id": "?", 
             "pdbx_ptnr1_PDB_ins_code": line[21].strip() or "?", 
             "pdbx_ptnr1_standard_comp_id": "?", 
             "ptnr1_symmetry": line[59:65].strip(), 
             "ptnr2_label_asym_id": line[29].strip(), 
             "ptnr2_label_comp_id": line[25:28].strip(), 
             "ptnr2_label_seq_id": line[31:35].strip(), 
-            "ptnr2_label_atom_id": "?", 
-            "pdbx_ptnr2_label_alt_id": "?", 
-            "pdbx_ptnr2_PDB_ins_code": line[36].strip() or "?", 
+            "ptnr2_label_atom_id": "?", "pdbx_ptnr2_label_alt_id": "?", 
+            "pdbx_ptnr2_PDB_ins_code": line[35].strip() or "?", 
             "ptnr1_auth_asym_id": line[15].strip(), 
             "ptnr1_auth_comp_id": line[11:14].strip(), 
             "ptnr1_auth_seq_id": line[17:21].strip(), 
@@ -1834,28 +1854,27 @@ def parse_ssbond(filestring, mmcif):
             "ptnr2_auth_comp_id": line[25:28].strip(), 
             "ptnr2_auth_seq_id": line[31:35].strip(), 
             "ptnr2_symmetry": line[66:72].strip(), 
-            "pdbx_ptnr3_label_atom_id": "?", 
-            "pdbx_ptnr3_label_seq_id": "?", 
-            "pdbx_ptnr3_label_comp_id": "?", 
-            "pdbx_ptnr3_label_asym_id": "?", 
-            "pdbx_ptnr3_label_alt_id": "?", 
-            "pdbx_ptnr3_PDB_ins_code": "?", 
-            "details": "?", 
-            "pdbx_dist_value": line[73:78].strip(), 
+            "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?", 
+            "pdbx_ptnr3_label_comp_id": "?", "pdbx_ptnr3_label_asym_id": "?", 
+            "pdbx_ptnr3_label_alt_id": "?", "pdbx_ptnr3_PDB_ins_code": "?", 
+            "details": "?", "pdbx_dist_value": line[73:78].strip(), 
             "pdbx_value_order": "?",
         })
 
 
 def parse_link(filestring, mmcif):
-    lines = re.findall(r"^LINK.+", filestring, re.M)
+    """Parses LINK records to produce or update the ``struct_conn`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
+    lines = re.findall(r"^LINK .+", filestring, re.M)
     if not lines: return
     if "struct_conn" not in mmcif: mmcif["struct_conn"] = []
     for n, line in enumerate(lines, start=1):
         mmcif["struct_conn"].append({
-            "id": f"covale{n}", 
-            "conn_type_id": "covale", 
-            "pdbx_leaving_atom_flag": "?", 
-            "pdbx_PDB_id": "?", 
+            "id": f"covale{n}", "conn_type_id": "covale", 
+            "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?", 
             "ptnr1_label_asym_id": line[21].strip(), 
             "ptnr1_label_comp_id": line[17:20].strip(), 
             "ptnr1_label_seq_id": line[22:26].strip(), 
@@ -1877,24 +1896,24 @@ def parse_link(filestring, mmcif):
             "ptnr2_auth_comp_id": line[47:50].strip(), 
             "ptnr2_auth_seq_id": line[52:56].strip(), 
             "ptnr2_symmetry": line[66:72].strip(), 
-            "pdbx_ptnr3_label_atom_id": "?", 
-            "pdbx_ptnr3_label_seq_id": "?", 
-            "pdbx_ptnr3_label_comp_id": "?", 
-            "pdbx_ptnr3_label_asym_id": "?", 
-            "pdbx_ptnr3_label_alt_id": "?", 
-            "pdbx_ptnr3_PDB_ins_code": "?", 
-            "details": "?", 
-            "pdbx_dist_value": line[73:78].strip(), 
+            "pdbx_ptnr3_label_atom_id": "?", "pdbx_ptnr3_label_seq_id": "?", 
+            "pdbx_ptnr3_label_comp_id": "?", "pdbx_ptnr3_label_asym_id": "?", 
+            "pdbx_ptnr3_label_alt_id": "?", "pdbx_ptnr3_PDB_ins_code": "?", 
+            "details": "?", "pdbx_dist_value": line[73:78].strip(), 
             "pdbx_value_order": "?",
         })
 
 
 def parse_site(filestring, mmcif):
+    """Parses SITE records to produce the ``struct_site_gen`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^SITE.+", filestring, re.M)
     if not lines: return
     mmcif["struct_site_gen"] = []
     for line in lines:
-        # TODO: UPDATE struct_site table too
         for n in range(4):
             start = 18 + (11 * n)
             section = line[start:start + 10].ljust(10)
@@ -1910,25 +1929,25 @@ def parse_site(filestring, mmcif):
                 "auth_comp_id": section[:3].strip(), 
                 "auth_asym_id": section[4].strip(), 
                 "auth_seq_id": section[5:9].strip(), 
-                "label_atom_id": ".", 
-                "label_alt_id": "?", 
-                "symmetry": "1_555", 
-                "details": "?",
+                "label_atom_id": ".",  "label_alt_id": "?", 
+                "symmetry": "1_555", "details": "?",
             })
 
 
 def parse_cispep(filestring, mmcif):
+    """Parses CISPEP records to produce the ``struct_mon_prot_cis`` category.
+    
+    :param str filestring: the contents of the .pdb file.
+    :param dict mmcif: the dictionary to update."""
+
     lines = re.findall(r"^CISPEP.+", filestring, re.M)
     if not lines: return
     mmcif["struct_mon_prot_cis"] = [{
-        "pdbx_id": line[7:10].strip(),
-        "label_comp_id": line[11:14].strip(),
-        "label_seq_id": line[17:21].strip(),
-        "label_asym_id": line[15].strip(),
+        "pdbx_id": line[7:10].strip(), "label_comp_id": line[11:14].strip(),
+        "label_seq_id": line[17:21].strip(), "label_asym_id": line[15].strip(),
         "label_alt_id": ".",
         "pdbx_PDB_ins_code": line[21].strip() or "?",
-        "auth_comp_id": line[11:14].strip(),
-        "auth_seq_id": line[17:21].strip(),
+        "auth_comp_id": line[11:14].strip(), "auth_seq_id": line[17:21].strip(),
         "auth_asym_id": line[15].strip(),
         "pdbx_label_comp_id_2": line[25:28].strip(),
         "pdbx_label_seq_id_2": line[31:35].strip(),

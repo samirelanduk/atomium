@@ -1962,22 +1962,19 @@ def parse_cispep(filestring, mmcif):
 
 
 def update_auth_and_label(mmcif):
-    auth_asym_to_label_asym = {}
-    label_asym_to_auth_asym = {}
-    auth_res_to_label_res = {}
-    for atom in mmcif["atom_site"]:
-        label_asym_to_auth_asym[atom["label_asym_id"]] = atom["auth_asym_id"]
-        auth_res = (atom["auth_asym_id"], atom["auth_seq_id"], atom["pdbx_PDB_ins_code"])
-        label_res = (atom["label_asym_id"], atom["label_seq_id"])
-        auth_res_to_label_res[auth_res] = label_res
-    auth_asym_to_label_asym = {a: [
-        k for k, v in label_asym_to_auth_asym.items() if v == a
-    ] for a in label_asym_to_auth_asym.values()}
-    for row in mmcif.get("pdbx_struct_assembly_gen", []):
-        auths = row["asym_id_list"].split(",")
-        labels = [id for auth in auths for id in auth_asym_to_label_asym[auth]]
-        row["asym_id_list"] = ",".join(sorted(labels, key=lambda l: list(label_asym_to_auth_asym.keys()).index(l)))
-    
+    """When parsing the PDB, the chain IDs and sequence numbers will be
+    converted to asym IDs and seq IDs for both auth and label variants, but
+    really they only correspond to the auth variant. Once the atoms have been
+    generated, we know how to fix the label values based on the auth values.
+
+    :param dict mmcif: the dictionary to update."""
+
+    update_auth_ids_in_pdbx_struct_assembly_gen(mmcif)
+    auth_to_res = {}
+    for a in mmcif["atom_site"]:
+        auth_res = (a["auth_asym_id"], a["auth_seq_id"], a["pdbx_PDB_ins_code"])
+        label_res = (a["label_asym_id"], a["label_seq_id"])
+        auth_to_res[auth_res] = label_res
     for name, rows in mmcif.items():
         keys = list(rows[0].keys())
         templates = []
@@ -1988,19 +1985,43 @@ def update_auth_and_label(mmcif):
                     template = key.split(label)
                     if template in templates: continue
                     templates.append(template)
-                    label_asym_key = key.replace("seq", "asym")
-                    label_seq_key = key.replace("asym", "seq")
-                    auth_asym_key = label_asym_key.replace("label", "auth")
-                    auth_seq_key = label_seq_key.replace("label", "auth")
-                    auth_ins_key = [k for k in keys if "ins" in k and template[0] in k and template[1] in k][0]
-                    if auth_ins_key not in keys or auth_seq_key not in keys or auth_asym_key not in keys: continue
-
+                    label_asym = key.replace("seq", "asym")
+                    label_seq = key.replace("asym", "seq")
+                    auth_asym = label_asym.replace("label", "auth")
+                    auth_seq = label_seq.replace("label", "auth")
+                    auth_ins = [k for k in keys if "ins" in k and
+                        template[0] in k and template[1] in k][0]
+                    if auth_ins not in keys or auth_seq not in keys or\
+                        auth_asym not in keys: continue
                     for row in mmcif[name]:
-                        sig = (row[auth_asym_key], row[auth_seq_key], row[auth_ins_key])
-                        if sig in auth_res_to_label_res:
-                            row[label_asym_key], row[label_seq_key] = auth_res_to_label_res[
-                                (row[auth_asym_key], row[auth_seq_key], row[auth_ins_key])
+                        sig = (row[auth_asym], row[auth_seq], row[auth_ins])
+                        if sig in auth_to_res:
+                            row[label_asym], row[label_seq] = auth_to_res[
+                                (row[auth_asym], row[auth_seq], row[auth_ins])
                             ]
+
+
+def update_auth_ids_in_pdbx_struct_assembly_gen(mmcif):
+    """The assembly instructions need the label asym IDs of all molecules
+    involved in a particular translation, but in PDB files the non-polymers are
+    just treated as part of the associated polymer, so when generating that
+    category, only auth asym IDs are present. This replaces them with a fuller
+    list if label asym IDs, now that atoms have been generated.
+    
+    :param dict mmcif: the dictionary to update."""
+
+    label_asym_to_auth_asym = {}
+    for atom in mmcif.get("atom_site", []):
+        label_asym_to_auth_asym[atom["label_asym_id"]] = atom["auth_asym_id"]
+    auth_asym_to_label_asym = {a: [
+        k for k, v in label_asym_to_auth_asym.items() if v == a
+    ] for a in label_asym_to_auth_asym.values()}
+    for row in mmcif.get("pdbx_struct_assembly_gen", []):
+        auths = row["asym_id_list"].split(",")
+        labels = [id for auth in auths for id in auth_asym_to_label_asym[auth]]
+        row["asym_id_list"] = ",".join(sorted(
+            labels, key=lambda l: list(label_asym_to_auth_asym.keys()).index(l)
+        ))
 
 
 def pdb_date_to_mmcif_date(date):

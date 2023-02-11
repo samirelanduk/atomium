@@ -3770,6 +3770,99 @@ class CispepParsingTests(TestCase):
 
 
 
+class AuthLabelUpdatingTests(TestCase):
+
+    @patch("atomium.pdb.update_auth_ids_in_pdbx_struct_assembly_gen")
+    def test_can_update_labels(self, mock_auth):
+        mmcif = {
+            "atom_site": [
+                {"auth_asym_id": "P", "auth_seq_id": "101", "pdbx_PDB_ins_code": "?", "label_asym_id": "A", "label_seq_id": "1"},
+                {"auth_asym_id": "P", "auth_seq_id": "102", "pdbx_PDB_ins_code": "?", "label_asym_id": "A", "label_seq_id": "2"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "?", "label_asym_id": "A", "label_seq_id": "3"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "A", "label_asym_id": "A", "label_seq_id": "4"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "B", "label_asym_id": "A", "label_seq_id": "5"},
+                {"auth_asym_id": "Q", "auth_seq_id": "201", "pdbx_PDB_ins_code": "?", "label_asym_id": "B", "label_seq_id": "6"},
+                {"auth_asym_id": "Q", "auth_seq_id": "202", "pdbx_PDB_ins_code": "?", "label_asym_id": "B", "label_seq_id": "7"},
+                {"auth_asym_id": "Q", "auth_seq_id": "203", "pdbx_PDB_ins_code": "?", "label_asym_id": "B", "label_seq_id": "8"},
+                {"auth_asym_id": "P", "auth_seq_id": "1000", "pdbx_PDB_ins_code": "?", "label_asym_id": "C", "label_seq_id": "."},
+                {"auth_asym_id": "P", "auth_seq_id": "2000", "pdbx_PDB_ins_code": "?", "label_asym_id": "C", "label_seq_id": "."},
+                {"auth_asym_id": "P", "auth_seq_id": "3000", "pdbx_PDB_ins_code": "?", "label_asym_id": "C", "label_seq_id": "."},
+            ],
+            "category1": [
+                {"auth_asym_id": "P", "auth_seq_id": "101", "pdbx_PDB_ins_code": "?", "label_asym_id": "P", "label_seq_id": "101"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "A", "label_asym_id": "P", "label_seq_id": "104"},
+                {"auth_asym_id": "Z", "auth_seq_id": "103", "pdbx_PDB_ins_code": "A", "label_asym_id": "P", "label_seq_id": "104"},
+                {"auth_asym_id": "Q", "auth_seq_id": "203", "pdbx_PDB_ins_code": "?", "label_asym_id": "Q", "label_seq_id": "108"},
+            ],
+            "category2": [{
+                "auth_asym_id_1": "P", "auth_seq_id_1": "101", "pdbx_PDB_ins_code_1": "?", "label_asym_id_1": "P", "label_seq_id_1": "101",
+                "auth_asym_id_2": "Q", "auth_seq_id_2": "201", "pdbx_PDB_ins_code_2": "?", "label_asym_id_2": "Q", "label_seq_id_2": "201",
+            }],
+            "category3": [{
+                "pre_auth_asym_id": "P", "pre_auth_seq_id": "101", "pre_pdbx_PDB_ins_code": "?", "pre_label_asym_id": "P", "pre_label_seq_id": "101",
+                "post_auth_asym_id": "Q", "post_auth_seq_id": "201", "post_pdbx_PDB_ins_code": "?", "post_label_asym_id": "Q", "post_label_seq_id": "201",
+            }]
+        }
+        update_auth_and_label(mmcif)
+        mock_auth.assert_called_with(mmcif)
+        self.assertEqual(mmcif, {
+            "atom_site": [
+                {"auth_asym_id": "P", "auth_seq_id": "101", "pdbx_PDB_ins_code": "?", "label_asym_id": "A", "label_seq_id": "1"},
+                {"auth_asym_id": "P", "auth_seq_id": "102", "pdbx_PDB_ins_code": "?", "label_asym_id": "A", "label_seq_id": "2"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "?", "label_asym_id": "A", "label_seq_id": "3"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "A", "label_asym_id": "A", "label_seq_id": "4"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "B", "label_asym_id": "A", "label_seq_id": "5"},
+                {"auth_asym_id": "Q", "auth_seq_id": "201", "pdbx_PDB_ins_code": "?", "label_asym_id": "B", "label_seq_id": "6"},
+                {"auth_asym_id": "Q", "auth_seq_id": "202", "pdbx_PDB_ins_code": "?", "label_asym_id": "B", "label_seq_id": "7"},
+                {"auth_asym_id": "Q", "auth_seq_id": "203", "pdbx_PDB_ins_code": "?", "label_asym_id": "B", "label_seq_id": "8"},
+                {"auth_asym_id": "P", "auth_seq_id": "1000", "pdbx_PDB_ins_code": "?", "label_asym_id": "C", "label_seq_id": "."},
+                {"auth_asym_id": "P", "auth_seq_id": "2000", "pdbx_PDB_ins_code": "?", "label_asym_id": "C", "label_seq_id": "."},
+                {"auth_asym_id": "P", "auth_seq_id": "3000", "pdbx_PDB_ins_code": "?", "label_asym_id": "C", "label_seq_id": "."},
+            ],
+            "category1": [
+                {"auth_asym_id": "P", "auth_seq_id": "101", "pdbx_PDB_ins_code": "?", "label_asym_id": "A", "label_seq_id": "1"},
+                {"auth_asym_id": "P", "auth_seq_id": "103", "pdbx_PDB_ins_code": "A", "label_asym_id": "A", "label_seq_id": "4"},
+                {"auth_asym_id": "Z", "auth_seq_id": "103", "pdbx_PDB_ins_code": "A", "label_asym_id": "P", "label_seq_id": "104"},
+                {"auth_asym_id": "Q", "auth_seq_id": "203", "pdbx_PDB_ins_code": "?", "label_asym_id": "B", "label_seq_id": "8"},
+            ],
+            "category2": [{
+                "auth_asym_id_1": "P", "auth_seq_id_1": "101", "pdbx_PDB_ins_code_1": "?", "label_asym_id_1": "A", "label_seq_id_1": "1",
+                "auth_asym_id_2": "Q", "auth_seq_id_2": "201", "pdbx_PDB_ins_code_2": "?", "label_asym_id_2": "B", "label_seq_id_2": "6",
+            }],
+            "category3": [{
+                "pre_auth_asym_id": "P", "pre_auth_seq_id": "101", "pre_pdbx_PDB_ins_code": "?", "pre_label_asym_id": "A", "pre_label_seq_id": "1",
+                "post_auth_asym_id": "Q", "post_auth_seq_id": "201", "post_pdbx_PDB_ins_code": "?", "post_label_asym_id": "B", "post_label_seq_id": "6",
+            }]
+        })
+
+
+
+class AuthIdsInStructAssemblyUpdatingTests(TestCase):
+
+    def test_can_handle_no_categories(self):
+        update_auth_ids_in_pdbx_struct_assembly_gen({})
+    
+
+    def test_can_replace_ids(self):
+        mmcif = {
+            "pdbx_struct_assembly_gen": [{"asym_id_list": "P,B"}, {"asym_id_list": "C"}],
+            "atom_site": [
+                {"auth_asym_id": "P", "label_asym_id": "A"},
+                {"auth_asym_id": "P", "label_asym_id": "A"},
+                {"auth_asym_id": "B", "label_asym_id": "B"},
+                {"auth_asym_id": "B", "label_asym_id": "B"},
+                {"auth_asym_id": "C", "label_asym_id": "C"},
+                {"auth_asym_id": "P", "label_asym_id": "D"},
+                {"auth_asym_id": "B", "label_asym_id": "E"},
+                {"auth_asym_id": "C", "label_asym_id": "F"},
+            ]
+        }
+        update_auth_ids_in_pdbx_struct_assembly_gen(mmcif)
+        self.assertEqual(mmcif["pdbx_struct_assembly_gen"], [
+            {"asym_id_list": "A,B,D,E"}, {"asym_id_list": "C,F"}
+        ])
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")

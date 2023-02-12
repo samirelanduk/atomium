@@ -3863,6 +3863,44 @@ class AuthIdsInStructAssemblyUpdatingTests(TestCase):
         ])
 
 
+
+class PdbDateToMmcifDateTests(TestCase):
+
+    def test_can_convert_date(self):
+        self.assertEqual(pdb_date_to_mmcif_date("06-MAY-02"), "2002-05-06")
+        self.assertEqual(pdb_date_to_mmcif_date("19-SEP-76"), "1976-09-19")
+    
+
+    def test_can_handle_invalid(self):
+        self.assertIsNone(pdb_date_to_mmcif_date("  "))
+
+
+
+class PdbNamesToMmcifNamesTests(TestCase):
+
+    def test_single_name(self):
+        lines = ["N.WU"]
+        self.assertEqual(pdb_names_to_mmcif_names(lines), ["Wu, N"])
+    
+
+    def test_multiple_names(self):
+        lines = ["J.L.WHITTINGHAM,S.HAVELUND,I.JONASSEN"]
+        self.assertEqual(pdb_names_to_mmcif_names(lines), ["Whittingham, J.L", "Havelund, S", "Jonassen, I"])
+    
+
+    def test_multiple_lines(self):
+        lines = [
+            "J.MARKUSSEN,S.HAVELUND,P.KURTZHALS,A.S.ANDERSEN,             ",
+            "J.HALSTROM,E.HASSELAGER,U.D.LARSEN,U.RIBEL,                  ",
+            "L.SCHAFFER,K.VAD,I.JONASSEN        "
+        ]
+        self.assertEqual(pdb_names_to_mmcif_names(lines), [
+            "Markussen, J", "Havelund, S", "Kurtzhals, P", "Andersen, A.S", "Halstrom, J",
+            "Hasselager, E", "Larsen, U.D", "Ribel, U", "Schaffer, L", "Vad, K", "Jonassen, I"
+        ])
+
+
+
 class MmcifDictSavingTests(TestCase):
 
     @patch("atomium.pdb.create_header_line")

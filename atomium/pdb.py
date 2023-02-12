@@ -2025,6 +2025,12 @@ def update_auth_ids_in_pdbx_struct_assembly_gen(mmcif):
 
 
 def pdb_date_to_mmcif_date(date):
+    """Turns a date in PDB format into one in mmCIF format. The datetime
+    library is not used to avoid locale errors.
+    
+    :param str date: the date in PDB format.
+    :rtype: ``str``"""
+
     if not date.strip(): return
     day, month, year = date.split("-")
     month = str(list(calendar.month_abbr).index(month.title())).zfill(2)
@@ -2035,7 +2041,12 @@ def pdb_date_to_mmcif_date(date):
 
 
 def pdb_names_to_mmcif_names(lines):
-    all_names = [name for line in lines for name in line.split(",") if name]
+    """Turns a set of names in PDB format into one in mmCIF format.
+    
+    :param list lines: the lines containing names
+    :rtype: ``list``"""
+
+    all_names = [name for l in lines for name in l.strip().split(",") if name]
     processed_names = []
     for name in all_names:
         if "." in name and "," not in name:
@@ -2043,10 +2054,6 @@ def pdb_names_to_mmcif_names(lines):
             processed_names.append(f"{names[-1]}, {'.'.join(names[:-1])}")
         else: processed_names.append(name.title())
     return processed_names
-
-
-def residue_sig(atom):
-    return (atom[21], atom[17:20].strip(), atom[22:26].strip(), atom[26].strip())
 
 
 def save_mmcif_dict(mmcif, path):

@@ -81,9 +81,9 @@ class FileToDictTests(TestCase):
             "entity_id": "1", "num": "229", "mon_id": "GLU", "hetero": "n",
         })
         self.assertEqual(d["struct_ref"], [{
-            "id": "1", "db_name": "UNP", "db_code": "PYRF_METTH", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "1",
-            "pdbx_db_accession": "O26232", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "UNP", "db_code": "PYRF_METTH",
+            "pdbx_db_accession": "O26232", "pdbx_db_isoform": "?", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }])
         self.assertEqual(d["struct_ref_seq"], [{
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1LOL",
@@ -587,9 +587,9 @@ class FileToDictTests(TestCase):
             "entity_id": "1", "num": "127", "mon_id": "ALA", "hetero": "n",
         })
         self.assertEqual(d["struct_ref"], [{
-            "id": "1", "db_name": "UNP", "db_code": "TRADD_HUMAN", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "199",
-            "pdbx_db_accession": "Q15628", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "UNP", "db_code": "TRADD_HUMAN",
+            "pdbx_db_accession": "Q15628", "pdbx_db_isoform": "?", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }])
         self.assertEqual(d["struct_ref_seq"], [{
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "5XME",
@@ -990,30 +990,30 @@ class FileToDictTests(TestCase):
             "entity_id": "2", "num": "553", "mon_id": "GLU", "hetero": "n",
         })
         self.assertEqual(d["struct_ref"], [{
-            "id": "1", "db_name": "PDB", "db_code": "1GSG", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "1",
-            "pdbx_db_accession": "1GSG", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "PDB", "db_code": "1GSG",
+            "pdbx_db_accession": "1GSG", "pdbx_db_isoform": "?", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }, {
-            "id": "2", "db_name": "UNP", "db_code": "SYQ_ECOLI", "entity_id": "2",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "1",
-            "pdbx_db_accession": "P00962", "pdbx_db_isoform": "?",
+            "id": "2", "db_name": "UNP", "db_code": "SYQ_ECOLI",
+            "pdbx_db_accession": "P00962", "pdbx_db_isoform": "?", "entity_id": "2",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }])
         self.assertEqual(d["struct_ref_seq"], [{
-            "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1GSG",
-            "pdbx_strand_id": "T", "seq_align_beg": "?",
-            "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "1GSG",
-            "db_align_beg": "1", "pdbx_db_align_beg_ins_code": "?",
-            "db_align_end": "76", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "76",
-        }, {
-            "align_id": "2", "ref_id": "2", "pdbx_PDB_id_code": "1GSG",
+            "align_id": "1", "ref_id": "2", "pdbx_PDB_id_code": "1GSG",
             "pdbx_strand_id": "P", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
             "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "P00962",
             "db_align_beg": "1", "pdbx_db_align_beg_ins_code": "?",
             "db_align_end": "553", "pdbx_db_align_end_ins_code": "?",
             "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "553",
+        }, {
+            "align_id": "2", "ref_id": "1", "pdbx_PDB_id_code": "1GSG",
+            "pdbx_strand_id": "T", "seq_align_beg": "?",
+            "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "1GSG",
+            "db_align_beg": "1", "pdbx_db_align_beg_ins_code": "?",
+            "db_align_end": "76", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "1", "pdbx_auth_seq_align_end": "76",
         }])
         self.assertNotIn("struct_ref_seq_dif", d)
         self.assertEqual(len(d["pdbx_struct_mod_residue"]), 9)
@@ -1355,13 +1355,13 @@ class FileToDictTests(TestCase):
             "entity_id": "2", "num": "29", "mon_id": "LYS", "hetero": "n",
         })
         self.assertEqual(d["struct_ref"], [{
-            "id": "1", "db_name": "UNP", "db_code": "INS_HUMAN", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "1",
-            "pdbx_db_accession": "P01308", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "UNP", "db_code": "INS_HUMAN",
+            "pdbx_db_accession": "P01308", "pdbx_db_isoform": "?", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }, {
-            "id": "2", "db_name": "UNP", "db_code": "INS_HUMAN", "entity_id": "2",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "1",
-            "pdbx_db_accession": "P01308", "pdbx_db_isoform": "?",
+            "id": "2", "db_name": "UNP", "db_code": "INS_HUMAN",
+            "pdbx_db_accession": "P01308", "pdbx_db_isoform": "?", "entity_id": "2",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }])
         self.assertEqual(len(d["struct_ref_seq"]), 8)
         self.assertEqual(d["struct_ref_seq"][0], {
@@ -2122,9 +2122,9 @@ class FileToDictTests(TestCase):
             "entity_id": "1", "num": "413", "mon_id": "ASN", "hetero": "n",
         })
         self.assertEqual(d["struct_ref"], [{
-            "id": "1", "db_name": "GB", "db_code": "AAA88828", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "25",
-            "pdbx_db_accession": "323324", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "GB", "db_code": "AAA88828",
+            "pdbx_db_accession": "323324", "pdbx_db_isoform": "?", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }])
         self.assertEqual(d["struct_ref_seq"], [{
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "1M4X",
@@ -2544,13 +2544,13 @@ class FileToDictTests(TestCase):
             "entity_id": "2", "num": "12", "mon_id": "DG", "hetero": "n",
         })
         self.assertEqual(d["struct_ref"], [{
-            "id": "1", "db_name": "UNP", "db_code": "RNH1_BACHD", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "59",
-            "pdbx_db_accession": "Q9KEI9", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "UNP", "db_code": "RNH1_BACHD",
+            "pdbx_db_accession": "Q9KEI9", "pdbx_db_isoform": "?", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }, {
-            "id": "2", "db_name": "PDB", "db_code": "4OPJ", "entity_id": "2",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "1",
-            "pdbx_db_accession": "4OPJ", "pdbx_db_isoform": "?",
+            "id": "2", "db_name": "PDB", "db_code": "4OPJ",
+            "pdbx_db_accession": "4OPJ", "pdbx_db_isoform": "?", "entity_id": "2",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }])
         self.assertEqual(len(d["struct_ref_seq"]), 4)
         self.assertEqual(d["struct_ref_seq"][0], {
@@ -3188,33 +3188,35 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(len(d["struct_ref"]), 21)
         self.assertEqual(d["struct_ref"][0], {
-            "id": "1", "db_name": "UNP", "db_code": "RS2_ECOLI", "entity_id": "2",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "8",
-            "pdbx_db_accession": "P0A7V0", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "GB", "db_code": "AP009048",
+            "pdbx_db_accession": "AP009048.1", "pdbx_db_isoform": "?",
+            "entity_id": "1", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "?",
         })
         self.assertEqual(d["struct_ref"][-1], {
-            "id": "21", "db_name": "GB", "db_code": "AP009048", "entity_id": "21",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "2",
-            "pdbx_db_accession": "AP009048.1", "pdbx_db_isoform": "?",
+            "id": "21", "db_name": "UNP", "db_code": "RS21_ECOLI",
+            "pdbx_db_accession": "P68679", "pdbx_db_isoform": "?",
+            "entity_id": "21", "pdbx_seq_one_letter_code": "?",
+            "pdbx_align_begin": "?",
         })
         self.assertEqual(len(d["struct_ref_seq"]), 21)
         self.assertEqual(d["struct_ref_seq"][0], {
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "3OAQ",
-            "pdbx_strand_id": "B", "seq_align_beg": "?",
+            "pdbx_strand_id": "A", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "P0A7V0",
-            "db_align_beg": "9", "pdbx_db_align_beg_ins_code": "?",
-            "db_align_end": "226", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "8", "pdbx_auth_seq_align_end": "225",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "AP009048.1",
+            "db_align_beg": "3427001", "pdbx_db_align_beg_ins_code": "?",
+            "db_align_end": "3428533", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "2", "pdbx_auth_seq_align_end": "1534",
         })
         self.assertEqual(d["struct_ref_seq"][-1], {
             "align_id": "21", "ref_id": "21", "pdbx_PDB_id_code": "3OAQ",
             "pdbx_strand_id": "U", "seq_align_beg": "?",
             "pdbx_seq_align_beg_ins_code": "?", "seq_align_end": "?",
-            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "AP009048.1",
-            "db_align_beg": "1_ECOLI", "pdbx_db_align_beg_ins_code": "?",
-            "db_align_end": "4     54", "pdbx_db_align_end_ins_code": "?",
-            "pdbx_auth_seq_align_beg": "2", "pdbx_auth_seq_align_end": "1534",
+            "pdbx_seq_align_end_ins_code": "?", "pdbx_db_accession": "P68679",
+            "db_align_beg": "4", "pdbx_db_align_beg_ins_code": "?",
+            "db_align_end": "54", "pdbx_db_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_beg": "3", "pdbx_auth_seq_align_end": "53",
         })
         self.assertNotIn("struct_ref_seq_dif", d)
         self.assertNotIn("pdbx_struct_mod_residue", d)
@@ -4295,9 +4297,9 @@ class FileToDictTests(TestCase):
             {"entity_id": "1", "num": "13", "mon_id": "NH2", "hetero": "n"},
         ])
         self.assertEqual(d["struct_ref"], [{
-            "id": "1", "db_name": "PDB", "db_code": "2LDC", "entity_id": "1",
-            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "0",
-            "pdbx_db_accession": "2LDC", "pdbx_db_isoform": "?",
+            "id": "1", "db_name": "PDB", "db_code": "2LDC",
+            "pdbx_db_accession": "2LDC", "pdbx_db_isoform": "?", "entity_id": "1",
+            "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
         }])
         self.assertEqual(d["struct_ref_seq"], [{
             "align_id": "1", "ref_id": "1", "pdbx_PDB_id_code": "2LDC",

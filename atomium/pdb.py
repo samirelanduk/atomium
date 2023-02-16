@@ -862,30 +862,31 @@ def parse_dbref(filestring):
     :param str filestring: the contents of the .pdb file.
     :rtype: ``dict``"""
 
-    lines = re.findall(r"^DBREF .+", filestring, re.M)
+    lines = re.findall(r"^DBREF.+", filestring, re.M)
     polymers = {}
-    for line in lines:
+    for i, line in enumerate(lines):
         chain_id = line[12]
         if chain_id not in polymers: polymers[chain_id] = {"dbrefs": []}
-        polymers[chain_id]["dbrefs"].append({
-            "start": line[14:18].strip(), "start_insert": line[18:19].strip(),
-            "end": line[20:24].strip(), "end_insert": line[24:25].strip(),
-            "database": line[26:32].strip(), "accession": line[33:41].strip(),
-            "id": line[42:54].strip(), "db_start": line[55:60].strip(),
-            "db_start_insert": line[60:61].strip(),
-            "db_end": line[62:67].strip(), "db_end_insert": line[67:68].strip(),
-        })
-    for ref in re.findall("^DBREF1.+\nDBREF2.+", filestring, re.M):
-        chain_id = line[12]
-        line1, line2 = ref.split("\n")
-        polymers[chain_id]["dbrefs"].append({
-            "start": line1[14:18].strip(), "start_insert": line1[18:19].strip(),
-            "end": line1[20:24].strip(), "end_insert": line1[24:25].strip(),
-            "database": line1[26:32].strip(), "accession": line2[18:40].strip(),
-            "id": line1[47:67].strip(), "db_start": line[45:55].strip(),
-            "db_start_insert": line[55:56].strip(),
-            "db_end": line[57:67].strip(), "db_end_insert": line[67:68].strip(),
-        })
+        if line[5] == "2": continue
+        if line[5] == "1":
+            line2 = lines[i + 1]
+            polymers[chain_id]["dbrefs"].append({
+                "start": line[14:18].strip(), "start_insert": line[18:19].strip(),
+                "end": line[20:24].strip(), "end_insert": line[24:25].strip(),
+                "database": line[26:32].strip(), "accession": line2[18:40].strip(),
+                "id": line[47:67].strip(), "db_start": line2[45:55].strip(),
+                "db_start_insert": line2[55:56].strip(), "order": i,
+                "db_end": line2[57:67].strip(), "db_end_insert": line2[67:68].strip(),
+            })
+        else:
+            polymers[chain_id]["dbrefs"].append({
+                "start": line[14:18].strip(), "start_insert": line[18:19].strip(),
+                "end": line[20:24].strip(), "end_insert": line[24:25].strip(),
+                "database": line[26:32].strip(), "accession": line[33:41].strip(),
+                "id": line[42:54].strip(), "db_start": line[55:60].strip(),
+                "db_start_insert": line[60:61].strip(), "order": i,
+                "db_end": line[62:67].strip(), "db_end_insert": line[67:68].strip(),
+            })
     return polymers
 
 
@@ -1274,10 +1275,9 @@ def build_struct_ref(polymer_entities, mmcif):
                 "id": str(len(mmcif["struct_ref"]) + 1),
                 "db_name": dbref["database"] or "?",
                 "db_code": dbref["id"] or "?",
-                "entity_id": entity["id"], "pdbx_seq_one_letter_code": "?",
-                "pdbx_align_begin": dbref["start"] or "?",
                 "pdbx_db_accession": dbref["accession"] or "?",
-                "pdbx_db_isoform": "?"
+                "pdbx_db_isoform": "?", "entity_id": entity["id"],
+                "pdbx_seq_one_letter_code": "?", "pdbx_align_begin": "?",
             })
     if not mmcif["struct_ref"]: del mmcif["struct_ref"]
 
@@ -1290,29 +1290,31 @@ def build_struct_ref_seq(polymer_entities, mmcif):
 
     mmcif["struct_ref_seq"] = []
     code = mmcif.get("entry", [{"id": ""}])[0]["id"] or "?"
-    for entity in polymer_entities.values():
-        for chain_id, molecule in entity["molecules"].items():
-            for dbref in molecule["dbrefs"]:
-                refs = [r for r in mmcif.get("struct_ref", [])
-                    if r["pdbx_db_accession"] == dbref["accession"]]
-                if not refs: continue
-                ref = refs[0]
-                mmcif["struct_ref_seq"].append({
-                    "align_id": str(len(mmcif["struct_ref_seq"]) + 1),
-                    "ref_id": ref["id"],
-                    "pdbx_PDB_id_code": code,
-                    "pdbx_strand_id": chain_id, "seq_align_beg": "?",
-                    "pdbx_seq_align_beg_ins_code": dbref["start_insert"] or "?",
-                    "seq_align_end": "?",
-                    "pdbx_seq_align_end_ins_code": dbref["end_insert"] or "?",
-                    "pdbx_db_accession": dbref["accession"] or "?",
-                    "db_align_beg": dbref["db_start"] or "?",
-                    "pdbx_db_align_beg_ins_code": dbref["db_start_insert"] or "?",
-                    "db_align_end": dbref["db_end"] or "?",
-                    "pdbx_db_align_end_ins_code": dbref["db_end_insert"] or "?",
-                    "pdbx_auth_seq_align_beg": dbref["start"] or "?",
-                    "pdbx_auth_seq_align_end": dbref["end"] or "?"
-                })
+    dbrefs = [{"chain_id": chain_id, **dbref} for e in polymer_entities.values()
+        for chain_id, molecule in e["molecules"].items()
+            for dbref in molecule["dbrefs"]]
+    dbrefs.sort(key=lambda d: d["order"])
+    for dbref in dbrefs:
+        refs = [r for r in mmcif.get("struct_ref", [])
+            if r["pdbx_db_accession"] == dbref["accession"]]
+        if not refs: continue
+        ref = refs[0]
+        mmcif["struct_ref_seq"].append({
+            "align_id": str(len(mmcif["struct_ref_seq"]) + 1),
+            "ref_id": ref["id"],
+            "pdbx_PDB_id_code": code,
+            "pdbx_strand_id": dbref["chain_id"], "seq_align_beg": "?",
+            "pdbx_seq_align_beg_ins_code": dbref["start_insert"] or "?",
+            "seq_align_end": "?",
+            "pdbx_seq_align_end_ins_code": dbref["end_insert"] or "?",
+            "pdbx_db_accession": dbref["accession"] or "?",
+            "db_align_beg": dbref["db_start"] or "?",
+            "pdbx_db_align_beg_ins_code": dbref["db_start_insert"] or "?",
+            "db_align_end": dbref["db_end"] or "?",
+            "pdbx_db_align_end_ins_code": dbref["db_end_insert"] or "?",
+            "pdbx_auth_seq_align_beg": dbref["start"] or "?",
+            "pdbx_auth_seq_align_end": dbref["end"] or "?"
+        })
     if not mmcif["struct_ref_seq"]: del mmcif["struct_ref_seq"]
 
 
@@ -2814,22 +2816,60 @@ def create_remark_800_lines(mmcif):
 
 
 def create_dbref_lines(mmcif):
+    """Creates the DBREF (including DBREF1 and DBREF2) lines from a mmCIF
+    dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
     code = mmcif.get("entry", [{"id": ""}])[0]["id"]
     line = "DBREF  {:4} {:1} {:>4}{:1} {:>4}{:1} {:6} {:8} {:12} {:>5}{:1} {:>5}{:1}"
-    for ref in mmcif.get("struct_ref_seq", []):
-        seqs = [r for r in mmcif.get("struct_ref", []) if r["id"] == ref["ref_id"]]
-        if not seqs: continue
-        seq = seqs[0]
-        lines.append(line.format(
-            code,
-            ref["pdbx_strand_id"],
-            ref["pdbx_auth_seq_align_beg"], "",
-            ref["pdbx_auth_seq_align_end"], "",
-            seq["db_name"], seq["pdbx_db_accession"], seq["db_code"],
-            ref["db_align_beg"], ref["pdbx_db_align_beg_ins_code"].replace("?", ""),
-            ref["db_align_end"], ref["pdbx_db_align_end_ins_code"].replace("?", ""),
-        ))
+    for seq in mmcif.get("struct_ref_seq", []):
+        refs = [r for r in mmcif.get("struct_ref", []) if r["id"] == seq["ref_id"]]
+        if not refs: continue
+        ref = refs[0]
+        multi = len(ref["pdbx_db_accession"]) > 8 or len(ref["db_code"]) > 12
+        if multi:
+            lines += create_dbrefn_lines(code, ref, seq)
+        else:
+            lines.append(line.format(
+                code, seq["pdbx_strand_id"], seq["pdbx_auth_seq_align_beg"],
+                seq["pdbx_seq_align_beg_ins_code"].replace("?", ""),
+                seq["pdbx_auth_seq_align_end"],
+                seq["pdbx_seq_align_end_ins_code"].replace("?", ""),
+                ref["db_name"], ref["pdbx_db_accession"], ref["db_code"],
+                seq["db_align_beg"],
+                seq["pdbx_db_align_beg_ins_code"].replace("?", ""),
+                seq["db_align_end"],
+                seq["pdbx_db_align_end_ins_code"].replace("?", ""),
+            ))
+    return lines
+
+
+def create_dbrefn_lines(code, ref, seq):
+    """Creates the DBREF DBREF1 and DBREF2 lines.
+    
+    :param str code: the ID of the mmCIF.
+    :param dict ref: a struct_ref row.
+    :param dict mmcif: a struct_ref_seq row.
+    :rtype: ``list``"""
+
+    line1 = "DBREF1 {:4} {:1} {:>4}{:1} {:>4}{:1} {:6}               {:10}"
+    line2 = "DBREF2 {:4} {:1}     {:22}     {:>10}{:1} {:>10}{:1}"
+    lines = []
+    lines.append(line1.format(
+        code, seq["pdbx_strand_id"], seq["pdbx_auth_seq_align_beg"],
+        seq["pdbx_seq_align_beg_ins_code"].replace("?", ""),
+        seq["pdbx_auth_seq_align_end"],
+        seq["pdbx_seq_align_end_ins_code"].replace("?", ""),
+        ref["db_name"], ref["db_code"]
+    ))
+    lines.append(line2.format(
+        code, seq["pdbx_strand_id"], ref["pdbx_db_accession"],
+        seq["db_align_beg"], seq["pdbx_db_align_beg_ins_code"].replace("?", ""),
+        seq["db_align_end"], seq["pdbx_db_align_end_ins_code"].replace("?", ""),
+    ))
     return lines
 
 

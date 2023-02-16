@@ -1663,7 +1663,7 @@ class EntityStringParsingTests(TestCase):
 class DbrefParsingTests(TestCase):
 
     def test_can_handle_no_dbref(self):
-        filestring = "HEADER\nDBREF1\nDBREF2"
+        filestring = "HEADER\n"
         self.assertEqual(parse_dbref(filestring), {})
     
 
@@ -1678,20 +1678,27 @@ class DbrefParsingTests(TestCase):
         )
         self.assertEqual(parse_dbref(filestring), {
             "A": {"dbrefs": [{
-                "start": "59", "start_insert": "", "end": "196", "end_insert": "", "database": "UNP", "accession": "Q9KEI9",
-                "id": "RNH1_BACHD", "db_start": "58", "db_start_insert": "", "db_end": "195", "db_end_insert": ""
+                "start": "59", "start_insert": "", "end": "196", "end_insert": "", "database": "UNP",
+                "accession": "Q9KEI9", "id": "RNH1_BACHD", "db_start": "58", "db_start_insert": "",
+                "order": 0, "db_end": "195", "db_end_insert": ""
             }, {
-                "start": "1", "start_insert": "", "end": "12", "end_insert": "B", "database": "PDB", "accession": "4OPJ",
-                "id": "4OPJ", "db_start": "2", "db_start_insert": "P", "db_end": "13", "db_end_insert": ""
-            }]}, "C": {"dbrefs": [{
-                "start": "59", "start_insert": "A", "end": "196", "end_insert": "", "database": "UNP", "accession": "Q9KEI9",
-                "id": "RNH1_BACHD", "db_start": "58", "db_start_insert": "", "db_end": "195", "db_end_insert": ""
-            }]}, "D": {"dbrefs": [{
-                "start": "1", "start_insert": "", "end": "12", "end_insert": "", "database": "PDB", "accession": "4OPJ", "id": "4OPJ",
-                "db_start": "2", "db_start_insert": "", "db_end": "13", "db_end_insert": "C"
+                "start": "1", "start_insert": "", "end": "12", "end_insert": "B", "database": "PDB",
+                "accession": "4OPJ", "id": "4OPJ", "db_start": "2", "db_start_insert": "P", "order": 4,
+                "db_end": "13", "db_end_insert": ""
+            }]},
+            "C": {"dbrefs": [{
+                "start": "59", "start_insert": "A", "end": "196", "end_insert": "", "database": "UNP",
+                "accession": "Q9KEI9", "id": "RNH1_BACHD", "db_start": "58", "db_start_insert": "",
+                "order": 1, "db_end": "195", "db_end_insert": ""
+            }]},
+            "D": {"dbrefs": [{
+                "start": "29", "start_insert": "", "end": "121", "end_insert": "", "database": "UNP", 
+                "accession": "A0A1B8Y853", "id": "A0A1B8Y853_XENTR", "db_start": "33", "db_start_insert": "",
+                "order": 2, "db_end": "125", "db_end_insert": ""
             }, {
-               "start": "29", "start_insert": "", "end": "121", "end_insert": "", "database": "UNP", "accession": "A0A1B8Y853", "id":
-               "A0A1B8Y853_XENTR", "db_start": "J", "db_start_insert": "", "db_end": "2     13", "db_end_insert": "C"
+                "start": "1", "start_insert": "", "end": "12", "end_insert": "", "database": "PDB",
+                "accession": "4OPJ", "id": "4OPJ", "db_start": "2", "db_start_insert": "", "order": 5,
+                "db_end": "13", "db_end_insert": "C"
             }]}
         })
 
@@ -2446,13 +2453,13 @@ class StructRefTests(TestCase):
         }, mmcif)
         self.assertEqual(mmcif, {1: 2, "struct_ref": [{
             "id": "1", "db_name": "UNP", "db_code": "1", "entity_id": "1", "pdbx_seq_one_letter_code": "?",
-            "pdbx_align_begin": "2", "pdbx_db_accession": "ABC", "pdbx_db_isoform": "?"
+            "pdbx_align_begin": "?", "pdbx_db_accession": "ABC", "pdbx_db_isoform": "?"
         }, {
             "id": "2", "db_name": "UNP", "db_code": "1", "entity_id": "2", "pdbx_seq_one_letter_code": "?",
-            "pdbx_align_begin": "4", "pdbx_db_accession": "YYY", "pdbx_db_isoform": "?"
+            "pdbx_align_begin": "?", "pdbx_db_accession": "YYY", "pdbx_db_isoform": "?"
         }, {
             "id": "3", "db_name": "RFS", "db_code": "2", "entity_id": "2", "pdbx_seq_one_letter_code": "?",
-            "pdbx_align_begin": "6", "pdbx_db_accession": "ZZZ", "pdbx_db_isoform": "?"
+            "pdbx_align_begin": "?", "pdbx_db_accession": "ZZZ", "pdbx_db_isoform": "?"
         }]})
     
 
@@ -2505,28 +2512,28 @@ class StructRefSeqTests(TestCase):
                 "A": {"dbrefs": [{
                     "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
                     "db_start_insert": "", "db_end_insert": "", "start": "1", "end": "2",
-                    "db_start": "3", "db_end": "4"
+                    "db_start": "3", "db_end": "4", "order": 1
                 }]},
                 "B": {"dbrefs": [{
                     "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
                     "db_start_insert": "", "db_end_insert": "", "start": "5", "end": "6",
-                    "db_start": "7", "db_end": "8"
+                    "db_start": "7", "db_end": "8", "order": 2
                 }]}
             }},
             "2": {"id": "2", "molecules": {
                 "C": {"dbrefs": [{
                     "id": "1", "start_insert": "", "end_insert": "", "accession": "ABC",
                     "db_start_insert": "", "db_end_insert": "", "start": "9", "end": "10",
-                    "db_start": "11", "db_end": "12"
+                    "db_start": "11", "db_end": "12", "order": 3
                 }]},
                 "D": {"dbrefs": [{
                     "id": "1", "start_insert": "", "end_insert": "", "accession": "XYZ",
                     "db_start_insert": "", "db_end_insert": "", "start": "13", "end": "14",
-                    "db_start": "15", "db_end": "16"
+                    "db_start": "15", "db_end": "16", "order": 4
                 }, {
                     "id": "1", "start_insert": "A", "end_insert": "B", "accession": "ABC",
                     "db_start_insert": "C", "db_end_insert": "D", "start": "17", "end": "18",
-                    "db_start": "19", "db_end": "20"
+                    "db_start": "19", "db_end": "20", "order": 5
                 }]}
             }},
         }, mmcif)
@@ -2576,7 +2583,7 @@ class StructRefSeqTests(TestCase):
                 "A": {"dbrefs": [{
                     "id": "", "start_insert": "", "end_insert": "", "accession": "",
                     "db_start_insert": "", "db_end_insert": "", "start": "", "end": "",
-                    "db_start": "", "db_end": ""
+                    "db_start": "", "db_end": "", "order": 0
                 }]}
             }}
         }, mmcif)
@@ -5401,3 +5408,113 @@ class AssemblyGenLinesTests(TestCase):
         ])
         mock_lines.assert_called_with("A, B, C", 27)
         mock_ops.assert_called_with({1: 2}, gen)
+
+
+
+class DbrefLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_dbref_lines({}), [])
+    
+
+    def test_can_save_short_sbref(self):
+        mmcif = {"struct_ref": [
+            {"id": "1", "db_name": "UNP", "db_code": "PYRF_METTH", "pdbx_db_accession": "O26232"},
+            {"id": "2", "db_name": "REF", "db_code": "PYRF_SEC", "pdbx_db_accession": "P26232"},
+        ], "struct_ref_seq": [{
+            "ref_id": "1", "pdbx_strand_id": "A", "pdbx_auth_seq_align_beg": "10",
+            "pdbx_seq_align_beg_ins_code": "F", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_end": "20", "db_align_beg": "11", "db_align_end": "21",
+            "pdbx_db_align_beg_ins_code": "?", "pdbx_db_align_end_ins_code": "?"
+        }, {
+            "ref_id": "1", "pdbx_strand_id": "B", "pdbx_auth_seq_align_beg": "100",
+            "pdbx_seq_align_beg_ins_code": "?", "pdbx_seq_align_end_ins_code": "G",
+            "pdbx_auth_seq_align_end": "200", "db_align_beg": "101", "db_align_end": "201",
+            "pdbx_db_align_beg_ins_code": "?", "pdbx_db_align_end_ins_code": "?"
+        }, {
+            "ref_id": "2", "pdbx_strand_id": "C", "pdbx_auth_seq_align_beg": "1000",
+            "pdbx_seq_align_beg_ins_code": "?", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_end": "2000", "db_align_beg": "1001", "db_align_end": "2001",
+            "pdbx_db_align_beg_ins_code": "P", "pdbx_db_align_end_ins_code": "?"
+        }, {
+            "ref_id": "2", "pdbx_strand_id": "D", "pdbx_auth_seq_align_beg": "6000",
+            "pdbx_seq_align_beg_ins_code": "?", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_end": "7000", "db_align_beg": "6001", "db_align_end": "7001",
+            "pdbx_db_align_beg_ins_code": "?", "pdbx_db_align_end_ins_code": "Z"
+        }]}
+        self.assertEqual(create_dbref_lines(mmcif), [
+            "DBREF       A   10F   20  UNP    O26232   PYRF_METTH      11     21 ",
+            "DBREF       B  100   200G UNP    O26232   PYRF_METTH     101    201 ",
+            "DBREF       C 1000  2000  REF    P26232   PYRF_SEC      1001P  2001 ",
+            "DBREF       D 6000  7000  REF    P26232   PYRF_SEC      6001   7001Z"
+        ])
+    
+
+    @patch("atomium.pdb.create_dbrefn_lines")
+    def test_can_save_long_dbref(self, mock_create):
+        mock_create.side_effect = [["L1", "L2"], ["L3", "L4"]]
+        mmcif = {"struct_ref": [
+            {"id": "1", "db_name": "UNP", "db_code": "A0A1B8Y853_XENTR", "pdbx_db_accession": "A0A1B8Y853"},
+            {"id": "2", "db_name": "REF", "db_code": "PYRF_SEC", "pdbx_db_accession": "P26232"},
+        ], "struct_ref_seq": [{
+            "ref_id": "1", "pdbx_strand_id": "A", "pdbx_auth_seq_align_beg": "10",
+            "pdbx_seq_align_beg_ins_code": "Y", "pdbx_seq_align_end_ins_code": "L",
+            "pdbx_auth_seq_align_end": "20", "db_align_beg": "11", "db_align_end": "21",
+            "pdbx_db_align_beg_ins_code": "O", "pdbx_db_align_end_ins_code": "X"
+        }, {
+            "ref_id": "1", "pdbx_strand_id": "B", "pdbx_auth_seq_align_beg": "100",
+            "pdbx_seq_align_beg_ins_code": "?", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_end": "200", "db_align_beg": "101", "db_align_end": "201",
+            "pdbx_db_align_beg_ins_code": "?", "pdbx_db_align_end_ins_code": "?"
+        }, {
+            "ref_id": "2", "pdbx_strand_id": "C", "pdbx_auth_seq_align_beg": "1000",
+            "pdbx_seq_align_beg_ins_code": "?", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_end": "2000", "db_align_beg": "1001", "db_align_end": "2001",
+            "pdbx_db_align_beg_ins_code": "P", "pdbx_db_align_end_ins_code": "?"
+        }, {
+            "ref_id": "2", "pdbx_strand_id": "D", "pdbx_auth_seq_align_beg": "6000",
+            "pdbx_seq_align_beg_ins_code": "?", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_end": "7000", "db_align_beg": "6001", "db_align_end": "7001",
+            "pdbx_db_align_beg_ins_code": "?", "pdbx_db_align_end_ins_code": "Z"
+        }]}
+        self.assertEqual(create_dbref_lines(mmcif), [
+            "L1", "L2", "L3", "L4",
+            "DBREF       C 1000  2000  REF    P26232   PYRF_SEC      1001P  2001 ",
+            "DBREF       D 6000  7000  REF    P26232   PYRF_SEC      6001   7001Z"
+        ])
+        mock_create.assert_any_call("", mmcif["struct_ref"][0], mmcif["struct_ref_seq"][0])
+        mock_create.assert_any_call("", mmcif["struct_ref"][0], mmcif["struct_ref_seq"][1])
+        "DBREF1      A   10Y   20L UNP                  A0A1B8Y853_XENTR",
+        "DBREF2      A     A0A1B8Y853                         11O         21X",
+        "DBREF1      B  100   200  UNP                  A0A1B8Y853_XENTR",
+        "DBREF2      B     A0A1B8Y853                        101         201 ",
+    
+
+class DbrefnLinesTests(TestCase):
+
+    def test_full_values(self):
+        seq = {
+            "ref_id": "1", "pdbx_strand_id": "A", "pdbx_auth_seq_align_beg": "10",
+            "pdbx_seq_align_beg_ins_code": "Y", "pdbx_seq_align_end_ins_code": "L",
+            "pdbx_auth_seq_align_end": "20", "db_align_beg": "11", "db_align_end": "21",
+            "pdbx_db_align_beg_ins_code": "O", "pdbx_db_align_end_ins_code": "X"
+        }
+        ref = {"id": "1", "db_name": "UNP", "db_code": "A0A1B8Y853_XENTR", "pdbx_db_accession": "A0A1B8Y853"}
+        self.assertEqual(create_dbrefn_lines("1xxx", ref, seq), [
+            "DBREF1 1xxx A   10Y   20L UNP                  A0A1B8Y853_XENTR",
+            "DBREF2 1xxx A     A0A1B8Y853                         11O         21X",
+        ])
+    
+
+    def test_blank_values(self):
+        seq = {
+            "ref_id": "1", "pdbx_strand_id": "B", "pdbx_auth_seq_align_beg": "100",
+            "pdbx_seq_align_beg_ins_code": "?", "pdbx_seq_align_end_ins_code": "?",
+            "pdbx_auth_seq_align_end": "200", "db_align_beg": "101", "db_align_end": "201",
+            "pdbx_db_align_beg_ins_code": "?", "pdbx_db_align_end_ins_code": "?"
+        }
+        ref = {"id": "1", "db_name": "UNP", "db_code": "A0A1B8Y853_XENTR", "pdbx_db_accession": "A0A1B8Y853"}
+        self.assertEqual(create_dbrefn_lines("1xxx", ref, seq), [
+            "DBREF1 1xxx B  100   200  UNP                  A0A1B8Y853_XENTR",
+            "DBREF2 1xxx B     A0A1B8Y853                        101         201 ",
+        ])

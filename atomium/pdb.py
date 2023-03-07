@@ -2874,43 +2874,63 @@ def create_dbrefn_lines(code, ref, seq):
 
 
 def create_seqadv_lines(mmcif):
+    """Creates the SEQADV lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
     line = "SEQADV {:4} {:>3} {:1} {:>4}{:1} {:4} {:9} {:>3} {:>5} {:20}"
     for seqadv in mmcif.get("struct_ref_seq_dif", []):
         lines.append(line.format(
             seqadv["pdbx_pdb_id_code"], seqadv["mon_id"],
             seqadv["pdbx_pdb_strand_id"], seqadv["pdbx_auth_seq_num"],
-            seqadv["pdbx_pdb_ins_code"].replace("?", ""), seqadv["pdbx_seq_db_name"],
-            seqadv["pdbx_seq_db_accession_code"], seqadv["db_mon_id"].replace("?", ""),
-            seqadv["pdbx_seq_db_seq_num"].replace("?", ""), seqadv["details"].replace("?", ""),
-        ))
+            seqadv["pdbx_pdb_ins_code"].replace("?", ""), 
+            seqadv["pdbx_seq_db_name"], seqadv["pdbx_seq_db_accession_code"],
+            seqadv["db_mon_id"].replace("?", ""),
+            seqadv["pdbx_seq_db_seq_num"].replace("?", ""),
+            seqadv["details"].replace("?", ""),
+        ).strip())
     return lines
 
 
 def create_seqres_lines(mmcif):
+    """Creates the SEQRES lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
-    line = "SEQRES {:3} {:1} {:4}  {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3} {:>3}"
+    line = "SEQRES {:3} {:1} {:4} " + (" {:>3}" * 13)
+    poly_seq = mmcif.get("entity_poly_seq", [])
     for entity in mmcif.get("entity_poly", []):
         chain_ids = entity["pdbx_strand_id"].split(",")
-        residues = [r for r in mmcif.get("entity_poly_seq", []) if r["entity_id"] == entity["entity_id"]]
-        line_count = math.ceil(len(residues) / 13)
+        res = [r for r in poly_seq if r["entity_id"] == entity["entity_id"]]
+        line_count = math.ceil(len(res) / 13)
         for chain_id in chain_ids:
             for n in range(line_count):
-                line_res = residues[n * 13:(n + 1) * 13]
-                names = [r["mon_id"] for r in line_res] + [""] * (13 - len(line_res))
-                lines.append(line.format(n + 1, chain_id, len(residues), *names))
+                lineres = res[n * 13:(n + 1) * 13]
+                lines.append(line.format(n + 1, chain_id, len(res), *(
+                    [r["mon_id"] for r in lineres] + [""] * (13 - len(lineres))
+                )).strip())
     return lines
 
 
 def create_modres_lines(mmcif):
+    """Creates the MODRES lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
-    line = "MODRES {:3} {:>3} {:1} {:>4}{:1} {:>3}  {:40}"
+    code = mmcif.get("entry", [{"id": ""}])[0]["id"] or ""
+    line = "MODRES {:4} {:>3} {:1} {:>4}{:1} {:>3}  {:40}"
     for modres in mmcif.get("pdbx_struct_mod_residue", []):
         lines.append(line.format(
-            mmcif["entry"][0]["id"], modres["auth_comp_id"], modres["auth_asym_id"],
+            code, modres["auth_comp_id"], modres["auth_asym_id"],
             modres["auth_seq_id"], modres["PDB_ins_code"].replace("?", ""),
             modres["parent_comp_id"], modres["details"].replace("?", ""),
-        ))
+        ).strip())
     return lines
     
 

@@ -5484,10 +5484,7 @@ class DbrefLinesTests(TestCase):
         ])
         mock_create.assert_any_call("", mmcif["struct_ref"][0], mmcif["struct_ref_seq"][0])
         mock_create.assert_any_call("", mmcif["struct_ref"][0], mmcif["struct_ref_seq"][1])
-        "DBREF1      A   10Y   20L UNP                  A0A1B8Y853_XENTR",
-        "DBREF2      A     A0A1B8Y853                         11O         21X",
-        "DBREF1      B  100   200  UNP                  A0A1B8Y853_XENTR",
-        "DBREF2      B     A0A1B8Y853                        101         201 ",
+    
     
 
 class DbrefnLinesTests(TestCase):
@@ -5517,4 +5514,139 @@ class DbrefnLinesTests(TestCase):
         self.assertEqual(create_dbrefn_lines("1xxx", ref, seq), [
             "DBREF1 1xxx B  100   200  UNP                  A0A1B8Y853_XENTR",
             "DBREF2 1xxx B     A0A1B8Y853                        101         201 ",
+        ])
+
+
+
+class SeqadvLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_seqadv_lines({}), [])
+    
+
+    def test_can_create_lines(self):
+        mmcif = {
+            "struct_ref_seq_dif": [{
+                "pdbx_pdb_id_code": "1LOL", "mon_id": "LEU",
+                "pdbx_pdb_strand_id": "A", "pdbx_pdb_ins_code": "N",
+                "pdbx_seq_db_name": "UNP", "pdbx_seq_db_accession_code": "O26232",
+                "db_mon_id": "MET", "pdbx_seq_db_seq_num": "1",
+                "details": "SEE REMARK 999", "pdbx_auth_seq_num": "4",
+            }, {
+                "pdbx_pdb_id_code": "1LOL", "mon_id": "TYR",
+                "pdbx_pdb_strand_id": "B", "pdbx_pdb_ins_code": "?",
+                "pdbx_seq_db_name": "REF", "pdbx_seq_db_accession_code": "R12",
+                "db_mon_id": "PRO", "pdbx_seq_db_seq_num": "?",
+                "details": "?", "pdbx_auth_seq_num": "7",
+            }]
+        }
+        self.assertEqual(create_seqadv_lines(mmcif), [
+            "SEQADV 1LOL LEU A    4N UNP  O26232    MET     1 SEE REMARK 999",
+            "SEQADV 1LOL TYR B    7  REF  R12       PRO",
+        ])
+
+
+
+class SeqresLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_seqres_lines({}), [])
+    
+
+    def test_can_create_lines(self):
+        mmcif = {
+            "entity_poly": [
+                {"entity_id": "1", "pdbx_strand_id": "A,B"},
+                {"entity_id": "2", "pdbx_strand_id": "C"},
+            ],
+            "entity_poly_seq": [
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "PRO"},
+                {"entity_id": "1", "mon_id": "MET"},
+                {"entity_id": "1", "mon_id": "TYR"},
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "MET"},
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "TRP"},
+                {"entity_id": "1", "mon_id": "VAL"},
+                {"entity_id": "1", "mon_id": "CYS"},
+                {"entity_id": "1", "mon_id": "THR"},
+                {"entity_id": "1", "mon_id": "VAL"},
+                {"entity_id": "1", "mon_id": "PRO"},
+                {"entity_id": "1", "mon_id": "PRO"},
+                {"entity_id": "1", "mon_id": "ASP"},
+                {"entity_id": "1", "mon_id": "TYR"},
+                {"entity_id": "1", "mon_id": "ILE"},
+                {"entity_id": "1", "mon_id": "TYR"},
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "MET"},
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "TRP"},
+                {"entity_id": "1", "mon_id": "VAL"},
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "MET"},
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "TRP"},
+                {"entity_id": "1", "mon_id": "VAL"},
+                {"entity_id": "1", "mon_id": "TYR"},
+                {"entity_id": "1", "mon_id": "HIS"},
+                {"entity_id": "1", "mon_id": "MET"},
+                {"entity_id": "2", "mon_id": "HIS"},
+                {"entity_id": "2", "mon_id": "TRP"},
+                {"entity_id": "2", "mon_id": "VAL"},
+                {"entity_id": "2", "mon_id": "MET"},
+                {"entity_id": "2", "mon_id": "HIS"},
+                {"entity_id": "2", "mon_id": "HIS"},
+                {"entity_id": "2", "mon_id": "VAL"},
+                {"entity_id": "2", "mon_id": "TRP"},
+            ]
+        }
+        self.assertEqual(create_seqres_lines(mmcif), [
+            "SEQRES   1 A   31  HIS PRO MET TYR HIS MET HIS TRP VAL CYS THR VAL PRO",
+            "SEQRES   2 A   31  PRO ASP TYR ILE TYR HIS MET HIS TRP VAL HIS MET HIS",
+            "SEQRES   3 A   31  TRP VAL TYR HIS MET",
+            "SEQRES   1 B   31  HIS PRO MET TYR HIS MET HIS TRP VAL CYS THR VAL PRO",
+            "SEQRES   2 B   31  PRO ASP TYR ILE TYR HIS MET HIS TRP VAL HIS MET HIS",
+            "SEQRES   3 B   31  TRP VAL TYR HIS MET",
+            "SEQRES   1 C    8  HIS TRP VAL MET HIS HIS VAL TRP",
+        ])
+
+
+
+class ModresLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_modres_lines({}), [])
+    
+
+    def test_can_create_lines(self):
+        mmcif = {
+            "entry": [{"id": "1XXX"}],
+            "pdbx_struct_mod_residue": [{
+                "auth_asym_id": "T", "auth_comp_id": "4SU", "auth_seq_id": "8",
+                "PDB_ins_code": "N", "parent_comp_id": "U", "details": "4-THIOURIDINE-5'-MONOPHOSPHATE",
+            }, {
+                "auth_asym_id": "L", "auth_comp_id": "5SU", "auth_seq_id": "12",
+                "PDB_ins_code": "?", "parent_comp_id": "P", "details": "?",
+            }]
+        }
+        self.assertEqual(create_modres_lines(mmcif), [
+            "MODRES 1XXX 4SU T    8N   U  4-THIOURIDINE-5'-MONOPHOSPHATE",
+            "MODRES 1XXX 5SU L   12    P"
+        ])
+    
+
+    def test_can_create_lines_without_entry(self):
+        mmcif = {
+            "pdbx_struct_mod_residue": [{
+                "auth_asym_id": "T", "auth_comp_id": "4SU", "auth_seq_id": "8",
+                "PDB_ins_code": "N", "parent_comp_id": "U", "details": "4-THIOURIDINE-5'-MONOPHOSPHATE",
+            }, {
+                "auth_asym_id": "L", "auth_comp_id": "5SU", "auth_seq_id": "12",
+                "PDB_ins_code": "?", "parent_comp_id": "P", "details": "?",
+            }]
+        }
+        self.assertEqual(create_modres_lines(mmcif), [
+            "MODRES      4SU T    8N   U  4-THIOURIDINE-5'-MONOPHOSPHATE",
+            "MODRES      5SU L   12    P"
         ])

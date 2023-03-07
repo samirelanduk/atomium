@@ -157,7 +157,7 @@ def make_entities(mmcif_dict):
 
 
 def annotate_polymer_entity(Polymer, mmcif_dict):
-    for entity_poly in mmcif_dict.get("entity_poly"):
+    for entity_poly in mmcif_dict.get("entity_poly", []):
         if entity_poly["entity_id"] == Polymer.entity_id:
             Polymer.sequence = entity_poly["pdbx_seq_one_letter_code"]
             break

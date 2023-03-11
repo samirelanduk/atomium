@@ -2935,19 +2935,32 @@ def create_modres_lines(mmcif):
     
 
 def create_het_lines(mmcif):
+    """Creates the HET lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
     sig_counts = get_sig_counts(mmcif)
-    for sig, count in sorted(sig_counts.items(), key=lambda s: s[0][3]):
-        lines.append(f"HET    {sig[3]:3}  {sig[0]:1}{sig[1]:>4}{sig[2]:1}  {count:>5}")
+    for s, count in sorted(sig_counts.items(), key=lambda s: s[0][3]):
+        lines.append(f"HET    {s[3]:3}  {s[0]:1}{s[1]:>4}{s[2]:1}  {count:>5}")
     return lines
 
 
 def create_hetnam_lines(mmcif):
+    """Creates the HETNAM lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
+    if "chem_comp" not in mmcif: return []
     chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
-    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif.get("pdbx_entity_nonpoly", [])}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in
+        mmcif.get("pdbx_entity_nonpoly", [])}
     for chem in chem_comp:
+        if chem["id"] not in lookup: continue
         if chem["name"] != "?" and lookup[chem["id"]] != "water":
             strings = split_lines(chem["name"], 55)
             for n, hetnam in enumerate(strings, start=1):
@@ -2959,11 +2972,19 @@ def create_hetnam_lines(mmcif):
 
 
 def create_hetsyn_lines(mmcif):
+    """Creates the HETSYN lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
+    if "chem_comp" not in mmcif: return []
     chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
-    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif.get("pdbx_entity_nonpoly", [])}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in
+        mmcif.get("pdbx_entity_nonpoly", [])}
     for chem in chem_comp:
+        if chem["id"] not in lookup: continue
         if chem["pdbx_synonyms"] != "?" and lookup[chem["id"]] != "water":
             strings = split_lines(chem["pdbx_synonyms"].replace(", ", "; "), 55)
             for n, hetsyn in enumerate(strings, start=1):
@@ -2975,35 +2996,54 @@ def create_hetsyn_lines(mmcif):
 
 
 def create_formul_lines(mmcif):
+    """Creates the FORMUL lines from a mmCIF dictionary. A chemical component is
+    given a FORMUL line if it isn't a MODRES, and has a formula.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
     chem_comp = [c for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
-    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in mmcif.get("pdbx_entity_nonpoly", [])}
-    name_to_entity_id = {s["comp_id"]: s["entity_id"] for s in mmcif.get("pdbx_entity_nonpoly", [])}
+    lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in
+        mmcif.get("pdbx_entity_nonpoly", [])}
+    name_to_entity_id = {s["comp_id"]: s["entity_id"] for s in
+        mmcif.get("pdbx_entity_nonpoly", [])}
     entity_ids = sorted(s["entity_id"] for s in mmcif["struct_asym"])
     sig_counts = get_sig_counts(mmcif, include_water=True, representative=True)
-    name_counts = {sig[3]: sum(
+    id_counts = {sig[3]: sum(
         v for k, v in sig_counts.items() if k[3] == sig[3]
     ) for sig in sig_counts}
-    for chem in sorted(chem_comp, key=lambda c: list(name_counts.keys()).index(c["id"]) if c["id"] in name_counts else 0):
-        if chem["formula"] != "?":
-            entity_id = name_to_entity_id.get(chem["id"])
-            if not entity_id: continue
-            number = entity_ids.index(entity_id) + 1
-            char = "*" if lookup[chem["id"]] == "water" else " "
-            formula = f"{name_counts[chem['id']]}({chem['formula']})"
-            strings = split_lines(formula, 50)
-            for n, formul in enumerate(strings, start=1):
-                if n == 1:
-                    lines.append(f"FORMUL  {number:2}  {chem['id']:3}   {char}{formul}")
-                else:
-                    lines.append(f"FORMUL  {number:2}  {chem['id']:3} {n:2}{char}{formul}")
+    chem_comp = sorted(chem_comp, key=lambda c: \
+        list(id_counts.keys()).index(c["id"]) if c["id"] in id_counts else 0)
+    for chem in chem_comp:
+        if chem["formula"] == "?": continue
+        entity_id = name_to_entity_id.get(chem["id"])
+        if not entity_id: continue
+        num = entity_ids.index(entity_id) + 1
+        char = "*" if lookup[chem["id"]] == "water" else " "
+        formula = f"{id_counts[chem['id']]}({chem['formula']})"
+        strings = split_lines(formula, 50)
+        for n, formul in enumerate(strings, start=1):
+            start = f"FORMUL  {num:2}  {chem['id']:3}"
+            if n == 1:
+                lines.append(f"{start}   {char}{formul}")
+            else:
+                lines.append(f"{start} {n:2}{char}{formul}")
     return lines
 
 
 def get_sig_counts(mmcif, include_water=False, representative=False):
+    """Gets all distinct ligands from the atoms, along with how many atoms they
+    have.
+    
+    :param dict mmcif: the dictionary to parse.
+    :param bool include_water: whether waters count. 
+    :param bool representative: will not count atoms if true. 
+    :rtype: ``dict``"""
+
     sigs = []
-    names = [c["id"] for c in mmcif["chem_comp"]  if c["mon_nstd_flag"] != "y"]
+    names = [c["id"] for c in mmcif["chem_comp"] if c["mon_nstd_flag"] != "y"]
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
     for line in mmcif["atom_site"]:
         sig = (

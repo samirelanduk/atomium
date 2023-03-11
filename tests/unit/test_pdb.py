@@ -5650,3 +5650,235 @@ class ModresLinesTests(TestCase):
             "MODRES      4SU T    8N   U  4-THIOURIDINE-5'-MONOPHOSPHATE",
             "MODRES      5SU L   12    P"
         ])
+
+
+
+class HetLinesTests(TestCase):
+
+    @patch("atomium.pdb.get_sig_counts")
+    def test_can_handle_no_hets(self, mock_counts):
+        mock_counts.return_value = {}
+        self.assertEqual(create_het_lines({}), [])
+        mock_counts.assert_called_with({})
+    
+
+    @patch("atomium.pdb.get_sig_counts")
+    def test_can_handle_hets(self, mock_counts):
+        mock_counts.return_value = {("A", "10", "", "XYZ"): 2, ("B", "12", "P", "BU2"): 3}
+        self.assertEqual(create_het_lines("MMCIF"), [
+            "HET    BU2  B  12P      3",
+            "HET    XYZ  A  10       2",
+        ])
+        mock_counts.assert_called_with("MMCIF")
+
+
+
+class HetnamLinesTests(TestCase):
+
+    def test_can_handle_no_hetnams(self):
+        self.assertEqual(create_hetnam_lines({}), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_get_hetnams(self, mock_split):
+        mock_split.side_effect = [["The first name"], ["The second name", "over multiple", "lines"]]
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "non-polymer"},
+                {"id": "5", "type": "water"},
+            ],
+            "pdbx_entity_nonpoly": [
+                {"entity_id": "3", "comp_id": "XYZ"},
+                {"entity_id": "4", "comp_id": "BU2"},
+                {"entity_id": "5", "comp_id": "HOH"},
+            ],
+            "chem_comp": [
+                {"mon_nstd_flag": "y", "name": "modium", "id": "MOD"},
+                {"mon_nstd_flag": "n", "name": "?", "id": "MYS"},
+                {"mon_nstd_flag": ".", "name": "water", "id": "HOH"},
+                {"mon_nstd_flag": "n", "name": "xanthosine", "id": "XYZ"},
+                {"mon_nstd_flag": ".", "name": "butanol", "id": "BU2"},
+                {"mon_nstd_flag": "n", "name": "mysterio", "id": "MY2"},
+            ]
+        }
+        self.assertEqual(create_hetnam_lines(mmcif), [
+            "HETNAM     XYZ The first name",
+            "HETNAM     BU2 The second name",
+            "HETNAM   2 BU2  over multiple",
+            "HETNAM   3 BU2  lines",
+        ])
+        mock_split.assert_any_call("xanthosine", 55)
+        mock_split.assert_any_call("butanol", 55)
+
+
+
+class HetsynLinesTests(TestCase):
+
+    def test_can_handle_no_hetsyns(self):
+        self.assertEqual(create_hetsyn_lines({}), [])
+    
+
+    @patch("atomium.pdb.split_lines")
+    def test_can_get_get_hetsyns(self, mock_split):
+        mock_split.side_effect = [["The first synonym"], ["The second synonym", "over multiple", "lines"]]
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "non-polymer"},
+                {"id": "5", "type": "water"},
+            ],
+            "pdbx_entity_nonpoly": [
+                {"entity_id": "3", "comp_id": "XYZ"},
+                {"entity_id": "4", "comp_id": "BU2"},
+                {"entity_id": "5", "comp_id": "HOH"},
+            ],
+            "chem_comp": [
+                {"mon_nstd_flag": "y", "pdbx_synonyms": "modium", "id": "MOD"},
+                {"mon_nstd_flag": "n", "pdbx_synonyms": "?", "id": "MYS"},
+                {"mon_nstd_flag": ".", "pdbx_synonyms": "water", "id": "HOH"},
+                {"mon_nstd_flag": "n", "pdbx_synonyms": "xanthosine, xanth", "id": "XYZ"},
+                {"mon_nstd_flag": ".", "pdbx_synonyms": "butanol", "id": "BU2"},
+                {"mon_nstd_flag": "n", "pdbx_synonyms": "mysterio", "id": "MY2"},
+            ]
+        }
+        self.assertEqual(create_hetsyn_lines(mmcif), [
+            "HETSYN     XYZ The first synonym",
+            "HETSYN     BU2 The second synonym",
+            "HETSYN   2 BU2  over multiple",
+            "HETSYN   3 BU2  lines",
+        ])
+        mock_split.assert_any_call("xanthosine; xanth", 55)
+        mock_split.assert_any_call("butanol", 55)
+
+
+
+class FormulLinesTests(TestCase):
+
+    @patch("atomium.pdb.get_sig_counts")
+    @patch("atomium.pdb.split_lines")
+    def test_can_make_formul_lines(self, mock_split, mock_sigs):
+        mock_sigs.return_value = {
+            ("A", "10", "", "BU2"): 3,
+            ("A", "10", "", "HOH"): 5,
+            ("A", "10", "", "MYS"): 2,
+            ("A", "10", "", "XYZ"): 12,
+        }
+        mock_split.side_effect = [["formul1"], ["formul2"], ["formul3", "which needs", "3 lines"]]
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "non-polymer"},
+                {"id": "5", "type": "non-polymer"},
+                {"id": "6", "type": "water"},
+            ],
+            "struct_asym": [
+                {"entity_id": "1"},
+                {"entity_id": "1"},
+                {"entity_id": "2"},
+                {"entity_id": "3"},
+                {"entity_id": "4"},
+                {"entity_id": "3"},
+                {"entity_id": "4"},
+                {"entity_id": "5"},
+                {"entity_id": "6"},
+                {"entity_id": "6"},
+            ],
+            "pdbx_entity_nonpoly": [
+                {"entity_id": "3", "comp_id": "XYZ"},
+                {"entity_id": "4", "comp_id": "BU2"},
+                {"entity_id": "5", "comp_id": "MYS"},
+                {"entity_id": "6", "comp_id": "HOH"},
+            ],
+            "chem_comp": [
+                {"mon_nstd_flag": ".", "id": "MOD", "formula": "C2"},
+                {"mon_nstd_flag": "n", "id": "MYS", "formula": "?"},
+                {"mon_nstd_flag": ".", "id": "HOH", "formula": "C4"},
+                {"mon_nstd_flag": "n", "id": "XYZ", "formula": "C5"},
+                {"mon_nstd_flag": ".", "id": "BU2", "formula": "C6"},
+                {"mon_nstd_flag": "n", "id": "MY2", "formula": "C7"},
+            ]
+        }
+        self.assertEqual(create_formul_lines(mmcif), [
+            "FORMUL   6  BU2    formul1",
+            "FORMUL   9  HOH   *formul2",
+            "FORMUL   4  XYZ    formul3",
+            "FORMUL   4  XYZ  2 which needs",
+            "FORMUL   4  XYZ  3 3 lines",
+        ])
+        mock_sigs.assert_called_with(mmcif, include_water=True, representative=True)
+        mock_split.assert_any_call("5(C4)", 50)
+        mock_split.assert_any_call("12(C5)", 50)
+        mock_split.assert_any_call("3(C6)", 50)
+
+
+
+class SigCountTests(TestCase):
+
+    def setUp(self):
+        self.mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "non-polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ],
+            "chem_comp": [
+                {"id": "HIS", "mon_nstd_flag": "y"},
+                {"id": "XYZ", "mon_nstd_flag": "."},
+                {"id": "BU2", "mon_nstd_flag": "."},
+                {"id": "HOH", "mon_nstd_flag": "."},
+            ],
+            "atom_site": [
+                {"auth_asym_id": "A", "auth_seq_id": "1", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HIS", "label_entity_id": "1"},
+                {"auth_asym_id": "A", "auth_seq_id": "1", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HIS", "label_entity_id": "1"},
+                {"auth_asym_id": "A", "auth_seq_id": "10", "pdbx_PDB_ins_code": "?", "auth_comp_id": "XYZ", "label_entity_id": "2"},
+                {"auth_asym_id": "A", "auth_seq_id": "10", "pdbx_PDB_ins_code": "?", "auth_comp_id": "XYZ", "label_entity_id": "2"},
+                {"auth_asym_id": "B", "auth_seq_id": "20", "pdbx_PDB_ins_code": "?", "auth_comp_id": "XYZ", "label_entity_id": "2"},
+                {"auth_asym_id": "B", "auth_seq_id": "20", "pdbx_PDB_ins_code": "?", "auth_comp_id": "XYZ", "label_entity_id": "2"},
+                {"auth_asym_id": "A", "auth_seq_id": "11", "pdbx_PDB_ins_code": "?", "auth_comp_id": "BU2", "label_entity_id": "3"},
+                {"auth_asym_id": "A", "auth_seq_id": "11", "pdbx_PDB_ins_code": "?", "auth_comp_id": "BU2", "label_entity_id": "3"},
+                {"auth_asym_id": "B", "auth_seq_id": "21", "pdbx_PDB_ins_code": "?", "auth_comp_id": "BU2", "label_entity_id": "3"},
+                {"auth_asym_id": "B", "auth_seq_id": "21", "pdbx_PDB_ins_code": "?", "auth_comp_id": "BU2", "label_entity_id": "3"},
+                {"auth_asym_id": "B", "auth_seq_id": "21", "pdbx_PDB_ins_code": "?", "auth_comp_id": "BU2", "label_entity_id": "3"},
+                {"auth_asym_id": "B", "auth_seq_id": "21", "pdbx_PDB_ins_code": "A", "auth_comp_id": "BU2", "label_entity_id": "3"},
+                {"auth_asym_id": "B", "auth_seq_id": "21", "pdbx_PDB_ins_code": "A", "auth_comp_id": "BU2", "label_entity_id": "3"},
+                {"auth_asym_id": "A", "auth_seq_id": "100", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+                {"auth_asym_id": "A", "auth_seq_id": "100", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+                {"auth_asym_id": "A", "auth_seq_id": "101", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+                {"auth_asym_id": "A", "auth_seq_id": "101", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+                {"auth_asym_id": "B", "auth_seq_id": "200", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+                {"auth_asym_id": "B", "auth_seq_id": "200", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+                {"auth_asym_id": "B", "auth_seq_id": "201", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+                {"auth_asym_id": "B", "auth_seq_id": "201", "pdbx_PDB_ins_code": "?", "auth_comp_id": "HOH", "label_entity_id": "4"},
+            ]
+        }
+
+    def test_can_get_individual_molecules_without_water(self):
+        self.assertEqual(get_sig_counts(self.mmcif), {
+            ("A", "10", "", "XYZ"): 2,
+            ("B", "20", "", "XYZ"): 2,
+            ("A", "11", "", "BU2"): 2,
+            ("B", "21", "", "BU2"): 3,
+            ("B", "21", "A", "BU2"): 2,
+        })
+    
+
+    def test_can_get_representative_molecules_with_water(self):
+        self.assertEqual(get_sig_counts(self.mmcif, include_water=True, representative=True), {
+            ("A", "10", "", "XYZ"): 1,
+            ("B", "20", "", "XYZ"): 1,
+            ("A", "11", "", "BU2"): 1,
+            ("B", "21", "", "BU2"): 1,
+            ("B", "21", "A", "BU2"): 1,
+            ("A", "100", "", "HOH"): 1,
+            ("A", "101", "", "HOH"): 1,
+            ("B", "200", "", "HOH"): 1,
+            ("B", "201", "", "HOH"): 1,
+        })

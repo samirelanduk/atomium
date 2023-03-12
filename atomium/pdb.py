@@ -3058,55 +3058,65 @@ def get_sig_counts(mmcif, include_water=False, representative=False):
 
 
 def create_helix_lines(mmcif):
-    line = "HELIX  {:>3} {:>3} {:3} {:1} {:>4}{:1} {:3} {:1} {:>4}{:1}{:>2}{:30} {:>5}"
+    """Creates the HELIX lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    line = "HELIX  {:>3} {:>3} {:3} {:1} {:>4}{:1} {:3} " + \
+    "{:1} {:>4}{:1}{:>2}{:30} {:>5}"
     return [line.format(
-        helix["pdbx_PDB_helix_id"],
-        helix["pdbx_PDB_helix_id"],
-        helix["beg_auth_comp_id"],
-        helix["beg_auth_asym_id"],
+        helix["pdbx_PDB_helix_id"], helix["pdbx_PDB_helix_id"],
+        helix["beg_auth_comp_id"], helix["beg_auth_asym_id"],
         helix["beg_auth_seq_id"],
         helix["pdbx_beg_PDB_ins_code"].replace("?", ""),
-        helix["end_auth_comp_id"],
-        helix["end_auth_asym_id"],
+        helix["end_auth_comp_id"], helix["end_auth_asym_id"],
         helix["end_auth_seq_id"],
         helix["pdbx_end_PDB_ins_code"].replace("?", ""),
-        helix["pdbx_PDB_helix_class"],
-        "", helix["pdbx_PDB_helix_length"]
+        helix["pdbx_PDB_helix_class"], "", helix["pdbx_PDB_helix_length"]
     ) for helix in mmcif.get("struct_conf", [])]
 
 
 def create_sheet_lines(mmcif):
+    """Creates the SHEET lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
-    line = "SHEET  {:>3} {:>3}{:>2} {:>3} {:1}{:>4}{:1} {:>3} {:1}{:>4}{:1}{:>2} {:<4}{:>3} {:1}{:>4}{:1} {:<4}{:>3} {:1}{:>4}{:1}"
+    line = "SHEET  {:>3} {:>3}{:>2} {:>3} {:1}{:>4}{:1} {:>3} {:1}{:>4}{:1}" +\
+    "{:>2} {:<4}{:>3} {:1}{:>4}{:1} {:<4}{:>3} {:1}{:>4}{:1}"
     for strand in mmcif.get("struct_sheet_range", []):
-        order = [r for r in mmcif["struct_sheet_order"] if r["sheet_id"] == strand["sheet_id"] and r["range_id_2"] == strand["id"]]
+        order = [r for r in mmcif["struct_sheet_order"] if
+            r["sheet_id"] == strand["sheet_id"] and r["range_id_2"] == strand["id"]]
         order = order[0] if order else None
-        hbond = [r for r in mmcif["pdbx_struct_sheet_hbond"] if r["sheet_id"] == strand["sheet_id"] and r["range_id_2"] == strand["id"]]
+        hbond = [r for r in mmcif["pdbx_struct_sheet_hbond"] if
+            r["sheet_id"] == strand["sheet_id"] and r["range_id_2"] == strand["id"]]
         hbond = hbond[0] if hbond else None
+        count = len([r for r in mmcif["struct_sheet_range"] if
+            r["sheet_id"] == strand["sheet_id"]])
         lines.append(line.format(
-            strand["id"],
-            strand["sheet_id"],
-            str(len([r for r in mmcif["struct_sheet_range"] if r["sheet_id"] == strand["sheet_id"]])),
-            strand["beg_auth_comp_id"],
-            strand["beg_auth_asym_id"],
+            strand["id"], strand["sheet_id"], str(count),
+            strand["beg_auth_comp_id"], strand["beg_auth_asym_id"],
             strand["beg_auth_seq_id"],
             strand["pdbx_beg_PDB_ins_code"].replace("?", ""),
-            strand["end_auth_comp_id"],
-            strand["end_auth_asym_id"],
+            strand["end_auth_comp_id"], strand["end_auth_asym_id"],
             strand["end_auth_seq_id"],
             strand["pdbx_end_PDB_ins_code"].replace("?", ""),
             0 if not order else 1 if order["sense"] == "parallel" else -1,
-            f"{'' if len(hbond['range_2_auth_atom_id']) == 4 else ' '}{hbond['range_2_auth_atom_id']}" if hbond else "",
+            f"{'' if len(hbond['range_2_auth_atom_id']) == 4 else ' '}" + \
+            f"{hbond['range_2_auth_atom_id']}" if hbond else "",
             hbond["range_2_auth_comp_id"] if hbond else "",
             hbond["range_2_auth_asym_id"] if hbond else "",
             hbond["range_2_auth_seq_id"] if hbond else "",
             hbond["range_2_PDB_ins_code"].replace("?", "") if hbond else "",
-            f"{'' if len(hbond['range_1_auth_atom_id']) == 4 else ' '}{hbond['range_1_auth_atom_id']}" if hbond else "",
+            f"{'' if len(hbond['range_1_auth_atom_id']) == 4 else ' '}" + \
+            f"{hbond['range_1_auth_atom_id']}" if hbond else "",
             hbond["range_1_auth_comp_id"] if hbond else "",
             hbond["range_1_auth_asym_id"] if hbond else "",
             hbond["range_1_auth_seq_id"] if hbond else "",
             hbond["range_1_PDB_ins_code"].replace("?", "") if hbond else "",
-        ))
+        ).strip())
     return lines
 
 

@@ -5882,3 +5882,97 @@ class SigCountTests(TestCase):
             ("B", "200", "", "HOH"): 1,
             ("B", "201", "", "HOH"): 1,
         })
+
+
+
+class HelixLinesTests(TestCase):
+
+    def test_can_handle_no_helix(self):
+        self.assertEqual(create_helix_lines({}), [])
+    
+
+    def test_can_produce_helix_lines(self):
+        mmcif = {
+            "struct_conf": [{
+                "conf_type_id": "HELX_P", "id": "HELX_P1", "pdbx_PDB_helix_id": "1",
+                "beg_label_comp_id": "ILE", "beg_label_asym_id": "A",
+                "beg_label_seq_id": "2", "pdbx_beg_PDB_ins_code": "?",
+                "end_label_comp_id": "CYS", "end_label_asym_id": "A",
+                "end_label_seq_id": "6", "pdbx_end_PDB_ins_code": "?",
+                "beg_auth_comp_id": "ILE", "beg_auth_asym_id": "A",
+                "beg_auth_seq_id": "2", "end_auth_comp_id": "CYS",
+                "end_auth_asym_id": "A", "end_auth_seq_id": "6",
+                "pdbx_PDB_helix_class": "1", "details": "?",
+                "pdbx_PDB_helix_length": "5",
+            }, {
+                "conf_type_id": "HELX_P", "id": "HELX_P12", "pdbx_PDB_helix_id": "12",
+                "beg_label_comp_id": "VAL", "beg_label_asym_id": "H",
+                "beg_label_seq_id": "2", "pdbx_beg_PDB_ins_code": "P",
+                "end_label_comp_id": "ARG", "end_label_asym_id": "H",
+                "end_label_seq_id": "22", "pdbx_end_PDB_ins_code": "L",
+                "beg_auth_comp_id": "VAL", "beg_auth_asym_id": "H",
+                "beg_auth_seq_id": "2", "end_auth_comp_id": "ARG",
+                "end_auth_asym_id": "H", "end_auth_seq_id": "22",
+                "pdbx_PDB_helix_class": "1", "details": "?",
+                "pdbx_PDB_helix_length": "21",
+            }]
+        }
+        self.assertEqual(create_helix_lines(mmcif), [
+            "HELIX    1   1 ILE A    2  CYS A    6  1                                   5",
+            "HELIX   12  12 VAL H    2P ARG H   22L 1                                  21",
+        ])
+
+
+
+class SheetLineTests(TestCase):
+
+    def test_can_handle_no_range(self):
+        self.assertEqual(create_sheet_lines({}), [])
+    
+
+    def test_can_create_sheet_lines(self):
+        mmcif = {
+            "struct_sheet_order": [
+                {"sheet_id": "A", "range_id_1": "1", "range_id_2": "2", "sense": "parallel"},
+                {"sheet_id": "B", "range_id_1": "1", "range_id_2": "2", "sense": "anti-parallel"},
+            ],
+            "pdbx_struct_sheet_hbond": [{
+                "sheet_id": "A", "range_id_1": "1", "range_id_2": "2",
+                "range_1_PDB_ins_code": "?", "range_1_auth_atom_id": "O",
+                "range_1_auth_comp_id": "PHE", "range_1_auth_asym_id": "B",
+                "range_1_auth_seq_id": "24", "range_2_PDB_ins_code": "?",
+                "range_2_auth_atom_id": "N", "range_2_auth_comp_id": "TYR",
+                "range_2_auth_asym_id": "D", "range_2_auth_seq_id": "26",
+            }, {
+                "sheet_id": "B", "range_id_1": "1", "range_id_2": "2",
+                "range_1_PDB_ins_code": "Z", "range_1_auth_atom_id": "O",
+                "range_1_auth_comp_id": "PHE", "range_1_auth_asym_id": "F",
+                "range_1_auth_seq_id": "24", "range_2_PDB_ins_code": "Q",
+                "range_2_auth_atom_id": "N", "range_2_auth_comp_id": "TYR",
+                "range_2_auth_asym_id": "H", "range_2_auth_seq_id": "26",
+            }],
+            "struct_sheet_range": [{
+                "sheet_id": "A", "id": "1", "beg_auth_comp_id": "PHE", "beg_auth_asym_id": "B",
+                "beg_auth_seq_id": "24", "pdbx_beg_PDB_ins_code": "?", "end_auth_comp_id": "TYR",
+                "end_auth_asym_id": "B", "end_auth_seq_id": "26", "pdbx_end_PDB_ins_code": "?"
+            }, {
+                "sheet_id": "A", "id": "2", "beg_auth_comp_id": "PHE", "beg_auth_asym_id": "D",
+                "beg_auth_seq_id": "24", "pdbx_beg_PDB_ins_code": "?", "end_auth_comp_id": "TYR",
+                "end_auth_asym_id": "D", "end_auth_seq_id": "26", "pdbx_end_PDB_ins_code": "?"
+            }, {
+                "sheet_id": "B", "id": "1", "beg_auth_comp_id": "PHE", "beg_auth_asym_id": "F",
+                "beg_auth_seq_id": "24", "pdbx_beg_PDB_ins_code": "?", "end_auth_comp_id": "TYR",
+                "end_auth_asym_id": "F", "end_auth_seq_id": "26", "pdbx_end_PDB_ins_code": "?"
+            }, {
+                "sheet_id": "B", "id": "2", "beg_auth_comp_id": "PHE", "beg_auth_asym_id": "H",
+                "beg_auth_seq_id": "24", "pdbx_beg_PDB_ins_code": "L", "end_auth_comp_id": "TYR",
+                "end_auth_asym_id": "H", "end_auth_seq_id": "26", "pdbx_end_PDB_ins_code": "N"
+            }]
+        }
+        self.assertEqual(create_sheet_lines(mmcif), [
+            "SHEET    1   A 2 PHE B  24  TYR B  26  0",
+            "SHEET    2   A 2 PHE D  24  TYR D  26  1  N  TYR D  26   O  PHE B  24",
+            "SHEET    1   B 2 PHE F  24  TYR F  26  0",
+            "SHEET    2   B 2 PHE H  24L TYR H  26N-1  N  TYR H  26Q  O  PHE F  24Z"
+        ])
+    

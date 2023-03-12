@@ -5975,4 +5975,110 @@ class SheetLineTests(TestCase):
             "SHEET    1   B 2 PHE F  24  TYR F  26  0",
             "SHEET    2   B 2 PHE H  24L TYR H  26N-1  N  TYR H  26Q  O  PHE F  24Z"
         ])
+
+
+
+class SsbondLinesTests(TestCase):
+
+    def test_can_handle_no_ssbond(self):
+        self.assertEqual(create_ssbond_lines({}), [])
     
+
+    def test_can_save_ssbond_lines(self):
+        mmcif = {
+            "struct_conn": [{
+                "id": "disulf1", "conn_type_id": "disulf",
+                "pdbx_ptnr1_PDB_ins_code": "?", "ptnr1_symmetry": "1555",
+                "pdbx_ptnr2_PDB_ins_code": "?", "ptnr1_auth_asym_id": "A",
+                "ptnr1_auth_comp_id": "CYS", "ptnr1_auth_seq_id": "6",
+                "ptnr2_auth_asym_id": "A", "ptnr2_auth_comp_id": "CYS",
+                "ptnr2_auth_seq_id": "11", "ptnr2_symmetry": "1555",
+                "pdbx_dist_value": "2.02",
+            }, {
+                "id": "disulf1", "conn_type_id": "disulf", 
+                "pdbx_ptnr1_PDB_ins_code": "P", "pdbx_ptnr1_standard_comp_id": "?",
+                "ptnr1_symmetry": "1554", "pdbx_ptnr2_PDB_ins_code": "Z",
+                "ptnr1_auth_asym_id": "B", "ptnr1_auth_comp_id": "MET",
+                "ptnr1_auth_seq_id": "99", "ptnr2_auth_asym_id": "C",
+                "ptnr2_auth_comp_id": "THR", "ptnr2_auth_seq_id": "101",
+                "ptnr2_symmetry": "1556", "pdbx_dist_value": "2.55",
+            }, {
+                "id": "covale29", "conn_type_id": "covale",
+                "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+                "ptnr1_label_asym_id": "V", "ptnr1_label_comp_id": "ZN",
+                "ptnr1_label_seq_id": ".", "ptnr1_label_atom_id": "ZN",
+            }]
+        }
+        self.assertEqual(create_ssbond_lines(mmcif), [
+            "SSBOND   1 CYS A    6    CYS A   11                          1555   1555  2.02",
+            "SSBOND   2 MET B   99P   THR C  101Z                         1554   1556  2.55"
+        ])
+
+
+
+class LinkLinesTests(TestCase):
+
+    def test_can_handle_no_links(self):
+        self.assertEqual(create_link_lines({}), [])
+    
+
+    def test_can_produce_link_lines(self):
+        mmcif = {
+            "struct_conn": [{
+                "id": "covale1", "conn_type_id": "covale", "ptnr1_label_atom_id": "C",
+                "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "?",
+                "ptnr1_symmetry": "1555", "ptnr2_label_atom_id": "N",
+                "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "?",
+                "ptnr1_auth_asym_id": "A", "ptnr1_auth_comp_id": "ACE",
+                "ptnr1_auth_seq_id": "0", "ptnr2_auth_asym_id": "A",
+                "ptnr2_auth_comp_id": "HIS", "ptnr2_auth_seq_id": "1",
+                "ptnr2_symmetry": "1555", "pdbx_dist_value": "1.38",
+            }, {
+                "id": "covale7", "conn_type_id": "covale", "ptnr1_label_atom_id": "CE",
+                "pdbx_ptnr1_label_alt_id": "?", "pdbx_ptnr1_PDB_ins_code": "E",
+                "ptnr1_symmetry": "1554", "ptnr2_label_atom_id": "CE",
+                "pdbx_ptnr2_label_alt_id": "?", "pdbx_ptnr2_PDB_ins_code": "K",
+                "ptnr1_auth_asym_id": "B", "ptnr1_auth_comp_id": "MK8",
+                "ptnr1_auth_seq_id": "2", "ptnr2_auth_asym_id": "C",
+                "ptnr2_auth_comp_id": "MK8", "ptnr2_auth_seq_id": "6",
+                "ptnr2_symmetry": "1556", "pdbx_dist_value": "1.39",
+            }, {
+                "id": "covale29", "conn_type_id": "disulf",
+                "pdbx_leaving_atom_flag": "?", "pdbx_PDB_id": "?",
+                "ptnr1_label_asym_id": "V", "ptnr1_label_comp_id": "ZN",
+                "ptnr1_label_seq_id": ".", "ptnr1_label_atom_id": "ZN",
+            }]
+        }
+        self.assertEqual(create_link_lines(mmcif), [
+            "LINK           C ACE A   0                   N HIS A   1     1555   1555  1.38",
+            "LINK          CE MK8 B   2E                 CE MK8 C   6K    1554   1556  1.39"
+        ])
+
+
+
+class CispepLinesTests(TestCase):
+
+    def test_can_handle_no_cispep(self):
+        self.assertEqual(create_cispep_lines({}), [])
+    
+
+    def test_can_save_cispep_lines(self):
+        mmcif = {
+            "struct_mon_prot_cis": [{
+                "pdbx_id": "1",  "pdbx_PDB_ins_code": "?", "auth_comp_id": "ASN",
+                "auth_seq_id": "77", "auth_asym_id": "A", "pdbx_PDB_ins_code_2": "?",
+                "pdbx_auth_comp_id_2": "PRO", "pdbx_auth_seq_id_2": "78",
+                "pdbx_auth_asym_id_2": "A", "pdbx_PDB_model_num": "1",
+                "pdbx_omega_angle": "1.58",
+            }, {
+                "pdbx_id": "2", "pdbx_PDB_ins_code": "N", "auth_comp_id": "ASN",
+                "auth_seq_id": "88", "auth_asym_id": "C", "pdbx_PDB_ins_code_2": "K",
+                "pdbx_auth_comp_id_2": "PRO", "pdbx_auth_seq_id_2": "79",
+                "pdbx_auth_asym_id_2": "C", "pdbx_PDB_model_num": "1",
+                "pdbx_omega_angle": "-1.32",
+            }]
+        }
+        self.assertEqual(create_cispep_lines(mmcif), [
+            "CISPEP   1 ASN A   77    PRO A   78          0         1.58",
+            "CISPEP   2 ASN C   88N   PRO C   79K         0        -1.32"
+        ])

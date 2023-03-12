@@ -3121,66 +3121,72 @@ def create_sheet_lines(mmcif):
 
 
 def create_ssbond_lines(mmcif):
-    line = "SSBOND {:>3} {:>3} {:1} {:>4}{:1}   {:>3} {:1} {:>4}{:1}                       {:>6} {:>6} {:>5}"
+    """Creates the SSBOND lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    line = "SSBOND {:>3} {:>3} {:1} {:>4}{:1}   {:>3} {:1} {:>4}{:1}" +\
+    "                       {:>6} {:>6} {:>5}"
     lines = []
     for ssbond in mmcif.get("struct_conn", []):
         if ssbond["conn_type_id"] != "disulf": continue
         lines.append(line.format(
-            str(len(lines) + 1),
-            ssbond["ptnr1_auth_comp_id"],
-            ssbond["ptnr1_auth_asym_id"],
-            ssbond["ptnr1_auth_seq_id"],
+            str(len(lines) + 1), ssbond["ptnr1_auth_comp_id"],
+            ssbond["ptnr1_auth_asym_id"], ssbond["ptnr1_auth_seq_id"],
             ssbond["pdbx_ptnr1_PDB_ins_code"].replace("?", ""),
-            ssbond["ptnr2_auth_comp_id"],
-            ssbond["ptnr2_auth_asym_id"],
+            ssbond["ptnr2_auth_comp_id"], ssbond["ptnr2_auth_asym_id"],
             ssbond["ptnr2_auth_seq_id"],
             ssbond["pdbx_ptnr2_PDB_ins_code"].replace("?", ""),
-            ssbond["ptnr1_symmetry"],
-            ssbond["ptnr2_symmetry"],
+            ssbond["ptnr1_symmetry"], ssbond["ptnr2_symmetry"],
             ssbond["pdbx_dist_value"],
         ))
     return lines
 
 
 def create_link_lines(mmcif):
-    line = "LINK        {:>4}{:1}{:>3} {:1}{:>4}{:1}               {:>4}{:1}{:>3} {:1}{:>4}{:1}  {:>6} {:>6} {:>5}"
+    """Creates the LINK lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    line = "LINK        {:>4}{:1}{:>3} {:1}{:>4}{:1}               " + \
+    "{:>4}{:1}{:>3} {:1}{:>4}{:1}  {:>6} {:>6} {:>5}"
     lines = []
     for link in mmcif.get("struct_conn", []):
         if link["conn_type_id"] != "covale": continue
         lines.append(line.format(
             link["ptnr1_label_atom_id"],
             link["pdbx_ptnr1_label_alt_id"].replace("?", ""),
-            link["ptnr1_auth_comp_id"],
-            link["ptnr1_auth_asym_id"],
+            link["ptnr1_auth_comp_id"], link["ptnr1_auth_asym_id"],
             link["ptnr1_auth_seq_id"],
             link["pdbx_ptnr1_PDB_ins_code"].replace("?", ""),
             link["ptnr2_label_atom_id"],
             link["pdbx_ptnr2_label_alt_id"].replace("?", ""),
-            link["ptnr2_auth_comp_id"],
-            link["ptnr2_auth_asym_id"],
+            link["ptnr2_auth_comp_id"], link["ptnr2_auth_asym_id"],
             link["ptnr2_auth_seq_id"],
             link["pdbx_ptnr2_PDB_ins_code"].replace("?", ""),
-            link["ptnr1_symmetry"],
-            link["ptnr2_symmetry"],
+            link["ptnr1_symmetry"], link["ptnr2_symmetry"],
             link["pdbx_dist_value"],
         ))
     return lines
     
 
 def create_cispep_lines(mmcif):
-    line = "CISPEP {:>3} {:>3} {:1} {:>4}{:1}   {:>3} {:1} {:>4}{:1}       {:>3}       {:>6}"
+    """Creates the CISPEP lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    line = "CISPEP {:>3} {:>3} {:1} {:>4}{:1}   {:>3} {:1} " +\
+    "{:>4}{:1}       {:>3}       {:>6}"
     return [line.format(
-        cispep["pdbx_id"],
-        cispep["auth_comp_id"],
-        cispep["auth_asym_id"],
-        cispep["auth_seq_id"],
-        cispep["pdbx_PDB_ins_code"].replace("?", ""),
-        cispep["pdbx_auth_comp_id_2"],
-        cispep["pdbx_auth_asym_id_2"],
+        cispep["pdbx_id"], cispep["auth_comp_id"], cispep["auth_asym_id"],
+        cispep["auth_seq_id"], cispep["pdbx_PDB_ins_code"].replace("?", ""),
+        cispep["pdbx_auth_comp_id_2"], cispep["pdbx_auth_asym_id_2"],
         cispep["pdbx_auth_seq_id_2"],
         cispep["pdbx_PDB_ins_code_2"].replace("?", ""),
-        str(int(cispep["pdbx_PDB_model_num"]) - 1),
-        cispep["pdbx_omega_angle"],
+        str(int(cispep["pdbx_PDB_model_num"]) - 1), cispep["pdbx_omega_angle"],
     ) for cispep in mmcif.get("struct_mon_prot_cis", [])]
 
 

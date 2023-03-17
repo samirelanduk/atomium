@@ -1485,7 +1485,7 @@ class Cryst1ParsingTests(TestCase):
 
 class OrigxParsingTests(TestCase):
 
-    def test_can_handle_no_origix(self):
+    def test_can_handle_no_origxn(self):
         mmcif = {}
         parse_origx("", mmcif)
         self.assertEqual(mmcif, {})
@@ -3939,7 +3939,7 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_cispep_lines")
     @patch("atomium.pdb.create_site_lines")
     @patch("atomium.pdb.create_cryst1_line")
-    @patch("atomium.pdb.create_origix_lines")
+    @patch("atomium.pdb.create_origxn_lines")
     @patch("atomium.pdb.create_scalen_lines")
     @patch("atomium.pdb.create_mtrixn_lines")
     @patch("atomium.pdb.create_atom_lines")
@@ -6123,4 +6123,139 @@ class SiteLinesTests(TestCase):
             "SITE     1 AC1  6 HOH A1577  PRO A1578P VAL A1579  CYS A1560",
             "SITE     2 AC1  6 GLU B1561  ASP B   8",
             "SITE     1 AC2  2 HOH A  22  GLN C  33"
+        ])
+
+
+
+class Cryst1LinesTests(TestCase):
+
+    def test_can_handle_no_tables(self):
+        self.assertEqual(create_cryst1_line({}), [])
+    
+
+    def test_can_handle_missing_values(self):
+        mmcif = {
+            "cell": [{
+                "entry_id": "?", "length_a": "?", "length_b": "?",
+                "length_c": "?", "angle_alpha": "?", "angle_beta": "?",
+                "angle_gamma": "?", "Z_pdb": "?", "pdbx_unique_axis": "?",
+            }],
+            "symmetry": [{"space_group_name_H-M": "?"}]
+        }
+        self.assertEqual(create_cryst1_line(mmcif), [])
+
+    
+    def test_can_handle_some_missing_values(self):
+        mmcif = {
+            "cell": [{
+                "entry_id": "?", "length_a": "57.50", "length_b": "?",
+                "length_c": "?", "angle_alpha": "?", "angle_beta": "?",
+                "angle_gamma": "?", "Z_pdb": "?", "pdbx_unique_axis": "?",
+            }],
+            "symmetry": [{"space_group_name_H-M": "?"}]
+        }
+        self.assertEqual(create_cryst1_line(mmcif), ["CRYST1    57.50"])
+    
+
+    def test_can_produce_cryst1_lines(self):
+        mmcif = {
+            "cell": [{
+                "entry_id": "1LOL", "length_a": "57.570", "length_b": "55.482",
+                "length_c": "66.129", "angle_alpha": "90.00", "angle_beta": "94.28",
+                "angle_gamma": "45.00", "Z_pdb": "4"
+            }],
+            "symmetry": [{"space_group_name_H-M": "P 1 21 1"}]
+        }
+        self.assertEqual(create_cryst1_line(mmcif), [
+            "CRYST1   57.570   55.482   66.129  90.00  94.28  45.00 P 1 21 1      4"
+        ])
+
+
+
+class OrigxLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_origxn_lines({}), [])
+    
+
+    def test_can_create_origx_lines(self):
+        mmcif = {
+            "database_PDB_matrix": [{
+                "entry_id": "1LOL", "origx[1][1]": "1.000000",
+                "origx[1][2]": "0.000001", "origx[1][3]": "0.000002",
+                "origx[2][1]": "0.000003", "origx[2][2]": "9.000000",
+                "origx[2][3]": "0.000005", "origx[3][1]": "0.000004",
+                "origx[3][2]": "0.000007", "origx[3][3]": "10.000000",
+                "origx_vector[1]": "0.40000", "origx_vector[2]": "0.05000",
+                "origx_vector[3]": "0.00060",
+            }]
+        }
+        self.assertEqual(create_origxn_lines(mmcif), [
+            "ORIGX1      1.000000  0.000001  0.000002        0.40000",
+            "ORIGX2      0.000003  9.000000  0.000005        0.05000",
+            "ORIGX3      0.000004  0.000007 10.000000        0.00060"
+        ])
+
+
+
+class ScalenLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_scalen_lines({}), [])
+    
+
+    def test_can_create_scalen_lines(self):
+        mmcif = {
+            "atom_sites": [{
+                "entry_id": "1LOL", "fract_transf_matrix[1][1]": "0.017370",
+                "fract_transf_matrix[1][2]": "0.000000",
+                "fract_transf_matrix[1][3]": "0.001301",
+                "fract_transf_matrix[2][1]": "0.000000",
+                "fract_transf_matrix[2][2]": "0.018024",
+                "fract_transf_matrix[2][3]": "0.000000",
+                "fract_transf_matrix[3][1]": "0.040003",
+                "fract_transf_matrix[3][2]": "0.000090",
+                "fract_transf_matrix[3][3]": "0.015164",
+                "fract_transf_vector[1]": "0.10000",
+                "fract_transf_vector[2]": "0.20000",
+                "fract_transf_vector[3]": "0.30000",
+            }]
+        }
+        self.assertEqual(create_scalen_lines(mmcif), [
+            "SCALE1      0.017370  0.000000  0.001301        0.10000",
+            "SCALE2      0.000000  0.018024  0.000000        0.20000",
+            "SCALE3      0.040003  0.000090  0.015164        0.30000"
+        ])
+
+
+
+class MtrixnLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_mtrixn_lines({}), [])
+    
+
+    def test_can_create_mtrixn_lines(self):
+        mmcif = {
+            "struct_ncs_oper": [{
+                "id": "1", "code": "given", "details": "?",
+                "matrix[1][1]": "-0.745000", "matrix[1][2]": "0.008000", "matrix[1][3]": "0.667000",
+                "matrix[2][1]": "0.020000", "matrix[2][2]": "-0.999000", "matrix[2][3]": "0.035000",
+                "matrix[3][1]": "0.667000", "matrix[3][2]": "0.040000", "matrix[3][3]": "0.744000",
+                "vector[1]": "14.56700", "vector[2]": "27.10700", "vector[3]": "-6.04300"
+            }, {
+                "id": "2", "code": "?", "details": "?",
+                "matrix[1][1]": "-0.746000", "matrix[1][2]": "-0.029000", "matrix[1][3]": "0.665000",
+                "matrix[2][1]": "0.045000", "matrix[2][2]": "-0.999000", "matrix[2][3]": "0.007000",
+                "matrix[3][1]": "0.664000", "matrix[3][2]": "0.035000", "matrix[3][3]": "0.747000",
+                "vector[1]": "14.68300", "vector[2]": "27.24500", "vector[3]": "-5.93200"
+            }]
+        }
+        self.assertEqual(create_mtrixn_lines(mmcif), [
+            "MTRIX1   1 -0.745000  0.008000  0.667000       14.56700    1",
+            "MTRIX2   1  0.020000 -0.999000  0.035000       27.10700    1",
+            "MTRIX3   1  0.667000  0.040000  0.744000       -6.04300    1",
+            "MTRIX1   2 -0.746000 -0.029000  0.665000       14.68300     ",
+            "MTRIX2   2  0.045000 -0.999000  0.007000       27.24500     ",
+            "MTRIX3   2  0.664000  0.035000  0.747000       -5.93200     "
         ])

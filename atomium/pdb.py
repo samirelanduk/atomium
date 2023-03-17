@@ -2096,7 +2096,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_cispep_lines(mmcif)
     lines += create_site_lines(mmcif)
     lines += create_cryst1_line(mmcif)
-    lines += create_origix_lines(mmcif)
+    lines += create_origxn_lines(mmcif)
     lines += create_scalen_lines(mmcif)
     lines += create_mtrixn_lines(mmcif)
     lines += create_atom_lines(mmcif)
@@ -3218,6 +3218,11 @@ def create_site_lines(mmcif):
 
 
 def create_cryst1_line(mmcif):
+    """Creates the CRYST1 lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     if "cell" not in mmcif: return []
     line = "CRYST1{:>9}{:>9}{:>9}{:>7}{:>7}{:>7} {:<11}{:>4}"
     line = line.format(
@@ -3230,10 +3235,15 @@ def create_cryst1_line(mmcif):
         mmcif.get("symmetry", [{}])[0].get("space_group_name_H-M", "?"),
         mmcif["cell"][0].get("Z_pdb", "?"),
     ).replace("?", " ")
-    return [line]
+    return [line.strip()] if line[6:].strip() else []
 
 
-def create_origix_lines(mmcif):
+def create_origxn_lines(mmcif):
+    """Creates the ORIGX lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     if "database_PDB_matrix" not in mmcif: return []
     lines = []
     line = "ORIGX{:1}    {:>10}{:>10}{:>10}     {:>10}"
@@ -3248,6 +3258,11 @@ def create_origix_lines(mmcif):
 
 
 def create_scalen_lines(mmcif):
+    """Creates the SCALE lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     if "atom_sites" not in mmcif: return []
     lines = []
     line = "SCALE{:1}    {:>10}{:>10}{:>10}     {:>10}"
@@ -3262,15 +3277,18 @@ def create_scalen_lines(mmcif):
 
 
 def create_mtrixn_lines(mmcif):
+    """Creates the MTRIX lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     lines = []
     line = "MTRIX{:1} {:3}{:>10}{:>10}{:>10}     {:>10}    {:1}"
     for i, row in enumerate(mmcif.get("struct_ncs_oper", []), start=1):
         for n in range(1, 4):
             lines.append(line.format(
-                n, i, row[f"matrix[{n}][1]"],
-                row[f"matrix[{n}][2]"],
-                row[f"matrix[{n}][3]"],
-                row[f"vector[{n}]"],
+                n, i, row[f"matrix[{n}][1]"], row[f"matrix[{n}][2]"],
+                row[f"matrix[{n}][3]"], row[f"vector[{n}]"],
                 "1" if row["code"] == "given" else " "
             ).replace("?", " "))
     return lines

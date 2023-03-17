@@ -6082,3 +6082,45 @@ class CispepLinesTests(TestCase):
             "CISPEP   1 ASN A   77    PRO A   78          0         1.58",
             "CISPEP   2 ASN C   88N   PRO C   79K         0        -1.32"
         ])
+
+
+
+class SiteLinesTests(TestCase):
+
+    def test_can_handle_no_site(self):
+        self.assertEqual(create_site_lines({}), [])
+    
+
+    def test_can_produce_site_lines(self):
+        mmcif = {
+            "struct_site_gen": [{
+                "site_id": "AC1", "pdbx_num_res": "6", "pdbx_auth_ins_code": "?",
+                "auth_comp_id": "HOH", "auth_asym_id": "A", "auth_seq_id": "1577"
+            }, {
+                "site_id": "AC1", "pdbx_num_res": "6", "pdbx_auth_ins_code": "P",
+                "auth_comp_id": "PRO", "auth_asym_id": "A", "auth_seq_id": "1578"
+            }, {
+                "site_id": "AC1", "pdbx_num_res": "6", "pdbx_auth_ins_code": "?",
+                "auth_comp_id": "VAL", "auth_asym_id": "A", "auth_seq_id": "1579"
+            }, {
+               "site_id": "AC1", "pdbx_num_res": "6", "pdbx_auth_ins_code": "?",
+                "auth_comp_id": "CYS", "auth_asym_id": "A", "auth_seq_id": "1560"
+            }, {
+                "site_id": "AC1", "pdbx_num_res": "6", "pdbx_auth_ins_code": "?",
+                "auth_comp_id": "GLU", "auth_asym_id": "B", "auth_seq_id": "1561"
+            }, {
+                "site_id": "AC1", "pdbx_num_res": "6", "pdbx_auth_ins_code": "?",
+                "auth_comp_id": "ASP", "auth_asym_id": "B", "auth_seq_id": "8"
+            }, {
+                "site_id": "AC2", "pdbx_num_res": "2", "pdbx_auth_ins_code": "?",
+                "auth_comp_id": "HOH", "auth_asym_id": "A", "auth_seq_id": "22"
+            }, {
+                "site_id": "AC2", "pdbx_num_res": "2", "pdbx_auth_ins_code": "?",
+                "auth_comp_id": "GLN", "auth_asym_id": "C", "auth_seq_id": "33"
+            }]
+        }
+        self.assertEqual(create_site_lines(mmcif), [
+            "SITE     1 AC1  6 HOH A1577  PRO A1578P VAL A1579  CYS A1560",
+            "SITE     2 AC1  6 GLU B1561  ASP B   8",
+            "SITE     1 AC2  2 HOH A  22  GLN C  33"
+        ])

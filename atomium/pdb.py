@@ -3191,9 +3191,14 @@ def create_cispep_lines(mmcif):
 
 
 def create_site_lines(mmcif):
-    line = "SITE   {:>3} {:>3} {:>2} {:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1}"
-    lines = []
-    site_ids = []
+    """Creates the SITE lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
+    line = "SITE   {:>3} {:>3} {:>2} {:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1} " +\
+    "{:3} {:1}{:>4}{:1} {:3} {:1}{:>4}{:1}"
+    lines, site_ids = [], []
     for row in mmcif.get("struct_site_gen", []):
         if row["site_id"] not in site_ids: site_ids.append(row["site_id"])
     for site_id in site_ids:
@@ -3204,13 +3209,11 @@ def create_site_lines(mmcif):
             values = [line_num + 1, site_id, line_rows[0]["pdbx_num_res"]]
             for row in line_rows:
                 values += [
-                    row["auth_comp_id"],
-                    row["auth_asym_id"],
-                    row["auth_seq_id"],
+                    row["auth_comp_id"], row["auth_asym_id"], row["auth_seq_id"],
                     row["pdbx_auth_ins_code"].replace("?", ""),
                 ]
             values += [""] * (19 - len(values))
-            lines.append(line.format(*values))
+            lines.append(line.format(*values).strip())
     return lines
 
 

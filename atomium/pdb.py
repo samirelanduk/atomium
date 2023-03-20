@@ -3009,7 +3009,7 @@ def create_formul_lines(mmcif):
         mmcif.get("pdbx_entity_nonpoly", [])}
     name_to_entity_id = {s["comp_id"]: s["entity_id"] for s in
         mmcif.get("pdbx_entity_nonpoly", [])}
-    entity_ids = sorted(s["entity_id"] for s in mmcif["struct_asym"])
+    entity_ids = sorted(set(s["entity_id"] for s in mmcif["struct_asym"]))
     sig_counts = get_sig_counts(mmcif, include_water=True, representative=True)
     id_counts = {sig[3]: sum(
         v for k, v in sig_counts.items() if k[3] == sig[3]

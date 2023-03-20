@@ -5806,11 +5806,11 @@ class FormulLinesTests(TestCase):
             ]
         }
         self.assertEqual(create_formul_lines(mmcif), [
-            "FORMUL   6  BU2    formul1",
-            "FORMUL   9  HOH   *formul2",
-            "FORMUL   4  XYZ    formul3",
-            "FORMUL   4  XYZ  2 which needs",
-            "FORMUL   4  XYZ  3 3 lines",
+            "FORMUL   4  BU2    formul1",
+            "FORMUL   6  HOH   *formul2",
+            "FORMUL   3  XYZ    formul3",
+            "FORMUL   3  XYZ  2 which needs",
+            "FORMUL   3  XYZ  3 3 lines",
         ])
         mock_sigs.assert_called_with(mmcif, include_water=True, representative=True)
         mock_split.assert_any_call("5(C4)", 50)

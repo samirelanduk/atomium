@@ -3295,9 +3295,14 @@ def create_mtrixn_lines(mmcif):
 
 
 def create_atom_lines(mmcif):
+    """Creates the ATOM, HETATM, MODEL, ENDMDL and TER lines from a mmCIF
+    dictionary.
+    
+    :param dict mmcif: the dictionary to parse.
+    :rtype: ``list``"""
+
     if not mmcif.get("atom_site", []): return []
-    lines = []
-    model_num = 0
+    lines, model_num = [], 0
     atom_id, asym_id, entity_id = 1, mmcif["atom_site"][0]["label_asym_id"], ""
     aniso_lookup = {a["id"]: a for a in mmcif.get("atom_site_anisotrop", [])}
     model_nums = set(a["pdbx_PDB_model_num"] for a in  mmcif["atom_site"])
@@ -3311,24 +3316,29 @@ def create_atom_lines(mmcif):
         if atom["label_asym_id"] != asym_id and lookup[entity_id] == "polymer":
             lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
             atom_id += 1
-        asym_id = atom["label_asym_id"]
-        entity_id = atom["label_entity_id"]
+        asym_id, entity_id = atom["label_asym_id"], atom["label_entity_id"]
         lines.append(create_atom_line(atom, atom_id))
         line = create_aniso_line(atom, aniso_lookup.get(atom["id"]), atom_id)
         if line: lines.append(line)
         atom_id += 1
+    if len(model_nums) > 1: lines.append("ENDMDL")
     return lines
 
 
 def create_atom_line(atom, atom_id):
+    """Creates an ATOM or HETATM line from a mmCIF atom_site dictionary.
+    
+    :param dict atom: the atom to parse.
+    :param int atom_id: the atom serial number.
+    :rtype: ``str"""
+
     line = "{:6}{:>5} {:<4} {:3} {:1}{:>4}{:1}   "
     line += "{:>8}{:>8}{:>8}  1.00{:>6}          {:>2}{:2}"
     line = line.format(
-        atom["group_PDB"],
-        atom_id,
+        atom["group_PDB"], atom_id,
         f"{'' if len(atom['label_atom_id']) == 4 else ' '}{atom['label_atom_id']}",
-        atom["auth_comp_id"],
-        atom["auth_asym_id"], atom["auth_seq_id"], atom["pdbx_PDB_ins_code"],
+        atom["auth_comp_id"], atom["auth_asym_id"],
+        atom["auth_seq_id"], atom["pdbx_PDB_ins_code"],
         "{:.3f}".format(float(atom["Cartn_x"])),
         "{:.3f}".format(float(atom["Cartn_y"])),
         "{:.3f}".format(float(atom["Cartn_z"])),
@@ -3339,21 +3349,25 @@ def create_atom_line(atom, atom_id):
 
 
 def create_aniso_line(atom, aniso, atom_id):
+    """Creates an ANISOU line from a mmCIF atom_site dictionary.
+    
+    :param dict atom: the atom to parse.
+    :param dict aniso: the aniso information.
+    :param int atom_id: the atom serial number.
+    :rtype: ``str"""
+
     if not aniso: return
     line = "ANISOU{:5} {:4} {:3} {:1}{:>4}{:1} "
     line += "{:>7}{:>7}{:>7}{:>7}{:>7}{:>7}      {:>2}{:2}"
+    convert = lambda s: int(float(s) * 10000)
     line = line.format(
         atom_id, f"{'' if len(atom['label_atom_id']) == 4 else ' '}{atom['label_atom_id']}",
         atom["auth_comp_id"],
         atom["auth_asym_id"], atom["auth_seq_id"], atom["pdbx_PDB_ins_code"],
-        int(float(aniso["U[1][1]"]) * 10000),
-        int(float(aniso["U[2][2]"]) * 10000),
-        int(float(aniso["U[3][3]"]) * 10000),
-        int(float(aniso["U[1][2]"]) * 10000),
-        int(float(aniso["U[1][3]"]) * 10000),
-        int(float(aniso["U[2][3]"]) * 10000),
-        atom["type_symbol"] or "",
-        atom["pdbx_formal_charge"][::-1],
+        convert(aniso["U[1][1]"]), convert(aniso["U[2][2]"]),
+        convert(aniso["U[3][3]"]), convert(aniso["U[1][2]"]),
+        convert(aniso["U[1][3]"]), convert(aniso["U[2][3]"]),
+        atom["type_symbol"] or "", atom["pdbx_formal_charge"][::-1],
     )
     return line.replace("?", " ")
 

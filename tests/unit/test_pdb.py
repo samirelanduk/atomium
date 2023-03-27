@@ -6259,3 +6259,316 @@ class MtrixnLinesTests(TestCase):
             "MTRIX2   2  0.045000 -0.999000  0.007000       27.24500     ",
             "MTRIX3   2  0.664000  0.035000  0.747000       -5.93200     "
         ])
+
+
+
+class AtomLinesTests(TestCase):
+
+    def test_can_handle_no_table(self):
+        self.assertEqual(create_atom_lines({}), [])
+    
+
+    @patch("atomium.pdb.create_atom_line")
+    @patch("atomium.pdb.create_aniso_line")
+    def test_can_get_lines(self, mock_aniso, mock_atom):
+        mock_atom.side_effect = lambda a, i: "ATOM " + str(i) + " " + a["label_asym_id"] * 15
+        mock_aniso.return_value = None
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ],
+            "atom_site": [
+                {"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "5", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"},
+                {"id": "6", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"},
+                {"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "9", "pdbx_PDB_model_num": "1", "label_asym_id": "E", "label_entity_id": "4"},
+                {"id": "10", "pdbx_PDB_model_num": "1", "label_asym_id": "F", "label_entity_id": "4"}
+            ]
+        }
+        self.assertEqual(create_atom_lines(mmcif), [
+            "ATOM 1 AAAAAAAAAAAAAAA", 
+            "ATOM 2 AAAAAAAAAAAAAAA", 
+            "TER       3      AAAAA",
+            "ATOM 4 BBBBBBBBBBBBBBB", 
+            "ATOM 5 BBBBBBBBBBBBBBB", 
+            "TER       6      BBBBB",
+            "ATOM 7 CCCCCCCCCCCCCCC", 
+            "ATOM 8 CCCCCCCCCCCCCCC", 
+            "TER       9      CCCCC",
+            "ATOM 10 DDDDDDDDDDDDDDD",
+            "ATOM 11 DDDDDDDDDDDDDDD",
+            "ATOM 12 EEEEEEEEEEEEEEE",
+            "ATOM 13 FFFFFFFFFFFFFFF",
+        ])
+        self.assertEqual([c[0] for c in mock_atom.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, 5),
+            ({"id": "5", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, 7),
+            ({"id": "6", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, 8),
+            ({"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, 10),
+            ({"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, 11),
+            ({"id": "9", "pdbx_PDB_model_num": "1", "label_asym_id": "E", "label_entity_id": "4"}, 12),
+            ({"id": "10", "pdbx_PDB_model_num": "1", "label_asym_id": "F", "label_entity_id": "4"}, 13),
+        ])
+        self.assertEqual([c[0] for c in mock_aniso.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, None, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, None, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, None, 5),
+            ({"id": "5", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, None, 7),
+            ({"id": "6", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, None, 8),
+            ({"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, None, 10),
+            ({"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, None, 11),
+            ({"id": "9", "pdbx_PDB_model_num": "1", "label_asym_id": "E", "label_entity_id": "4"}, None, 12),
+            ({"id": "10", "pdbx_PDB_model_num": "1", "label_asym_id": "F", "label_entity_id": "4"}, None, 13),
+        ])
+    
+
+    @patch("atomium.pdb.create_atom_line")
+    @patch("atomium.pdb.create_aniso_line")
+    def test_can_get_lines_with_aniso(self, mock_aniso, mock_atom):
+        mock_atom.side_effect = lambda a, i: "ATOM " + str(i) + " " + a["label_asym_id"] * 15
+        mock_aniso.side_effect = lambda a, _, i: "ANISO " + str(i) + " " + a["label_asym_id"] * 15
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ],
+            "atom_site": [
+                {"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "5", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"},
+                {"id": "6", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"},
+                {"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "9", "pdbx_PDB_model_num": "1", "label_asym_id": "E", "label_entity_id": "4"},
+                {"id": "10", "pdbx_PDB_model_num": "1", "label_asym_id": "F", "label_entity_id": "4"}
+            ],
+            "atom_site_anisotrop": [
+                {"id": "1", "aniso": "10"},
+                {"id": "2", "aniso": "20"},
+                {"id": "8", "aniso": "80"},
+            ]
+        }
+        self.assertEqual(create_atom_lines(mmcif), [
+            "ATOM 1 AAAAAAAAAAAAAAA", "ANISO 1 AAAAAAAAAAAAAAA",
+            "ATOM 2 AAAAAAAAAAAAAAA", "ANISO 2 AAAAAAAAAAAAAAA",
+            "TER       3      AAAAAA",
+            "ATOM 4 BBBBBBBBBBBBBBB", "ANISO 4 BBBBBBBBBBBBBBB",
+            "ATOM 5 BBBBBBBBBBBBBBB", "ANISO 5 BBBBBBBBBBBBBBB",
+            "TER       6      BBBBBB",
+            "ATOM 7 CCCCCCCCCCCCCCC", "ANISO 7 CCCCCCCCCCCCCCC",
+            "ATOM 8 CCCCCCCCCCCCCCC", "ANISO 8 CCCCCCCCCCCCCCC",
+            "TER       9      CCCCCC",
+            "ATOM 10 DDDDDDDDDDDDDDD", "ANISO 10 DDDDDDDDDDDDDDD",
+            "ATOM 11 DDDDDDDDDDDDDDD", "ANISO 11 DDDDDDDDDDDDDDD",
+            "ATOM 12 EEEEEEEEEEEEEEE", "ANISO 12 EEEEEEEEEEEEEEE",
+            "ATOM 13 FFFFFFFFFFFFFFF", "ANISO 13 FFFFFFFFFFFFFFF",
+        ])
+        self.assertEqual([c[0] for c in mock_atom.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, 5),
+            ({"id": "5", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, 7),
+            ({"id": "6", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, 8),
+            ({"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, 10),
+            ({"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, 11),
+            ({"id": "9", "pdbx_PDB_model_num": "1", "label_asym_id": "E", "label_entity_id": "4"}, 12),
+            ({"id": "10", "pdbx_PDB_model_num": "1", "label_asym_id": "F", "label_entity_id": "4"}, 13),
+        ])
+        self.assertEqual([c[0] for c in mock_aniso.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, {"id": "1", "aniso": "10"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, {"id": "2", "aniso": "20"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, None, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, None, 5),
+            ({"id": "5", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, None, 7),
+            ({"id": "6", "pdbx_PDB_model_num": "1", "label_asym_id": "C", "label_entity_id": "2"}, None, 8),
+            ({"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, None, 10),
+            ({"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, {"id": "8", "aniso": "80"}, 11),
+            ({"id": "9", "pdbx_PDB_model_num": "1", "label_asym_id": "E", "label_entity_id": "4"}, None, 12),
+            ({"id": "10", "pdbx_PDB_model_num": "1", "label_asym_id": "F", "label_entity_id": "4"}, None, 13),
+        ])
+    
+
+    @patch("atomium.pdb.create_atom_line")
+    @patch("atomium.pdb.create_aniso_line")
+    def test_can_get_lines_with_models(self, mock_aniso, mock_atom):
+        mock_atom.side_effect = lambda a, i: "ATOM " + str(i) + " " + a["label_asym_id"] * 15
+        mock_aniso.return_value = None
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ],
+            "atom_site": [
+                {"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "1", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "2", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "4", "pdbx_PDB_model_num": "2", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "7", "pdbx_PDB_model_num": "2", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "8", "pdbx_PDB_model_num": "2", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "1", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "4", "pdbx_PDB_model_num": "3", "label_asym_id": "B", "label_entity_id": "1"},
+                {"id": "7", "pdbx_PDB_model_num": "3", "label_asym_id": "D", "label_entity_id": "3"},
+                {"id": "8", "pdbx_PDB_model_num": "3", "label_asym_id": "D", "label_entity_id": "3"},
+            ]
+        }
+        self.assertEqual(create_atom_lines(mmcif), [
+            "MODEL        1",
+            "ATOM 1 AAAAAAAAAAAAAAA", 
+            "ATOM 2 AAAAAAAAAAAAAAA", 
+            "TER       3      AAAAA",
+            "ATOM 4 BBBBBBBBBBBBBBB", 
+            "ATOM 5 BBBBBBBBBBBBBBB", 
+            "TER       6      BBBBB",
+            "ATOM 7 DDDDDDDDDDDDDDD", 
+            "ATOM 8 DDDDDDDDDDDDDDD", 
+            "ENDMDL",
+            "MODEL        2",
+            "ATOM 1 AAAAAAAAAAAAAAA", 
+            "ATOM 2 AAAAAAAAAAAAAAA", 
+            "TER       3      AAAAA",
+            "ATOM 4 BBBBBBBBBBBBBBB", 
+            "ATOM 5 BBBBBBBBBBBBBBB", 
+            "TER       6      BBBBB",
+            "ATOM 7 DDDDDDDDDDDDDDD", 
+            "ATOM 8 DDDDDDDDDDDDDDD", 
+            "ENDMDL",
+            "MODEL        3",
+            "ATOM 1 AAAAAAAAAAAAAAA", 
+            "ATOM 2 AAAAAAAAAAAAAAA", 
+            "TER       3      AAAAA",
+            "ATOM 4 BBBBBBBBBBBBBBB", 
+            "ATOM 5 BBBBBBBBBBBBBBB", 
+            "TER       6      BBBBB",
+            "ATOM 7 DDDDDDDDDDDDDDD", 
+            "ATOM 8 DDDDDDDDDDDDDDD", 
+            "ENDMDL",
+        ])
+        self.assertEqual([c[0] for c in mock_atom.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, 5),
+            ({"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, 7),
+            ({"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, 8),
+            ({"id": "1", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "2", "label_asym_id": "B", "label_entity_id": "1"}, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "2", "label_asym_id": "B", "label_entity_id": "1"}, 5),
+            ({"id": "7", "pdbx_PDB_model_num": "2", "label_asym_id": "D", "label_entity_id": "3"}, 7),
+            ({"id": "8", "pdbx_PDB_model_num": "2", "label_asym_id": "D", "label_entity_id": "3"}, 8),
+            ({"id": "1", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "B", "label_entity_id": "1"}, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "3", "label_asym_id": "B", "label_entity_id": "1"}, 5),
+            ({"id": "7", "pdbx_PDB_model_num": "3", "label_asym_id": "D", "label_entity_id": "3"}, 7),
+            ({"id": "8", "pdbx_PDB_model_num": "3", "label_asym_id": "D", "label_entity_id": "3"}, 8),
+        ])
+        self.assertEqual([c[0] for c in mock_aniso.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, None, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, None, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "1", "label_asym_id": "B", "label_entity_id": "1"}, None, 5),
+            ({"id": "7", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, None, 7),
+            ({"id": "8", "pdbx_PDB_model_num": "1", "label_asym_id": "D", "label_entity_id": "3"}, None, 8),
+            ({"id": "1", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, None, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "2", "label_asym_id": "B", "label_entity_id": "1"}, None, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "2", "label_asym_id": "B", "label_entity_id": "1"}, None, 5),
+            ({"id": "7", "pdbx_PDB_model_num": "2", "label_asym_id": "D", "label_entity_id": "3"}, None, 7),
+            ({"id": "8", "pdbx_PDB_model_num": "2", "label_asym_id": "D", "label_entity_id": "3"}, None, 8),
+            ({"id": "1", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, None, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "B", "label_entity_id": "1"}, None, 4),
+            ({"id": "4", "pdbx_PDB_model_num": "3", "label_asym_id": "B", "label_entity_id": "1"}, None, 5),
+            ({"id": "7", "pdbx_PDB_model_num": "3", "label_asym_id": "D", "label_entity_id": "3"}, None, 7),
+            ({"id": "8", "pdbx_PDB_model_num": "3", "label_asym_id": "D", "label_entity_id": "3"}, None, 8),
+        ])
+
+
+
+class AtomLineCreation(TestCase):
+
+    def test_atom_full_values(self):
+        self.assertEqual(create_atom_line({
+            "group_PDB": "ATOM", "id": "46479", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": "Q", "label_comp_id": "ALA",
+            "label_asym_id": "N", "label_entity_id": "14", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "D", "Cartn_x": "-148.648", "Cartn_y": "29.717",
+            "Cartn_z": "-30.517", "occupancy": "1.00", "B_iso_or_equiv": "21.86",
+            "pdbx_formal_charge": "1-", "auth_seq_id": "1", "auth_comp_id": "ALA",
+            "auth_asym_id": "N", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        }, 20), "ATOM     20  N   ALA N   1D   -148.648  29.717 -30.517  1.00 21.86           N-1")
+    
+
+    def test_hetatm_empty_values(self):
+        self.assertEqual(create_atom_line({
+            "group_PDB": "HETATM", "id": "51464", "type_symbol": "MG",
+            "label_atom_id": "MG", "label_alt_id": ".", "label_comp_id": "MG",
+            "label_asym_id": "JA", "label_entity_id": "22", "label_seq_id": ".",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-124.828", "Cartn_y": "42.224",
+            "Cartn_z": "13.312", "occupancy": "1.00", "B_iso_or_equiv": "128.95",
+            "pdbx_formal_charge": "?", "auth_seq_id": "1548", "auth_comp_id": "MG",
+            "auth_asym_id": "A", "auth_atom_id": "MG", "pdbx_PDB_model_num": "1",
+        }, 20), "HETATM   20  MG  MG  A1548    -124.828  42.224  13.312  1.00128.95          MG  ")
+
+
+
+class AnisouLineCreation(TestCase):
+
+    def test_can_handle_no_ainso(self):
+        self.assertEqual(create_aniso_line({
+            "group_PDB": "ATOM", "id": "46479", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": "Q", "label_comp_id": "ALA",
+            "label_asym_id": "N", "label_entity_id": "14", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "D", "Cartn_x": "-148.648", "Cartn_y": "29.717",
+            "Cartn_z": "-30.517", "occupancy": "1.00", "B_iso_or_equiv": "21.86",
+            "pdbx_formal_charge": "1-", "auth_seq_id": "1", "auth_comp_id": "ALA",
+            "auth_asym_id": "N", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        }, None, 20), None)
+
+
+    def test_atom_full_values(self):
+        self.assertEqual(create_aniso_line({
+            "group_PDB": "ATOM", "id": "46479", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": "Q", "label_comp_id": "ALA",
+            "label_asym_id": "N", "label_entity_id": "14", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "D", "Cartn_x": "-148.648", "Cartn_y": "29.717",
+            "Cartn_z": "-30.517", "occupancy": "1.00", "B_iso_or_equiv": "21.86",
+            "pdbx_formal_charge": "1-", "auth_seq_id": "1", "auth_comp_id": "ALA",
+            "auth_asym_id": "N", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        }, {
+            "id": "1319", "type_symbol": "C", "pdbx_label_atom_id": "C4",
+            "pdbx_label_alt_id": ".", "pdbx_label_comp_id": "DG",
+            "pdbx_label_asym_id": "C", "pdbx_label_seq_id": "16",
+            "pdbx_PDB_ins_code": "?", "U[1][1]": "0.4728", "U[2][2]": "0.6687",
+            "U[3][3]": "0.5867", "U[1][2]": "0.2574", "U[1][3]": "-0.0037",
+            "U[2][3]": "-0.1117", "pdbx_auth_seq_id": "15", "pdbx_auth_comp_id": "DG",
+            "pdbx_auth_asym_id": "B", "pdbx_auth_atom_id ": "C4"
+        }, 20), "ANISOU   20  N   ALA N   1D    4728   6687   5867   2574    -37  -1117       N-1")

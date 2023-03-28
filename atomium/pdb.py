@@ -3373,6 +3373,11 @@ def create_aniso_line(atom, aniso, atom_id):
 
 
 def create_pdb_date(date):
+    """Takes a mmCIF formatted date and returns a PDB formatted date.
+    
+    :param str date: the date to parse.
+    :rtype: ``str``"""
+
     if not date.strip(): return
     year, month, day = date.split("-")
     month = list(calendar.month_abbr)[int(month)].upper()
@@ -3380,21 +3385,40 @@ def create_pdb_date(date):
 
 
 def split_lines(string, length):
-    has_spaces = " " in string
-    if len(string) <= length: return [string]
+    """Splits a string into multiple lines based on a maximum length. The break
+    points will be picked based on the location of spaces and commas.
+    
+    :param str string: the string to split.
+    :param int length: the maximum length of each line.
+    :rtype: ``list``"""
+
     strings = []
+    has_spaces = " " in string
     while string:
+        if len(string) <= length:
+            strings.append(string)
+            break
         first = string[:length]
         last_space = first[::-1].find(" " if has_spaces else ",")
-        first = string[:length - last_space]
-        string = string[length - last_space:].lstrip()
-        strings.append(first)
+        if last_space <= length and last_space != -1:
+            first = string[:length - last_space]
+            string = string[length - last_space:].lstrip()
+        else:
+            string = string[length:]
+        strings.append(first.rstrip())
     return strings
 
 
 def mmcif_names_to_pdb_names(names):
+    """Converts a comma separated list of names from mmCIF format to a list of
+    names in PDB format as a single string.
+    
+    :param str names: the names to convert.
+    :rtype: ``str``"""
+    
     pdb_names = []
     for name in names:
         surname, initials = name.split(", ")
+        if initials.endswith("."): initials = initials[:-1]
         pdb_names.append(f"{initials}.{surname}".upper())
     return ",".join(pdb_names)

@@ -6572,3 +6572,42 @@ class AnisouLineCreation(TestCase):
             "U[2][3]": "-0.1117", "pdbx_auth_seq_id": "15", "pdbx_auth_comp_id": "DG",
             "pdbx_auth_asym_id": "B", "pdbx_auth_atom_id ": "C4"
         }, 20), "ANISOU   20  N   ALA N   1D    4728   6687   5867   2574    -37  -1117       N-1")
+
+
+
+class PdbDateTests(TestCase):
+
+    def test_can_handle_empty_date(self):
+        self.assertEqual(create_pdb_date(""), None)
+        self.assertEqual(create_pdb_date("   "), None)
+    
+
+    def test_can_get_date(self):
+        self.assertEqual(create_pdb_date("2015-01-01"), "01-JAN-15")
+        self.assertEqual(create_pdb_date("2001-11-28"), "28-NOV-01")
+
+
+
+class SplitLinesTests(TestCase):
+
+    def test_can_split_lines_under_length(self):
+        self.assertEqual(split_lines("xxxxxxxx", 9), ["xxxxxxxx"])
+    
+
+    def test_can_split_lines_over_length_with_spaces(self):
+        self.assertEqual(split_lines("abc def ghi jkl", 8), ["abc def", "ghi jkl"])
+    
+
+    def test_can_handle_no_spaces_within_limit(self):
+        self.assertEqual(split_lines("abcdefghi jkl", 8), ["abcdefgh", "i jkl"])
+    
+
+    def test_can_split_lines_over_length_without_spaces(self):
+        self.assertEqual(split_lines("abc,def,ghi,jkl", 8), ["abc,def,", "ghi,jkl"])
+
+
+
+class MmcifNamesToPdbNamesTests(TestCase):
+
+    def test_can_convert_names(self):
+        self.assertEqual(mmcif_names_to_pdb_names(["Wu, N.", "Pai, E.F."]), "N.WU,E.F.PAI")

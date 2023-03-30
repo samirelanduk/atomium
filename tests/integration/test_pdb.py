@@ -1,3 +1,5 @@
+import os
+import shutil
 from unittest import TestCase
 import atomium
 
@@ -497,15 +499,15 @@ class FileToDictTests(TestCase):
         }])
 
         # Missing items categories
-        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_residues"]), 38)
+        self.assertEqual(len(d["pdbx_unobs_or_zero_occ_residues"]), 40)
         self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][0], {
             "id": "1", "PDB_model_num": "1", "polymer_flag": "Y",
-            "occupancy_flag": "1", "auth_asym_id": "A", "auth_comp_id": "SER",
-            "auth_seq_id": "3", "PDB_ins_code": "?", "label_asym_id": "A",
-            "label_comp_id": "SER", "label_seq_id": "3",
+            "occupancy_flag": "1", "auth_asym_id": "A", "auth_comp_id": "LEU",
+            "auth_seq_id": "1", "PDB_ins_code": "?", "label_asym_id": "A",
+            "label_comp_id": "LEU", "label_seq_id": "1",
         })
         self.assertEqual(d["pdbx_unobs_or_zero_occ_residues"][-1], {
-            "id": "38", "PDB_model_num": "1", "polymer_flag": "Y",
+            "id": "40", "PDB_model_num": "1", "polymer_flag": "Y",
             "occupancy_flag": "1", "auth_asym_id": "B", "auth_comp_id": "GLY",
             "auth_seq_id": "1186", "PDB_ins_code": "?", "label_asym_id": "B",
             "label_comp_id": "GLY", "label_seq_id": "1186",
@@ -4913,3 +4915,31 @@ class FullParsingTests(TestCase):
         self.assertEqual(pdb.title, "CRYSTAL STRUCTURE OF OROTIDINE MONOPHOSPHATE DECARBOXYLASE COMPLEX WITH XMP")
         self.assertEqual(pdb.keywords, ["TIM BARREL", "LYASE"])
         self.assertEqual(str(pdb.model), "<Model (2 polymers, 4 non-polymers)>")'''
+
+
+
+class DictToFileTests(TestCase):
+
+    def setUp(self):
+        if os.path.exists("tests/integration/files/output/"):
+            shutil.rmtree("tests/integration/files/output/")
+        os.mkdir("tests/integration/files/output")
+
+
+    def tearDown(self):
+        if os.path.exists("tests/integration/files/output/"):
+            shutil.rmtree("tests/integration/files/output/")
+    
+
+    def save(self, code):
+        original = atomium.open(f"tests/integration/files/{code}.pdb", dictionary=True)
+        atomium.save_dictionary(original, f"tests/integration/files/output/{code}.pdb")
+        saved = atomium.open(f"tests/integration/files/output/{code}.pdb", dictionary=True)
+        self.assertEqual(original.keys(), saved.keys())
+        for key in original:
+            self.assertEqual(original[key], saved[key])
+        self.assertEqual(original, saved)
+    
+
+    def test_1lol(self):
+        self.save("1lol")

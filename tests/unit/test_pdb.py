@@ -1359,12 +1359,12 @@ class Remark465ParsingTests(TestCase):
 
     def test_can_handle_empty_remark_465(self):
         filestring = (
-            "REMARK 465                                                          \n"
+            "REMARK 465\n"
             "REMARK 465 MISSING  RESIDUES                                        \n"
             "REMARK 465 THE FOLLOWING  RESIDUES WERE NOT LOCATED IN THE          \n"
             "REMARK 465 EXPERIMENT.  (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN  \n"
             "REMARK 465 IDENTIFIER;  SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)   \n"
-            "REMARK 465                                                          \n"
+            "REMARK 465\n"
         )
         mmcif = {}
         parse_remark_465(filestring, mmcif)
@@ -1373,12 +1373,13 @@ class Remark465ParsingTests(TestCase):
 
     def test_can_parse_remark_465(self):
         filestring = (
-            "REMARK 465                                                          \n"             
+            "REMARK 465\n"             
             "REMARK 465 MISSING  RESIDUES                                        \n"             
             "REMARK 465 THE FOLLOWING  RESIDUES WERE NOT LOCATED IN THE          \n"             
             "REMARK 465 EXPERIMENT.  (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN  \n"             
             "REMARK 465 IDENTIFIER;  SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)   \n"             
-            "REMARK 465                                                          \n"            
+            "REMARK 465    \n"
+            "REMARK 465 MODEL"
             "REMARK 465   M RES C SSSEQI                                         \n"            
             "REMARK 465     ARG A    46                                          \n"            
             "REMARK 465     GLY A    47                                          \n"            
@@ -5200,6 +5201,8 @@ class Remark465LinesTests(TestCase):
             "REMARK 465 THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE",
             "REMARK 465 EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN",
             "REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)",
+            "REMARK 465",
+            "REMARK 465   M RES C SSSEQI",
             "REMARK 465     MET A     1 ",
             "REMARK 465     VAL A    10 ",
             "REMARK 465     PRO A    10A",

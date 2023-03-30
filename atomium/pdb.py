@@ -648,8 +648,14 @@ def parse_remark_465(filestring, mmcif):
     :param str filestring: the contents of the .pdb file.
     :param dict mmcif: the dictionary to update."""
 
-    records = re.findall(r"^REMARK 465 .+", filestring, re.M)
-    if not records[6:]: return
+    records = re.findall(r"^REMARK 465 .+[A-Z]+.+", filestring, re.M)
+    for i, record in enumerate(records):
+        if "SSSEQI" in record:
+            i += 1
+            break
+    else:
+        i = 5
+    if not records[i:]: return
     mmcif["pdbx_unobs_or_zero_occ_residues"] = [{
         "id": str(i), "PDB_model_num": "1", "polymer_flag": "Y",
         "occupancy_flag": "1", "auth_asym_id": rec[19].strip() or "?",
@@ -659,7 +665,7 @@ def parse_remark_465(filestring, mmcif):
         "label_asym_id": rec[19].strip() or "?",
         "label_comp_id": rec[15:18].strip() or "?",
         "label_seq_id": rec[21:26].strip() or "?"
-    } for i, rec in enumerate(records[7:], start=1)]
+    } for i, rec in enumerate(records[i:], start=1)]
 
 
 def parse_remark_800(filestring, mmcif):
@@ -2778,10 +2784,13 @@ def create_remark_465_lines(mmcif):
     residues = mmcif.get("pdbx_unobs_or_zero_occ_residues", [])
     if not residues: return []
     lines = [
-        "REMARK 465", "REMARK 465 MISSING RESIDUES",
+        "REMARK 465",
+        "REMARK 465 MISSING RESIDUES",
         "REMARK 465 THE FOLLOWING RESIDUES WERE NOT LOCATED IN THE",
         "REMARK 465 EXPERIMENT. (M=MODEL NUMBER; RES=RESIDUE NAME; C=CHAIN",
-        "REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)"
+        "REMARK 465 IDENTIFIER; SSSEQ=SEQUENCE NUMBER; I=INSERTION CODE.)",
+        "REMARK 465",
+        "REMARK 465   M RES C SSSEQI"
     ]
     for residue in residues:
         lines.append("REMARK 465     {:3} {:1} {:>5}{:1}".format(

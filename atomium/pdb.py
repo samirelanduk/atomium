@@ -2217,7 +2217,7 @@ def create_compnd_lines(mmcif):
             "MOLECULE": entity["pdbx_description"].upper(),
             "CHAIN": ", ".join([asym_lookup[id] for id in asyms]),
             "SYNONYM": name_com[0]["name"].upper() if name_com else "?",
-            "EC": entity["pdbx_ec"],
+            "EC": entity["pdbx_ec"], "FRAGMENT": entity["pdbx_fragment"],
             "ENGINEERED": "YES" if entity["src_method"] == "man" else "?"
         }
         for key, value in mol.items():

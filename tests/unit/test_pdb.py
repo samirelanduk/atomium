@@ -4172,8 +4172,8 @@ class CompndLinesTests(TestCase):
     def test_can_produce_minimal_compnd(self, mock_split):
         mmcif = {
             "entity": [
-                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat"},
-                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn"},
+                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat", "pdbx_fragment": "?"},
+                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn", "pdbx_fragment": "?"},
                 {"id": "3", "type": "non-polymer"},
                 {"id": "4", "type": "water"},
             ],
@@ -4216,8 +4216,8 @@ class CompndLinesTests(TestCase):
     def test_can_produce_full_compnd(self, mock_split):
         mmcif = {
             "entity": [
-                {"id": "1", "type": "polymer", "pdbx_description": "Insulin", "pdbx_ec": "1.2.3", "src_method": "man"},
-                {"id": "2", "type": "polymer", "pdbx_description": "Kinesin", "pdbx_ec": "4.5.6", "src_method": "syn"},
+                {"id": "1", "type": "polymer", "pdbx_description": "Insulin", "pdbx_ec": "1.2.3", "src_method": "man", "pdbx_fragment": "F1"},
+                {"id": "2", "type": "polymer", "pdbx_description": "Kinesin", "pdbx_ec": "4.5.6", "src_method": "syn", "pdbx_fragment": "F2"},
                 {"id": "3", "type": "non-polymer"},
                 {"id": "4", "type": "water"},
             ],
@@ -4252,12 +4252,14 @@ class CompndLinesTests(TestCase):
             ("CHAIN: T, U, V;", 70),
             ("SYNONYM: ASUCRIUM;", 70),
             ("EC: 1.2.3;", 70),
+            ("FRAGMENT: F1;", 70),
             ("ENGINEERED: YES;", 70),
             ("MOL_ID: 2;", 70),
             ("MOLECULE: KINESIN;", 70),
             ("CHAIN: X, Y;", 70),
             ("SYNONYM: SPRINGY;", 70),
             ("EC: 4.5.6;", 70),
+            ("FRAGMENT: F2;", 70),
         ])
         self.assertEqual(lines, [
             "COMPND    MOL_ID: 1;",
@@ -4265,12 +4267,14 @@ class CompndLinesTests(TestCase):
             "COMPND   3 CHAIN: T, U, V;",
             "COMPND   4 SYNONYM: ASUCRIUM;",
             "COMPND   5 EC: 1.2.3;",
-            "COMPND   6 ENGINEERED: YES;",
-            "COMPND   7 MOL_ID: 2;",
-            "COMPND   8 MOLECULE: KINESIN;",
-            "COMPND   9 CHAIN: X, Y;",
-            "COMPND  10 SYNONYM: SPRINGY;",
-            "COMPND  11 EC: 4.5.6;",
+            "COMPND   6 FRAGMENT: F1;",
+            "COMPND   7 ENGINEERED: YES;",
+            "COMPND   8 MOL_ID: 2;",
+            "COMPND   9 MOLECULE: KINESIN;",
+            "COMPND  10 CHAIN: X, Y;",
+            "COMPND  11 SYNONYM: SPRINGY;",
+            "COMPND  12 EC: 4.5.6;",
+            "COMPND  13 FRAGMENT: F2;",
         ])
 
 

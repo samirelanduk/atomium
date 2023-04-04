@@ -3318,7 +3318,10 @@ def create_atom_lines(mmcif):
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
     for atom in mmcif["atom_site"]:
         if int(atom["pdbx_PDB_model_num"]) > model_num and len(model_nums) > 1:
-            if model_num != 0: lines.append("ENDMDL")
+            if model_num != 0:
+                if lookup[entity_id] == "polymer":
+                    lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
+                lines.append("ENDMDL")
             model_num += 1
             lines.append(f"MODEL     {model_num:>4}")
             atom_id = 1
@@ -3330,7 +3333,10 @@ def create_atom_lines(mmcif):
         line = create_aniso_line(atom, aniso_lookup.get(atom["id"]), atom_id)
         if line: lines.append(line)
         atom_id += 1
-    if len(model_nums) > 1: lines.append("ENDMDL")
+    if len(model_nums) > 1:
+        if lookup[entity_id] == "polymer":
+            lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
+        lines.append("ENDMDL")
     return lines
 
 

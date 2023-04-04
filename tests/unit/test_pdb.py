@@ -6515,6 +6515,75 @@ class AtomLinesTests(TestCase):
         ])
 
 
+    @patch("atomium.pdb.create_atom_line")
+    @patch("atomium.pdb.create_aniso_line")
+    def test_can_get_lines_with_models_with_single_chain(self, mock_aniso, mock_atom):
+        mock_atom.side_effect = lambda a, i: "ATOM " + str(i) + " " + a["label_asym_id"] * 15
+        mock_aniso.return_value = None
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "water"},
+            ],
+            "atom_site": [
+                {"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "1", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "1", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "2", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"},
+                {"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"},
+            ]
+        }
+        self.assertEqual(create_atom_lines(mmcif), [
+            "MODEL        1",
+            "ATOM 1 AAAAAAAAAAAAAAA", 
+            "ATOM 2 AAAAAAAAAAAAAAA", 
+            "ATOM 3 AAAAAAAAAAAAAAA", 
+            "TER       4      AAAAA",
+            "ENDMDL",
+            "MODEL        2",
+            "ATOM 1 AAAAAAAAAAAAAAA", 
+            "ATOM 2 AAAAAAAAAAAAAAA", 
+            "ATOM 3 AAAAAAAAAAAAAAA", 
+            "TER       4      AAAAA",
+            "ENDMDL",
+            "MODEL        3",
+            "ATOM 1 AAAAAAAAAAAAAAA", 
+            "ATOM 2 AAAAAAAAAAAAAAA", 
+            "ATOM 3 AAAAAAAAAAAAAAA", 
+            "TER       4      AAAAA",
+            "ENDMDL",
+        ])
+        self.assertEqual([c[0] for c in mock_atom.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 3),
+            ({"id": "1", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, 3),
+            ({"id": "1", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, 3),
+        ])
+        self.assertEqual([c[0] for c in mock_aniso.call_args_list], [
+            ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, None, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, None, 3),
+            ({"id": "1", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, None, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "2", "label_asym_id": "A", "label_entity_id": "1"}, None, 3),
+            ({"id": "1", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, None, 1),
+            ({"id": "2", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
+            ({"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, None, 3),
+        ])
+
+
+
 
 class AtomLineCreation(TestCase):
 

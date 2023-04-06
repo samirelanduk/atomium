@@ -14,6 +14,12 @@ FULL_NAMES = {
     "CYS": "cysteine", "TYR": "tyrosine", "ASN": "asparagine",
     "GLN": "glutamine", "ASP": "aspartic acid", "GLU": "glutamic acid",
     "LYS": "lysine", "ARG": "arginine", "HIS": "histidine",
+    "A": "ADENOSINE-5'-MONOPHOSPHATE", "C": "CYTIDINE-5'-MONOPHOSPHATE",
+    "G": "GUANOSINE-5'-MONOPHOSPHATE", "U": "URIDINE-5'-MONOPHOSPHATE",
+    "DA": "2'-DEOXYADENOSINE-5'-MONOPHOSPHATE",
+    "DC": "2'-DEOXYCYTIDINE-5'-MONOPHOSPHATE",
+    "DG": "2'-DEOXYGUANOSINE-5'-MONOPHOSPHATE",
+    "DT": "THYMIDINE-5'-MONOPHOSPHATE"
 }
 
 FORMULAE = {
@@ -23,7 +29,10 @@ FORMULAE = {
     "SER": "C3 H7 N O3", "THR": "C4 H9 N O3", "CYS": "C3 H7 N O2 S",
     "TYR": "C9 H11 N O3", "ASN": "C4 H8 N2 O3", "GLN": "C5 H10 N2 O3",
     "ASP": "C4 H7 N O4", "GLU": "C5 H9 N O4", "LYS": "C6 H15 N2 O2 1",
-    "ARG": "C6 H15 N4 O2 1", "HIS": "C6 H10 N3 O2 1",
+    "ARG": "C6 H15 N4 O2 1", "HIS": "C6 H10 N3 O2 1", "A": "C10 H14 N5 O7 P",
+    "C": "C9 H14 N3 O8 P", "G": "C10 H14 N5 O8 P", "U": "C9 H13 N2 O9 P",
+    "DA": "C10 H14 N5 O6 P", "DC": "C9 H14 N3 O7 P", "DG": "C10 H14 N5 O7 P",
+    "DT": "C10 H15 N2 O8 P"
 }
 
 RESIDUE_MASSES = {
@@ -32,6 +41,8 @@ RESIDUE_MASSES = {
     "PRO": 115.130, "SER": 115.130, "THR": 119.119, "CYS": 121.158,
     "TYR": 181.189, "ASN": 132.118, "GLN": 146.144, "ASP": 133.103,
     "GLU": 147.129, "LYS": 147.195, "ARG": 175.209, "HIS": 156.162,
+    "A": 347.22, "C": 323.20, "G": 363.22, "U": 324.18,
+    "DA": 331.22, "DC": 307.20, "DG": 347.22, "DT":322.21
 }
 
 WATER_NAMES = ["HOH", "WAT"]

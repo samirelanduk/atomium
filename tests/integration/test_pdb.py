@@ -1034,58 +1034,38 @@ class FileToDictTests(TestCase):
         self.assertEqual(len(d["chem_comp"]), 31)
         self.assertEqual(d["chem_comp"][0], {
             "id": "2MA", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C11 H16 N5 O7 P",
-            "formula_weight": "361.247",
+            "name": "2-METHYLADENOSINE-5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C11 H16 N5 O7 P", "formula_weight": "361.247",
         })
         self.assertEqual(d["chem_comp"][1], {
             "id": "4SU", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C9 H13 N2 O8 P S",
-            "formula_weight": "340.246",
+            "name": "4-THIOURIDINE-5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C9 H13 N2 O8 P S", "formula_weight": "340.246",
         })
         self.assertEqual(d["chem_comp"][2], {
             "id": "5MU", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C10 H15 N2 O9 P",
-            "formula_weight": "338.207",
-        })
-        self.assertEqual(d["chem_comp"][3], {
-            "id": "A", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
-        self.assertEqual(d["chem_comp"][8], {
-            "id": "C", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
-        self.assertEqual(d["chem_comp"][10], {
-            "id": "G", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
+            "name": "5-METHYLURIDINE 5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C10 H15 N2 O9 P", "formula_weight": "338.207",
         })
         self.assertEqual(d["chem_comp"][14], {
             "id": "H2U", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C9 H15 N2 O9 P",
-            "formula_weight": "326.197",
+            "name": "5,6-DIHYDROURIDINE-5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C9 H15 N2 O9 P", "formula_weight": "326.197",
         })
         self.assertEqual(d["chem_comp"][20], {
             "id": "OMG", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C11 H16 N5 O8 P",
-            "formula_weight": "377.247",
+            "name": "O2'-METHYLGUANOSINE-5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C11 H16 N5 O8 P", "formula_weight": "377.247",
         })
         self.assertEqual(d["chem_comp"][21], {
             "id": "OMU", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C10 H15 N2 O9 P",
-            "formula_weight": "338.207",
+            "name": "O2'-METHYLURIDINE 5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C10 H15 N2 O9 P", "formula_weight": "338.207",
         })
         self.assertEqual(d["chem_comp"][24], {
             "id": "PSU", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C9 H13 N2 O9 P",
-            "formula_weight": "324.181",
-        })
-        self.assertEqual(d["chem_comp"][29], {
-            "id": "U", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
+            "name": "PSEUDOURIDINE-5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C9 H13 N2 O9 P", "formula_weight": "324.181",
         })
         self.assertEqual(d["chem_comp"][-1], {
             "id": "VAL", "type": "L-peptide linking", "mon_nstd_flag": "y",
@@ -2607,26 +2587,6 @@ class FileToDictTests(TestCase):
             "name": "ALANINE", "pdbx_synonyms": "?", "formula": "C3 H7 N O2",
             "formula_weight": "89.093",
         })
-        self.assertEqual(d["chem_comp"][4], {
-            "id": "DA", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
-        self.assertEqual(d["chem_comp"][5], {
-            "id": "DC", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
-        self.assertEqual(d["chem_comp"][6], {
-            "id": "DG", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
-        self.assertEqual(d["chem_comp"][7], {
-            "id": "DT", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
         self.assertEqual(d["chem_comp"][11], {
             "id": "GOL", "type": "non-polymer", "mon_nstd_flag": ".",
             "name": "GLYCEROL", "pdbx_synonyms": "GLYCERIN, PROPANE-1,2,3-TRIOL",
@@ -2639,7 +2599,8 @@ class FileToDictTests(TestCase):
         })
         self.assertEqual(d["chem_comp"][21], {
             "id": "TCY", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C13 H16 N5 O6 P",
+            "name": "(2R,3AS,4AR,5AR,5BS)-2-(6-AMINO-9H-PURIN-9-YL)-3A- HYDROXYHEXAHYDROCYCLOPROPA[4,5]CYCLOPENTA[1,2-B]FURAN- 5A(4H)-YL DIHYDROGEN PHOSPHATE",
+            "pdbx_synonyms": "?", "formula": "C13 H16 N5 O6 P",
             "formula_weight": "369.269",
         })
         self.assertEqual(d["chem_comp"][-1], {
@@ -3224,19 +3185,9 @@ class FileToDictTests(TestCase):
         self.assertNotIn("pdbx_struct_mod_residue", d)
         self.assertEqual(len(d["chem_comp"]), 26)
         self.assertEqual(d["chem_comp"][0], {
-            "id": "A", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
-        self.assertEqual(d["chem_comp"][5], {
-            "id": "C", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
-        })
-        self.assertEqual(d["chem_comp"][7], {
-            "id": "G", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
+            "id": "A", "type": "L-peptide linking", "mon_nstd_flag": "y",
+            "name": "ADENOSINE-5'-MONOPHOSPHATE", "pdbx_synonyms": "?",
+            "formula": "C10 H14 N5 O7 P", "formula_weight": "347.220",
         })
         self.assertEqual(d["chem_comp"][12], {
             "id": "HOH", "type": "non-polymer", "mon_nstd_flag": ".",
@@ -3247,11 +3198,6 @@ class FileToDictTests(TestCase):
             "id": "MG", "type": "non-polymer", "mon_nstd_flag": ".",
             "name": "MAGNESIUM ION", "pdbx_synonyms": "?", "formula": "MG 2+",
             "formula_weight": "24.305",
-        })
-        self.assertEqual(d["chem_comp"][24], {
-            "id": "U", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "?",
-            "formula_weight": "?",
         })
         self.assertEqual(d["chem_comp"][-1], {
             "id": "VAL", "type": "L-peptide linking", "mon_nstd_flag": "y",
@@ -4327,17 +4273,17 @@ class FileToDictTests(TestCase):
         self.assertEqual(len(d["chem_comp"]), 9)
         self.assertEqual(d["chem_comp"][0], {
             "id": "ACE", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C2 H4 O",
+            "name": "ACETYL GROUP", "pdbx_synonyms": "?", "formula": "C2 H4 O",
             "formula_weight": "44.052",
         })
         self.assertEqual(d["chem_comp"][6], {
             "id": "MK8", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "C7 H15 N O2",
-            "formula_weight": "145.199",
+            "name": "2-METHYL-L-NORLEUCINE", "pdbx_synonyms": "?",
+            "formula": "C7 H15 N O2", "formula_weight": "145.199",
         })
         self.assertEqual(d["chem_comp"][7], {
             "id": "NH2", "type": "L-peptide linking", "mon_nstd_flag": "n",
-            "name": "?", "pdbx_synonyms": "?", "formula": "H2 N",
+            "name": "AMINO GROUP", "pdbx_synonyms": "?", "formula": "H2 N",
             "formula_weight": "16.023",
         })
         self.assertEqual(d["chem_comp"][-1], {
@@ -4947,3 +4893,7 @@ class DictToFileTests(TestCase):
 
     def test_5xme(self):
         self.save("5xme")
+    
+
+    def test_1gsg(self):
+        self.save("1gsg")

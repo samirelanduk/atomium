@@ -1405,8 +1405,8 @@ def build_chem_comp(non_polymer_entities, mmcif):
     :param dict mmcif: the dictionary to update."""
 
     mmcif["chem_comp"] = []
-    formulae_lookup = build_ligand_chem_comp(non_polymer_entities, mmcif)
-    build_residue_chem_comp(formulae_lookup, mmcif)
+    formulae_lookup, name_lookup = build_ligand_chem_comp(non_polymer_entities, mmcif)
+    build_residue_chem_comp(formulae_lookup, name_lookup,  mmcif)
     mmcif["chem_comp"].sort(key=lambda c: c["id"])
     if not mmcif["chem_comp"]: del mmcif["chem_comp"]
 
@@ -1419,13 +1419,14 @@ def build_ligand_chem_comp(non_polymer_entities, mmcif):
     :param dict polymer_entities: the polymer entities dictionary.
     :param dict mmcif: the dictionary to update."""
 
-    formulae_lookup = {}
+    formulae_lookup, name_lookup = {}, {}
     for name, entity in non_polymer_entities.items():
         formula = entity["formula"] or "?"
         if re.match(r"^\d+\(", formula):
             formula = formula[formula.find("(") + 1:-1]
         if not entity["molecules"]:
             formulae_lookup[name] = formula
+            name_lookup[name] = entity["name"]
             continue
         entity_row = [e for e in mmcif["entity"] if e["id"] == entity["id"]][0]
         mmcif["chem_comp"].append({
@@ -1435,10 +1436,10 @@ def build_ligand_chem_comp(non_polymer_entities, mmcif):
             "formula": formula,
             "formula_weight": f"{formula_to_weight(formula):.3f}"
         })
-    return formulae_lookup
+    return formulae_lookup, name_lookup
 
 
-def build_residue_chem_comp(formulae_lookup, mmcif):
+def build_residue_chem_comp(formulae_lookup, name_lookup, mmcif):
     """Builds the chem_comp items corresponding to residues. If the residue is
     non-standard, it will use a lookup generated from the ligands to try to
     assign the formula and weight.
@@ -1452,10 +1453,11 @@ def build_residue_chem_comp(formulae_lookup, mmcif):
         formula = FORMULAE.get(res, formulae_lookup.get(res, "?"))
         if formula != "?" and not weight: weight = formula_to_weight(formula)
         weight = f"{weight:.3f}" if weight else "?"
+        name = FULL_NAMES.get(res, name_lookup.get(res, "?")).upper()
         mmcif["chem_comp"].append({
             "id": res, "type": "L-peptide linking",
             "mon_nstd_flag": "y" if res in FORMULAE else "n",
-            "name": FULL_NAMES.get(res, "?").upper(), "pdbx_synonyms": "?",
+            "name": name, "pdbx_synonyms": "?",
             "formula": formula, "formula_weight": weight
         })
 
@@ -2969,8 +2971,7 @@ def create_hetnam_lines(mmcif):
     lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in
         mmcif.get("pdbx_entity_nonpoly", [])}
     for chem in chem_comp:
-        if chem["id"] not in lookup: continue
-        if chem["name"] != "?" and lookup[chem["id"]] != "water":
+        if chem["name"] != "?" and lookup.get(chem["id"]) != "water":
             strings = split_lines(chem["name"], 55)
             for n, hetnam in enumerate(strings, start=1):
                 if n == 1:
@@ -2993,8 +2994,7 @@ def create_hetsyn_lines(mmcif):
     lookup = {s["comp_id"]: lookup[s["entity_id"]] for s in
         mmcif.get("pdbx_entity_nonpoly", [])}
     for chem in chem_comp:
-        if chem["id"] not in lookup: continue
-        if chem["pdbx_synonyms"] != "?" and lookup[chem["id"]] != "water":
+        if chem["pdbx_synonyms"] != "?" and lookup.get(chem["id"]) != "water":
             strings = split_lines(chem["pdbx_synonyms"].replace(", ", "; "), 55)
             for n, hetsyn in enumerate(strings, start=1):
                 if n == 1:
@@ -3028,10 +3028,11 @@ def create_formul_lines(mmcif):
     for chem in chem_comp:
         if chem["formula"] == "?": continue
         entity_id = name_to_entity_id.get(chem["id"])
-        if not entity_id: continue
-        num = entity_ids.index(entity_id) + 1
-        char = "*" if lookup[chem["id"]] == "water" else " "
-        formula = f"{id_counts[chem['id']]}({chem['formula']})"
+        num = (entity_ids.index(entity_id) + 1) if entity_id else ""
+        char = "*" if lookup.get(chem["id"]) == "water" else " "
+        formula = chem["formula"]
+        if id_counts.get(chem["id"], 0) > 1:
+            formula = f"{id_counts[chem['id']]}({chem['formula']})"
         strings = split_lines(formula, 50)
         for n, formul in enumerate(strings, start=1):
             start = f"FORMUL  {num:2}  {chem['id']:3}"
@@ -3316,26 +3317,28 @@ def create_atom_lines(mmcif):
     aniso_lookup = {a["id"]: a for a in mmcif.get("atom_site_anisotrop", [])}
     model_nums = set(a["pdbx_PDB_model_num"] for a in  mmcif["atom_site"])
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
+    add_ter = lambda: lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
     for atom in mmcif["atom_site"]:
         if int(atom["pdbx_PDB_model_num"]) > model_num and len(model_nums) > 1:
             if model_num != 0:
-                if lookup[entity_id] == "polymer":
-                    lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
+                if lookup[entity_id] == "polymer": add_ter()
                 lines.append("ENDMDL")
             model_num += 1
             lines.append(f"MODEL     {model_num:>4}")
             atom_id = 1
         if atom["label_asym_id"] != asym_id and lookup[entity_id] == "polymer":
-            lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
+            add_ter()
             atom_id += 1
         asym_id, entity_id = atom["label_asym_id"], atom["label_entity_id"]
         lines.append(create_atom_line(atom, atom_id))
         line = create_aniso_line(atom, aniso_lookup.get(atom["id"]), atom_id)
         if line: lines.append(line)
+        is_last = atom == mmcif["atom_site"][-1]
         atom_id += 1
+        if is_last and lookup[entity_id] == "polymer": add_ter()
     if len(model_nums) > 1:
-        if lookup[entity_id] == "polymer":
-            lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
+        if lookup[entity_id] == "polymer" and not lines[-1].startswith("TER"):
+            add_ter()
         lines.append("ENDMDL")
     return lines
 

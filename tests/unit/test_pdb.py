@@ -2834,9 +2834,10 @@ class ChemCompTests(TestCase):
     def test_can_handle_no_chem_comp(self, mock_res, mock_lig):
         entities = {1: 2}
         mmcif = {3: 4}
+        mock_lig.return_value = [10, 20]
         build_chem_comp(entities, mmcif)
         mock_lig.assert_called_with(entities, mmcif)
-        mock_res.assert_called_with(mock_lig.return_value, mmcif)
+        mock_res.assert_called_with(10, 20, mmcif)
         self.assertEqual(mmcif, {3: 4})
     
 
@@ -2845,10 +2846,11 @@ class ChemCompTests(TestCase):
     def test_can_sort_chem_comp(self, mock_res, mock_lig):
         entities = {1: 2}
         mmcif = {3: 4}
-        mock_res.side_effect = lambda _, m: [m["chem_comp"].append({"id": n}) for n in ["X", "A", "C"]]
+        mock_lig.return_value = [10, 20]
+        mock_res.side_effect = lambda _,__,m: [m["chem_comp"].append({"id": n}) for n in ["X", "A", "C"]]
         build_chem_comp(entities, mmcif)
         mock_lig.assert_called_with(entities, mmcif)
-        mock_res.assert_called_with(mock_lig.return_value, mmcif)
+        mock_res.assert_called_with(10, 20, mmcif)
         self.assertEqual(mmcif, {3: 4, "chem_comp": [{"id": "A"}, {"id": "C"}, {"id": "X"}]})
 
 
@@ -2858,9 +2860,10 @@ class LigandChemCompTests(TestCase):
     def test_can_handle_no_entities(self):
         mmcif = {"chem_comp": []}
         entities = {}
-        lookup = build_ligand_chem_comp(entities, mmcif)
+        formulae_lookup, name_lookup = build_ligand_chem_comp(entities, mmcif)
         self.assertEqual(mmcif, {"chem_comp": []})
-        self.assertEqual(lookup, {})
+        self.assertEqual(formulae_lookup, {})
+        self.assertEqual(name_lookup, {})
     
 
     @patch("atomium.pdb.formula_to_weight")
@@ -2871,12 +2874,13 @@ class LigandChemCompTests(TestCase):
             {"id": "4", "pdbx_description": "b.u.2"},
         ]}
         entities = {
-            "XMP": {"id": "3", "molecules": {1: 2}, "formula": "12(C2 N)", "synonyms": ["syn1", "syn2"]},
-            "BU2": {"id": "4", "molecules": {1: 2}, "formula": "C5 N"},
-            "HOH": {"id": "5", "molecules": {}, "formula": "8(C9 CL)"},
+            "XMP": {"id": "3", "molecules": {1: 2}, "formula": "12(C2 N)", "synonyms": ["syn1", "syn2"], "name": "X.M.P"},
+            "BU2": {"id": "4", "molecules": {1: 2}, "formula": "C5 N", "name": "B.U.2"},
+            "HOH": {"id": "5", "molecules": {}, "formula": "8(C9 CL)", "name": "water"},
         }
-        lookup = build_ligand_chem_comp(entities, mmcif)
-        self.assertEqual(lookup, {"HOH": "C9 CL"})
+        formulae_lookup, name_lookup = build_ligand_chem_comp(entities, mmcif)
+        self.assertEqual(formulae_lookup, {"HOH": "C9 CL"})
+        self.assertEqual(name_lookup, {"HOH": "water"})
         self.assertEqual(mmcif, {
             "chem_comp": [{
                 "id": "XMP", "type": "non-polymer", "mon_nstd_flag": ".",
@@ -2909,13 +2913,15 @@ class ResidueChemCompTests(TestCase):
         ]}
         mock_weight.return_value = 0.123456
         formulae_lookup = {"MOD": "C2 P", "ABC": "AA"}
-        build_residue_chem_comp(formulae_lookup, mmcif)
+        name_lookup = {"MOD": "modium", "ABC": "abada"}
+
+        build_residue_chem_comp(formulae_lookup, name_lookup, mmcif)
         self.assertEqual(mmcif, {
             "chem_comp": [{
                 "id": "HIS", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "HISTIDINE",
                 "pdbx_synonyms": "?", "formula": "C6 H10 N3 O2 1", "formula_weight": "156.162"
             }, {
-                "id": "MOD", "type": "L-peptide linking", "mon_nstd_flag": "n", "name": "?",
+                "id": "MOD", "type": "L-peptide linking", "mon_nstd_flag": "n", "name": "MODIUM",
                 "pdbx_synonyms": "?", "formula": "C2 P", "formula_weight": "0.123"
             }, {
                 "id": "VAL", "type": "L-peptide linking", "mon_nstd_flag": "y", "name": "VALINE",
@@ -5688,7 +5694,7 @@ class HetnamLinesTests(TestCase):
 
     @patch("atomium.pdb.split_lines")
     def test_can_get_get_hetnams(self, mock_split):
-        mock_split.side_effect = [["The first name"], ["The second name", "over multiple", "lines"]]
+        mock_split.side_effect = [["The first name"], ["The second name", "over multiple", "lines"], ["The final line"]]
         mmcif = {
             "entity": [
                 {"id": "1", "type": "polymer"},
@@ -5716,6 +5722,7 @@ class HetnamLinesTests(TestCase):
             "HETNAM     BU2 The second name",
             "HETNAM   2 BU2  over multiple",
             "HETNAM   3 BU2  lines",
+            "HETNAM     MY2 The final line",
         ])
         mock_split.assert_any_call("xanthosine", 55)
         mock_split.assert_any_call("butanol", 55)
@@ -5730,7 +5737,7 @@ class HetsynLinesTests(TestCase):
 
     @patch("atomium.pdb.split_lines")
     def test_can_get_get_hetsyns(self, mock_split):
-        mock_split.side_effect = [["The first synonym"], ["The second synonym", "over multiple", "lines"]]
+        mock_split.side_effect = [["The first synonym"], ["The second synonym", "over multiple", "lines"], ["The final line"]]
         mmcif = {
             "entity": [
                 {"id": "1", "type": "polymer"},
@@ -5758,6 +5765,7 @@ class HetsynLinesTests(TestCase):
             "HETSYN     BU2 The second synonym",
             "HETSYN   2 BU2  over multiple",
             "HETSYN   3 BU2  lines",
+            "HETSYN     MY2 The final line",
         ])
         mock_split.assert_any_call("xanthosine; xanth", 55)
         mock_split.assert_any_call("butanol", 55)
@@ -5775,7 +5783,7 @@ class FormulLinesTests(TestCase):
             ("A", "10", "", "MYS"): 2,
             ("A", "10", "", "XYZ"): 12,
         }
-        mock_split.side_effect = [["formul1"], ["formul2"], ["formul3", "which needs", "3 lines"]]
+        mock_split.side_effect = [["formul1"], ["formul2"], ["formul3", "which needs", "3 lines"], ["The next line"], ["The final line"]]
         mmcif = {
             "entity": [
                 {"id": "1", "type": "polymer"},
@@ -5813,16 +5821,20 @@ class FormulLinesTests(TestCase):
             ]
         }
         self.assertEqual(create_formul_lines(mmcif), [
-            "FORMUL   4  BU2    formul1",
-            "FORMUL   6  HOH   *formul2",
-            "FORMUL   3  XYZ    formul3",
-            "FORMUL   3  XYZ  2 which needs",
-            "FORMUL   3  XYZ  3 3 lines",
+            "FORMUL      MOD    formul1",
+            "FORMUL   4  BU2    formul2",
+            "FORMUL      MY2    formul3",
+            "FORMUL      MY2  2 which needs",
+            "FORMUL      MY2  3 3 lines",
+            "FORMUL   6  HOH   *The next line",
+            "FORMUL   3  XYZ    The final line",
         ])
         mock_sigs.assert_called_with(mmcif, include_water=True, representative=True)
+        mock_split.assert_any_call("C2", 50)
+        mock_split.assert_any_call("3(C6)", 50)
+        mock_split.assert_any_call("C7", 50)
         mock_split.assert_any_call("5(C4)", 50)
         mock_split.assert_any_call("12(C5)", 50)
-        mock_split.assert_any_call("3(C6)", 50)
 
 
 

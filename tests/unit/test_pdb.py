@@ -6631,10 +6631,10 @@ class AtomLineCreation(TestCase):
             "label_atom_id": "N", "label_alt_id": "Q", "label_comp_id": "ALA",
             "label_asym_id": "N", "label_entity_id": "14", "label_seq_id": "1",
             "pdbx_PDB_ins_code": "D", "Cartn_x": "-148.648", "Cartn_y": "29.717",
-            "Cartn_z": "-30.517", "occupancy": "1.00", "B_iso_or_equiv": "21.86",
+            "Cartn_z": "-30.517", "occupancy": "0.23", "B_iso_or_equiv": "21.86",
             "pdbx_formal_charge": "1-", "auth_seq_id": "1", "auth_comp_id": "ALA",
             "auth_asym_id": "N", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
-        }, 20), "ATOM     20  N   ALA N   1D   -148.648  29.717 -30.517  1.00 21.86           N-1")
+        }, 20), "ATOM     20  N  QALA N   1D   -148.648  29.717 -30.517  0.23 21.86           N-1")
     
 
     def test_hetatm_empty_values(self):

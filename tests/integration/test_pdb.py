@@ -4897,3 +4897,7 @@ class DictToFileTests(TestCase):
 
     def test_1gsg(self):
         self.save("1gsg")
+    
+
+    def test_1xda(self):
+        self.save("1xda")

@@ -3365,16 +3365,18 @@ def create_atom_line(atom, atom_id):
     :param int atom_id: the atom serial number.
     :rtype: ``str"""
 
-    line = "{:6}{:>5} {:<4} {:3} {:1}{:>4}{:1}   "
-    line += "{:>8}{:>8}{:>8}  1.00{:>6}          {:>2}{:2}"
+    line = "{:6}{:>5} {:<4}{:1}{:3} {:1}{:>4}{:1}   "
+    line += "{:>8}{:>8}{:>8}  {:>3}{:>6}          {:>2}{:2}"
     line = line.format(
         atom["group_PDB"], atom_id,
         f"{'' if len(atom['label_atom_id']) == 4 else ' '}{atom['label_atom_id']}",
+        " " if atom["label_alt_id"] == "." else atom["label_alt_id"],
         atom["auth_comp_id"], atom["auth_asym_id"],
         atom["auth_seq_id"], atom["pdbx_PDB_ins_code"],
         "{:.3f}".format(float(atom["Cartn_x"])),
         "{:.3f}".format(float(atom["Cartn_y"])),
         "{:.3f}".format(float(atom["Cartn_z"])),
+        "{:.2f}".format(float(atom["occupancy"])),
         "{:.2f}".format(float(atom["B_iso_or_equiv"])),
         atom["type_symbol"] or "", atom["pdbx_formal_charge"][::-1],
     )

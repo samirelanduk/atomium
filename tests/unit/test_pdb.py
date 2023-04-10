@@ -62,9 +62,10 @@ class EntityGettingTests(TestCase):
     @patch("atomium.pdb.parse_formul")
     @patch("atomium.pdb.update_entities_from_atoms")
     @patch("atomium.pdb.finalize_entities")
+    @patch("atomium.pdb.ordered_by_atom")
     @patch("atomium.pdb.finalize_polymers")
     @patch("atomium.pdb.add_molecules_to_entities")
-    def test_can_get_entity(self, mock_add, mock_finpol, mock_finent, mock_upent, mock_formul, mock_hetsyn, mock_hetnam, mock_het, mock_modres, mock_seqres, mock_seqadv, mock_dbref, mock_cs):
+    def test_can_get_entity(self, mock_add, mock_finpol, mock_ord, mock_finent, mock_upent, mock_formul, mock_hetsyn, mock_hetnam, mock_het, mock_modres, mock_seqres, mock_seqadv, mock_dbref, mock_cs):
         mock_cs.return_value = ["pe1", "pe2"]
         mock_dbref.return_value = ["p1", "p2", "p3"]
         mock_het.return_value = [["ne1", "ne2"], ["n1", "n2", "n3"]]
@@ -84,11 +85,12 @@ class EntityGettingTests(TestCase):
         )
         mock_finent.assert_called_with(["pe1", "pe2"], ["ne1", "ne2"])
         mock_finpol.assert_called_with(["p1", "p2", "p3"])
+        mock_ord.assert_called_with(["ne1", "ne2"], "filestring")
         mock_add.assert_called_with(
-            ["pe1", "pe2"], ["p1", "p2", "p3"], ["ne1", "ne2"], ["n1", "n2", "n3"]
+            ["pe1", "pe2"], ["p1", "p2", "p3"], mock_ord.return_value, ["n1", "n2", "n3"]
         )
         self.assertEqual(polymers, ["pe1", "pe2"])
-        self.assertEqual(non_polymers, ["ne1", "ne2"])
+        self.assertEqual(non_polymers, mock_ord.return_value)
 
 
 
@@ -2066,6 +2068,26 @@ class EntityFinalizationTests(TestCase):
             "HOH": {"id": "3", "name": "", "synonyms": [], "formula": "", "is_water": True, "molecules": {}},
             "WAT": {"id": "4", "name": "", "synonyms": [], "formula": "", "is_water": True, "molecules": {}},
         })
+
+
+
+class OrderingByAtomTests(TestCase):
+
+    def test_can_order_by_atom(self):
+        non_poly = {
+            "ABC": {1: 2}, "DEF": {3: 4}, "GHI": {5: 6}, "JKL": {7: 8}, "MNO": {9: 10}
+        }
+        filestring = (
+            "ATOM    100  C   GHI A   1      10.000  10.000  10.000  1.00  0.00           C  \n"
+            "ATOM    101  C   GHI A   1      10.000  10.000  10.000  1.00  0.00           C  \n"
+            "ATOM    200  C   DEF A   2      20.000  20.000  20.000  1.00  0.00           C  \n"
+            "HETATM  300  C   ABC A   3      30.000  30.000  30.000  1.00  0.00           C  \n"
+            "HETATM  400  C   MNO A   4      40.000  40.000  40.000  1.00  0.00           C  \n"
+            "HETATM  500  C   JKL A   5      50.000  50.000  50.000  1.00  0.00           C  \n"
+        )
+        self.assertEqual(list(ordered_by_atom(non_poly, filestring).items()), [
+            ("GHI", {5: 6}), ("DEF", {3: 4}), ("ABC", {1: 2}), ("MNO", {9: 10}), ("JKL", {7: 8})
+        ])
 
 
 

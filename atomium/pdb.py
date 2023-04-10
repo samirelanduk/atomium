@@ -82,6 +82,7 @@ def get_entities(filestring):
         non_polymer_entities, non_polymers
     )
     finalize_entities(polymer_entities, non_polymer_entities)
+    non_polymer_entities = ordered_by_atom(non_polymer_entities, filestring)
     finalize_polymers(polymers)
     add_molecules_to_entities(
         polymer_entities, polymers, non_polymer_entities, non_polymers
@@ -1085,6 +1086,20 @@ def finalize_entities(polymer_entities, non_polymer_entities):
         del polymer_entities[key]
     for entity in holding:
         polymer_entities[entity["id"]] = entity
+
+
+def ordered_by_atom(non_polymer_entities, filestring):
+    """Orders the non-polymer entities by the order in which they appear in the
+    file. This is done by looking at the first ATOM/HETATM record for each.
+    
+    :param dict non_polymer_entities: the non-polymer entities to update.
+    :param str filestring: the contents of the .pdb file."""
+
+    atoms = re.findall(r"^ATOM.+|^HETATM.+", filestring, re.M)
+    names = [a[17:20].strip() for a in atoms]
+    return {k: non_polymer_entities[k] for k in sorted(
+        non_polymer_entities.keys(), key=lambda x: names.index(x)
+    )}
 
 
 def finalize_polymers(polymers):

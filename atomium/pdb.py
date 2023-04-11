@@ -3428,12 +3428,12 @@ def split_lines(string, length):
     :rtype: ``list``"""
 
     strings = []
-    has_spaces = " " in string
     while string:
         if len(string) <= length:
             strings.append(string)
             break
         first = string[:length]
+        has_spaces = " " in first
         last_space = first[::-1].find(" " if has_spaces else ",")
         if last_space <= length and last_space != -1:
             first = string[:length - last_space]

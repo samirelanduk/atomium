@@ -6714,6 +6714,14 @@ class SplitLinesTests(TestCase):
 
     def test_can_split_lines_over_length_without_spaces(self):
         self.assertEqual(split_lines("abc,def,ghi,jkl", 8), ["abc,def,", "ghi,jkl"])
+    
+
+    def test_can_handle_no_spaces_in_specific_section(self):
+        authors = "N.NANDHAGOPAL,A.A.SIMPSON,J.R.GURNON,X.YAN,T.S.BAKER,M.V.GRAVES,J.L.VAN ETTEN,M.G.ROSSMANN"
+        self.assertEqual(split_lines(authors, 65), [
+            "N.NANDHAGOPAL,A.A.SIMPSON,J.R.GURNON,X.YAN,T.S.BAKER,M.V.GRAVES,",
+            "J.L.VAN ETTEN,M.G.ROSSMANN"
+        ])
 
 
 

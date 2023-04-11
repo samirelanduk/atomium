@@ -5434,12 +5434,12 @@ class AssemblyGenLinesTests(TestCase):
         self.assertEqual(create_assembly_gen_lines(gen, mmcif, asym_lookup), [
             "REMARK 350 APPLY THE FOLLOWING TO CHAINS: A, B, C,",
             "REMARK 350                    AND CHAINS: D, E,",
-            "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000        1.000000",
-            "REMARK 350   BIOMT2   1  0.000000 -1.000000  0.000000        2.000000",
-            "REMARK 350   BIOMT3   1  0.000000  0.000000 -1.000000        1.000000",
-            "REMARK 350   BIOMT1   2  0.223400 -1009.200  5.000000       -2.000000",
-            "REMARK 350   BIOMT2   2  4.233400 -8.993000  1.999887        4.040000",
-            "REMARK 350   BIOMT3   2  0.000000  0.000000 -1.000000        1.000000"
+            "REMARK 350   BIOMT1   1  1.000000  0.000000  0.000000      1.0000000",
+            "REMARK 350   BIOMT2   1  0.000000 -1.000000  0.000000      2.0000000",
+            "REMARK 350   BIOMT3   1  0.000000  0.000000 -1.000000      1.0000000",
+            "REMARK 350   BIOMT1   2  0.223400 -1009.200  5.000000     -2.0000000",
+            "REMARK 350   BIOMT2   2  4.233400 -8.993000  1.999887      4.0400000",
+            "REMARK 350   BIOMT3   2  0.000000  0.000000 -1.000000      1.0000000"
         ])
         mock_lines.assert_called_with("A, B, C", 27)
         mock_ops.assert_called_with({1: 2}, gen)

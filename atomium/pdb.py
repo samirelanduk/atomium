@@ -2781,12 +2781,12 @@ def create_assembly_gen_lines(gen, mmcif, asym_lookup):
             lines.append(f"REMARK 350 APPLY THE FOLLOWING TO CHAINS: {line},")
         else:
             lines.append(f"REMARK 350                    AND CHAINS: {line},")
-    line = "REMARK 350   BIOMT{:<2} {:>2} {} {} {}       {}"
+    line = "REMARK 350   BIOMT{:<2} {:>2} {} {} {}     {}"
     for op_num, operation in enumerate(get_operations(mmcif, gen), start=1):
         for row_num, row in enumerate(operation[:3], start=1):
             values = [
-                ("-" if v < 0 else " ") + "{0:.10f}".format(abs(v))[:8]
-                for v in row
+                ("-" if v < 0 else " ") + "{0:.10f}".format(abs(v))[:9 if i == 3 else 8]
+                for i, v in enumerate(row)
             ]
             lines.append(line.format(row_num, op_num, *values))
     return lines

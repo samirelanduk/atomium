@@ -2259,7 +2259,8 @@ def create_source_lines(mmcif):
         if entity["type"] != "polymer": continue
         mol = {
             "MOL_ID": entity["id"],
-            "SYNTHETIC": "YES" if entity["src_method"] == "syn" else "?"
+            "SYNTHETIC": "YES" if entity["src_method"] == "syn" else "?",
+            "OTHER_DETAILS": entity["details"]
         }
         if any(val != "?" for val in {
             k: v for k, v in mol.items() if k != "MOL_ID"

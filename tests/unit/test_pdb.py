@@ -4313,10 +4313,10 @@ class SourceLinesTests(TestCase):
     def test_can_produce_full_source(self, mock_split):
         mmcif = {
             "entity": [
-                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn"},
-                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "man"},
-                {"id": "3", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn"},
-                {"id": "4", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat"},
+                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn", "details": "DET1"},
+                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "man", "details": "DET2"},
+                {"id": "3", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "syn", "details": "DET3"},
+                {"id": "4", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat", "details": "?"},
                 {"id": "5", "type": "non-polymer"},
                 {"id": "6", "type": "water"},
             ]
@@ -4326,14 +4326,22 @@ class SourceLinesTests(TestCase):
         self.assertEqual([c[0] for c in mock_split.call_args_list], [
             ("MOL_ID: 1;", 70),
             ("SYNTHETIC: YES;", 70),
+            ("OTHER_DETAILS: DET1;", 70),
+            ("MOL_ID: 2;", 70),
+            ("OTHER_DETAILS: DET2;", 70),
             ("MOL_ID: 3;", 70),
             ("SYNTHETIC: YES;", 70),
+            ("OTHER_DETAILS: DET3;", 70),
         ])
         self.assertEqual(lines, [
             "SOURCE    MOL_ID: 1;",
             "SOURCE   2 SYNTHETIC: YES;",
-            "SOURCE   3 MOL_ID: 3;",
-            "SOURCE   4 SYNTHETIC: YES;"
+            "SOURCE   3 OTHER_DETAILS: DET1;",
+            "SOURCE   4 MOL_ID: 2;",
+            "SOURCE   5 OTHER_DETAILS: DET2;",
+            "SOURCE   6 MOL_ID: 3;",
+            "SOURCE   7 SYNTHETIC: YES;",
+            "SOURCE   8 OTHER_DETAILS: DET3;"
         ])
     
 
@@ -4341,8 +4349,8 @@ class SourceLinesTests(TestCase):
     def test_can_produce_no_source(self, mock_split):
         mmcif = {
             "entity": [
-                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "man"},
-                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat"},
+                {"id": "1", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "man", "details": "?"},
+                {"id": "2", "type": "polymer", "pdbx_description": "?", "pdbx_ec": "?", "src_method": "nat", "details": "?"},
                 {"id": "3", "type": "non-polymer"},
                 {"id": "4", "type": "water"},
             ]

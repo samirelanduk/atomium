@@ -4905,3 +4905,7 @@ class DictToFileTests(TestCase):
 
     def test_1m4x(self):
         self.save("1m4x")
+    
+
+    def test_4opj(self):
+        self.save("4opj")

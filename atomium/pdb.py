@@ -3395,7 +3395,7 @@ def create_aniso_line(atom, aniso, atom_id):
     if not aniso: return
     line = "ANISOU{:5} {:4} {:3} {:1}{:>4}{:1} "
     line += "{:>7}{:>7}{:>7}{:>7}{:>7}{:>7}      {:>2}{:2}"
-    convert = lambda s: int(float(s) * 10000)
+    convert = lambda s: round(float(s) * 10000)
     line = line.format(
         atom_id, f"{'' if len(atom['label_atom_id']) == 4 else ' '}{atom['label_atom_id']}",
         atom["auth_comp_id"],

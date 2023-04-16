@@ -2123,6 +2123,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_scalen_lines(mmcif)
     lines += create_mtrixn_lines(mmcif)
     lines += create_atom_lines(mmcif)
+    lines += create_master_line(lines)
     lines.append("END")
     with open(path, "w") as f:
         f.write("\n".join(lines))
@@ -3406,6 +3407,27 @@ def create_aniso_line(atom, aniso, atom_id):
         atom["type_symbol"] or "", atom["pdbx_formal_charge"][::-1],
     )
     return line.replace("?", " ")
+
+
+def create_master_line(lines):
+    """Creates a MASTER line from a list of PDB lines.
+    
+    :param list lines: the PDB lines.
+    :rtype: ``list``"""
+    
+    counts = {
+        ("REMARK",): 0, ("HET ",): 0, ("HELIX",): 0, ("SHEET",): 0, ("SITE",): 0,
+        ("ORIGX", "SCALE", "MTRIX"): 0, ("ATOM", "HETATM"): 0, ("TER",): 0,
+        ("CONECT",): 0, ("SEQRES",): 0,
+    }
+    for line in lines:
+        for count in counts:
+            for record in count:
+                if line.startswith(record):
+                    counts[count] += 1
+    line = "MASTER    {:>5}    0{:>5}{:>5}{:>5}    0"\
+        "{:>5}{:>5}{:>5}{:>5}{:>5}{:>5}".format(*counts.values())
+    return [line]
 
 
 def create_pdb_date(date):

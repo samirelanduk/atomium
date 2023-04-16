@@ -3972,18 +3972,21 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_scalen_lines")
     @patch("atomium.pdb.create_mtrixn_lines")
     @patch("atomium.pdb.create_atom_lines")
+    @patch("atomium.pdb.create_master_line")
     @patch("builtins.open")
-    def test_can_save_dict(self, mock_open, *mocks):
+    def test_can_save_dict(self, mock_open, mock_master, *mocks):
         mmcif = {"mmcif": 1}
         for i, mock in enumerate(mocks[::-1]):
             mock.return_value = [str(i)]
+        mock_master.return_value = [str(33)]
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(33))) + "\nEND"
+            "\n".join(map(str, range(34))) + "\nEND"
         )
         for mock in mocks:
             mock.assert_called_with(mmcif)
+        mock_master.assert_called_with(list(map(str, range(34))) + ["END"])
 
 
 
@@ -6690,6 +6693,25 @@ class AnisouLineCreation(TestCase):
             "U[2][3]": "-0.1117", "pdbx_auth_seq_id": "15", "pdbx_auth_comp_id": "DG",
             "pdbx_auth_asym_id": "B", "pdbx_auth_atom_id ": "C4"
         }, 20), "ANISOU   20  N   ALA N   1D    4728   6687   5867   2574    -37  -1117       N-1")
+
+
+
+class MasterSavingTests(TestCase):
+
+    def test_can_save_master(self):
+        lines = [
+            "REMARK 1", "REMARK 2", "HET  x", "HET xx", "HET xxxx", "SHEET 19",
+            "SITE ab", "SITE cd", "SITE ef", "SITE gh", "SITE ij", "SITE kl",
+            "ORIGX", "SCALE", "MTRIX", "MTRIX", "SCALE",
+            "ATOM  1", "ATOM  2", "ATOM  3", "ATOM  4", "ATOM  5", "ATOM  6",
+            "HETATM 1", "HETATM 2", "HETATM 3", "HETATM 4", "HETATM 5", "HETATM 6",
+            "TER  1", "TER  2", "TER  3", "TER  4", "TER  5", "TER  6",
+            "CONECT", "CONECT", "CONECT", "CONECT", "CONECT", "CONECT",
+            "SEQRES 1", "SEQRES 2", "END"
+        ]
+        self.assertEqual(create_master_line(lines), [
+            "MASTER        2    0    3    0    1    0    6    5   12    6    6    2"
+        ])
 
 
 

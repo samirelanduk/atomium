@@ -2,11 +2,12 @@ import re
 import math
 import calendar
 import itertools
+import numpy as np
 from collections import Counter
 from atomium.file import get_operations
 from atomium.sequences import get_alignment_indices
 from atomium.data import WATER_NAMES, CODES, FULL_NAMES, FORMULAE
-from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE
+from atomium.data import RESIDUE_MASSES, PERIODIC_TABLE, COVALENT_RADII
 from atomium.categories import REFLNS, REFINE
 
 def pdb_string_to_mmcif_dict(filestring):
@@ -2122,7 +2123,9 @@ def save_mmcif_dict(mmcif, path):
     lines += create_origxn_lines(mmcif)
     lines += create_scalen_lines(mmcif)
     lines += create_mtrixn_lines(mmcif)
-    lines += create_atom_lines(mmcif)
+    atom_lines, atom_lookup = create_atom_lines(mmcif)
+    lines += atom_lines
+    lines += create_conect_lines(mmcif, atom_lookup)
     lines += create_master_line(lines)
     lines.append("END")
     with open(path, "w") as f:
@@ -3328,13 +3331,14 @@ def create_atom_lines(mmcif):
     :param dict mmcif: the dictionary to parse.
     :rtype: ``list``"""
 
-    if not mmcif.get("atom_site", []): return []
+    if not mmcif.get("atom_site", []): return [], {}
     lines, model_num = [], 0
     atom_id, asym_id, entity_id = 1, mmcif["atom_site"][0]["label_asym_id"], ""
     aniso_lookup = {a["id"]: a for a in mmcif.get("atom_site_anisotrop", [])}
     model_nums = set(a["pdbx_PDB_model_num"] for a in  mmcif["atom_site"])
     lookup = {e["id"]: e["type"] for e in mmcif["entity"]}
     add_ter = lambda: lines.append(f"TER   {atom_id:>5}      {lines[-1][17:26]}")
+    atom_lookup = {}
     for atom in mmcif["atom_site"]:
         if int(atom["pdbx_PDB_model_num"]) > model_num and len(model_nums) > 1:
             if model_num != 0:
@@ -3347,6 +3351,7 @@ def create_atom_lines(mmcif):
             add_ter()
             atom_id += 1
         asym_id, entity_id = atom["label_asym_id"], atom["label_entity_id"]
+        atom_lookup[atom["id"]] = atom_id
         lines.append(create_atom_line(atom, atom_id))
         line = create_aniso_line(atom, aniso_lookup.get(atom["id"]), atom_id)
         if line: lines.append(line)
@@ -3357,7 +3362,7 @@ def create_atom_lines(mmcif):
         if lookup[entity_id] == "polymer" and not lines[-1].startswith("TER"):
             add_ter()
         lines.append("ENDMDL")
-    return lines
+    return lines, atom_lookup
 
 
 def create_atom_line(atom, atom_id):
@@ -3407,6 +3412,58 @@ def create_aniso_line(atom, aniso, atom_id):
         atom["type_symbol"] or "", atom["pdbx_formal_charge"][::-1],
     )
     return line.replace("?", " ")
+
+
+def create_conect_lines(mmcif, atom_lookup):
+    """Creates CONECT lines from a mmCIF dictionary.
+    
+    :param dict mmcif: the mmCIF dictionary.
+    :param dict atom_lookup: a lookup of atom serial numbers to atom_site ids.
+    :rtype: ``list``"""
+    
+    entity_id_to_type = {e["id"]: e["type"] for e in mmcif["entity"]}
+    molecules = {}
+    for atom in mmcif["atom_site"]:
+        if entity_id_to_type[atom["label_entity_id"]] == "polymer": continue
+        sig = (atom["auth_seq_id"], atom["auth_comp_id"])
+        if sig not in molecules: molecules[sig] = []
+        molecules[sig].append(atom)
+    conects = {}
+    for sig, atoms in molecules.items():
+        for atom1, atom2 in itertools.combinations(atoms, 2):
+            if atom_distance(atom1, atom2) < covalent_distance(atom1, atom2):
+                if atom1["id"] not in conects: conects[atom1["id"]] = []
+                if atom2["id"] not in conects: conects[atom2["id"]] = []
+                conects[atom1["id"]].append(str(atom_lookup[atom2["id"]]))
+                conects[atom2["id"]].append(str(atom_lookup[atom1["id"]]))
+    lines = []
+    for atom, conects in sorted(conects.items(), key=lambda x: int(x[0])):
+        others = " ".join([f"{c:>4}" for c in sorted(map(int, conects))])
+        lines.append(f"CONECT {atom_lookup[atom]:>4} {others}")
+    return lines
+
+
+def atom_distance(atom1, atom2):
+    """Calculates the distance between two atoms.
+    
+    :param dict atom1: the first atom.
+    :param dict atom2: the second atom.
+    :rtype: ``float``"""
+
+    loc1 = list(map(float, (atom1["Cartn_x"], atom1["Cartn_y"], atom1["Cartn_z"])))
+    loc2 = list(map(float, (atom2["Cartn_x"], atom2["Cartn_y"], atom2["Cartn_z"])))
+    return np.linalg.norm(np.array(loc1) - np.array(list(loc2)))
+
+
+def covalent_distance(atom1, atom2):
+    """Calculates the covalent distance between two atoms.
+    
+    :param dict atom1: the first atom.
+    :param dict atom2: the second atom.
+    :rtype: ``float``"""
+
+    return COVALENT_RADII.get(atom1["type_symbol"], 1) + \
+        COVALENT_RADII.get(atom2["type_symbol"], 1) + 0.4
 
 
 def create_master_line(lines):

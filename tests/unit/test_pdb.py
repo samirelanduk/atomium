@@ -3972,21 +3972,26 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_scalen_lines")
     @patch("atomium.pdb.create_mtrixn_lines")
     @patch("atomium.pdb.create_atom_lines")
+    @patch("atomium.pdb.create_conect_lines")
     @patch("atomium.pdb.create_master_line")
     @patch("builtins.open")
-    def test_can_save_dict(self, mock_open, mock_master, *mocks):
+    def test_can_save_dict(self, mock_open, mock_master, mock_conect, mock_atom, *mocks):
         mmcif = {"mmcif": 1}
         for i, mock in enumerate(mocks[::-1]):
             mock.return_value = [str(i)]
-        mock_master.return_value = [str(33)]
+        mock_atom.return_value = (["32"], {23: 32})
+        mock_conect.return_value = ["33"]
+        mock_master.return_value = ["34"]
         save_mmcif_dict(mmcif, "/path")
         mock_open.assert_called_with("/path", "w")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(34))) + "\nEND"
+            "\n".join(map(str, range(35))) + "\nEND"
         )
         for mock in mocks:
             mock.assert_called_with(mmcif)
-        mock_master.assert_called_with(list(map(str, range(34))) + ["END"])
+        mock_atom.assert_called_with(mmcif)
+        mock_conect.assert_called_with(mmcif, {23: 32})
+        mock_master.assert_called_with(list(map(str, range(35))) + ["END"])
 
 
 
@@ -6317,7 +6322,7 @@ class MtrixnLinesTests(TestCase):
 class AtomLinesTests(TestCase):
 
     def test_can_handle_no_table(self):
-        self.assertEqual(create_atom_lines({}), [])
+        self.assertEqual(create_atom_lines({}), ([], {}))
     
 
     @patch("atomium.pdb.create_atom_line")
@@ -6345,7 +6350,8 @@ class AtomLinesTests(TestCase):
                 {"id": "10", "pdbx_PDB_model_num": "1", "label_asym_id": "F", "label_entity_id": "4"}
             ]
         }
-        self.assertEqual(create_atom_lines(mmcif), [
+        lines, lookup = create_atom_lines(mmcif)
+        self.assertEqual(lines, [
             "ATOM 1 AAAAAAAAAAAAAAA", 
             "ATOM 2 AAAAAAAAAAAAAAA", 
             "TER       3      AAAAA",
@@ -6360,6 +6366,9 @@ class AtomLinesTests(TestCase):
             "ATOM 12 EEEEEEEEEEEEEEE",
             "ATOM 13 FFFFFFFFFFFFFFF",
         ])
+        self.assertEqual(lookup, {
+            "1": 1, "2": 2, "3": 4, "4": 5, "5": 7, "6": 8, "7": 10, "8": 11, "9": 12, "10": 13
+        })
         self.assertEqual([c[0] for c in mock_atom.call_args_list], [
             ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
             ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
@@ -6416,7 +6425,8 @@ class AtomLinesTests(TestCase):
                 {"id": "8", "aniso": "80"},
             ]
         }
-        self.assertEqual(create_atom_lines(mmcif), [
+        lines, lookup = create_atom_lines(mmcif)
+        self.assertEqual(lines, [
             "ATOM 1 AAAAAAAAAAAAAAA", "ANISO 1 AAAAAAAAAAAAAAA",
             "ATOM 2 AAAAAAAAAAAAAAA", "ANISO 2 AAAAAAAAAAAAAAA",
             "TER       3      AAAAAA",
@@ -6431,6 +6441,9 @@ class AtomLinesTests(TestCase):
             "ATOM 12 EEEEEEEEEEEEEEE", "ANISO 12 EEEEEEEEEEEEEEE",
             "ATOM 13 FFFFFFFFFFFFFFF", "ANISO 13 FFFFFFFFFFFFFFF",
         ])
+        self.assertEqual(lookup, {
+            "1": 1, "2": 2, "3": 4, "4": 5, "5": 7, "6": 8, "7": 10, "8": 11, "9": 12, "10": 13
+        })
         self.assertEqual([c[0] for c in mock_atom.call_args_list], [
             ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
             ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
@@ -6490,7 +6503,8 @@ class AtomLinesTests(TestCase):
                 {"id": "8", "pdbx_PDB_model_num": "3", "label_asym_id": "D", "label_entity_id": "3"},
             ]
         }
-        self.assertEqual(create_atom_lines(mmcif), [
+        lines, lookup = create_atom_lines(mmcif)
+        self.assertEqual(lines, [
             "MODEL        1",
             "ATOM 1 AAAAAAAAAAAAAAA", 
             "ATOM 2 AAAAAAAAAAAAAAA", 
@@ -6522,6 +6536,7 @@ class AtomLinesTests(TestCase):
             "ATOM 8 DDDDDDDDDDDDDDD", 
             "ENDMDL",
         ])
+        self.assertEqual(lookup, {"1": 1, "2": 2, "3": 4, "4": 5, "7": 7, "8": 8})
         self.assertEqual([c[0] for c in mock_atom.call_args_list], [
             ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
             ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
@@ -6588,7 +6603,8 @@ class AtomLinesTests(TestCase):
                 {"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"},
             ]
         }
-        self.assertEqual(create_atom_lines(mmcif), [
+        lines, lookup = create_atom_lines(mmcif)
+        self.assertEqual(lines, [
             "MODEL        1",
             "ATOM 1 AAAAAAAAAAAAAAA", 
             "ATOM 2 AAAAAAAAAAAAAAA", 
@@ -6608,6 +6624,7 @@ class AtomLinesTests(TestCase):
             "TER       4      AAAAA",
             "ENDMDL",
         ])
+        self.assertEqual(lookup, {"1": 1, "2": 2, "3": 3})
         self.assertEqual([c[0] for c in mock_atom.call_args_list], [
             ({"id": "1", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 1),
             ({"id": "2", "pdbx_PDB_model_num": "1", "label_asym_id": "A", "label_entity_id": "1"}, 2),
@@ -6630,7 +6647,6 @@ class AtomLinesTests(TestCase):
             ({"id": "2", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, None, 2),
             ({"id": "3", "pdbx_PDB_model_num": "3", "label_asym_id": "A", "label_entity_id": "1"}, None, 3),
         ])
-
 
 
 
@@ -6693,6 +6709,108 @@ class AnisouLineCreation(TestCase):
             "U[2][3]": "-0.1117", "pdbx_auth_seq_id": "15", "pdbx_auth_comp_id": "DG",
             "pdbx_auth_asym_id": "B", "pdbx_auth_atom_id ": "C4"
         }, 20), "ANISOU   20  N   ALA N   1D    4728   6687   5867   2574    -37  -1117       N-1")
+
+
+
+class ConectLineTests(TestCase):
+
+    @patch("atomium.pdb.atom_distance")
+    @patch("atomium.pdb.covalent_distance")
+    def test_can_create_conect_lines(self, mock_cov, mock_dist):
+        mock_dist.side_effect = [
+            1, 2, 3,
+            1, 2, 3,
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            1, 2, 3,
+        ]
+        mock_cov.side_effect = [
+            1.1, 2, 3.1,
+            1.1, 2.1, 3.1,
+            1, 2.1, 3, 4, 5.1, 6, 7, 8.1, 9, 10.1,
+            1.1, 2, 3.1,
+        ]
+        mmcif = {
+            "entity": [
+                {"id": "1", "type": "polymer"},
+                {"id": "2", "type": "polymer"},
+                {"id": "3", "type": "non-polymer"},
+                {"id": "4", "type": "non-polymer"},
+                {"id": "5", "type": "water"},
+            ],
+            "atom_site": [
+                {"id": "1", "label_entity_id": "1", "auth_comp_id": "ALA", "auth_seq_id": "1"},
+                {"id": "2", "label_entity_id": "1", "auth_comp_id": "ALA", "auth_seq_id": "1"},
+
+                {"id": "3", "label_entity_id": "2", "auth_comp_id": "TYR", "auth_seq_id": "2"},
+                {"id": "4", "label_entity_id": "2", "auth_comp_id": "TYR", "auth_seq_id": "2"},
+
+                {"id": "5", "label_entity_id": "3", "auth_comp_id": "XMP", "auth_seq_id": "3"},
+                {"id": "6", "label_entity_id": "3", "auth_comp_id": "XMP", "auth_seq_id": "3"},
+                {"id": "7", "label_entity_id": "3", "auth_comp_id": "XMP", "auth_seq_id": "3"},
+
+                {"id": "8", "label_entity_id": "3", "auth_comp_id": "XMP", "auth_seq_id": "4"},
+                {"id": "9", "label_entity_id": "3", "auth_comp_id": "XMP", "auth_seq_id": "4"},
+                {"id": "10", "label_entity_id": "3", "auth_comp_id": "XMP", "auth_seq_id": "4"},
+
+                {"id": "11", "label_entity_id": "4", "auth_comp_id": "BU2", "auth_seq_id": "2"},
+                {"id": "12", "label_entity_id": "4", "auth_comp_id": "BU2", "auth_seq_id": "2"},
+                {"id": "13", "label_entity_id": "4", "auth_comp_id": "BU2", "auth_seq_id": "2"},
+                {"id": "14", "label_entity_id": "4", "auth_comp_id": "BU2", "auth_seq_id": "2"},
+                {"id": "15", "label_entity_id": "4", "auth_comp_id": "BU2", "auth_seq_id": "2"},
+
+                {"id": "16", "label_entity_id": "5", "auth_comp_id": "HOH", "auth_seq_id": "6"},
+
+                {"id": "17", "label_entity_id": "5", "auth_comp_id": "HOH", "auth_seq_id": "7"},
+                {"id": "18", "label_entity_id": "5", "auth_comp_id": "HOH", "auth_seq_id": "7"},
+                {"id": "19", "label_entity_id": "5", "auth_comp_id": "HOH", "auth_seq_id": "7"},
+            ]
+        }
+        atom_lookup = {
+            "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10,
+            "11": 21, "12": 22, "13": 23, "14": 24, "15": 25, "16": 26, "17": 27, "18": 28, "19": 29
+        }
+        self.assertEqual(create_conect_lines(mmcif, atom_lookup), [
+            "CONECT    5    6",
+            "CONECT    6    5    7",
+            "CONECT    7    6",
+            "CONECT    8    9   10",
+            "CONECT    9    8   10",
+            "CONECT   10    8    9",
+            "CONECT   21   23",
+            "CONECT   22   23",
+            "CONECT   23   21   22   24",
+            "CONECT   24   23   25",
+            "CONECT   25   24",
+            "CONECT   27   28",
+            "CONECT   28   27   29",
+            "CONECT   29   28",
+        ])
+
+
+
+class AtomDistanceTests(TestCase):
+    
+    def test_can_get_distance(self):
+        self.assertAlmostEqual(atom_distance(
+            {"Cartn_x": "1", "Cartn_y": "1", "Cartn_z": "1"},
+            {"Cartn_x": "2", "Cartn_y": "2", "Cartn_z": "2"}
+        ), 1.73205, delta=0.00001)
+
+
+
+class CovalentDistanceTests(TestCase):
+    
+    def test_can_get_covalent_distance(self):
+        self.assertAlmostEqual(covalent_distance({"type_symbol": "C"}, {"type_symbol": "O"}), 1.82, delta=0.0000001)
+    
+
+    def test_can_handle_one_missing_element(self):
+        self.assertAlmostEqual(covalent_distance({"type_symbol": "C"}, {"type_symbol": "X"}), 2.16, delta=0.0000001)
+        self.assertAlmostEqual(covalent_distance({"type_symbol": "X"}, {"type_symbol": "C"}), 2.16, delta=0.0000001)
+    
+
+    def test_can_handle_both_missing_element(self):
+        self.assertAlmostEqual(covalent_distance({"type_symbol": "X"}, {"type_symbol": "Z"}), 2.4, delta=0.0000001)
 
 
 

@@ -259,20 +259,17 @@ class StringArrayDecodingTests(TestCase):
 
 
 
-class DictSavingTests(TestCase):
+class MmcifDictToBcifTests(TestCase):
 
-    @patch("builtins.open")
     @patch("atomium.bcif.encode_column")
-    def test_can_save_dict(self, mock_enc, mock_open):
+    def test_can_save_dict(self, mock_enc):
         mmcif = {"entry": [{"id": "1XXX"}], "cat2": [{"a": "b", "c": "d"}, {"a": "1", "c": "2"}]}
         mock_enc.side_effect = ["col1", "col2", "col3"]
-        save_mmcif_dict(mmcif, "/path")
+        bytestring = mmcif_dict_to_bcif_filestring(mmcif)
         mock_enc.assert_any_call("id", ["1XXX"])
         mock_enc.assert_any_call("a", ["b", "1"])
         mock_enc.assert_any_call("c", ["d", "2"])
-        mock_open.assert_called_with("/path", "wb")
-        mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            msgpack.packb({
+        self.assertEqual(bytestring, msgpack.packb({
                 b"encoder": b"atomium 2.0.0",
                 b"version": b"0.3.0",
                 b"dataBlocks": [{

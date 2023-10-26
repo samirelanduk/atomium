@@ -332,11 +332,11 @@ def get_chain_groups(mmtf_dict, group_count):
     return list(zip(group_types, group_ids, insert_codes, ss_codes))
 
 
-def save_mmcif_dict(mmcif_dict, path):
-    """Saves an mmCIF dictionary to a .mmtf file.
+def mmcif_dict_to_mmtf_filestring(mmcif_dict):
+    """Converts an mmCIF dictionary to a .mmtf filestring.
 
     :param dict mmcif_dict: the dictionary to save.
-    :param Path path: the location to save to."""
+    :rtype: ``bytes``"""
 
     # Make basic dict
     mmtf = make_base_mmtf_dict(mmcif_dict)
@@ -439,9 +439,7 @@ def save_mmcif_dict(mmcif_dict, path):
 
 
     # Save
-    data = msgpack.packb(mmtf)
-    with open(path, "wb") as f:
-        f.write(data)
+    return msgpack.packb(mmtf)
 
 
 def make_base_mmtf_dict(mmcif):

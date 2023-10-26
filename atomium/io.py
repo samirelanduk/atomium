@@ -4,13 +4,13 @@ import gzip
 import builtins
 import requests
 from atomium.mmcif import mmcif_string_to_mmcif_dict
-from atomium.mmcif import save_mmcif_dict as save_mmcif_dict_to_mmcif
+from atomium.mmcif import mmcif_dict_to_mmcif_filestring
 from atomium.bcif import bcif_string_to_mmcif_dict
-from atomium.bcif import save_mmcif_dict as save_mmcif_dict_to_bcif
+from atomium.bcif import mmcif_dict_to_bcif_filestring
 from atomium.pdb import pdb_string_to_mmcif_dict
-from atomium.pdb import save_mmcif_dict as save_mmcif_dict_to_pdb
+from atomium.pdb import mmcif_dict_to_pdb_filestring
 from atomium.mmtf import mmtf_string_to_mmcif_dict
-from atomium.mmtf import save_mmcif_dict as save_mmcif_dict_to_mmtf
+from atomium.mmtf import mmcif_dict_to_mmtf_filestring
 from atomium.file import File
 
 def open(path, dictionary=False):
@@ -103,9 +103,11 @@ def save_dictionary(mmcif, path):
     :param path: the location to save to."""
 
     ext = str(path).split(".")[-1]
-    {
-        "cif": save_mmcif_dict_to_mmcif,
-        "bcif": save_mmcif_dict_to_bcif,
-        "pdb": save_mmcif_dict_to_pdb,
-        "mmtf": save_mmcif_dict_to_mmtf,
-    }[ext](mmcif, path)
+    filestring = {
+        "cif": mmcif_dict_to_mmcif_filestring,
+        "bcif": mmcif_dict_to_bcif_filestring,
+        "pdb": mmcif_dict_to_pdb_filestring,
+        "mmtf": mmcif_dict_to_mmtf_filestring
+    }[ext](mmcif)
+    mode = "w" if isinstance(filestring, str) else "wb"
+    with builtins.open(path, mode) as f: f.write(filestring)

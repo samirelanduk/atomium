@@ -3974,19 +3974,15 @@ class MmcifDictSavingTests(TestCase):
     @patch("atomium.pdb.create_atom_lines")
     @patch("atomium.pdb.create_conect_lines")
     @patch("atomium.pdb.create_master_line")
-    @patch("builtins.open")
-    def test_can_save_dict(self, mock_open, mock_master, mock_conect, mock_atom, *mocks):
+    def test_can_save_dict(self, mock_master, mock_conect, mock_atom, *mocks):
         mmcif = {"mmcif": 1}
         for i, mock in enumerate(mocks[::-1]):
             mock.return_value = [str(i)]
         mock_atom.return_value = (["32"], {23: 32})
         mock_conect.return_value = ["33"]
         mock_master.return_value = ["34"]
-        save_mmcif_dict(mmcif, "/path")
-        mock_open.assert_called_with("/path", "w")
-        mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(map(str, range(35))) + "\nEND"
-        )
+        filestring = mmcif_dict_to_pdb_filestring(mmcif)
+        self.assertEqual(filestring, "\n".join(map(str, range(35))) + "\nEND")
         for mock in mocks:
             mock.assert_called_with(mmcif)
         mock_atom.assert_called_with(mmcif)

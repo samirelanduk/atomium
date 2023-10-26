@@ -239,48 +239,40 @@ class SemicolonValueTests(TestCase):
 
 
 
-class MmcifDictSavingTests(TestCase):
+class MmcifDictToMmcifFilestringTests(TestCase):
 
     @patch("atomium.mmcif.get_non_loop_lines")
     @patch("atomium.mmcif.get_loop_lines")
-    @patch("builtins.open")
-    def test_can_save_mmcif_dict(self, mock_open, mock_loop, mock_non):
+    def test_can_save_mmcif_dict(self, mock_loop, mock_non):
         mock_loop.side_effect = [[], ["loop1", "loop2"]]
         mock_non.return_value = ["nonloop1", "nonloop2"]
         mmcif = {"cat1": [], "cat2": [1], "cat3": [1, 2]}
-        save_mmcif_dict(mmcif, "/path")
+        filestring = mmcif_dict_to_mmcif_filestring(mmcif)
         mock_loop.assert_any_call("cat1", [])
         mock_loop.assert_any_call("cat3", [1, 2])
         mock_non.assert_called_with("cat2", [1])
-        mock_open.assert_called_with("/path", "w")
         output = [
             "data_XXXX",
             "#", "nonloop1", "nonloop2", "#", "loop1", "loop2", "#"
         ]
-        mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(output)
-        )
+        self.assertEqual(filestring, "\n".join(output))
     
 
     @patch("atomium.mmcif.get_non_loop_lines")
     @patch("atomium.mmcif.get_loop_lines")
-    @patch("builtins.open")
-    def test_can_save_mmcif_dict_with_entry_id(self, mock_open, mock_loop, mock_non):
+    def test_can_save_mmcif_dict_with_entry_id(self, mock_loop, mock_non):
         mock_loop.side_effect = [[], ["loop1", "loop2"]]
         mock_non.return_value = ["nonloop1", "nonloop2"]
         mmcif = {"cat1": [], "entry": [{"id": ".."}], "cat3": [1, 2]}
-        save_mmcif_dict(mmcif, "/path")
+        filestring = mmcif_dict_to_mmcif_filestring(mmcif)
         mock_loop.assert_any_call("cat1", [])
         mock_loop.assert_any_call("cat3", [1, 2])
         mock_non.assert_called_with("entry", [{"id": ".."}])
-        mock_open.assert_called_with("/path", "w")
         output = [
             "data_..",
             "#", "nonloop1", "nonloop2", "#", "loop1", "loop2", "#"
         ]
-        mock_open.return_value.__enter__.return_value.write.assert_called_with(
-            "\n".join(output)
-        )
+        self.assertEqual(filestring, "\n".join(output))
 
 
 

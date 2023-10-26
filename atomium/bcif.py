@@ -202,11 +202,11 @@ def decode_string_array(data, encoding):
     return [unique_strings[n] if n >= 0 else None for n in data]
 
 
-def save_mmcif_dict(mmcif_dict, path):
-    """Saves an mmCIF dictionary to a .bcif file.
+def mmcif_dict_to_bcif_filestring(mmcif_dict):
+    """Converts an mmCIF dictionary to a .bcif filestring.
 
     :param dict mmcif_dict: the dictionary to save.
-    :param Path path: the location to save to."""
+    :rtype: ``bytes``"""
 
 
     from atomium import __version__
@@ -225,9 +225,7 @@ def save_mmcif_dict(mmcif_dict, path):
             } for name, rows in mmcif_dict.items()]
         }]
     }
-    data = msgpack.packb(bcif)
-    with open(path, "wb") as f:
-        f.write(data)
+    return msgpack.packb(bcif)
 
 
 def encode_column(name, values):

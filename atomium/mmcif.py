@@ -131,11 +131,11 @@ def get_semicolon_value(lines):
     return join.join(values)[1:].strip()
 
 
-def save_mmcif_dict(mmcif_dict, path):
-    """Saves an mmCIF dictionary to a .cif file.
+def mmcif_dict_to_mmcif_filestring(mmcif_dict):
+    """Concers an mmCIF dictionary to a .cif filestring.
 
     :param dict mmcif_dict: the dictionary to save.
-    :param Path path: the location to save to."""
+    :rtype: ``str``"""
 
     code = mmcif_dict.get("entry", [{"id": ""}])[0]["id"]
     lines = [f"data_{code}" if code else "data_XXXX"]
@@ -146,8 +146,7 @@ def save_mmcif_dict(mmcif_dict, path):
         else:
             lines += get_loop_lines(category_name, rows)
     lines.append("#")
-    with open(path, "w") as f:
-        f.write("\n".join(lines))
+    return "\n".join(lines)
 
 
 def get_non_loop_lines(name, rows):

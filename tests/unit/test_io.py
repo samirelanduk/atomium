@@ -410,37 +410,41 @@ class DetermineFiletypeTests(TestCase):
 
 class SaveDictionaryTests(TestCase):
 
-    @patch("atomium.io.save_mmcif_dict_to_mmcif")
-    def test_str_path_cif(self, mock_save):
+    @patch("atomium.io.mmcif_dict_to_mmcif_filestring")
+    @patch("builtins.open")
+    def test_save_cif(self, mock_open, mock_to):
+        mock_to.return_value = "filestring"
         save_dictionary({"mmcif": 1}, "/path.cif")
-        mock_save.assert_called_with({"mmcif": 1}, "/path.cif")
+        mock_to.assert_called_with({"mmcif": 1})
+        mock_open.assert_called_with("/path.cif", "w")
+        mock_open.return_value.__enter__.return_value.write.assert_called_with("filestring")
     
 
-    @patch("atomium.io.save_mmcif_dict_to_bcif")
-    def test_str_path_bcif(self, mock_save):
+    @patch("atomium.io.mmcif_dict_to_bcif_filestring")
+    @patch("builtins.open")
+    def test_save_bcif(self, mock_open, mock_to):
+        mock_to.return_value = b"filestring"
         save_dictionary({"mmcif": 1}, "/path.bcif")
-        mock_save.assert_called_with({"mmcif": 1}, "/path.bcif")
+        mock_to.assert_called_with({"mmcif": 1})
+        mock_open.assert_called_with("/path.bcif", "wb")
+        mock_open.return_value.__enter__.return_value.write.assert_called_with(b"filestring")
     
 
-    @patch("atomium.io.save_mmcif_dict_to_pdb")
-    def test_str_path_pdb(self, mock_save):
+    @patch("atomium.io.mmcif_dict_to_mmtf_filestring")
+    @patch("builtins.open")
+    def test_save_mmtf(self, mock_open, mock_to):
+        mock_to.return_value = b"filestring"
+        save_dictionary({"mmcif": 1}, "/path.mmtf")
+        mock_to.assert_called_with({"mmcif": 1})
+        mock_open.assert_called_with("/path.mmtf", "wb")
+        mock_open.return_value.__enter__.return_value.write.assert_called_with(b"filestring")
+    
+
+    @patch("atomium.io.mmcif_dict_to_pdb_filestring")
+    @patch("builtins.open")
+    def test_save_pdb(self, mock_open, mock_to):
+        mock_to.return_value = "filestring"
         save_dictionary({"mmcif": 1}, "/path.pdb")
-        mock_save.assert_called_with({"mmcif": 1}, "/path.pdb")
-    
-
-    @patch("atomium.io.save_mmcif_dict_to_mmcif")
-    def test_str_path_cif(self, mock_save):
-        save_dictionary({"mmcif": 1}, Path("/path.cif"))
-        mock_save.assert_called_with({"mmcif": 1}, Path("/path.cif"))
-    
-
-    @patch("atomium.io.save_mmcif_dict_to_bcif")
-    def test_str_path_bcif(self, mock_save):
-        save_dictionary({"mmcif": 1}, Path("/path.bcif"))
-        mock_save.assert_called_with({"mmcif": 1}, Path("/path.bcif"))
-    
-
-    @patch("atomium.io.save_mmcif_dict_to_pdb")
-    def test_str_path_pdb(self, mock_save):
-        save_dictionary({"mmcif": 1}, Path("/path.pdb"))
-        mock_save.assert_called_with({"mmcif": 1}, Path("/path.pdb"))
+        mock_to.assert_called_with({"mmcif": 1})
+        mock_open.assert_called_with("/path.pdb", "w")
+        mock_open.return_value.__enter__.return_value.write.assert_called_with("filestring")

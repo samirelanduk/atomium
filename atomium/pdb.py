@@ -2082,11 +2082,11 @@ def pdb_names_to_mmcif_names(lines):
     return processed_names
 
 
-def save_mmcif_dict(mmcif, path):
-    """Saves an mmCIF dictionary to a .pdb file.
+def mmcif_dict_to_pdb_filestring(mmcif):
+    """Converts an mmCIF dictionary to a .pdb filestring.
 
     :param dict mmcif: the dictionary to save.
-    :param Path path: the location to save to."""
+    :rtype: ``str``"""
 
     lines = []
     lines += create_header_line(mmcif)
@@ -2128,8 +2128,7 @@ def save_mmcif_dict(mmcif, path):
     lines += create_conect_lines(mmcif, atom_lookup)
     lines += create_master_line(lines)
     lines.append("END")
-    with open(path, "w") as f:
-        f.write("\n".join(lines))
+    return "\n".join(lines)
 
 
 def create_header_line(mmcif):

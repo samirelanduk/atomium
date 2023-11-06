@@ -261,6 +261,7 @@ def parse_mmtf_compounds(mmtf_dict, mmcif_dict):
 
 
 def parse_mmtf_models(mmtf_dict, mmcif_dict):
+    mmcif_dict["atom_type"] = []
     mmcif_dict["atom_site"] = []
     mmcif_dict["struct_conf"] = []
     mmcif_dict["struct_sheet_range"] = []
@@ -268,6 +269,8 @@ def parse_mmtf_models(mmtf_dict, mmcif_dict):
     for m_num, c_count in enumerate(mmtf_dict["chainsPerModel"], start=1):
         for c_index, g_count in enumerate(mmtf_dict["groupsPerChain"][:c_count]):
             parse_chain(mmtf_dict, mmcif_dict, m_num, c_index, g_count, atoms)
+    for name in sorted(set([a["type_symbol"] for a in mmcif_dict["atom_site"]])):
+        mmcif_dict["atom_type"].append({"symbol": name})
     return mmcif_dict
 
 

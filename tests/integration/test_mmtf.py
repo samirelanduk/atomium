@@ -7,7 +7,7 @@ class FileToDictTests(TestCase):
 
     def test_1lol(self):
         d = atomium.open("tests/integration/files/1lol.mmtf", dictionary=True)
-        self.assertEqual(len(d.keys()), 17)
+        self.assertEqual(len(d.keys()), 18)
 
         # Header categories
         self.assertEqual(d["entry"], [{"id": "1LOL"}])
@@ -100,6 +100,13 @@ class FileToDictTests(TestCase):
         })
 
         # Model categories
+        self.assertEqual(d["atom_type"], [
+            {"symbol": "C"},
+            {"symbol": "N"},
+            {"symbol": "O"},
+            {"symbol": "P"},
+            {"symbol": "S"},
+        ])
         self.assertEqual(len(d["atom_site"]), 3431)
         self.assertEqual(d["atom_site"][0], {
             "group_PDB": "ATOM", "id": "1", "type_symbol": "N",
@@ -183,10 +190,10 @@ class FileToDictTests(TestCase):
             "auth_asym_id": "B", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
         })
     
-
+    
     def test_1xda(self):
         d = atomium.open("tests/integration/files/1xda.mmtf", dictionary=True)
-        self.assertEqual(len(d.keys()), 17)
+        self.assertEqual(len(d.keys()), 18)
 
         # Header categories
         self.assertEqual(d["entry"], [{"id": "1XDA"}])
@@ -310,6 +317,14 @@ class FileToDictTests(TestCase):
         })
 
         # Model categories
+        self.assertEqual(d["atom_type"], [
+            {"symbol": "C"},
+            {"symbol": "Cl"},
+            {"symbol": "N"},
+            {"symbol": "O"},
+            {"symbol": "S"},
+            {"symbol": "Zn"},
+        ])
         self.assertEqual(len(d["atom_site"]), 1860)
         self.assertEqual(d["atom_site"][0], {
             "group_PDB": "ATOM", "id": "1", "type_symbol": "N",
@@ -608,6 +623,7 @@ class FileToDictTests(TestCase):
             "pdbx_formal_charge": "0", "auth_seq_id": "59", "auth_comp_id": "HOH",
             "auth_asym_id": "H", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
         })
+
 
 
 

@@ -8,6 +8,7 @@ class FileToDictTests(TestCase):
     def test_1lol(self):
         d = atomium.open("tests/integration/files/1lol.mmtf", dictionary=True)
 
+        # Header data
         self.assertEqual(d["entry"], [{"id": "1LOL"}])
         self.assertEqual(d["struct"], [{
             "entry_id": "1LOL", "title": "Crystal structure of orotidine monophosphate decarboxylase complex with XMP"
@@ -18,42 +19,92 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["exptl"], [{
             "entry_id": "1LOL", "method": "X-RAY DIFFRACTION"
         }])
-        self.assertEqual(d["refine"][0]["ls_d_res_high"], "1.9")
-        self.assertEqual(d["refine"][0]["ls_R_factor_R_work"], "0.193")
-        self.assertEqual(d["refine"][0]["ls_R_factor_R_free"], "0.229")
+
+        # Quality data
+        self.assertEqual(d["refine"], [{
+            "entry_id": "1LOL", "ls_d_res_high": "1.9",
+            "ls_R_factor_obs": "0.193", "ls_R_factor_all": "0.193",
+            "ls_R_factor_R_work": "0.193", "ls_R_factor_R_free": "0.229"
+        }])
+
+        # Crystal data
         self.assertEqual(d["symmetry"], [{
             "entry_id": "1LOL", "space_group_name_H-M": "P 1 21 1"
         }])
-        self.assertEqual(d["cell"][0]["length_a"], "57.57")
-        self.assertEqual(d["cell"][0]["length_alpha"], "90.0")
+        self.assertEqual(d["cell"], [{
+            "entry_id": "1LOL", "length_a": "57.57", "length_b": "55.482",
+            "length_c": "66.129", "length_alpha": "90.0",
+            "length_beta": "94.28", "length_gamma": "90.0"
+        }])
 
+        # Assembly data
         self.assertEqual(d["pdbx_struct_assembly"], [{"id": "1"}])
         self.assertEqual(d["pdbx_struct_assembly_gen"], [{
             "assembly_id": "1", "oper_expression": "1", "asym_id_list": "A,B,C,D,E,F,G,H"
         }])
-        self.assertEqual(d["pdbx_struct_oper_list"][0]["matrix[1][1]"], "1.0000000000")
-        self.assertEqual(d["pdbx_struct_oper_list"][0]["vector[3]"], "0.0000000000")
+        self.assertEqual(d["pdbx_struct_oper_list"], [{
+            "id": "1", "matrix[1][1]": "1.0000000000", "matrix[1][2]": "0.0000000000",
+            "matrix[1][3]": "0.0000000000", "vector[1]": "0.0000000000",
+            "matrix[2][1]": "0.0000000000", "matrix[2][2]": "1.0000000000",
+            "matrix[2][3]": "0.0000000000", "vector[2]": "0.0000000000",
+            "matrix[3][1]": "0.0000000000", "matrix[3][2]": "0.0000000000",
+            "matrix[3][3]": "1.0000000000", "vector[3]": "0.0000000000"
+        }])
 
-        self.assertEqual(len(d["entity"]), 4)       
-        self.assertEqual(d["entity"][0]["pdbx_description"], "orotidine 5'-monophosphate decarboxylase")
-        self.assertEqual(d["entity"][1]["pdbx_description"], "1,3-BUTANEDIOL")
-        self.assertEqual(d["entity"][2]["pdbx_description"], "XANTHOSINE-5'-MONOPHOSPHATE")
-        self.assertEqual(d["entity"][3]["pdbx_description"], "water")
-        self.assertEqual(d["entity"][0]["type"], "polymer")
-        self.assertEqual(d["entity"][1]["type"], "non-polymer")
-        self.assertEqual(d["entity"][2]["type"], "non-polymer")
-        self.assertEqual(d["entity"][3]["type"], "water")
-        self.assertEqual(d["entity"][0]["pdbx_number_of_molecules"], "2")
-        self.assertEqual(d["entity"][1]["pdbx_number_of_molecules"], "2")
-        self.assertEqual(d["entity"][2]["pdbx_number_of_molecules"], "2")
-        self.assertEqual(
-            d["entity_poly"][0]["pdbx_seq_one_letter_code"],
-            "LRSRRVDVMDVMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFG" +
-            "CRIIADFKVADIPETNEKICRATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSH" +
-            "PGAEMFIQGAADEIARMGVDLGVKNYVGPSTRPERLSRLREIIGQDSFLISPGVGAQGGDPGET" +
-            "LRFADAIIVGRSIYLADNPAAAAAGIIESIKDLLIPE"
-        )
+        # Entity data
+        self.assertEqual(d["entity"], [{
+            "id": "1", "type": "polymer", "pdbx_number_of_molecules": "2",
+            "pdbx_description": "orotidine 5'-monophosphate decarboxylase",
+        }, {
+            "id": "2", "type": "non-polymer", "pdbx_description": "1,3-BUTANEDIOL",
+            "pdbx_number_of_molecules": "2"
+        }, {
+            "id": "3", "type": "non-polymer", "pdbx_number_of_molecules": "2",
+            "pdbx_description": "XANTHOSINE-5'-MONOPHOSPHATE",
+        }, {
+            "id": "4", "type": "water", "pdbx_description": "water",
+            "pdbx_number_of_molecules": "2"
+        }])
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1",
+            "pdbx_seq_one_letter_code": "LRSRRVDVMDVMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICRATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRPERLSRLREIIGQDSFLISPGVGAQGGDPGETLRFADAIIVGRSIYLADNPAAAAAGIIESIKDLLIPE",
+            "pdbx_seq_one_letter_code_can": "LRSRRVDVMDVMNRLILAMDLMNRDDALRVTGEVREYIDTVKIGYPLVLSEGMDIIAEFRKRFGCRIIADFKVADIPETNEKICRATFKAGADAIIVHGFPGADSVRACLNVAEEMGREVFLLTEMSHPGAEMFIQGAADEIARMGVDLGVKNYVGPSTRPERLSRLREIIGQDSFLISPGVGAQGGDPGETLRFADAIIVGRSIYLADNPAAAAAGIIESIKDLLIPE"
+        }])
+        self.assertEqual(d["struct_asym"], [
+            {"id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"id": "B", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"id": "C", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "2", "details": "?"},
+            {"id": "D", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "3", "details": "?"},
+            {"id": "E", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "2", "details": "?"},
+            {"id": "F", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "3", "details": "?"},
+            {"id": "G", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "4", "details": "?"},
+            {"id": "H", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "4", "details": "?"}
+        ])
 
+        # Compound data
+        self.assertEqual(len(d["chem_comp"]), 22)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ALA", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "alanine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][4], {
+            "id": "BU2", "type": "NON-POLYMER", "mon_nstd_flag": ".",
+            "name": "?", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][10], {
+            "id": "HOH", "type": "NON-POLYMER", "mon_nstd_flag": ".",
+            "name": "?", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][-1], {
+            "id": "XMP", "type": "NON-POLYMER", "mon_nstd_flag": ".",
+            "name": "?", "pdbx_synonyms": "?",
+            "formula": "?", "formula_weight": "?",
+        })
+
+        # Model data
         self.assertEqual(len(d["atom_site"]), 3431)
         self.assertEqual(d["atom_site"][0], {
             "group_PDB": "ATOM", "id": "1", "type_symbol": "N", "label_atom_id": "N",
@@ -63,6 +114,69 @@ class FileToDictTests(TestCase):
             "B_iso_or_equiv": "21.5", "pdbx_formal_charge": "0", "auth_seq_id": "11",
             "auth_comp_id": "VAL", "auth_asym_id": "A", "auth_atom_id": "N",
             "pdbx_PDB_model_num": "1"
+        })
+        self.assertEqual(d["atom_site"][1557], {
+            "group_PDB": "ATOM", "id": "1558", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "VAL",
+            "label_asym_id": "B", "label_entity_id": "1", "label_seq_id": "1011",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-26.384", "Cartn_y": "61.433",
+            "Cartn_z": "36.898", "occupancy": "1.0", "B_iso_or_equiv": "39.3",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1011", "auth_comp_id": "VAL",
+            "auth_asym_id": "B", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][3191], {
+            "group_PDB": "HETATM", "id": "3192", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "BU2",
+            "label_asym_id": "C", "label_entity_id": "2", "label_seq_id": "5001",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "2.646", "Cartn_y": "45.112",
+            "Cartn_z": "48.995", "occupancy": "1.0", "B_iso_or_equiv": "43.24",
+            "pdbx_formal_charge": "0", "auth_seq_id": "5001", "auth_comp_id": "BU2",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][3197], {
+            "group_PDB": "HETATM", "id": "3198", "type_symbol": "P",
+            "label_atom_id": "P", "label_alt_id": ".", "label_comp_id": "XMP",
+            "label_asym_id": "D", "label_entity_id": "3", "label_seq_id": "2001",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "3.293", "Cartn_y": "36.948",
+            "Cartn_z": "44.605", "occupancy": "1.0", "B_iso_or_equiv": "20.47",
+            "pdbx_formal_charge": "0", "auth_seq_id": "2001", "auth_comp_id": "XMP",
+            "auth_asym_id": "A", "auth_atom_id": "P", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][3221], {
+            "group_PDB": "HETATM", "id": "3222", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "BU2",
+            "label_asym_id": "E", "label_entity_id": "2", "label_seq_id": "5002",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-14.563", "Cartn_y": "61.208",
+            "Cartn_z": "49.005", "occupancy": "1.0", "B_iso_or_equiv": "45.5",
+            "pdbx_formal_charge": "0", "auth_seq_id": "5002", "auth_comp_id": "BU2",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][3227], {
+            "group_PDB": "HETATM", "id": "3228", "type_symbol": "P",
+            "label_atom_id": "P", "label_alt_id": ".", "label_comp_id": "XMP",
+            "label_asym_id": "F", "label_entity_id": "3", "label_seq_id": "2002",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-23.846", "Cartn_y": "63.007",
+            "Cartn_z": "53.02", "occupancy": "1.0", "B_iso_or_equiv": "33.88",
+            "pdbx_formal_charge": "0", "auth_seq_id": "2002", "auth_comp_id": "XMP",
+            "auth_asym_id": "B", "auth_atom_id": "P", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][3251], {
+            "group_PDB": "HETATM", "id": "3252", "type_symbol": "O",
+            "label_atom_id": "O", "label_alt_id": ".", "label_comp_id": "HOH",
+            "label_asym_id": "G", "label_entity_id": "4", "label_seq_id": "3005",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-7.624", "Cartn_y": "43.71",
+            "Cartn_z": "47.691", "occupancy": "1.0", "B_iso_or_equiv": "15.72",
+            "pdbx_formal_charge": "0", "auth_seq_id": "3005", "auth_comp_id": "HOH",
+            "auth_asym_id": "A", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][3347], {
+            "group_PDB": "HETATM", "id": "3348", "type_symbol": "O",
+            "label_atom_id": "O", "label_alt_id": ".", "label_comp_id": "HOH",
+            "label_asym_id": "H", "label_entity_id": "4", "label_seq_id": "3001",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "-9.22", "Cartn_y": "50.8",
+            "Cartn_z": "49.092", "occupancy": "1.0", "B_iso_or_equiv": "17.69",
+            "pdbx_formal_charge": "0", "auth_seq_id": "3001", "auth_comp_id": "HOH",
+            "auth_asym_id": "B", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
         })
         self.assertEqual(d["atom_site"][-1], {
             "group_PDB": "HETATM", "id": "3431", "type_symbol": "O", "label_atom_id": "O",

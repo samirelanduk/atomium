@@ -160,7 +160,7 @@ def parse_mmtf_header(mmtf_dict, mmcif_dict):
 
 def parse_mmtf_quality(mmtf_dict, mmcif_dict):
     if any(k in mmtf_dict for k in ["resolution", "rWork", "rFree"]):
-        get = lambda k: str(round(mmtf_dict[k], 3)) if k in mmtf_dict else "?"
+        get = lambda k: str(round(float(mmtf_dict[k]), 3)) if k in mmtf_dict and mmtf_dict[k] != "?" else "?"
         mmcif_dict["refine"] = [{
             "entry_id": mmtf_dict["structureId"],
             "ls_d_res_high": get("resolution"),
@@ -179,12 +179,12 @@ def parse_mmtf_crystal(mmtf_dict, mmcif_dict):
     if "unitCell" in mmtf_dict:
         mmcif_dict["cell"] = [{
             "entry_id": mmtf_dict["structureId"],
-            "length_a": str(round(mmtf_dict["unitCell"][0], 3)),
-            "length_b": str(round(mmtf_dict["unitCell"][1], 3)),
-            "length_c": str(round(mmtf_dict["unitCell"][2], 3)),
-            "length_alpha": str(round(mmtf_dict["unitCell"][3], 3)),
-            "length_beta": str(round(mmtf_dict["unitCell"][4], 3)),
-            "length_gamma": str(round(mmtf_dict["unitCell"][5], 3))
+            "length_a": str(round(float(mmtf_dict["unitCell"][0]), 3)),
+            "length_b": str(round(float(mmtf_dict["unitCell"][1]), 3)),
+            "length_c": str(round(float(mmtf_dict["unitCell"][2]), 3)),
+            "length_alpha": str(round(float(mmtf_dict["unitCell"][3]), 3)),
+            "length_beta": str(round(float(mmtf_dict["unitCell"][4]), 3)),
+            "length_gamma": str(round(float(mmtf_dict["unitCell"][5]), 3))
         }]
 
 
@@ -372,7 +372,7 @@ def mmcif_dict_to_mmtf_filestring(mmcif_dict):
         atom_x.append("" if atom["Cartn_x"] in ".?" else float(atom["Cartn_x"]))
         atom_y.append("" if atom["Cartn_y"] in ".?" else float(atom["Cartn_y"]))
         atom_z.append("" if atom["Cartn_z"] in ".?" else float(atom["Cartn_z"]))
-        atom_alts.append("" if atom["label_alt_id"] in ".?" else float(atom["label_alt_id"]))
+        atom_alts.append("" if atom["label_alt_id"] in ".?" else atom["label_alt_id"])
         atom_occupancy.append("" if atom["occupancy"] in ".?" else float(atom["occupancy"]))
         atom_b.append("" if atom["B_iso_or_equiv"] in ".?" else float(atom["B_iso_or_equiv"]))
 
@@ -452,7 +452,7 @@ def make_base_mmtf_dict(mmcif):
         "structureId": code,
         "title": mmcif["struct"][0]["title"],
         "depositionDate": get("pdbx_database_status", "recvd_initial_deposition_date"),
-        "experimentalMethods":  get("exptl", "method"),
+        "experimentalMethods":  [get("exptl", "method")],
         "spaceGroup":  get("symmetry", "space_group_name_H-M"),
         "resolution": get("refine", "ls_d_res_high"),
         "rFree": get("refine", "ls_R_factor_R_free"), 

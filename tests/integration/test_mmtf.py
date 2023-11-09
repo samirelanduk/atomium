@@ -625,6 +625,181 @@ class FileToDictTests(TestCase):
         })
 
 
+    def test_5xme(self):
+        d = atomium.open("tests/integration/files/5xme.mmtf", dictionary=True)
+        self.assertEqual(len(d.keys()), 16)
+
+        # Header categories
+        self.assertEqual(d["entry"], [{"id": "5XME"}])
+        self.assertEqual(d["struct"], [
+            {"entry_id": "5XME", "title": "Solution structure of C-terminal domain of TRADD"},
+        ])
+        self.assertEqual(d["pdbx_database_status"], [{"entry_id": "5XME", "recvd_initial_deposition_date": "2017-05-15"}])
+        self.assertEqual(d["exptl"], [{"entry_id": "5XME", "method": "SOLUTION NMR"}])
+
+        # Quality categories
+        self.assertNotIn("refine", d)
+
+        # Crystal categories
+        self.assertEqual(d["symmetry"], [{"entry_id": "5XME", "space_group_name_H-M": "NA"}])
+        self.assertNotIn("cell", d)
+
+        # Assembly categories
+        self.assertEqual(d["pdbx_struct_assembly"], [{"id": "1"}])
+        self.assertEqual(d["pdbx_struct_assembly_gen"], [{"assembly_id": "1", "oper_expression": "1", "asym_id_list": "A"}])
+        self.assertEqual(d["pdbx_struct_oper_list"], [{
+            "id": "1", "matrix[1][1]": "1.0000000000",
+            "matrix[1][2]": "0.0000000000", "matrix[1][3]": "0.0000000000",
+            "vector[1]": "0.0000000000", "matrix[2][1]": "0.0000000000",
+            "matrix[2][2]": "1.0000000000", "matrix[2][3]": "0.0000000000",
+            "vector[2]": "0.0000000000", "matrix[3][1]": "0.0000000000",
+            "matrix[3][2]": "0.0000000000", "matrix[3][3]": "1.0000000000",
+            "vector[3]": "0.0000000000",
+        }])
+
+        # Entity categories
+        self.assertEqual(d["entity"], [{
+            "id": "1", "type": "polymer",
+            "pdbx_description": "Tumor necrosis factor receptor type 1-associated DEATH domain protein",
+            "pdbx_number_of_molecules": "1",
+        }])
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1",
+            "pdbx_seq_one_letter_code": "MHHHHHHSSGRGSAQTFLFQGQPVVNRPLSLKDQQTFARSVGLKWRKVGRSLQRGCRALRDPALDSLAYEYEREGLYEQAFQLLRRFVQAEGRRATLQRLVEALEENELTSLAEDLLGLTDPNGGLA",
+            "pdbx_seq_one_letter_code_can": "MHHHHHHSSGRGSAQTFLFQGQPVVNRPLSLKDQQTFARSVGLKWRKVGRSLQRGCRALRDPALDSLAYEYEREGLYEQAFQLLRRFVQAEGRRATLQRLVEALEENELTSLAEDLLGLTDPNGGLA",
+        }])
+        self.assertEqual(len(d["struct_asym"]), 10)
+        self.assertEqual(d["struct_asym"][0], {
+            "id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N",
+            "entity_id": "1", "details": "?",
+        })
+        self.assertEqual(d["struct_asym"][-1], {
+            "id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N",
+            "entity_id": "1", "details": "?",
+        })
+
+        # Compound categories
+        self.assertEqual(len(d["chem_comp"]), 17)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ALA", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "alanine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][-1], {
+            "id": "VAL", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "valine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+
+        # Model categories
+        self.assertEqual(d["atom_type"], [
+            {"symbol": "C"},
+            {"symbol": "H"},
+            {"symbol": "N"},
+            {"symbol": "O"},
+            {"symbol": "S"},
+        ])
+        self.assertEqual(len(d["atom_site"]), 18270)
+        self.assertEqual(d["atom_site"][0], {
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "33.969", "Cartn_y": "-8.43",
+            "Cartn_z": "-0.271", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][1827], {
+            "group_PDB": "ATOM", "id": "1828", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "34.064", "Cartn_y": "-8.092",
+            "Cartn_z": "-0.062", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "2",
+        })
+        self.assertEqual(d["atom_site"][3654], {
+            "group_PDB": "ATOM", "id": "3655", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "37.369", "Cartn_y": "-7.973",
+            "Cartn_z": "-0.242", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "3",
+        })
+        self.assertEqual(d["atom_site"][5481], {
+            "group_PDB": "ATOM", "id": "5482", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "36.023", "Cartn_y": "-7.429",
+            "Cartn_z": "-0.637", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "4",
+        })
+        self.assertEqual(d["atom_site"][7308], {
+            "group_PDB": "ATOM", "id": "7309", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "35.245", "Cartn_y": "-9.094",
+            "Cartn_z": "0.245", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "5",
+        })
+        self.assertEqual(d["atom_site"][9135], {
+            "group_PDB": "ATOM", "id": "9136", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "35.835", "Cartn_y": "-7.648",
+            "Cartn_z": "-0.888", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "6",
+        })
+        self.assertEqual(d["atom_site"][10962], {
+            "group_PDB": "ATOM", "id": "10963", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "37.525", "Cartn_y": "-7.759",
+            "Cartn_z": "-0.297", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "7",
+        })
+        self.assertEqual(d["atom_site"][12789], {
+            "group_PDB": "ATOM", "id": "12790", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "35.062", "Cartn_y": "-9.22",
+            "Cartn_z": "0.031", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "8",
+        })
+        self.assertEqual(d["atom_site"][14616], {
+            "group_PDB": "ATOM", "id": "14617", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "36.244", "Cartn_y": "-7.381",
+            "Cartn_z": "-0.745", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "9",
+        })
+        self.assertEqual(d["atom_site"][16443], {
+            "group_PDB": "ATOM", "id": "16444", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "199",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "37.677", "Cartn_y": "-7.651",
+            "Cartn_z": "-0.218", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "199", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "10",
+        })
+        self.assertEqual(d["atom_site"][-1], {
+            "group_PDB": "ATOM", "id": "18270", "type_symbol": "H",
+            "label_atom_id": "HB3", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "312",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "22.641", "Cartn_y": "-15.379",
+            "Cartn_z": "-10.884", "occupancy": "1.0", "B_iso_or_equiv": "0.0",
+            "pdbx_formal_charge": "0", "auth_seq_id": "312", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "HB3", "pdbx_PDB_model_num": "10",
+        })
+
 
 
 class DictToFileTests(TestCase):
@@ -642,7 +817,6 @@ class DictToFileTests(TestCase):
 
     def save(self, code):
         original = atomium.open(f"tests/integration/files/{code}.mmtf", dictionary=True)
-        for r in original["struct_conf"]: print(r)
         atomium.save_dictionary(original, f"tests/integration/files/output/{code}.mmtf")
         saved = atomium.open(f"tests/integration/files/output/{code}.mmtf", dictionary=True)
         self.assertEqual(original, saved)
@@ -654,6 +828,10 @@ class DictToFileTests(TestCase):
 
     def test_1xda(self):
         self.save("1xda")
+    
+
+    def test_5xme(self):
+        self.save("5xme")
 
 
 

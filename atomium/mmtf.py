@@ -160,7 +160,7 @@ def parse_mmtf_header(mmtf_dict, mmcif_dict):
 
 def parse_mmtf_quality(mmtf_dict, mmcif_dict):
     if any(k in mmtf_dict for k in ["resolution", "rWork", "rFree"]):
-        get = lambda k: str(round(float(mmtf_dict[k]), 3)) if k in mmtf_dict and mmtf_dict[k] != "?" else "?"
+        get = lambda k: str(round(float(mmtf_dict[k]), 3)) if k in mmtf_dict and mmtf_dict[k] not in  ["?", ""] else "?"
         mmcif_dict["refine"] = [{
             "entry_id": mmtf_dict["structureId"],
             "ls_d_res_high": get("resolution"),
@@ -169,6 +169,8 @@ def parse_mmtf_quality(mmtf_dict, mmcif_dict):
             "ls_R_factor_R_work": get("rWork"),
             "ls_R_factor_R_free": get("rFree"),
         }]
+        if all(mmcif_dict["refine"][0][key] == "?" for key in [k for k in mmcif_dict["refine"][0].keys() if k != "entry_id"]):
+            del mmcif_dict["refine"]
 
 
 def parse_mmtf_crystal(mmtf_dict, mmcif_dict):
@@ -179,13 +181,15 @@ def parse_mmtf_crystal(mmtf_dict, mmcif_dict):
     if "unitCell" in mmtf_dict:
         mmcif_dict["cell"] = [{
             "entry_id": mmtf_dict["structureId"],
-            "length_a": str(round(float(mmtf_dict["unitCell"][0]), 3)),
-            "length_b": str(round(float(mmtf_dict["unitCell"][1]), 3)),
-            "length_c": str(round(float(mmtf_dict["unitCell"][2]), 3)),
-            "length_alpha": str(round(float(mmtf_dict["unitCell"][3]), 3)),
-            "length_beta": str(round(float(mmtf_dict["unitCell"][4]), 3)),
-            "length_gamma": str(round(float(mmtf_dict["unitCell"][5]), 3))
+            "length_a": str(round(float(mmtf_dict["unitCell"][0]), 3)) if mmtf_dict["unitCell"][0] else "?",
+            "length_b": str(round(float(mmtf_dict["unitCell"][1]), 3)) if mmtf_dict["unitCell"][1] else "?",
+            "length_c": str(round(float(mmtf_dict["unitCell"][2]), 3)) if mmtf_dict["unitCell"][2] else "?",
+            "length_alpha": str(round(float(mmtf_dict["unitCell"][3]), 3)) if mmtf_dict["unitCell"][3] else "?",
+            "length_beta": str(round(float(mmtf_dict["unitCell"][4]), 3)) if mmtf_dict["unitCell"][4] else "?",
+            "length_gamma": str(round(float(mmtf_dict["unitCell"][5]), 3)) if mmtf_dict["unitCell"][5] else "?"
         }]
+        if all(mmcif_dict["cell"][0][key] == "?" for key in [k for k in mmcif_dict["cell"][0].keys() if k != "entry_id"]):
+            del mmcif_dict["cell"]
 
 
 def parse_mmtf_assemblies(mmtf_dict, mmcif_dict):
@@ -225,7 +229,9 @@ def parse_mmtf_entities(mmtf_dict, mmcif_dict):
             "id": str(len(mmcif_dict["entity"]) + 1),
             "type": entity["type"],
             "pdbx_description": entity["description"],
-            "pdbx_number_of_molecules": str(len(entity["chainIndexList"]))
+            "pdbx_number_of_molecules": str(
+                len(entity["chainIndexList"]) // len(mmtf_dict["chainsPerModel"])
+            )
         })
         for id in entity["chainIndexList"]:
             mmcif_dict["struct_asym"].append({
@@ -312,7 +318,7 @@ def parse_chain(mmtf_dict, mmcif_dict, model_num, chain_index, group_count, atom
                 "auth_atom_id": atom_name,
                 "pdbx_PDB_model_num": str(model_num)
             })
-    
+
 
 def get_chain_entity_id(mmtf_dict, chain_index):
     entity_id = "?"
@@ -407,7 +413,7 @@ def mmcif_dict_to_mmtf_filestring(mmcif_dict):
 
             # Last of chain?
             group_count += 1
-            if last_atom or this_sig[0] != next_sig[0]:
+            if last_atom or this_sig[0] != next_sig[0] or this_sig[-1] != next_sig[-1]:
                 groups_per_chain.append(group_count)
                 group_count = 0
 
@@ -522,7 +528,15 @@ def make_entities(mmcif, chain_ids):
 
 def get_chain_info(mmcif):
     chain_ids = [asym["id"] for asym in mmcif["struct_asym"]]
-    model_ids = sorted(set(a["pdbx_PDB_model_num"] for a in mmcif["atom_site"]))
+
+
+    # For each model, get the 'chains'
+    model_chains = set()
+    for atom in mmcif["atom_site"]:
+        model_id, asym_id = int(atom["pdbx_PDB_model_num"]), atom["label_asym_id"]
+        model_chains.add((model_id, asym_id))
+    model_ids = sorted(set(str(m) for m, _ in model_chains))
+
     chains_per_model = [len(set(
         a["label_asym_id"] for a in mmcif["atom_site"]
             if a["pdbx_PDB_model_num"] == model
@@ -539,7 +553,8 @@ def get_chain_info(mmcif):
 def atom_sig(atom):
     return (
         atom["label_asym_id"], atom["auth_seq_id"],
-        atom["pdbx_PDB_ins_code"].replace("?", ""), atom["auth_comp_id"]
+        atom["pdbx_PDB_ins_code"].replace("?", ""), atom["auth_comp_id"],
+        atom["pdbx_PDB_model_num"]
     )
 
 

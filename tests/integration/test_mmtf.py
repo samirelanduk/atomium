@@ -799,6 +799,117 @@ class FileToDictTests(TestCase):
             "pdbx_formal_charge": "0", "auth_seq_id": "312", "auth_comp_id": "ALA",
             "auth_asym_id": "A", "auth_atom_id": "HB3", "pdbx_PDB_model_num": "10",
         })
+    
+
+    def test_1cbn(self):
+        d = atomium.open("tests/integration/files/1cbn.mmtf", dictionary=True)
+        self.assertEqual(len(d.keys()), 18)
+
+        # Header categories
+        self.assertEqual(d["entry"], [{"id": "1CBN"}])
+        self.assertEqual(d["struct"], [{
+            "entry_id": "1CBN",
+            "title": "ATOMIC RESOLUTION (0.83 ANGSTROMS) CRYSTAL STRUCTURE OF THE HYDROPHOBIC PROTEIN CRAMBIN AT 130 K",
+        }])
+        self.assertEqual(d["pdbx_database_status"], [{"entry_id": "1CBN", "recvd_initial_deposition_date": "1991-10-11"}])
+        self.assertEqual(d["exptl"], [{"entry_id": "1CBN", "method": "X-RAY DIFFRACTION"}])
+
+        # Quality categories
+        self.assertEqual(d["refine"], [{
+            "entry_id": "1CBN", "ls_d_res_high": "0.83", "ls_R_factor_obs": "?",
+            "ls_R_factor_all": "?", "ls_R_factor_R_work": "?",
+            "ls_R_factor_R_free": "?",
+        }])
+
+        # Crystal categories
+        self.assertEqual(d["symmetry"], [{"entry_id": "1CBN", "space_group_name_H-M": "P 1 21 1"}])
+        self.assertEqual(d["cell"], [{
+            "entry_id": "1CBN", "length_a": "40.763", "length_b": "18.492",
+            "length_c": "22.333", "length_alpha": "90.0", "length_beta": "90.61",
+            "length_gamma": "90.0",
+        }])
+
+        # Assembly categories
+        self.assertEqual(d["pdbx_struct_assembly"], [{"id": "1"}])
+        self.assertEqual(d["pdbx_struct_assembly_gen"], [{"assembly_id": "1", "oper_expression": "1", "asym_id_list": "A,B"}])
+        self.assertEqual(d["pdbx_struct_oper_list"], [{
+            "id": "1", "matrix[1][1]": "1.0000000000",
+            "matrix[1][2]": "0.0000000000", "matrix[1][3]": "0.0000000000",
+            "vector[1]": "0.0000000000", "matrix[2][1]": "0.0000000000",
+            "matrix[2][2]": "1.0000000000", "matrix[2][3]": "0.0000000000",
+            "vector[2]": "0.0000000000", "matrix[3][1]": "0.0000000000",
+            "matrix[3][2]": "0.0000000000", "matrix[3][3]": "1.0000000000",
+            "vector[3]": "0.0000000000",
+        }])
+
+        # Entity categories
+        self.assertEqual(d["entity"], [
+            {"id": "1", "type": "polymer", "pdbx_description": "CRAMBIN", "pdbx_number_of_molecules": "1"},
+            {"id": "2", "type": "non-polymer", "pdbx_description": "ETHANOL", "pdbx_number_of_molecules": "1"},
+        ])
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1",
+            "pdbx_seq_one_letter_code": "TTCCPSIVARSNFNVCRLPGTSEAICATYTGCIIIPGATCPGDYAN",
+            "pdbx_seq_one_letter_code_can": "TTCCPSIVARSNFNVCRLPGTSEAICATYTGCIIIPGATCPGDYAN",
+        }])
+        self.assertEqual(d["struct_asym"], [
+            {"id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"id": "B", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "2", "details": "?"},
+        ])
+
+        # Compound categories
+        self.assertEqual(len(d["chem_comp"]), 16)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ALA", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "alanine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][5], {
+            "id": "EOH", "type": "NON-POLYMER", "mon_nstd_flag": ".", "name": "?",
+            "pdbx_synonyms": "?", "formula": "?", "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][-1], {
+            "id": "VAL", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "valine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+
+        # Model categories
+        self.assertEqual(d["atom_type"], [
+            {"symbol": "C"},
+            {"symbol": "H"},
+            {"symbol": "N"},
+            {"symbol": "O"},
+            {"symbol": "S"},
+        ])
+        self.assertEqual(len(d["atom_site"]), 777)
+        self.assertEqual(d["atom_site"][0], {
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": "A", "label_comp_id": "THR",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "16.864", "Cartn_y": "14.059",
+            "Cartn_z": "3.442", "occupancy": "0.8", "B_iso_or_equiv": "6.22",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "THR",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][772], {
+            "group_PDB": "HETATM", "id": "773", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "EOH",
+            "label_asym_id": "B", "label_entity_id": "2", "label_seq_id": "66",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "15.702", "Cartn_y": "0.904",
+            "Cartn_z": "12.771", "occupancy": "1.0", "B_iso_or_equiv": "17.9",
+            "pdbx_formal_charge": "0", "auth_seq_id": "66", "auth_comp_id": "EOH",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][-1], {
+            "group_PDB": "HETATM", "id": "777", "type_symbol": "O",
+            "label_atom_id": "O", "label_alt_id": "B", "label_comp_id": "EOH",
+            "label_asym_id": "B", "label_entity_id": "2", "label_seq_id": "66",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "14.54", "Cartn_y": "1.708",
+            "Cartn_z": "12.931", "occupancy": "0.3", "B_iso_or_equiv": "6.09",
+            "pdbx_formal_charge": "0", "auth_seq_id": "66", "auth_comp_id": "EOH",
+            "auth_asym_id": "A", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
+        })
 
 
 
@@ -832,6 +943,10 @@ class DictToFileTests(TestCase):
 
     def test_5xme(self):
         self.save("5xme")
+
+
+    def test_1cbn(self):
+        self.save("1cbn")
 
 
 

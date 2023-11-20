@@ -912,6 +912,133 @@ class FileToDictTests(TestCase):
         })
 
 
+    def test_1m4x(self):
+        d = atomium.open("tests/integration/files/1m4x.mmtf", dictionary=True)
+        self.assertEqual(len(d.keys()), 17)
+
+        # Header categories
+        self.assertEqual(d["entry"], [{"id": "1M4X"}])
+        self.assertEqual(d["struct"], [{"entry_id": "1M4X", "title": "PBCV-1 virus capsid, quasi-atomic model"}])
+        self.assertEqual(d["pdbx_database_status"], [{"entry_id": "1M4X", "recvd_initial_deposition_date": "2002-07-05"}])
+        self.assertEqual(d["exptl"], [{"entry_id": "1M4X", "method": "ELECTRON MICROSCOPY"}])
+
+        # Quality categories
+        self.assertNotIn("refine", d)
+
+        # Crystal categories
+        self.assertEqual(d["symmetry"], [{"entry_id": "1M4X", "space_group_name_H-M": "P 2 3"}])
+        self.assertEqual(d["cell"], [{
+            "entry_id": "1M4X", "length_a": "1927.0", "length_b": "1927.0",
+            "length_c": "1927.0", "length_alpha": "90.0", "length_beta": "90.0",
+            "length_gamma": "90.0",
+        }])
+
+        # Assembly categories
+        self.assertEqual(d["pdbx_struct_assembly"], [
+            {"id": "1"},
+            {"id": "2"},
+            {"id": "3"},
+            {"id": "4"},
+            {"id": "5"},
+            {"id": "6"},
+            {"id": "7"},
+        ])
+        self.assertEqual(len(d["pdbx_struct_assembly_gen"]), 2140)
+        self.assertEqual(d["pdbx_struct_assembly_gen"][0], {
+            "assembly_id": "1", "oper_expression": "1", "asym_id_list": "A,B,C",
+        })
+        self.assertEqual(d["pdbx_struct_assembly_gen"][-1], {
+            "assembly_id": "7", "oper_expression": "2140", "asym_id_list": "A,B,C",
+        })
+        self.assertEqual(len(d["pdbx_struct_oper_list"]), 2140)
+        self.assertEqual(d["pdbx_struct_oper_list"][0], {
+            "id": "1", "matrix[1][1]": "1.0000000000",
+            "matrix[1][2]": "0.0000000000", "matrix[1][3]": "0.0000000000",
+            "vector[1]": "0.0000000000", "matrix[2][1]": "0.0000000000",
+            "matrix[2][2]": "1.0000000000", "matrix[2][3]": "0.0000000000",
+            "vector[2]": "0.0000000000", "matrix[3][1]": "0.0000000000",
+            "matrix[3][2]": "0.0000000000", "matrix[3][3]": "1.0000000000",
+            "vector[3]": "0.0000000000",
+        })
+        self.assertEqual(d["pdbx_struct_oper_list"][-1], {
+            "id": "2140", "matrix[1][1]": "0.5313321011",
+            "matrix[1][2]": "-0.3081559053", "matrix[1][3]": "0.7891296276",
+            "vector[1]": "-89.3238998160", "matrix[2][1]": "0.7551163827",
+            "matrix[2][2]": "-0.2499963986", "matrix[2][3]": "-0.6060533418",
+            "vector[2]": "-134.0685044124", "matrix[3][1]": "0.3840387183",
+            "matrix[3][2]": "0.9179014933", "matrix[3][3]": "0.0998619693",
+            "vector[3]": "11.9906045963",
+        })
+
+        # Entity categories
+        self.assertEqual(d["entity"], [
+            {"id": "1", "type": "polymer", "pdbx_description": "PBCV-1 virus capsid", "pdbx_number_of_molecules": "3"},
+        ])
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1",
+            "pdbx_seq_one_letter_code": "TFFKTVYRRYTNFAIESIQQTINGSVGFGNKVSTQISRNGDLITDIVVEFVLTKGGNGGTTYYPAEELLQDVELEIGGQRIDKHYNDWFRTYDALFRMNDDRYNYRRMTDWVNNELVGAQKRFYVPLIFFFNQTPGLALPLIALQYHEVKLYFTLASQVQGVNYNGSSAIAGAAQPTMSVWVDYIFLDTQERTRFAQLPHEYLIEQLQFTGSETATPSATTQAAQNIRLNFNHPTKYLAWNFNNPTNYGQYTALANIPGACSGAGTAAATVTTPDYGNTGTYNEQLAVLDSAKIQLNGQDRFATRKGSYFNKVQPYQSIGGVTPAGVYLYSFALKPAGRQPSGTCNFSRIDNATLSLTYKTCSIDATSPAAVLGNTETVTANTATLLTALNIYAKNYNVLRIMSGMGGLAYAN",
+            "pdbx_seq_one_letter_code_can": "TFFKTVYRRYTNFAIESIQQTINGSVGFGNKVSTQISRNGDLITDIVVEFVLTKGGNGGTTYYPAEELLQDVELEIGGQRIDKHYNDWFRTYDALFRMNDDRYNYRRMTDWVNNELVGAQKRFYVPLIFFFNQTPGLALPLIALQYHEVKLYFTLASQVQGVNYNGSSAIAGAAQPTMSVWVDYIFLDTQERTRFAQLPHEYLIEQLQFTGSETATPSATTQAAQNIRLNFNHPTKYLAWNFNNPTNYGQYTALANIPGACSGAGTAAATVTTPDYGNTGTYNEQLAVLDSAKIQLNGQDRFATRKGSYFNKVQPYQSIGGVTPAGVYLYSFALKPAGRQPSGTCNFSRIDNATLSLTYKTCSIDATSPAAVLGNTETVTANTATLLTALNIYAKNYNVLRIMSGMGGLAYAN",
+        }])
+        self.assertEqual(d["struct_asym"], [
+            {"id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"id": "B", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+            {"id": "C", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N", "entity_id": "1", "details": "?"},
+        ])
+
+        # Compound categories
+        self.assertEqual(len(d["chem_comp"]), 20)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ALA", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "alanine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][-1], {
+            "id": "VAL", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "valine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+
+        # Model categories
+        self.assertEqual(d["atom_type"], [{"symbol": "C"}, {"symbol": "N"}, {"symbol": "O"}, {"symbol": "S"}])
+        self.assertEqual(len(d["atom_site"]), 9693)
+        self.assertEqual(d["atom_site"][0], {
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "THR",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "25",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "529.72", "Cartn_y": "577.569",
+            "Cartn_z": "66.498", "occupancy": "1.0", "B_iso_or_equiv": "32.89",
+            "pdbx_formal_charge": "0", "auth_seq_id": "25", "auth_comp_id": "THR",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][3231], {
+            "group_PDB": "ATOM", "id": "3232", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "THR",
+            "label_asym_id": "B", "label_entity_id": "1", "label_seq_id": "25",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "528.258", "Cartn_y": "582.202",
+            "Cartn_z": "44.416", "occupancy": "1.0", "B_iso_or_equiv": "32.89",
+            "pdbx_formal_charge": "0", "auth_seq_id": "25", "auth_comp_id": "THR",
+            "auth_asym_id": "B", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][6462], {
+            "group_PDB": "ATOM", "id": "6463", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "THR",
+            "label_asym_id": "C", "label_entity_id": "1", "label_seq_id": "25",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "546.577", "Cartn_y": "571.77",
+            "Cartn_z": "52.59", "occupancy": "1.0", "B_iso_or_equiv": "32.89",
+            "pdbx_formal_charge": "0", "auth_seq_id": "25", "auth_comp_id": "THR",
+            "auth_asym_id": "C", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][-1], {
+            "group_PDB": "ATOM", "id": "9693", "type_symbol": "O",
+            "label_atom_id": "OXT", "label_alt_id": ".", "label_comp_id": "ASN",
+            "label_asym_id": "C", "label_entity_id": "1", "label_seq_id": "437",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "511.742", "Cartn_y": "599.344",
+            "Cartn_z": "66.077", "occupancy": "1.0", "B_iso_or_equiv": "52.28",
+            "pdbx_formal_charge": "0", "auth_seq_id": "437", "auth_comp_id": "ASN",
+            "auth_asym_id": "C", "auth_atom_id": "OXT", "pdbx_PDB_model_num": "1",
+        })
+
+
 
 class DictToFileTests(TestCase):
 
@@ -947,6 +1074,10 @@ class DictToFileTests(TestCase):
 
     def test_1cbn(self):
         self.save("1cbn")
+    
+
+    def test_1m4x(self):
+        self.save("1m4x")
 
 
 

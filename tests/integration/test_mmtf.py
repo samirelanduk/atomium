@@ -1039,6 +1039,582 @@ class FileToDictTests(TestCase):
         })
 
 
+    def test_6xlu(self):
+        d = atomium.open("tests/integration/files/6xlu.mmtf", dictionary=True)
+        self.assertEqual(len(d.keys()), 16)
+
+        # Header categories
+        self.assertEqual(d["entry"], [{"id": "6XLU"}])
+        self.assertEqual(d["struct"], [{"entry_id": "6XLU", "title": "Structure of SARS-CoV-2 spike at pH 4.0"}])
+        self.assertEqual(d["pdbx_database_status"], [{"entry_id": "6XLU", "recvd_initial_deposition_date": "2020-06-29"}])
+        self.assertEqual(d["exptl"], [{"entry_id": "6XLU", "method": "ELECTRON MICROSCOPY"}])
+
+        # Quality categories
+        self.assertNotIn("refine", d)
+
+        # Crystal categories
+        self.assertEqual(d["symmetry"], [{"entry_id": "6XLU", "space_group_name_H-M": "P 1"}])
+        self.assertNotIn("cell", d)
+
+        # Assembly categories
+        self.assertEqual(d["pdbx_struct_assembly"], [{"id": "1"}])
+        self.assertEqual(d["pdbx_struct_assembly_gen"], [{
+            "assembly_id": "1", "oper_expression": "1",
+            "asym_id_list": "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,AA,BA,CA,DA,EA,FA,GA,HA,IA,JA,KA,LA,MA,NA,OA,PA,QA,RA,SA,TA,UA,VA,WA,XA,YA,ZA,AB",
+        }])
+        self.assertEqual(d["pdbx_struct_oper_list"], [{
+            "id": "1", "matrix[1][1]": "1.0000000000",
+            "matrix[1][2]": "0.0000000000", "matrix[1][3]": "0.0000000000",
+            "vector[1]": "0.0000000000", "matrix[2][1]": "0.0000000000",
+            "matrix[2][2]": "1.0000000000", "matrix[2][3]": "0.0000000000",
+            "vector[2]": "0.0000000000", "matrix[3][1]": "0.0000000000",
+            "matrix[3][2]": "0.0000000000", "matrix[3][3]": "1.0000000000",
+            "vector[3]": "0.0000000000",
+        }])
+
+        # Entity categories
+        self.assertEqual(d["entity"], [{
+            "id": "1", "type": "polymer", "pdbx_description": "Spike glycoprotein",
+            "pdbx_number_of_molecules": "3",
+        }, {
+            "id": "2", "type": "branched",
+            "pdbx_description": "2-acetamido-2-deoxy-beta-D-glucopyranose-(1-4)-2-acetamido-2-deoxy-beta-D-glucopyranose",
+            "pdbx_number_of_molecules": "15",
+        }, {
+            "id": "3", "type": "non-polymer",
+            "pdbx_description": "2-acetamido-2-deoxy-beta-D-glucopyranose",
+            "pdbx_number_of_molecules": "32",
+        }, {
+            "id": "4", "type": "water", "pdbx_description": "water",
+            "pdbx_number_of_molecules": "3",
+        }])
+        self.assertEqual(d["entity_poly"], [{
+            "entity_id": "1",
+            "pdbx_seq_one_letter_code": "QCVNLTTRTQLPPAYTNSFTRGVYYPDKVFRSSVLHSTQDLFLPFFSNVTWFHAIHVSGTNGTKRFDNPVLPFNDGVYFASTEKSNIIRGWIFGTTLDSKTQSLLIVNNATNVVIKVCEFQFCNDPFLGVYYHKNNKSWMESEFRVYSSANNCTFEYVSQPFLMDLEGKQGNFKNLREFVFKNIDGYFKIYSKHTPINLVRDLPQGFSALEPLVDLPIGINITRFQTLLALHRSYLTPGDSSSGWTAGAAAYYVGYLQPRTFLLKYNENGTITDAVDCALDPLSETKCTLKSFTVEKGIYQTSNFRVQPTESIVRFPNITNLCPFGEVFNATRFASVYAWNRKRISNCVADYSVLYNSASFSTFKCYGVSPTKLNDLCFTNVYADSFVIRGDEVRQIAPGQTGKIADYNYKLPDDFTGCVIAWNSNNLDSKVGGNYNYLYRLFRKSNLKPFERDISTEIYQAGSTPCNGVEGFNCYFPLQSYGFQPTNGVGYQPYRVVVLSFELLHAPATVCGPKKSTNLVKNKCVNFNFNGLTGTGVLTESNKKFLPFQQFGRDIADTTDAVRDPQTLEILDITPCSFGGVSVITPGTNTSNQVAVLYQDVNCTEVPVAIHADQLTPTWRVYSTGSNVFQTRAGCLIGAEHVNNSYECDIPIGAGICASYQTQTNSPGSASSVASQSIIAYTMSLGAENSVAYSNNSIAIPTNFTISVTTEILPVSMTKTSVDCTMYICGDSTECSNLLLQYGSFCTQLNRALTGIAVEQDKNTQEVFAQVKQIYKTPPIKDFGGFNFSQILPDPSKPSKRSFIEDLLFNKVTLADAGFIKQYGDCLGDIAARDLICAQKFNGLTVLPPLLTDEMIAQYTSALLAGTITSGWTFGAGAALQIPFAMQMAYRFNGIGVTQNVLYENQKLIANQFNSAIGKIQDSLSSTASALGKLQDVVNQNAQALNTLVKQLSSNFGAISSVLNDILSRLDPPEAEVQIDRLITGRLQSLQTYVTQQLIRAAEIRASANLAATKMSECVLGQSKRVDFCGKGYHLMSFPQSAPHGVVFLHVTYVPAQEKNFTTAPAICHDGKAHFPREGVFVSNGTHWFVTQRNFYEPQIITTDNTFVSGNCDVVIGIVNNTVYDPLQPELDSFKEELDKYFKNHTSPDVDLGDISGINASVVNIQKEIDRLNEVAKNLNESLIDLQELGKYEQGSGYIPEAPRDGQAYVRKDGEWVLLSTFLGRSLEVLFQGPGHHHHHHHHSAWSHPQFEKGGGSGGGGSGGSAWSHPQFEK",
+            "pdbx_seq_one_letter_code_can": "QCVNLTTRTQLPPAYTNSFTRGVYYPDKVFRSSVLHSTQDLFLPFFSNVTWFHAIHVSGTNGTKRFDNPVLPFNDGVYFASTEKSNIIRGWIFGTTLDSKTQSLLIVNNATNVVIKVCEFQFCNDPFLGVYYHKNNKSWMESEFRVYSSANNCTFEYVSQPFLMDLEGKQGNFKNLREFVFKNIDGYFKIYSKHTPINLVRDLPQGFSALEPLVDLPIGINITRFQTLLALHRSYLTPGDSSSGWTAGAAAYYVGYLQPRTFLLKYNENGTITDAVDCALDPLSETKCTLKSFTVEKGIYQTSNFRVQPTESIVRFPNITNLCPFGEVFNATRFASVYAWNRKRISNCVADYSVLYNSASFSTFKCYGVSPTKLNDLCFTNVYADSFVIRGDEVRQIAPGQTGKIADYNYKLPDDFTGCVIAWNSNNLDSKVGGNYNYLYRLFRKSNLKPFERDISTEIYQAGSTPCNGVEGFNCYFPLQSYGFQPTNGVGYQPYRVVVLSFELLHAPATVCGPKKSTNLVKNKCVNFNFNGLTGTGVLTESNKKFLPFQQFGRDIADTTDAVRDPQTLEILDITPCSFGGVSVITPGTNTSNQVAVLYQDVNCTEVPVAIHADQLTPTWRVYSTGSNVFQTRAGCLIGAEHVNNSYECDIPIGAGICASYQTQTNSPGSASSVASQSIIAYTMSLGAENSVAYSNNSIAIPTNFTISVTTEILPVSMTKTSVDCTMYICGDSTECSNLLLQYGSFCTQLNRALTGIAVEQDKNTQEVFAQVKQIYKTPPIKDFGGFNFSQILPDPSKPSKRSFIEDLLFNKVTLADAGFIKQYGDCLGDIAARDLICAQKFNGLTVLPPLLTDEMIAQYTSALLAGTITSGWTFGAGAALQIPFAMQMAYRFNGIGVTQNVLYENQKLIANQFNSAIGKIQDSLSSTASALGKLQDVVNQNAQALNTLVKQLSSNFGAISSVLNDILSRLDPPEAEVQIDRLITGRLQSLQTYVTQQLIRAAEIRASANLAATKMSECVLGQSKRVDFCGKGYHLMSFPQSAPHGVVFLHVTYVPAQEKNFTTAPAICHDGKAHFPREGVFVSNGTHWFVTQRNFYEPQIITTDNTFVSGNCDVVIGIVNNTVYDPLQPELDSFKEELDKYFKNHTSPDVDLGDISGINASVVNIQKEIDRLNEVAKNLNESLIDLQELGKYEQGSGYIPEAPRDGQAYVRKDGEWVLLSTFLGRSLEVLFQGPGHHHHHHHHSAWSHPQFEKGGGSGGGGSGGSAWSHPQFEK",
+        }])
+        self.assertEqual(len(d["struct_asym"]), 53)
+        self.assertEqual(d["struct_asym"][0], {
+            "id": "A", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N",
+            "entity_id": "1", "details": "?",
+        })
+        self.assertEqual(d["struct_asym"][-1], {
+            "id": "AB", "pdbx_blank_PDB_chainid_flag": "N", "pdbx_modified": "N",
+            "entity_id": "4", "details": "?",
+        })
+
+        # Compound categories
+        self.assertEqual(len(d["chem_comp"]), 22)
+        self.assertEqual(d["chem_comp"][0], {
+            "id": "ALA", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "alanine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][9], {
+            "id": "HOH", "type": "NON-POLYMER", "mon_nstd_flag": ".", "name": "?",
+            "pdbx_synonyms": "?", "formula": "?", "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][14], {
+            "id": "NAG", "type": "D-SACCHARIDE", "mon_nstd_flag": ".", "name": "?",
+            "pdbx_synonyms": "?", "formula": "?", "formula_weight": "?",
+        })
+        self.assertEqual(d["chem_comp"][-1], {
+            "id": "VAL", "type": "L-PEPTIDE LINKING", "mon_nstd_flag": "y",
+            "name": "valine", "pdbx_synonyms": "?", "formula": "?",
+            "formula_weight": "?",
+        })
+
+        # Model categories
+        self.assertEqual(d["atom_type"], [{"symbol": "C"}, {"symbol": "N"}, {"symbol": "O"}, {"symbol": "S"}])
+        self.assertEqual(len(d["atom_site"]), 25990)
+        self.assertEqual(d["atom_site"][0], {
+            "group_PDB": "ATOM", "id": "1", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "A", "label_entity_id": "1", "label_seq_id": "27",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "137.193", "Cartn_y": "160.456",
+            "Cartn_z": "208.534", "occupancy": "1.0", "B_iso_or_equiv": "62.75",
+            "pdbx_formal_charge": "0", "auth_seq_id": "27", "auth_comp_id": "ALA",
+            "auth_asym_id": "A", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][8276], {
+            "group_PDB": "ATOM", "id": "8277", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "B", "label_entity_id": "1", "label_seq_id": "27",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "234.997", "Cartn_y": "157.197",
+            "Cartn_z": "208.5", "occupancy": "1.0", "B_iso_or_equiv": "60.77",
+            "pdbx_formal_charge": "0", "auth_seq_id": "27", "auth_comp_id": "ALA",
+            "auth_asym_id": "B", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][16578], {
+            "group_PDB": "ATOM", "id": "16579", "type_symbol": "N",
+            "label_atom_id": "N", "label_alt_id": ".", "label_comp_id": "ALA",
+            "label_asym_id": "C", "label_entity_id": "1", "label_seq_id": "27",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "188.766", "Cartn_y": "243.345",
+            "Cartn_z": "208.464", "occupancy": "1.0", "B_iso_or_equiv": "60.93",
+            "pdbx_formal_charge": "0", "auth_seq_id": "27", "auth_comp_id": "ALA",
+            "auth_asym_id": "C", "auth_atom_id": "N", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][24872], {
+            "group_PDB": "HETATM", "id": "24873", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "D", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "158.292", "Cartn_y": "167.896",
+            "Cartn_z": "226.28", "occupancy": "1.0", "B_iso_or_equiv": "68.52",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "D", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][24900], {
+            "group_PDB": "HETATM", "id": "24901", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "E", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "159.383", "Cartn_y": "181.948",
+            "Cartn_z": "133.968", "occupancy": "1.0", "B_iso_or_equiv": "39.16",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "E", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][24928], {
+            "group_PDB": "HETATM", "id": "24929", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "F", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "155.569", "Cartn_y": "201.666",
+            "Cartn_z": "144.621", "occupancy": "1.0", "B_iso_or_equiv": "37.3",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "F", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][24956], {
+            "group_PDB": "HETATM", "id": "24957", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "G", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "166.347", "Cartn_y": "170.261",
+            "Cartn_z": "117.882", "occupancy": "1.0", "B_iso_or_equiv": "55.39",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "G", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][24984], {
+            "group_PDB": "HETATM", "id": "24985", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "H", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "183.938", "Cartn_y": "159.964",
+            "Cartn_z": "113.723", "occupancy": "1.0", "B_iso_or_equiv": "67.06",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "H", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25012], {
+            "group_PDB": "HETATM", "id": "25013", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "I", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "217.803", "Cartn_y": "171.699",
+            "Cartn_z": "226.262", "occupancy": "1.0", "B_iso_or_equiv": "68.57",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "I", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25040], {
+            "group_PDB": "HETATM", "id": "25041", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "J", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "205.173", "Cartn_y": "165.618",
+            "Cartn_z": "133.979", "occupancy": "1.0", "B_iso_or_equiv": "40.85",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "J", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25068], {
+            "group_PDB": "HETATM", "id": "25069", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "K", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "189.993", "Cartn_y": "152.448",
+            "Cartn_z": "144.612", "occupancy": "1.0", "B_iso_or_equiv": "37.36",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "K", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25096], {
+            "group_PDB": "HETATM", "id": "25097", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "L", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "211.852", "Cartn_y": "177.523",
+            "Cartn_z": "117.872", "occupancy": "1.0", "B_iso_or_equiv": "52.88",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "L", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25124], {
+            "group_PDB": "HETATM", "id": "25125", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "M", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "211.963", "Cartn_y": "197.857",
+            "Cartn_z": "113.701", "occupancy": "1.0", "B_iso_or_equiv": "69.32",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "M", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25152], {
+            "group_PDB": "HETATM", "id": "25153", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "N", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "184.802", "Cartn_y": "221.328",
+            "Cartn_z": "226.28", "occupancy": "1.0", "B_iso_or_equiv": "67.25",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "N", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25180], {
+            "group_PDB": "HETATM", "id": "25181", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "O", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "196.431", "Cartn_y": "213.401",
+            "Cartn_z": "133.99", "occupancy": "1.0", "B_iso_or_equiv": "39.07",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "O", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25208], {
+            "group_PDB": "HETATM", "id": "25209", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "P", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "215.378", "Cartn_y": "206.864",
+            "Cartn_z": "144.659", "occupancy": "1.0", "B_iso_or_equiv": "36.31",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "P", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25236], {
+            "group_PDB": "HETATM", "id": "25237", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "Q", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "182.774", "Cartn_y": "213.299",
+            "Cartn_z": "117.869", "occupancy": "1.0", "B_iso_or_equiv": "57.43",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "Q", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25264], {
+            "group_PDB": "HETATM", "id": "25265", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "R", "label_entity_id": "2", "label_seq_id": "1",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "165.065", "Cartn_y": "203.25",
+            "Cartn_z": "113.813", "occupancy": "1.0", "B_iso_or_equiv": "62.93",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1", "auth_comp_id": "NAG",
+            "auth_asym_id": "R", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25292], {
+            "group_PDB": "HETATM", "id": "25293", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "S", "label_entity_id": "3", "label_seq_id": "1301",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "145.422", "Cartn_y": "161.696",
+            "Cartn_z": "201.354", "occupancy": "1.0", "B_iso_or_equiv": "81.13",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1301", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25306], {
+            "group_PDB": "HETATM", "id": "25307", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "T", "label_entity_id": "3", "label_seq_id": "1302",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "134.38", "Cartn_y": "185.068",
+            "Cartn_z": "231.558", "occupancy": "1.0", "B_iso_or_equiv": "76.02",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1302", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25320], {
+            "group_PDB": "HETATM", "id": "25321", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "U", "label_entity_id": "3", "label_seq_id": "1303",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "143.911", "Cartn_y": "198.545",
+            "Cartn_z": "195.564", "occupancy": "1.0", "B_iso_or_equiv": "75.72",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1303", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25334], {
+            "group_PDB": "HETATM", "id": "25335", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "V", "label_entity_id": "3", "label_seq_id": "1304",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "183.3", "Cartn_y": "142.267",
+            "Cartn_z": "220.784", "occupancy": "1.0", "B_iso_or_equiv": "67.59",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1304", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25348], {
+            "group_PDB": "HETATM", "id": "25349", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "W", "label_entity_id": "3", "label_seq_id": "1305",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "184.641", "Cartn_y": "162.816",
+            "Cartn_z": "244.044", "occupancy": "1.0", "B_iso_or_equiv": "69.85",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1305", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25362], {
+            "group_PDB": "HETATM", "id": "25363", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "X", "label_entity_id": "3", "label_seq_id": "1306",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "150.119", "Cartn_y": "183.863",
+            "Cartn_z": "177.16", "occupancy": "1.0", "B_iso_or_equiv": "69.9",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1306", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25376], {
+            "group_PDB": "HETATM", "id": "25377", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "Y", "label_entity_id": "3", "label_seq_id": "1307",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "169.682", "Cartn_y": "149.237",
+            "Cartn_z": "182.593", "occupancy": "1.0", "B_iso_or_equiv": "67.74",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1307", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25390], {
+            "group_PDB": "HETATM", "id": "25391", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "Z", "label_entity_id": "3", "label_seq_id": "1308",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "158.1", "Cartn_y": "151.419",
+            "Cartn_z": "166.545", "occupancy": "1.0", "B_iso_or_equiv": "59.37",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1308", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25404], {
+            "group_PDB": "HETATM", "id": "25405", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "AA", "label_entity_id": "3", "label_seq_id": "1309",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "180.077", "Cartn_y": "156.831",
+            "Cartn_z": "129.475", "occupancy": "1.0", "B_iso_or_equiv": "44.61",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1309", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25418], {
+            "group_PDB": "HETATM", "id": "25419", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "BA", "label_entity_id": "3", "label_seq_id": "1310",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "166.689", "Cartn_y": "163.753",
+            "Cartn_z": "134.108", "occupancy": "1.0", "B_iso_or_equiv": "33.59",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1310", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25432], {
+            "group_PDB": "HETATM", "id": "25433", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "CA", "label_entity_id": "3", "label_seq_id": "1311",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "151.958", "Cartn_y": "175.259",
+            "Cartn_z": "243.466", "occupancy": "1.0", "B_iso_or_equiv": "74.39",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1311", "auth_comp_id": "NAG",
+            "auth_asym_id": "A", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25446], {
+            "group_PDB": "HETATM", "id": "25447", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "DA", "label_entity_id": "3", "label_seq_id": "1301",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "230.267", "Cartn_y": "162.588",
+            "Cartn_z": "201.139", "occupancy": "1.0", "B_iso_or_equiv": "70.59",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1301", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25460], {
+            "group_PDB": "HETATM", "id": "25461", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "EA", "label_entity_id": "3", "label_seq_id": "1302",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "214.299", "Cartn_y": "141.381",
+            "Cartn_z": "231.095", "occupancy": "1.0", "B_iso_or_equiv": "79.22",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1302", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25474], {
+            "group_PDB": "HETATM", "id": "25475", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "FA", "label_entity_id": "3", "label_seq_id": "1303",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "198.587", "Cartn_y": "143.875",
+            "Cartn_z": "195.594", "occupancy": "1.0", "B_iso_or_equiv": "74.72",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1303", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25488], {
+            "group_PDB": "HETATM", "id": "25489", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "GA", "label_entity_id": "3", "label_seq_id": "1304",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "227.744", "Cartn_y": "206.039",
+            "Cartn_z": "220.892", "occupancy": "1.0", "B_iso_or_equiv": "69.75",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1304", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25502], {
+            "group_PDB": "HETATM", "id": "25503", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "HA", "label_entity_id": "3", "label_seq_id": "1305",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "209.034", "Cartn_y": "197.05",
+            "Cartn_z": "243.993", "occupancy": "1.0", "B_iso_or_equiv": "67.23",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1305", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25516], {
+            "group_PDB": "HETATM", "id": "25517", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "IA", "label_entity_id": "3", "label_seq_id": "1306",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "208.711", "Cartn_y": "156.753",
+            "Cartn_z": "177.03", "occupancy": "1.0", "B_iso_or_equiv": "73.18",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1306", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25530], {
+            "group_PDB": "HETATM", "id": "25531", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "JA", "label_entity_id": "3", "label_seq_id": "1307",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "228.437", "Cartn_y": "190.86",
+            "Cartn_z": "182.552", "occupancy": "1.0", "B_iso_or_equiv": "70.05",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1307", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25544], {
+            "group_PDB": "HETATM", "id": "25545", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "KA", "label_entity_id": "3", "label_seq_id": "1308",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "232.273", "Cartn_y": "179.738",
+            "Cartn_z": "166.555", "occupancy": "1.0", "B_iso_or_equiv": "63.51",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1308", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25558], {
+            "group_PDB": "HETATM", "id": "25559", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "LA", "label_entity_id": "3", "label_seq_id": "1309",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "216.571", "Cartn_y": "196.044",
+            "Cartn_z": "129.428", "occupancy": "1.0", "B_iso_or_equiv": "42.57",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1309", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25572], {
+            "group_PDB": "HETATM", "id": "25573", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "MA", "label_entity_id": "3", "label_seq_id": "1310",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "217.329", "Cartn_y": "181.072",
+            "Cartn_z": "134.101", "occupancy": "1.0", "B_iso_or_equiv": "32.92",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1310", "auth_comp_id": "NAG",
+            "auth_asym_id": "B", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25586], {
+            "group_PDB": "HETATM", "id": "25587", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "NA", "label_entity_id": "3", "label_seq_id": "1301",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "186.159", "Cartn_y": "236.14",
+            "Cartn_z": "202.719", "occupancy": "1.0", "B_iso_or_equiv": "72.3",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1301", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25600], {
+            "group_PDB": "HETATM", "id": "25601", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "OA", "label_entity_id": "3", "label_seq_id": "1302",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "211.695", "Cartn_y": "234.217",
+            "Cartn_z": "231.695", "occupancy": "1.0", "B_iso_or_equiv": "77.68",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1302", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25614], {
+            "group_PDB": "HETATM", "id": "25615", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "PA", "label_entity_id": "3", "label_seq_id": "1303",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "218.505", "Cartn_y": "218.599",
+            "Cartn_z": "195.565", "occupancy": "1.0", "B_iso_or_equiv": "74.3",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1303", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25628], {
+            "group_PDB": "HETATM", "id": "25629", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "QA", "label_entity_id": "3", "label_seq_id": "1304",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "150.033", "Cartn_y": "212.547",
+            "Cartn_z": "220.786", "occupancy": "1.0", "B_iso_or_equiv": "67.57",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1304", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25642], {
+            "group_PDB": "HETATM", "id": "25643", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "RA", "label_entity_id": "3", "label_seq_id": "1305",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "167.22", "Cartn_y": "201.11",
+            "Cartn_z": "244.004", "occupancy": "1.0", "B_iso_or_equiv": "65.33",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1305", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25656], {
+            "group_PDB": "HETATM", "id": "25657", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "SA", "label_entity_id": "3", "label_seq_id": "1306",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "202.543", "Cartn_y": "221.089",
+            "Cartn_z": "177.163", "occupancy": "1.0", "B_iso_or_equiv": "74.29",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1306", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25670], {
+            "group_PDB": "HETATM", "id": "25671", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "TA", "label_entity_id": "3", "label_seq_id": "1307",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "162.958", "Cartn_y": "220.963",
+            "Cartn_z": "182.552", "occupancy": "1.0", "B_iso_or_equiv": "69.79",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1307", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25684], {
+            "group_PDB": "HETATM", "id": "25685", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "UA", "label_entity_id": "3", "label_seq_id": "1308",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "170.895", "Cartn_y": "230.002",
+            "Cartn_z": "166.592", "occupancy": "1.0", "B_iso_or_equiv": "56.9",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1308", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25698], {
+            "group_PDB": "HETATM", "id": "25699", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "VA", "label_entity_id": "3", "label_seq_id": "1309",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "164.329", "Cartn_y": "208.107",
+            "Cartn_z": "129.441", "occupancy": "1.0", "B_iso_or_equiv": "40.7",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1309", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25712], {
+            "group_PDB": "HETATM", "id": "25713", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "WA", "label_entity_id": "3", "label_seq_id": "1310",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "177.014", "Cartn_y": "216.238",
+            "Cartn_z": "134.114", "occupancy": "1.0", "B_iso_or_equiv": "32.94",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1310", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25726], {
+            "group_PDB": "HETATM", "id": "25727", "type_symbol": "C",
+            "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "NAG",
+            "label_asym_id": "XA", "label_entity_id": "3", "label_seq_id": "1311",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "194.17", "Cartn_y": "223.354",
+            "Cartn_z": "243.545", "occupancy": "1.0", "B_iso_or_equiv": "77.23",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1311", "auth_comp_id": "NAG",
+            "auth_asym_id": "C", "auth_atom_id": "C1", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25740], {
+            "group_PDB": "HETATM", "id": "25741", "type_symbol": "O",
+            "label_atom_id": "O", "label_alt_id": ".", "label_comp_id": "HOH",
+            "label_asym_id": "YA", "label_entity_id": "4", "label_seq_id": "1401",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "182.603", "Cartn_y": "190.854",
+            "Cartn_z": "142.721", "occupancy": "1.0", "B_iso_or_equiv": "15.17",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1401", "auth_comp_id": "HOH",
+            "auth_asym_id": "A", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25823], {
+            "group_PDB": "HETATM", "id": "25824", "type_symbol": "O",
+            "label_atom_id": "O", "label_alt_id": ".", "label_comp_id": "HOH",
+            "label_asym_id": "ZA", "label_entity_id": "4", "label_seq_id": "1401",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "210.8", "Cartn_y": "207.888",
+            "Cartn_z": "210.711", "occupancy": "1.0", "B_iso_or_equiv": "40.9",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1401", "auth_comp_id": "HOH",
+            "auth_asym_id": "B", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][25905], {
+            "group_PDB": "HETATM", "id": "25906", "type_symbol": "O",
+            "label_atom_id": "O", "label_alt_id": ".", "label_comp_id": "HOH",
+            "label_asym_id": "AB", "label_entity_id": "4", "label_seq_id": "1401",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "157.066", "Cartn_y": "197.2",
+            "Cartn_z": "210.725", "occupancy": "1.0", "B_iso_or_equiv": "37.89",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1401", "auth_comp_id": "HOH",
+            "auth_asym_id": "C", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
+        })
+        self.assertEqual(d["atom_site"][-1], {
+            "group_PDB": "HETATM", "id": "25990", "type_symbol": "O",
+            "label_atom_id": "O", "label_alt_id": ".", "label_comp_id": "HOH",
+            "label_asym_id": "AB", "label_entity_id": "4", "label_seq_id": "1485",
+            "pdbx_PDB_ins_code": "?", "Cartn_x": "195.435", "Cartn_y": "177.65",
+            "Cartn_z": "181.957", "occupancy": "1.0", "B_iso_or_equiv": "21.55",
+            "pdbx_formal_charge": "0", "auth_seq_id": "1485", "auth_comp_id": "HOH",
+            "auth_asym_id": "C", "auth_atom_id": "O", "pdbx_PDB_model_num": "1",
+        })
+
+
 
 class DictToFileTests(TestCase):
 
@@ -1078,6 +1654,10 @@ class DictToFileTests(TestCase):
 
     def test_1m4x(self):
         self.save("1m4x")
+    
+
+    def test_6xlu(self):
+        self.save("6xlu")
 
 
 

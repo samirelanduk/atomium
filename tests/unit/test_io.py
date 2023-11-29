@@ -182,13 +182,6 @@ class FetchTests(TestCase):
         self.mock_parse.assert_called_with(self.response.content, "https://files.com/file.bcif", dictionary=True)
     
 
-    def test_url_mmtf_dictionary(self):
-        f = fetch("https://files.com/file.mmtf", dictionary=True)
-        self.assertEqual(f, self.mock_parse.return_value)
-        self.mock_get.assert_called_with("https://files.com/file.mmtf", stream=True)
-        self.mock_parse.assert_called_with(self.response.content, "https://files.com/file.mmtf", dictionary=True)
-    
-
     def test_url_pdb_dictionary(self):
         f = fetch("https://files.com/file.pdb", dictionary=True)
         self.assertEqual(f, self.mock_parse.return_value)
@@ -201,13 +194,6 @@ class FetchTests(TestCase):
         self.assertEqual(f, self.mock_parse.return_value)
         self.mock_get.assert_called_with("https://files.com/file.bcif", stream=True)
         self.mock_parse.assert_called_with(self.response.content, "https://files.com/file.bcif", dictionary=False)
-    
-
-    def test_url_mmtf_full(self):
-        f = fetch("https://files.com/file.mmtf")
-        self.assertEqual(f, self.mock_parse.return_value)
-        self.mock_get.assert_called_with("https://files.com/file.mmtf", stream=True)
-        self.mock_parse.assert_called_with(self.response.content, "https://files.com/file.mmtf", dictionary=False)
     
 
     def test_url_pdb_full(self):
@@ -229,20 +215,6 @@ class FetchTests(TestCase):
         self.assertEqual(f, self.mock_parse.return_value)
         self.mock_get.assert_called_with("https://models.rcsb.org/1xxx.bcif", stream=True)
         self.mock_parse.assert_called_with(self.response.content, "1XXX.bcif", dictionary=False)
-    
-
-    def test_code_mmtf_dictionary(self):
-        f = fetch("1XXX.mmtf", dictionary=True)
-        self.assertEqual(f, self.mock_parse.return_value)
-        self.mock_get.assert_called_with("https://mmtf.rcsb.org/v1.0/full/1xxx", stream=True)
-        self.mock_parse.assert_called_with(self.response.content, "1XXX.mmtf", dictionary=True)
-    
-
-    def test_code_mmtf_full(self):
-        f = fetch("1XXX.mmtf")
-        self.assertEqual(f, self.mock_parse.return_value)
-        self.mock_get.assert_called_with("https://mmtf.rcsb.org/v1.0/full/1xxx", stream=True)
-        self.mock_parse.assert_called_with(self.response.content, "1XXX.mmtf", dictionary=False)
     
 
     def test_code_pdb_dictionary(self):
@@ -366,28 +338,6 @@ class ParseFilestringTests(TestCase):
         mock_file.assert_called_with(mock_convert.return_value)
     
 
-    @patch("atomium.io.determine_filetype")
-    @patch("atomium.io.mmtf_string_to_mmcif_dict")
-    def test_mmtf_to_dict(self, mock_convert, mock_type):
-        mock_type.return_value = "mmtf"
-        d = parse_filestring("filestring", "file.mmtf", dictionary=True)
-        self.assertEqual(d, mock_convert.return_value)
-        mock_type.assert_called_with("filestring", "file.mmtf")
-        mock_convert.assert_called_with("filestring")
-    
-
-    @patch("atomium.io.determine_filetype")
-    @patch("atomium.io.mmtf_string_to_mmcif_dict")
-    @patch("atomium.io.File")
-    def test_mmtf_to_file(self, mock_file, mock_convert, mock_type):
-        mock_type.return_value = "mmtf"
-        d = parse_filestring("filestring", "file.mmtf")
-        self.assertEqual(d, mock_file.return_value)
-        mock_type.assert_called_with("filestring", "file.mmtf")
-        mock_convert.assert_called_with("filestring")
-        mock_file.assert_called_with(mock_convert.return_value)
-
-
 
 class DetermineFiletypeTests(TestCase):
 
@@ -401,10 +351,6 @@ class DetermineFiletypeTests(TestCase):
 
     def test_can_get_bcif(self):
         self.assertEqual(determine_filetype(b"data_", "file.bcif"), "bcif")
-    
-
-    def test_can_get_mmtf(self):
-        self.assertEqual(determine_filetype(b"data_", "file.mmtf"), "mmtf")
 
 
 
@@ -428,17 +374,7 @@ class SaveDictionaryTests(TestCase):
         mock_to.assert_called_with({"mmcif": 1})
         mock_open.assert_called_with("/path.bcif", "wb")
         mock_open.return_value.__enter__.return_value.write.assert_called_with(b"filestring")
-    
-
-    @patch("atomium.io.mmcif_dict_to_mmtf_filestring")
-    @patch("builtins.open")
-    def test_save_mmtf(self, mock_open, mock_to):
-        mock_to.return_value = b"filestring"
-        save_dictionary({"mmcif": 1}, "/path.mmtf")
-        mock_to.assert_called_with({"mmcif": 1})
-        mock_open.assert_called_with("/path.mmtf", "wb")
-        mock_open.return_value.__enter__.return_value.write.assert_called_with(b"filestring")
-    
+        
 
     @patch("atomium.io.mmcif_dict_to_pdb_filestring")
     @patch("builtins.open")

@@ -9,8 +9,6 @@ from atomium.bcif import bcif_string_to_mmcif_dict
 from atomium.bcif import mmcif_dict_to_bcif_filestring
 from atomium.pdb import pdb_string_to_mmcif_dict
 from atomium.pdb import mmcif_dict_to_pdb_filestring
-from atomium.mmtf import mmtf_string_to_mmcif_dict
-from atomium.mmtf import mmcif_dict_to_mmtf_filestring
 from atomium.file import File
 
 def open(path, dictionary=False):
@@ -49,14 +47,12 @@ def fetch(code, dictionary=False):
         url = code
     elif code.endswith(".bcif"):
         url = "https://models.rcsb.org/{}.bcif".format(code[:-5].lower())
-    elif code.endswith(".mmtf"):
-        url = "https://mmtf.rcsb.org/v1.0/full/{}".format(code[:-5].lower())
     else:
         if "." not in code: code += ".cif"
         url = "https://files.rcsb.org/view/" + code.lower()
     response = requests.get(url, stream=True)
     if response.status_code == 200:
-        if code.endswith(".bcif") or code.endswith(".mmtf"):
+        if code.endswith(".bcif"):
             text = response.content
         else:
             text = response.text
@@ -77,7 +73,6 @@ def parse_filestring(filestring, filename, dictionary=False):
     mmcif_dict = {
         "mmcif": mmcif_string_to_mmcif_dict,
         "bcif": bcif_string_to_mmcif_dict,
-        "mmtf": mmtf_string_to_mmcif_dict,
         "pdb": pdb_string_to_mmcif_dict,
     }[filetype](filestring)
     if dictionary: return mmcif_dict
@@ -91,8 +86,7 @@ def determine_filetype(filestring, filename):
     :param str filename: the name of the structure (with extension).
     :rtype: ``str``"""
 
-    if isinstance(filestring, bytes):
-        return "mmtf" if filename.endswith("mmtf") else "bcif"
+    if isinstance(filestring, bytes): return "bcif"
     return "pdb" if filename.endswith("pdb") else "mmcif"
 
 
@@ -107,7 +101,6 @@ def save_dictionary(mmcif, path):
         "cif": mmcif_dict_to_mmcif_filestring,
         "bcif": mmcif_dict_to_bcif_filestring,
         "pdb": mmcif_dict_to_pdb_filestring,
-        "mmtf": mmcif_dict_to_mmtf_filestring
     }[ext](mmcif)
     mode = "w" if isinstance(filestring, str) else "wb"
     with builtins.open(path, mode) as f: f.write(filestring)

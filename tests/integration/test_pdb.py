@@ -1398,9 +1398,9 @@ class FileToDictTests(TestCase):
             "formula_weight": "65.390",
         })
         self.assertEqual(d["pdbx_entity_nonpoly"], [
-            {"entity_id": "3", "name": "ZINC ION", "comp_id": "ZN"},
-            {"entity_id": "4", "name": "CHLORIDE ION", "comp_id": "CL"},
-            {"entity_id": "5", "name": "PHENOL", "comp_id": "IPH"},
+            {"entity_id": "3", "name": "PHENOL", "comp_id": "IPH"},
+            {"entity_id": "4", "name": "ZINC ION", "comp_id": "ZN"},
+            {"entity_id": "5", "name": "CHLORIDE ION", "comp_id": "CL"},
             {"entity_id": "6", "name": "MYRISTIC ACID", "comp_id": "MYR"},
             {"entity_id": "7", "name": "water", "comp_id": "HOH"},
         ])
@@ -1499,7 +1499,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1610], {
             "group_PDB": "HETATM", "id": "1611", "type_symbol": "C",
             "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "IPH",
-            "label_asym_id": "I", "label_entity_id": "5", "label_seq_id": ".",
+            "label_asym_id": "I", "label_entity_id": "3", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "-5.661", "Cartn_y": "9.282",
             "Cartn_z": "16.887", "occupancy": "1.00", "B_iso_or_equiv": "13.71",
             "pdbx_formal_charge": "?", "auth_seq_id": "22", "auth_comp_id": "IPH",
@@ -1508,7 +1508,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1617], {
             "group_PDB": "HETATM", "id": "1618", "type_symbol": "ZN",
             "label_atom_id": "ZN", "label_alt_id": ".", "label_comp_id": "ZN",
-            "label_asym_id": "J", "label_entity_id": "3", "label_seq_id": ".",
+            "label_asym_id": "J", "label_entity_id": "4", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "18.779", "occupancy": "0.33", "B_iso_or_equiv": "10.69",
             "pdbx_formal_charge": "?", "auth_seq_id": "30", "auth_comp_id": "ZN",
@@ -1517,7 +1517,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1618], {
             "group_PDB": "HETATM", "id": "1619", "type_symbol": "CL",
             "label_atom_id": "CL", "label_alt_id": ".", "label_comp_id": "CL",
-            "label_asym_id": "K", "label_entity_id": "4", "label_seq_id": ".",
+            "label_asym_id": "K", "label_entity_id": "5", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "16.611", "occupancy": "0.33", "B_iso_or_equiv": "12.22",
             "pdbx_formal_charge": "?", "auth_seq_id": "31", "auth_comp_id": "CL",
@@ -1535,7 +1535,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1634], {
             "group_PDB": "HETATM", "id": "1635", "type_symbol": "C",
             "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "IPH",
-            "label_asym_id": "M", "label_entity_id": "5", "label_seq_id": ".",
+            "label_asym_id": "M", "label_entity_id": "3", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "9.806", "Cartn_y": "-4.594",
             "Cartn_z": "35.946", "occupancy": "1.00", "B_iso_or_equiv": "18.13",
             "pdbx_formal_charge": "?", "auth_seq_id": "22", "auth_comp_id": "IPH",
@@ -1544,7 +1544,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1641], {
             "group_PDB": "HETATM", "id": "1642", "type_symbol": "ZN",
             "label_atom_id": "ZN", "label_alt_id": ".", "label_comp_id": "ZN",
-            "label_asym_id": "N", "label_entity_id": "3", "label_seq_id": ".",
+            "label_asym_id": "N", "label_entity_id": "4", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "34.196", "occupancy": "0.33", "B_iso_or_equiv": "12.34",
             "pdbx_formal_charge": "?", "auth_seq_id": "30", "auth_comp_id": "ZN",
@@ -1553,7 +1553,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1642], {
             "group_PDB": "HETATM", "id": "1643", "type_symbol": "CL",
             "label_atom_id": "CL", "label_alt_id": ".", "label_comp_id": "CL",
-            "label_asym_id": "O", "label_entity_id": "4", "label_seq_id": ".",
+            "label_asym_id": "O", "label_entity_id": "5", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "36.366", "occupancy": "0.33", "B_iso_or_equiv": "11.37",
             "pdbx_formal_charge": "?", "auth_seq_id": "31", "auth_comp_id": "CL",
@@ -1571,7 +1571,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1658], {
             "group_PDB": "HETATM", "id": "1659", "type_symbol": "C",
             "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "IPH",
-            "label_asym_id": "Q", "label_entity_id": "5", "label_seq_id": ".",
+            "label_asym_id": "Q", "label_entity_id": "3", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "-4.433", "Cartn_y": "9.971",
             "Cartn_z": "56.719", "occupancy": "1.00", "B_iso_or_equiv": "15.57",
             "pdbx_formal_charge": "?", "auth_seq_id": "22", "auth_comp_id": "IPH",
@@ -1580,7 +1580,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1665], {
             "group_PDB": "HETATM", "id": "1666", "type_symbol": "ZN",
             "label_atom_id": "ZN", "label_alt_id": ".", "label_comp_id": "ZN",
-            "label_asym_id": "R", "label_entity_id": "3", "label_seq_id": ".",
+            "label_asym_id": "R", "label_entity_id": "4", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "58.639", "occupancy": "0.33", "B_iso_or_equiv": "11.99",
             "pdbx_formal_charge": "?", "auth_seq_id": "30", "auth_comp_id": "ZN",
@@ -1589,7 +1589,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1666], {
             "group_PDB": "HETATM", "id": "1667", "type_symbol": "CL",
             "label_atom_id": "CL", "label_alt_id": ".", "label_comp_id": "CL",
-            "label_asym_id": "S", "label_entity_id": "4", "label_seq_id": ".",
+            "label_asym_id": "S", "label_entity_id": "5", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "56.498", "occupancy": "0.33", "B_iso_or_equiv": "13.93",
             "pdbx_formal_charge": "?", "auth_seq_id": "31", "auth_comp_id": "CL",
@@ -1607,7 +1607,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1682], {
             "group_PDB": "HETATM", "id": "1683", "type_symbol": "C",
             "label_atom_id": "C1", "label_alt_id": ".", "label_comp_id": "IPH",
-            "label_asym_id": "U", "label_entity_id": "5", "label_seq_id": ".",
+            "label_asym_id": "U", "label_entity_id": "3", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "8.823", "Cartn_y": "-6.017",
             "Cartn_z": "75.855", "occupancy": "1.00", "B_iso_or_equiv": "15.74",
             "pdbx_formal_charge": "?", "auth_seq_id": "22", "auth_comp_id": "IPH",
@@ -1616,7 +1616,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1689], {
             "group_PDB": "HETATM", "id": "1690", "type_symbol": "ZN",
             "label_atom_id": "ZN", "label_alt_id": ".", "label_comp_id": "ZN",
-            "label_asym_id": "V", "label_entity_id": "3", "label_seq_id": ".",
+            "label_asym_id": "V", "label_entity_id": "4", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "74.024", "occupancy": "0.33", "B_iso_or_equiv": "14.68",
             "pdbx_formal_charge": "?", "auth_seq_id": "30", "auth_comp_id": "ZN",
@@ -1625,7 +1625,7 @@ class FileToDictTests(TestCase):
         self.assertEqual(d["atom_site"][1690], {
             "group_PDB": "HETATM", "id": "1691", "type_symbol": "CL",
             "label_atom_id": "CL", "label_alt_id": ".", "label_comp_id": "CL",
-            "label_asym_id": "W", "label_entity_id": "4", "label_seq_id": ".",
+            "label_asym_id": "W", "label_entity_id": "5", "label_seq_id": ".",
             "pdbx_PDB_ins_code": "?", "Cartn_x": "0.000", "Cartn_y": "0.000",
             "Cartn_z": "76.191", "occupancy": "0.33", "B_iso_or_equiv": "15.86",
             "pdbx_formal_charge": "?", "auth_seq_id": "31", "auth_comp_id": "CL",
